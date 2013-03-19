@@ -54,11 +54,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
             name = "someRole";
         }
 
-        if (partition != null) {
-            return createRole(name, partition);
-        } else {
-            return createRole(name);
-        }
+        return createRole(name, partition);
     }
 
     @Override
@@ -81,8 +77,6 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
     @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
             LDAPIdentityStoreWithoutAttributesTestSuite.class })
     public void testFindByTier() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-
         Tier someTier = new Tier("Some Role Tier");
 
         getIdentityManagerFactory().createTier("Some Role Tier", null);

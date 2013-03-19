@@ -44,9 +44,9 @@ import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 /**
  * <p>
  * Test case for the Query API when retrieving {@link Group} instances.
- *
+ * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
 public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 
@@ -55,74 +55,70 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         if (name == null) {
             name = "someGroup";
         }
-        
-        if (partition != null) {
-            return createGroup(name, null, partition);
-        } else {
-            return createGroup(name, null);
-        }
+
+        return createGroup(name, null, partition);
     }
 
     @Override
     protected Group getIdentityType() {
         return getIdentityManager().getGroup("someGroup");
     }
-    
+
     @After
     public void onFinish() {
         IdentityQuery<Group> query = getIdentityManager().createIdentityQuery(Group.class);
-        
+
         List<Group> result = query.getResultList();
-        
+
         for (Group group : result) {
             getIdentityManager().remove(group);
         }
     }
-    
-    @Test
-    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class})
-    public void testFindByTier() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
 
+    @Test
+    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
+            LDAPIdentityStoreWithoutAttributesTestSuite.class })
+    public void testFindByTier() throws Exception {
         Tier someTier = new Tier("Some Group Tier");
-        
+
         getIdentityManagerFactory().createTier("Some Group Tier", null);
 
         Group someGroupTier = new SimpleGroup("someGroupTier");
-        
+
         getIdentityManagerFactory().createIdentityManager(someTier).add(someGroupTier);
-        
-        IdentityQuery<Group> query = getIdentityManagerFactory().createIdentityManager(someTier).createIdentityQuery(Group.class);
-        
+
+        IdentityQuery<Group> query = getIdentityManagerFactory().createIdentityManager(someTier).createIdentityQuery(
+                Group.class);
+
         assertNotNull(someTier);
-        
+
         query.setParameter(Group.PARTITION, someTier);
-        
+
         List<Group> result = query.getResultList();
-        
+
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
         assertTrue(contains(result, someGroupTier.getId()));
-        
+
         Tier someAnotherTier = new Tier("Some Another Group Tier");
-        
+
         getIdentityManagerFactory().createTier("Some Another Group Tier", null);
-        
+
         Group someGroupTestingTier = new SimpleGroup("someGroupTestingRealm");
-        
+
         getIdentityManagerFactory().createIdentityManager(someAnotherTier).add(someGroupTestingTier);
-        
+
         query = getIdentityManagerFactory().createIdentityManager(someAnotherTier).createIdentityQuery(Group.class);
-        
+
         query.setParameter(Group.PARTITION, someAnotherTier);
-        
+
         result = query.getResultList();
-        
+
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
         assertTrue(contains(result, someGroupTestingTier.getId()));
     }
-    
+
     @Test
     public void testFindByName() throws Exception {
         Group group = createGroup("admin", null);
@@ -144,7 +140,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
      * <p>
      * Finds groups by the creation date.
      * </p>
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -164,60 +160,60 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         assertEquals(group.getId(), result.get(0).getId());
         assertEquals(group.getParentGroup().getId(), result.get(0).getParentGroup().getId());
     }
-    
+
     @Test
     public void testFindGroupMembers() throws Exception {
         IdentityManager identityManager = getIdentityManager();
-        
+
         Group groupA = new SimpleGroup("a");
-        
+
         identityManager.add(groupA);
-        
+
         Group groupB = new SimpleGroup("b", groupA);
-        
+
         identityManager.add(groupB);
-        
+
         Group groupC = new SimpleGroup("c", groupB);
-        
+
         identityManager.add(groupC);
 
         Group groupD = new SimpleGroup("d", groupC);
-        
+
         identityManager.add(groupD);
-        
+
         IdentityQuery<Group> query = identityManager.createIdentityQuery(Group.class);
-        
+
         query.setParameter(Group.HAS_MEMBER, groupA);
-        
+
         List<Group> result = query.getResultList();
-        
+
         assertTrue(result.isEmpty());
 
         query = identityManager.createIdentityQuery(Group.class);
-        
+
         query.setParameter(Group.HAS_MEMBER, groupB);
-        
+
         result = query.getResultList();
-        
+
         assertFalse(result.isEmpty());
         assertTrue(contains(result, groupA.getId()));
-        
+
         query = identityManager.createIdentityQuery(Group.class);
-        
+
         query.setParameter(Group.HAS_MEMBER, groupC);
-        
+
         result = query.getResultList();
-        
+
         assertFalse(result.isEmpty());
         assertTrue(contains(result, groupA.getId()));
         assertTrue(contains(result, groupB.getId()));
-        
+
         query = identityManager.createIdentityQuery(Group.class);
-        
+
         query.setParameter(Group.HAS_MEMBER, groupD);
-        
+
         result = query.getResultList();
-        
+
         assertFalse(result.isEmpty());
         assertTrue(contains(result, groupA.getId()));
         assertTrue(contains(result, groupB.getId()));
@@ -292,7 +288,8 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
     }
 
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class })
+    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
+            LDAPIdentityStoreWithoutAttributesTestSuite.class })
     public void testFindWithSorting() throws Exception {
         createGroup("someGroup", null);
         // Sleep is needed to avoid same createdDate
@@ -321,5 +318,5 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         assertEquals(groups.get(1).getName(), "someAnotherGroup");
         assertEquals(groups.get(2).getName(), "someGroup");
     }
-    
+
 }

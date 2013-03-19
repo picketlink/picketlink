@@ -178,8 +178,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         Realm testingRealm = getIdentityManagerFactory().getRealm("Testing");
 
         if (testingRealm == null) {
-            testingRealm = new Realm("Testing");
-            getIdentityManagerFactory().createRealm("Testing");
+            testingRealm = getIdentityManagerFactory().createRealm("Testing");
         }
 
         T someAnotherTypeTestingRealm = createIdentityType("someAnotherType", testingRealm);

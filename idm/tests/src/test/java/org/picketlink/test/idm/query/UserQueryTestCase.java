@@ -40,9 +40,9 @@ import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 /**
  * <p>
  * Test case for the Query API when retrieving {@link User} instances.
- *
+ * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
 public class UserQueryTestCase extends AgentQueryTestCase<User> {
 
@@ -51,24 +51,20 @@ public class UserQueryTestCase extends AgentQueryTestCase<User> {
         if (name == null) {
             name = "someUser";
         }
-        
-        if (partition != null) {
-            return createUser(name, partition);
-        } else {
-            return createUser(name);
-        }
+
+        return createUser(name, partition);
     }
 
     @Override
     protected User getIdentityType() {
         return getIdentityManager().getUser("someUser");
     }
-    
+
     /**
      * <p>
      * Find an {@link User} by first name.
      * </p>
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -132,7 +128,7 @@ public class UserQueryTestCase extends AgentQueryTestCase<User> {
      * <p>
      * Find an {@link User} by email.
      * </p>
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -166,7 +162,8 @@ public class UserQueryTestCase extends AgentQueryTestCase<User> {
     }
 
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class,
+            LDAPJPAMixedStoreTestSuite.class })
     public void testFindWithPaginationAndSorting() throws Exception {
         createPopulatedUser("john", "John", "Anthony");
         // Sleep is needed to avoid same createdDate

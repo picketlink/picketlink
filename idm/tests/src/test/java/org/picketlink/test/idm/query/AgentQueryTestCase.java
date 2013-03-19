@@ -37,7 +37,6 @@ import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.ExcludeTestSuite;
-import org.picketlink.test.idm.suites.FileIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
@@ -55,12 +54,8 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         if (name == null) {
             name = "someSimpleAgent";
         }
-        
-        if (partition != null) {
-            return (T) createAgent(name, partition);            
-        } else {
-            return (T) createAgent(name);
-        }
+
+        return (T) createAgent(name, partition);
     }
     
     @Override

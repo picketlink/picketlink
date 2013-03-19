@@ -66,11 +66,6 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         assertEquals(Realm.DEFAULT_REALM, defaultRealm.getName());
     }
     
-    @Test (expected=IdentityManagementException.class)
-    public void testCreateWithNullArgument() throws Exception {
-        getIdentityManagerFactory().createRealm(null);
-    }
-
     @Test (expected=SecurityConfigurationException.class)
     public void testUseNonExistentRealm() throws Exception {
         IdentityManager identityManager = getIdentityManagerFactory().createIdentityManager(new Realm("Testing"));
@@ -346,7 +341,6 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
     }
     
     private Realm createRealm() {
-        IdentityManager identityManager = getIdentityManager();
         Realm realm = getIdentityManagerFactory().getRealm(TESTING_REALM_NAME);
 
         if (realm == null) {

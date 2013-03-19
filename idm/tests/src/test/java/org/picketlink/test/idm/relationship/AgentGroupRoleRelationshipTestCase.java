@@ -33,9 +33,9 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 /**
  * <p>
  * Test case for the relationship between {@link Agent}, {@link Group} and {@link Role} types.
- *
+ * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
 public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends AbstractIdentityManagerTestCase {
 
@@ -43,14 +43,10 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
         if (name == null) {
             name = "someAgent";
         }
-        
-        if (partition != null) {
-            return (T) createAgent(name, partition);
-        } else {
-            return (T) createAgent(name);
-        }
+
+        return (T) createAgent(name, partition);
     }
-    
+
     protected T createIdentityType(String name) {
         return (T) createAgent(name, null);
     }
@@ -58,12 +54,12 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
     protected T getIdentityType() {
         return (T) getIdentityManager().getAgent("someAgent");
     }
-    
+
     /**
      * <p>
      * Tests adding an {@link Agent} as a member of a {@link Group} with a specific {@link Role}.
      * </p>
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -100,7 +96,7 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
 
         assertFalse(identityManager.hasGroupRole(developerAgent, managerRole, projectGroup));
         assertFalse(identityManager.hasGroupRole(projectManagerAgent, developerRole, projectGroup));
-        
+
         assertFalse(identityManager.isMember(developerAgent, projectGroup));
         assertFalse(identityManager.isMember(developerAgent, companyGroup));
         assertFalse(identityManager.hasRole(developerAgent, employeeRole));
@@ -109,37 +105,37 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
     @Test
     public void testGrantParentGroupRole() throws Exception {
         IdentityManager identityManager = getIdentityManager();
-        
+
         Group administratorsGroup = createGroup("Administrators", null);
-        
+
         Group systemAdministradorsGroup = createGroupWithParent("System Administrators", administratorsGroup);
-        
+
         Group databaseAdministratorsGroup = createGroupWithParent("Database Administrators", systemAdministradorsGroup);
-        
+
         Role managerRole = createRole("Administrators Manager");
-        
+
         T agent = createIdentityType("agent", null);
-        
+
         identityManager.grantGroupRole(agent, managerRole, administratorsGroup);
 
         assertTrue(identityManager.hasGroupRole(agent, managerRole, administratorsGroup));
         assertTrue(identityManager.hasGroupRole(agent, managerRole, databaseAdministratorsGroup));
         assertTrue(identityManager.hasGroupRole(agent, managerRole, systemAdministradorsGroup));
-        
+
         Role securityManager = createRole("Data Security Manager");
-        
+
         identityManager.grantGroupRole(agent, securityManager, databaseAdministratorsGroup);
 
         assertTrue(identityManager.hasGroupRole(agent, securityManager, databaseAdministratorsGroup));
         assertFalse(identityManager.hasGroupRole(agent, securityManager, administratorsGroup));
         assertFalse(identityManager.hasGroupRole(agent, securityManager, systemAdministradorsGroup));
-        
+
         identityManager.revokeGroupRole(agent, managerRole, administratorsGroup);
-        
+
         assertFalse(identityManager.hasGroupRole(agent, managerRole, administratorsGroup));
         assertFalse(identityManager.hasGroupRole(agent, managerRole, databaseAdministratorsGroup));
         assertFalse(identityManager.hasGroupRole(agent, managerRole, systemAdministradorsGroup));
-        
+
         identityManager.grantGroupRole(agent, managerRole, systemAdministradorsGroup);
 
         assertTrue(identityManager.hasGroupRole(agent, managerRole, databaseAdministratorsGroup));
@@ -151,7 +147,7 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
      * <p>
      * Tests revoking a {@link GroupRole}.
      * </p>
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -179,9 +175,9 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
 
         assertFalse(identityManager.hasGroupRole(developerAgent, developerRole, projectGroup));
         assertTrue(identityManager.hasGroupRole(developerAgent, employeeRole, companyGroup));
-        
+
         identityManager.revokeGroupRole(developerAgent, employeeRole, companyGroup);
-        
+
         assertFalse(identityManager.hasGroupRole(developerAgent, employeeRole, companyGroup));
     }
 

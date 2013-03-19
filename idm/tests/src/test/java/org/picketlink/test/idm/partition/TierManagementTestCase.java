@@ -52,8 +52,6 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
     @Test
     public void testCreate() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-
         Tier testingTier = createTestingTier();
 
         testingTier = getIdentityManagerFactory().getTier(testingTier.getName());
@@ -64,8 +62,6 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
     @Test
     public void testCreateWithParent() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-
         Tier applicationTier = createApplicationTier();
 
         applicationTier = getIdentityManagerFactory().getTier(applicationTier.getName());
@@ -82,8 +78,6 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
     @Test
     public void testRemoveTier() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-
         Tier testingTier = createTestingTier();
 
         assertNotNull(testingTier);
@@ -113,8 +107,6 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     public void testRemoveTierGroups() throws Exception {
         Tier applicationTier = createApplicationTier();
 
-        IdentityManager defaultIdentityManager = getIdentityManager();
-
         IdentityManager applicationTierIdentityManager = getIdentityManagerFactory().createIdentityManager(applicationTier);
 
         Group testingGroup = new SimpleGroup("testingGroup");
@@ -127,8 +119,6 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
     @Test
     public void testRolesForTierWithParent() throws Exception {
-        IdentityManager defaultIdentityManager = getIdentityManager();
-
         Tier parentTier = createApplicationTier();
 
         Role testingRole = createRole("testingRole", parentTier);
@@ -177,8 +167,6 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
     @Test
     public void testGrantUserRoles() throws Exception {
-        IdentityManager defaultIdentityManager = getIdentityManager();
-
         Tier applicationTier = createApplicationTier();
 
         IdentityManager applicationTierIdentityManager = getIdentityManagerFactory().createIdentityManager(applicationTier);
@@ -226,8 +214,6 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     
     @Test
     public void testGroupsForTierWithParent() throws Exception {
-        IdentityManager defaultIdentityManager = getIdentityManager();
-
         Tier parentTier = createApplicationTier();
 
         Group testingGroup = createGroup("testingGroupParentTier", null, parentTier);
@@ -264,8 +250,6 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     }
     
     private Tier createTestingTier() {
-        IdentityManager identityManager = getIdentityManager();
-
         Tier tier = getIdentityManagerFactory().getTier(TESTING_TIER_NAME);
 
         if (tier == null) {
@@ -277,8 +261,6 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     }
     
     private Tier createServicesTier(Tier parentTier) {
-        IdentityManager identityManager = getIdentityManager();
-
         Tier serviceTier = getIdentityManagerFactory().getTier(SERVICES_TIER_NAME);
 
         if (serviceTier != null) {
@@ -297,8 +279,6 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     }
     
     private Realm createRealm() {
-        IdentityManager identityManager = getIdentityManager();
-
         Realm realm = getIdentityManagerFactory().getRealm("Testing");
 
         if (realm == null) {
