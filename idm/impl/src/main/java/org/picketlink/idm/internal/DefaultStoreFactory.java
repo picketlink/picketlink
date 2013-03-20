@@ -26,13 +26,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
@@ -49,9 +49,8 @@ import org.picketlink.idm.spi.StoreFactory;
  * Default StoreFactory implementation. This factory is pre-configured to be able to create instances of the following built-in
  * IdentityStore implementations based on the corresponding IdentityStoreConfiguration:
  *
- * JPAIdentityStore - JPAIdentityStoreConfiguration
- * LDAPIdentityStore - LDAPConfiguration
- * FileBasedIdentityStore - FileIdentityStoreConfiguration
+ * JPAIdentityStore - JPAIdentityStoreConfiguration LDAPIdentityStore - LDAPConfiguration FileBasedIdentityStore -
+ * FileIdentityStoreConfiguration
  *
  *
  * @author Shane Bryzak
@@ -59,19 +58,17 @@ import org.picketlink.idm.spi.StoreFactory;
 public class DefaultStoreFactory implements StoreFactory {
     private IdentityConfiguration identityConfig;
 
-    private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> identityConfigMap =
-            new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>>();
+    private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> identityConfigMap = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>>();
 
-    private Map<Class<? extends IdentityStoreConfiguration>, IdentityStore<?>> storesCache =
-            new HashMap<Class<? extends IdentityStoreConfiguration>, IdentityStore<?>>();
+    private Map<Class<? extends IdentityStoreConfiguration>, IdentityStore<?>> storesCache = new HashMap<Class<? extends IdentityStoreConfiguration>, IdentityStore<?>>();
 
     private Map<String, Set<IdentityStoreConfiguration>> realmStores = new HashMap<String, Set<IdentityStoreConfiguration>>();
 
-    private Map<String,Realm> configuredRealms = new HashMap<String,Realm>();
+    private Map<String, Realm> configuredRealms = new HashMap<String, Realm>();
 
     private Map<String, Set<IdentityStoreConfiguration>> tierStores = new HashMap<String, Set<IdentityStoreConfiguration>>();
 
-    private Map<String,Tier> configuredTiers = new HashMap<String,Tier>();
+    private Map<String, Tier> configuredTiers = new HashMap<String, Tier>();
 
     public DefaultStoreFactory(IdentityConfiguration identityConfig) {
         this.identityConfig = identityConfig;
@@ -102,7 +99,7 @@ public class DefaultStoreFactory implements StoreFactory {
 
     private Set<IdentityStoreConfiguration> getConfigs(Map<String, Set<IdentityStoreConfiguration>> stores, String key) {
         if (stores.containsKey(key)) {
-            return tierStores.get(key);
+            return stores.get(key);
         } else {
             Set<IdentityStoreConfiguration> configs = new HashSet<IdentityStoreConfiguration>();
             stores.put(key, configs);
@@ -173,8 +170,8 @@ public class DefaultStoreFactory implements StoreFactory {
         return lookupConfigForFeature(partition, feature, operation, relationshipClass) != null;
     }
 
-    private IdentityStoreConfiguration lookupConfigForFeature(Partition partition,
-            FeatureGroup feature, FeatureOperation operation, Class<? extends Relationship> relationshipClass) {
+    private IdentityStoreConfiguration lookupConfigForFeature(Partition partition, FeatureGroup feature,
+            FeatureOperation operation, Class<? extends Relationship> relationshipClass) {
 
         Set<IdentityStoreConfiguration> configs = null;
 
@@ -184,32 +181,50 @@ public class DefaultStoreFactory implements StoreFactory {
             configs = tierStores.get(partition.getId());
         }
 
+        IdentityStoreConfiguration config = null;
+
         if (configs != null) {
+            boolean isUnsupportedRelationship = false;
+
             for (IdentityStoreConfiguration cfg : configs) {
                 if (relationshipClass != null) {
-                    if (cfg.getFeatureSet().supportsRelationship(relationshipClass) &&
-                        cfg.getFeatureSet().supportsRelationshipFeature(relationshipClass, operation)) {
-                        return cfg;
+                    if (cfg.getFeatureSet().supportsRelationship(relationshipClass)) {
+                        if (cfg.getFeatureSet().supportsRelationshipFeature(relationshipClass, operation)) {
+                            config = cfg;
+                            break;
+                        }
+                    } else {
+                        isUnsupportedRelationship = true;
                     }
                 } else if (cfg.getFeatureSet().supports(feature, operation)) {
-                    return cfg;
+                    config = cfg;
+                    break;
+                }
+            }
+
+            if (config == null) {
+                LOGGER.identityManagerUnsupportedOperation(feature, operation);
+
+                if (isUnsupportedRelationship) {
+                    throw MESSAGES.storeConfigUnsupportedRelationshipType(relationshipClass);
+                } else {
+                    throw MESSAGES.storeConfigUnsupportedOperation(feature, operation, feature, operation);
                 }
             }
         }
 
-        return null;
+        return config;
     }
 
     @Override
-    public IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature,
-            FeatureOperation operation) {
+    public IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature, FeatureOperation operation) {
         return getStoreForFeature(context, feature, operation, null);
     }
 
     @Override
-    public IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature,
-            FeatureOperation operation, Class<? extends Relationship> relationshipClass) {
-        //String realmName = (context.getPartition() != null) ? context.getPartition().getName() : Realm.DEFAULT_REALM;
+    public IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature, FeatureOperation operation,
+            Class<? extends Relationship> relationshipClass) {
+        // String realmName = (context.getPartition() != null) ? context.getPartition().getName() : Realm.DEFAULT_REALM;
 
         if (Realm.class.isInstance(context.getPartition())) {
             Realm realm = (Realm) context.getPartition();
@@ -225,25 +240,17 @@ public class DefaultStoreFactory implements StoreFactory {
             }
         }
 
-        IdentityStoreConfiguration config = lookupConfigForFeature(context.getPartition(), feature, operation, relationshipClass);
-
-        if (config == null) {
-            LOGGER.identityManagerUnsupportedOperation(feature, operation);
-
-            if (relationshipClass != null) {
-                throw MESSAGES.storeConfigUnsupportedRelationshipType(relationshipClass);
-            } else {
-                throw MESSAGES.storeConfigUnsupportedOperation(feature, operation, feature, operation);
-            }
-        }
+        IdentityStoreConfiguration config = lookupConfigForFeature(context.getPartition(), feature, operation,
+                relationshipClass);
 
         final IdentityStore<? extends IdentityStoreConfiguration> store = createIdentityStore(config, context);
+
         for (ContextInitializer initializer : identityConfig.getContextInitializers()) {
             initializer.initContextForStore(context, store);
         }
 
-        LOGGER.debugf("Performing operation [%s.%s] on IdentityStore [%s] using Partition [%s]", feature, operation,
-                store, context.getPartition());
+        LOGGER.debugf("Performing operation [%s.%s] on IdentityStore [%s] using Partition [%s]", feature, operation, store,
+                context.getPartition());
 
         return store;
     }
