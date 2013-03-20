@@ -58,7 +58,7 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
     @Override
     public IdentityManager createIdentityManager() {
         // FIXME
-        return createIdentityManager(null);
+        return createIdentityManager(getRealm(Realm.DEFAULT_REALM));
     }
 
     @Override
