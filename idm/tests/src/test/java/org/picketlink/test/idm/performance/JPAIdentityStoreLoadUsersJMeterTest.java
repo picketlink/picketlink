@@ -52,21 +52,21 @@ import org.picketlink.idm.model.SimpleUser;
 
 /**
  * @author Pedro Silva
- * 
+ *
  */
 public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClient {
 
     private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
-    private static IdentityManager identityManager = null;
+    private static IdentityManagerFactory identityManagerFactory = null;
     private static final ThreadLocal<EntityManager> entityManager = new ThreadLocal<EntityManager>();
 
     static {
-        identityManager = createIdentityManager();
+        identityManagerFactory = createIdentityManagerFactory();
 
         initializeEntityManager();
-        
-        identityManager.add(new SimpleUser("testingUser"));
-        
+
+        identityManagerFactory.createIdentityManager().add(new SimpleUser("testingUser"));
+
         closeEntityManager();
     }
 
@@ -122,6 +122,8 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
 
             SimpleUser user = new SimpleUser(loginName);
 
+            IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+            
             identityManager.add(user);
 
             success = user.getId() != null && identityManager.getUser(loginName) != null;
@@ -136,13 +138,21 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
         return result;
     }
 
-    private static IdentityManager createIdentityManager() {
+    private static IdentityManagerFactory createIdentityManagerFactory() {
         IdentityConfiguration config = new IdentityConfiguration();
-        config.addContextInitializer(new JPAContextInitializer(emf));
+        
+        config.addContextInitializer(new JPAContextInitializer(emf) {
+            @Override
+            public EntityManager getEntityManager() {
+                return entityManager.get();
+            }
+        });
+        
         addDefaultConfiguration(config);
 
         IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
-        return factory.createIdentityManager();
+        
+        return factory;
     }
 
     private static void addDefaultConfiguration(IdentityConfiguration config) {
