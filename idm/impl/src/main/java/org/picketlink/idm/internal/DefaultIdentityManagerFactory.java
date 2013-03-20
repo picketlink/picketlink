@@ -72,15 +72,13 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
     }
 
     @Override
-    public Realm getRealm(String name) {
-        // fIXME
-        return null;
+    public Realm getRealm(String id) {
+        return storeFactory.getRealm(id);
     }
 
     @Override
-    public Tier getTier(String name) {
-        // FIXME
-        return null;
+    public Tier getTier(String id) {
+        return storeFactory.getTier(id);
     }
 
 }

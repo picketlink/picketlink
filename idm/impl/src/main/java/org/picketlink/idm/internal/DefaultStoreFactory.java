@@ -67,7 +67,11 @@ public class DefaultStoreFactory implements StoreFactory {
 
     private Map<String, Set<IdentityStoreConfiguration>> realmStores = new HashMap<String, Set<IdentityStoreConfiguration>>();
 
+    private Map<String,Realm> configuredRealms = new HashMap<String,Realm>();
+
     private Map<String, Set<IdentityStoreConfiguration>> tierStores = new HashMap<String, Set<IdentityStoreConfiguration>>();
+
+    private Map<String,Tier> configuredTiers = new HashMap<String,Tier>();
 
     public DefaultStoreFactory(IdentityConfiguration identityConfig) {
         this.identityConfig = identityConfig;
@@ -103,6 +107,30 @@ public class DefaultStoreFactory implements StoreFactory {
             Set<IdentityStoreConfiguration> configs = new HashSet<IdentityStoreConfiguration>();
             stores.put(key, configs);
             return configs;
+        }
+    }
+
+    public Realm getRealm(String id) {
+        if (configuredRealms.containsKey(id)) {
+            return configuredRealms.get(id);
+        } else if (realmStores.containsKey(id)) {
+            Realm realm = new Realm(id);
+            configuredRealms.put(id, realm);
+            return realm;
+        } else {
+            return null;
+        }
+    }
+
+    public Tier getTier(String id) {
+        if (configuredTiers.containsKey(id)) {
+            return configuredTiers.get(id);
+        } else if (realmStores.containsKey(id)) {
+            Tier tier = new Tier(id);
+            configuredTiers.put(id, tier);
+            return tier;
+        } else {
+            return null;
         }
     }
 

@@ -22,7 +22,9 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.Tier;
 
 /**
  * Creates IdentityStore instances based on a provided configuration
@@ -48,6 +50,20 @@ public interface StoreFactory {
      */
     void mapIdentityConfiguration(Class<? extends IdentityStoreConfiguration> configClass,
             Class<? extends IdentityStore<?>> storeClass);
+
+    /**
+     *
+     * @param id
+     * @return
+     */
+    Realm getRealm(String id);
+
+    /**
+     *
+     * @param id
+     * @return
+     */
+    Tier getTier(String id);
 
     /**
      * Returns true if the specified feature (and optional relationship class) is supported by the specified
