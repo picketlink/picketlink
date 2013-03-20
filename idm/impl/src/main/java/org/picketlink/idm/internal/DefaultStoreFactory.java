@@ -82,30 +82,27 @@ public class DefaultStoreFactory implements StoreFactory {
             config.init();
 
             for (String realm : config.getRealms()) {
-                Set<IdentityStoreConfiguration> configs;
-
-                if (this.realmStores.containsKey(realm)) {
-                    configs = realmStores.get(realm);
-                } else {
-                    configs = new HashSet<IdentityStoreConfiguration>();
-                    this.realmStores.put(realm, configs);
-                }
-
-                configs.add(config);
+                getConfigs(realmStores, realm).add(config);
             }
 
             for (String tier : config.getTiers()) {
-                Set<IdentityStoreConfiguration> configs;
-
-                if (this.tierStores.containsKey(tier)) {
-                    configs = tierStores.get(tier);
-                } else {
-                    configs = new HashSet<IdentityStoreConfiguration>();
-                    this.tierStores.put(tier, configs);
-                }
-
-                configs.add(config);
+                getConfigs(tierStores, tier).add(config);
             }
+
+            // If no realms or tiers have been configured, treat this configuration as the default realm config
+            if (config.getRealms().isEmpty() && config.getTiers().isEmpty()) {
+                getConfigs(realmStores, Realm.DEFAULT_REALM).add(config);
+            }
+        }
+    }
+
+    private Set<IdentityStoreConfiguration> getConfigs(Map<String, Set<IdentityStoreConfiguration>> stores, String key) {
+        if (stores.containsKey(key)) {
+            return tierStores.get(key);
+        } else {
+            Set<IdentityStoreConfiguration> configs = new HashSet<IdentityStoreConfiguration>();
+            stores.put(key, configs);
+            return configs;
         }
     }
 

@@ -25,8 +25,6 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
 
     private StoreFactory storeFactory;
 
-    private Realm defaultRealm = null;
-
     public DefaultIdentityManagerFactory(IdentityConfiguration identityConfig) {
         this(identityConfig, new DefaultSecurityContextFactory());
     }
