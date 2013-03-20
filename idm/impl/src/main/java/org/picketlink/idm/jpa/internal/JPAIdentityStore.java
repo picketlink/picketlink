@@ -89,7 +89,6 @@ import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.SecurityContext;
 
 /**
@@ -101,7 +100,7 @@ import org.picketlink.idm.spi.SecurityContext;
  *
  */
 @CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class })
-public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfiguration>, CredentialStore, PartitionStore {
+public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfiguration>, CredentialStore {
 
     // Invocation context parameters
     public static final String INVOCATION_CTX_ENTITY_MANAGER = "CTX_ENTITY_MANAGER";
@@ -151,87 +150,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             addRelationship(context, (Relationship) value);
         }
-    }
-
-    @Override
-    public void createPartition(SecurityContext context, Partition partition) {
-        checkPartitionClassProvided();
-
-        Property<Object> idProperty = getConfig().getModelProperty(PropertyType.PARTITION_ID);
-        Property<Object> nameProperty = getConfig().getModelProperty(PropertyType.PARTITION_NAME);
-        Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.PARTITION_TYPE);
-
-        Class<?> partitionClass = getConfig().getPartitionClass();
-        Object partitionObject = null;
-
-        try {
-            partitionObject = partitionClass.newInstance();
-        } catch (Exception e) {
-            throw MESSAGES.instantiationError(partitionClass.getName(), e);
-        }
-
-        partition.setId(context.getIdGenerator().generate());
-
-        idProperty.setValue(partitionObject, partition.getId());
-        nameProperty.setValue(partitionObject, partition.getName());
-        typeProperty.setValue(partitionObject, partition.getClass().getName());
-
-        if (Tier.class.isInstance(partition)) {
-            Tier tier = (Tier) partition;
-            Tier parentTier = tier.getParent();
-
-            if (parentTier != null) {
-                Property<Object> parentProperty = getConfig().getModelProperty(PropertyType.PARTITION_PARENT);
-                parentProperty.setValue(partitionObject, lookupPartitionObject(context, parentTier));
-            }
-        }
-
-        EntityManager em = getEntityManager(context);
-
-        em.persist(partitionObject);
-        em.flush();
-    }
-
-    @Override
-    public Realm getRealm(SecurityContext context, String realmName) {
-        checkPartitionClassProvided();
-
-        return convertPartitionEntityToRealm(lookupPartitionEntityByName(context, Realm.class, realmName));
-    }
-
-    @Override
-    public Tier getTier(SecurityContext context, String tierName) {
-        checkPartitionClassProvided();
-
-        return convertPartitionEntityToTier(lookupPartitionEntityByName(context, Tier.class, tierName));
-    }
-
-    @Override
-    public void removePartition(SecurityContext context, Partition partition) {
-        checkPartitionClassProvided();
-
-        Object partitionObject = lookupPartitionObject(context, partition);
-
-        if (partitionObject == null) {
-            throw MESSAGES.partitionNotFoundWithId(partition.getId());
-        }
-
-        EntityManager entityManager = getEntityManager(context);
-
-        List<?> associatedIdentityTypes = getIdentityTypesForPartition(context, partitionObject);
-
-        if (!associatedIdentityTypes.isEmpty()) {
-            throw MESSAGES.partitionCouldNotRemoveWithIdentityTypes(partition);
-        }
-
-        List<?> childPartitions = getChildPartitions(context, partitionObject);
-
-        if (!childPartitions.isEmpty()) {
-            throw MESSAGES.partitionCouldNotRemoveWithChilds(partition);
-        }
-
-        entityManager.remove(partitionObject);
-        entityManager.flush();
     }
 
     @Override
@@ -750,9 +668,10 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             partitionIds.add(currentPartition.getId());
 
-            if (tier != null) {
-                partitionIds.addAll(getAllowedPartitionIds(context, tier.getParent()));
-            }
+            // FIXME
+            //if (tier != null) {
+                //partitionIds.addAll(getAllowedPartitionIds(context, tier.getParent()));
+            //}
         }
 
         return partitionIds;
@@ -1673,11 +1592,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             if (Realm.class.getName().equals(typeProperty.getValue(partitionObject).toString())) {
                 Property<Object> idProperty = getConfig().getModelProperty(PropertyType.PARTITION_ID);
-                Property<Object> nameProperty = getConfig().getModelProperty(PropertyType.PARTITION_NAME);
 
-                realm = new Realm(nameProperty.getValue(partitionObject).toString());
-
-                realm.setId(idProperty.getValue(partitionObject).toString());
+                realm = new Realm(idProperty.getValue(partitionObject).toString());
             }
         }
 
@@ -1695,10 +1611,10 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         Predicate whereType = builder.equal(root.get(getConfig().getModelProperty(PropertyType.PARTITION_TYPE).getName()),
                 partitionType.getName());
-        Predicate whereName = builder
-                .equal(root.get(getConfig().getModelProperty(PropertyType.PARTITION_NAME).getName()), name);
+        Predicate whereId = builder
+                .equal(root.get(getConfig().getModelProperty(PropertyType.PARTITION_ID).getName()), name);
 
-        criteria.where(whereName, whereType);
+        criteria.where(whereId, whereType);
 
         Object partitionObject = null;
 
@@ -1750,19 +1666,12 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             if (Tier.class.getName().equals(typeProperty.getValue(partitionObject).toString())) {
                 Property<Object> idProperty = getConfig().getModelProperty(PropertyType.PARTITION_ID);
-                Property<Object> nameProperty = getConfig().getModelProperty(PropertyType.PARTITION_NAME);
                 Property<Object> parentProperty = getConfig().getModelProperty(PropertyType.PARTITION_PARENT);
 
                 Object parentTierObject = parentProperty.getValue(partitionObject);
 
-                if (parentTierObject != null) {
-                    tier = new Tier(nameProperty.getValue(partitionObject).toString(),
-                            convertPartitionEntityToTier(parentTierObject));
-                } else {
-                    tier = new Tier(nameProperty.getValue(partitionObject).toString());
-                }
+                tier = new Tier(idProperty.getValue(partitionObject).toString());
 
-                tier.setId(idProperty.getValue(partitionObject).toString());
             }
         }
 

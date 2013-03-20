@@ -87,7 +87,6 @@ import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.SecurityContext;
 
 /**
@@ -100,12 +99,11 @@ import org.picketlink.idm.spi.SecurityContext;
  *
  */
 @CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class })
-public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreConfiguration>, CredentialStore, PartitionStore {
+public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreConfiguration>, CredentialStore {
 
     private FileIdentityStoreConfiguration config;
 
     private FileCredentialStore credentialStore;
-    private FilePartitionStore partitionStore;
 
     private FileDataSource fileDataSource;
 
@@ -118,7 +116,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         this.config = config;
 
         this.credentialStore = new FileCredentialStore(this);
-        this.partitionStore = new FilePartitionStore(this);
     }
 
     @Override
@@ -503,26 +500,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     @Override
     public void validateCredentials(SecurityContext context, Credentials credentials) {
         this.credentialStore.validateCredentials(context, credentials);
-    }
-
-    @Override
-    public void createPartition(SecurityContext context, Partition partition) {
-        this.partitionStore.createPartition(context, partition);
-    }
-
-    @Override
-    public Realm getRealm(SecurityContext context, String realmName) {
-        return this.partitionStore.getRealm(context, realmName);
-    }
-
-    @Override
-    public Tier getTier(SecurityContext context, String tierName) {
-        return this.partitionStore.getTier(context, tierName);
-    }
-
-    @Override
-    public void removePartition(SecurityContext context, Partition partition) {
-        this.partitionStore.removePartition(context, partition);
     }
 
     @SuppressWarnings("unchecked")
@@ -934,9 +911,10 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (Tier.class.isInstance(partition)) {
                 Tier tier = (Tier) partition;
 
-                if (tier.getParent() != null) {
-                    role = lookupRole(roleName, tier.getParent());
-                }
+                // FIXME remove
+                //if (tier.getParent() != null) {
+                //    role = lookupRole(roleName, tier.getParent());
+               // }
             }
         }
 
@@ -962,9 +940,10 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (Tier.class.isInstance(partition)) {
                 Tier tier = (Tier) partition;
 
-                if (tier.getParent() != null) {
-                    group = lookupGroup(groupPath, tier.getParent());
-                }
+                // FIXME remove
+                //if (tier.getParent() != null) {
+                //    group = lookupGroup(groupPath, tier.getParent());
+               // }
             }
         }
 
@@ -1198,7 +1177,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     private void configurePartition(IdentityType identityType) {
         if (identityType != null && identityType.getPartition() != null) {
-            Partition partition = this.partitionStore.lookupById(identityType.getPartition().getId());
+            // FIXME
+            Partition partition = null; //this.partitionStore.lookupById(identityType.getPartition().getId());
 
             identityType.setPartition(partition);
         }

@@ -85,49 +85,44 @@ public class FilePartition extends AbstractFileEntry<Partition> {
         return getPartition().getId();
     }
 
-    public String getName() {
-        return getPartition().getName();
-    }
-
     @Override
     protected void doPopulateProperties(Map<String, Serializable> properties) throws Exception {
         Partition partition = getPartition();
 
         properties.put("id", partition.getId());
-        properties.put("name", partition.getName());
 
         if (Tier.class.isInstance(partition)) {
             Tier tier = (Tier) partition;
 
-            if (tier.getParent() != null) {
-                properties.put("parentId", tier.getParent().getId());
-                properties.put("parentName", tier.getParent().getName());
-            }
+            // FIXME remove
+            //if (tier.getParent() != null) {
+            //    properties.put("parentId", tier.getParent().getId());
+            //    properties.put("parentName", tier.getParent().getName());
+            //}
         }
     }
 
     @Override
     protected Partition doPopulateEntry(Map<String, Serializable> properties) throws Exception {
         String id = properties.get("id").toString();
-        String name = properties.get("name").toString();
+        // FIXME remove
+//        String name = properties.get("name").toString();
 
-        Partition partition = (Partition) Class.forName(getType()).getConstructor(String.class).newInstance(name);
-
-        partition.setId(id);
-        partition.setName(name);
+        Partition partition = (Partition) Class.forName(getType()).getConstructor(String.class).newInstance(id);
 
         if (Tier.class.isInstance(partition)) {
             Tier tier = (Tier) partition;
 
             Object parentName = properties.get("parentName");
 
-            if (parentName != null) {
+            // FIXME remove
+            /*if (parentName != null) {
                 Tier parentTier = new Tier(parentName.toString());
 
                 parentTier.setId(properties.get("parentId").toString());
 
                 tier.setParent(parentTier);
-            }
+            }*/
         }
 
         return partition;
@@ -135,6 +130,6 @@ public class FilePartition extends AbstractFileEntry<Partition> {
 
     @Override
     public String toString() {
-        return getName();
+        return getId();
     }
 }

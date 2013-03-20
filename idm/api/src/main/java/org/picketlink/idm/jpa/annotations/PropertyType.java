@@ -107,10 +107,6 @@ public enum PropertyType {
      */
     PARTITION_TYPE,
     /**
-     * The name of a partition
-     */
-    PARTITION_NAME,
-    /**
      * The parent partition of a partition, where supported (such as for Tiers)
      */
     PARTITION_PARENT,

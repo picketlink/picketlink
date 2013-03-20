@@ -65,7 +65,7 @@ public interface IDMLogger extends BasicLogger {
 
     @LogMessage(level = Level.ERROR)
     @Message(id = 105, value = "No configuration found for the given Realm [%s].")
-    void identityManagerRealmNotConfigured(String realmName);
+    void identityManagerRealmNotConfigured(String realmId);
 
     @LogMessage(level = Level.WARN)
     @Message(id = 106, value = "Partition features are disabled. Did you provide a JPA Entity class to store partitions ?")
@@ -79,4 +79,7 @@ public interface IDMLogger extends BasicLogger {
     @Message(id = 108, value = "Credential features are disabled. Did you provide a JPA Entity class to store credentials ?")
     void jpaConfigDisablingCredentialFeatures();
 
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 109, value = "No configuration found for the given Tier [%s].")
+    void identityManagerTierNotConfigured(String tierId);
 }

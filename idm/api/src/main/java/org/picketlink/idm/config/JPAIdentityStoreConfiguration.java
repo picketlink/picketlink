@@ -351,7 +351,6 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         if (this.partitionClass != null) {
             configureModelProperty(PropertyType.PARTITION_ID, partitionClass, null, "id", "id");
             configureModelProperty(PropertyType.PARTITION_TYPE, partitionClass, null, "type", "partitionType");
-            configureModelProperty(PropertyType.PARTITION_NAME, partitionClass, null, "name");
             configureModelProperty(PropertyType.PARTITION_PARENT, partitionClass, null, "parent");
         } else {
             LOGGER.jpaConfigDisablingPartitionFeatures();

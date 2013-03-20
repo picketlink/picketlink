@@ -195,7 +195,7 @@ public class FileDataSource {
     protected void initPartition(String partitionId) {
         FilePartition filePartition = this.partitions.get(partitionId);
 
-        LOGGER.debugf("Initializing Partition [%s] with id [%s].", filePartition.getName(), partitionId);
+        LOGGER.debugf("Initializing Partition [%s] with id [%s].", filePartition.getId(), partitionId);
 
         String agentsPath = getWorkingDir() + File.separator + partitionId + File.separator + AGENTS_FILE_NAME;
 
@@ -209,7 +209,7 @@ public class FileDataSource {
 
         filePartition.setAgents(agents);
 
-        LOGGER.debugf("Loaded Agents for Partition [%s].", filePartition.getName());
+        LOGGER.debugf("Loaded Agents for Partition [%s].", filePartition.getId());
 
         String rolesPath = getWorkingDir() + File.separator + partitionId + File.separator + ROLES_FILE_NAME;
 
@@ -223,7 +223,7 @@ public class FileDataSource {
 
         filePartition.setRoles(roles);
 
-        LOGGER.debugf("Loaded Roles for Partition [%s].", filePartition.getName());
+        LOGGER.debugf("Loaded Roles for Partition [%s].", filePartition.getId());
 
         String groupsPath = getWorkingDir() + File.separator + partitionId + File.separator + GROUPS_FILE_NAME;
 
@@ -237,7 +237,7 @@ public class FileDataSource {
 
         filePartition.setGroups(groups);
 
-        LOGGER.debugf("Loaded Groups for Partition [%s].", filePartition.getName());
+        LOGGER.debugf("Loaded Groups for Partition [%s].", filePartition.getId());
 
         String credentialsPath = getWorkingDir() + File.separator + partitionId + File.separator + CREDENTIALS_FILE_NAME;
 
@@ -251,7 +251,7 @@ public class FileDataSource {
 
         filePartition.setCredentials(credentials);
 
-        LOGGER.debugf("Loaded Credentials for Partition [%s].", filePartition.getName());
+        LOGGER.debugf("Loaded Credentials for Partition [%s].", filePartition.getId());
     }
 
     protected void flushAgents(FilePartition partition) {

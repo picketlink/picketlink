@@ -50,14 +50,12 @@ public abstract class AbstractIdentityTypeEntry<T extends IdentityType> extends 
         Partition partition = null;
 
         if (partitionType.equals(Realm.class.getName())) {
-            partition = new Realm(properties.get("partitionName").toString());
+            partition = new Realm(properties.get("partitionId").toString());
         } else if (partitionType.equals(Tier.class.getName())) {
-            partition = new Tier(properties.get("partitionName").toString());
+            partition = new Tier(properties.get("partitionId").toString());
         } else {
             MESSAGES.partitionUnsupportedType(partitionType);
         }
-
-        partition.setId(properties.get("partitionId").toString());
 
         identityType.setPartition(partition);
 
@@ -74,7 +72,6 @@ public abstract class AbstractIdentityTypeEntry<T extends IdentityType> extends 
 
         T identityType = getEntry();
 
-        properties.put("partitionName", identityType.getPartition().getName());
         properties.put("partitionId", identityType.getPartition().getId());
         properties.put("partitionType", identityType.getPartition().getClass().getName());
         properties.put("createdDate", identityType.getCreatedDate());

@@ -33,30 +33,14 @@ public abstract class AbstractPartition implements Partition {
     private static final long serialVersionUID = -6899014824481928333L;
 
     private String id;
-    private String name;
 
-    public AbstractPartition(String name) {
-        this.name = name;
+    public AbstractPartition(String id) {
+        this.id = id;
     }
 
     @Override
     public String getId() {
         return this.id;
-    }
-
-    @Override
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
     }
 
     @Override
@@ -83,6 +67,6 @@ public abstract class AbstractPartition implements Partition {
 
     @Override
     public String toString() {
-        return getName();
+        return getId();
     }
 }

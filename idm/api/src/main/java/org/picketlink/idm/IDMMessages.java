@@ -122,7 +122,7 @@ public interface IDMMessages {
     SecurityConfigurationException storeConfigLockedFeatureSet();
 
     @Message(id = 15, value = "The specified realm [%s] has not been configured.")
-    SecurityConfigurationException storeConfigRealmNotConfigured(String realmName);
+    SecurityConfigurationException storeConfigRealmNotConfigured(String realmId);
 
     @Message(id = 16, value = "No identity store configuration found that supports the relationship type [%s].")
     SecurityConfigurationException storeConfigUnsupportedRelationshipType(Class<? extends Relationship> type);
@@ -271,5 +271,8 @@ public interface IDMMessages {
 
     @Message(id = 67, value = "Agents can only be stored and managed from a Realm. Current partition is [%s].")
     IdentityManagementException partitionInvalidTypeForAgents(Class<? extends Partition> partitionType);
+
+    @Message(id = 68, value = "The specified tier [%s] has not been configured.")
+    SecurityConfigurationException storeConfigTierNotConfigured(String tierId);
 
 }

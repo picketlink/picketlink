@@ -60,6 +60,18 @@ public interface IdentityStoreConfiguration {
     Set<String> getRealms();
 
     /**
+     *
+     * @param tier
+     */
+    void addTier(String tier);
+
+    /**
+     *
+     * @return
+     */
+    Set<String> getTiers();
+
+    /**
      * <p>
      * Returns a {@link FeatureSet} describing the features supported by this identity store configuration.
      * </p>

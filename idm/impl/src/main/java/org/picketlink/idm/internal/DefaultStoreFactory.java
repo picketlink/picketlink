@@ -67,6 +67,8 @@ public class DefaultStoreFactory implements StoreFactory {
 
     private Map<String, Set<IdentityStoreConfiguration>> realmStores = new HashMap<String, Set<IdentityStoreConfiguration>>();
 
+    private Map<String, Set<IdentityStoreConfiguration>> tierStores = new HashMap<String, Set<IdentityStoreConfiguration>>();
+
     public DefaultStoreFactory(IdentityConfiguration identityConfig) {
         this.identityConfig = identityConfig;
 
@@ -87,6 +89,19 @@ public class DefaultStoreFactory implements StoreFactory {
                 } else {
                     configs = new HashSet<IdentityStoreConfiguration>();
                     this.realmStores.put(realm, configs);
+                }
+
+                configs.add(config);
+            }
+
+            for (String tier : config.getTiers()) {
+                Set<IdentityStoreConfiguration> configs;
+
+                if (this.tierStores.containsKey(tier)) {
+                    configs = tierStores.get(tier);
+                } else {
+                    configs = new HashSet<IdentityStoreConfiguration>();
+                    this.tierStores.put(tier, configs);
                 }
 
                 configs.add(config);
@@ -130,33 +145,30 @@ public class DefaultStoreFactory implements StoreFactory {
     @Override
     public boolean isFeatureSupported(Partition partition, FeatureGroup feature, FeatureOperation operation,
             Class<? extends Relationship> relationshipClass) {
-        if (Realm.class.isInstance(partition)) {
-            Realm realm = (Realm) partition;
-
-            return lookupConfigForFeature(realm.getName(), feature, operation, relationshipClass) != null;
-        } else if (Tier.class.isInstance(partition)) {
-            // Tiers not yet supported by configuration
-            return false;
-        } else if (partition == null) {
-            return lookupConfigForFeature(Realm.DEFAULT_REALM, feature, operation, relationshipClass) != null;
-        } else {
-            return false;
-        }
+        return lookupConfigForFeature(partition, feature, operation, relationshipClass) != null;
     }
 
-    private IdentityStoreConfiguration lookupConfigForFeature(String realmName,
+    private IdentityStoreConfiguration lookupConfigForFeature(Partition partition,
             FeatureGroup feature, FeatureOperation operation, Class<? extends Relationship> relationshipClass) {
 
-        Set<IdentityStoreConfiguration> configs = realmStores.get(realmName);
+        Set<IdentityStoreConfiguration> configs = null;
 
-        for (IdentityStoreConfiguration cfg : configs) {
-            if (relationshipClass != null) {
-                if (cfg.getFeatureSet().supportsRelationship(relationshipClass) &&
-                    cfg.getFeatureSet().supportsRelationshipFeature(relationshipClass, operation)) {
+        if (Realm.class.isInstance(partition)) {
+            configs = realmStores.get(partition.getId());
+        } else if (Tier.class.isInstance(partition)) {
+            configs = tierStores.get(partition.getId());
+        }
+
+        if (configs != null) {
+            for (IdentityStoreConfiguration cfg : configs) {
+                if (relationshipClass != null) {
+                    if (cfg.getFeatureSet().supportsRelationship(relationshipClass) &&
+                        cfg.getFeatureSet().supportsRelationshipFeature(relationshipClass, operation)) {
+                        return cfg;
+                    }
+                } else if (cfg.getFeatureSet().supports(feature, operation)) {
                     return cfg;
                 }
-            } else if (cfg.getFeatureSet().supports(feature, operation)) {
-                return cfg;
             }
         }
 
@@ -172,14 +184,23 @@ public class DefaultStoreFactory implements StoreFactory {
     @Override
     public IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature,
             FeatureOperation operation, Class<? extends Relationship> relationshipClass) {
-        String realmName = (context.getPartition() != null) ? context.getPartition().getName() : Realm.DEFAULT_REALM;
+        //String realmName = (context.getPartition() != null) ? context.getPartition().getName() : Realm.DEFAULT_REALM;
 
-        if (!realmStores.containsKey(realmName)) {
-            LOGGER.identityManagerRealmNotConfigured(realmName);
-            throw MESSAGES.storeConfigRealmNotConfigured(realmName);
+        if (Realm.class.isInstance(context.getPartition())) {
+            Realm realm = (Realm) context.getPartition();
+            if (!realmStores.containsKey(realm.getId())) {
+                LOGGER.identityManagerRealmNotConfigured(realm.getId());
+                throw MESSAGES.storeConfigRealmNotConfigured(realm.getId());
+            }
+        } else if (Tier.class.isInstance(context.getPartition())) {
+            Tier tier = (Tier) context.getPartition();
+            if (!tierStores.containsKey(tier.getId())) {
+                LOGGER.identityManagerTierNotConfigured(tier.getId());
+                throw MESSAGES.storeConfigTierNotConfigured(tier.getId());
+            }
         }
 
-        IdentityStoreConfiguration config = lookupConfigForFeature(realmName, feature, operation, relationshipClass);
+        IdentityStoreConfiguration config = lookupConfigForFeature(context.getPartition(), feature, operation, relationshipClass);
 
         if (config == null) {
             LOGGER.identityManagerUnsupportedOperation(feature, operation);

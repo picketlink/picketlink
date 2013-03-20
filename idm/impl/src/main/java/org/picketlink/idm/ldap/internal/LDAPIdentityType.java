@@ -164,7 +164,7 @@ public abstract class LDAPIdentityType extends LDAPAttributedType implements Ide
     public String getDN() {
         String dn = super.getDN();
 
-        if (Realm.class.isInstance(getPartition()) && getPartition().getName().equals(Realm.DEFAULT_REALM)) {
+        if (Realm.class.isInstance(getPartition()) && getPartition().getId().equals(Realm.DEFAULT_REALM)) {
             // TODO: logic to change the dn when the partition is not the default
         }
 

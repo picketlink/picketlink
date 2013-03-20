@@ -43,6 +43,8 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
 
     private final Set<String> realms = new HashSet<String>();
 
+    private final Set<String> tiers = new HashSet<String>();
+
     public FeatureSet getFeatureSet() {
         return featureSet;
     }
@@ -51,12 +53,20 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
         realms.add(name);
     }
 
+    public void addTier(String name) {
+        tiers.add(name);
+    }
+
     public Set<String> getRealms() {
         if (this.realms.isEmpty()) {
             this.realms.add(Realm.DEFAULT_REALM);
         }
 
         return Collections.unmodifiableSet(this.realms);
+    }
+
+    public Set<String> getTiers() {
+        return Collections.unmodifiableSet(this.tiers);
     }
 
     @Override

@@ -28,11 +28,6 @@ import java.io.Serializable;
  */
 public interface Partition extends Serializable {
 
-    void setName(String name);
-
-    String getName();
-
     String getId();
 
-    void setId(String id);
 }
