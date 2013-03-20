@@ -343,7 +343,7 @@ public class FileDataSource {
     }
 
     protected Map<String, Agent> getAgents(Partition partition) {
-        Map<String, FileAgent> fileAgents = getPartition(partition.getId()).getAgents();
+        Map<String, FileAgent> fileAgents = getPartition(partition).getAgents();
 
         Map<String, Agent> agents = new ConcurrentHashMap<String, Agent>();
 
@@ -354,12 +354,18 @@ public class FileDataSource {
         return agents;
     }
 
-    protected FilePartition getPartition(String id) {
-        return this.partitions.get(id);
+    protected FilePartition getPartition(Partition partition) {
+        if (!this.partitions.containsKey(partition.getId())) {
+            this.partitions.put(partition.getId(), new FilePartition(partition));
+            initPartition(partition.getId());
+            flushPartitions();
+        }
+
+        return this.partitions.get(partition.getId());
     }
 
     protected Map<String, Role> getRoles(Partition partition) {
-        Map<String, FileRole> fileRoles = getPartition(partition.getId()).getRoles();
+        Map<String, FileRole> fileRoles = getPartition(partition).getRoles();
 
         Map<String, Role> roles = new HashMap<String, Role>();
 
@@ -375,11 +381,11 @@ public class FileDataSource {
     }
 
     protected Map<String, Map<String, List<FileCredentialStorage>>> getCredentials(Realm realm) {
-        return getPartition(realm.getId()).getCredentials();
+        return getPartition(realm).getCredentials();
     }
 
     protected Map<String, Group> getGroups(Partition partition) {
-        Map<String, FileGroup> fileGroups = getPartition(partition.getId()).getGroups();
+        Map<String, FileGroup> fileGroups = getPartition(partition).getGroups();
 
         Map<String, Group> groups = new HashMap<String, Group>();
 

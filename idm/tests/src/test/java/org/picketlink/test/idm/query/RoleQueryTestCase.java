@@ -73,48 +73,48 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         }
     }
 
-    @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
-            LDAPIdentityStoreWithoutAttributesTestSuite.class })
-    public void testFindByTier() throws Exception {
-        Tier someTier = new Tier("Some Role Tier");
-
-        getIdentityManagerFactory().createTier("Some Role Tier", null);
-
-        Role someRoleRealm = new SimpleRole("someRoleRealm");
-
-        getIdentityManagerFactory().createIdentityManager(someTier).add(someRoleRealm);
-
-        IdentityQuery<Role> query = getIdentityManagerFactory().createIdentityManager(someTier).createIdentityQuery(Role.class);
-
-        assertNotNull(someTier);
-
-        query.setParameter(Role.PARTITION, someTier);
-
-        List<Role> result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertTrue(contains(result, someRoleRealm.getId()));
-
-        Tier someAnotherTier = new Tier("Some Another Role Tier");
-
-        getIdentityManagerFactory().createTier("Some Another Role Tier", null);
-
-        Role someRoleTestingTier = new SimpleRole("someRoleTestingRealm");
-
-        getIdentityManagerFactory().createIdentityManager(someAnotherTier).add(someRoleTestingTier);
-
-        query = getIdentityManagerFactory().createIdentityManager(someAnotherTier).createIdentityQuery(Role.class);
-
-        query.setParameter(Role.PARTITION, someAnotherTier);
-
-        result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertTrue(contains(result, someRoleTestingTier.getId()));
-    }
+//    @Test
+//    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
+//            LDAPIdentityStoreWithoutAttributesTestSuite.class })
+//    public void testFindByTier() throws Exception {
+//        Tier someTier = new Tier("Some Role Tier");
+//
+//        getIdentityManagerFactory().createTier("Some Role Tier", null);
+//
+//        Role someRoleRealm = new SimpleRole("someRoleRealm");
+//
+//        getIdentityManagerFactory().createIdentityManager(someTier).add(someRoleRealm);
+//
+//        IdentityQuery<Role> query = getIdentityManagerFactory().createIdentityManager(someTier).createIdentityQuery(Role.class);
+//
+//        assertNotNull(someTier);
+//
+//        query.setParameter(Role.PARTITION, someTier);
+//
+//        List<Role> result = query.getResultList();
+//
+//        assertFalse(result.isEmpty());
+//        assertEquals(1, result.size());
+//        assertTrue(contains(result, someRoleRealm.getId()));
+//
+//        Tier someAnotherTier = new Tier("Some Another Role Tier");
+//
+//        getIdentityManagerFactory().createTier("Some Another Role Tier", null);
+//
+//        Role someRoleTestingTier = new SimpleRole("someRoleTestingRealm");
+//
+//        getIdentityManagerFactory().createIdentityManager(someAnotherTier).add(someRoleTestingTier);
+//
+//        query = getIdentityManagerFactory().createIdentityManager(someAnotherTier).createIdentityQuery(Role.class);
+//
+//        query.setParameter(Role.PARTITION, someAnotherTier);
+//
+//        result = query.getResultList();
+//
+//        assertFalse(result.isEmpty());
+//        assertEquals(1, result.size());
+//        assertTrue(contains(result, someRoleTestingTier.getId()));
+//    }
 
     /**
      * <p>

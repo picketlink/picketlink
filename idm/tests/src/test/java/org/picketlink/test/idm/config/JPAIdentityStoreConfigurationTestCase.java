@@ -67,7 +67,7 @@ import org.picketlink.test.idm.relationship.CustomRelationship;
  * <p>
  * Test case for the {@link JPAIdentityStoreConfiguration}.
  * </p>
- *  * @author Pedro Silva
+ * * @author Pedro Silva
  * 
  */
 public class JPAIdentityStoreConfigurationTestCase extends
@@ -93,7 +93,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
     @Test
     public void failFeatureNotSupportedWhenEntityClassesNotProvided() {
         IdentityConfiguration config = new IdentityConfiguration();
-        config.addContextInitializer(new JPAContextInitializer(emf));
+        configureJPAContextInitializer(config);
 
         JPAIdentityStoreConfiguration jpaConfig = createMinimalConfiguration();
 
@@ -123,8 +123,8 @@ public class JPAIdentityStoreConfigurationTestCase extends
         } catch (IdentityManagementException ime) {
             if (SecurityConfigurationException.class.isInstance(ime.getCause())) {
                 SecurityConfigurationException sce = (SecurityConfigurationException) ime.getCause();
-                
-                assertTrue(sce.getMessage().contains(Grant.class.getName()));    
+
+                assertTrue(sce.getMessage().contains(Grant.class.getName()));
             } else {
                 fail();
             }
@@ -136,8 +136,8 @@ public class JPAIdentityStoreConfigurationTestCase extends
         } catch (IdentityManagementException ime) {
             if (SecurityConfigurationException.class.isInstance(ime.getCause())) {
                 SecurityConfigurationException sce = (SecurityConfigurationException) ime.getCause();
-                
-                assertTrue(sce.getMessage().contains(GroupRole.class.getName()));    
+
+                assertTrue(sce.getMessage().contains(GroupRole.class.getName()));
             } else {
                 fail();
             }
@@ -149,8 +149,8 @@ public class JPAIdentityStoreConfigurationTestCase extends
         } catch (IdentityManagementException ime) {
             if (SecurityConfigurationException.class.isInstance(ime.getCause())) {
                 SecurityConfigurationException sce = (SecurityConfigurationException) ime.getCause();
-                
-                assertTrue(sce.getMessage().contains(GroupMembership.class.getName()));    
+
+                assertTrue(sce.getMessage().contains(GroupMembership.class.getName()));
             } else {
                 fail();
             }
@@ -168,8 +168,8 @@ public class JPAIdentityStoreConfigurationTestCase extends
         } catch (IdentityManagementException ime) {
             if (SecurityConfigurationException.class.isInstance(ime.getCause())) {
                 SecurityConfigurationException sce = (SecurityConfigurationException) ime.getCause();
-                
-                assertTrue(sce.getMessage().contains(CustomRelationship.class.getName()));    
+
+                assertTrue(sce.getMessage().contains(CustomRelationship.class.getName()));
             } else {
                 fail();
             }
@@ -178,10 +178,19 @@ public class JPAIdentityStoreConfigurationTestCase extends
         }
     }
 
+    private void configureJPAContextInitializer(IdentityConfiguration config) {
+        config.addContextInitializer(new JPAContextInitializer(emf) {
+            @Override
+            public EntityManager getEntityManager() {
+                return entityManager;
+            }
+        });
+    }
+
     @Test
     public void failFeatureNotSupportedWhenCredentialClassesNotProvided() {
         IdentityConfiguration config = new IdentityConfiguration();
-        config.addContextInitializer(new JPAContextInitializer(emf));
+        configureJPAContextInitializer(config);
 
         JPAIdentityStoreConfiguration jpaConfig = createMinimalConfiguration();
 
@@ -205,7 +214,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
         }
 
         config = new IdentityConfiguration();
-        config.addContextInitializer(new JPAContextInitializer(emf));
+        configureJPAContextInitializer(config);
 
         jpaConfig = createMinimalConfiguration();
 
@@ -230,7 +239,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
     @Test
     public void failIdentityClassNotProvided() {
         IdentityConfiguration config = new IdentityConfiguration();
-        config.addContextInitializer(new JPAContextInitializer(emf));
+        configureJPAContextInitializer(config);
 
         config.addStoreConfiguration(new JPAIdentityStoreConfiguration());
 
@@ -247,14 +256,11 @@ public class JPAIdentityStoreConfigurationTestCase extends
     @Test
     public void failPartitionClassNotProvided() {
         IdentityConfiguration config = new IdentityConfiguration();
-        config.addContextInitializer(new JPAContextInitializer(emf));
+        configureJPAContextInitializer(config);
 
         JPAIdentityStoreConfiguration jpaConfig = new JPAIdentityStoreConfiguration();
 
         jpaConfig.setIdentityClass(IdentityObject.class);
-
-        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
-        IdentityManager identityManager = factory.createIdentityManager();
 
         config.addStoreConfiguration(jpaConfig);
 
@@ -289,16 +295,16 @@ public class JPAIdentityStoreConfigurationTestCase extends
         FeatureSet.addFeatureSupport(jpaConfig.getFeatureSet(), FeatureGroup.user);
         FeatureSet.addFeatureSupport(jpaConfig.getFeatureSet(), FeatureGroup.role);
         FeatureSet.addFeatureSupport(jpaConfig.getFeatureSet(), FeatureGroup.group);
-        
+
         // enable relationship features. this enables the default/built-in relationship classes
         FeatureSet.addFeatureSupport(jpaConfig.getFeatureSet(), FeatureGroup.relationship);
-        
+
         // to enable custom relationship classes we need to set this flag.
         jpaConfig.getFeatureSet().setSupportsCustomRelationships(true);
-        
+
         // enable the custom relationship class
         FeatureSet.addRelationshipSupport(jpaConfig.getFeatureSet(), CustomRelationship.class);
-        
+
         // enable credentials
         FeatureSet.addFeatureSupport(jpaConfig.getFeatureSet(), FeatureGroup.credential);
 
@@ -310,10 +316,15 @@ public class JPAIdentityStoreConfigurationTestCase extends
         IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
         return factory.createIdentityManager();
     }
-    
+
     @Override
     protected void addContextInitializers(IdentityConfiguration config) {
-        config.addContextInitializer(new JPAContextInitializer(emf));
+        config.addContextInitializer(new JPAContextInitializer(emf) {
+            @Override
+            public EntityManager getEntityManager() {
+                return entityManager;
+            }
+        });
     }
 
 }

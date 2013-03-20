@@ -75,49 +75,49 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         }
     }
 
-    @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
-            LDAPIdentityStoreWithoutAttributesTestSuite.class })
-    public void testFindByTier() throws Exception {
-        Tier someTier = new Tier("Some Group Tier");
-
-        getIdentityManagerFactory().createTier("Some Group Tier", null);
-
-        Group someGroupTier = new SimpleGroup("someGroupTier");
-
-        getIdentityManagerFactory().createIdentityManager(someTier).add(someGroupTier);
-
-        IdentityQuery<Group> query = getIdentityManagerFactory().createIdentityManager(someTier).createIdentityQuery(
-                Group.class);
-
-        assertNotNull(someTier);
-
-        query.setParameter(Group.PARTITION, someTier);
-
-        List<Group> result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertTrue(contains(result, someGroupTier.getId()));
-
-        Tier someAnotherTier = new Tier("Some Another Group Tier");
-
-        getIdentityManagerFactory().createTier("Some Another Group Tier", null);
-
-        Group someGroupTestingTier = new SimpleGroup("someGroupTestingRealm");
-
-        getIdentityManagerFactory().createIdentityManager(someAnotherTier).add(someGroupTestingTier);
-
-        query = getIdentityManagerFactory().createIdentityManager(someAnotherTier).createIdentityQuery(Group.class);
-
-        query.setParameter(Group.PARTITION, someAnotherTier);
-
-        result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertTrue(contains(result, someGroupTestingTier.getId()));
-    }
+//    @Test
+//    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
+//            LDAPIdentityStoreWithoutAttributesTestSuite.class })
+//    public void testFindByTier() throws Exception {
+//        Tier someTier = new Tier("Some Group Tier");
+//
+//        getIdentityManagerFactory().createTier("Some Group Tier", null);
+//
+//        Group someGroupTier = new SimpleGroup("someGroupTier");
+//
+//        getIdentityManagerFactory().createIdentityManager(someTier).add(someGroupTier);
+//
+//        IdentityQuery<Group> query = getIdentityManagerFactory().createIdentityManager(someTier).createIdentityQuery(
+//                Group.class);
+//
+//        assertNotNull(someTier);
+//
+//        query.setParameter(Group.PARTITION, someTier);
+//
+//        List<Group> result = query.getResultList();
+//
+//        assertFalse(result.isEmpty());
+//        assertEquals(1, result.size());
+//        assertTrue(contains(result, someGroupTier.getId()));
+//
+//        Tier someAnotherTier = new Tier("Some Another Group Tier");
+//
+//        getIdentityManagerFactory().createTier("Some Another Group Tier", null);
+//
+//        Group someGroupTestingTier = new SimpleGroup("someGroupTestingRealm");
+//
+//        getIdentityManagerFactory().createIdentityManager(someAnotherTier).add(someGroupTestingTier);
+//
+//        query = getIdentityManagerFactory().createIdentityManager(someAnotherTier).createIdentityQuery(Group.class);
+//
+//        query.setParameter(Group.PARTITION, someAnotherTier);
+//
+//        result = query.getResultList();
+//
+//        assertFalse(result.isEmpty());
+//        assertEquals(1, result.size());
+//        assertTrue(contains(result, someGroupTestingTier.getId()));
+//    }
 
     @Test
     public void testFindByName() throws Exception {

@@ -43,8 +43,8 @@ public class PartitionObject implements Serializable {
     @IDMProperty(PropertyType.PARTITION_ID)
     private String id;
 
-    @IDMProperty(PropertyType.PARTITION_NAME)
-    private String name;
+//    @IDMProperty(PropertyType.PARTITION_NAME)
+//    private String name;
 
     @IDMProperty(PropertyType.PARTITION_TYPE)
     private String type;
@@ -61,13 +61,13 @@ public class PartitionObject implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+//    public String getName() {
+//        return name;
+//    }
+//
+//    public void setName(String name) {
+//        this.name = name;
+//    }
 
     public String getType() {
         return type;

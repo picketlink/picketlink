@@ -26,9 +26,7 @@ import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
-import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
-import org.picketlink.idm.internal.DefaultSecurityContextFactory;
 import org.picketlink.idm.model.Authorization;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.test.idm.IdentityManagerRunner;
@@ -40,11 +38,8 @@ import org.picketlink.test.idm.basic.UserManagementTestCase;
 import org.picketlink.test.idm.credential.CertificateCredentialTestCase;
 import org.picketlink.test.idm.credential.DigestCredentialTestCase;
 import org.picketlink.test.idm.credential.PasswordCredentialTestCase;
-import org.picketlink.test.idm.partition.RealmManagementTestCase;
-import org.picketlink.test.idm.partition.TierManagementTestCase;
 import org.picketlink.test.idm.query.AgentQueryTestCase;
 import org.picketlink.test.idm.query.GroupQueryTestCase;
-import org.picketlink.test.idm.query.RelationshipQueryTestCase;
 import org.picketlink.test.idm.query.RoleQueryTestCase;
 import org.picketlink.test.idm.query.UserQueryTestCase;
 import org.picketlink.test.idm.relationship.AgentGrantRelationshipTestCase;
@@ -56,6 +51,7 @@ import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
 import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
+import org.picketlink.test.idm.usecases.ApplicationRegistrationTestCase;
 import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
 
 /**
@@ -68,13 +64,13 @@ import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ RelationshipQueryTestCase.class, CustomRelationshipTestCase.class, RealmManagementTestCase.class, TierManagementTestCase.class, GroupMembershipTestCase.class,
-        ApplicationUserRelationshipTestCase.class, UserManagementTestCase.class, AgentManagementTestCase.class,
-        RoleManagementTestCase.class, GroupManagementTestCase.class, AgentGroupsRelationshipTestCase.class,
-        UserGrantRelationshipTestCase.class, AgentGrantRelationshipTestCase.class, GroupGrantRelationshipTestCase.class,UserGroupRoleRelationshipTestCase.class,
-        AgentGroupRoleRelationshipTestCase.class, RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class,
-        AgentQueryTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class,
-        DigestCredentialTestCase.class })
+@SuiteClasses({ UserManagementTestCase.class, AgentManagementTestCase.class, RoleManagementTestCase.class,
+        GroupManagementTestCase.class, CertificateCredentialTestCase.class, DigestCredentialTestCase.class,
+        PasswordCredentialTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class, AgentQueryTestCase.class,
+        RoleQueryTestCase.class, AgentGrantRelationshipTestCase.class, AgentGroupRoleRelationshipTestCase.class,
+        AgentGroupsRelationshipTestCase.class, CustomRelationshipTestCase.class, GroupGrantRelationshipTestCase.class,
+        GroupMembershipTestCase.class, UserGrantRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
+        ApplicationRegistrationTestCase.class, ApplicationUserRelationshipTestCase.class })
 public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     private static FileIdentityStoreTestSuite instance;
@@ -123,7 +119,7 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
         // add the realms that should be supported by the file store
         configuration.addRealm(Realm.DEFAULT_REALM);
         configuration.addRealm("Testing");
-        
+
         FeatureSet.addFeatureSupport(configuration.getFeatureSet());
         FeatureSet.addRelationshipSupport(configuration.getFeatureSet());
         FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), CustomRelationship.class);

@@ -75,7 +75,6 @@ import org.picketlink.idm.model.SimpleAgent;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.SimpleUser;
-import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.model.annotation.RelationshipAttribute;
 import org.picketlink.idm.model.annotation.RelationshipIdentity;
@@ -203,19 +202,13 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public Agent getAgent(SecurityContext context, String loginName) {
-        if (Realm.class.isInstance(context.getPartition())) {
+        Agent agent = getAgentsForCurrentRealm(context).get(loginName);
 
-            Agent agent = getAgentsForCurrentRealm(context).get(loginName);
-
-            if (agent != null) {
-                configurePartition(agent);
-            }
-
-            return agent;
-        } else {
-            // FIXME throw exception
-            throw new RuntimeException();
+        if (agent != null) {
+            configurePartition(agent);
         }
+
+        return agent;
     }
 
     @Override
@@ -592,7 +585,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private void storeRole(Role role) {
-        FilePartition filePartition = getDataSource().getPartition(role.getPartition().getId());
+        FilePartition filePartition = getDataSource().getPartition(role.getPartition());
 
         filePartition.getRoles().put(role.getName(), new FileRole(role));
 
@@ -626,7 +619,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private void storeGroup(Group fileGroup) {
-        FilePartition partition = getDataSource().getPartition(fileGroup.getPartition().getId());
+        FilePartition partition = getDataSource().getPartition(fileGroup.getPartition());
 
         partition.getGroups().put(fileGroup.getPath(), new FileGroup(fileGroup));
 
@@ -641,24 +634,19 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @param user
      */
     private void addUser(SecurityContext context, User user) {
-        if (Realm.class.isInstance(context.getPartition())) {
-            Realm realm = (Realm) context.getPartition();
+        Realm realm = (Realm) context.getPartition();
 
-            User storedUser = new SimpleUser(user.getLoginName());
+        User storedUser = new SimpleUser(user.getLoginName());
 
-            storedUser.setFirstName(user.getFirstName());
-            storedUser.setLastName(user.getLastName());
-            storedUser.setEmail(user.getEmail());
-            storedUser.setPartition(realm);
+        storedUser.setFirstName(user.getFirstName());
+        storedUser.setLastName(user.getLastName());
+        storedUser.setEmail(user.getEmail());
+        storedUser.setPartition(realm);
 
-            updateIdentityType(user, storedUser);
+        updateIdentityType(user, storedUser);
 
-            storeAgent(storedUser);
-            context.getEventBridge().raiseEvent(new UserCreatedEvent(storedUser));
-        } else {
-            // FIXME throw exception
-            throw new RuntimeException();
-        }
+        storeAgent(storedUser);
+        context.getEventBridge().raiseEvent(new UserCreatedEvent(storedUser));
     }
 
     /**
@@ -682,7 +670,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private void storeAgent(Agent storedAgent) {
-        FilePartition filePartition = getDataSource().getPartition(storedAgent.getPartition().getId());
+        FilePartition filePartition = getDataSource().getPartition(storedAgent.getPartition());
 
         filePartition.getAgents().put(storedAgent.getLoginName(), new FileAgent(storedAgent));
 
@@ -896,8 +884,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     /**
      * <p>
-     * Recursively lookup for a {@link Group} with the given name considering the given {@link Partition}. If {@link Partition}
-     * is a {@link Tier} instance the parent tier will also be considered during the lookup.
+     * Recursively lookup for a {@link Group} with the given name considering the given {@link Partition}.
      * </p>
      *
      * @param roleName
@@ -907,26 +894,16 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private Role lookupRole(String roleName, Partition partition) {
         Role role = getRolesForPartition(partition).get(roleName);
 
-        if (role == null) {
-            if (Tier.class.isInstance(partition)) {
-                Tier tier = (Tier) partition;
-
-                // FIXME remove
-                //if (tier.getParent() != null) {
-                //    role = lookupRole(roleName, tier.getParent());
-               // }
-            }
+        if (role != null) {
+            configurePartition(role);
         }
-
-        configurePartition(role);
 
         return role;
     }
 
     /**
      * <p>
-     * Recursively lookup for a {@link Group} with the given name considering the given {@link Partition}. If {@link Partition}
-     * is a {@link Tier} instance the parent tier will also be considered during the lookup.
+     * Recursively lookup for a {@link Group} with the given name considering the given {@link Partition}.
      * </p>
      *
      * @param groupPath
@@ -936,18 +913,9 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private Group lookupGroup(String groupPath, Partition partition) {
         Group group = getGroupsForPartition(partition).get(groupPath);
 
-        if (group == null) {
-            if (Tier.class.isInstance(partition)) {
-                Tier tier = (Tier) partition;
-
-                // FIXME remove
-                //if (tier.getParent() != null) {
-                //    group = lookupGroup(groupPath, tier.getParent());
-               // }
-            }
+        if (group != null) {
+            configurePartition(group);
         }
-
-        configurePartition(group);
 
         return group;
     }
@@ -1027,7 +995,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private void removeRole(SecurityContext context, Role role) {
         Role storedRole = (Role) lookupIdentityTypeById(context, role.getId());
 
-        FilePartition partition = getDataSource().getPartition(storedRole.getPartition().getId());
+        FilePartition partition = getDataSource().getPartition(storedRole.getPartition());
 
         removeRelationships(storedRole);
 
@@ -1049,7 +1017,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private void removeGroup(SecurityContext context, Group group) {
         Group storedGroup = (Group) lookupIdentityTypeById(context, group.getId());
 
-        FilePartition partition = getDataSource().getPartition(storedGroup.getPartition().getId());
+        FilePartition partition = getDataSource().getPartition(storedGroup.getPartition());
 
         removeRelationships(storedGroup);
 
@@ -1070,7 +1038,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private void removeAgent(SecurityContext context, Agent agent) {
         Agent storedAgent = (Agent) lookupIdentityTypeById(context, agent.getId());
 
-        FilePartition partition = getDataSource().getPartition(storedAgent.getPartition().getId());
+        FilePartition partition = getDataSource().getPartition(storedAgent.getPartition());
 
         removeRelationships(storedAgent);
 
@@ -1162,13 +1130,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private Map<String, Agent> getAgentsForCurrentRealm(SecurityContext context) {
-        if (Realm.class.isInstance(context.getPartition())) {
-            Realm realm = (Realm) context.getPartition();
-            return getDataSource().getAgents(realm);
-        } else {
-            // FIXME throw a proper exception
-            throw new RuntimeException();
-        }
+        Realm realm = (Realm) context.getPartition();
+        return getDataSource().getAgents(realm);
     }
 
     protected FileDataSource getDataSource() {
@@ -1176,12 +1139,15 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private void configurePartition(IdentityType identityType) {
-        if (identityType != null && identityType.getPartition() != null) {
-            // FIXME
-            Partition partition = null; //this.partitionStore.lookupById(identityType.getPartition().getId());
-
-            identityType.setPartition(partition);
+        if (identityType == null) {
+            throw MESSAGES.nullArgument("IdentityType");
         }
+
+        if (identityType.getPartition() == null) {
+            throw new IdentityManagementException("IdentityType [" + identityType + "] does not belong to any Partition.");
+        }
+
+        identityType.setPartition(identityType.getPartition());
     }
 
     @SuppressWarnings("unchecked")

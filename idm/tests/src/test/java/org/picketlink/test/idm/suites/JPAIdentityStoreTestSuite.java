@@ -46,30 +46,8 @@ import org.picketlink.idm.model.Authorization;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
-import org.picketlink.test.idm.basic.AgentManagementTestCase;
-import org.picketlink.test.idm.basic.GroupManagementTestCase;
-import org.picketlink.test.idm.basic.RoleManagementTestCase;
 import org.picketlink.test.idm.basic.UserManagementTestCase;
-import org.picketlink.test.idm.credential.CertificateCredentialTestCase;
-import org.picketlink.test.idm.credential.DigestCredentialTestCase;
-import org.picketlink.test.idm.credential.PasswordCredentialTestCase;
-import org.picketlink.test.idm.partition.RealmManagementTestCase;
-import org.picketlink.test.idm.partition.TierManagementTestCase;
-import org.picketlink.test.idm.query.AgentQueryTestCase;
-import org.picketlink.test.idm.query.GroupQueryTestCase;
-import org.picketlink.test.idm.query.RelationshipQueryTestCase;
-import org.picketlink.test.idm.query.RoleQueryTestCase;
-import org.picketlink.test.idm.query.UserQueryTestCase;
-import org.picketlink.test.idm.relationship.AgentGrantRelationshipTestCase;
-import org.picketlink.test.idm.relationship.AgentGroupRoleRelationshipTestCase;
-import org.picketlink.test.idm.relationship.AgentGroupsRelationshipTestCase;
 import org.picketlink.test.idm.relationship.CustomRelationship;
-import org.picketlink.test.idm.relationship.CustomRelationshipTestCase;
-import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
-import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
-import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
-import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
-import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
 
 /**
  * <p>
@@ -81,12 +59,7 @@ import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ RelationshipQueryTestCase.class, CustomRelationshipTestCase.class, RealmManagementTestCase.class, TierManagementTestCase.class, GroupMembershipTestCase.class,
-    ApplicationUserRelationshipTestCase.class, UserManagementTestCase.class, AgentManagementTestCase.class,
-    RoleManagementTestCase.class, GroupManagementTestCase.class, AgentGroupsRelationshipTestCase.class,
-    UserGrantRelationshipTestCase.class, AgentGrantRelationshipTestCase.class, GroupGrantRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
-    AgentGroupRoleRelationshipTestCase.class, RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class,
-    AgentQueryTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class, DigestCredentialTestCase.class })
+@SuiteClasses({ UserManagementTestCase.class })
 public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
     private EntityManagerFactory emf;
@@ -102,7 +75,7 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
         this.entityManager = emf.createEntityManager();
         this.entityManager.getTransaction().begin();
     }
-    
+
     @Override
     public void onDestroy() {
         this.entityManager.getTransaction().commit();
@@ -140,7 +113,9 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
     }
 
     /**
-     * <p>Returns a specific {@link FileIdentityStoreConfiguration} for the Realm.DEFAULT_REALM.</p>
+     * <p>
+     * Returns a specific {@link FileIdentityStoreConfiguration} for the Realm.DEFAULT_REALM.
+     * </p>
      * 
      * @return
      */
@@ -149,7 +124,7 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
         configuration.addRealm(Realm.DEFAULT_REALM);
         configuration.addRealm("Testing");
-        
+
         configuration.setIdentityClass(IdentityObject.class);
         configuration.setAttributeClass(IdentityObjectAttribute.class);
         configuration.setRelationshipClass(RelationshipObject.class);

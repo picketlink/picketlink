@@ -64,8 +64,8 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
      */
     @Test
     public void testGrantGroupRole() throws Exception {
-        T developerAgent = createIdentityType("developerAgent");
-        T projectManagerAgent = createIdentityType("projectManagerAgent");
+        T developerAgent = createIdentityType("developer");
+        T projectManagerAgent = createIdentityType("projectManager");
 
         Role managerRole = createRole("Manager");
         Role developerRole = createRole("Developer");

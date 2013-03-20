@@ -62,6 +62,7 @@ public class XMLIdentityManagerProviderTestCase {
     }
 
     @Test
+    @Ignore
     public void testParseJpaConfiguration() {
         try {
             IdentityManager identityManager = createIdentityConfiguration("config/embedded-jpa-config.xml");

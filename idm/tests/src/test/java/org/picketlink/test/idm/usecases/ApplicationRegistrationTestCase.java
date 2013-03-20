@@ -58,14 +58,14 @@ public class ApplicationRegistrationTestCase extends AbstractIdentityManagerTest
         //Let us query
         IdentityQuery<Agent> query = identityManager.createIdentityQuery(Agent.class);
 
-        query.setParameter(Agent.ID, appName);
+        query.setParameter(Agent.LOGIN_NAME, appName);
 
         List<Agent> result = query.getResultList();
 
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
 
-        assertEquals(appName, result.get(0).getId());
+        assertEquals(appName, result.get(0).getLoginName());
         
         // let's query using only the appUrl attribute
         query = identityManager.createIdentityQuery(Agent.class);
@@ -77,12 +77,12 @@ public class ApplicationRegistrationTestCase extends AbstractIdentityManagerTest
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
 
-        assertEquals(appName, result.get(0).getId());
+        assertEquals(appName, result.get(0).getLoginName());
         
         //Query with a wrong agent id
         
         query = identityManager.createIdentityQuery(Agent.class);
-        query.setParameter(Agent.ID, "bogus");
+        query.setParameter(Agent.LOGIN_NAME, "bogus");
 
         result = query.getResultList();
 

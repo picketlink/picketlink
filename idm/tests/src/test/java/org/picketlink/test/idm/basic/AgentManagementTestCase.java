@@ -63,7 +63,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
         assertEquals(newAgent.getLoginName(), storedAgent.getLoginName());
         assertTrue(storedAgent.isEnabled());
         assertNotNull(storedAgent.getPartition());
-        assertEquals(Realm.DEFAULT_REALM, storedAgent.getPartition().getName());
+        assertEquals(Realm.DEFAULT_REALM, storedAgent.getPartition().getId());
         assertTrue(storedAgent.isEnabled());
         assertNull(storedAgent.getExpirationDate());
         assertNotNull(storedAgent.getCreatedDate());

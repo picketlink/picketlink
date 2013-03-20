@@ -33,8 +33,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -171,8 +169,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             em.merge(entity);
             em.flush();
-
-            IdentityType updatedIdentityType = convertToIdentityType(context, entity);
 
             AbstractBaseEvent event = handler.raiseUpdatedEvent(identityType);
             event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identityType);
@@ -584,6 +580,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     protected Partition convertPartitionEntityToPartition(Object partitionObject) {
+        checkCredentialClassProvided();
+
         Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.PARTITION_TYPE);
 
         String type = typeProperty.getValue(partitionObject).toString();
@@ -649,7 +647,27 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     protected Object lookupPartitionObject(SecurityContext context, Partition partition) {
-        return getEntityManager(context).find(getConfig().getPartitionClass(), partition.getId());
+        checkPartitionClassProvided();
+
+        EntityManager entityManager = getEntityManager(context);
+
+        Object partitionObject = entityManager.find(getConfig().getPartitionClass(), partition.getId());
+
+        if (partitionObject == null) {
+            try {
+                partitionObject = getConfig().getPartitionClass().newInstance();
+
+                getConfig().setModelPropertyValue(partitionObject, PropertyType.PARTITION_ID, partition.getId(), true);
+                getConfig().setModelPropertyValue(partitionObject, PropertyType.PARTITION_TYPE, partition.getClass().getName(), true);
+
+                entityManager.persist(partitionObject);
+                entityManager.flush();
+            } catch (Exception e) {
+                throw new IdentityManagementException("Error creating Partition [" + partition + "].", e);
+            }
+        }
+
+        return partitionObject;
     }
 
     protected List<String> getAllowedPartitionIds(SecurityContext context, Partition currentPartition) {
@@ -662,17 +680,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
 
         partitionIds.add(currentPartition.getId());
-
-        if (Tier.class.isInstance(currentPartition)) {
-            Tier tier = (Tier) currentPartition;
-
-            partitionIds.add(currentPartition.getId());
-
-            // FIXME
-            //if (tier != null) {
-                //partitionIds.addAll(getAllowedPartitionIds(context, tier.getParent()));
-            //}
-        }
 
         return partitionIds;
     }
@@ -1323,6 +1330,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
 
         updateRelationshipAttributes(context, relationship, entity);
+
+        em.flush();
     }
 
     private void removeIdentityType(SecurityContext context, AttributedType value) {
@@ -1346,8 +1355,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         // Remove the identity object itself
         em.remove(entity);
         em.flush();
-
-        IdentityType removedIdentityType = handler.createIdentityType(context, entity, this);
 
         AbstractBaseEvent event = handler.raiseDeletedEvent(identityType);
         event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, entity);
@@ -1600,64 +1607,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         return realm;
     }
 
-    private Object lookupPartitionEntityByName(SecurityContext context, Class<? extends Partition> partitionType, String name) {
-        EntityManager entityManager = getEntityManager(context);
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-
-        Class<?> partitionClass = getConfig().getPartitionClass();
-
-        CriteriaQuery<?> criteria = builder.createQuery(partitionClass);
-        Root<?> root = criteria.from(partitionClass);
-
-        Predicate whereType = builder.equal(root.get(getConfig().getModelProperty(PropertyType.PARTITION_TYPE).getName()),
-                partitionType.getName());
-        Predicate whereId = builder
-                .equal(root.get(getConfig().getModelProperty(PropertyType.PARTITION_ID).getName()), name);
-
-        criteria.where(whereId, whereType);
-
-        Object partitionObject = null;
-
-        try {
-            partitionObject = entityManager.createQuery(criteria).getSingleResult();
-        } catch (NonUniqueResultException nuoe) {
-            throw new IdentityManagementException("Abiguous Tier found with the given name [" + name + "]");
-        } catch (NoResultException ignore) {
-        }
-
-        return partitionObject;
-    }
-
-    private List<?> getChildPartitions(SecurityContext context, Object partitionObject) {
-        EntityManager entityManager = getEntityManager(context);
-
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<?> criteria = builder.createQuery(getConfig().getPartitionClass());
-        Root<?> root = criteria.from(getConfig().getPartitionClass());
-
-        Predicate wherePartition = builder.equal(
-                root.get(getConfig().getModelProperty(PropertyType.PARTITION_PARENT).getName()), partitionObject);
-
-        criteria.where(wherePartition);
-
-        return entityManager.createQuery(criteria).getResultList();
-    }
-
-    private List<?> getIdentityTypesForPartition(SecurityContext context, Object partitionObject) {
-        EntityManager entityManager = getEntityManager(context);
-
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<?> criteria = builder.createQuery(getConfig().getIdentityClass());
-        Root<?> root = criteria.from(getConfig().getIdentityClass());
-
-        Predicate wherePartition = builder.equal(
-                root.get(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName()), partitionObject);
-
-        criteria.where(wherePartition);
-
-        return entityManager.createQuery(criteria).getResultList();
-    }
-
     private Tier convertPartitionEntityToTier(Object partitionObject) {
         Tier tier = null;
 
@@ -1666,12 +1615,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             if (Tier.class.getName().equals(typeProperty.getValue(partitionObject).toString())) {
                 Property<Object> idProperty = getConfig().getModelProperty(PropertyType.PARTITION_ID);
-                Property<Object> parentProperty = getConfig().getModelProperty(PropertyType.PARTITION_PARENT);
-
-                Object parentTierObject = parentProperty.getValue(partitionObject);
-
                 tier = new Tier(idProperty.getValue(partitionObject).toString());
-
             }
         }
 

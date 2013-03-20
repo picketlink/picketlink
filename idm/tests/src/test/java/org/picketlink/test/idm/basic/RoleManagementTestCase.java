@@ -58,7 +58,7 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
         assertEquals(newRole.getId(), storedRole.getId());
         assertEquals(newRole.getName(), storedRole.getName());
         assertNotNull(storedRole.getPartition());
-        assertEquals(Realm.DEFAULT_REALM, storedRole.getPartition().getName());
+        assertEquals(Realm.DEFAULT_REALM, storedRole.getPartition().getId());
         assertTrue(storedRole.isEnabled());
         assertNull(storedRole.getExpirationDate());
         assertNotNull(storedRole.getCreatedDate());
