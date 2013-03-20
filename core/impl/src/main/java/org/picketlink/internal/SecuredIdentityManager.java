@@ -35,6 +35,8 @@ import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.StoreFactory;
 
 /**
  * Extends the default IdentityManager implementation by providing secured identity management operations
@@ -44,6 +46,10 @@ import org.picketlink.idm.query.RelationshipQuery;
  */
 @Typed(SecuredIdentityManager.class)
 public class SecuredIdentityManager extends DefaultIdentityManager implements IdentityManager {
+
+    public SecuredIdentityManager(SecurityContext context, StoreFactory storeFactory) {
+        super(context, storeFactory);
+    }
 
     private static final long serialVersionUID = -8197103563768366958L;
 
@@ -180,45 +186,5 @@ public class SecuredIdentityManager extends DefaultIdentityManager implements Id
     @Override
     public void loadAttribute(IdentityType identityType, String attributeName) { 
         super.loadAttribute(identityType, attributeName);
-    }
-
-    @Override
-    public void createRealm(Realm realm) { 
-        super.createRealm(realm);
-    }
-
-    @Override
-    public void removeRealm(Realm realm) { 
-        super.removeRealm(realm);
-    }
-
-    @Override
-    public Realm getRealm(String name) { 
-        return super.getRealm(name);
-    }
-
-    @Override
-    public void createTier(Tier tier) { 
-        super.createTier(tier);
-    }
-
-    @Override
-    public void removeTier(Tier tier) { 
-        super.removeTier(tier);
-    }
-
-    @Override
-    public Tier getTier(String id) { 
-        return super.getTier(id);
-    }
-
-    @Override
-    public IdentityManager forRealm(Realm realm) { 
-        return super.forRealm(realm);
-    }
-
-    @Override
-    public IdentityManager forTier(Tier tier) { 
-        return super.forTier(tier);
     }
 }
