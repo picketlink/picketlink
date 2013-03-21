@@ -19,21 +19,16 @@
 package org.picketlink.internal;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 
-import org.picketlink.annotations.PicketLink;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityCache;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.internal.DefaultIdGenerator;
 import org.picketlink.idm.internal.DefaultIdentityCache;
-import org.picketlink.idm.jpa.internal.JPAIdentityStore;
-import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.internal.DefaultSecurityContextFactory;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.SecurityContextFactory;
 
@@ -43,37 +38,23 @@ import org.picketlink.idm.spi.SecurityContextFactory;
  *
  */
 @ApplicationScoped
-public class EEIdentityStoreInvocationContextFactory implements SecurityContextFactory {
+public class EESecurityContextFactory extends DefaultSecurityContextFactory implements SecurityContextFactory {
 
-    @Inject @PicketLink Instance<EntityManager> entityManagerInstance;
-    
     @Inject CDIEventBridge cdiEventBridge;
-    
+
     private CredentialHandlerFactory credentialHandlerFactory;
     private IdentityCache identityCache;
     private IdGenerator idGenerator;
-    
-    public EEIdentityStoreInvocationContextFactory() {
+
+    public EESecurityContextFactory() {
         credentialHandlerFactory = new DefaultCredentialHandlerFactory();
         identityCache = new DefaultIdentityCache();
         idGenerator = new DefaultIdGenerator();
     }
 
     @Override
-    public SecurityContext createContext(IdentityManager identityManager) {
-        return new SecurityContext(identityManager, this.identityCache, cdiEventBridge, credentialHandlerFactory, idGenerator);
-    }
-
-    @Override
-    public void initContextForStore(SecurityContext ctx, IdentityStore<?> store) {
-        if (store instanceof JPAIdentityStore) {
-            if (entityManagerInstance.isUnsatisfied()) {
-                throw new SecurityConfigurationException("To use JPAIdentityStore you must provide an EntityManager producer method " +
-                        "qualified with @org.picketlink.annotations.PicketLink.");
-            } else if (!ctx.isParameterSet(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER)) {
-                ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, entityManagerInstance.get());
-            }
-        }
+    public SecurityContext createContext(Partition partition) {
+        return new SecurityContext(this.identityCache, cdiEventBridge, credentialHandlerFactory, idGenerator, partition);
     }
 
 }
