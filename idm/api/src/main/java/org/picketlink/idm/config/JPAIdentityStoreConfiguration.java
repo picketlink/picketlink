@@ -179,7 +179,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         return identityClass != null;
     }
 
-    public class PropertyTypeCriteria implements PropertyCriteria {
+    private class PropertyTypeCriteria implements PropertyCriteria {
         private PropertyType pt;
 
         public PropertyTypeCriteria(PropertyType pt) {
@@ -246,44 +246,24 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         }
     }
 
-    public boolean isModelPropertySet(PropertyType propertyType) {
-        return modelProperties.containsKey(propertyType);
-    }
-
     public Map<String, MappedAttribute> getAttributeProperties() {
         return attributeProperties;
     }
 
-    public String getIdentityTypeUser() {
+    private String getIdentityTypeUser() {
         return identityTypeUser;
     }
 
-    public void setIdentityTypeUser(String identityTypeUser) {
-        this.identityTypeUser = identityTypeUser;
-    }
-
-    public String getIdentityTypeGroup() {
+    private String getIdentityTypeGroup() {
         return identityTypeGroup;
     }
 
-    public void setIdentityTypeGroup(String identityTypeGroup) {
-        this.identityTypeGroup = identityTypeGroup;
-    }
-
-    public String getIdentityTypeRole() {
+    private String getIdentityTypeRole() {
         return identityTypeRole;
     }
 
-    public void setIdentityTypeRole(String identityTypeRole) {
-        this.identityTypeRole = identityTypeRole;
-    }
-
-    public String getIdentityTypeAgent() {
+    private String getIdentityTypeAgent() {
         return identityTypeAgent;
-    }
-
-    public void setIdentityTypeAgent(String identityTypeAgent) {
-        this.identityTypeAgent = identityTypeAgent;
     }
 
     public String getIdentityTypeDiscriminator(Class<? extends IdentityType> identityType) {
@@ -491,4 +471,9 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
         return null;
     }
+
+    private boolean isModelPropertySet(PropertyType propertyType) {
+        return modelProperties.containsKey(propertyType);
+    }
+
 }

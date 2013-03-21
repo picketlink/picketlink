@@ -22,7 +22,6 @@ import org.picketlink.idm.spi.StoreFactory;
 public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
 
     private SecurityContextFactory contextFactory;
-
     private StoreFactory storeFactory;
 
     public DefaultIdentityManagerFactory(IdentityConfiguration identityConfig) {
@@ -30,7 +29,6 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
     }
 
     public DefaultIdentityManagerFactory(IdentityConfiguration identityConfig, SecurityContextFactory contextFactory) {
-
         this(identityConfig, contextFactory, new DefaultStoreFactory(identityConfig));
     }
 
@@ -61,7 +59,13 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
 
     @Override
     public IdentityManager createIdentityManager() {
-        return createIdentityManager(getRealm(Realm.DEFAULT_REALM));
+        Realm defaultRealm = getRealm(Realm.DEFAULT_REALM);
+
+        if (defaultRealm == null) {
+            throw MESSAGES.configurationDefaultRealmNotDefined();
+        }
+
+        return createIdentityManager(defaultRealm);
     }
 
     @Override

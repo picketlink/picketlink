@@ -21,10 +21,10 @@ package org.picketlink.idm.config;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.picketlink.idm.IdentityManagerFactory;
-import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.spi.SecurityContextFactory;
 import org.picketlink.idm.spi.StoreFactory;
 
@@ -44,14 +44,13 @@ public class IdentityConfiguration {
     private static final String DEFAULT_IDENTITY_MANAGER_FACTORY_IMPL = "org.picketlink.idm.internal.DefaultIdentityManagerFactory";
 
     private List<IdentityStoreConfiguration<?>> configuredStores = new ArrayList<IdentityStoreConfiguration<?>>();
-
     private SecurityContextFactory securityContextFactory;
-
     private StoreFactory storeFactory;
 
     /**
      * <p>
-     * Returns a {@link FileIdentityStoreConfiguration} instance with all configuration options for the file identity store.
+     * Returns a {@link FileIdentityStoreConfiguration} instance with all configuration options for the file identity store. For
+     * every invocation a new instance will be returned and added to the configuration.
      * </p>
      *
      * @return
@@ -66,7 +65,8 @@ public class IdentityConfiguration {
 
     /**
      * <p>
-     * Returns a {@link JPAIdentityStoreConfiguration} instance with all configuration options for the JPA identity store.
+     * Returns a {@link JPAIdentityStoreConfiguration} instance with all configuration options for the JPA identity store. For
+     * every invocation a new instance will be returned and added to the configuration.
      * </p>
      *
      * @return
@@ -81,7 +81,8 @@ public class IdentityConfiguration {
 
     /**
      * <p>
-     * Returns a {@link JPAIdentityStoreConfiguration} instance with all configuration options for the JPA identity store.
+     * Returns a {@link JPAIdentityStoreConfiguration} instance with all configuration options for the JPA identity store. For
+     * every invocation a new instance will be returned and added to the configuration.
      * </p>
      *
      * @return
@@ -94,11 +95,28 @@ public class IdentityConfiguration {
         return storeConfig;
     }
 
+    /**
+     * <p>
+     * Sets the {@link SecurityContextFactory} that should be used. If not specified, the implementation will use the default
+     * one.
+     * </p>
+     *
+     * @param securityContextFactory
+     * @return
+     */
     public IdentityConfiguration contextFactory(SecurityContextFactory securityContextFactory) {
         this.securityContextFactory = securityContextFactory;
         return this;
     }
 
+    /**
+     * <p>
+     * Sets the {@link StoreFactory} that should be used. If not specified, the implementation will use the default one.
+     * </p>
+     *
+     * @param storeFactory
+     * @return
+     */
     public IdentityConfiguration storeFactory(StoreFactory storeFactory) {
         this.storeFactory = storeFactory;
         return this;
@@ -112,12 +130,13 @@ public class IdentityConfiguration {
      * @return
      */
     public List<IdentityStoreConfiguration<?>> getConfiguredStores() {
-        return this.configuredStores;
+        return Collections.unmodifiableList(this.configuredStores);
     }
 
     /**
      * <p>
-     * Registers a {@link IdentityStoreConfiguration}.
+     * Registers a {@link IdentityStoreConfiguration}. This method can be used to provide other
+     * {@link IdentityStoreConfiguration} for identity stores that are not provided by default.
      * </p>
      *
      * @param config
@@ -126,21 +145,16 @@ public class IdentityConfiguration {
         this.configuredStores.add(config);
     }
 
+    /**
+     * <p>
+     * Builds and returns a new {@link IdentityManagerFactory} instance considering all configurations provided.
+     * </p>
+     *
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public IdentityManagerFactory buildIdentityManagerFactory() {
         IdentityManagerFactory identityManagerFactory = null;
-
-        boolean isDefaultRealmDefined = false;
-
-        for (IdentityStoreConfiguration<?> storeConfig : this.configuredStores) {
-            if (storeConfig.getRealms().contains(Realm.DEFAULT_REALM)) {
-                isDefaultRealmDefined = true;
-            }
-        }
-
-        if (!isDefaultRealmDefined) {
-            throw MESSAGES.configurationDefaultRealmNotDefined();
-        }
 
         try {
             Class<IdentityManagerFactory> implementationClass = (Class<IdentityManagerFactory>) Class

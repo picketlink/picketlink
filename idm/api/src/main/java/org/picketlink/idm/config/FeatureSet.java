@@ -327,7 +327,7 @@ public class FeatureSet {
         classes.add(GroupMembership.class);
         classes.add(GroupRole.class);
 
-        return classes;
+        return Collections.unmodifiableList(classes);
     }
 
     private static void addBasicOperations(FeatureSet featureSet, FeatureGroup feature) {
