@@ -28,6 +28,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
+import org.picketlink.internal.EEJPAContextInitializer;
 import org.picketlink.internal.EESecurityContextFactory;
 import org.picketlink.internal.SecuredIdentityManager;
 
@@ -41,23 +42,26 @@ public class IdentityManagerProducer {
     private IdentityConfiguration identityConfig;
 
     private IdentityManagerFactory factory;
-    
+
     @Inject Event<IdentityConfigurationEvent> identityConfigEvent;
-    
+
     @Inject EESecurityContextFactory icf;
+
+    @Inject EEJPAContextInitializer jpaContextInitializer;
 
     @Inject
     public void init() {
         identityConfig = new IdentityConfiguration();
+        identityConfig.addContextInitializer(jpaContextInitializer);
 
         identityConfigEvent.fire(new IdentityConfigurationEvent(identityConfig));
 
-        factory = new DefaultIdentityManagerFactory(identityConfig);
+        factory = new DefaultIdentityManagerFactory(identityConfig, icf);
     }
 
     @Produces 
     public IdentityManager createIdentityManager() {
         return new SecuredIdentityManager(factory.createIdentityManager());
     }
-    
+
 }
