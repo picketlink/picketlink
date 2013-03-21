@@ -24,7 +24,6 @@ import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.SecurityContextFactory;
 
@@ -77,18 +76,13 @@ public class DefaultSecurityContextFactory implements SecurityContextFactory {
 
     @Override
     public SecurityContext createContext() {
-        return new SecurityContext(this.identityCache, this.eventBridge, this.credentialHandlerFactory, this.idGenerator, null);
+        return createContext(null);
     }
 
     @Override
     public SecurityContext createContext(Partition partition) {
         return new SecurityContext(this.identityCache, this.eventBridge, this.credentialHandlerFactory, this.idGenerator,
                 partition);
-    }
-
-    @Override
-    public void initContextForStore(SecurityContext ctx, IdentityStore<?> store) {
-
     }
 
 }

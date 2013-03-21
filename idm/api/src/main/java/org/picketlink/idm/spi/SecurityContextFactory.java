@@ -38,11 +38,4 @@ public interface SecurityContextFactory {
      * @return
      */
     SecurityContext createContext(Partition partition);
-
-    /**
-     *
-     * @param ctx
-     * @param store
-     */
-    void initContextForStore(SecurityContext ctx, IdentityStore<?> store);
 }

@@ -25,8 +25,10 @@ import javax.inject.Inject;
 
 import org.picketlink.IdentityConfigurationEvent;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.internal.EEIdentityStoreInvocationContextFactory;
+import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
+import org.picketlink.internal.EESecurityContextFactory;
 import org.picketlink.internal.SecuredIdentityManager;
 
 
@@ -38,26 +40,24 @@ import org.picketlink.internal.SecuredIdentityManager;
 public class IdentityManagerProducer {
     private IdentityConfiguration identityConfig;
 
-    private IdentityManager identityManager;
+    private IdentityManagerFactory factory;
     
     @Inject Event<IdentityConfigurationEvent> identityConfigEvent;
     
-    @Inject EEIdentityStoreInvocationContextFactory icf;
+    @Inject EESecurityContextFactory icf;
 
     @Inject
     public void init() {
         identityConfig = new IdentityConfiguration();
-        
+
         identityConfigEvent.fire(new IdentityConfigurationEvent(identityConfig));
 
-        identityManager = new SecuredIdentityManager();
-
-        identityManager.bootstrap(identityConfig, icf);
+        factory = new DefaultIdentityManagerFactory(identityConfig);
     }
 
     @Produces 
     public IdentityManager createIdentityManager() {
-        return identityManager;
+        return new SecuredIdentityManager(factory.createIdentityManager());
     }
     
 }
