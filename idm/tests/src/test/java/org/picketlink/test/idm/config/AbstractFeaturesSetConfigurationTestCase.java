@@ -59,11 +59,11 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void testMinimalConfigurationForIdentityTypeOperations() {
         IdentityConfiguration config = new IdentityConfiguration();
-        addContextInitializers(config);
 
-        T jpaConfig = createMinimalConfiguration();
+        T storeConfig = createMinimalConfiguration();
 
-        config.addStoreConfiguration(jpaConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         IdentityManager identityManager = createIdentityManager(config);
 
@@ -83,11 +83,11 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void testMinimalConfigurationForRelationships() {
         IdentityConfiguration config = new IdentityConfiguration();
-        addContextInitializers(config);
 
-        T jpaConfig = createMinimalConfiguration();
+        T storeConfig = createMinimalConfiguration();
 
-        config.addStoreConfiguration(jpaConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         IdentityManager identityManager = createIdentityManager(config);
 
@@ -129,11 +129,11 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void testMinimalConfigurationForCredentials() {
         IdentityConfiguration config = new IdentityConfiguration();
-        addContextInitializers(config);
 
-        T jpaConfig = createMinimalConfiguration();
+        T storeConfig = createMinimalConfiguration();
 
-        config.addStoreConfiguration(jpaConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         IdentityManager identityManager = createIdentityManager(config);
 
@@ -157,13 +157,13 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedUserRead() {
         IdentityConfiguration config = new IdentityConfiguration();
-        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
         storeConfig.getFeatureSet().removeFeature(FeatureGroup.user, FeatureOperation.read);
 
-        config.addStoreConfiguration(storeConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         try {
             IdentityManager identityManager = createIdentityManager(config);
@@ -182,13 +182,13 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedUserCreate() {
         IdentityConfiguration config = new IdentityConfiguration();
-        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
         storeConfig.getFeatureSet().removeFeature(FeatureGroup.user, FeatureOperation.create);
 
-        config.addStoreConfiguration(storeConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         try {
             IdentityManager identityManager = createIdentityManager(config);
@@ -213,13 +213,13 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedUserDelete() {
         IdentityConfiguration config = new IdentityConfiguration();
-        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
         storeConfig.getFeatureSet().removeFeature(FeatureGroup.user, FeatureOperation.delete);
 
-        config.addStoreConfiguration(storeConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         try {
             IdentityManager identityManager = createIdentityManager(config);
@@ -252,13 +252,13 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedRoleRead() {
         IdentityConfiguration config = new IdentityConfiguration();
-        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
         storeConfig.getFeatureSet().removeFeature(FeatureGroup.role, FeatureOperation.read);
 
-        config.addStoreConfiguration(storeConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         try {
             IdentityManager identityManager = createIdentityManager(config);
@@ -277,13 +277,13 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedRoleCreate() {
         IdentityConfiguration config = new IdentityConfiguration();
-        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
         storeConfig.getFeatureSet().removeFeature(FeatureGroup.role, FeatureOperation.create);
 
-        config.addStoreConfiguration(storeConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         try {
             IdentityManager identityManager = createIdentityManager(config);
@@ -308,13 +308,13 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedRoleDelete() {
         IdentityConfiguration config = new IdentityConfiguration();
-        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
         storeConfig.getFeatureSet().removeFeature(FeatureGroup.role, FeatureOperation.delete);
 
-        config.addStoreConfiguration(storeConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         try {
             IdentityManager identityManager = createIdentityManager(config);
@@ -339,13 +339,13 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedGroupRead() {
         IdentityConfiguration config = new IdentityConfiguration();
-        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
         storeConfig.getFeatureSet().removeFeature(FeatureGroup.group, FeatureOperation.read);
 
-        config.addStoreConfiguration(storeConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         try {
             IdentityManager identityManager = createIdentityManager(config);
@@ -364,13 +364,13 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedGroupCreate() {
         IdentityConfiguration config = new IdentityConfiguration();
-        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
         storeConfig.getFeatureSet().removeFeature(FeatureGroup.group, FeatureOperation.create);
 
-        config.addStoreConfiguration(storeConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         try {
             IdentityManager identityManager = createIdentityManager(config);
@@ -396,13 +396,13 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedGroupDelete() {
         IdentityConfiguration config = new IdentityConfiguration();
-        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
         storeConfig.getFeatureSet().removeFeature(FeatureGroup.group, FeatureOperation.delete);
 
-        config.addStoreConfiguration(storeConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         try {
             IdentityManager identityManager = createIdentityManager(config);
@@ -430,13 +430,13 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedRelationshipRead() {
         IdentityConfiguration config = new IdentityConfiguration();
-        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
         storeConfig.getFeatureSet().removeFeature(FeatureGroup.relationship, FeatureOperation.read);
 
-        config.addStoreConfiguration(storeConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         try {
             IdentityManager identityManager = createIdentityManager(config);
@@ -455,13 +455,13 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedRelationshipCreate() {
         IdentityConfiguration config = new IdentityConfiguration();
-        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
         storeConfig.getFeatureSet().removeFeature(FeatureGroup.relationship, FeatureOperation.create);
 
-        config.addStoreConfiguration(storeConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         try {
             IdentityManager identityManager = createIdentityManager(config);
@@ -494,13 +494,13 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedCustomRelationship() {
         IdentityConfiguration config = new IdentityConfiguration();
-        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
         storeConfig.getFeatureSet().setSupportsCustomRelationships(false);
 
-        config.addStoreConfiguration(storeConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         IdentityManager identityManager = createIdentityManager(config);
 
@@ -534,13 +534,13 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         }
 
         config = new IdentityConfiguration();
-        addContextInitializers(config);
 
         storeConfig = createMinimalConfiguration();
 
         storeConfig.getFeatureSet().removeRelationshipSupport(storeConfig.getFeatureSet(), CustomRelationship.class);
 
-        config.addStoreConfiguration(storeConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         identityManager = createIdentityManager(config);
 
@@ -565,13 +565,13 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedRelationshipDelete() {
         IdentityConfiguration config = new IdentityConfiguration();
-        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
         storeConfig.getFeatureSet().removeFeature(FeatureGroup.relationship, FeatureOperation.delete);
 
-        config.addStoreConfiguration(storeConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         try {
             IdentityManager identityManager = createIdentityManager(config);
@@ -608,13 +608,13 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedCredentialUpdate() {
         IdentityConfiguration config = new IdentityConfiguration();
-        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
         storeConfig.getFeatureSet().removeFeature(FeatureGroup.credential, FeatureOperation.update);
 
-        config.addStoreConfiguration(storeConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         IdentityManager identityManager = createIdentityManager(config);
 
@@ -638,13 +638,13 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedCredentialValidate() {
         IdentityConfiguration config = new IdentityConfiguration();
-        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
         storeConfig.getFeatureSet().removeFeature(FeatureGroup.credential, FeatureOperation.validate);
 
-        config.addStoreConfiguration(storeConfig);
+        addContextInitializers(storeConfig);
+        config.addConfig(storeConfig);
 
         IdentityManager identityManager = createIdentityManager(config);
 
@@ -673,7 +673,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         }
     }
 
-    protected void addContextInitializers(IdentityConfiguration config) {}
+    protected void addContextInitializers(IdentityStoreConfiguration config) {}
 
     protected abstract T createMinimalConfiguration();
 

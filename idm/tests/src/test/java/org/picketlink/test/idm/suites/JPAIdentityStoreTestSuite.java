@@ -84,32 +84,25 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
     }
 
     @Override
-    public IdentityManager createIdentityManager() {
-        IdentityConfiguration config = new IdentityConfiguration();
-
-        config.addStoreConfiguration(getDefaultConfiguration());
-
-        return createIdentityManager(config);
-    }
-
-    @Override
     public IdentityManagerFactory createIdentityManagerFactory() {
         IdentityConfiguration config = new IdentityConfiguration();
-        config.addContextInitializer(new JPAContextInitializer(emf) {
+        
+        IdentityStoreConfiguration jpaConfig = getDefaultConfiguration();
+        
+        jpaConfig.addContextInitializer(new JPAContextInitializer(emf) {
             @Override
             public EntityManager getEntityManager() {
                 return entityManager;
             }
         });
-        config.addStoreConfiguration(getDefaultConfiguration());
+        
+        config.addConfig(jpaConfig);
 
         return new DefaultIdentityManagerFactory(config);
     }
 
     private IdentityManager createIdentityManager(IdentityConfiguration config) {
-        config.addContextInitializer(new JPAContextInitializer(this.emf));
-        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
-        return factory.createIdentityManager();
+        return new DefaultIdentityManagerFactory(config).createIdentityManager();
     }
 
     /**

@@ -104,7 +104,7 @@ public class LDAPIdentityStoreConfigurationTestCase extends
 
         storeConfig.getFeatureSet().setSupportsCustomRelationships(true);
 
-        config.addStoreConfiguration(storeConfig);
+        config.addConfig(storeConfig);
 
         IdentityManager identityManager = createIdentityManager(config);
 

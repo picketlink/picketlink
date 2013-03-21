@@ -24,7 +24,7 @@ import org.picketlink.idm.SecurityConfigurationException;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class FileIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
+public class FileIdentityStoreConfiguration extends BaseAbstractStoreConfiguration<FileIdentityStoreConfiguration> {
 
     private int asyncThreadPool = 5;
     private boolean asyncWrite = false;
@@ -32,35 +32,39 @@ public class FileIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
     private String workingDir;
 
     @Override
-    public void initConfig() throws SecurityConfigurationException {
+    protected void initConfig() throws SecurityConfigurationException {
     }
 
     public String getWorkingDir() {
         return this.workingDir;
     }
 
-    public void setWorkingDir(String workingDir) {
+    public FileIdentityStoreConfiguration setWorkingDir(String workingDir) {
         this.workingDir = workingDir;
+        return this;
     }
 
     public boolean isAlwaysCreateFiles() {
         return this.alwaysCreateFiles;
     }
 
-    public void setAlwaysCreateFiles(boolean alwaysCreateFiles) {
+    public FileIdentityStoreConfiguration setAlwaysCreateFiles(boolean alwaysCreateFiles) {
         this.alwaysCreateFiles = alwaysCreateFiles;
+        return this;
     }
 
-    public void setAsyncWrite(boolean asyncWrite) {
+    public FileIdentityStoreConfiguration setAsyncWrite(boolean asyncWrite) {
         this.asyncWrite = asyncWrite;
+        return this;
     }
 
     public boolean isAsyncWrite() {
         return this.asyncWrite;
     }
 
-    public void setAsyncThreadPool(int asyncThreadPool) {
+    public FileIdentityStoreConfiguration setAsyncThreadPool(int asyncThreadPool) {
         this.asyncThreadPool = asyncThreadPool;
+        return this;
     }
 
     public int getAsyncThreadPool() {

@@ -40,6 +40,7 @@ import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.credential.Password;
@@ -93,7 +94,6 @@ public class JPAIdentityStoreConfigurationTestCase extends
     @Test
     public void failFeatureNotSupportedWhenEntityClassesNotProvided() {
         IdentityConfiguration config = new IdentityConfiguration();
-        configureJPAContextInitializer(config);
 
         JPAIdentityStoreConfiguration jpaConfig = createMinimalConfiguration();
 
@@ -101,7 +101,8 @@ public class JPAIdentityStoreConfigurationTestCase extends
         jpaConfig.setRelationshipIdentityClass(null);
         jpaConfig.setRelationshipAttributeClass(null);
 
-        config.addStoreConfiguration(jpaConfig);
+        addContextInitializers(jpaConfig);
+        config.addConfig(jpaConfig);
 
         IdentityManager identityManager = createIdentityManager(config);
 
@@ -178,25 +179,16 @@ public class JPAIdentityStoreConfigurationTestCase extends
         }
     }
 
-    private void configureJPAContextInitializer(IdentityConfiguration config) {
-        config.addContextInitializer(new JPAContextInitializer(emf) {
-            @Override
-            public EntityManager getEntityManager() {
-                return entityManager;
-            }
-        });
-    }
-
     @Test
     public void failFeatureNotSupportedWhenCredentialClassesNotProvided() {
         IdentityConfiguration config = new IdentityConfiguration();
-        configureJPAContextInitializer(config);
 
         JPAIdentityStoreConfiguration jpaConfig = createMinimalConfiguration();
 
         jpaConfig.setCredentialClass(null);
 
-        config.addStoreConfiguration(jpaConfig);
+        addContextInitializers(jpaConfig);
+        config.addConfig(jpaConfig);
 
         IdentityManager identityManager = createIdentityManager(config);
 
@@ -214,14 +206,14 @@ public class JPAIdentityStoreConfigurationTestCase extends
         }
 
         config = new IdentityConfiguration();
-        configureJPAContextInitializer(config);
 
         jpaConfig = createMinimalConfiguration();
 
         jpaConfig.setCredentialClass(CredentialObject.class);
         jpaConfig.setCredentialAttributeClass(null);
 
-        config.addStoreConfiguration(jpaConfig);
+        addContextInitializers(jpaConfig);
+        config.addConfig(jpaConfig);
 
         identityManager = createIdentityManager(config);
 
@@ -239,9 +231,11 @@ public class JPAIdentityStoreConfigurationTestCase extends
     @Test
     public void failIdentityClassNotProvided() {
         IdentityConfiguration config = new IdentityConfiguration();
-        configureJPAContextInitializer(config);
 
-        config.addStoreConfiguration(new JPAIdentityStoreConfiguration());
+        JPAIdentityStoreConfiguration jpaConfig = new JPAIdentityStoreConfiguration();
+        
+        addContextInitializers(jpaConfig);
+        config.addConfig(jpaConfig);
 
         try {
             createIdentityManager(config);
@@ -256,13 +250,13 @@ public class JPAIdentityStoreConfigurationTestCase extends
     @Test
     public void failPartitionClassNotProvided() {
         IdentityConfiguration config = new IdentityConfiguration();
-        configureJPAContextInitializer(config);
 
         JPAIdentityStoreConfiguration jpaConfig = new JPAIdentityStoreConfiguration();
 
         jpaConfig.setIdentityClass(IdentityObject.class);
 
-        config.addStoreConfiguration(jpaConfig);
+        addContextInitializers(jpaConfig);
+        config.addConfig(jpaConfig);
 
         try {
             createIdentityManager(config);
@@ -318,7 +312,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
     }
 
     @Override
-    protected void addContextInitializers(IdentityConfiguration config) {
+    protected void addContextInitializers(IdentityStoreConfiguration config) {
         config.addContextInitializer(new JPAContextInitializer(emf) {
             @Override
             public EntityManager getEntityManager() {

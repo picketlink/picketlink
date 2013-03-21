@@ -19,9 +19,15 @@
 package org.picketlink.idm.config;
 
 import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.idm.config.FeatureSet.addFeatureSupport;
+import static org.picketlink.idm.config.FeatureSet.addRelationshipSupport;
+import static org.picketlink.idm.config.FeatureSet.getDefaultRelationshipClasses;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -30,6 +36,7 @@ import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.spi.ContextInitializer;
 
 
 /**
@@ -37,7 +44,7 @@ import org.picketlink.idm.model.Relationship;
  *
  * @author Shane Bryzak
  */
-public abstract class BaseAbstractStoreConfiguration implements IdentityStoreConfiguration {
+public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStoreConfiguration<?>> implements IdentityStoreConfiguration<C> {
 
     private final FeatureSet featureSet = new FeatureSet();
 
@@ -45,16 +52,65 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
 
     private final Set<String> tiers = new HashSet<String>();
 
+    private List<ContextInitializer> contextInitializers = new ArrayList<ContextInitializer>();
+
+    @Override
+    public List<ContextInitializer> getContextInitializers() {
+        return this.contextInitializers;
+    }
+
+    @Override
+    public C addContextInitializer(ContextInitializer contextInitializer) {
+        this.contextInitializers.add(contextInitializer);
+        return (C) this;
+    }
+
+    @Override
+    public C supportFeature(FeatureGroup... feature) {
+        FeatureSet.addFeatureSupport(getFeatureSet(), feature);
+        return (C) this;
+    }
+
+    @Override
+    public C supportRelationshipType(Class<? extends Relationship>... types) {
+        addRelationshipSupport(getFeatureSet(), types);
+
+        if (types != null) {
+            for (Class<? extends Relationship> relationshipType : types) {
+                if (!getDefaultRelationshipClasses().contains(relationshipType)) {
+                    getFeatureSet().setSupportsCustomRelationships(true);
+                }
+            }
+        }
+
+        return (C) this;
+    }
+
+    @Override
+    public C supportAllFeatures() {
+        addFeatureSupport(getFeatureSet());
+        return (C) this;
+    }
+
+    @Override
     public FeatureSet getFeatureSet() {
         return featureSet;
     }
 
-    public void addRealm(String name) {
-        realms.add(name);
+    public C addRealm(String... realmNames) {
+        if (realmNames != null) {
+            this.realms.addAll(Arrays.asList(realmNames));
+        }
+
+        return (C) this;
     }
 
-    public void addTier(String name) {
-        tiers.add(name);
+    public C addTier(String... tierNames) {
+        if (tierNames != null) {
+            this.tiers.addAll(Arrays.asList(tierNames));
+        }
+
+        return (C) this;
     }
 
     public Set<String> getRealms() {
@@ -93,5 +149,5 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
         }
     }
 
-    public abstract void initConfig();
+    protected abstract void initConfig();
 }

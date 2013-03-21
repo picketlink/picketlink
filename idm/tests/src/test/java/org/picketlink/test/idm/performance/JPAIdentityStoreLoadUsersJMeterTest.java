@@ -141,13 +141,6 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
     private static IdentityManagerFactory createIdentityManagerFactory() {
         IdentityConfiguration config = new IdentityConfiguration();
         
-        config.addContextInitializer(new JPAContextInitializer(emf) {
-            @Override
-            public EntityManager getEntityManager() {
-                return entityManager.get();
-            }
-        });
-        
         addDefaultConfiguration(config);
 
         IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
@@ -175,7 +168,14 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
         configuration.getFeatureSet().setSupportsCustomRelationships(true);
         configuration.getFeatureSet().setSupportsMultiRealm(true);
 
-        config.addStoreConfiguration(configuration);
+        configuration.addContextInitializer(new JPAContextInitializer(emf) {
+            @Override
+            public EntityManager getEntityManager() {
+                return entityManager.get();
+            }
+        });
+        
+        config.addConfig(configuration);
     }
 
 }

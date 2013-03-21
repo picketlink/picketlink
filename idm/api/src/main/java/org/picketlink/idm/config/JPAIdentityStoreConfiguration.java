@@ -52,7 +52,7 @@ import org.picketlink.idm.model.User;
  * @author Shane Bryzak
  *
  */
-public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
+public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguration<JPAIdentityStoreConfiguration> {
 
     // Discriminator constants
     private static final String DEFAULT_USER_IDENTITY_DISCRIMINATOR = "USER";
@@ -88,7 +88,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     private Class<?> partitionClass;
 
     @Override
-    public void initConfig() throws SecurityConfigurationException {
+    protected void initConfig() throws SecurityConfigurationException {
         if (this.identityClass == null) {
             throw MESSAGES.jpaConfigIdentityClassNotProvided();
         }
@@ -107,24 +107,27 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         return identityClass;
     }
 
-    public void setIdentityClass(Class<?> identityClass) {
+    public JPAIdentityStoreConfiguration setIdentityClass(Class<?> identityClass) {
         this.identityClass = identityClass;
+        return this;
     }
 
     public Class<?> getCredentialClass() {
         return credentialClass;
     }
 
-    public void setCredentialClass(Class<?> credentialClass) {
+    public JPAIdentityStoreConfiguration setCredentialClass(Class<?> credentialClass) {
         this.credentialClass = credentialClass;
+        return this;
     }
 
     public Class<?> getCredentialAttributeClass() {
         return this.credentialAttributeClass;
     }
 
-    public void setCredentialAttributeClass(Class<?> credentialAttributeClass) {
+    public JPAIdentityStoreConfiguration setCredentialAttributeClass(Class<?> credentialAttributeClass) {
         this.credentialAttributeClass = credentialAttributeClass;
+        return this;
     }
 
     public Class<?> getRelationshipClass() {
@@ -135,36 +138,41 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         return this.partitionClass;
     }
 
-    public void setRelationshipClass(Class<?> relationshipClass) {
+    public JPAIdentityStoreConfiguration setRelationshipClass(Class<?> relationshipClass) {
         this.relationshipClass = relationshipClass;
+        return this;
     }
 
-    public void setPartitionClass(Class<?> partitionClass) {
+    public JPAIdentityStoreConfiguration setPartitionClass(Class<?> partitionClass) {
         this.partitionClass = partitionClass;
+        return this;
     }
 
     public Class<?> getRelationshipIdentityClass() {
         return relationshipIdentityClass;
     }
 
-    public void setRelationshipIdentityClass(Class<?> relationshipIdentityClass) {
+    public JPAIdentityStoreConfiguration setRelationshipIdentityClass(Class<?> relationshipIdentityClass) {
         this.relationshipIdentityClass = relationshipIdentityClass;
+        return this;
     }
 
     public Class<?> getRelationshipAttributeClass() {
         return relationshipAttributeClass;
     }
 
-    public void setRelationshipAttributeClass(Class<?> relationshipAttributeClass) {
+    public JPAIdentityStoreConfiguration setRelationshipAttributeClass(Class<?> relationshipAttributeClass) {
         this.relationshipAttributeClass = relationshipAttributeClass;
+        return this;
     }
 
     public Class<?> getAttributeClass() {
         return attributeClass;
     }
 
-    public void setAttributeClass(Class<?> attributeClass) {
+    public JPAIdentityStoreConfiguration setAttributeClass(Class<?> attributeClass) {
         this.attributeClass = attributeClass;
+        return this;
     }
 
     public boolean isConfigured() {

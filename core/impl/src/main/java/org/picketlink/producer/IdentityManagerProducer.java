@@ -18,6 +18,8 @@
 
 package org.picketlink.producer;
 
+import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.Produces;
@@ -27,7 +29,8 @@ import org.picketlink.IdentityConfigurationEvent;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.internal.EEJPAContextInitializer;
 import org.picketlink.internal.EESecurityContextFactory;
 import org.picketlink.internal.SecuredIdentityManager;
@@ -51,17 +54,26 @@ public class IdentityManagerProducer {
 
     @Inject
     public void init() {
-        identityConfig = new IdentityConfiguration();
-        identityConfig.addContextInitializer(jpaContextInitializer);
+        this.identityConfig = new IdentityConfiguration();
 
-        identityConfigEvent.fire(new IdentityConfigurationEvent(identityConfig));
+        this.identityConfigEvent.fire(new IdentityConfigurationEvent(this.identityConfig));
 
-        factory = new DefaultIdentityManagerFactory(identityConfig, icf);
+        List<IdentityStoreConfiguration<?>> configuredStores = this.identityConfig.getConfiguredStores();
+        
+        for (IdentityStoreConfiguration<?> identityStoreConfiguration : configuredStores) {
+            if (JPAIdentityStoreConfiguration.class.isInstance(identityStoreConfiguration)) {
+                identityStoreConfiguration.addContextInitializer(this.jpaContextInitializer);
+            }
+        }
+        
+        this.identityConfig.contextFactory(this.icf);
+        
+        this.factory = this.identityConfig.buildIdentityManagerFactory();
     }
 
     @Produces 
     public IdentityManager createIdentityManager() {
-        return new SecuredIdentityManager(factory.createIdentityManager());
+        return new SecuredIdentityManager(this.factory.createIdentityManager());
     }
 
 }

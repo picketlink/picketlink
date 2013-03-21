@@ -106,7 +106,7 @@ public class ReadUsersJMeterTest extends AbstractJavaSamplerClient {
         configuration.getFeatureSet().setSupportsCustomRelationships(true);
         configuration.getFeatureSet().setSupportsMultiRealm(true);
 
-        config.addStoreConfiguration(configuration);
+        config.addConfig(configuration);
     }
 
 }

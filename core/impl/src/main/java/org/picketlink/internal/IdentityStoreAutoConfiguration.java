@@ -69,14 +69,14 @@ public class IdentityStoreAutoConfiguration implements Extension {
             FeatureSet.addRelationshipSupport(jpaConfig.getFeatureSet());
             jpaConfig.getFeatureSet().setSupportsCustomRelationships(true);
             jpaConfig.getFeatureSet().setSupportsMultiRealm(true);
-            event.getConfig().addStoreConfiguration(jpaConfig);
+            event.getConfig().addConfig(jpaConfig);
         } else {
             FileIdentityStoreConfiguration config = new FileIdentityStoreConfiguration();
             FeatureSet.addFeatureSupport(config.getFeatureSet());
             FeatureSet.addRelationshipSupport(config.getFeatureSet());
             config.getFeatureSet().setSupportsCustomRelationships(true);
             config.getFeatureSet().setSupportsMultiRealm(true);
-            event.getConfig().addStoreConfiguration(config);
+            event.getConfig().addConfig(config);
         }
     }
 }

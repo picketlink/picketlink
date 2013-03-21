@@ -22,11 +22,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.IdentityManagerFactory;
-import org.picketlink.idm.config.FeatureSet;
-import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
-import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.model.Authorization;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.test.idm.IdentityManagerRunner;
@@ -84,50 +81,16 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
     }
 
     @Override
-    public IdentityManager createIdentityManager() {
-        IdentityConfiguration config = new IdentityConfiguration();
-
-        addDefaultConfiguration(config);
-
-        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
-
-        IdentityManager identityManager = factory.createIdentityManager();
-
-        return identityManager;
-    }
-
-    @Override
     public IdentityManagerFactory createIdentityManagerFactory() {
-        IdentityConfiguration config = new IdentityConfiguration();
-
-        addDefaultConfiguration(config);
-
-        return new DefaultIdentityManagerFactory(config);
-    }
-
-    /**
-     * <p>
-     * Configure a specific {@link FileIdentityStoreConfiguration} for the Realm.DEFAULT_REALM.
-     * </p>
-     * 
-     * @param config
-     * @param dataSource
-     */
-    private void addDefaultConfiguration(IdentityConfiguration config) {
-        FileIdentityStoreConfiguration configuration = new FileIdentityStoreConfiguration();
-
-        // add the realms that should be supported by the file store
-        configuration.addRealm(Realm.DEFAULT_REALM);
-        configuration.addRealm("Testing");
-
-        FeatureSet.addFeatureSupport(configuration.getFeatureSet());
-        FeatureSet.addRelationshipSupport(configuration.getFeatureSet());
-        FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), CustomRelationship.class);
-        FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), Authorization.class);
-        configuration.getFeatureSet().setSupportsCustomRelationships(true);
-        configuration.getFeatureSet().setSupportsMultiRealm(true);
-
-        config.addStoreConfiguration(configuration);
+        IdentityConfiguration configuration = new IdentityConfiguration();
+        
+        configuration
+            .fileStore()
+                .addRealm(Realm.DEFAULT_REALM, "Testing")
+                .supportAllFeatures()
+                .supportRelationshipType(CustomRelationship.class, Authorization.class);
+        
+        return configuration.buildIdentityManagerFactory();
     }
 
     @Override

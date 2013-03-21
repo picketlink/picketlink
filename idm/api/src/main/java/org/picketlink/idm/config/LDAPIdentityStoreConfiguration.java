@@ -35,7 +35,7 @@ import org.picketlink.idm.config.FeatureSet.FeatureGroup;
  * @since Sep 6, 2012
  */
 
-public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
+public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfiguration<LDAPIdentityStoreConfiguration> {
 
     private String ldapURL;
     private String userDNSuffix;
@@ -55,8 +55,7 @@ public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
     private Map<String, String> groupMapping = new HashMap<String, String>();
 
     @Override
-    public void initConfig() throws SecurityConfigurationException {
-
+    protected void initConfig() throws SecurityConfigurationException {
         if (getUserDNSuffix() == null) {
             throw MESSAGES.ldapConfigUserDNNotProvided();
         }

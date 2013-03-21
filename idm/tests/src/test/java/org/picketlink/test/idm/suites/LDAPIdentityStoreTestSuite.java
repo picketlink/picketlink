@@ -29,10 +29,7 @@ import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
-import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
-import org.picketlink.idm.internal.DefaultSecurityContextFactory;
-import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
@@ -119,19 +116,9 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
     }
 
     @Override
-    public IdentityManager createIdentityManager() {
-        IdentityConfiguration config = new IdentityConfiguration();
-
-        config.addStoreConfiguration(getConfiguration());
-
-        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
-        return factory.createIdentityManager();
-    }
-
-    @Override
     public IdentityManagerFactory createIdentityManagerFactory() {
         IdentityConfiguration config = new IdentityConfiguration();
-        config.addStoreConfiguration(getConfiguration());
+        config.addConfig(getConfiguration());
 
         return new DefaultIdentityManagerFactory(config);
     }

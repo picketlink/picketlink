@@ -136,11 +136,6 @@ public class IdentityManagerRunner extends Suite {
                     Object createTest = super.createTest();
 
                     try {
-//                        Method identityManagerSetter = createTest.getClass().getMethod("setIdentityManager",
-//                                new Class[] { IdentityManager.class });
-//
-//                        identityManagerSetter.invoke(createTest, lifecycle.createIdentityManager());
-
                         Method identityManagerFactorySetter = createTest.getClass().getMethod("setIdentityManagerFactory", 
                                 new Class[] { IdentityManagerFactory.class });
 

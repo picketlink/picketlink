@@ -319,7 +319,7 @@ public class FeatureSet {
         }
     }
 
-    private static List<Class<? extends Relationship>> getDefaultRelationshipClasses() {
+    protected static List<Class<? extends Relationship>> getDefaultRelationshipClasses() {
         List<Class<? extends Relationship>> classes = new ArrayList<Class<? extends Relationship>>();
 
         classes.add(Relationship.class);

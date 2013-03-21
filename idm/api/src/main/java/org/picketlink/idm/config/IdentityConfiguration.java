@@ -18,10 +18,15 @@
 
 package org.picketlink.idm.config;
 
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.picketlink.idm.spi.ContextInitializer;
+import org.picketlink.idm.IdentityManagerFactory;
+import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.spi.SecurityContextFactory;
+import org.picketlink.idm.spi.StoreFactory;
 
 /**
  * <p>
@@ -36,9 +41,68 @@ import org.picketlink.idm.spi.ContextInitializer;
  */
 public class IdentityConfiguration {
 
-    private List<IdentityStoreConfiguration> configuredStores = new ArrayList<IdentityStoreConfiguration>();
+    private static final String DEFAULT_IDENTITY_MANAGER_FACTORY_IMPL = "org.picketlink.idm.internal.DefaultIdentityManagerFactory";
 
-    private List<ContextInitializer> contextInitializers = new ArrayList<ContextInitializer>();
+    private List<IdentityStoreConfiguration<?>> configuredStores = new ArrayList<IdentityStoreConfiguration<?>>();
+
+    private SecurityContextFactory securityContextFactory;
+
+    private StoreFactory storeFactory;
+
+    /**
+     * <p>
+     * Returns a {@link FileIdentityStoreConfiguration} instance with all configuration options for the file identity store.
+     * </p>
+     *
+     * @return
+     */
+    public FileIdentityStoreConfiguration fileStore() {
+        FileIdentityStoreConfiguration storeConfig = new FileIdentityStoreConfiguration();
+
+        this.configuredStores.add(storeConfig);
+
+        return storeConfig;
+    }
+
+    /**
+     * <p>
+     * Returns a {@link JPAIdentityStoreConfiguration} instance with all configuration options for the JPA identity store.
+     * </p>
+     *
+     * @return
+     */
+    public JPAIdentityStoreConfiguration jpaStore() {
+        JPAIdentityStoreConfiguration storeConfig = new JPAIdentityStoreConfiguration();
+
+        this.configuredStores.add(storeConfig);
+
+        return storeConfig;
+    }
+
+    /**
+     * <p>
+     * Returns a {@link JPAIdentityStoreConfiguration} instance with all configuration options for the JPA identity store.
+     * </p>
+     *
+     * @return
+     */
+    public LDAPIdentityStoreConfiguration ldapStore() {
+        LDAPIdentityStoreConfiguration storeConfig = new LDAPIdentityStoreConfiguration();
+
+        this.configuredStores.add(storeConfig);
+
+        return storeConfig;
+    }
+
+    public IdentityConfiguration contextFactory(SecurityContextFactory securityContextFactory) {
+        this.securityContextFactory = securityContextFactory;
+        return this;
+    }
+
+    public IdentityConfiguration storeFactory(StoreFactory storeFactory) {
+        this.storeFactory = storeFactory;
+        return this;
+    }
 
     /**
      * <p>
@@ -47,7 +111,7 @@ public class IdentityConfiguration {
      *
      * @return
      */
-    public List<IdentityStoreConfiguration> getConfiguredStores() {
+    public List<IdentityStoreConfiguration<?>> getConfiguredStores() {
         return this.configuredStores;
     }
 
@@ -58,15 +122,49 @@ public class IdentityConfiguration {
      *
      * @param config
      */
-    public void addStoreConfiguration(IdentityStoreConfiguration config) {
+    public void addConfig(IdentityStoreConfiguration<?> config) {
         this.configuredStores.add(config);
     }
 
-    public List<ContextInitializer> getContextInitializers() {
-        return contextInitializers;
-    }
+    @SuppressWarnings("unchecked")
+    public IdentityManagerFactory buildIdentityManagerFactory() {
+        IdentityManagerFactory identityManagerFactory = null;
 
-    public void addContextInitializer(ContextInitializer contextInitializer) {
-        this.contextInitializers.add(contextInitializer);
+        boolean isDefaultRealmDefined = false;
+
+        for (IdentityStoreConfiguration<?> storeConfig : this.configuredStores) {
+            if (storeConfig.getRealms().contains(Realm.DEFAULT_REALM)) {
+                isDefaultRealmDefined = true;
+            }
+        }
+
+        if (!isDefaultRealmDefined) {
+            throw MESSAGES.configurationDefaultRealmNotDefined();
+        }
+
+        try {
+            Class<IdentityManagerFactory> implementationClass = (Class<IdentityManagerFactory>) Class
+                    .forName(DEFAULT_IDENTITY_MANAGER_FACTORY_IMPL);
+
+            if (this.securityContextFactory != null && this.storeFactory != null) {
+                identityManagerFactory = implementationClass.getConstructor(
+                        new Class[] { IdentityConfiguration.class, SecurityContextFactory.class, StoreFactory.class })
+                        .newInstance(new Object[] { this, this.securityContextFactory, this.storeFactory });
+            } else if (this.securityContextFactory != null) {
+                identityManagerFactory = implementationClass.getConstructor(
+                        new Class[] { IdentityConfiguration.class, SecurityContextFactory.class }).newInstance(
+                        new Object[] { this, this.securityContextFactory });
+            } else if (this.storeFactory != null) {
+                identityManagerFactory = implementationClass.getConstructor(
+                        new Class[] { IdentityConfiguration.class, StoreFactory.class }).newInstance(
+                        new Object[] { this, this.storeFactory });
+            } else {
+                identityManagerFactory = implementationClass.getConstructor(IdentityConfiguration.class).newInstance(this);
+            }
+        } catch (Exception e) {
+            MESSAGES.configurationCouldNotCreateIdentityManagerFactoryImpl(DEFAULT_IDENTITY_MANAGER_FACTORY_IMPL, e);
+        }
+
+        return identityManagerFactory;
     }
 }

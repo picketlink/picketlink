@@ -34,7 +34,7 @@ import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.internal.config.ConfigurationBuilder;
+import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -83,14 +83,14 @@ public class TestProgrammaticConfiguration extends AbstractLDAPTest {
 
     @Test
     public void testFileIdentityStoreConfiguration() throws Exception {
-        ConfigurationBuilder configuration = new ConfigurationBuilder();
+        IdentityConfiguration configuration = new IdentityConfiguration();
 
         configuration
             .fileStore()
-                .alwaysCreateFiles(true)
-                .workingDir("/tmp/pl-idm")
-                .asyncWrite(true)
-                .asyncThreadPool(10)
+                .setAlwaysCreateFiles(true)
+                .setWorkingDir("/tmp/pl-idm")
+                .setAsyncWrite(true)
+                .setAsyncThreadPool(10)
                 .addRealm(Realm.DEFAULT_REALM)
                 .addRealm("Realm")
                 .addTier("Tier")
@@ -109,7 +109,7 @@ public class TestProgrammaticConfiguration extends AbstractLDAPTest {
 
     @Test
     public void testJPAIdentityStoreConfiguration() throws Exception {
-        ConfigurationBuilder configuration = new ConfigurationBuilder();
+        IdentityConfiguration configuration = new IdentityConfiguration();
 
         configuration
             .jpaStore()
@@ -145,7 +145,7 @@ public class TestProgrammaticConfiguration extends AbstractLDAPTest {
     
     @Test
     public void testLDAPIdentityStoreConfiguration() throws Exception {
-        ConfigurationBuilder configuration = new ConfigurationBuilder();
+        IdentityConfiguration configuration = new IdentityConfiguration();
 
         configuration
             .ldapStore()

@@ -133,28 +133,20 @@ public class LDAPJPAMixedStoreTestSuite extends AbstractLDAPTest implements Test
     }
 
     @Override
-    public IdentityManager createIdentityManager() {
-        IdentityConfiguration config = new IdentityConfiguration();
-
-        config.addStoreConfiguration(getJPAConfiguration());
-        config.addStoreConfiguration(getLDAPConfiguration());
-
-        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
-        return factory.createIdentityManager();
-    }
-
-    @Override
     public IdentityManagerFactory createIdentityManagerFactory() {
         IdentityConfiguration config = new IdentityConfiguration();
-        config.addContextInitializer(new JPAContextInitializer(emf) {
+
+        IdentityStoreConfiguration jpaConfig = getJPAConfiguration();
+        
+        jpaConfig.addContextInitializer(new JPAContextInitializer(emf) {
             @Override
             public EntityManager getEntityManager() {
                 return entityManager;
             }
         });
-
-        config.addStoreConfiguration(getJPAConfiguration());
-        config.addStoreConfiguration(getLDAPConfiguration());
+        
+        config.addConfig(jpaConfig);
+        config.addConfig(getLDAPConfiguration());
 
         return new DefaultIdentityManagerFactory(config);
     }

@@ -17,9 +17,13 @@
  */
 package org.picketlink.idm.config;
 
+import java.util.List;
 import java.util.Set;
 
 import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.spi.ContextInitializer;
 
 /**
  * <p>
@@ -30,7 +34,7 @@ import org.picketlink.idm.SecurityConfigurationException;
  * @author Shane Bryzak
  * @since Sep 6, 2012
  */
-public interface IdentityStoreConfiguration {
+public interface IdentityStoreConfiguration<C extends IdentityStoreConfiguration<?>> {
 
     /**
      * <p>
@@ -48,7 +52,7 @@ public interface IdentityStoreConfiguration {
      *
      * @param realm
      */
-    void addRealm(String realm);
+    C addRealm(String... realm);
 
     /**
      * <p>
@@ -63,7 +67,7 @@ public interface IdentityStoreConfiguration {
      *
      * @param tier
      */
-    void addTier(String tier);
+    C addTier(String... tier);
 
     /**
      *
@@ -79,5 +83,27 @@ public interface IdentityStoreConfiguration {
      * @return
      */
     FeatureSet getFeatureSet();
+
+    /**
+     * <p>
+     * Returns all {@link ContextInitializer} instances configured for a specific identity store.
+     * </p>
+     *
+     * @return
+     */
+    List<ContextInitializer> getContextInitializers();
+
+    /**
+     * <p>Adds a {@link ContextInitializer} instance.</p>
+     *
+     * @param contextInitializer
+     */
+    C addContextInitializer(ContextInitializer contextInitializer);
+
+    C supportFeature(FeatureGroup... feature);
+
+    C supportRelationshipType(Class<? extends Relationship>... type);
+
+    C supportAllFeatures();
 
 }

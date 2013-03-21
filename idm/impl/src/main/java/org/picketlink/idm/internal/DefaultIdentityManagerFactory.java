@@ -55,6 +55,10 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
         this.storeFactory = factory;
     }
 
+    public void setContextFactory(SecurityContextFactory contextFactory) {
+        this.contextFactory = contextFactory;
+    }
+
     @Override
     public IdentityManager createIdentityManager() {
         return createIdentityManager(getRealm(Realm.DEFAULT_REALM));

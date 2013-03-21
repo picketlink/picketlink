@@ -147,13 +147,13 @@ public class XMLBasedIdentityManagerProvider {
         IdentityConfiguration identityConfig = new IdentityConfiguration();
 
         for (StoreConfigurationType storeConfigType : identityConfigurationType.getIdentityStoreConfigurations()) {
-            identityConfig.addStoreConfiguration(buildStoreConfiguration(storeConfigType));
+            identityConfig.addConfig(buildStoreConfiguration(storeConfigType));
         }
 
         if (identityConfigurationType.getPartitionStoreConfiguration() != null) {
             IdentityStoreConfiguration partitionStoreConfig = buildStoreConfiguration(identityConfigurationType
                     .getPartitionStoreConfiguration());
-            identityConfig.addStoreConfiguration(partitionStoreConfig);
+            identityConfig.addConfig(partitionStoreConfig);
         }
 
         return identityConfig;

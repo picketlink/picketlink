@@ -56,6 +56,7 @@ import org.picketlink.idm.spi.StoreFactory;
  * @author Shane Bryzak
  */
 public class DefaultStoreFactory implements StoreFactory {
+
     private IdentityConfiguration identityConfig;
 
     private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> identityConfigMap = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>>();
@@ -77,7 +78,7 @@ public class DefaultStoreFactory implements StoreFactory {
         this.identityConfigMap.put(LDAPIdentityStoreConfiguration.class, LDAPIdentityStore.class);
         this.identityConfigMap.put(FileIdentityStoreConfiguration.class, FileBasedIdentityStore.class);
 
-        for (IdentityStoreConfiguration config : identityConfig.getConfiguredStores()) {
+        for (IdentityStoreConfiguration<?> config : identityConfig.getConfiguredStores()) {
             LOGGER.identityManagerInitConfigForRealms(config, config.getRealms());
 
             config.init();
@@ -224,8 +225,6 @@ public class DefaultStoreFactory implements StoreFactory {
     @Override
     public IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature, FeatureOperation operation,
             Class<? extends Relationship> relationshipClass) {
-        // String realmName = (context.getPartition() != null) ? context.getPartition().getName() : Realm.DEFAULT_REALM;
-
         if (Realm.class.isInstance(context.getPartition())) {
             Realm realm = (Realm) context.getPartition();
             if (!realmStores.containsKey(realm.getId())) {
@@ -240,12 +239,12 @@ public class DefaultStoreFactory implements StoreFactory {
             }
         }
 
-        IdentityStoreConfiguration config = lookupConfigForFeature(context.getPartition(), feature, operation,
+        IdentityStoreConfiguration<?> config = lookupConfigForFeature(context.getPartition(), feature, operation,
                 relationshipClass);
 
-        final IdentityStore<? extends IdentityStoreConfiguration> store = createIdentityStore(config, context);
+        final IdentityStore<? extends IdentityStoreConfiguration<?>> store = createIdentityStore(config, context);
 
-        for (ContextInitializer initializer : identityConfig.getContextInitializers()) {
+        for (ContextInitializer initializer : config.getContextInitializers()) {
             initializer.initContextForStore(context, store);
         }
 

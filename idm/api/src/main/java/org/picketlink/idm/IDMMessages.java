@@ -128,7 +128,7 @@ public interface IDMMessages {
     SecurityConfigurationException storeConfigUnsupportedRelationshipType(Class<? extends Relationship> type);
 
     @Message(id = 17, value = "The IdentityStoreConfiguration [%s] specified is not supported by this IdentityStoreFactory implementation.")
-    SecurityConfigurationException storeConfigUnsupportedConfiguration(IdentityStoreConfiguration config);
+    SecurityConfigurationException storeConfigUnsupportedConfiguration(IdentityStoreConfiguration<?> config);
 
     @Message(id = 18, value = "No identity store configuration found for requested operation [%s.%s].")
     OperationNotSupportedException storeConfigUnsupportedOperation(@Param FeatureGroup feature,
@@ -274,5 +274,11 @@ public interface IDMMessages {
 
     @Message(id = 68, value = "The specified tier [%s] has not been configured.")
     SecurityConfigurationException storeConfigTierNotConfigured(String tierId);
+
+    @Message(id = 69, value = "Could not create IdentityManagerFactory implementation [%s].")
+    SecurityConfigurationException configurationCouldNotCreateIdentityManagerFactoryImpl(String typeName, @Cause Throwable t);
+
+    @Message(id = 70, value = "The default Realm was not configured for any identity store. Check your configuration.")
+    SecurityConfigurationException configurationDefaultRealmNotDefined();
 
 }
