@@ -57,6 +57,8 @@ import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.relationship.CustomRelationship;
 
 /**
+ * <p>Some tests for the {@link IdentityConfiguration} using basically the built-in stores configuration.</p>
+ * 
  * @author Pedro Silva
  * 
  */
