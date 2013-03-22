@@ -291,6 +291,11 @@
                <name>release</name>
             </property>
          </activation>
+         <modules>
+           <module>maven-plugins/picketlink-jdocbook-style</module>
+           <module>docs</module>
+           <module>dist</module>
+         </modules>
          <build>
            <plugins>
              <plugin>
