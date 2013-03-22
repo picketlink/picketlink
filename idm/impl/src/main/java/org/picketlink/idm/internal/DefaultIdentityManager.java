@@ -403,7 +403,7 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         if (id == null) {
-            throw MESSAGES.nullArgument("Identifier");
+            throw MESSAGES.nullArgument("Identifier for [" + identityType + "]");
         }
 
         IdentityQuery<T> query = createIdentityQuery(identityType);

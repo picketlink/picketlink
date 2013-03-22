@@ -22,6 +22,7 @@
 
 package org.picketlink.test.idm.config;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -30,7 +31,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketbox.test.ldap.AbstractLDAPTest;
@@ -48,8 +48,13 @@ import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
+import org.picketlink.idm.model.Authorization;
 import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.User;
+import org.picketlink.test.idm.relationship.CustomRelationship;
 
 /**
  * @author Pedro Silva
@@ -104,11 +109,11 @@ public class TestProgrammaticConfiguration extends AbstractLDAPTest {
 
         IdentityManager identityManager = identityManagerFactory.createIdentityManager();
 
-        SimpleUser user = new SimpleUser("user");
+        User user = new SimpleUser("user");
 
         identityManager.add(user);
 
-        Assert.assertNotNull(identityManager.getUser(user.getLoginName()));
+        assertNotNull(identityManager.getUser(user.getLoginName()));
     }
 
     @Test
@@ -140,11 +145,11 @@ public class TestProgrammaticConfiguration extends AbstractLDAPTest {
 
         IdentityManager identityManager = identityManagerFactory.createIdentityManager();
 
-        SimpleUser user = new SimpleUser("user");
+        User user = new SimpleUser("user");
 
         identityManager.add(user);
 
-        Assert.assertNotNull(identityManager.getUser(user.getLoginName()));
+        assertNotNull(identityManager.getUser(user.getLoginName()));
     }
     
     @Test
@@ -176,11 +181,71 @@ public class TestProgrammaticConfiguration extends AbstractLDAPTest {
 
         IdentityManager identityManager = identityManagerFactory.createIdentityManager();
 
-        SimpleUser user = new SimpleUser("user");
+        User user = new SimpleUser("user");
 
         identityManager.add(user);
 
-        Assert.assertNotNull(identityManager.getUser(user.getLoginName()));
+        assertNotNull(identityManager.getUser(user.getLoginName()));
+    }
+    
+    @Test
+    @SuppressWarnings ("unchecked")
+    public void testLDAPAndJPAIdentityStoreConfiguration() throws Exception {
+        IdentityConfiguration configuration = new IdentityConfiguration();
+
+        configuration
+            .ldapStore()
+                .setBaseDN(BASE_DN)
+                .setBindDN("uid=admin,ou=system")
+                .setBindCredential("secret")
+                .setLdapURL(LDAP_URL)
+                .setUserDNSuffix(USER_DN_SUFFIX)
+                .setRoleDNSuffix(ROLES_DN_SUFFIX)
+                .setAgentDNSuffix(AGENT_DN_SUFFIX)
+                .setGroupDNSuffix(GROUP_DN_SUFFIX)
+                .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
+                .addRealm(Realm.DEFAULT_REALM)
+                .supportFeature(
+                    FeatureGroup.user, 
+                    FeatureGroup.agent, 
+                    FeatureGroup.user, 
+                    FeatureGroup.group,
+                    FeatureGroup.role, 
+                    FeatureGroup.attribute, 
+                    FeatureGroup.credential)
+            .jpaStore()
+                .addRealm(Realm.DEFAULT_REALM)
+                .setIdentityClass(IdentityObject.class)
+                .setAttributeClass(IdentityObjectAttribute.class)
+                .setRelationshipClass(RelationshipObject.class)
+                .setRelationshipIdentityClass(RelationshipIdentityObject.class)
+                .setRelationshipAttributeClass(RelationshipObjectAttribute.class)
+                .setPartitionClass(PartitionObject.class)
+                .supportFeature(FeatureGroup.relationship)
+                .supportRelationshipType(CustomRelationship.class, Authorization.class)
+                .addContextInitializer(new JPAContextInitializer(emf) {
+                    @Override
+                    public EntityManager getEntityManager() {
+                        return entityManager;
+                    }
+                });
+
+        IdentityManagerFactory identityManagerFactory = configuration.buildIdentityManagerFactory();
+
+        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+
+        User user = new SimpleUser("user");
+
+        identityManager.add(user);
+        
+        Role role = new SimpleRole("role");
+        
+        identityManager.add(role);
+        
+        identityManager.grantRole(user, role);
+
+        assertNotNull(identityManager.getUser(user.getLoginName()));
+        assertTrue(identityManager.hasRole(user, role));
     }
 
     @Test
