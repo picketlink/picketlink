@@ -62,7 +62,7 @@ import org.picketlink.test.idm.relationship.CustomRelationship;
  * @author Pedro Silva
  * 
  */
-public class TestProgrammaticConfiguration extends AbstractLDAPTest {
+public class TestProgrammaticConfigurationTestCase extends AbstractLDAPTest {
 
     private static final String BASE_DN = "dc=jboss,dc=org";
     private static final String LDAP_URL = "ldap://localhost:10389";
