@@ -55,8 +55,8 @@
       <module>idm</module>
       <module>core</module>
 
-      <module>federation</module>
-      <module>social</module>
+<!--       <module>federation</module> -->
+<!--       <module>social</module> -->
       <!--module>oauth</module-->
    </modules>
 
