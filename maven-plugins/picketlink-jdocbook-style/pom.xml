@@ -11,7 +11,7 @@
     <groupId>org.picketlink</groupId>
     <artifactId>picketlink-jdocbook-style</artifactId>
     <packaging>jdocbook-style</packaging>
-    <version>3.0.0.Beta1</version>
+    <version>3.0.0-SNAPSHOT</version>
 
     <name>PicketLink Documentation Style</name>
     <description>
