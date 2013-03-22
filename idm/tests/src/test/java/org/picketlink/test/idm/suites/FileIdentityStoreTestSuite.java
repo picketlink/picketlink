@@ -80,12 +80,14 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
         return instance;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public IdentityManagerFactory createIdentityManagerFactory() {
         IdentityConfiguration configuration = new IdentityConfiguration();
         
         configuration
             .fileStore()
+                .setAlwaysCreateFiles(true)
                 .addRealm(Realm.DEFAULT_REALM, "Testing")
                 .supportAllFeatures()
                 .supportRelationshipType(CustomRelationship.class, Authorization.class);

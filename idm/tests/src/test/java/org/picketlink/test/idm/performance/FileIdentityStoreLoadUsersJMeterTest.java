@@ -30,16 +30,9 @@ import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.IdentityManagerFactory;
-import org.picketlink.idm.config.FeatureSet;
-import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
-import org.picketlink.idm.internal.DefaultSecurityContextFactory;
-import org.picketlink.idm.model.Authorization;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.SimpleUser;
-import org.picketlink.test.idm.relationship.CustomRelationship;
 
 /**
  * @author Pedro Silva
@@ -47,27 +40,21 @@ import org.picketlink.test.idm.relationship.CustomRelationship;
  */
 public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClient {
 
-    private static IdentityManager identityManager = null;
+    private static IdentityManagerFactory identityManagerFactory = null;
 
     static {
-        identityManager = createIdentityManager();
-        
-        SimpleUser testUser = new SimpleUser("testUser");
-        
-        if (identityManager.getUser(testUser.getLoginName()) == null) {
-            identityManager.add(testUser);            
-        }
+        identityManagerFactory = createIdentityManagerFactory();
     }
 
     @Override
     public Arguments getDefaultParameters() {
         Arguments arguments = new Arguments();
-        
+
         arguments.addArgument("loginName", "Sample User");
-        
+
         return arguments;
     }
-    
+
     @Override
     public void setupTest(JavaSamplerContext context) {
     }
@@ -85,20 +72,22 @@ public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerCli
         boolean success = false;
 
         String loginName = context.getParameter("loginName");
-        
+
         if (loginName == null) {
             loginName = "Sample User";
         }
 
         JMeterVariables vars = JMeterContextService.getContext().getVariables();
-        
+
         vars.put("loginName", loginName);
 
         try {
             SimpleUser user = new SimpleUser(loginName);
+
+            IdentityManager identityManager = identityManagerFactory.createIdentityManager();
             
             identityManager.add(user);
-            
+
             success = user.getId() != null && identityManager.getUser(loginName) != null;
         } catch (Exception e) {
             e.printStackTrace();
@@ -110,34 +99,16 @@ public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerCli
         return result;
     }
 
-    private static IdentityManager createIdentityManager() {
-        IdentityConfiguration config = new IdentityConfiguration();
+    private static IdentityManagerFactory createIdentityManagerFactory() {
+        IdentityConfiguration configuration = new IdentityConfiguration();
 
-        addDefaultConfiguration(config);
+        configuration
+            .fileStore()
+                .setAlwaysCreateFiles(true)
+                .addRealm(Realm.DEFAULT_REALM)
+                .supportAllFeatures();
 
-        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
-        return factory.createIdentityManager();
-    }
-
-    private static void addDefaultConfiguration(IdentityConfiguration config) {
-        FileIdentityStoreConfiguration configuration = new FileIdentityStoreConfiguration();
-
-        // add the realms that should be supported by the file store
-        configuration.addRealm(Realm.DEFAULT_REALM);
-        configuration.addRealm("Testing");
-
-        configuration.setAlwaysCreateFiles(false);
-        configuration.setAsyncWrite(true);
-        configuration.setAsyncThreadPool(50);
-
-        FeatureSet.addFeatureSupport(configuration.getFeatureSet());
-        FeatureSet.addRelationshipSupport(configuration.getFeatureSet());
-        FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), CustomRelationship.class);
-        FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), Authorization.class);
-        configuration.getFeatureSet().setSupportsCustomRelationships(true);
-        configuration.getFeatureSet().setSupportsMultiRealm(true);
-
-        config.addConfig(configuration);
+        return configuration.buildIdentityManagerFactory();
     }
 
 }

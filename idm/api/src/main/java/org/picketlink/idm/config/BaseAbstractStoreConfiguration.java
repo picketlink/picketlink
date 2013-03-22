@@ -31,12 +31,15 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
+import org.picketlink.idm.spi.SecurityContextFactory;
+import org.picketlink.idm.spi.StoreFactory;
 
 
 /**
@@ -53,6 +56,42 @@ public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStore
     private final Set<String> tiers = new HashSet<String>();
 
     private List<ContextInitializer> contextInitializers = new ArrayList<ContextInitializer>();
+
+    private IdentityConfiguration identityConfiguration;
+
+    public BaseAbstractStoreConfiguration() {
+
+    }
+
+    public BaseAbstractStoreConfiguration(IdentityConfiguration configuration) {
+        this.identityConfiguration = configuration;
+    }
+
+    @Override
+    public final void init() throws SecurityConfigurationException {
+        initConfig();
+        this.featureSet.lock();
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debugf("FeatureSet for %s", this);
+            LOGGER.debug("Features [");
+
+            for (Entry<FeatureGroup, Set<FeatureOperation>> entry : this.featureSet.getSupportedFeatures().entrySet()) {
+                LOGGER.debugf("%s.%s", entry.getKey(), entry.getValue());
+            }
+
+            LOGGER.debug("]");
+
+            LOGGER.debug("Relationships [");
+
+            for (Entry<Class<? extends Relationship>, Set<FeatureOperation>> entry : this.featureSet.getSupportedRelationships().entrySet()) {
+                LOGGER.debugf("%s.%s", entry.getKey(), entry.getValue());
+            }
+
+            LOGGER.debug("]");
+        }
+    }
+
+    protected abstract void initConfig();
 
     @Override
     public List<ContextInitializer> getContextInitializers() {
@@ -125,29 +164,36 @@ public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStore
         return Collections.unmodifiableSet(this.tiers);
     }
 
-    @Override
-    public final void init() throws SecurityConfigurationException {
-        initConfig();
-        this.featureSet.lock();
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debugf("FeatureSet for %s", this);
-            LOGGER.debug("Features [");
-
-            for (Entry<FeatureGroup, Set<FeatureOperation>> entry : this.featureSet.getSupportedFeatures().entrySet()) {
-                LOGGER.debugf("%s.%s", entry.getKey(), entry.getValue());
-            }
-
-            LOGGER.debug("]");
-
-            LOGGER.debug("Relationships [");
-
-            for (Entry<Class<? extends Relationship>, Set<FeatureOperation>> entry : this.featureSet.getSupportedRelationships().entrySet()) {
-                LOGGER.debugf("%s.%s", entry.getKey(), entry.getValue());
-            }
-
-            LOGGER.debug("]");
-        }
+    public FileIdentityStoreConfiguration fileStore() {
+        return this.identityConfiguration.fileStore();
     }
 
-    protected abstract void initConfig();
+    public JPAIdentityStoreConfiguration jpaStore() {
+        return this.identityConfiguration.jpaStore();
+    }
+
+    public LDAPIdentityStoreConfiguration ldapStore() {
+        return this.identityConfiguration.ldapStore();
+    }
+
+    public IdentityConfiguration contextFactory(SecurityContextFactory securityContextFactory) {
+        return this.identityConfiguration.contextFactory(securityContextFactory);
+    }
+
+    public IdentityConfiguration storeFactory(StoreFactory storeFactory) {
+        return this.identityConfiguration.storeFactory(storeFactory);
+    }
+
+    public List<IdentityStoreConfiguration<?>> getConfiguredStores() {
+        return this.identityConfiguration.getConfiguredStores();
+    }
+
+    public void addConfig(IdentityStoreConfiguration<?> config) {
+        this.identityConfiguration.addConfig(config);
+    }
+
+    public IdentityManagerFactory buildIdentityManagerFactory() {
+        return this.identityConfiguration.buildIdentityManagerFactory();
+    }
+
 }

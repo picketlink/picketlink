@@ -281,4 +281,7 @@ public interface IDMMessages {
     @Message(id = 70, value = "The default Realm was not configured for any identity store. Check your configuration.")
     SecurityConfigurationException configurationDefaultRealmNotDefined();
 
+    @Message(id = 71, value = "The same feature [%s] was configured for different IdentityStoreConfiguration [%s, %s].")
+    SecurityConfigurationException configurationAmbiguosFeatureForStore(FeatureGroup feature, IdentityStoreConfiguration<?> config1, IdentityStoreConfiguration<?> config2);
+
 }

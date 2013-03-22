@@ -24,6 +24,7 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
@@ -55,9 +56,8 @@ import org.picketlink.idm.spi.StoreFactory;
  *
  * @author Shane Bryzak
  */
+@SuppressWarnings("rawtypes")
 public class DefaultStoreFactory implements StoreFactory {
-
-    private IdentityConfiguration identityConfig;
 
     private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> identityConfigMap = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>>();
 
@@ -72,14 +72,28 @@ public class DefaultStoreFactory implements StoreFactory {
     private Map<String, Tier> configuredTiers = new HashMap<String, Tier>();
 
     public DefaultStoreFactory(IdentityConfiguration identityConfig) {
-        this.identityConfig = identityConfig;
-
         this.identityConfigMap.put(JPAIdentityStoreConfiguration.class, JPAIdentityStore.class);
         this.identityConfigMap.put(LDAPIdentityStoreConfiguration.class, LDAPIdentityStore.class);
         this.identityConfigMap.put(FileIdentityStoreConfiguration.class, FileBasedIdentityStore.class);
 
+        Map<FeatureGroup, IdentityStoreConfiguration<?>> supportedFeatures = new HashMap<FeatureGroup, IdentityStoreConfiguration<?>>();
+
         for (IdentityStoreConfiguration<?> config : identityConfig.getConfiguredStores()) {
             LOGGER.identityManagerInitConfigForRealms(config, config.getRealms());
+
+            Map<FeatureGroup, Set<FeatureOperation>> storeFeatures = config.getFeatureSet().getSupportedFeatures();
+
+            // let's check for duplicated features
+            for (Entry<FeatureGroup, Set<FeatureOperation>> entry : storeFeatures.entrySet()) {
+                FeatureGroup feature = entry.getKey();
+                IdentityStoreConfiguration<?> storeConfigForFeature = supportedFeatures.get(feature);
+
+                if (storeConfigForFeature == null) {
+                    supportedFeatures.put(feature, config);
+                } else {
+                    throw MESSAGES.configurationAmbiguosFeatureForStore(feature, storeConfigForFeature, config);
+                }
+            }
 
             config.init();
 

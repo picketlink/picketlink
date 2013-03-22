@@ -25,12 +25,10 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.IdentityManagerFactory;
-import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
-import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -117,27 +115,31 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
 
     @Override
     public IdentityManagerFactory createIdentityManagerFactory() {
-        IdentityConfiguration config = new IdentityConfiguration();
-        config.addConfig(getConfiguration());
-
-        return new DefaultIdentityManagerFactory(config);
-    }
-
-    public static LDAPIdentityStoreConfiguration getConfiguration() {
-        LDAPIdentityStoreConfiguration config = new LDAPIdentityStoreConfiguration();
-
-        config.setBaseDN(BASE_DN).setBindDN("uid=admin,ou=system").setBindCredential("secret").setLdapURL(LDAP_URL)
-                .setUserDNSuffix(USER_DN_SUFFIX).setRoleDNSuffix(ROLES_DN_SUFFIX).setAgentDNSuffix(AGENT_DN_SUFFIX)
-                .setGroupDNSuffix(GROUP_DN_SUFFIX);
-
-        config.addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org");
-
-        FeatureSet.addFeatureSupport(config.getFeatureSet(), FeatureGroup.agent, FeatureGroup.user, FeatureGroup.group,
-                FeatureGroup.role, FeatureGroup.attribute, FeatureGroup.relationship, FeatureGroup.credential);
-        config.getFeatureSet().setSupportsCustomRelationships(false);
-        config.getFeatureSet().setSupportsMultiRealm(false);
-
-        return config;
+        IdentityConfiguration configuration = new IdentityConfiguration();
+        
+        configuration
+            .ldapStore()
+                .setBaseDN(BASE_DN)
+                .setBindDN("uid=admin,ou=system")
+                .setBindCredential("secret")
+                .setLdapURL(LDAP_URL)
+                .setUserDNSuffix(USER_DN_SUFFIX)
+                .setRoleDNSuffix(ROLES_DN_SUFFIX)
+                .setAgentDNSuffix(AGENT_DN_SUFFIX)
+                .setGroupDNSuffix(GROUP_DN_SUFFIX)
+                .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
+                .addRealm(Realm.DEFAULT_REALM)
+                .supportFeature(
+                    FeatureGroup.user, 
+                    FeatureGroup.agent, 
+                    FeatureGroup.user, 
+                    FeatureGroup.group,
+                    FeatureGroup.role, 
+                    FeatureGroup.attribute, 
+                    FeatureGroup.relationship, 
+                    FeatureGroup.credential);
+        
+        return configuration.buildIdentityManagerFactory();
     }
 
     @Override

@@ -34,19 +34,11 @@ import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.IdentityManagerFactory;
-import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
-import org.picketlink.idm.jpa.schema.CredentialObject;
-import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
 import org.picketlink.idm.jpa.schema.IdentityObject;
 import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
 import org.picketlink.idm.jpa.schema.PartitionObject;
-import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
-import org.picketlink.idm.jpa.schema.RelationshipObject;
-import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.SimpleUser;
 
@@ -65,7 +57,9 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
 
         initializeEntityManager();
 
-        identityManagerFactory.createIdentityManager().add(new SimpleUser("testingUser"));
+        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+        
+        identityManager.add(new SimpleUser("testingUser"));
 
         closeEntityManager();
     }
@@ -139,43 +133,23 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
     }
 
     private static IdentityManagerFactory createIdentityManagerFactory() {
-        IdentityConfiguration config = new IdentityConfiguration();
+        IdentityConfiguration configuration = new IdentityConfiguration();
         
-        addDefaultConfiguration(config);
+        configuration
+            .jpaStore()
+                .addRealm(Realm.DEFAULT_REALM, "Testing")
+                .setIdentityClass(IdentityObject.class)
+                .setAttributeClass(IdentityObjectAttribute.class)
+                .setPartitionClass(PartitionObject.class)
+                .supportAllFeatures()
+                .addContextInitializer(new JPAContextInitializer(emf) {
+                    @Override
+                    public EntityManager getEntityManager() {
+                        return entityManager.get();
+                    }
+                });
 
-        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
-        
-        return factory;
-    }
-
-    private static void addDefaultConfiguration(IdentityConfiguration config) {
-        JPAIdentityStoreConfiguration configuration = new JPAIdentityStoreConfiguration();
-
-        configuration.addRealm(Realm.DEFAULT_REALM);
-        configuration.addRealm("Testing");
-
-        configuration.setIdentityClass(IdentityObject.class);
-        configuration.setAttributeClass(IdentityObjectAttribute.class);
-        configuration.setRelationshipClass(RelationshipObject.class);
-        configuration.setRelationshipIdentityClass(RelationshipIdentityObject.class);
-        configuration.setRelationshipAttributeClass(RelationshipObjectAttribute.class);
-        configuration.setCredentialClass(CredentialObject.class);
-        configuration.setCredentialAttributeClass(CredentialObjectAttribute.class);
-        configuration.setPartitionClass(PartitionObject.class);
-
-        FeatureSet.addFeatureSupport(configuration.getFeatureSet());
-        FeatureSet.addRelationshipSupport(configuration.getFeatureSet());
-        configuration.getFeatureSet().setSupportsCustomRelationships(true);
-        configuration.getFeatureSet().setSupportsMultiRealm(true);
-
-        configuration.addContextInitializer(new JPAContextInitializer(emf) {
-            @Override
-            public EntityManager getEntityManager() {
-                return entityManager.get();
-            }
-        });
-        
-        config.addConfig(configuration);
-    }
+            return configuration.buildIdentityManagerFactory();    
+        }
 
 }

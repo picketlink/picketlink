@@ -20,11 +20,13 @@ package org.picketlink.idm.config;
 
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.picketlink.idm.IdentityManagerFactory;
+import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.spi.SecurityContextFactory;
 import org.picketlink.idm.spi.StoreFactory;
 
@@ -56,9 +58,9 @@ public class IdentityConfiguration {
      * @return
      */
     public FileIdentityStoreConfiguration fileStore() {
-        FileIdentityStoreConfiguration storeConfig = new FileIdentityStoreConfiguration();
+        FileIdentityStoreConfiguration storeConfig = new FileIdentityStoreConfiguration(this);
 
-        this.configuredStores.add(storeConfig);
+        addConfig(storeConfig);
 
         return storeConfig;
     }
@@ -72,9 +74,9 @@ public class IdentityConfiguration {
      * @return
      */
     public JPAIdentityStoreConfiguration jpaStore() {
-        JPAIdentityStoreConfiguration storeConfig = new JPAIdentityStoreConfiguration();
+        JPAIdentityStoreConfiguration storeConfig = new JPAIdentityStoreConfiguration(this);
 
-        this.configuredStores.add(storeConfig);
+        addConfig(storeConfig);
 
         return storeConfig;
     }
@@ -88,9 +90,9 @@ public class IdentityConfiguration {
      * @return
      */
     public LDAPIdentityStoreConfiguration ldapStore() {
-        LDAPIdentityStoreConfiguration storeConfig = new LDAPIdentityStoreConfiguration();
+        LDAPIdentityStoreConfiguration storeConfig = new LDAPIdentityStoreConfiguration(this);
 
-        this.configuredStores.add(storeConfig);
+        addConfig(storeConfig);
 
         return storeConfig;
     }
@@ -151,9 +153,10 @@ public class IdentityConfiguration {
      * </p>
      *
      * @return
+     * @throws SecurityConfigurationException if some error occurs when creating an {@link IdentityManagerFactory} instance.
      */
     @SuppressWarnings("unchecked")
-    public IdentityManagerFactory buildIdentityManagerFactory() {
+    public IdentityManagerFactory buildIdentityManagerFactory() throws SecurityConfigurationException {
         IdentityManagerFactory identityManagerFactory = null;
 
         try {
@@ -175,8 +178,11 @@ public class IdentityConfiguration {
             } else {
                 identityManagerFactory = implementationClass.getConstructor(IdentityConfiguration.class).newInstance(this);
             }
+        } catch (InvocationTargetException e) {
+            throw MESSAGES.configurationCouldNotCreateIdentityManagerFactoryImpl(DEFAULT_IDENTITY_MANAGER_FACTORY_IMPL,
+                    e.getTargetException());
         } catch (Exception e) {
-            MESSAGES.configurationCouldNotCreateIdentityManagerFactoryImpl(DEFAULT_IDENTITY_MANAGER_FACTORY_IMPL, e);
+            throw MESSAGES.configurationCouldNotCreateIdentityManagerFactoryImpl(DEFAULT_IDENTITY_MANAGER_FACTORY_IMPL, e);
         }
 
         return identityManagerFactory;

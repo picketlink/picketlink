@@ -31,6 +31,14 @@ public class FileIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
     private boolean alwaysCreateFiles = true;
     private String workingDir;
 
+    public FileIdentityStoreConfiguration() {
+        super();
+    }
+
+    public FileIdentityStoreConfiguration(IdentityConfiguration identityConfiguration) {
+        super(identityConfiguration);
+    }
+
     @Override
     protected void initConfig() throws SecurityConfigurationException {
     }

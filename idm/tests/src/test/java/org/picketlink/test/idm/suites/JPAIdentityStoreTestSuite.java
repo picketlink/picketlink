@@ -26,12 +26,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.IdentityManagerFactory;
-import org.picketlink.idm.config.FeatureSet;
-import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.schema.CredentialObject;
@@ -83,58 +78,32 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
         this.emf.close();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public IdentityManagerFactory createIdentityManagerFactory() {
-        IdentityConfiguration config = new IdentityConfiguration();
+        IdentityConfiguration configuration = new IdentityConfiguration();
         
-        IdentityStoreConfiguration jpaConfig = getDefaultConfiguration();
-        
-        jpaConfig.addContextInitializer(new JPAContextInitializer(emf) {
-            @Override
-            public EntityManager getEntityManager() {
-                return entityManager;
-            }
-        });
-        
-        config.addConfig(jpaConfig);
+        configuration
+            .jpaStore()
+                .addRealm(Realm.DEFAULT_REALM, "Testing")
+                .setIdentityClass(IdentityObject.class)
+                .setAttributeClass(IdentityObjectAttribute.class)
+                .setRelationshipClass(RelationshipObject.class)
+                .setRelationshipIdentityClass(RelationshipIdentityObject.class)
+                .setRelationshipAttributeClass(RelationshipObjectAttribute.class)
+                .setCredentialClass(CredentialObject.class)
+                .setCredentialAttributeClass(CredentialObjectAttribute.class)
+                .setPartitionClass(PartitionObject.class)
+                .supportAllFeatures()
+                .supportRelationshipType(CustomRelationship.class, Authorization.class)
+                .addContextInitializer(new JPAContextInitializer(emf) {
+                    @Override
+                    public EntityManager getEntityManager() {
+                        return entityManager;
+                    }
+                });
 
-        return new DefaultIdentityManagerFactory(config);
-    }
-
-    private IdentityManager createIdentityManager(IdentityConfiguration config) {
-        return new DefaultIdentityManagerFactory(config).createIdentityManager();
-    }
-
-    /**
-     * <p>
-     * Returns a specific {@link FileIdentityStoreConfiguration} for the Realm.DEFAULT_REALM.
-     * </p>
-     * 
-     * @return
-     */
-    private IdentityStoreConfiguration getDefaultConfiguration() {
-        JPAIdentityStoreConfiguration configuration = new JPAIdentityStoreConfiguration();
-
-        configuration.addRealm(Realm.DEFAULT_REALM);
-        configuration.addRealm("Testing");
-
-        configuration.setIdentityClass(IdentityObject.class);
-        configuration.setAttributeClass(IdentityObjectAttribute.class);
-        configuration.setRelationshipClass(RelationshipObject.class);
-        configuration.setRelationshipIdentityClass(RelationshipIdentityObject.class);
-        configuration.setRelationshipAttributeClass(RelationshipObjectAttribute.class);
-        configuration.setCredentialClass(CredentialObject.class);
-        configuration.setCredentialAttributeClass(CredentialObjectAttribute.class);
-        configuration.setPartitionClass(PartitionObject.class);
-
-        FeatureSet.addFeatureSupport(configuration.getFeatureSet());
-        FeatureSet.addRelationshipSupport(configuration.getFeatureSet());
-        FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), CustomRelationship.class);
-        FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), Authorization.class);
-        configuration.getFeatureSet().setSupportsCustomRelationships(true);
-        configuration.getFeatureSet().setSupportsMultiRealm(true);
-
-        return configuration;
+        return configuration.buildIdentityManagerFactory();
     }
 
 }

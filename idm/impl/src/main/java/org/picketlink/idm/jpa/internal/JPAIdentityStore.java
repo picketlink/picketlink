@@ -113,6 +113,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      */
     private JPAIdentityStoreConfiguration config;
 
+    @Override
     public void setup(JPAIdentityStoreConfiguration config) {
         this.config = config;
     }
@@ -580,7 +581,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     protected Partition convertPartitionEntityToPartition(Object partitionObject) {
-        checkCredentialClassProvided();
+        checkPartitionClassProvided();
 
         Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.PARTITION_TYPE);
 

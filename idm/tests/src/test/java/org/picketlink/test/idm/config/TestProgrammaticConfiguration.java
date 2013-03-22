@@ -22,6 +22,9 @@
 
 package org.picketlink.test.idm.config;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -33,6 +36,7 @@ import org.junit.Test;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.IdentityManagerFactory;
+import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
@@ -179,4 +183,27 @@ public class TestProgrammaticConfiguration extends AbstractLDAPTest {
         Assert.assertNotNull(identityManager.getUser(user.getLoginName()));
     }
 
+    @Test
+    public void failDuplicatedFeatureConfiguration() throws Exception {
+        IdentityConfiguration configuration = new IdentityConfiguration();
+
+        configuration
+            .fileStore()
+                .supportFeature(FeatureGroup.user)
+            .jpaStore()
+                .supportFeature(FeatureGroup.user);
+
+        try {
+            configuration.buildIdentityManagerFactory();
+            fail();
+        } catch (SecurityConfigurationException e) {
+            assertTrue(e.getMessage().contains("PLIDM000069"));
+            
+            if (!e.getCause().getMessage().contains("PLIDM000071")) {
+                fail();
+            }
+        } catch (Exception e) {
+            fail();
+        }
+    }
 }

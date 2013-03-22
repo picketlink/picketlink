@@ -29,14 +29,8 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.IdentityManagerFactory;
-import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
-import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.schema.IdentityObject;
@@ -46,6 +40,8 @@ import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.model.Authorization;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -70,8 +66,8 @@ import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
 
 /**
  * <p>
- * Test suite for the {@link IdentityManager} using a {@link JPAIdentityStore} in conjuction with a {@link LDAPIdentityStore}.
- * This suite tests a common scenario where the LDAP is used to store IdentityTypes and the JPA is used for relationships.
+ * Test suite for the {@link IdentityManager} using a {@link JPAIdentityStore} in conjunction with a {@link LDAPIdentityStore}.
+ * This suite tests a common scenario where the LDAP is used to store IdentityTypes and the JPA is used to store relationships.
  * </p>
  * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -132,62 +128,49 @@ public class LDAPJPAMixedStoreTestSuite extends AbstractLDAPTest implements Test
         this.entityManager.getTransaction().begin();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public IdentityManagerFactory createIdentityManagerFactory() {
-        IdentityConfiguration config = new IdentityConfiguration();
-
-        IdentityStoreConfiguration jpaConfig = getJPAConfiguration();
+        IdentityConfiguration configuration = new IdentityConfiguration();
         
-        jpaConfig.addContextInitializer(new JPAContextInitializer(emf) {
-            @Override
-            public EntityManager getEntityManager() {
-                return entityManager;
-            }
-        });
+        configuration
+            .ldapStore()
+                .setBaseDN(BASE_DN)
+                .setBindDN("uid=admin,ou=system")
+                .setBindCredential("secret")
+                .setLdapURL(LDAP_URL)
+                .setUserDNSuffix(USER_DN_SUFFIX)
+                .setRoleDNSuffix(ROLES_DN_SUFFIX)
+                .setAgentDNSuffix(AGENT_DN_SUFFIX)
+                .setGroupDNSuffix(GROUP_DN_SUFFIX)
+                .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
+                .addRealm(Realm.DEFAULT_REALM)
+                .supportFeature(
+                    FeatureGroup.user, 
+                    FeatureGroup.agent, 
+                    FeatureGroup.user, 
+                    FeatureGroup.group,
+                    FeatureGroup.role, 
+                    FeatureGroup.attribute, 
+                    FeatureGroup.credential)
+            .jpaStore()
+                .addRealm(Realm.DEFAULT_REALM)
+                .setIdentityClass(IdentityObject.class)
+                .setAttributeClass(IdentityObjectAttribute.class)
+                .setRelationshipClass(RelationshipObject.class)
+                .setRelationshipIdentityClass(RelationshipIdentityObject.class)
+                .setRelationshipAttributeClass(RelationshipObjectAttribute.class)
+                .setPartitionClass(PartitionObject.class)
+                .supportFeature(FeatureGroup.relationship)
+                .supportRelationshipType(CustomRelationship.class, Authorization.class)
+                .addContextInitializer(new JPAContextInitializer(emf) {
+                    @Override
+                    public EntityManager getEntityManager() {
+                        return entityManager;
+                    }
+                });
         
-        config.addConfig(jpaConfig);
-        config.addConfig(getLDAPConfiguration());
-
-        return new DefaultIdentityManagerFactory(config);
-    }
-
-    /**
-     * <p>
-     * Returns a specific {@link FileIdentityStoreConfiguration} for the Realm.DEFAULT_REALM.
-     * </p>
-     * 
-     * @return
-     */
-    private IdentityStoreConfiguration getJPAConfiguration() {
-        JPAIdentityStoreConfiguration configuration = new JPAIdentityStoreConfiguration();
-
-        configuration.setIdentityClass(IdentityObject.class);
-        configuration.setAttributeClass(IdentityObjectAttribute.class);
-        configuration.setRelationshipClass(RelationshipObject.class);
-        configuration.setRelationshipIdentityClass(RelationshipIdentityObject.class);
-        configuration.setRelationshipAttributeClass(RelationshipObjectAttribute.class);
-        configuration.setPartitionClass(PartitionObject.class);
-
-        FeatureSet.addRelationshipSupport(configuration.getFeatureSet());
-        FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), CustomRelationship.class);
-        configuration.getFeatureSet().setSupportsCustomRelationships(true);
-
-        return configuration;
-    }
-
-    public static LDAPIdentityStoreConfiguration getLDAPConfiguration() {
-        LDAPIdentityStoreConfiguration config = new LDAPIdentityStoreConfiguration();
-
-        config.setBaseDN(BASE_DN).setBindDN("uid=admin,ou=system").setBindCredential("secret").setLdapURL(LDAP_URL)
-                .setUserDNSuffix(USER_DN_SUFFIX).setRoleDNSuffix(ROLES_DN_SUFFIX).setAgentDNSuffix(AGENT_DN_SUFFIX)
-                .setGroupDNSuffix(GROUP_DN_SUFFIX);
-
-        config.addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org");
-
-        FeatureSet.addFeatureSupport(config.getFeatureSet(), FeatureGroup.agent, FeatureGroup.user, FeatureGroup.group,
-                FeatureGroup.role, FeatureGroup.attribute, FeatureGroup.credential);
-
-        return config;
+        return configuration.buildIdentityManagerFactory();
     }
 
     @Override
