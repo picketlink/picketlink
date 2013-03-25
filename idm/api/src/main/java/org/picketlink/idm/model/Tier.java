@@ -28,8 +28,6 @@ public class Tier extends AbstractPartition {
 
     private static final long serialVersionUID = 7797059334915537276L;
 
-    private Tier parent;
-
     public Tier(String id) {
         super(id);
     }
