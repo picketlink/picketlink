@@ -56,7 +56,7 @@ import org.picketlink.oauth.server.util.OAuthServerUtil;
 
 /**
  * An instance of {@link Filter} that performs OAuth checks before allowing access to a resource
- * 
+ *
  * @author anil saldhana
  * @since Sep 14, 2012
  */

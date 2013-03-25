@@ -51,7 +51,7 @@ import org.picketlink.oauth.messages.ResourceAccessRequest;
 
 /**
  * Utility
- * 
+ *
  * @author anil saldhana
  * @since Dec 12, 2012
  */
@@ -60,7 +60,7 @@ public class OAuthServerUtil {
 
     /**
      * Centralize the IDM setup
-     * 
+     *
      * @param context
      * @return
      * @throws IOException
@@ -69,7 +69,7 @@ public class OAuthServerUtil {
     public static IdentityManager handleIdentityManager(ServletContext context) throws IOException {
         // FIXME: Need to correctly handle the JPA store configuration. Need to provide ways to configure the
         // JPAContextInitializer in order to use the EntityManager properly between invocations to the identity manager.
-        
+
         // IdentityManager identityManager = null;
         // if (context == null) {
         // throw new IllegalArgumentException("context is null");
@@ -145,7 +145,7 @@ public class OAuthServerUtil {
 
     /**
      * Handle an Authorization Code Grant Type Request
-     * 
+     *
      * @param request
      * @param identityManager
      * @return
@@ -245,7 +245,7 @@ public class OAuthServerUtil {
 
     /**
      * Handle Token Request
-     * 
+     *
      * @param request
      * @param identityManager
      * @return
@@ -268,7 +268,7 @@ public class OAuthServerUtil {
 
     /**
      * Validate the access token
-     * 
+     *
      * @param passedAccessToken
      * @param identityManager
      * @return
@@ -292,7 +292,7 @@ public class OAuthServerUtil {
 
     /**
      * Parse a {@link ResourceAccessRequest} with application/x-www-form-urlencoded
-     * 
+     *
      * @param request
      * @return
      */
@@ -304,7 +304,7 @@ public class OAuthServerUtil {
 
     /**
      * Parse a {@link RegistrationRequest} coming as application/x-www-form-urlencoded
-     * 
+     *
      * @param request
      * @return
      */
@@ -321,7 +321,7 @@ public class OAuthServerUtil {
 
     /**
      * Parse a {@link RegistrationRequest} coming as application/json
-     * 
+     *
      * @param request
      * @return
      */
@@ -343,7 +343,7 @@ public class OAuthServerUtil {
 
     /**
      * Refresh Token Request
-     * 
+     *
      * @param request
      * @param identityManager
      * @return
@@ -360,7 +360,7 @@ public class OAuthServerUtil {
 
     /**
      * Handle Password Grant Type token request
-     * 
+     *
      * @param request
      * @param identityManager
      * @return
@@ -406,7 +406,7 @@ public class OAuthServerUtil {
 
     /**
      * Handle Token Request
-     * 
+     *
      * @param request
      * @param identityManager
      * @return
