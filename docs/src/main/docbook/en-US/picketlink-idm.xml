@@ -124,7 +124,7 @@
       
       <para>
         PicketLink has been designed from the ground up to support a system of <emphasis>partitioning</emphasis>, allowing the
-        users, groups and roles of your application to be divided into <emphasis>Realms</emphasis> and <emphasis>Tiers</emphasis>.
+        users, groups and roles of an application to be divided into <emphasis>Realms</emphasis> and <emphasis>Tiers</emphasis>.
       </para>
            
       <mediaobject>
@@ -135,6 +135,20 @@
           <imagedata fileref="diagrams/realm_tier.png" align="center"/>
         </imageobject>
       </mediaobject>   
+      
+      <para>
+        A <emphasis>Realm</emphasis> is used to define a discrete set of users, groups and roles.  A typical use case for realms
+        is the segregation of corporate user accounts within a multi-tenant application, although it is not limited this use case only.
+        As all identity management operations must be performed within the context of an <emphasis>active partition</emphasis>, 
+        PicketLink defines the concept of a <emphasis>default realm</emphasis> which becomes the active partition if no other 
+        partition has been specified.
+      </para>
+      
+      <para>
+        A <emphasis>Tier</emphasis> is a more restrictive type of partition than a realm, as it only allows groups and roles to be 
+        defined (but not users).  A Tier may be used to define a set of application-specific groups and roles, which may then be 
+        assigned to groups within the same Tier, or to users and groups within a separate Realm.
+      </para>
       
     </section>
        
@@ -170,7 +184,7 @@
             as an actor within the scope of a transaction.  In the latter case, the underlying resources being 
             utilised by the configured identity stores (such as a JPA <code>EntityManager</code>) would participate in 
             the active transaction, and changes made as a result of any identity management operations would either be 
-            committed or rolled back as appropriate.
+            committed or rolled back as appropriate for the logic of the encapsulating business method.
           </para>
             
           <para>
@@ -178,6 +192,7 @@
           </para>
           
         </section>
+
       
       
       
