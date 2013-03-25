@@ -22,9 +22,6 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,25 +31,10 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.PropertyNamingStrategy;
 import org.jboss.logging.Logger;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.FeatureSet;
-import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
-import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
-import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.jpa.schema.CredentialObject;
-import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
-import org.picketlink.idm.jpa.schema.IdentityObject;
-import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
-import org.picketlink.idm.jpa.schema.PartitionObject;
-import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
-import org.picketlink.idm.jpa.schema.RelationshipObject;
-import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
-import org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.Authorization;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.oauth.common.OAuthConstants;
@@ -69,7 +51,7 @@ import org.picketlink.oauth.messages.ResourceAccessRequest;
 
 /**
  * Utility
- *
+ * 
  * @author anil saldhana
  * @since Dec 12, 2012
  */
@@ -78,88 +60,92 @@ public class OAuthServerUtil {
 
     /**
      * Centralize the IDM setup
-     *
+     * 
      * @param context
      * @return
      * @throws IOException
      */
     @SuppressWarnings("unchecked")
     public static IdentityManager handleIdentityManager(ServletContext context) throws IOException {
-        IdentityManager identityManager = null;
-        if (context == null) {
-            throw new IllegalArgumentException("context is null");
-        }
-        identityManager = (IdentityManager) context.getAttribute("identityManager");
-        if (identityManager == null) {
-            // Need to handle IM
-            identityManager = new DefaultIdentityManager();
-            String storeType = context.getInitParameter("storeType");
-            if (storeType == null || "db".equals(storeType)) {
-
-                EntityManagerFactory emf = Persistence.createEntityManagerFactory("oauth-pu");
-                EntityManager entityManager = emf.createEntityManager();
-
-                entityManager.getTransaction().begin();
-
-                IdentityConfiguration identityConfig = new IdentityConfiguration();
-                JPAIdentityStoreConfiguration jpaStoreConfig = new JPAIdentityStoreConfiguration();
-
-                jpaStoreConfig.addRealm("default");
-
-                jpaStoreConfig.setIdentityClass(IdentityObject.class);
-                jpaStoreConfig.setAttributeClass(IdentityObjectAttribute.class);
-                jpaStoreConfig.setRelationshipClass(RelationshipObject.class);
-                jpaStoreConfig.setRelationshipIdentityClass(RelationshipIdentityObject.class);
-                jpaStoreConfig.setRelationshipAttributeClass(RelationshipObjectAttribute.class);
-                jpaStoreConfig.setCredentialClass(CredentialObject.class);
-                jpaStoreConfig.setCredentialAttributeClass(CredentialObjectAttribute.class);
-                jpaStoreConfig.setPartitionClass(PartitionObject.class);
-
-                FeatureSet.addFeatureSupport(jpaStoreConfig.getFeatureSet());
-                FeatureSet.addRelationshipSupport(jpaStoreConfig.getFeatureSet());
-                FeatureSet.addRelationshipSupport(jpaStoreConfig.getFeatureSet(), Authorization.class);
-                jpaStoreConfig.getFeatureSet().setSupportsCustomRelationships(true);
-                jpaStoreConfig.getFeatureSet().setSupportsMultiRealm(true);
-
-                identityConfig.addStoreConfiguration(jpaStoreConfig);
-
-                identityManager = new DefaultIdentityManager();
-                DefaultIdentityStoreInvocationContextFactory icf = new DefaultIdentityStoreInvocationContextFactory(emf);
-                icf.setEntityManager(entityManager);
-                identityManager.bootstrap(identityConfig, icf);
-                context.setAttribute("identityManager", identityManager);
-            }
-            if ("ldap".equalsIgnoreCase(storeType)) {
-                LDAPIdentityStoreConfiguration ldapConfiguration = new LDAPIdentityStoreConfiguration();
-
-                // LDAPConfiguration ldapConfiguration = new LDAPConfiguration();
-
-                Properties properties = getProperties(context);
-                ldapConfiguration.setBaseDN(properties.getProperty("baseDN")).setBindDN(properties.getProperty("bindDN"))
-                        .setBindCredential(properties.getProperty("bindCredential"));
-                ldapConfiguration.setLdapURL(properties.getProperty("ldapURL"));
-                ldapConfiguration.setUserDNSuffix(properties.getProperty("userDNSuffix"))
-                        .setRoleDNSuffix(properties.getProperty("roleDNSuffix"))
-                        .setAgentDNSuffix(properties.getProperty("agentDNSuffix"));
-                ldapConfiguration.setGroupDNSuffix(properties.getProperty("groupDNSuffix"));
-
-                // store.setup(ldapConfiguration, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
-
-                // Create Identity Configuration
-                IdentityConfiguration config = new IdentityConfiguration();
-                config.addStoreConfiguration(ldapConfiguration);
-
-                identityManager.bootstrap(config, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
-                context.setAttribute("identityManager", identityManager);
-            }
-        }
-
-        return identityManager;
+        // FIXME: Need to correctly handle the JPA store configuration. Need to provide ways to configure the
+        // JPAContextInitializer in order to use the EntityManager properly between invocations to the identity manager.
+        
+        // IdentityManager identityManager = null;
+        // if (context == null) {
+        // throw new IllegalArgumentException("context is null");
+        // }
+        // identityManager = (IdentityManager) context.getAttribute("identityManager");
+        // if (identityManager == null) {
+        // // Need to handle IM
+        // identityManager = new DefaultIdentityManager();
+        // String storeType = context.getInitParameter("storeType");
+        // if (storeType == null || "db".equals(storeType)) {
+        //
+        // EntityManagerFactory emf = Persistence.createEntityManagerFactory("oauth-pu");
+        // EntityManager entityManager = emf.createEntityManager();
+        //
+        // entityManager.getTransaction().begin();
+        //
+        // IdentityConfiguration identityConfig = new IdentityConfiguration();
+        // JPAIdentityStoreConfiguration jpaStoreConfig = new JPAIdentityStoreConfiguration();
+        //
+        // jpaStoreConfig.addRealm("default");
+        //
+        // jpaStoreConfig.setIdentityClass(IdentityObject.class);
+        // jpaStoreConfig.setAttributeClass(IdentityObjectAttribute.class);
+        // jpaStoreConfig.setRelationshipClass(RelationshipObject.class);
+        // jpaStoreConfig.setRelationshipIdentityClass(RelationshipIdentityObject.class);
+        // jpaStoreConfig.setRelationshipAttributeClass(RelationshipObjectAttribute.class);
+        // jpaStoreConfig.setCredentialClass(CredentialObject.class);
+        // jpaStoreConfig.setCredentialAttributeClass(CredentialObjectAttribute.class);
+        // jpaStoreConfig.setPartitionClass(PartitionObject.class);
+        //
+        // FeatureSet.addFeatureSupport(jpaStoreConfig.getFeatureSet());
+        // FeatureSet.addRelationshipSupport(jpaStoreConfig.getFeatureSet());
+        // FeatureSet.addRelationshipSupport(jpaStoreConfig.getFeatureSet(), Authorization.class);
+        // jpaStoreConfig.getFeatureSet().setSupportsCustomRelationships(true);
+        // jpaStoreConfig.getFeatureSet().setSupportsMultiRealm(true);
+        //
+        // identityConfig.addStoreConfiguration(jpaStoreConfig);
+        //
+        // identityManager = new DefaultIdentityManager();
+        // DefaultIdentityStoreInvocationContextFactory icf = new DefaultIdentityStoreInvocationContextFactory(emf);
+        // icf.setEntityManager(entityManager);
+        // identityManager.bootstrap(identityConfig, icf);
+        // context.setAttribute("identityManager", identityManager);
+        // }
+        // if ("ldap".equalsIgnoreCase(storeType)) {
+        // LDAPIdentityStoreConfiguration ldapConfiguration = new LDAPIdentityStoreConfiguration();
+        //
+        // // LDAPConfiguration ldapConfiguration = new LDAPConfiguration();
+        //
+        // Properties properties = getProperties(context);
+        // ldapConfiguration.setBaseDN(properties.getProperty("baseDN")).setBindDN(properties.getProperty("bindDN"))
+        // .setBindCredential(properties.getProperty("bindCredential"));
+        // ldapConfiguration.setLdapURL(properties.getProperty("ldapURL"));
+        // ldapConfiguration.setUserDNSuffix(properties.getProperty("userDNSuffix"))
+        // .setRoleDNSuffix(properties.getProperty("roleDNSuffix"))
+        // .setAgentDNSuffix(properties.getProperty("agentDNSuffix"));
+        // ldapConfiguration.setGroupDNSuffix(properties.getProperty("groupDNSuffix"));
+        //
+        // // store.setup(ldapConfiguration, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
+        //
+        // // Create Identity Configuration
+        // IdentityConfiguration config = new IdentityConfiguration();
+        // config.addStoreConfiguration(ldapConfiguration);
+        //
+        // identityManager.bootstrap(config, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
+        // context.setAttribute("identityManager", identityManager);
+        // }
+        // }
+        //
+        // return identityManager;
+        throw new RuntimeException("Not implemented yet.");
     }
 
     /**
      * Handle an Authorization Code Grant Type Request
-     *
+     * 
      * @param request
      * @param identityManager
      * @return
@@ -259,7 +245,7 @@ public class OAuthServerUtil {
 
     /**
      * Handle Token Request
-     *
+     * 
      * @param request
      * @param identityManager
      * @return
@@ -282,7 +268,7 @@ public class OAuthServerUtil {
 
     /**
      * Validate the access token
-     *
+     * 
      * @param passedAccessToken
      * @param identityManager
      * @return
@@ -306,7 +292,7 @@ public class OAuthServerUtil {
 
     /**
      * Parse a {@link ResourceAccessRequest} with application/x-www-form-urlencoded
-     *
+     * 
      * @param request
      * @return
      */
@@ -318,7 +304,7 @@ public class OAuthServerUtil {
 
     /**
      * Parse a {@link RegistrationRequest} coming as application/x-www-form-urlencoded
-     *
+     * 
      * @param request
      * @return
      */
@@ -335,7 +321,7 @@ public class OAuthServerUtil {
 
     /**
      * Parse a {@link RegistrationRequest} coming as application/json
-     *
+     * 
      * @param request
      * @return
      */
@@ -357,7 +343,7 @@ public class OAuthServerUtil {
 
     /**
      * Refresh Token Request
-     *
+     * 
      * @param request
      * @param identityManager
      * @return
@@ -374,7 +360,7 @@ public class OAuthServerUtil {
 
     /**
      * Handle Password Grant Type token request
-     *
+     * 
      * @param request
      * @param identityManager
      * @return
@@ -420,7 +406,7 @@ public class OAuthServerUtil {
 
     /**
      * Handle Token Request
-     *
+     * 
      * @param request
      * @param identityManager
      * @return
