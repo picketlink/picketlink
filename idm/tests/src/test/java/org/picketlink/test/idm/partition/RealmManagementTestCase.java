@@ -63,7 +63,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
 
     @Test
     public void testCreateUsers() throws Exception {
-        Realm realm = getIdentityManagerFactory().getRealm("Testing");
+        Realm realm = getIdentityManagerFactory().getRealm(TESTING_REALM_NAME);
         
         User realmUser = createUser("realmUser", realm);
         
@@ -102,7 +102,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         
         assertNotNull(defaultRealmUser);
 
-        Realm realm = new Realm("Testing");
+        Realm realm = new Realm(TESTING_REALM_NAME);
         
         User testingRealmUser = createUser("commonName", realm);
         
@@ -133,7 +133,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         
         assertNotNull(defaultRealmRole);
 
-        Realm realm = new Realm("Testing");
+        Realm realm = new Realm(TESTING_REALM_NAME);
         
         Role testingRealmRole = createRole("commonName", realm);
         
@@ -165,7 +165,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         
         assertNotNull(defaultRealmGroup);
 
-        Realm realm = new Realm("Testing");
+        Realm realm = new Realm(TESTING_REALM_NAME);
         
         Group testingRealmGroup = createGroup("commonName", null, realm);
         
@@ -180,7 +180,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
     
     @Test
     public void testCreateRoles() throws Exception {
-        Realm realm = new Realm("Testing");
+        Realm realm = new Realm(TESTING_REALM_NAME);
         
         Role testingRole = createRole("testingRole", realm);
         
@@ -200,7 +200,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
     
     @Test
     public void testCreateGroups() throws Exception {
-        Realm realm = new Realm("Testing");
+        Realm realm = new Realm(TESTING_REALM_NAME);
         
         Group testingGroup = createGroup("testingRealmGroup", null, realm);
         
@@ -238,7 +238,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(defaultIdentityManager.isMember(defaultRealmUser, defaultRealmGroup));
         assertTrue(defaultIdentityManager.hasGroupRole(defaultRealmUser, defaultRealmRole, defaultRealmGroup));
 
-        Realm realm = new Realm("Testing");
+        Realm realm = new Realm(TESTING_REALM_NAME);
         
         IdentityManager testingRealmManager = getIdentityManagerFactory().createIdentityManager(realm);
         

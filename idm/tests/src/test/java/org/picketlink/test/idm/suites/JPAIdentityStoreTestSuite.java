@@ -49,6 +49,7 @@ import org.picketlink.test.idm.credential.CertificateCredentialTestCase;
 import org.picketlink.test.idm.credential.DigestCredentialTestCase;
 import org.picketlink.test.idm.credential.PasswordCredentialTestCase;
 import org.picketlink.test.idm.partition.RealmManagementTestCase;
+import org.picketlink.test.idm.partition.TierManagementTestCase;
 import org.picketlink.test.idm.query.AgentQueryTestCase;
 import org.picketlink.test.idm.query.GroupQueryTestCase;
 import org.picketlink.test.idm.query.RoleQueryTestCase;
@@ -81,7 +82,7 @@ import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
     RoleQueryTestCase.class, AgentGrantRelationshipTestCase.class, AgentGroupRoleRelationshipTestCase.class,
     AgentGroupsRelationshipTestCase.class, CustomRelationshipTestCase.class, GroupGrantRelationshipTestCase.class,
     GroupMembershipTestCase.class, UserGrantRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
-    ApplicationRegistrationTestCase.class, ApplicationUserRelationshipTestCase.class, RealmManagementTestCase.class })
+    ApplicationRegistrationTestCase.class, ApplicationUserRelationshipTestCase.class, RealmManagementTestCase.class, TierManagementTestCase.class })
 public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
     private EntityManagerFactory emf;
@@ -113,6 +114,7 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
         configuration
             .jpaStore()
                 .addRealm(Realm.DEFAULT_REALM, "Testing")
+                .addTier("Application")
                 .setIdentityClass(IdentityObject.class)
                 .setAttributeClass(IdentityObjectAttribute.class)
                 .setRelationshipClass(RelationshipObject.class)
