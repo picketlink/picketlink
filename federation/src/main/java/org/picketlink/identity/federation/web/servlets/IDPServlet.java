@@ -331,7 +331,8 @@ public class IDPServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
-        IDPWebRequestUtil webRequestUtil = new IDPWebRequestUtil(request, idpConfiguration, keyManager);
+        // IDPServelt only support post binding
+        IDPWebRequestUtil webRequestUtil = new IDPWebRequestUtil("POST", idpConfiguration, keyManager);
         webRequestUtil.setCanonicalizationMethod(canonicalizationMethod);
 
         boolean willSendRequest = true;

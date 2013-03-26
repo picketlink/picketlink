@@ -77,11 +77,11 @@ public class IDPWebRequestUtil {
 
     protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
-    public IDPWebRequestUtil(HttpServletRequest request, IDPType idp, TrustKeyManager keym) {
+    public IDPWebRequestUtil(String samlRequestBindingProfile, IDPType idp, TrustKeyManager keym) {
         this.idpConfiguration = idp;
         this.keyManager = keym;
-        this.redirectProfile = "GET".equals(request.getMethod());
-        this.postProfile = "POST".equals(request.getMethod());
+        this.redirectProfile = "GET".equals(samlRequestBindingProfile);
+        this.postProfile = "POST".equals(samlRequestBindingProfile);
     }
 
     public String getCanonicalizationMethod() {
