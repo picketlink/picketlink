@@ -165,8 +165,9 @@
       </mediaobject> 
       
       <para>
-        Selecting which partition that one or more identity management operations are performed in is done by specifying the partition
-        when invoking the <code>IdentityManagerFactory</code>'s <code>createIdentityManager()</code> methods:
+        Selecting the specific partition that the identity management operations are performed in is controlled by specifying 
+        the partition when creating the <code>IdentityManager</code> via the <code>IdentityManagerFactory</code>'s overloaded 
+        <code>createIdentityManager()</code> methods:
       </para>
       
       <programlisting language="JAVA"><![CDATA[  IdentityManager createIdentityManager();
@@ -183,12 +184,12 @@
   Tier getTier(String id);]]></programlisting>
   
       <para>
-        Here's an example demonstrating how to create an instance of <code>IdentityManager</code> to perform some identity management
-        operations in a tier called <emphasis>orders</emphasis>:
+        Here's an example demonstrating how a new user called "bob" is created in a realm called <emphasis>acme</emphasis>:
       </para>
       
-      <programlisting language="JAVA"><![CDATA[  Tier ordersTier = identityManagerFactory.getTier("orders");
-  EntityManager entityManager = identityManagerFactory.createIdentityManager(ordersTier);]]></programlisting>
+      <programlisting language="JAVA"><![CDATA[  Realm acme = identityManagerFactory.getRealm("acme");
+  IdentityManager im = identityManagerFactory.createIdentityManager(acme);
+  im.add(new SimpleUser("bob"));]]></programlisting>
       
     </section>
        
