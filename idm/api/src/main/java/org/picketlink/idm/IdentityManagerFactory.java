@@ -29,13 +29,13 @@ public interface IdentityManagerFactory {
      * @param name
      * @return
      */
-    Realm getRealm(String name);
+    Realm getRealm(String id);
 
     /**
      *
      * @param name
      * @return
      */
-    Tier getTier(String name);
+    Tier getTier(String id);
 
 }

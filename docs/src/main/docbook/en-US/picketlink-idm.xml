@@ -120,7 +120,118 @@
     </section>
     
     <section>
+      <title>Multi Realm Support</title>
+      
+      <para>
+        PicketLink has been designed from the ground up to support a system of <emphasis>partitioning</emphasis>, allowing the
+        users, groups and roles of an application to be divided into <emphasis>Realms</emphasis> and <emphasis>Tiers</emphasis>.
+      </para>
+           
+      <mediaobject>
+        <imageobject role="fo">
+          <imagedata fileref="diagrams/realm_tier.png" align="center" scalefit="1"/>
+        </imageobject>
+        <imageobject role="html">
+          <imagedata fileref="diagrams/realm_tier.png" align="center"/>
+        </imageobject>
+      </mediaobject>   
+      
+      <para>
+        A <emphasis>Realm</emphasis> is used to define a discrete set of users, groups and roles.  A typical use case for realms
+        is the segregation of corporate user accounts within a multi-tenant application, although it is not limited this use case only.
+        As all identity management operations must be performed within the context of an <emphasis>active partition</emphasis>, 
+        PicketLink defines the concept of a <emphasis>default realm</emphasis> which becomes the active partition if no other 
+        partition has been specified.
+      </para>
+      
+      <para>
+        A <emphasis>Tier</emphasis> is a more restrictive type of partition than a realm, as it only allows groups and roles to be 
+        defined (but not users).  A Tier may be used to define a set of application-specific groups and roles, which may then be 
+        assigned to groups within the same Tier, or to users and groups within a separate Realm.
+      </para>
+      
+      <para>
+        In terms of API, both the <code>Realm</code> and <code>Tier</code> classes implement the <code>Partition</code> interface,
+        as shown in the following class diagram:
+      </para>
+      
+      <mediaobject>
+        <imageobject role="fo">
+          <imagedata fileref="diagrams/partition.png" align="center" scalefit="1"/>
+        </imageobject>
+        <imageobject role="html">
+          <imagedata fileref="diagrams/partition.png" align="center"/>
+        </imageobject>
+      </mediaobject> 
+      
+      <para>
+        Selecting which partition that one or more identity management operations are performed in is done by specifying the partition
+        when invoking the <code>IdentityManagerFactory</code>'s <code>createIdentityManager()</code> methods:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[  IdentityManager createIdentityManager();
+  IdentityManager createIdentityManager(Partition partition);]]></programlisting>
+  
+      <para>
+        The first method (without parameters) will create an <code>IdentityManager</code> instance for the default realm.  The
+        second parameter allows a <code>Partition</code> object to be specified.  Once the <code>IdentityManager</code> has been
+        created, any identity management methods invoked on it will be performed within the selected partition.  To look up the 
+        partition object, the <code>IdentityManagerFactory</code> provides two additional methods:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[  Realm getRealm(String id);
+  Tier getTier(String id);]]></programlisting>
+  
+      <para>
+        Here's an example demonstrating how to create an instance of <code>IdentityManager</code> to perform some identity management
+        operations in a tier called <emphasis>orders</emphasis>:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[  Tier ordersTier = identityManagerFactory.getTier("orders");
+  EntityManager entityManager = identityManagerFactory.createIdentityManager(ordersTier);]]></programlisting>
+      
+    </section>
+       
+    <section>
       <title>Configuration</title>
+    
+        <section>
+          <title>Architectural Overview</title>
+          
+          <para>
+            Configuration in PicketLink is in essence quite simple; an <code>IdentityConfiguration</code> object must first 
+            be created to hold the PicketLink configuration options.  Once all configuration options have been set, the 
+            <code>buildIdentityManagerFactory()</code> method is used to create an <code>IdentityManagerFactory</code> instance.
+            The <code>IdentityManagerFactory</code> can then be used to create <code>IdentityManager</code> instances 
+            via the <code>createIdentityManager()</code> method.  
+          </para>          
+          
+          <mediaobject>
+            <imageobject role="fo">
+              <imagedata fileref="diagrams/architecture.png" align="center" scalefit="1"/>
+            </imageobject>
+            <imageobject role="html">
+              <imagedata fileref="diagrams/architecture.png" align="center"/>
+            </imageobject>
+          </mediaobject>
+          
+          <para>
+            Each <code>IdentityManager</code> instance has its own <emphasis>security context</emphasis>, represented by
+            the <code>SecurityContext</code> class.  The security context contains temporary state which is maintained 
+            for one or more identity management operations within the scope of a single realm or tier.  The 
+            <code>IdentityManager</code> (and its associated <code>SecurityContext</code>) is typically modelled as a
+            request-scoped object (for environments which support such a paradigm, such as a servlet container), or alternatively
+            as an actor within the scope of a transaction.  In the latter case, the underlying resources being 
+            utilised by the configured identity stores (such as a JPA <code>EntityManager</code>) would participate in 
+            the active transaction, and changes made as a result of any identity management operations would either be 
+            committed or rolled back as appropriate for the logic of the encapsulating business method.
+          </para>
+            
+          <para>
+            The following sections describe various ways that configuration may be performed in different environments.
+          </para>
+          
+        </section>
       
       <section>
         <title>Programmatic Configuration</title>
@@ -156,8 +267,8 @@
         <title>Identity Store Configurations</title>
       
         <para>
-          PicketLink provides a corresponding <code>IdentityStoreConfiguration</code> implementation for each of the built-in 
-          <code>IdentityStore</code> implementations - the following sections describe each of these in more detail.
+          For each of the built-in <code>IdentityStore</code> implementations there is a corresponding <code>IdentityStoreConfiguration</code> 
+          implementation - the following sections describe each of these in more detail.
         </para>
         
         <section>
@@ -174,7 +285,8 @@
           
           <para>
             The JPA identity store uses a relational database to store identity state.  The configuration for this identity store
-            provides control over which entity beans are used to store identity data.
+            provides control over which entity beans are used to store identity data, and how their fields should be used to store
+            various identity-related state.
           </para>
           
           <section>
@@ -190,7 +302,7 @@
             <title>Configuring the Identity class</title>
             
             <para>
-              The Identity class is the entity bean that is used to store the master record for users, roles and groups. It should
+              The Identity class is the entity bean that is used to store the masterClass Diagram0 record for users, roles and groups. It should
               be annotated with <code>@IDMEntity(EntityType.IDENTITY_TYPE)</code> and declare the following field values:
             </para>
             
@@ -1315,23 +1427,6 @@ public class PartitionObject implements Serializable {
       
       
     </section>
-    
-    <section>
-      <title>Realms and Tiers</title>
-      
-      <para>
-        If you are using PicketLink in Standalone mode, or if your application follows the ASP (Application Service Provider) model
-        then you may wish to partition your users, groups and roles into Realms and Tiers.
-      </para>
-      
-      <mediaobject>
-        <imageobject role="fo">
-          <imagedata fileref="diagrams/realm_tier.png" align="center" scalefit="1"/>
-        </imageobject>
-        <imageobject role="html">
-          <imagedata fileref="diagrams/realm_tier.png" align="center"/>
-        </imageobject>
-      </mediaobject>   
-    </section>
+
 
 </chapter>

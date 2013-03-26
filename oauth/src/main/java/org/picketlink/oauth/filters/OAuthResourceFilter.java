@@ -36,10 +36,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
-import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
 import org.picketlink.idm.jpa.schema.IdentityObject;
@@ -48,7 +47,7 @@ import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
-import org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.oauth.common.OAuthConstants;
@@ -64,8 +63,10 @@ import org.picketlink.oauth.server.util.OAuthServerUtil;
 public class OAuthResourceFilter implements Filter {
 
     protected IdentityManager identityManager = null;
-
     protected ServletContext context;
+
+    private EntityManagerFactory entityManagerFactory;
+    private ThreadLocal<EntityManager> entityManager = new ThreadLocal<EntityManager>();
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -82,6 +83,9 @@ public class OAuthResourceFilter implements Filter {
             ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+        initializeEntityManager();
+
         try {
 
             ResourceAccessRequest resourceAccessRequest = OAuthServerUtil.parseResourceRequest((HttpServletRequest) request);
@@ -133,6 +137,8 @@ public class OAuthResourceFilter implements Filter {
         } catch (Exception e) {
             httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, e.getLocalizedMessage());
             return;
+        } finally {
+            closeEntityManager();
         }
     }
 
@@ -145,58 +151,78 @@ public class OAuthResourceFilter implements Filter {
             if (context == null) {
                 throw new RuntimeException("Servlet Context has not been injected");
             }
-            identityManager = new DefaultIdentityManager();
-            String storeType = context.getInitParameter("storeType");
-            if (storeType == null || "db".equals(storeType)) {
 
-                EntityManagerFactory emf = Persistence.createEntityManagerFactory("oauth-pu");
-                EntityManager entityManager = emf.createEntityManager();
-                entityManager.getTransaction().begin();
+            if (isJPAStoreConfigured()) {
+                this.entityManagerFactory = Persistence.createEntityManagerFactory("oauth-pu");
 
-                IdentityConfiguration identityConfig = new IdentityConfiguration();
-                JPAIdentityStoreConfiguration jpaStoreConfig = new JPAIdentityStoreConfiguration();
+                IdentityConfiguration configuration = new IdentityConfiguration();
 
-                jpaStoreConfig.addRealm("default");
+                configuration.jpaStore().addRealm(Realm.DEFAULT_REALM).setIdentityClass(IdentityObject.class)
+                        .setAttributeClass(IdentityObjectAttribute.class).setRelationshipClass(RelationshipObject.class)
+                        .setRelationshipIdentityClass(RelationshipIdentityObject.class)
+                        .setRelationshipAttributeClass(RelationshipObjectAttribute.class)
+                        .setCredentialClass(CredentialObject.class)
+                        .setCredentialAttributeClass(CredentialObjectAttribute.class).setPartitionClass(PartitionObject.class)
+                        .supportAllFeatures().addContextInitializer(new JPAContextInitializer(this.entityManagerFactory) {
+                            @Override
+                            public EntityManager getEntityManager() {
+                                return entityManager.get();
+                            }
+                        });
 
-                jpaStoreConfig.setIdentityClass(IdentityObject.class);
-                jpaStoreConfig.setAttributeClass(IdentityObjectAttribute.class);
-                jpaStoreConfig.setRelationshipClass(RelationshipObject.class);
-                jpaStoreConfig.setRelationshipIdentityClass(RelationshipIdentityObject.class);
-                jpaStoreConfig.setRelationshipAttributeClass(RelationshipObjectAttribute.class);
-                jpaStoreConfig.setCredentialClass(CredentialObject.class);
-                jpaStoreConfig.setCredentialAttributeClass(CredentialObjectAttribute.class);
-                jpaStoreConfig.setPartitionClass(PartitionObject.class);
-
-                identityConfig.addStoreConfiguration(jpaStoreConfig);
-
-                DefaultIdentityStoreInvocationContextFactory icf = new DefaultIdentityStoreInvocationContextFactory(emf);
-                icf.setEntityManager(entityManager);
-                identityManager.bootstrap(identityConfig, icf);
+                identityManager = configuration.buildIdentityManagerFactory().createIdentityManager();
             }
-            if ("ldap".equalsIgnoreCase(storeType)) {
-                LDAPIdentityStoreConfiguration ldapConfiguration = new LDAPIdentityStoreConfiguration();
 
-                // LDAPConfiguration ldapConfiguration = new LDAPConfiguration();
+            if (isLDAPStoreConfigured()) {
+                IdentityConfiguration configuration = new IdentityConfiguration();
 
                 Properties properties = getProperties();
-                ldapConfiguration.setBaseDN(properties.getProperty("baseDN")).setBindDN(properties.getProperty("bindDN"))
-                        .setBindCredential(properties.getProperty("bindCredential"));
-                ldapConfiguration.setLdapURL(properties.getProperty("ldapURL"));
-                ldapConfiguration.setUserDNSuffix(properties.getProperty("userDNSuffix"))
+
+                configuration
+                        .ldapStore()
+                        .setBaseDN(properties.getProperty("baseDN"))
+                        .setBindDN(properties.getProperty("bindDN"))
+                        .setBindCredential(properties.getProperty("bindCredential"))
+                        .setLdapURL(properties.getProperty("ldapURL"))
+                        .setUserDNSuffix(properties.getProperty("userDNSuffix"))
                         .setRoleDNSuffix(properties.getProperty("roleDNSuffix"))
-                        .setAgentDNSuffix(properties.getProperty("agentDNSuffix"));
-                ldapConfiguration.setGroupDNSuffix(properties.getProperty("groupDNSuffix"));
+                        .setAgentDNSuffix(properties.getProperty("agentDNSuffix"))
+                        .setGroupDNSuffix(properties.getProperty("groupDNSuffix"))
+                        .addRealm(Realm.DEFAULT_REALM)
+                        .supportFeature(FeatureGroup.user, FeatureGroup.agent, FeatureGroup.user, FeatureGroup.group,
+                                FeatureGroup.role, FeatureGroup.attribute, FeatureGroup.relationship, FeatureGroup.credential);
 
-                // store.setup(ldapConfiguration, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
-
-                // Create Identity Configuration
-                IdentityConfiguration config = new IdentityConfiguration();
-                config.addStoreConfiguration(ldapConfiguration);
-
-                identityManager.bootstrap(config, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
-
-                // ((DefaultIdentityManager) identityManager).setIdentityStore(store);
+                identityManager = configuration.buildIdentityManagerFactory().createIdentityManager();
             }
+        }
+    }
+
+    private boolean isLDAPStoreConfigured() {
+        return "ldap".equalsIgnoreCase(context.getInitParameter("storeType"));
+    }
+
+    private boolean isJPAStoreConfigured() {
+        return context.getInitParameter("storeType") == null || "db".equals(context.getInitParameter("storeType"));
+    }
+
+    private void closeEntityManager() {
+        if (isJPAStoreConfigured() && this.entityManagerFactory != null) {
+            EntityManager entityManager = this.entityManager.get();
+
+            entityManager.getTransaction().commit();
+            entityManager.close();
+
+            this.entityManager.remove();
+        }
+    }
+
+    private void initializeEntityManager() {
+        if (isJPAStoreConfigured() && this.entityManagerFactory != null) {
+            EntityManager entityManager = this.entityManagerFactory.createEntityManager();
+
+            entityManager.getTransaction().begin();
+
+            this.entityManager.set(entityManager);
         }
     }
 

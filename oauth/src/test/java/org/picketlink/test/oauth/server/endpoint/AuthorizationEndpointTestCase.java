@@ -24,6 +24,7 @@ import static org.junit.Assert.fail;
 import java.util.Date;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.oauth.OAuthUtils;
 import org.picketlink.oauth.client.ClientOAuth;
@@ -57,6 +58,7 @@ public class AuthorizationEndpointTestCase extends EndpointTestBase {
     private ClientOAuth client = new ClientOAuth();
 
     @Test
+    @Ignore
     public void testEndUserAuthorization() throws Exception {
         // Step 1: Perform the registration
         RegistrationClient registrationClient = client.registrationClient();
