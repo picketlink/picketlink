@@ -150,6 +150,46 @@
         assigned to groups within the same Tier, or to users and groups within a separate Realm.
       </para>
       
+      <para>
+        In terms of API, both the <code>Realm</code> and <code>Tier</code> classes implement the <code>Partition</code> interface,
+        as shown in the following class diagram:
+      </para>
+      
+      <mediaobject>
+        <imageobject role="fo">
+          <imagedata fileref="diagrams/partition.png" align="center" scalefit="1"/>
+        </imageobject>
+        <imageobject role="html">
+          <imagedata fileref="diagrams/partition.png" align="center"/>
+        </imageobject>
+      </mediaobject> 
+      
+      <para>
+        Selecting which partition that one or more identity management operations are performed in is done by specifying the partition
+        when invoking the <code>IdentityManagerFactory</code>'s <code>createIdentityManager()</code> methods:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[  IdentityManager createIdentityManager();
+  IdentityManager createIdentityManager(Partition partition);]]></programlisting>
+  
+      <para>
+        The first method (without parameters) will create an <code>IdentityManager</code> instance for the default realm.  The
+        second parameter allows a <code>Partition</code> object to be specified.  Once the <code>IdentityManager</code> has been
+        created, any identity management methods invoked on it will be performed within the selected partition.  To look up the 
+        partition object, the <code>IdentityManagerFactory</code> provides two additional methods:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[  Realm getRealm(String id);
+  Tier getTier(String id);]]></programlisting>
+  
+      <para>
+        Here's an example demonstrating how to create an instance of <code>IdentityManager</code> to perform some identity management
+        operations in a tier called <emphasis>orders</emphasis>:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[  Tier ordersTier = identityManagerFactory.getTier("orders");
+  EntityManager entityManager = identityManagerFactory.createIdentityManager(ordersTier);]]></programlisting>
+      
     </section>
        
     <section>
@@ -159,7 +199,7 @@
           <title>Architectural Overview</title>
           
           <para>
-            Configuration in PicketLink is essentially quite simple; an <code>IdentityConfiguration</code> object must first 
+            Configuration in PicketLink is in essence quite simple; an <code>IdentityConfiguration</code> object must first 
             be created to hold the PicketLink configuration options.  Once all configuration options have been set, the 
             <code>buildIdentityManagerFactory()</code> method is used to create an <code>IdentityManagerFactory</code> instance.
             The <code>IdentityManagerFactory</code> can then be used to create <code>IdentityManager</code> instances 
@@ -192,9 +232,6 @@
           </para>
           
         </section>
-
-      
-      
       
       <section>
         <title>Programmatic Configuration</title>
