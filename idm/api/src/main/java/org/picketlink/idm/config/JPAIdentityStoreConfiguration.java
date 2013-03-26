@@ -87,14 +87,6 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     private Class<?> relationshipAttributeClass;
     private Class<?> partitionClass;
 
-    public JPAIdentityStoreConfiguration() {
-        super();
-    }
-
-    public JPAIdentityStoreConfiguration(IdentityConfiguration identityConfiguration) {
-        super(identityConfiguration);
-    }
-
     @Override
     protected void initConfig() throws SecurityConfigurationException {
         if (this.identityClass == null) {

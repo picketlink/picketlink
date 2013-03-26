@@ -21,8 +21,13 @@ package org.picketlink.idm.credential.internal;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.credential.internal.CredentialUtils.isCredentialExpired;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Date;
+import java.util.Map;
 
+import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
@@ -30,8 +35,9 @@ import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.password.internal.SHASaltedPasswordEncoder;
-import org.picketlink.idm.password.internal.SHASaltedPasswordStorage;
+import org.picketlink.idm.password.PasswordEncoder;
+import org.picketlink.idm.password.internal.EncodedPasswordStorage;
+import org.picketlink.idm.password.internal.SHAPasswordEncoder;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
@@ -42,15 +48,49 @@ import org.picketlink.idm.spi.SecurityContext;
  * credentials.
  * </p>
  * <p>
- * Passwords can be encoded or not. This behavior is configured by setting the <code>encodedPassword</code> property of the
- * {@link Password}.
+ *
+ * <p>
+ * How password are encoded can be changed by spcifying a configuration option using the <code>PASSWORD_ENCODER</code>. By
+ * default a SHA-512 encoding is performed.
  * </p>
+ *
+ * <p>Password are always salted before encoding.</p>
  *
  * @author Shane Bryzak
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @SupportsCredentials({ UsernamePasswordCredentials.class, Password.class })
 public class PasswordCredentialHandler implements CredentialHandler {
+
+    private static final String DEFAULT_SALT_ALGORITHM = "SHA1PRNG";
+
+    /**
+     * <p>
+     * Stores a <b>stateless</b> instance of {@link PasswordEncoder} that should be used to encode passwords.
+     * </p>
+     */
+    public static final String PASSWORD_ENCODER = "PASSWORD_ENCODER";
+
+    private PasswordEncoder passwordEncoder = new SHAPasswordEncoder(512);
+
+    @Override
+    public void setup(IdentityStore<?> identityStore) {
+        Map<String, Object> options = identityStore.getConfig().getCredentialHandlersConfig()
+                .get(PasswordCredentialHandler.class);
+
+        if (options != null) {
+            Object providedEncoder = options.get(PASSWORD_ENCODER);
+
+            if (providedEncoder != null) {
+                if (PasswordEncoder.class.isInstance(providedEncoder)) {
+                    this.passwordEncoder = (PasswordEncoder) providedEncoder;
+                } else {
+                    throw new SecurityConfigurationException("The password encoder [" + providedEncoder
+                            + "] must be an instance of " + PasswordEncoder.class.getName());
+                }
+            }
+        }
+    }
 
     @Override
     public void validate(SecurityContext context, Credentials credentials, IdentityStore<?> identityStore) {
@@ -68,14 +108,14 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
-            SHASaltedPasswordStorage hash = store.retrieveCurrentCredential(context, agent, SHASaltedPasswordStorage.class);
+            EncodedPasswordStorage hash = store.retrieveCurrentCredential(context, agent, EncodedPasswordStorage.class);
 
             // If the stored hash is null we automatically fail validation
             if (hash != null) {
                 if (!isCredentialExpired(hash)) {
-                    SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
-                    String encoded = encoder.encodePassword(hash.getSalt(), new String(usernamePassword.getPassword()
-                            .getValue()));
+                    String rawPassword = new String(usernamePassword.getPassword().getValue());
+
+                    String encoded = this.passwordEncoder.encode(saltPassword(rawPassword, hash.getSalt()));
 
                     if (hash.getEncodedHash().equals(encoded)) {
                         usernamePassword.setStatus(Status.VALID);
@@ -89,7 +129,8 @@ public class PasswordCredentialHandler implements CredentialHandler {
     }
 
     @Override
-    public void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
+    public void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore,
+            Date effectiveDate, Date expiryDate) {
         CredentialStore store = validateCredentialStore(identityStore);
 
         if (!Password.class.isInstance(credential)) {
@@ -98,10 +139,14 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
         Password password = (Password) credential;
 
-        SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
-        SHASaltedPasswordStorage hash = new SHASaltedPasswordStorage();
+        EncodedPasswordStorage hash = new EncodedPasswordStorage();
 
-        hash.setEncodedHash(encoder.encodePassword(hash.getSalt(), new String(password.getValue())));
+        String rawPassword = new String(password.getValue());
+
+        String passwordSalt = generateSalt();
+
+        hash.setSalt(passwordSalt);
+        hash.setEncodedHash(this.passwordEncoder.encode(saltPassword(rawPassword, passwordSalt)));
         hash.setEffectiveDate(effectiveDate);
 
         if (expiryDate != null) {
@@ -118,4 +163,38 @@ public class PasswordCredentialHandler implements CredentialHandler {
             return (CredentialStore) identityStore;
         }
     }
+
+    /**
+     * <p>
+     * Salt the give <code>rawPassword</code> with the specified <code>salt</code> value.
+     * </p>
+     *
+     * @param rawPassword
+     * @param salt
+     * @return
+     */
+    private String saltPassword(String rawPassword, String salt) {
+        return salt + rawPassword;
+    }
+
+    /**
+     * <p>
+     * Generates a random string to be used as a salt for passwords.
+     * </p>
+     *
+     * @return
+     */
+    private String generateSalt() {
+        SecureRandom pseudoRandom = null;
+
+        try {
+            pseudoRandom = SecureRandom.getInstance(DEFAULT_SALT_ALGORITHM);
+            pseudoRandom.setSeed(1024);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IdentityManagementException("Error getting SecureRandom instance: " + DEFAULT_SALT_ALGORITHM, e);
+        }
+
+        return String.valueOf(pseudoRandom.nextLong());
+    }
+
 }

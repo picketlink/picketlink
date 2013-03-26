@@ -58,11 +58,13 @@ public class IdentityManagerProducer {
 
         this.identityConfigEvent.fire(new IdentityConfigurationEvent(this.identityConfig));
 
-        List<IdentityStoreConfiguration<?>> configuredStores = this.identityConfig.getConfiguredStores();
+        List<IdentityStoreConfiguration> configuredStores = this.identityConfig.getConfiguredStores();
         
-        for (IdentityStoreConfiguration<?> identityStoreConfiguration : configuredStores) {
+        for (IdentityStoreConfiguration identityStoreConfiguration : configuredStores) {
             if (JPAIdentityStoreConfiguration.class.isInstance(identityStoreConfiguration)) {
-                identityStoreConfiguration.addContextInitializer(this.jpaContextInitializer);
+                JPAIdentityStoreConfiguration jpaConfig = (JPAIdentityStoreConfiguration) identityStoreConfiguration;
+                
+                jpaConfig.addContextInitializer(this.jpaContextInitializer);
             }
         }
         

@@ -152,7 +152,8 @@ public class LDAPJPAMixedStoreTestSuite extends AbstractLDAPTest implements Test
                     FeatureGroup.group,
                     FeatureGroup.role, 
                     FeatureGroup.attribute, 
-                    FeatureGroup.credential)
+                    FeatureGroup.credential);
+        configuration
             .jpaStore()
                 .addRealm(Realm.DEFAULT_REALM)
                 .setIdentityClass(IdentityObject.class)

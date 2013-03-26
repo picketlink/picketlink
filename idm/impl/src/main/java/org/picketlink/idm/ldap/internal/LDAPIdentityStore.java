@@ -272,7 +272,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     @Override
     public User getUser(SecurityContext context, String loginName) {
         if (Realm.class.isInstance(context.getPartition())) {
-            Realm realm = (Realm) context.getPartition();
             User user = null;
 
             if (loginName != null) {

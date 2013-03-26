@@ -59,6 +59,10 @@ import org.picketlink.idm.spi.SecurityContext;
 public class DigestCredentialHandler implements CredentialHandler {
 
     @Override
+    public void setup(IdentityStore<?> identityStore) {
+    }
+
+    @Override
     public void validate(SecurityContext context, Credentials credentials, IdentityStore<?> identityStore) {
         CredentialStore credentialStore = validateCredentialStore(identityStore);
 
