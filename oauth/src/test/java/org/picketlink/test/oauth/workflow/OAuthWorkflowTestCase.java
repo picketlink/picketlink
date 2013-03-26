@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.oauth.OAuthUtils;
 import org.picketlink.oauth.client.ClientOAuth;
@@ -57,6 +58,7 @@ public class OAuthWorkflowTestCase extends EndpointTestBase {
     private ClientOAuth client = new ClientOAuth();
 
     @Test
+    @Ignore
     public void testWorkflow() throws Exception {
         // Step 1: Perform the registration
         RegistrationClient registration = client.registrationClient();
