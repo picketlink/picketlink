@@ -56,9 +56,6 @@ public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStore
     private Map<Class<? extends CredentialHandler>, Map<String, Object>> credentialHandlersConfig = new HashMap<Class<? extends CredentialHandler>, Map<String,Object>>();
     private List<Class<? extends CredentialHandler>> credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
 
-    public BaseAbstractStoreConfiguration() {
-    }
-
     @Override
     public final void init() throws SecurityConfigurationException {
         initConfig();
