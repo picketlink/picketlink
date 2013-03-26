@@ -214,7 +214,9 @@ public class ProgrammaticConfigurationTestCase extends AbstractLDAPTest {
                     FeatureGroup.group,
                     FeatureGroup.role, 
                     FeatureGroup.attribute, 
-                    FeatureGroup.credential)
+                    FeatureGroup.credential);
+        
+        configuration
             .jpaStore()
                 .addRealm(Realm.DEFAULT_REALM)
                 .setIdentityClass(IdentityObject.class)
@@ -256,7 +258,8 @@ public class ProgrammaticConfigurationTestCase extends AbstractLDAPTest {
 
         configuration
             .fileStore()
-                .supportFeature(FeatureGroup.user)
+                .supportFeature(FeatureGroup.user);
+        configuration
             .jpaStore()
                 .supportFeature(FeatureGroup.user);
 

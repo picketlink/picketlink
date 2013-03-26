@@ -56,7 +56,6 @@ import org.picketlink.idm.spi.StoreFactory;
  *
  * @author Shane Bryzak
  */
-@SuppressWarnings("rawtypes")
 public class DefaultStoreFactory implements StoreFactory {
 
     private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> identityConfigMap = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>>();
@@ -76,9 +75,9 @@ public class DefaultStoreFactory implements StoreFactory {
         this.identityConfigMap.put(LDAPIdentityStoreConfiguration.class, LDAPIdentityStore.class);
         this.identityConfigMap.put(FileIdentityStoreConfiguration.class, FileBasedIdentityStore.class);
 
-        Map<FeatureGroup, IdentityStoreConfiguration<?>> supportedFeatures = new HashMap<FeatureGroup, IdentityStoreConfiguration<?>>();
+        Map<FeatureGroup, IdentityStoreConfiguration> supportedFeatures = new HashMap<FeatureGroup, IdentityStoreConfiguration>();
 
-        for (IdentityStoreConfiguration<?> config : identityConfig.getConfiguredStores()) {
+        for (IdentityStoreConfiguration config : identityConfig.getConfiguredStores()) {
             LOGGER.identityManagerInitConfigForRealms(config, config.getRealms());
 
             Map<FeatureGroup, Set<FeatureOperation>> storeFeatures = config.getFeatureSet().getSupportedFeatures();
@@ -86,7 +85,7 @@ public class DefaultStoreFactory implements StoreFactory {
             // let's check for duplicated features
             for (Entry<FeatureGroup, Set<FeatureOperation>> entry : storeFeatures.entrySet()) {
                 FeatureGroup feature = entry.getKey();
-                IdentityStoreConfiguration<?> storeConfigForFeature = supportedFeatures.get(feature);
+                IdentityStoreConfiguration storeConfigForFeature = supportedFeatures.get(feature);
 
                 if (storeConfigForFeature == null) {
                     supportedFeatures.put(feature, config);
@@ -253,10 +252,10 @@ public class DefaultStoreFactory implements StoreFactory {
             }
         }
 
-        IdentityStoreConfiguration<?> config = lookupConfigForFeature(context.getPartition(), feature, operation,
+        IdentityStoreConfiguration config = lookupConfigForFeature(context.getPartition(), feature, operation,
                 relationshipClass);
 
-        final IdentityStore<? extends IdentityStoreConfiguration<?>> store = createIdentityStore(config, context);
+        final IdentityStore<? extends IdentityStoreConfiguration> store = createIdentityStore(config, context);
 
         for (ContextInitializer initializer : config.getContextInitializers()) {
             initializer.initContextForStore(context, store);

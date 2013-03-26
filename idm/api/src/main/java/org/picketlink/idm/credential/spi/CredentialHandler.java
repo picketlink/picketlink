@@ -45,4 +45,9 @@ public interface CredentialHandler {
      * @param store
      */
     void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate);
+
+    /**
+     * @param identityStore
+     */
+    void setup(IdentityStore<?> identityStore);
 }

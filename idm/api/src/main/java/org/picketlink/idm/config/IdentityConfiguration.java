@@ -45,7 +45,7 @@ public class IdentityConfiguration {
 
     private static final String DEFAULT_IDENTITY_MANAGER_FACTORY_IMPL = "org.picketlink.idm.internal.DefaultIdentityManagerFactory";
 
-    private List<IdentityStoreConfiguration<?>> configuredStores = new ArrayList<IdentityStoreConfiguration<?>>();
+    private List<IdentityStoreConfiguration> configuredStores = new ArrayList<IdentityStoreConfiguration>();
     private SecurityContextFactory securityContextFactory;
     private StoreFactory storeFactory;
 
@@ -131,7 +131,7 @@ public class IdentityConfiguration {
      *
      * @return
      */
-    public List<IdentityStoreConfiguration<?>> getConfiguredStores() {
+    public List<IdentityStoreConfiguration> getConfiguredStores() {
         return Collections.unmodifiableList(this.configuredStores);
     }
 
@@ -143,7 +143,7 @@ public class IdentityConfiguration {
      *
      * @param config
      */
-    public void addConfig(IdentityStoreConfiguration<?> config) {
+    public void addConfig(IdentityStoreConfiguration config) {
         this.configuredStores.add(config);
     }
 

@@ -48,6 +48,10 @@ import org.picketlink.idm.spi.SecurityContext;
 public class X509CertificateCredentialHandler implements CredentialHandler {
 
     @Override
+    public void setup(IdentityStore<?> identityStore) {
+    }
+
+    @Override
     public void validate(SecurityContext context, Credentials credentials, IdentityStore<?> identityStore) {
         validateCredentialStore(identityStore);
 

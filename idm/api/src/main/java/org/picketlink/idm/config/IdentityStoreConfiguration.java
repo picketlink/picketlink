@@ -18,11 +18,11 @@
 package org.picketlink.idm.config;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.picketlink.idm.SecurityConfigurationException;
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.spi.ContextInitializer;
 
 /**
@@ -34,7 +34,7 @@ import org.picketlink.idm.spi.ContextInitializer;
  * @author Shane Bryzak
  * @since Sep 6, 2012
  */
-public interface IdentityStoreConfiguration<C extends IdentityStoreConfiguration<?>> {
+public interface IdentityStoreConfiguration {
 
     /**
      * <p>
@@ -47,27 +47,12 @@ public interface IdentityStoreConfiguration<C extends IdentityStoreConfiguration
 
     /**
      * <p>
-     * Sets the realm for this identity store.
-     * </p>
-     *
-     * @param realm
-     */
-    C addRealm(String... realm);
-
-    /**
-     * <p>
      * Returns all configured realms.
      * </p>
      *
      * @return
      */
     Set<String> getRealms();
-
-    /**
-     *
-     * @param tier
-     */
-    C addTier(String... tier);
 
     /**
      *
@@ -94,16 +79,16 @@ public interface IdentityStoreConfiguration<C extends IdentityStoreConfiguration
     List<ContextInitializer> getContextInitializers();
 
     /**
-     * <p>Adds a {@link ContextInitializer} instance.</p>
+     * <p>Returns a {@link List} of the {@link CredentialHandler} types configured.</p>
      *
-     * @param contextInitializer
+     * @return
      */
-    C addContextInitializer(ContextInitializer contextInitializer);
+    List<Class<? extends CredentialHandler>> getCredentialHandlers();
 
-    C supportFeature(FeatureGroup... feature);
-
-    C supportRelationshipType(Class<? extends Relationship>... type);
-
-    C supportAllFeatures();
-
+    /**
+     * <p>Returns the configuration for the configured {@link CredentialHandler} types.</p>
+     *
+     * @return
+     */
+    Map<Class<? extends CredentialHandler>, Map<String, Object>> getCredentialHandlersConfig();
 }

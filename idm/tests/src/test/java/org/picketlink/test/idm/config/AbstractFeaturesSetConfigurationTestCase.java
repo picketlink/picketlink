@@ -673,7 +673,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         }
     }
 
-    protected void addContextInitializers(IdentityStoreConfiguration config) {}
+    protected void addContextInitializers(T config) {}
 
     protected abstract T createMinimalConfiguration();
 
