@@ -91,7 +91,7 @@ public class SecurityContext {
      * @return
      */
     public CredentialHandler getCredentialValidator(Class<? extends Credentials> credentialsClass, IdentityStore identityStore) {
-        return credentialHandlerFactory.getCredentialValidator(credentialsClass, identityStore.getClass());
+        return credentialHandlerFactory.getCredentialValidator(credentialsClass, identityStore);
     }
 
     /**
@@ -103,7 +103,7 @@ public class SecurityContext {
      * @return
      */
     public CredentialHandler getCredentialUpdater(Class<?> credentialClass, IdentityStore identityStore) {
-        return credentialHandlerFactory.getCredentialUpdater(credentialClass, identityStore.getClass());
+        return credentialHandlerFactory.getCredentialUpdater(credentialClass, identityStore);
     }
 
     /**
