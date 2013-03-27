@@ -98,6 +98,7 @@ public class FileCredentialStore implements CredentialStore {
         }
 
         credentials.add(credential);
+
         flushCredentials(context);
     }
 
@@ -130,8 +131,6 @@ public class FileCredentialStore implements CredentialStore {
         getCredentialsForCurrentPartition(context).remove(agent.getLoginName());
         flushCredentials(context);
     }
-
-
 
     /**
      * <p>
@@ -181,7 +180,8 @@ public class FileCredentialStore implements CredentialStore {
      * @param storageType
      * @return
      */
-    private List<FileCredentialStorage> getCredentials(SecurityContext context, Agent agent, Class<? extends CredentialStorage> storageType) {
+    private List<FileCredentialStorage> getCredentials(SecurityContext context, Agent agent,
+            Class<? extends CredentialStorage> storageType) {
         Map<String, List<FileCredentialStorage>> agentCredentials = getCredentialsForCurrentPartition(context).get(
                 agent.getLoginName());
 
@@ -202,25 +202,15 @@ public class FileCredentialStore implements CredentialStore {
     }
 
     private Map<String, Map<String, List<FileCredentialStorage>>> getCredentialsForCurrentPartition(SecurityContext context) {
-        if (Realm.class.isInstance(context.getPartition())) {
-            Realm realm = (Realm) context.getPartition();
+        Realm realm = (Realm) context.getPartition();
 
-            return getDataSource().getCredentials(realm);
-        } else {
-            // fIXME throw a proper exception
-            throw new RuntimeException();
-        }
+        return getDataSource().getCredentials(realm);
     }
 
     private void flushCredentials(SecurityContext context) {
-        if (Realm.class.isInstance(context.getPartition())) {
-            Realm realm = (Realm) context.getPartition();
+        Realm realm = (Realm) context.getPartition();
 
-            getDataSource().flushCredentials(realm);
-        } else {
-            // fIXME throw a proper exception
-            throw new RuntimeException();
-        }
+        getDataSource().flushCredentials(realm);
     }
 
     private FileDataSource getDataSource() {

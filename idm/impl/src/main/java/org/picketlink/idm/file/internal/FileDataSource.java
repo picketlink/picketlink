@@ -109,8 +109,6 @@ public class FileDataSource {
 
     private Map<String, List<FileRelationship>> relationships = new ConcurrentHashMap<String, List<FileRelationship>>();
 
-    private boolean initialized;
-
     private ExecutorService executorService;
 
     public void init(FileIdentityStoreConfiguration config) {
@@ -147,31 +145,27 @@ public class FileDataSource {
     }
 
     private void init() {
-        if (!this.initialized) {
-            initWorkingDirectory();
+        initWorkingDirectory();
 
-            File partitionsFile = FileUtils.createFileIfNotExists(new File(getWorkingDir() + File.separator
-                    + PARTITIONS_FILE_NAME));
+        File partitionsFile = FileUtils
+                .createFileIfNotExists(new File(getWorkingDir() + File.separator + PARTITIONS_FILE_NAME));
 
-            loadPartitions(partitionsFile);
+        loadPartitions(partitionsFile);
 
-            File relationshipsFile = FileUtils.createFileIfNotExists(new File(getWorkingDir() + File.separator
-                    + RELATIONSHIPS_FILE_NAME));
+        File relationshipsFile = FileUtils.createFileIfNotExists(new File(getWorkingDir() + File.separator
+                + RELATIONSHIPS_FILE_NAME));
 
-            this.relationships = FileUtils.readObject(relationshipsFile);
+        this.relationships = FileUtils.readObject(relationshipsFile);
 
-            if (this.relationships == null) {
-                this.relationships = new HashMap<String, List<FileRelationship>>();
-            }
+        if (this.relationships == null) {
+            this.relationships = new HashMap<String, List<FileRelationship>>();
+        }
 
-            LOGGER.debug("Loaded Relationships");
+        LOGGER.debug("Loaded Relationships");
 
-            if (this.asyncWrite) {
-                LOGGER.debugf("Async write enabled. Using thread pool of size %s", this.asyncThreadPool);
-                this.executorService = Executors.newFixedThreadPool(this.asyncThreadPool);
-            }
-
-            this.initialized = true;
+        if (this.asyncWrite) {
+            LOGGER.debugf("Async write enabled. Using thread pool of size %s", this.asyncThreadPool);
+            this.executorService = Executors.newFixedThreadPool(this.asyncThreadPool);
         }
     }
 
@@ -436,11 +430,4 @@ public class FileDataSource {
         return this.asyncThreadPool;
     }
 
-    public boolean isInitialized() {
-        return initialized;
-    }
-
-    public void close() {
-        this.initialized = false;
-    }
 }
