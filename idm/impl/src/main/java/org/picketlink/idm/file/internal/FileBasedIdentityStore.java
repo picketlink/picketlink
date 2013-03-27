@@ -90,8 +90,7 @@ import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * <p>
- * File based {@link IdentityStore} implementation. By default, each new instance recreate the data files. This behavior can be
- * changed by configuring the <code>alwaysCreateFiles</code> property to false.
+ * File based {@link IdentityStore} implementation.
  * </p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -101,9 +100,7 @@ import org.picketlink.idm.spi.SecurityContext;
 public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreConfiguration>, CredentialStore {
 
     private FileIdentityStoreConfiguration config;
-
     private FileCredentialStore credentialStore;
-
     private FileDataSource fileDataSource;
 
     @Override
@@ -576,9 +573,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private void addRole(SecurityContext context, Role role) {
         Role fileRole = new SimpleRole(role.getName());
 
-        fileRole.setPartition(context.getPartition());
-
-        updateIdentityType(role, fileRole);
+        updateIdentityType(context, role, fileRole);
 
         storeRole(fileRole);
         context.getEventBridge().raiseEvent(new RoleCreatedEvent(role));
@@ -610,9 +605,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             fileGroup = new SimpleGroup(group.getName());
         }
 
-        fileGroup.setPartition(context.getPartition());
-
-        updateIdentityType(group, fileGroup);
+        updateIdentityType(context, group, fileGroup);
 
         storeGroup(fileGroup);
         context.getEventBridge().raiseEvent(new GroupCreatedEvent(group));
@@ -634,16 +627,13 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @param user
      */
     private void addUser(SecurityContext context, User user) {
-        Realm realm = (Realm) context.getPartition();
-
         User storedUser = new SimpleUser(user.getLoginName());
 
         storedUser.setFirstName(user.getFirstName());
         storedUser.setLastName(user.getLastName());
         storedUser.setEmail(user.getEmail());
-        storedUser.setPartition(realm);
 
-        updateIdentityType(user, storedUser);
+        updateIdentityType(context, user, storedUser);
 
         storeAgent(storedUser);
         context.getEventBridge().raiseEvent(new UserCreatedEvent(storedUser));
@@ -657,13 +647,9 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @param agent
      */
     private void addAgent(SecurityContext context, Agent agent) {
-        Realm realm = (Realm) context.getPartition();
-
         Agent storedAgent = new SimpleAgent(agent.getLoginName());
 
-        storedAgent.setPartition(realm);
-
-        updateIdentityType(agent, storedAgent);
+        updateIdentityType(context, agent, storedAgent);
 
         storeAgent(storedAgent);
         context.getEventBridge().raiseEvent(new AgentCreatedEvent(storedAgent));
@@ -737,7 +723,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Role storedRole = (Role) lookupIdentityTypeById(context, updatedRole.getId());
 
         if (storedRole != updatedRole) {
-            updateIdentityType(updatedRole, storedRole);
+            updateIdentityType(context, updatedRole, storedRole);
         }
 
         storeRole(storedRole);
@@ -755,7 +741,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Group storedGroup = (Group) lookupIdentityTypeById(context, updatedGroup.getId());
 
         if (storedGroup != updatedGroup) {
-            updateIdentityType(updatedGroup, storedGroup);
+            updateIdentityType(context, updatedGroup, storedGroup);
         }
 
         storeGroup(storedGroup);
@@ -778,7 +764,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             storedUser.setLastName(updatedUser.getLastName());
             storedUser.setEmail(updatedUser.getEmail());
 
-            updateIdentityType(updatedUser, storedUser);
+            updateIdentityType(context, updatedUser, storedUser);
         }
 
         storeAgent(storedUser);
@@ -797,7 +783,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Agent storedAgent = (Agent) lookupIdentityTypeById(context, updatedAgent.getId());
 
         if (storedAgent != updatedAgent) {
-            updateIdentityType(updatedAgent, storedAgent);
+            updateIdentityType(context, updatedAgent, storedAgent);
         }
 
         storeAgent(storedAgent);
@@ -837,19 +823,18 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Update the common properties for a specific {@link IdentityType} instance from another instance.
      * </p>
+     * @param context
      *
      * @param fromIdentityType
      * @param toIdentityType
      */
-    private void updateIdentityType(IdentityType fromIdentityType, IdentityType toIdentityType) {
+    private void updateIdentityType(SecurityContext context, IdentityType fromIdentityType, IdentityType toIdentityType) {
         toIdentityType.setEnabled(fromIdentityType.isEnabled());
         toIdentityType.setCreatedDate(fromIdentityType.getCreatedDate());
         toIdentityType.setExpirationDate(fromIdentityType.getExpirationDate());
+        toIdentityType.setPartition(context.getPartition());
 
         updateAttributedType(fromIdentityType, toIdentityType);
-
-        fromIdentityType.setId(toIdentityType.getId());
-        fromIdentityType.setPartition(toIdentityType.getPartition());
     }
 
     /**
