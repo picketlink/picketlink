@@ -31,11 +31,5 @@ public interface SecurityContextFactory {
      *
      * @return
      */
-    SecurityContext createContext();
-
-    /**
-     *
-     * @return
-     */
     SecurityContext createContext(Partition partition);
 }
