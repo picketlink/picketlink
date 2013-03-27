@@ -33,8 +33,11 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
 /**
  * <p>
  * JPA {@link Entity} to store the IdentityType instances associated with a specific {@link RelationshipObject}. This
- * class should be used when the JPA store is being used to store IdentityType instances, forcing the their existence on
- * the database.
+ * class should be used when the JPA store is NOT being used to store IdentityType instances, where only the id is
+ * stored.
+ * </p>
+ * <p>
+ * You should map this class when the JPA store is using in conjunction with another store (eg.: LDAP).
  * </p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -42,7 +45,7 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
  */
 @IDMEntity(EntityType.RELATIONSHIP_IDENTITY)
 @Entity
-public class RelationshipIdentityObject implements Serializable {
+public class RelationshipIdentityWeakObject implements Serializable {
 
     private static final long serialVersionUID = 8957185191684867238L;
 
@@ -54,8 +57,7 @@ public class RelationshipIdentityObject implements Serializable {
     private String descriptor;
 
     @IDMProperty(PropertyType.RELATIONSHIP_IDENTITY)
-    @ManyToOne
-    private IdentityObject identityObject;
+    private String identityObjectId;
 
     @IDMProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP)
     @ManyToOne
@@ -69,12 +71,12 @@ public class RelationshipIdentityObject implements Serializable {
         this.id = id;
     }
 
-    public IdentityObject getIdentityObject() {
-        return identityObject;
+    public String getIdentityObjectId() {
+        return identityObjectId;
     }
 
-    public void setIdentityObject(IdentityObject identityObject) {
-        this.identityObject = identityObject;
+    public void setIdentityObjectId(String identityObjectId) {
+        this.identityObjectId = identityObjectId;
     }
 
     public RelationshipObject getRelationshipObject() {
@@ -103,7 +105,7 @@ public class RelationshipIdentityObject implements Serializable {
             return false;
         }
 
-        RelationshipIdentityObject other = (RelationshipIdentityObject) obj;
+        RelationshipIdentityWeakObject other = (RelationshipIdentityWeakObject) obj;
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }

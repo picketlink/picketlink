@@ -659,7 +659,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 partitionObject = getConfig().getPartitionClass().newInstance();
 
                 getConfig().setModelPropertyValue(partitionObject, PropertyType.PARTITION_ID, partition.getId(), true);
-                getConfig().setModelPropertyValue(partitionObject, PropertyType.PARTITION_TYPE, partition.getClass().getName(), true);
+                getConfig().setModelPropertyValue(partitionObject, PropertyType.PARTITION_TYPE, partition.getClass().getName(),
+                        true);
 
                 entityManager.persist(partitionObject);
                 entityManager.flush();
@@ -695,7 +696,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      */
     @SuppressWarnings("unchecked")
     private <T extends Relationship> T convertToRelationshipType(SecurityContext context, Object relationshipObject) {
-        Property<Object> identityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID);
+        Property<Object> identityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY);
         Property<Object> idProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID);
         Property<Object> descriptorProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR);
         Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_CLASS);
@@ -725,8 +726,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             List<Property<Object>> identityTypeProperty = PropertyQueries.createQuery(relationshipClass)
                     .addCriteria(new NamedPropertyCriteria(descriptor)).getResultList();
 
-            IdentityType identityType = context.getIdentityManager().lookupIdentityById(IdentityType.class,
-                    identityProperty.getValue(object).toString());
+            IdentityType identityType = null;
+
+            if (identityProperty.getJavaClass().equals(String.class)) {
+                identityType = context.getIdentityManager().lookupIdentityById(IdentityType.class,
+                        identityProperty.getValue(object).toString());
+            } else {
+                identityType = convertToIdentityType(context, identityProperty.getValue(object));
+            }
 
             identityTypeProperty.get(0).setValue(relationshipType, identityType);
         }
@@ -1030,8 +1037,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         CriteriaQuery<?> criteria = builder.createQuery(getConfig().getRelationshipIdentityClass());
         Root<?> root = criteria.from(getConfig().getRelationshipIdentityClass());
 
-        criteria.where(builder.equal(root.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID).getName()),
-                identityTypeId));
+        Property<Object> identityTypeProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY);
+
+        if (identityTypeProperty.getJavaClass().equals(String.class)) {
+            criteria.where(builder.equal(root.get(identityTypeProperty.getName()), identityTypeId));
+        } else {
+            criteria.where(builder.equal(root.get(identityTypeProperty.getName()),
+                    lookupIdentityObjectById(context, identityTypeId)));
+        }
 
         List<Object> relationships = new ArrayList<Object>();
 
@@ -1313,13 +1326,15 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                     // if the identity object does not exists, use only its id.
                 }
 
-                if (identityObject != null) {
+                Property<Object> identityTypeProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY);
+
+                if (identityTypeProperty.getJavaClass().equals(String.class)) {
+                    getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).setValue(relationshipIdentity,
+                            identityType.getId());
+                } else {
                     getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).setValue(relationshipIdentity,
                             identityObject);
                 }
-
-                getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID).setValue(relationshipIdentity,
-                        identityType.getId());
 
                 getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).setValue(relationshipIdentity,
                         prop.getName());
@@ -1484,7 +1499,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_CLASS).getName()),
                     query.getRelationshipType().getName()));
 
-            Property<Object> identityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID);
+            Property<Object> identityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY);
             Property<Object> descriptorProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR);
             Property<Object> relationshipProperty = getConfig().getModelProperty(
                     PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP);
@@ -1505,7 +1520,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                                 identityType.getId());
 
                         if (identityType != null) {
-                            List<Object> objects = new ArrayList<Object>();
+                            List<String> objects = new ArrayList<String>();
 
                             objects.add(identityType.getId());
 
@@ -1526,8 +1541,20 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                             conjunction.getExpressions().add(
                                     builder.equal(fromProject.get(descriptorProperty.getName()),
                                             identityTypeParameter.getName()));
-                            conjunction.getExpressions().add(
-                                    builder.in(fromProject.get(identityProperty.getName())).value(objects));
+
+                            if (identityProperty.getJavaClass().equals(String.class)) {
+                                conjunction.getExpressions().add(
+                                        builder.in(fromProject.get(identityProperty.getName())).value(objects));
+                            } else {
+                                List<Object> identityObjects = new ArrayList<Object>();
+
+                                for (String id : objects) {
+                                    identityObjects.add(lookupIdentityObjectById(context, id));
+                                }
+
+                                conjunction.getExpressions().add(
+                                        builder.in(fromProject.get(identityProperty.getName())).value(identityObjects));
+                            }
 
                             subquery.where(conjunction);
 
