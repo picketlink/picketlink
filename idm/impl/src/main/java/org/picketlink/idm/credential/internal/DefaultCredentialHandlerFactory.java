@@ -20,7 +20,10 @@ package org.picketlink.idm.credential.internal;
 
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.picketlink.idm.credential.Credentials;
@@ -38,16 +41,15 @@ import org.picketlink.idm.spi.IdentityStore;
  */
 public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory {
 
-    Map<Class<? extends CredentialHandler>, CredentialHandler> handlerInstances =
+    private Map<Class<? extends CredentialHandler>, CredentialHandler> handlerInstances =
             new HashMap<Class<? extends CredentialHandler>, CredentialHandler>();
 
     @Override
     public CredentialHandler getCredentialValidator(Class<? extends Credentials> credentialsClass,
-            Class<? extends IdentityStore> identityStoreClass) {
+            IdentityStore<?> identityStore) {
+        List<Class<? extends CredentialHandler>> handlers = getHandlersForStore(identityStore);
 
-        CredentialHandlers handlers = identityStoreClass.getAnnotation(CredentialHandlers.class);
-
-        for (Class<? extends CredentialHandler> handlerClass : handlers.value()) {
+        for (Class<? extends CredentialHandler> handlerClass : handlers) {
             if (handlerSupports(handlerClass, credentialsClass)) {
                 if (!handlerInstances.containsKey(handlerClass)) {
                     return createHandlerInstance(handlerClass);
@@ -62,14 +64,17 @@ public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory
 
     @Override
     public CredentialHandler getCredentialUpdater(Class<?> credentialClass,
-            Class<? extends IdentityStore> identityStoreClass) {
+            IdentityStore<?> identityStore) {
+        List<Class<? extends CredentialHandler>> handlers = getHandlersForStore(identityStore);
 
-        CredentialHandlers handlers = identityStoreClass.getAnnotation(CredentialHandlers.class);
-
-        for (Class<? extends CredentialHandler> handlerClass : handlers.value()) {
+        for (Class<? extends CredentialHandler> handlerClass : handlers) {
             if (handlerSupports(handlerClass, credentialClass)) {
                 if (!handlerInstances.containsKey(handlerClass)) {
-                    return createHandlerInstance(handlerClass);
+                    CredentialHandler handlerInstance = createHandlerInstance(handlerClass);
+
+                    handlerInstance.setup(identityStore);
+
+                    return handlerInstance;
                 } else {
                     return handlerInstances.get(handlerClass);
                 }
@@ -77,6 +82,20 @@ public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory
         }
 
         return null;
+    }
+
+    private List<Class<? extends CredentialHandler>> getHandlersForStore(IdentityStore<?> identityStore) {
+        CredentialHandlers annotatedHandlers = identityStore.getClass().getAnnotation(CredentialHandlers.class);
+
+        List<Class<? extends CredentialHandler>> handlers = new ArrayList<Class<? extends CredentialHandler>>(Arrays.asList(annotatedHandlers.value()));
+
+        List<Class<? extends CredentialHandler>> customHandlers = identityStore.getConfig().getCredentialHandlers();
+
+        if (customHandlers != null) {
+            handlers.addAll(customHandlers);
+        }
+
+        return handlers;
     }
 
     private synchronized CredentialHandler createHandlerInstance(Class<? extends CredentialHandler> handlerClass) {
@@ -106,4 +125,5 @@ public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory
 
         return false;
     }
+
 }

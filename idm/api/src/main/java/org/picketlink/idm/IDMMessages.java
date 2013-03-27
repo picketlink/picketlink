@@ -41,6 +41,7 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
@@ -128,7 +129,7 @@ public interface IDMMessages {
     SecurityConfigurationException storeConfigUnsupportedRelationshipType(Class<? extends Relationship> type);
 
     @Message(id = 17, value = "The IdentityStoreConfiguration [%s] specified is not supported by this IdentityStoreFactory implementation.")
-    SecurityConfigurationException storeConfigUnsupportedConfiguration(IdentityStoreConfiguration<?> config);
+    SecurityConfigurationException storeConfigUnsupportedConfiguration(IdentityStoreConfiguration config);
 
     @Message(id = 18, value = "No identity store configuration found for requested operation [%s.%s].")
     OperationNotSupportedException storeConfigUnsupportedOperation(@Param FeatureGroup feature,
@@ -282,6 +283,9 @@ public interface IDMMessages {
     SecurityConfigurationException configurationDefaultRealmNotDefined();
 
     @Message(id = 71, value = "The same feature [%s] was configured for different IdentityStoreConfiguration [%s, %s].")
-    SecurityConfigurationException configurationAmbiguosFeatureForStore(FeatureGroup feature, IdentityStoreConfiguration<?> config1, IdentityStoreConfiguration<?> config2);
+    SecurityConfigurationException configurationAmbiguosFeatureForStore(FeatureGroup feature, IdentityStoreConfiguration config1, IdentityStoreConfiguration config2);
+
+    @Message(id = 72, value = "No such algorithm [%s] for encoding passwords. Using PasswordEncoder [%s].")
+    IdentityManagementException credentialInvalidEncodingAlgorithm(String algorithm, PasswordEncoder encoder, @Cause Throwable t);
 
 }

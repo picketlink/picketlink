@@ -20,7 +20,7 @@ package org.picketlink.idm.password;
 
 /**
  * <p>
- * Represents different forms to encode user passwords.
+ * Represents different forms to encode passwords.
  * </p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -29,13 +29,10 @@ package org.picketlink.idm.password;
 public interface PasswordEncoder {
 
     /**
-     * <p>
-     * Encode the password for the given User.
-     * </p>
+     * <p>Encodes given password.</p>
      *
-     * @param user
      * @param rawPassword
      * @return
      */
-    String encodePassword(String salt, String rawPassword);
+    String encode(String rawPassword);
 }

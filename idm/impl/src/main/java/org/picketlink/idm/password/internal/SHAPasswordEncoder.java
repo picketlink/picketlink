@@ -25,42 +25,35 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.picketlink.common.util.Base64;
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.password.PasswordEncoder;
 
 /**
  * <p>
- * {@link PasswordEncoder} that uses SHA to created a salted hash the password. Passwords are returned with a Base64 encoding.
+ * {@link PasswordEncoder} that uses SHA to encode passwords. You can always change the SHA strength by specifying a valid
+ * integer when creating a new instance.
  * </p>
- * <p>
- * The provided password is salted before the encoding. The salt is stored as an user's attribute with name
- * <code>PASSWORD_SALT_USER_ATTRIBUTE</code>.
- * </p>
+ * <p>Passwords are returned with a Base64 encoding.</p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class SHASaltedPasswordEncoder implements PasswordEncoder {
-
+public class SHAPasswordEncoder implements PasswordEncoder {
 
     private int strength;
 
-    public SHASaltedPasswordEncoder(int strength) {
+    public SHAPasswordEncoder(int strength) {
         this.strength = strength;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.picketlink.idm.PasswordEncoder#encodePassword(java.lang.String, java.lang.Object)
-     */
     @Override
-    public String encodePassword(String salt, String rawPassword) {
+    public String encode(String rawPassword) {
         MessageDigest messageDigest = getMessageDigest();
 
-         String encodedPassword = null;
+        String encodedPassword = null;
 
         try {
-            byte[] digest = messageDigest.digest(saltPassword(rawPassword, salt).getBytes("UTF-8"));
+            byte[] digest = messageDigest.digest(rawPassword.getBytes("UTF-8"));
             encodedPassword = Base64.encodeBytes(digest);
         } catch (UnsupportedEncodingException e) {
             throw MESSAGES.credentialCouldNotEncodePassword(e);
@@ -69,27 +62,17 @@ public class SHASaltedPasswordEncoder implements PasswordEncoder {
         return encodedPassword;
     }
 
-    /**
-     * <p>
-     * Salt the password with the specified salt value.
-     * </p>
-     *
-     * @param rawPassword
-     * @param salt
-     * @return
-     */
-    private String saltPassword(String rawPassword, String salt) {
-        return rawPassword + salt.toString();
-    }
-
     protected final MessageDigest getMessageDigest() throws IllegalArgumentException {
         String algorithm = "SHA-" + this.strength;
 
         try {
             return MessageDigest.getInstance(algorithm);
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalArgumentException("No such algorithm: " + algorithm);
+            throw IDMMessages.MESSAGES.credentialInvalidEncodingAlgorithm(algorithm, this, e);
         }
     }
 
+    public int getStrength() {
+        return this.strength;
+    }
 }

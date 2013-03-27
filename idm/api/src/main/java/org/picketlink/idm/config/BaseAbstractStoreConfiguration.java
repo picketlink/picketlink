@@ -26,20 +26,20 @@ import static org.picketlink.idm.config.FeatureSet.getDefaultRelationshipClasses
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
-import org.picketlink.idm.spi.SecurityContextFactory;
-import org.picketlink.idm.spi.StoreFactory;
 
 
 /**
@@ -47,25 +47,14 @@ import org.picketlink.idm.spi.StoreFactory;
  *
  * @author Shane Bryzak
  */
-public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStoreConfiguration<?>> implements IdentityStoreConfiguration<C> {
+public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStoreConfiguration<?>> implements IdentityStoreConfiguration {
 
     private final FeatureSet featureSet = new FeatureSet();
-
     private final Set<String> realms = new HashSet<String>();
-
     private final Set<String> tiers = new HashSet<String>();
-
     private List<ContextInitializer> contextInitializers = new ArrayList<ContextInitializer>();
-
-    private IdentityConfiguration identityConfiguration;
-
-    public BaseAbstractStoreConfiguration() {
-
-    }
-
-    public BaseAbstractStoreConfiguration(IdentityConfiguration configuration) {
-        this.identityConfiguration = configuration;
-    }
+    private Map<Class<? extends CredentialHandler>, Map<String, Object>> credentialHandlersConfig = new HashMap<Class<? extends CredentialHandler>, Map<String,Object>>();
+    private List<Class<? extends CredentialHandler>> credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
 
     @Override
     public final void init() throws SecurityConfigurationException {
@@ -99,18 +88,40 @@ public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStore
     }
 
     @Override
+    public List<Class<? extends CredentialHandler>> getCredentialHandlers() {
+        return this.credentialHandlers;
+    }
+
+    @Override
+    public Map<Class<? extends CredentialHandler>, Map<String, Object>> getCredentialHandlersConfig() {
+        return this.credentialHandlersConfig;
+    }
+
+    @Override
+    public FeatureSet getFeatureSet() {
+        return featureSet;
+    }
+
     public C addContextInitializer(ContextInitializer contextInitializer) {
         this.contextInitializers.add(contextInitializer);
         return (C) this;
     }
 
-    @Override
+    public C addCredentialHandlerConfig(Class<? extends CredentialHandler> handlerType, Map<String, Object> config) {
+        this.credentialHandlersConfig.put(handlerType, config);
+        return (C) this;
+    }
+
+    public C addCredentialHandler(Class<? extends CredentialHandler> credentialHandler) {
+        this.credentialHandlers.add(credentialHandler);
+        return (C) this;
+    }
+
     public C supportFeature(FeatureGroup... feature) {
         FeatureSet.addFeatureSupport(getFeatureSet(), feature);
         return (C) this;
     }
 
-    @Override
     public C supportRelationshipType(Class<? extends Relationship>... types) {
         addRelationshipSupport(getFeatureSet(), types);
 
@@ -125,15 +136,9 @@ public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStore
         return (C) this;
     }
 
-    @Override
     public C supportAllFeatures() {
         addFeatureSupport(getFeatureSet());
         return (C) this;
-    }
-
-    @Override
-    public FeatureSet getFeatureSet() {
-        return featureSet;
     }
 
     public C addRealm(String... realmNames) {
@@ -162,38 +167,6 @@ public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStore
 
     public Set<String> getTiers() {
         return Collections.unmodifiableSet(this.tiers);
-    }
-
-    public FileIdentityStoreConfiguration fileStore() {
-        return this.identityConfiguration.fileStore();
-    }
-
-    public JPAIdentityStoreConfiguration jpaStore() {
-        return this.identityConfiguration.jpaStore();
-    }
-
-    public LDAPIdentityStoreConfiguration ldapStore() {
-        return this.identityConfiguration.ldapStore();
-    }
-
-    public IdentityConfiguration contextFactory(SecurityContextFactory securityContextFactory) {
-        return this.identityConfiguration.contextFactory(securityContextFactory);
-    }
-
-    public IdentityConfiguration storeFactory(StoreFactory storeFactory) {
-        return this.identityConfiguration.storeFactory(storeFactory);
-    }
-
-    public List<IdentityStoreConfiguration<?>> getConfiguredStores() {
-        return this.identityConfiguration.getConfiguredStores();
-    }
-
-    public void addConfig(IdentityStoreConfiguration<?> config) {
-        this.identityConfiguration.addConfig(config);
-    }
-
-    public IdentityManagerFactory buildIdentityManagerFactory() {
-        return this.identityConfiguration.buildIdentityManagerFactory();
     }
 
 }

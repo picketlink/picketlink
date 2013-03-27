@@ -54,14 +54,6 @@ public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
     private String baseDN;
     private Map<String, String> groupMapping = new HashMap<String, String>();
 
-    public LDAPIdentityStoreConfiguration() {
-        super();
-    }
-
-    public LDAPIdentityStoreConfiguration(IdentityConfiguration identityConfiguration) {
-        super(identityConfiguration);
-    }
-
     @Override
     protected void initConfig() throws SecurityConfigurationException {
         if (getUserDNSuffix() == null) {

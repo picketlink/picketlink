@@ -34,6 +34,7 @@ import org.picketlink.idm.spi.SecurityContextFactory;
  * @author Anil Saldhana
  */
 public class DefaultSecurityContextFactory implements SecurityContextFactory {
+
     private EventBridge eventBridge;
     private CredentialHandlerFactory credentialHandlerFactory;
     private IdentityCache identityCache;
@@ -41,7 +42,7 @@ public class DefaultSecurityContextFactory implements SecurityContextFactory {
 
     public static DefaultSecurityContextFactory DEFAULT = new DefaultSecurityContextFactory();
 
-    public DefaultSecurityContextFactory(){
+    public DefaultSecurityContextFactory() {
         this.eventBridge = new EventBridge() {
 
             @Override

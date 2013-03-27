@@ -48,6 +48,10 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
     private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
 
     @Override
+    public void setup(IdentityStore<?> identityStore) {
+    }
+
+    @Override
     public void validate(SecurityContext context, Credentials credentials, IdentityStore<?> identityStore) {
         checkIdentityStoreInstance(identityStore);
 
