@@ -46,6 +46,7 @@ import org.picketlink.idm.jpa.schema.IdentityObject;
 import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
 import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
+import org.picketlink.idm.jpa.schema.RelationshipIdentityWeakObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.Authorization;
@@ -222,7 +223,7 @@ public class ProgrammaticConfigurationTestCase extends AbstractLDAPTest {
                 .setIdentityClass(IdentityObject.class)
                 .setAttributeClass(IdentityObjectAttribute.class)
                 .setRelationshipClass(RelationshipObject.class)
-                .setRelationshipIdentityClass(RelationshipIdentityObject.class)
+                .setRelationshipIdentityClass(RelationshipIdentityWeakObject.class)
                 .setRelationshipAttributeClass(RelationshipObjectAttribute.class)
                 .setPartitionClass(PartitionObject.class)
                 .supportFeature(FeatureGroup.relationship)

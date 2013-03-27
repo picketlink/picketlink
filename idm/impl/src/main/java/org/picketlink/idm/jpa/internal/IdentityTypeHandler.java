@@ -335,7 +335,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
                     Subquery<?> subquery = criteria.getCriteria().subquery(jpaConfig.getRelationshipIdentityClass());
                     Root fromProject = subquery.from(jpaConfig.getRelationshipIdentityClass());
-                    subquery.select(fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID)
+                    subquery.select(fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY)
                             .getName()));
                     Join<Object, Object> join = fromProject.join(jpaConfig.getModelProperty(
                             PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
@@ -346,7 +346,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
                             fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).getName()),
                             Grant.ASSIGNEE.getName()));
                     subqueryPredicates.add(criteria.getBuilder().equal(
-                            fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID).getName()),
+                            fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
                             criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.IDENTITY_ID).getName())));
                     subqueryPredicates.add(criteria.getBuilder()
                             .in(join.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_ID).getName())).value(relIds));
@@ -390,7 +390,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
                     Subquery<?> subquery = criteria.getCriteria().subquery(jpaConfig.getRelationshipIdentityClass());
                     Root fromProject = subquery.from(jpaConfig.getRelationshipIdentityClass());
-                    subquery.select(fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID)
+                    subquery.select(fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY)
                             .getName()));
                     Join<Object, Object> join = fromProject.join(jpaConfig.getModelProperty(
                             PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
@@ -401,7 +401,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
                             fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).getName()),
                             GroupMembership.MEMBER.getName()));
                     subqueryPredicates.add(criteria.getBuilder().equal(
-                            fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID).getName()),
+                            fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
                             criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.IDENTITY_ID).getName())));
                     subqueryPredicates.add(criteria.getBuilder()
                             .in(join.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_ID).getName())).value(relIds));
@@ -449,7 +449,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
                     Subquery<?> subquery = criteria.getCriteria().subquery(jpaConfig.getRelationshipIdentityClass());
                     Root fromProject = subquery.from(jpaConfig.getRelationshipIdentityClass());
-                    subquery.select(fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID)
+                    subquery.select(fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY)
                             .getName()));
                     Join<Object, Object> join = fromProject.join(jpaConfig.getModelProperty(
                             PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
@@ -460,7 +460,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
                             fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).getName()),
                             GroupRole.ASSIGNEE.getName()));
                     subqueryPredicates.add(criteria.getBuilder().equal(
-                            fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID).getName()),
+                            fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
                             criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.IDENTITY_ID).getName())));
                     subqueryPredicates.add(criteria.getBuilder()
                             .in(join.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_ID).getName())).value(relIds));
