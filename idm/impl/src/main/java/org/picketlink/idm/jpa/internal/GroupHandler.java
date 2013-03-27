@@ -60,7 +60,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
 
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
-                store.lookupPartitionObject(context, context.getPartition()), true);
+                store.lookupAndCreatePartitionObject(context, context.getPartition()), true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromGroup.getName(), true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.GROUP_PATH, fromGroup.getPath(), true);
 

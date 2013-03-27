@@ -53,7 +53,7 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
 
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
-                store.lookupPartitionObject(context, context.getPartition()), true);
+                store.lookupAndCreatePartitionObject(context, context.getPartition()), true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromRole.getName(), true);
     }
 

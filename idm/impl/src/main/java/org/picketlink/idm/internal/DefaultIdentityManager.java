@@ -222,6 +222,10 @@ public class DefaultIdentityManager implements IdentityManager {
             return null;
         }
 
+        if (name.startsWith("/")) {
+            throw new IdentityManagementException("You should provide a group name and not a path");
+        }
+
         if (lookupIdentityById(Group.class, parent.getId()) == null) {
             throw MESSAGES.groupParentNotFoundWithId(parent.getId(), context.getPartition());
         }

@@ -556,7 +556,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
             predicates.add(criteria.getBuilder().equal(
                     criteria.getRoot().get(config.getModelProperty(PropertyType.IDENTITY_PARTITION).getName()),
-                    store.lookupPartitionObject(context, partition)));
+                    store.lookupAndCreatePartitionObject(context, partition)));
         } else {
             Join<Object, Object> joinPartition = criteria.getRoot().join(
                     config.getModelProperty(PropertyType.IDENTITY_PARTITION).getName());

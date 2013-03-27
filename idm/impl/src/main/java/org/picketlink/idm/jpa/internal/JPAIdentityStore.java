@@ -208,28 +208,23 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public User getUser(SecurityContext context, String loginName) {
-        if (Realm.class.isInstance(context.getPartition())) {
-            if (loginName == null) {
-                return null;
-            }
-
-            DefaultIdentityQuery<User> defaultIdentityQuery = new DefaultIdentityQuery<User>(context, User.class, this);
-
-            defaultIdentityQuery.setParameter(User.LOGIN_NAME, loginName);
-
-            List<User> resultList = defaultIdentityQuery.getResultList();
-
-            User user = null;
-
-            if (!resultList.isEmpty()) {
-                user = resultList.get(0);
-            }
-
-            return user;
-        } else {
-            // FIXME throw a proper exception
-            throw new RuntimeException();
+        if (loginName == null) {
+            return null;
         }
+
+        DefaultIdentityQuery<User> defaultIdentityQuery = new DefaultIdentityQuery<User>(context, User.class, this);
+
+        defaultIdentityQuery.setParameter(User.LOGIN_NAME, loginName);
+
+        List<User> resultList = defaultIdentityQuery.getResultList();
+
+        User user = null;
+
+        if (!resultList.isEmpty()) {
+            user = resultList.get(0);
+        }
+
+        return user;
     }
 
     @Override
@@ -268,10 +263,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         if (parent != null) {
             Object storedParent = lookupIdentityObjectById(context, parent.getId());
 
-            if (storedParent == null) {
-                throw MESSAGES.groupParentNotFoundWithId(parent.getId(), context.getPartition());
-            }
-
             path = getConfig().getModelProperty(PropertyType.GROUP_PATH).getValue(storedParent) + path;
         }
 
@@ -302,30 +293,25 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public Agent getAgent(SecurityContext context, String loginName) {
-        if (Realm.class.isInstance(context.getPartition())) {
-            if (loginName == null) {
-                return null;
-            }
-
-            DefaultIdentityQuery<Agent> defaultIdentityQuery = new DefaultIdentityQuery<Agent>(context, Agent.class, this);
-
-            defaultIdentityQuery.setParameter(Agent.LOGIN_NAME, loginName);
-
-            List<Agent> resultList = defaultIdentityQuery.getResultList();
-
-            Agent agent = null;
-
-            if (!resultList.isEmpty()) {
-                agent = resultList.get(0);
-            } else {
-                agent = getUser(context, loginName);
-            }
-
-            return agent;
-        } else {
-            // FIXME throw proper exception
-            throw new RuntimeException();
+        if (loginName == null) {
+            return null;
         }
+
+        DefaultIdentityQuery<Agent> defaultIdentityQuery = new DefaultIdentityQuery<Agent>(context, Agent.class, this);
+
+        defaultIdentityQuery.setParameter(Agent.LOGIN_NAME, loginName);
+
+        List<Agent> resultList = defaultIdentityQuery.getResultList();
+
+        Agent agent = null;
+
+        if (!resultList.isEmpty()) {
+            agent = resultList.get(0);
+        } else {
+            agent = getUser(context, loginName);
+        }
+
+        return agent;
     }
 
     @Override
@@ -397,46 +383,44 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     public void setAttribute(SecurityContext context, IdentityType identity, Attribute<? extends Serializable> attribute) {
         Serializable value = attribute.getValue();
 
-        if (value == null) {
-            return;
-        }
+        if (value != null) {
+            Property<Object> attributeNameProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_NAME);
+            Property<Object> attributeIdentityProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_IDENTITY);
+            Property<Object> attributeValueProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_VALUE);
 
-        Property<Object> attributeNameProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_NAME);
-        Property<Object> attributeIdentityProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_IDENTITY);
-        Property<Object> attributeValueProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_VALUE);
+            List<?> storedAttributes = findIdentityTypeAttributes(context, identity, attribute.getName());
 
-        List<?> storedAttributes = findIdentityTypeAttributes(context, identity, attribute.getName());
+            // store a new attribute
+            if (storedAttributes.isEmpty()) {
+                Serializable[] values = null;
 
-        // store a new attribute
-        if (storedAttributes.isEmpty()) {
-            Serializable[] values = null;
-
-            if (value.getClass().isArray()) {
-                values = (Serializable[]) value;
-            } else {
-                values = new Serializable[] { value };
-            }
-
-            Object entity = lookupIdentityObjectById(context, identity.getId());
-
-            for (Serializable attribValue : values) {
-                Object newAttribute = null;
-
-                try {
-                    newAttribute = getConfig().getAttributeClass().newInstance();
-                } catch (Exception e) {
-                    throw MESSAGES.instantiationError(getConfig().getAttributeClass().getName(), e);
+                if (value.getClass().isArray()) {
+                    values = (Serializable[]) value;
+                } else {
+                    values = new Serializable[] { value };
                 }
 
-                attributeNameProperty.setValue(newAttribute, attribute.getName());
-                attributeValueProperty.setValue(newAttribute, Base64.encodeObject(attribValue));
-                attributeIdentityProperty.setValue(newAttribute, entity);
+                Object entity = lookupIdentityObjectById(context, identity.getId());
 
-                getEntityManager(context).persist(newAttribute);
+                for (Serializable attribValue : values) {
+                    Object newAttribute = null;
+
+                    try {
+                        newAttribute = getConfig().getAttributeClass().newInstance();
+                    } catch (Exception e) {
+                        throw MESSAGES.instantiationError(getConfig().getAttributeClass().getName(), e);
+                    }
+
+                    attributeNameProperty.setValue(newAttribute, attribute.getName());
+                    attributeValueProperty.setValue(newAttribute, Base64.encodeObject(attribValue));
+                    attributeIdentityProperty.setValue(newAttribute, entity);
+
+                    getEntityManager(context).persist(newAttribute);
+                }
+            } else {
+                removeAttribute(context, identity, attribute.getName());
+                setAttribute(context, identity, attribute);
             }
-        } else {
-            removeAttribute(context, identity, attribute.getName());
-            setAttribute(context, identity, attribute);
         }
     }
 
@@ -647,7 +631,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
     }
 
-    protected Object lookupPartitionObject(SecurityContext context, Partition partition) {
+    protected Object lookupAndCreatePartitionObject(SecurityContext context, Partition partition) {
         checkPartitionClassProvided();
 
         EntityManager entityManager = getEntityManager(context);
@@ -677,11 +661,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         partitionIds.add(context.getPartition().getId());
 
-        if (currentPartition == null) {
-            return partitionIds;
+        if (currentPartition != null) {
+            partitionIds.add(currentPartition.getId());
         }
-
-        partitionIds.add(currentPartition.getId());
 
         return partitionIds;
     }

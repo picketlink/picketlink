@@ -50,7 +50,7 @@ public class UserHandler extends IdentityTypeHandler<User>{
     protected void doPopulateIdentityInstance(SecurityContext context, Object toIdentity, User fromUser, JPAIdentityStore store) {
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
 
-        jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(
+        jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupAndCreatePartitionObject(
                 context, context.getPartition()), true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ID, fromUser.getId(), true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
