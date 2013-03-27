@@ -369,7 +369,10 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void validateCredentials(Credentials credentials) {
+        checkCurrentPartitionForCredential();
+
         IdentityStore<?> store = storeFactory.getStoreForFeature(context, FeatureGroup.credential, FeatureOperation.validate);
+
         store.validateCredentials(context, credentials);
     }
 
@@ -380,7 +383,10 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
+        checkCurrentPartitionForCredential();
+
         IdentityStore<?> store = storeFactory.getStoreForFeature(context, FeatureGroup.credential, FeatureOperation.update);
+
         store.updateCredential(context, agent, credential, effectiveDate, expiryDate);
     }
 
@@ -508,6 +514,20 @@ public class DefaultIdentityManager implements IdentityManager {
         if (!Realm.class.isInstance(this.context.getPartition())) {
             throw MESSAGES.partitionInvalidTypeForAgents(this.context.getPartition().getClass());
         }
+    }
+
+    /**
+     * <p>
+     * Helper method to check if the current partition is a {@link Realm}. Credentials can only be managed using a {@link Realm}.
+     * </p>
+     *
+     * @throws IdentityManagementException if the current partition is not a {@link Realm}.
+     */
+    private void checkCurrentPartitionForCredential() throws IdentityManagementException {
+        if (!Realm.class.isInstance(this.context.getPartition())) {
+            throw MESSAGES.partitionInvalidTypeForCredential(this.context.getPartition().getClass());
+        }
+
     }
 
 }

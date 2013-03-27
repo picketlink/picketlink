@@ -288,4 +288,7 @@ public interface IDMMessages {
     @Message(id = 72, value = "No such algorithm [%s] for encoding passwords. Using PasswordEncoder [%s].")
     IdentityManagementException credentialInvalidEncodingAlgorithm(String algorithm, PasswordEncoder encoder, @Cause Throwable t);
 
+    @Message(id = 73, value = "Credentials can only be managed from a Realm. Current partition is [%s].")
+    IdentityManagementException partitionInvalidTypeForCredential(Class<? extends Partition> partitionType);
+
 }
