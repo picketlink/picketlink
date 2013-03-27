@@ -201,7 +201,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
                         Subquery<?> subquery = criteria.getCriteria()
                                 .subquery(jpaConfig.getRelationshipIdentityClass());
                         Root fromProject = subquery.from(jpaConfig.getRelationshipIdentityClass());
-                        subquery.select(fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID)
+                        subquery.select(fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY)
                                 .getName()));
                         Join<Object, Object> join = fromProject.join(jpaConfig.getModelProperty(
                                 PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
@@ -212,7 +212,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
                                 fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).getName()),
                                 GroupMembership.GROUP.getName()));
                         subqueryPredicates.add(criteria.getBuilder().equal(
-                                fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID).getName()),
+                                fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
                                 criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.IDENTITY_ID).getName())));
                         subqueryPredicates.add(criteria.getBuilder()
                                 .in(join.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_ID).getName()))
