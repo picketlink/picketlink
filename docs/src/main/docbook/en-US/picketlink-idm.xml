@@ -1424,10 +1424,129 @@ public class PartitionObject implements Serializable {
     </section>
     
     <section>
-      <title>Credentials and Authentication</title>
+      <title>Authentication</title>
       
+      <para>
+        PicketLink IDM provides an authentication subsystem that allows user credentials to be validated thereby confirming
+        that an authenticating user is who they claim to be.  The <code>IdentityManager</code> interface provides a single
+        method for performing credential validation, as follows:
+      </para>
+      
+      <note>
+        <para>
+          While the IDM module of PicketLink provides authentication features, for common use cases involving standard username and
+          password based authentication in a Java EE environment, the PicketLink core module provides a more streamlined method
+          of authentication.  Please refer to the authentication chapter of this documentation for more information.
+        </para>
+      </note>
+      
+      <programlisting language="JAVA"><![CDATA[void validateCredentials(Credentials credentials);]]></programlisting>
+      
+      <para>
+        The <code>validateCredentials()</code> method accepts a single <code>Credentials</code> parameter, which should
+        contain all of the state required to determine who is attempting to authenticate, and the credential (such as a
+        password, certificate, etc) that they are authenticating with.  Let's take a look at the <code>Credentials</code>
+        interface:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[public interface Credentials {
+    public enum Status {
+        UNVALIDATED, IN_PROGRESS, INVALID, VALID, EXPIRED
+    };
+
+   Agent getValidatedAgent();
+   
+   Status getStatus();
+   
+   void invalidate();
+}]]></programlisting>
+
+      <para>
+        As we can see from the above code, the basic contract of the interface is quite simple.  Firstly, it defines a <code>Status</code> 
+        enum that represents the possible authentication status of the credentials.  Next, the <code>getValidatedAgent()</code> method
+        returns the <emphasis>successfully authenticated</emphasis> agent or user instance.  The <code>getStatus()</code> method returns
+        the current authentication status of the credentials, and the <code>invalidate()</code> method is used to mark the credentials
+        as invalid.  Let's take a look at a more concrete example - <code>UsernamePasswordCredentials</code> is a <code>Credentials</code>
+        implementation that supports a traditional username/password based authentication:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[public class UsernamePasswordCredentials extends AbstractBaseCredentials {
+
+    private String username;
+
+    private Password password;
+
+    public UsernamePasswordCredentials() { }
+
+    public UsernamePasswordCredentials(String userName, Password password) {
+        this.username = userName;
+        this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public UsernamePasswordCredentials setUsername(String username) {
+        this.username = username;
+        return this;
+    }
+
+    public Password getPassword() {
+        return password;
+    }
+
+    public UsernamePasswordCredentials setPassword(Password password) {
+        this.password = password;
+        return this;
+    }
+
+    @Override
+    public void invalidate() {
+        setStatus(Status.INVALID);
+        password.clear();
+    }
+}]]></programlisting>
+
+      <para>
+        The first thing we may notice about the above code is that the <code>UsernamePasswordCredentials</code> class extends
+        <code>AbstractBaseCredentials</code>.  This abstract base class implements the basic functionality required by the 
+        <code>Credentials</code> interface.  Next, we can see that two fields are defined; <code>username</code> and <code>password</code>.
+        These fields are (hopefully obviously) used to hold the username and password state, and can be set either via the constructor,
+        or by their associated setter methods.  Finally, we can also see that the <code>invalidate()</code> method sets the status to
+        <code>INVALID</code>, and also clears the password value.
+      </para>
+      
+      <para>
+        Let's take a look at an example of the above classes in action.  The following code demonstrates how we would authenticate
+        a user with a username of "john" and a password of "abcde":
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[Credentials creds = new UsernamePasswordCredentials("john",
+    new Password("abcde"));
+identityManager.validate(creds);
+if (Status.VALID.equals(creds.getStatus())) {
+  // authentication was successful
+}]]></programlisting>
+    
+      <para>
+        We can also test if the credentials that were provided have expired (if an expiry date was set).  In this case we might
+        redirect the user to a form where they can enter a new password.
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[Credentials creds = new UsernamePasswordCredentials("john",
+    new Password("abcde"));
+identityManager.validate(creds);
+if (Status.EXPIRED.equals(creds.getStatus())) {
+  // password has expired, redirect the user to a password change screen
+}]]></programlisting>
       
     </section>
 
+    <section>
+      <title>Managing Credentials</title>
+      
+      
+    </section>
 
 </chapter>
