@@ -149,7 +149,6 @@ public class OAuthServerUtil {
      * @param request
      * @param identityManager
      * @return
-     * @throws OAuthSystemException
      */
     public static OAuthResponse authorizationCodeRequest(HttpServletRequest request, IdentityManager identityManager) {
 
@@ -249,7 +248,6 @@ public class OAuthServerUtil {
      * @param request
      * @param identityManager
      * @return
-     * @throws OAuthSystemException
      */
     public static OAuthResponse tokenRequest(HttpServletRequest request, IdentityManager identityManager) {
         String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
@@ -347,7 +345,6 @@ public class OAuthServerUtil {
      * @param request
      * @param identityManager
      * @return
-     * @throws OAuthSystemException
      */
     private static OAuthResponse refreshTokenRequest(HttpServletRequest request, IdentityManager identityManager) {
 
@@ -364,7 +361,6 @@ public class OAuthServerUtil {
      * @param request
      * @param identityManager
      * @return
-     * @throws OAuthSystemException
      */
     private static OAuthResponse passwordGrantTypeTokenRequest(HttpServletRequest request, IdentityManager identityManager) {
 
@@ -410,7 +406,6 @@ public class OAuthServerUtil {
      * @param request
      * @param identityManager
      * @return
-     * @throws OAuthSystemException
      */
     private static OAuthResponse authorizationCodeGrantTypeTokenRequest(HttpServletRequest request,
             IdentityManager identityManager) {
