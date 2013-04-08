@@ -1426,12 +1426,6 @@ public class PartitionObject implements Serializable {
     <section>
       <title>Authentication</title>
       
-      <para>
-        PicketLink IDM provides an authentication subsystem that allows user credentials to be validated thereby confirming
-        that an authenticating user is who they claim to be.  The <code>IdentityManager</code> interface provides a single
-        method for performing credential validation, as follows:
-      </para>
-      
       <note>
         <para>
           While the IDM module of PicketLink provides authentication features, for common use cases involving standard username and
@@ -1439,6 +1433,12 @@ public class PartitionObject implements Serializable {
           of authentication.  Please refer to the authentication chapter of this documentation for more information.
         </para>
       </note>
+      
+      <para>
+        PicketLink IDM provides an authentication subsystem that allows user credentials to be validated thereby confirming
+        that an authenticating user is who they claim to be.  The <code>IdentityManager</code> interface provides a single
+        method for performing credential validation, as follows:
+      </para>
       
       <programlisting language="JAVA"><![CDATA[void validateCredentials(Credentials credentials);]]></programlisting>
       
@@ -1512,7 +1512,7 @@ public class PartitionObject implements Serializable {
         The first thing we may notice about the above code is that the <code>UsernamePasswordCredentials</code> class extends
         <code>AbstractBaseCredentials</code>.  This abstract base class implements the basic functionality required by the 
         <code>Credentials</code> interface.  Next, we can see that two fields are defined; <code>username</code> and <code>password</code>.
-        These fields are (hopefully obviously) used to hold the username and password state, and can be set either via the constructor,
+        These fields are used to hold the username and password state, and can be set either via the constructor,
         or by their associated setter methods.  Finally, we can also see that the <code>invalidate()</code> method sets the status to
         <code>INVALID</code>, and also clears the password value.
       </para>
@@ -1546,6 +1546,62 @@ if (Status.EXPIRED.equals(creds.getStatus())) {
     <section>
       <title>Managing Credentials</title>
       
+      <para>
+        Updating user credentials is even easier than validating them.  The <code>IdentityManager</code> interface provides the following
+        two methods for updating credentials:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[void updateCredential(Agent agent, Object credential);
+void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate);]]></programlisting>
+
+      <para>
+        Both of these methods essentially do the same thing; they update a credential value for a specified <code>Agent</code>
+        (or <code>User</code>).  The second overloaded method however also accepts <code>effectiveDate</code> and <code>expiryDate</code> 
+        parameters, which allow some temporal control over when the credential will be valid.  Use cases for this feature 
+        include implementing a strict password expiry policy (by providing an expiry date), or creating a new account that might not 
+        become active until a date in the future (by providing an effective date).  Both parameters are optional and it is perfectly
+        valid to provide a null value for either or both.
+      </para>
+
+      <note>      
+        <para>
+          One important point to note is that the <code>credential</code> parameter is of type <code>java.lang.Object</code>.  Since
+          credentials can come in all shapes and sizes (and may even be defined by third party libraries), there is no common base 
+          interface for credential implementations to extend.  To support this type of flexibility, PicketLink provides an SPI that allows
+          custom credential handlers to be configured that override or extend the default credential handling logic.  Please see the next 
+          section for more information on how this SPI may be used.
+        </para>
+      </note>
+      
+      <para>
+        PicketLink provides built-in support for the following credential types:
+      </para>
+      
+      <itemizedlist>
+        <listitem>
+          <para>
+            <code>org.picketlink.idm.credential.Digest</code> - Used for digest-based authentication.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <code>org.picketlink.idm.credential.Password</code> - A standard text-based password.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <code>java.security.cert.X509Certificate</code> - X509 certificate.
+          </para>
+        </listitem>
+      </itemizedlist>
+      
+      <para>
+        Here's a code example demonstrating how a user's password credential can be updated to "abcd1234".
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[User user = identityManager.getUser("jsmith");
+identityManager.updateCredential(user, new Password("abcd1234"));]]></programlisting>
+                
       
     </section>
 
