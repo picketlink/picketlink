@@ -25,6 +25,7 @@ import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.picketlink.scim.model.v11.Groups;
 import org.picketlink.scim.model.v11.User;
 
 /**
@@ -49,6 +50,25 @@ public class SCIMParser {
     public User parseUser(InputStream is) throws SCIMParsingException{
         try {
             return mapper.readValue(is, User.class);
+        } catch (JsonParseException e) {
+            throw new SCIMParsingException(e);
+        } catch (JsonMappingException e) {
+            throw new SCIMParsingException(e);
+        } catch (IOException e) {
+            throw new SCIMParsingException(e);
+        }
+
+    }
+    
+    /**
+     * Parse {@link Groups}
+     * @param is
+     * @return
+     * @throws SCIMParsingException
+     */
+    public Groups parseGroup(InputStream is) throws SCIMParsingException{
+        try {
+            return mapper.readValue(is, Groups.class);
         } catch (JsonParseException e) {
             throw new SCIMParsingException(e);
         } catch (JsonMappingException e) {
