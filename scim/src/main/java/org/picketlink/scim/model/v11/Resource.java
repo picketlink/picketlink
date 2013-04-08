@@ -75,7 +75,7 @@ public class Resource extends AbstractResource {
         return this;
     }
 
-    public class Attributes {
+    public static class Attributes {
         private String name;
         private String type;
         private boolean multiValued;

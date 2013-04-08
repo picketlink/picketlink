@@ -23,10 +23,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
+import org.picketlink.scim.codec.SCIMParser;
 import org.picketlink.scim.model.v11.Meta;
 import org.picketlink.scim.model.v11.User;
 import org.picketlink.scim.model.v11.User.Emails;
@@ -46,11 +44,8 @@ public class UserParsingTestCase {
         InputStream is = getClass().getClassLoader().getResourceAsStream("json/user.json");
         assertNotNull(is);
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
-
-        User user = mapper.readValue(is, User.class);
+        SCIMParser parser = new SCIMParser();
+        User user = parser.parseUser(is);
         assertNotNull(user);
 
         assertEquals("2819c223-7f76-453a-919d-413861904646", user.getId());
