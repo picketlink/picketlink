@@ -25,7 +25,7 @@ package org.picketlink.scim.model.v11;
 public class ServiceProviderConfiguration {
     private String[] schemas;
     private String documentationUrl;
-    private AuthenticationSchemes[] authenticationSchmes;
+    private AuthenticationSchemes[] authenticationSchemes;
     private SupportedAttribute etag;
     private SupportedAttribute sort;
     private SupportedAttribute xmlDataFormat;
@@ -52,12 +52,12 @@ public class ServiceProviderConfiguration {
         return this;
     }
 
-    public AuthenticationSchemes[] getAuthenticationSchmes() {
-        return authenticationSchmes;
+    public AuthenticationSchemes[] getAuthenticationSchemes() {
+        return authenticationSchemes;
     }
 
-    public ServiceProviderConfiguration setAuthenticationSchmes(AuthenticationSchemes[] authenticationSchmes) {
-        this.authenticationSchmes = authenticationSchmes;
+    public ServiceProviderConfiguration setAuthenticationSchemes(AuthenticationSchemes[] authenticationSchmes) {
+        this.authenticationSchemes = authenticationSchmes;
         return this;
     }
 
@@ -124,7 +124,7 @@ public class ServiceProviderConfiguration {
         return this;
     }
 
-    public class Bulk extends SupportedAttribute {
+    public static class Bulk extends SupportedAttribute {
         private int maxOperations;
         private int maxPayloadSize;
 
@@ -147,7 +147,7 @@ public class ServiceProviderConfiguration {
         }
     }
 
-    public class Filter extends SupportedAttribute {
+    public static class Filter extends SupportedAttribute {
         private int maxResults;
 
         public int getMaxResults() {
@@ -160,7 +160,7 @@ public class ServiceProviderConfiguration {
         }
     }
     
-    public class AuthenticationSchemes {
+    public static class AuthenticationSchemes {
 
         private String name, description, specUrl, documentationUrl, type;
         private boolean primary;
