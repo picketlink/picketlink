@@ -20,12 +20,14 @@ package org.picketlink.scim.codec;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.codehaus.jackson.JsonGenerator.Feature;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.picketlink.scim.model.v11.Groups;
+import org.picketlink.scim.model.v11.Resource;
 import org.picketlink.scim.model.v11.ServiceProviderConfiguration;
 import org.picketlink.scim.model.v11.User;
 
@@ -40,6 +42,15 @@ public class SCIMParser {
     public SCIMParser(){
         mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
+    }
+    
+    /**
+     * Configure the {@link ObjectMapper}
+     * @param feature
+     * @param flag
+     */
+    public void configure(Feature feature, boolean flag){
+        mapper.configure(feature, flag);
     }
     
     /**
@@ -81,6 +92,25 @@ public class SCIMParser {
     }
     
     /**
+     * Parse {@link Resource}
+     * @param is
+     * @return
+     * @throws SCIMParsingException
+     */
+    public Resource parseResource(InputStream is) throws SCIMParsingException{
+        try {
+            return mapper.readValue(is, Resource.class);
+        } catch (JsonParseException e) {
+            throw new SCIMParsingException(e);
+        } catch (JsonMappingException e) {
+            throw new SCIMParsingException(e);
+        } catch (IOException e) {
+            throw new SCIMParsingException(e);
+        }
+
+    }
+    
+    /**
      * Parse {@link ServiceProviderConfiguration}
      * @param is
      * @return
@@ -96,6 +126,5 @@ public class SCIMParser {
         } catch (IOException e) {
             throw new SCIMParsingException(e);
         }
-
     }
 }

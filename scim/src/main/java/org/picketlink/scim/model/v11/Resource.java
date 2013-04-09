@@ -28,7 +28,8 @@ public class Resource extends AbstractResource {
     private String description;
     private String schema;
     private String endpoint;
-    private Attributes attributes;
+    private Attributes[] attributes;
+    private SubAttributes[] subAttributes;
 
     public String getName() {
         return name;
@@ -66,14 +67,23 @@ public class Resource extends AbstractResource {
         return this;
     }
 
-    public Attributes getAttributes() {
+    public Attributes[] getAttributes() {
         return attributes;
     }
 
-    public Resource setAttributes(Attributes attributes) {
+    public Resource setAttributes(Attributes[] attributes) {
         this.attributes = attributes;
         return this;
+    } 
+
+    public SubAttributes[] getSubAttributes() {
+        return subAttributes;
     }
+
+    public Resource setSubAttributes(SubAttributes[] subAttributes) {
+        this.subAttributes = subAttributes;
+        return this;
+    } 
 
     public static class Attributes {
         private String name;
@@ -164,6 +174,66 @@ public class Resource extends AbstractResource {
 
         public Attributes setCaseExact(boolean caseExact) {
             this.caseExact = caseExact;
+            return this;
+        }
+    }
+    
+    public static class SubAttributes{
+
+        private String name; 
+        private String  type;
+        private String description;
+        private boolean readOnly;
+        private boolean required;  
+        private boolean caseExact; 
+        private String[] canonicalValues;
+        public String getName() {
+            return name;
+        }
+        public SubAttributes setName(String name) {
+            this.name = name;
+            return this;
+        }
+        public String getType() {
+            return type;
+        }
+        public SubAttributes setType(String type) {
+            this.type = type;
+            return this;
+        }
+        public String getDescription() {
+            return description;
+        }
+        public SubAttributes setDescription(String description) {
+            this.description = description;
+            return this;
+        }
+        public boolean isReadOnly() {
+            return readOnly;
+        }
+        public SubAttributes setReadOnly(boolean readOnly) {
+            this.readOnly = readOnly;
+            return this;
+        }
+        public boolean isRequired() {
+            return required;
+        }
+        public SubAttributes setRequired(boolean required) {
+            this.required = required;
+            return this;
+        }
+        public boolean isCaseExact() {
+            return caseExact;
+        }
+        public SubAttributes setCaseExact(boolean caseExact) {
+            this.caseExact = caseExact;
+            return this;
+        }
+        public String[] getCanonicalValues() {
+            return canonicalValues;
+        }
+        public SubAttributes setCanonicalValues(String[] canonicalValues) {
+            this.canonicalValues = canonicalValues;
             return this;
         }
     }
