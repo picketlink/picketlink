@@ -1559,17 +1559,17 @@ void updateCredential(Agent agent, Object credential, Date effectiveDate, Date e
         (or <code>User</code>).  The second overloaded method however also accepts <code>effectiveDate</code> and <code>expiryDate</code> 
         parameters, which allow some temporal control over when the credential will be valid.  Use cases for this feature 
         include implementing a strict password expiry policy (by providing an expiry date), or creating a new account that might not 
-        become active until a date in the future (by providing an effective date).  Both parameters are optional and it is perfectly
-        valid to provide a null value for either or both.
+        become active until a date in the future (by providing an effective date).  Invoking the first overloaded method will
+        store the credential with an effective date of the current date and time, and no expiry date.
       </para>
 
       <note>      
         <para>
           One important point to note is that the <code>credential</code> parameter is of type <code>java.lang.Object</code>.  Since
           credentials can come in all shapes and sizes (and may even be defined by third party libraries), there is no common base 
-          interface for credential implementations to extend.  To support this type of flexibility, PicketLink provides an SPI that allows
-          custom credential handlers to be configured that override or extend the default credential handling logic.  Please see the next 
-          section for more information on how this SPI may be used.
+          interface for credential implementations to extend.  To support this type of flexibility in an extensible way, PicketLink 
+          provides an SPI that allows custom credential handlers to be configured that override or extend the default credential 
+          handling logic.  Please see the next section for more information on how this SPI may be used.
         </para>
       </note>
       
@@ -1577,32 +1577,82 @@ void updateCredential(Agent agent, Object credential, Date effectiveDate, Date e
         PicketLink provides built-in support for the following credential types:
       </para>
       
-      <itemizedlist>
-        <listitem>
-          <para>
-            <code>org.picketlink.idm.credential.Digest</code> - Used for digest-based authentication.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            <code>org.picketlink.idm.credential.Password</code> - A standard text-based password.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            <code>java.security.cert.X509Certificate</code> - X509 certificate.
-          </para>
-        </listitem>
-      </itemizedlist>
+      <warning>
+        <para>
+          Not all built-in <code>IdentityStore</code> implementations support all credential types.  For example, since the
+          <code>LDAPIdentityStore</code> is backed by an LDAP directory server, only password credentials are supported.  The
+          following table lists the built-in <code>IdentityStore</code> implementations that support each credential type.
+        </para>
+      </warning>
       
+      <table>
+        <title>Built-in credential types</title>
+        
+        <tgroup cols="3" align="left">
+          <thead>
+            <row>
+              <entry>Credential type</entry>
+              <entry>Description</entry>
+              <entry>Supported by</entry>
+            </row>
+          </thead>
+          <tbody valign="top">
+            <row>
+              <entry><code>org.picketlink.idm.credential.Digest</code></entry>
+              <entry>Used for digest-based authentication</entry>
+              <entry>
+                <code>JPAIdentityStore</code>
+                <code>FileBasedIdentityStore</code>
+              </entry>
+            </row>
+            <row>
+              <entry><code>org.picketlink.idm.credential.Password</code></entry>
+              <entry>A standard text-based password</entry>
+              <entry>
+                <code>JPAIdentityStore</code>
+                <code>FileBasedIdentityStore</code>
+                <code>LDAPIdentityStore</code>
+              </entry>
+            </row>
+            <row>
+              <entry><code>java.security.cert.X509Certificate</code></entry>
+              <entry>Used for X509 certificate based authentication</entry>
+              <entry>
+                <code>JPAIdentityStore</code>
+                <code>FileBasedIdentityStore</code>             
+              </entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+           
       <para>
-        Here's a code example demonstrating how a user's password credential can be updated to "abcd1234".
+        Let's take a look at a couple of examples.  Here's some code demonstrating how a password can be assigned
+        to user "jsmith":
       </para>
       
       <programlisting language="JAVA"><![CDATA[User user = identityManager.getUser("jsmith");
 identityManager.updateCredential(user, new Password("abcd1234"));]]></programlisting>
-                
+
+      <para>
+        This example creates a digest and assigns it to user "jdoe":
+      </para>
       
+      <programlisting language="JAVA"><![CDATA[User user = identityManager.getUser("jdoe");
+Digest digest = new Digest();
+digest.setRealm("default");
+digest.setUsername(user.getLoginName());
+digest.setPassword("abcd1234");        
+identityManager.updateCredential(user, digest);]]></programlisting>
+      
+    </section>
+    
+    <section>
+      <title>Credential Handler Customization</title>
+      
+      <para>
+      
+      </para>
     </section>
 
 </chapter>
