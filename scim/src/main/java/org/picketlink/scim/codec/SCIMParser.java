@@ -20,6 +20,7 @@ package org.picketlink.scim.codec;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.codehaus.jackson.JsonGenerator.Feature;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.DeserializationConfig;
@@ -41,6 +42,15 @@ public class SCIMParser {
     public SCIMParser(){
         mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
+    }
+    
+    /**
+     * Configure the {@link ObjectMapper}
+     * @param feature
+     * @param flag
+     */
+    public void configure(Feature feature, boolean flag){
+        mapper.configure(feature, flag);
     }
     
     /**
@@ -116,6 +126,5 @@ public class SCIMParser {
         } catch (IOException e) {
             throw new SCIMParsingException(e);
         }
-
     }
 }
