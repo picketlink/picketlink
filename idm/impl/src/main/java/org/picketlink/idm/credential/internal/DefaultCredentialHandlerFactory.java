@@ -118,7 +118,7 @@ public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory
         SupportsCredentials sc = handlerClass.getAnnotation(SupportsCredentials.class);
 
         for (Class<?> cls : sc.value()) {
-            if (cls.equals(credentialClass)) {
+            if (cls.isAssignableFrom(credentialClass)) {
                 return true;
             }
         }

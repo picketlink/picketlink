@@ -21,6 +21,7 @@ package org.picketlink.idm.credential;
 import java.io.IOException;
 import java.io.StringReader;
 import java.security.Principal;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 
@@ -31,14 +32,14 @@ import java.util.Properties;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 public class X509CertificateCredentials extends AbstractBaseCredentials implements Credentials {
-    private X509Cert certificate;
+    private X509Certificate certificate;
     private String userName;
 
-    public X509CertificateCredentials(X509Cert certificate) {
+    public X509CertificateCredentials(X509Certificate certificate) {
         this.certificate = certificate;
     }
 
-    public X509Cert getCertificate() {
+    public X509Certificate getCertificate() {
         return certificate;
     }
 
@@ -71,10 +72,10 @@ public class X509CertificateCredentials extends AbstractBaseCredentials implemen
     }
 
     private Principal getCertificatePrincipal() {
-        Principal certprincipal = this.certificate.getValue().getSubjectDN();
+        Principal certprincipal = this.certificate.getSubjectDN();
 
         if (certprincipal == null) {
-            certprincipal = this.certificate.getValue().getIssuerDN();
+            certprincipal = this.certificate.getIssuerDN();
         }
 
         return certprincipal;

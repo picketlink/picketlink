@@ -19,11 +19,11 @@
 package org.picketlink.idm.credential.internal;
 
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.util.Date;
 
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.credential.X509Cert;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.Stored;
 
@@ -41,9 +41,9 @@ public class X509CertificateStorage implements CredentialStorage {
 
     public X509CertificateStorage() { }
 
-    public X509CertificateStorage(X509Cert credential) {
+    public X509CertificateStorage(X509Certificate certificate) {
         try {
-            this.base64Cert = Base64.encodeBytes(credential.getValue().getEncoded());
+            this.base64Cert = Base64.encodeBytes(certificate.getEncoded());
         } catch (CertificateEncodingException e) {
             throw new IdentityManagementException("Could not get Base64 representation for X509 Certificate.", e);
         }

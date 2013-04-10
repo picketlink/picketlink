@@ -1651,8 +1651,21 @@ identityManager.updateCredential(user, digest);]]></programlisting>
       <title>Credential Handler Customization</title>
       
       <para>
+        Specific credential handler options can be set when creating a new <code>IdentityConfiguration</code>.  Configured options 
+        are always specific to a particular identity store configuration, allowing different options to be specified between two or
+        more identity stores.  The <code>IdentityStoreConfiguration</code> interface provides a method called
+        <code>getCredentialHandlersConfig()</code> that provides access to a <code>Map</code> which allows configuration options
+        to be set for the identity store's credential handlers:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[public interface IdentityStoreConfiguration {
+    Map<Class<? extends CredentialHandler>, Map<String, Object>> getCredentialHandlersConfig();
+}]]></programlisting>
+
+      <para>
       
       </para>
+
     </section>
 
 </chapter>

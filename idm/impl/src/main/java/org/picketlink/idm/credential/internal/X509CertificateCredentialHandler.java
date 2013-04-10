@@ -29,7 +29,6 @@ import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
-import org.picketlink.idm.credential.X509Cert;
 import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
@@ -44,7 +43,7 @@ import org.picketlink.idm.spi.SecurityContext;
  * @author Shane Bryzak
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-@SupportsCredentials({X509CertificateCredentials.class, X509Cert.class})
+@SupportsCredentials({X509CertificateCredentials.class, X509Certificate.class})
 public class X509CertificateCredentialHandler implements CredentialHandler {
 
     @Override
@@ -80,9 +79,9 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
                     CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
                     X509Certificate storedCert = (X509Certificate) certFactory.generateCertificate(new ByteArrayInputStream(
                             certBytes));
-                    X509Cert providedCert = certCredentials.getCertificate();
+                    X509Certificate providedCert = certCredentials.getCertificate();
 
-                    if (storedCert.equals(providedCert.getValue())) {
+                    if (storedCert.equals(providedCert)) {
                         certCredentials.setStatus(Status.VALID);
                     }
                 } catch (Exception e) {
@@ -96,12 +95,12 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
     public void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
         validateCredentialStore(identityStore);
 
-        if (!X509Cert.class.isInstance(credential)) {
+        if (!X509Certificate.class.isInstance(credential)) {
             throw MESSAGES.credentialUnsupportedType(credential.getClass(), this);
         }
 
-        X509Cert certificate = (X509Cert) credential;
-        X509CertificateStorage storage = new X509CertificateStorage((X509Cert) certificate);
+        X509Certificate certificate = (X509Certificate) credential;
+        X509CertificateStorage storage = new X509CertificateStorage(certificate);
 
         CredentialStore store = (CredentialStore) identityStore;
 

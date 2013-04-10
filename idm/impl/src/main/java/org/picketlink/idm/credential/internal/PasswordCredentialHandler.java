@@ -50,7 +50,7 @@ import org.picketlink.idm.spi.SecurityContext;
  * <p>
  *
  * <p>
- * How password are encoded can be changed by spcifying a configuration option using the <code>PASSWORD_ENCODER</code>. By
+ * How passwords are encoded can be changed by specifying a configuration option using the <code>PASSWORD_ENCODER</code>. By
  * default a SHA-512 encoding is performed.
  * </p>
  *
