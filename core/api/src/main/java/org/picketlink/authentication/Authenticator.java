@@ -18,6 +18,7 @@
 
 package org.picketlink.authentication;
 
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.User;
 
 
@@ -41,5 +42,5 @@ public interface Authenticator
 
     AuthenticationStatus getStatus();
 
-    User getUser();
+    Agent getUser();
 }

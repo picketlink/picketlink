@@ -20,7 +20,7 @@ package org.picketlink;
 
 import java.io.Serializable;
 
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.Agent;
 
 /**
  * Represents the identity of the current user, and provides an API for authentication and authorization. 
@@ -34,7 +34,7 @@ public interface Identity extends Serializable
     {
         SUCCESS, FAILED
     }
-    
+
     /**
      * Simple check that returns true if the user is logged in, without attempting to authenticate
      *
@@ -42,7 +42,7 @@ public interface Identity extends Serializable
      */
     boolean isLoggedIn();
 
-    User getUser();
+    Agent getUser();
 
     /**
      * Attempts to authenticate the user.  This method raises the following events in response 
@@ -72,7 +72,7 @@ public interface Identity extends Serializable
      * Logs out the currently authenticated user
      */
     void logout();
-    
+
     /**
      * Tests if the currently authenticated user has permission to perform the specified operation on
      * the specified resource.  This method should be preferred over the overloaded hasPermission() method
