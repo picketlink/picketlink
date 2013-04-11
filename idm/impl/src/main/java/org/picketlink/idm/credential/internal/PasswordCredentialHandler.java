@@ -75,8 +75,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
     @Override
     public void setup(IdentityStore<?> identityStore) {
-        Map<String, Object> options = identityStore.getConfig().getCredentialHandlersConfig()
-                .get(PasswordCredentialHandler.class);
+        Map<String, Object> options = identityStore.getConfig().getCredentialHandlerProperties();
 
         if (options != null) {
             Object providedEncoder = options.get(PASSWORD_ENCODER);

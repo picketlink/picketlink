@@ -86,9 +86,9 @@ public interface IdentityStoreConfiguration {
     List<Class<? extends CredentialHandler>> getCredentialHandlers();
 
     /**
-     * <p>Returns the configuration for the configured {@link CredentialHandler} types.</p>
+     * <p>Allows credential handler behaviour to be customized via a set of property values</p>
      *
      * @return
      */
-    Map<Class<? extends CredentialHandler>, Map<String, Object>> getCredentialHandlersConfig();
+    Map<String, Object> getCredentialHandlerProperties();
 }

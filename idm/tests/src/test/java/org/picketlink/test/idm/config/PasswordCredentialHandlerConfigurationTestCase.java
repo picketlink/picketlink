@@ -91,19 +91,15 @@ public class PasswordCredentialHandlerConfigurationTestCase {
     public void testCustomSHAPasswordEncoder() throws Exception {
         IdentityConfiguration configuration = new IdentityConfiguration();
 
-        HashMap<String, Object> passwordHandlerOptions = new HashMap<String, Object>();
-        
-        passwordHandlerOptions.put(PASSWORD_ENCODER, new SHAPasswordEncoder(1) {
-            @Override
-            public String encode(String rawPassword) {
-                Assert.assertEquals(1, this.getStrength());
-                return super.encode(rawPassword);
-            }
-        });
-        
         configuration
             .jpaStore()
-                .addCredentialHandlerConfig(PasswordCredentialHandler.class, passwordHandlerOptions)
+                .setCredentialHandlerProperty(PASSWORD_ENCODER, 
+                    new SHAPasswordEncoder(1) {
+                        @Override
+                        public String encode(String rawPassword) {
+                            Assert.assertEquals(1, this.getStrength());
+                            return super.encode(rawPassword);
+                        }})
                 .addContextInitializer(new JPAContextInitializer(emf) {
                     @Override
                     public EntityManager getEntityManager() {
@@ -148,22 +144,17 @@ public class PasswordCredentialHandlerConfigurationTestCase {
     public void testCustomPasswordEncoder() throws Exception {
         IdentityConfiguration configuration = new IdentityConfiguration();
 
-        HashMap<String, Object> passwordHandlerOptions = new HashMap<String, Object>();
-
         final Map<String, String> assertionCheck = new HashMap<String, String>();
-        
-        passwordHandlerOptions.put(PASSWORD_ENCODER, new PasswordEncoder() {
-            
-            @Override
-            public String encode(String rawPassword) {
-                assertionCheck.put("WAS_INVOKED", "true");
-                return rawPassword;
-            }
-        });
-        
+
         configuration
         .jpaStore()
-            .addCredentialHandlerConfig(PasswordCredentialHandler.class, passwordHandlerOptions)
+            .setCredentialHandlerProperty(PASSWORD_ENCODER, new PasswordEncoder() {
+                @Override
+                public String encode(String rawPassword) {
+                    assertionCheck.put("WAS_INVOKED", "true");
+                    return rawPassword;
+                }
+            })
             .addContextInitializer(new JPAContextInitializer(emf) {
                 @Override
                 public EntityManager getEntityManager() {
@@ -209,22 +200,16 @@ public class PasswordCredentialHandlerConfigurationTestCase {
     public void failInvalidEncodingAlgorithm() throws Exception {
         IdentityConfiguration configuration = new IdentityConfiguration();
 
-        HashMap<String, Object> passwordHandlerOptions = new HashMap<String, Object>();
-        
-        passwordHandlerOptions.put(PASSWORD_ENCODER, new SHAPasswordEncoder(999) {
-            @Override
-            public String encode(String rawPassword) {
-                String encode = super.encode(rawPassword);
-                
-                fail();
-                
-                return encode;
-            }
-        });
-        
         configuration
         .jpaStore()
-            .addCredentialHandlerConfig(PasswordCredentialHandler.class, passwordHandlerOptions)
+            .setCredentialHandlerProperty(PASSWORD_ENCODER, new SHAPasswordEncoder(999) {
+                @Override
+                public String encode(String rawPassword) {
+                    String encode = super.encode(rawPassword);
+                    fail();
+                    return encode;
+                }
+            })
             .addContextInitializer(new JPAContextInitializer(emf) {
                 @Override
                 public EntityManager getEntityManager() {

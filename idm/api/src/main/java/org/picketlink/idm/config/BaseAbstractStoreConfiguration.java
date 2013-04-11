@@ -53,7 +53,7 @@ public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStore
     private final Set<String> realms = new HashSet<String>();
     private final Set<String> tiers = new HashSet<String>();
     private List<ContextInitializer> contextInitializers = new ArrayList<ContextInitializer>();
-    private Map<Class<? extends CredentialHandler>, Map<String, Object>> credentialHandlersConfig = new HashMap<Class<? extends CredentialHandler>, Map<String,Object>>();
+    private Map<String, Object> credentialHandlerProperties = new HashMap<String,Object>();
     private List<Class<? extends CredentialHandler>> credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
 
     @Override
@@ -93,8 +93,8 @@ public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStore
     }
 
     @Override
-    public Map<Class<? extends CredentialHandler>, Map<String, Object>> getCredentialHandlersConfig() {
-        return this.credentialHandlersConfig;
+    public Map<String, Object> getCredentialHandlerProperties() {
+        return this.credentialHandlerProperties;
     }
 
     @Override
@@ -107,8 +107,8 @@ public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStore
         return (C) this;
     }
 
-    public C addCredentialHandlerConfig(Class<? extends CredentialHandler> handlerType, Map<String, Object> config) {
-        this.credentialHandlersConfig.put(handlerType, config);
+    public C setCredentialHandlerProperty(String propertyName, Object value) {
+        this.credentialHandlerProperties.put(propertyName, value);
         return (C) this;
     }
 
