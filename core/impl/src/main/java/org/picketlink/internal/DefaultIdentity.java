@@ -40,6 +40,7 @@ import org.picketlink.authentication.event.PreAuthenticateEvent;
 import org.picketlink.authentication.event.PreLoggedOutEvent;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.deltaspike.core.util.ExceptionUtils;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.User;
 
 /**
@@ -65,7 +66,7 @@ public class DefaultIdentity implements Identity
      */
     private boolean authenticating;
 
-    private User user;
+    private Agent user;
 
     public boolean isLoggedIn() 
     {
@@ -74,7 +75,7 @@ public class DefaultIdentity implements Identity
     }
 
     @Override
-    public User getUser()
+    public Agent getUser()
     {
         return this.user;
     }

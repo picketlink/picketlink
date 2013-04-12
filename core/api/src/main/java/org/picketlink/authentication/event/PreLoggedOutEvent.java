@@ -18,7 +18,7 @@
 
 package org.picketlink.authentication.event;
 
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.Agent;
 
 /**
  * This event is raised just before the user un-authenticates
@@ -27,14 +27,14 @@ import org.picketlink.idm.model.User;
  */
 public class PreLoggedOutEvent 
 {
-    private User user;
+    private Agent user;
 
-    public PreLoggedOutEvent(User user)
+    public PreLoggedOutEvent(Agent user)
     {
         this.user = user;
     }
 
-    public User getUser()
+    public Agent getUser()
     {
         return user;
     }
