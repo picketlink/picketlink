@@ -1558,6 +1558,14 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     public IllegalArgumentException samlMetaDataFailedToCreateCacheDuration(String timeValue) {
         return MESSAGES.samlMetaDataFailedToCreateCacheDuration(timeValue);
     }
+    
+    public ConfigurationException samlMetaDataNoIdentityProviderDefined() {
+        return MESSAGES.samlMetaDataNoIdentityProviderDefined();
+    }
+    
+    public ConfigurationException samlMetaDataNoServiceProviderDefined() {
+        return MESSAGES.samlMetaDataNoServiceProviderDefined();
+    }
 
     public ConfigurationException securityDomainNotFound() {
         return MESSAGES.securityDomainNotFound();

@@ -493,4 +493,10 @@ public interface PicketLinkMessages {
     @Message(id = 173, value = "The security domain name could not be found. Check your jboss-web.xml.")
     ConfigurationException securityDomainNotFound();
 
+    @Message(id = 174, value = "No configuration provided for the Identity Provider..")
+    ConfigurationException samlMetaDataNoIdentityProviderDefined();
+
+    @Message(id = 175, value = "No configuration provided for the Service Provider..")
+    ConfigurationException samlMetaDataNoServiceProviderDefined();
+
 }
