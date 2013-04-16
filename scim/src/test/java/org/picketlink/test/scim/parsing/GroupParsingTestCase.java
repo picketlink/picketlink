@@ -25,8 +25,8 @@ import java.io.InputStream;
 
 import org.junit.Test;
 import org.picketlink.scim.codec.SCIMParser;
-import org.picketlink.scim.model.v11.Groups;
-import org.picketlink.scim.model.v11.Groups.Members;
+import org.picketlink.scim.model.v11.SCIMGroups;
+import org.picketlink.scim.model.v11.SCIMGroups.Members;
 
 /**
  * Validate parsing of SCIM Group representation
@@ -42,22 +42,21 @@ public class GroupParsingTestCase {
         assertNotNull(is);
 
         SCIMParser parser = new SCIMParser();
-        Groups group = parser.parseGroup(is);
+        SCIMGroups group = parser.parseGroup(is);
         assertNotNull(group);
 
         assertEquals("e9e30dba-f08f-4109-8486-d5c6a331660a", group.getId());
         assertEquals("Tour Guides", group.getDisplayName());
-        
+
         Members[] members = group.getMembers();
         assertEquals(2, members.length);
-        
-        //Validate members
-        for(int i = 0 ; i < 2; i ++){
+
+        // Validate members
+        for (int i = 0; i < 2; i++) {
             Members member = members[i];
-            assertTrue("2819c223-7f76-453a-919d-413861904646".equals(member.getValue()) 
+            assertTrue("2819c223-7f76-453a-919d-413861904646".equals(member.getValue())
                     || "902c246b-6245-4190-8e05-00816be7344a".equals(member.getValue()));
-            assertTrue("Babs Jensen".equals(member.getDisplay()) 
-                    || "Mandy Pepperidge".equals(member.getDisplay()));
+            assertTrue("Babs Jensen".equals(member.getDisplay()) || "Mandy Pepperidge".equals(member.getDisplay()));
         }
     }
 }

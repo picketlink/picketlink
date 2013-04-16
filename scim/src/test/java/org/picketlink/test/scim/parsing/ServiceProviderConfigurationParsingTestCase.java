@@ -47,20 +47,18 @@ public class ServiceProviderConfigurationParsingTestCase {
         assertNotNull(sp);
 
         assertEquals("http://example.com/help/scim.html", sp.getDocumentationUrl());
-        
 
         assertTrue(sp.getPatch().isSupported());
         assertEquals(2, sp.getAuthenticationSchemes().length);
-        
+
         Bulk bulk = sp.getBulk();
         assertTrue(bulk.isSupported());
         assertEquals(1000, bulk.getMaxOperations());
         assertEquals(1048576, bulk.getMaxPayloadSize());
-        
+
         Filter filter = sp.getFilter();
         assertTrue(filter.isSupported());
         assertEquals(200, filter.getMaxResults());
-        
 
         assertTrue(sp.getChangePassword().isSupported());
         assertTrue(sp.getSort().isSupported());
