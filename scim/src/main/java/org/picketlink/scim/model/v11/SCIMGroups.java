@@ -19,10 +19,11 @@ package org.picketlink.scim.model.v11;
 
 /**
  * SCIM Group Type
+ *
  * @author anil saldhana
  * @since Apr 8, 2013
  */
-public class Groups extends AbstractResource {
+public class SCIMGroups extends AbstractResource {
     private String displayName;
 
     private Members[] members;
@@ -31,7 +32,7 @@ public class Groups extends AbstractResource {
         return displayName;
     }
 
-    public Groups setDisplayName(String displayName) {
+    public SCIMGroups setDisplayName(String displayName) {
         this.displayName = displayName;
         return this;
     }
@@ -40,11 +41,11 @@ public class Groups extends AbstractResource {
         return members;
     }
 
-    public Groups setMembers(Members[] members) {
+    public SCIMGroups setMembers(Members[] members) {
         this.members = members;
         return this;
     }
-    
+
     public static class Members {
         private String value, display;
 

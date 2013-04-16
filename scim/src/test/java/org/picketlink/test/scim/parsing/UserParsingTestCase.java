@@ -26,9 +26,9 @@ import java.io.InputStream;
 import org.junit.Test;
 import org.picketlink.scim.codec.SCIMParser;
 import org.picketlink.scim.model.v11.Meta;
-import org.picketlink.scim.model.v11.User;
-import org.picketlink.scim.model.v11.User.Emails;
-import org.picketlink.scim.model.v11.User.Ims;
+import org.picketlink.scim.model.v11.SCIMUser;
+import org.picketlink.scim.model.v11.SCIMUser.Emails;
+import org.picketlink.scim.model.v11.SCIMUser.Ims;
 import org.picketlink.scim.model.v11.UserName;
 
 /**
@@ -45,7 +45,7 @@ public class UserParsingTestCase {
         assertNotNull(is);
 
         SCIMParser parser = new SCIMParser();
-        User user = parser.parseUser(is);
+        SCIMUser user = parser.parseUser(is);
         assertNotNull(user);
 
         assertEquals("2819c223-7f76-453a-919d-413861904646", user.getId());

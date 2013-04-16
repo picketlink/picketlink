@@ -19,10 +19,11 @@ package org.picketlink.scim.model.v11;
 
 /**
  * SCIM Resource Type
+ *
  * @author anil saldhana
  * @since Apr 8, 2013
  */
-public class Resource extends AbstractResource {
+public class SCIMResource extends AbstractResource {
 
     private String name;
     private String description;
@@ -35,7 +36,7 @@ public class Resource extends AbstractResource {
         return name;
     }
 
-    public Resource setName(String name) {
+    public SCIMResource setName(String name) {
         this.name = name;
         return this;
     }
@@ -44,7 +45,7 @@ public class Resource extends AbstractResource {
         return description;
     }
 
-    public Resource setDescription(String description) {
+    public SCIMResource setDescription(String description) {
         this.description = description;
         return this;
     }
@@ -53,7 +54,7 @@ public class Resource extends AbstractResource {
         return schema;
     }
 
-    public Resource setSchema(String schema) {
+    public SCIMResource setSchema(String schema) {
         this.schema = schema;
         return this;
     }
@@ -62,7 +63,7 @@ public class Resource extends AbstractResource {
         return endpoint;
     }
 
-    public Resource setEndpoint(String endpoint) {
+    public SCIMResource setEndpoint(String endpoint) {
         this.endpoint = endpoint;
         return this;
     }
@@ -71,19 +72,19 @@ public class Resource extends AbstractResource {
         return attributes;
     }
 
-    public Resource setAttributes(Attributes[] attributes) {
+    public SCIMResource setAttributes(Attributes[] attributes) {
         this.attributes = attributes;
         return this;
-    } 
+    }
 
     public SubAttributes[] getSubAttributes() {
         return subAttributes;
     }
 
-    public Resource setSubAttributes(SubAttributes[] subAttributes) {
+    public SCIMResource setSubAttributes(SubAttributes[] subAttributes) {
         this.subAttributes = subAttributes;
         return this;
-    } 
+    }
 
     public static class Attributes {
         private String name;
@@ -177,61 +178,75 @@ public class Resource extends AbstractResource {
             return this;
         }
     }
-    
-    public static class SubAttributes{
 
-        private String name; 
-        private String  type;
+    public static class SubAttributes {
+
+        private String name;
+        private String type;
         private String description;
         private boolean readOnly;
-        private boolean required;  
-        private boolean caseExact; 
+        private boolean required;
+        private boolean caseExact;
         private String[] canonicalValues;
+
         public String getName() {
             return name;
         }
+
         public SubAttributes setName(String name) {
             this.name = name;
             return this;
         }
+
         public String getType() {
             return type;
         }
+
         public SubAttributes setType(String type) {
             this.type = type;
             return this;
         }
+
         public String getDescription() {
             return description;
         }
+
         public SubAttributes setDescription(String description) {
             this.description = description;
             return this;
         }
+
         public boolean isReadOnly() {
             return readOnly;
         }
+
         public SubAttributes setReadOnly(boolean readOnly) {
             this.readOnly = readOnly;
             return this;
         }
+
         public boolean isRequired() {
             return required;
         }
+
         public SubAttributes setRequired(boolean required) {
             this.required = required;
             return this;
         }
+
         public boolean isCaseExact() {
             return caseExact;
         }
+
         public SubAttributes setCaseExact(boolean caseExact) {
             this.caseExact = caseExact;
             return this;
         }
+
         public String[] getCanonicalValues() {
             return canonicalValues;
         }
+
         public SubAttributes setCanonicalValues(String[] canonicalValues) {
             this.canonicalValues = canonicalValues;
             return this;

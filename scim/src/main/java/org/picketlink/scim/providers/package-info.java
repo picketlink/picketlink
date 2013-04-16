@@ -15,23 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.scim.model.v11;
 
 /**
- * A SCIM attribute that has a flag called supported
- *
+ * Contains implementations of the {@link org.picketlink.scim.DataProvider}
  * @author anil saldhana
- * @since Apr 8, 2013
+ * @since Apr 10, 2013
  */
-public class SupportedAttribute {
-    private boolean supported;
-
-    public boolean isSupported() {
-        return supported;
-    }
-
-    public SupportedAttribute setSupported(boolean supported) {
-        this.supported = supported;
-        return this;
-    }
-}
+package org.picketlink.scim.providers;

@@ -15,23 +15,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.scim.model.v11;
+package org.picketlink.scim.codec;
+
+import java.security.GeneralSecurityException;
 
 /**
- * A SCIM attribute that has a flag called supported
+ * Exception during SCIM Writing
  *
  * @author anil saldhana
- * @since Apr 8, 2013
+ * @since Apr 9, 2013
  */
-public class SupportedAttribute {
-    private boolean supported;
+public class SCIMWriterException extends GeneralSecurityException {
+    private static final long serialVersionUID = -5488073811443710298L;
 
-    public boolean isSupported() {
-        return supported;
+    public SCIMWriterException() {
+        super();
     }
 
-    public SupportedAttribute setSupported(boolean supported) {
-        this.supported = supported;
-        return this;
+    public SCIMWriterException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public SCIMWriterException(String msg) {
+        super(msg);
+    }
+
+    public SCIMWriterException(Throwable cause) {
+        super(cause);
     }
 }

@@ -26,42 +26,45 @@ import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.picketlink.scim.model.v11.Groups;
-import org.picketlink.scim.model.v11.Resource;
+import org.picketlink.scim.model.v11.SCIMGroups;
+import org.picketlink.scim.model.v11.SCIMResource;
 import org.picketlink.scim.model.v11.ServiceProviderConfiguration;
-import org.picketlink.scim.model.v11.User;
+import org.picketlink.scim.model.v11.SCIMUser;
 
 /**
  * Parser for SCIM
+ *
  * @author anil saldhana
  * @since Apr 8, 2013
  */
 public class SCIMParser {
     private ObjectMapper mapper = new ObjectMapper();
 
-    public SCIMParser(){
+    public SCIMParser() {
         mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
     }
-    
+
     /**
      * Configure the {@link ObjectMapper}
+     *
      * @param feature
      * @param flag
      */
-    public void configure(Feature feature, boolean flag){
+    public void configure(Feature feature, boolean flag) {
         mapper.configure(feature, flag);
     }
-    
+
     /**
      * Parse {@link User}
+     *
      * @param is
      * @return
      * @throws SCIMParsingException
      */
-    public User parseUser(InputStream is) throws SCIMParsingException{
+    public SCIMUser parseUser(InputStream is) throws SCIMParsingException {
         try {
-            return mapper.readValue(is, User.class);
+            return mapper.readValue(is, SCIMUser.class);
         } catch (JsonParseException e) {
             throw new SCIMParsingException(e);
         } catch (JsonMappingException e) {
@@ -71,16 +74,17 @@ public class SCIMParser {
         }
 
     }
-    
+
     /**
      * Parse {@link Groups}
+     *
      * @param is
      * @return
      * @throws SCIMParsingException
      */
-    public Groups parseGroup(InputStream is) throws SCIMParsingException{
+    public SCIMGroups parseGroup(InputStream is) throws SCIMParsingException {
         try {
-            return mapper.readValue(is, Groups.class);
+            return mapper.readValue(is, SCIMGroups.class);
         } catch (JsonParseException e) {
             throw new SCIMParsingException(e);
         } catch (JsonMappingException e) {
@@ -90,16 +94,17 @@ public class SCIMParser {
         }
 
     }
-    
+
     /**
      * Parse {@link Resource}
+     *
      * @param is
      * @return
      * @throws SCIMParsingException
      */
-    public Resource parseResource(InputStream is) throws SCIMParsingException{
+    public SCIMResource parseResource(InputStream is) throws SCIMParsingException {
         try {
-            return mapper.readValue(is, Resource.class);
+            return mapper.readValue(is, SCIMResource.class);
         } catch (JsonParseException e) {
             throw new SCIMParsingException(e);
         } catch (JsonMappingException e) {
@@ -109,14 +114,15 @@ public class SCIMParser {
         }
 
     }
-    
+
     /**
      * Parse {@link ServiceProviderConfiguration}
+     *
      * @param is
      * @return
      * @throws SCIMParsingException
      */
-    public ServiceProviderConfiguration parseServiceProviderConfiguration(InputStream is) throws SCIMParsingException{
+    public ServiceProviderConfiguration parseServiceProviderConfiguration(InputStream is) throws SCIMParsingException {
         try {
             return mapper.readValue(is, ServiceProviderConfiguration.class);
         } catch (JsonParseException e) {
