@@ -19,6 +19,7 @@ package org.picketlink.scim.model.v11;
 
 /**
  * Attribute that has value/type pair
+ *
  * @author anil saldhana
  * @since Apr 8, 2013
  */

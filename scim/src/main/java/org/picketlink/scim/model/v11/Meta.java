@@ -19,6 +19,7 @@ package org.picketlink.scim.model.v11;
 
 /**
  * Type representing Metadata about a SCIM Type
+ *
  * @author anil saldhana
  * @since Apr 8, 2013
  */

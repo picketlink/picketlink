@@ -159,7 +159,7 @@ public class ServiceProviderConfiguration {
             return this;
         }
     }
-    
+
     public static class AuthenticationSchemes {
 
         private String name, description, specUrl, documentationUrl, type;

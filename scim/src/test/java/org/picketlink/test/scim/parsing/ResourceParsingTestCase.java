@@ -24,7 +24,7 @@ import java.io.InputStream;
 
 import org.junit.Test;
 import org.picketlink.scim.codec.SCIMParser;
-import org.picketlink.scim.model.v11.Resource;
+import org.picketlink.scim.model.v11.SCIMResource;
 
 /**
  * Validate parsing of SCIM Resource representation
@@ -40,12 +40,12 @@ public class ResourceParsingTestCase {
         assertNotNull(is);
 
         SCIMParser parser = new SCIMParser();
-        Resource resource = parser.parseResource(is);
+        SCIMResource resource = parser.parseResource(is);
         assertNotNull(resource);
 
         assertEquals("urn:scim:schemas:core:1.0:User", resource.getId());
         assertEquals("User", resource.getName());
-        
+
         assertEquals("Core User", resource.getDescription());
         assertEquals("urn:scim:schemas:core:1.0", resource.getSchema());
         assertEquals("/Users", resource.getEndpoint());

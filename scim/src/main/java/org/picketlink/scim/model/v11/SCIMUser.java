@@ -19,10 +19,11 @@ package org.picketlink.scim.model.v11;
 
 /**
  * SCIM User Type
+ *
  * @author anil saldhana
  * @since Apr 8, 2013
  */
-public class User extends AbstractResource {
+public class SCIMUser extends AbstractResource {
     private String userName;
     private UserName name;
 
@@ -31,7 +32,7 @@ public class User extends AbstractResource {
     private Ims[] ims;
     private Emails[] emails;
     private Photos[] photos;
-    private Groups[] groups;
+    private SCIMGroups[] groups;
     private X509Certificates[] x509Certificates;
 
     private String displayName;
@@ -49,7 +50,7 @@ public class User extends AbstractResource {
         return userName;
     }
 
-    public User setUserName(String userName) {
+    public SCIMUser setUserName(String userName) {
         this.userName = userName;
         return this;
     }
@@ -58,7 +59,7 @@ public class User extends AbstractResource {
         return name;
     }
 
-    public User setName(UserName name) {
+    public SCIMUser setName(UserName name) {
         this.name = name;
         return this;
     }
@@ -67,7 +68,7 @@ public class User extends AbstractResource {
         return displayName;
     }
 
-    public User setDisplayName(String displayName) {
+    public SCIMUser setDisplayName(String displayName) {
         this.displayName = displayName;
         return this;
     }
@@ -76,7 +77,7 @@ public class User extends AbstractResource {
         return nickName;
     }
 
-    public User setNickName(String nickName) {
+    public SCIMUser setNickName(String nickName) {
         this.nickName = nickName;
         return this;
     }
@@ -85,7 +86,7 @@ public class User extends AbstractResource {
         return profileUrl;
     }
 
-    public User setProfileUrl(String profileUrl) {
+    public SCIMUser setProfileUrl(String profileUrl) {
         this.profileUrl = profileUrl;
         return this;
     }
@@ -94,7 +95,7 @@ public class User extends AbstractResource {
         return title;
     }
 
-    public User setTitle(String title) {
+    public SCIMUser setTitle(String title) {
         this.title = title;
         return this;
     }
@@ -103,7 +104,7 @@ public class User extends AbstractResource {
         return userType;
     }
 
-    public User setUserType(String userType) {
+    public SCIMUser setUserType(String userType) {
         this.userType = userType;
         return this;
     }
@@ -112,7 +113,7 @@ public class User extends AbstractResource {
         return preferredLanguage;
     }
 
-    public User setPreferredLanguage(String preferredLanguage) {
+    public SCIMUser setPreferredLanguage(String preferredLanguage) {
         this.preferredLanguage = preferredLanguage;
         return this;
     }
@@ -121,7 +122,7 @@ public class User extends AbstractResource {
         return locale;
     }
 
-    public User setLocale(String locale) {
+    public SCIMUser setLocale(String locale) {
         this.locale = locale;
         return this;
     }
@@ -130,7 +131,7 @@ public class User extends AbstractResource {
         return timezone;
     }
 
-    public User setTimezone(String timezone) {
+    public SCIMUser setTimezone(String timezone) {
         this.timezone = timezone;
         return this;
     }
@@ -139,7 +140,7 @@ public class User extends AbstractResource {
         return active;
     }
 
-    public User setActive(boolean active) {
+    public SCIMUser setActive(boolean active) {
         this.active = active;
         return this;
     }
@@ -148,7 +149,7 @@ public class User extends AbstractResource {
         return password;
     }
 
-    public User setPassword(String password) {
+    public SCIMUser setPassword(String password) {
         this.password = password;
         return this;
     }
@@ -157,7 +158,7 @@ public class User extends AbstractResource {
         return phoneNumbers;
     }
 
-    public User setPhoneNumbers(PhoneNumbers[] phoneNumbers) {
+    public SCIMUser setPhoneNumbers(PhoneNumbers[] phoneNumbers) {
         this.phoneNumbers = phoneNumbers;
         return this;
     }
@@ -166,7 +167,7 @@ public class User extends AbstractResource {
         return ims;
     }
 
-    public User setIms(Ims[] ims) {
+    public SCIMUser setIms(Ims[] ims) {
         this.ims = ims;
         return this;
     }
@@ -175,7 +176,7 @@ public class User extends AbstractResource {
         return emails;
     }
 
-    public User setEmails(Emails[] emails) {
+    public SCIMUser setEmails(Emails[] emails) {
         this.emails = emails;
         return this;
     }
@@ -184,16 +185,16 @@ public class User extends AbstractResource {
         return photos;
     }
 
-    public User setPhotos(Photos[] photos) {
+    public SCIMUser setPhotos(Photos[] photos) {
         this.photos = photos;
         return this;
     }
 
-    public Groups[] getGroups() {
+    public SCIMGroups[] getGroups() {
         return groups;
     }
 
-    public User setGroups(Groups[] groups) {
+    public SCIMUser setGroups(SCIMGroups[] groups) {
         this.groups = groups;
         return this;
     }
@@ -202,7 +203,7 @@ public class User extends AbstractResource {
         return x509Certificates;
     }
 
-    public User setX509Certificates(X509Certificates[] x509Certificates) {
+    public SCIMUser setX509Certificates(X509Certificates[] x509Certificates) {
         this.x509Certificates = x509Certificates;
         return this;
     }
@@ -211,15 +212,15 @@ public class User extends AbstractResource {
         return addresses;
     }
 
-    public User setAddresses(Addresses[] addresses) {
+    public SCIMUser setAddresses(Addresses[] addresses) {
         this.addresses = addresses;
         return this;
     }
-    
+
     public static class Emails extends ValueTypeAttribute {
         private boolean primary;
-        
-        public Emails(){
+
+        public Emails() {
         }
 
         public boolean isPrimary() {
@@ -231,12 +232,16 @@ public class User extends AbstractResource {
             return this;
         }
     }
+
     public static class Ims extends ValueTypeAttribute {
     }
+
     public static class Photos extends ValueTypeAttribute {
     }
+
     public static class PhoneNumbers extends ValueTypeAttribute {
     }
+
     public static class X509Certificates {
         private String value;
 
@@ -249,8 +254,7 @@ public class User extends AbstractResource {
             return this;
         }
     }
-    
-     
+
     public static class Addresses {
         private String type;
         private String streetAddress;

@@ -15,23 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.scim.model.v11;
+package org.picketlink.scim;
 
-/**
- * A SCIM attribute that has a flag called supported
- *
- * @author anil saldhana
- * @since Apr 8, 2013
- */
-public class SupportedAttribute {
-    private boolean supported;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    public boolean isSupported() {
-        return supported;
-    }
+import javax.inject.Qualifier;
 
-    public SupportedAttribute setSupported(boolean supported) {
-        this.supported = supported;
-        return this;
-    }
+@Qualifier
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.FIELD, ElementType.METHOD })
+public @interface DataProviderAnnotation {
+
 }
