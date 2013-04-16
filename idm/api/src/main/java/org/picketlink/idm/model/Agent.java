@@ -32,7 +32,7 @@ public interface Agent extends IdentityType {
     /**
      *  A query parameter used to set the key value.
      */
-    QueryParameter LOGIN_NAME = new QueryParameter() {};
+    QueryParameter KEY_VALUE = new QueryParameter() {};
 
     /**
      * Returns the login name of this agent.  This value should be unique, as it is used
@@ -40,7 +40,7 @@ public interface Agent extends IdentityType {
      *
      * @return
      */
-    String getLoginName();
+    String getKeyValue();
 
-    void setLoginName(String loginName);
+    void setKeyValue(String keyValue);
 }
