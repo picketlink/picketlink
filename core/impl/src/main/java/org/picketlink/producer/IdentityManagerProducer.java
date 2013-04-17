@@ -23,12 +23,14 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 import org.picketlink.IdentityConfigurationEvent;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.IdentityManagerFactory;
+import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
@@ -46,9 +48,8 @@ import org.picketlink.internal.SecuredIdentityManager;
  */
 @ApplicationScoped
 public class IdentityManagerProducer {
-    private IdentityConfiguration identityConfig;
 
-    private IdentityManagerFactory factory;
+    @Inject Instance<IdentityConfiguration> identityConfigInstance;
 
     @Inject Event<IdentityConfigurationEvent> identityConfigEvent;
 
@@ -58,9 +59,20 @@ public class IdentityManagerProducer {
 
     @Inject IdentityStoreAutoConfiguration autoConfig;
 
+    private IdentityConfiguration identityConfig;
+
+    private IdentityManagerFactory factory;
+
     @Inject
     public void init() {
-        this.identityConfig = new IdentityConfiguration();
+        if (identityConfigInstance.isUnsatisfied()) {
+            this.identityConfig = new IdentityConfiguration();
+        } else if (identityConfigInstance.isAmbiguous()) {
+            throw new SecurityConfigurationException("Multiple IdentityConfiguration beans found, can not " +
+                    "configure IdentityManagerFactory");
+        } else {
+            this.identityConfig = identityConfigInstance.get();
+        }
 
         this.identityConfigEvent.fire(new IdentityConfigurationEvent(this.identityConfig));
 
@@ -73,7 +85,6 @@ public class IdentityManagerProducer {
         for (IdentityStoreConfiguration identityStoreConfiguration : configuredStores) {
             if (JPAIdentityStoreConfiguration.class.isInstance(identityStoreConfiguration)) {
                 JPAIdentityStoreConfiguration jpaConfig = (JPAIdentityStoreConfiguration) identityStoreConfiguration;
-
                 jpaConfig.addContextInitializer(this.jpaContextInitializer);
             }
         }
