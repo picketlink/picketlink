@@ -21,6 +21,7 @@ package org.picketlink.producer;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
@@ -28,11 +29,14 @@ import javax.inject.Inject;
 import org.picketlink.IdentityConfigurationEvent;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.IdentityManagerFactory;
+import org.picketlink.idm.config.FeatureSet;
+import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.internal.EEJPAContextInitializer;
 import org.picketlink.internal.EESecurityContextFactory;
+import org.picketlink.internal.IdentityStoreAutoConfiguration;
 import org.picketlink.internal.SecuredIdentityManager;
 
 
@@ -52,28 +56,53 @@ public class IdentityManagerProducer {
 
     @Inject EEJPAContextInitializer jpaContextInitializer;
 
+    @Inject IdentityStoreAutoConfiguration autoConfig;
+
     @Inject
     public void init() {
         this.identityConfig = new IdentityConfiguration();
 
         this.identityConfigEvent.fire(new IdentityConfigurationEvent(this.identityConfig));
 
+        if (this.identityConfig.getConfiguredStores().isEmpty()) {
+            loadAutoConfig();
+        }
+
         List<IdentityStoreConfiguration> configuredStores = this.identityConfig.getConfiguredStores();
-        
+
         for (IdentityStoreConfiguration identityStoreConfiguration : configuredStores) {
             if (JPAIdentityStoreConfiguration.class.isInstance(identityStoreConfiguration)) {
                 JPAIdentityStoreConfiguration jpaConfig = (JPAIdentityStoreConfiguration) identityStoreConfiguration;
-                
+
                 jpaConfig.addContextInitializer(this.jpaContextInitializer);
             }
         }
-        
+
         this.identityConfig.contextFactory(this.icf);
-        
+
         this.factory = this.identityConfig.buildIdentityManagerFactory();
     }
 
-    @Produces 
+    @SuppressWarnings("unchecked")
+    private void loadAutoConfig() {
+        JPAIdentityStoreConfiguration jpaConfig = autoConfig.getJPAConfiguration();
+        if (jpaConfig.isConfigured()) {
+            FeatureSet.addFeatureSupport(jpaConfig.getFeatureSet());
+            FeatureSet.addRelationshipSupport(jpaConfig.getFeatureSet());
+            jpaConfig.getFeatureSet().setSupportsCustomRelationships(true);
+            jpaConfig.getFeatureSet().setSupportsMultiRealm(true);
+            this.identityConfig.addConfig(jpaConfig);
+        } else {
+            FileIdentityStoreConfiguration config = new FileIdentityStoreConfiguration();
+            FeatureSet.addFeatureSupport(config.getFeatureSet());
+            FeatureSet.addRelationshipSupport(config.getFeatureSet());
+            config.getFeatureSet().setSupportsCustomRelationships(true);
+            config.getFeatureSet().setSupportsMultiRealm(true);
+            this.identityConfig.addConfig(config);
+        }
+    }
+
+    @Produces @RequestScoped
     public IdentityManager createIdentityManager() {
         return new SecuredIdentityManager(this.factory.createIdentityManager());
     }

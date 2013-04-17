@@ -21,18 +21,18 @@ package org.picketlink;
 import org.picketlink.idm.config.IdentityConfiguration;
 
 /**
- * TODO - temporary solution 
+ * This event is raised during PicketLink configuration 
  * 
  * @author Shane Bryzak
  *
  */
 public class IdentityConfigurationEvent {
     private IdentityConfiguration config;
-    
+
     public IdentityConfigurationEvent(IdentityConfiguration config) {
         this.config = config;
     }
-    
+
     public IdentityConfiguration getConfig() {
         return config;
     }

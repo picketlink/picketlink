@@ -8,9 +8,6 @@ import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.persistence.Entity;
 
-import org.picketlink.IdentityConfigurationEvent;
-import org.picketlink.idm.config.FeatureSet;
-import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.jpa.annotations.IDMEntity;
 
@@ -63,20 +60,7 @@ public class IdentityStoreAutoConfiguration implements Extension {
         }
     }
 
-    public void observesConfigurationEvent(@Observes IdentityConfigurationEvent event) {
-        if (jpaConfig.isConfigured()) {
-            FeatureSet.addFeatureSupport(jpaConfig.getFeatureSet());
-            FeatureSet.addRelationshipSupport(jpaConfig.getFeatureSet());
-            jpaConfig.getFeatureSet().setSupportsCustomRelationships(true);
-            jpaConfig.getFeatureSet().setSupportsMultiRealm(true);
-            event.getConfig().addConfig(jpaConfig);
-        } else {
-            FileIdentityStoreConfiguration config = new FileIdentityStoreConfiguration();
-            FeatureSet.addFeatureSupport(config.getFeatureSet());
-            FeatureSet.addRelationshipSupport(config.getFeatureSet());
-            config.getFeatureSet().setSupportsCustomRelationships(true);
-            config.getFeatureSet().setSupportsMultiRealm(true);
-            event.getConfig().addConfig(config);
-        }
+    public JPAIdentityStoreConfiguration getJPAConfiguration() {
+        return jpaConfig;
     }
 }
