@@ -24,15 +24,15 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.picketlink.scim.client.SCIMClient;
 import org.picketlink.scim.endpoints.UsersEndpoint;
-import org.picketlink.scim.model.v11.SCIMUser;
+import org.picketlink.scim.model.v11.SCIMGroups;
 
 /**
  * Unit test the {@link UsersEndpoint}
  *
  * @author anil saldhana
- * @since Apr 9, 2013
+ * @since Apr 17, 2013
  */
-public class UsersEndpointTestCase extends AbstractEndpointTestCase {
+public class GroupsEndpointTestCase extends AbstractEndpointTestCase {
 
     @Test
     public void testGet() throws Exception {
@@ -40,9 +40,9 @@ public class UsersEndpointTestCase extends AbstractEndpointTestCase {
         SCIMClient client = new SCIMClient();
         client.setBaseURL("http://localhost:11080/scim");
 
-        SCIMUser user = client.getUser("1234");
-        assertNotNull(user);
-        assertEquals("1234", user.getId());
+        SCIMGroups group = client.getGroup("jboss");
+        assertNotNull(group);
+        assertEquals("jboss", group.getId());
     }
 
     @Test
@@ -51,12 +51,11 @@ public class UsersEndpointTestCase extends AbstractEndpointTestCase {
         SCIMClient client = new SCIMClient();
         client.setBaseURL("http://localhost:11080/scim");
 
-        SCIMUser scimUser = new SCIMUser();
-        scimUser.setDisplayName("ronin");
+        SCIMGroups scimGroup = new SCIMGroups();
+        scimGroup.setDisplayName("samurai");
 
-        SCIMUser user = client.createUser(scimUser);
-        assertNotNull(user);
-        assertEquals("ronin", user.getDisplayName());
-        assertTrue(user.getId().length() > 0);
+        SCIMGroups group = client.createGroup(scimGroup);
+        assertEquals("samurai", group.getDisplayName());
+        assertTrue(group.getId().length() > 0);
     }
 }

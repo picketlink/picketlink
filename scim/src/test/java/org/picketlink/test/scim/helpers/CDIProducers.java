@@ -33,7 +33,6 @@ import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.scim.DataProvider;
-import org.picketlink.scim.DataProviderAnnotation;
 import org.picketlink.scim.providers.PicketLinkIDMDataProvider;
 
 /**
@@ -62,7 +61,6 @@ public class CDIProducers {
     }
 
     @Produces
-    @DataProviderAnnotation
     public DataProvider createDataProvider() {
         return new PicketLinkIDMDataProvider();
     }

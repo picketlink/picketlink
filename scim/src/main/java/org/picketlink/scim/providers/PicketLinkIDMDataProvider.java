@@ -17,11 +17,32 @@
  */
 package org.picketlink.scim.providers;
 
-import javax.inject.Inject;
+import java.util.List;
 
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+import org.jboss.logging.Logger;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.jpa.internal.JPAContextInitializer;
+import org.picketlink.idm.jpa.schema.CredentialObject;
+import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
+import org.picketlink.idm.jpa.schema.IdentityObject;
+import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
+import org.picketlink.idm.jpa.schema.PartitionObject;
+import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
+import org.picketlink.idm.jpa.schema.RelationshipObject;
+import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.SimpleGroup;
+import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
+import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.scim.DataProvider;
 import org.picketlink.scim.model.v11.SCIMGroups;
 import org.picketlink.scim.model.v11.SCIMResource;
@@ -35,26 +56,51 @@ import org.picketlink.scim.model.v11.SCIMUser;
  */
 public class PicketLinkIDMDataProvider implements DataProvider {
 
+    private static Logger log = Logger.getLogger(PicketLinkIDMDataProvider.class);
+    protected EntityManagerFactory entityManagerFactory;
+    protected ThreadLocal<EntityManager> entityManagerThreadLocal = new ThreadLocal<EntityManager>();
+
     @Inject
     private IdentityManager identityManager;
 
     @Override
     public SCIMUser getUser(String id) {
+        verifyIdentityManager();
         SCIMUser scimUser = new SCIMUser();
 
-        User user = identityManager.getUser(id);
-        scimUser.setId(id);
-        scimUser.setUserName(user.getFirstName() + " " + user.getLastName());
+        IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
+        query.setParameter(IdentityType.ATTRIBUTE.byName("ID"), id);
+
+        List<User> result = query.getResultList();
+        User user = null;
+        if (result.size() > 0) {
+            user = result.get(0);
+            scimUser.setId(id);
+            scimUser.setUserName(user.getFirstName() + " " + user.getLastName());
+        }
         // TODO: populate SCIM object
         return scimUser;
     }
 
     @Override
     public SCIMGroups getGroups(String id) {
+        verifyIdentityManager();
         SCIMGroups scimGroup = new SCIMGroups();
 
-        Group group = identityManager.getGroup(id);
-        scimGroup.setId(id);
+        IdentityQuery<Group> query = identityManager.<Group> createIdentityQuery(Group.class);
+        query.setParameter(IdentityType.ATTRIBUTE.byName("ID"), id);
+
+        List<Group> result = query.getResultList();
+        Group group = null;
+
+        if (result.size() > 0) {
+            group = result.get(0);
+
+        }
+        if (group != null) {
+            scimGroup.setDisplayName(group.getName());
+            scimGroup.setId(id);
+        }
         return scimGroup;
     }
 
@@ -64,6 +110,32 @@ public class PicketLinkIDMDataProvider implements DataProvider {
         return scimResource;
     }
 
+    @Override
+    public String createUser(SCIMUser user) {
+        verifyIdentityManager();
+
+        SimpleUser simpleUser = new SimpleUser();
+        simpleUser.setLoginName(user.getDisplayName());
+        identityManager.add(simpleUser);
+
+        User storedUser = identityManager.getUser(user.getDisplayName());
+        String id = storedUser.getId();
+
+        return id;
+    }
+
+    @Override
+    public String createGroup(SCIMGroups group) {
+        verifyIdentityManager();
+        SimpleGroup simpleGroup = new SimpleGroup(group.getDisplayName());
+        identityManager.add(simpleGroup);
+
+        Group storedGroup = identityManager.getGroup(group.getDisplayName());
+        String id = storedGroup.getId();
+
+        return id;
+    }
+
     public PicketLinkIDMDataProvider setIdentityManager(IdentityManager im) {
         this.identityManager = im;
         return this;
@@ -71,9 +143,56 @@ public class PicketLinkIDMDataProvider implements DataProvider {
 
     @Override
     public void initializeConnection() {
+        verifyIdentityManager();
+        if (this.entityManagerFactory != null) {
+            EntityManager entityManager = this.entityManagerFactory.createEntityManager();
+
+            entityManager.getTransaction().begin();
+
+            this.entityManagerThreadLocal.set(entityManager);
+        }
     }
 
     @Override
     public void closeConnection() {
+        if (this.entityManagerFactory != null) {
+            EntityManager entityManager = this.entityManagerThreadLocal.get();
+            if (entityManager != null) {
+                entityManager.getTransaction().commit();
+                entityManager.close();
+            }
+
+            this.entityManagerThreadLocal.remove();
+        }
+    }
+
+    protected void verifyIdentityManager() {
+        if (identityManager == null) {
+            if (log.isTraceEnabled()) {
+                log.trace("Identity Manager not injected. Creating JPA based Identity Manager");
+            }
+            createJPADrivenIdentityManager();
+        }
+    }
+
+    protected void createJPADrivenIdentityManager() {
+        // Use JPA
+        entityManagerFactory = Persistence.createEntityManagerFactory("picketlink-scim-pu");
+
+        IdentityConfiguration configuration = new IdentityConfiguration();
+
+        configuration.jpaStore().addRealm(Realm.DEFAULT_REALM).setIdentityClass(IdentityObject.class)
+                .setAttributeClass(IdentityObjectAttribute.class).setRelationshipClass(RelationshipObject.class)
+                .setRelationshipIdentityClass(RelationshipIdentityObject.class)
+                .setRelationshipAttributeClass(RelationshipObjectAttribute.class).setCredentialClass(CredentialObject.class)
+                .setCredentialAttributeClass(CredentialObjectAttribute.class).setPartitionClass(PartitionObject.class)
+                .supportAllFeatures().addContextInitializer(new JPAContextInitializer(entityManagerFactory) {
+                    @Override
+                    public EntityManager getEntityManager() {
+                        return entityManagerThreadLocal.get();
+                    }
+                });
+
+        identityManager = configuration.buildIdentityManagerFactory().createIdentityManager();
     }
 }

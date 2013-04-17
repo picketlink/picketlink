@@ -25,6 +25,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import org.picketlink.scim.codec.SCIMParser;
+import org.picketlink.scim.codec.SCIMWriter;
 import org.picketlink.scim.model.v11.SCIMGroups;
 import org.picketlink.scim.model.v11.SCIMUser;
 
@@ -44,6 +45,26 @@ public class SCIMClient {
     public SCIMClient setBaseURL(String base) {
         this.baseURL = base;
         return this;
+    }
+
+    public SCIMUser createUser(SCIMUser user) throws Exception {
+        String url = baseURL + "/Users";
+        SCIMWriter writer = new SCIMWriter();
+        String json = writer.json(user);
+
+        InputStream is = executePost(url, json, true, "xyz");
+        SCIMParser parser = new SCIMParser();
+        return parser.parseUser(is);
+    }
+
+    public SCIMGroups createGroup(SCIMGroups group) throws Exception {
+        String url = baseURL + "/Users";
+        SCIMWriter writer = new SCIMWriter();
+        String json = writer.json(group);
+
+        InputStream is = executePost(url, json, true, "xyz");
+        SCIMParser parser = new SCIMParser();
+        return parser.parseGroup(is);
     }
 
     public SCIMUser getUser(String id) throws Exception {

@@ -56,7 +56,7 @@
                <includes>
                   <include>**/**TestCase.java</include>
                </includes>
-               <!-- <forkMode>pertest</forkMode> --> 
+               <forkMode>pertest</forkMode> 
                <useFile>false</useFile>
                <trimStackTrace>false</trimStackTrace>
             </configuration>

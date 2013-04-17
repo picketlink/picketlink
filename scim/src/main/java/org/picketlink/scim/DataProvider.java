@@ -37,6 +37,22 @@ public interface DataProvider {
     void initializeConnection();
 
     /**
+     * Create an user
+     *
+     * @param user
+     * @return id
+     */
+    String createUser(SCIMUser user);
+
+    /**
+     * Create Group
+     *
+     * @param group
+     * @return id
+     */
+    String createGroup(SCIMGroups group);
+
+    /**
      * Get {@link SCIMUser}
      *
      * @param id
