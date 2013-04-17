@@ -21,7 +21,7 @@ package org.picketlink.producer;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
@@ -113,7 +113,7 @@ public class IdentityManagerProducer {
         }
     }
 
-    @Produces @RequestScoped
+    @Produces @Dependent
     public IdentityManager createIdentityManager() {
         return new SecuredIdentityManager(this.factory.createIdentityManager());
     }
