@@ -22,6 +22,7 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
+import org.picketlink.scim.endpoints.GroupsEndpoint;
 import org.picketlink.scim.endpoints.UsersEndpoint;
 
 /**
@@ -37,6 +38,7 @@ public class PicketLinkSCIMApplication extends Application {
     public PicketLinkSCIMApplication() {
         // initialize restful services
         services.add(new UsersEndpoint());
+        services.add(new GroupsEndpoint());
     }
 
     @Override

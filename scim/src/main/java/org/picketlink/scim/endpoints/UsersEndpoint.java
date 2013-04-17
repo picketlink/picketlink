@@ -18,15 +18,11 @@
 package org.picketlink.scim.endpoints;
 
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
-import javax.inject.Inject;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -34,7 +30,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.jboss.logging.Logger;
 import org.picketlink.scim.DataProvider;
+import org.picketlink.scim.codec.SCIMParser;
 import org.picketlink.scim.codec.SCIMWriter;
 import org.picketlink.scim.codec.SCIMWriterException;
 import org.picketlink.scim.model.v11.SCIMUser;
@@ -48,9 +46,7 @@ import org.picketlink.scim.model.v11.SCIMUser;
 @Path("/Users")
 @RequestScoped
 public class UsersEndpoint extends AbstractSCIMEndpoint {
-
-    @Inject
-    private DataProvider dataProvider;
+    private static Logger log = Logger.getLogger(UsersEndpoint.class);
 
     // Get an user
     @GET
@@ -65,11 +61,12 @@ public class UsersEndpoint extends AbstractSCIMEndpoint {
             dataProvider = getContextualInstance(beanManager, DataProvider.class);
         }
         if (dataProvider == null) {
-            System.out.println("dataProvider is not injected");
+            if (log.isTraceEnabled()) {
+                log.trace("dataProvider is not injected. Creating a default IDM driven data provider.");
+            }
             dataProvider = createDefaultDataProvider();
         }
         try {
-            initializeEntityManager();
             dataProvider.initializeConnection();
             SCIMUser user = dataProvider.getUser(userId);
             SCIMWriter writer = new SCIMWriter();
@@ -82,42 +79,53 @@ public class UsersEndpoint extends AbstractSCIMEndpoint {
             }
             return Response.status(200).entity(json).build();
         } finally {
-            closeEntityManager();
             dataProvider.closeConnection();
         }
     }
 
-    private BeanManager getBeanManager(ServletContext sc) {
-        InitialContext initialContext = null;
-        BeanManager beanManager = null;
+    // Create an user
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createUser(@Context HttpServletRequest request, @Context ServletContext sc) {
+        if (dataProvider == null) {
+            BeanManager beanManager = getBeanManager(sc);
+            if (beanManager == null) {
+                throw new IllegalStateException("BM null");
+            }
+            dataProvider = getContextualInstance(beanManager, DataProvider.class);
+        }
+        if (dataProvider == null) {
+            if (log.isTraceEnabled()) {
+                log.trace("dataProvider is not injected. Creating a default IDM driven data provider.");
+            }
+            dataProvider = createDefaultDataProvider();
+        }
         try {
-            beanManager = (BeanManager) sc.getAttribute("org.jboss.weld.environment.servlet." + BeanManager.class.getName());
-            if (beanManager != null) {
-                return beanManager;
-            }
-
-            initialContext = new InitialContext();
-            beanManager = (BeanManager) initialContext.lookup("java:comp/BeanManager");
-        } catch (NamingException e) {
+            // Parse the data
+            SCIMParser parser = new SCIMParser();
+            SCIMUser user = null;
             try {
-                beanManager = (BeanManager) initialContext.lookup("java:comp/env/BeanManager");
-            } catch (NamingException e1) {
-                System.out.println("Couldn't get BeanManager through JNDI");
+                user = parser.parseUser(request.getInputStream());
+            } catch (Exception e1) {
+                throw new RuntimeException(e1);
             }
-        }
-        return beanManager;
-    }
 
-    @SuppressWarnings("unchecked")
-    public <T> T getContextualInstance(final BeanManager manager, final Class<T> type) {
-        T result = null;
-        Bean<T> bean = (Bean<T>) manager.resolve(manager.getBeans(type));
-        if (bean != null) {
-            CreationalContext<T> context = manager.createCreationalContext(bean);
-            if (context != null) {
-                result = (T) manager.getReference(bean, type, context);
+            dataProvider.initializeConnection();
+            String id = dataProvider.createUser(user);
+
+            user.setId(id);
+
+            SCIMWriter writer = new SCIMWriter();
+
+            String json = "";
+            try {
+                json = writer.json(user);
+            } catch (SCIMWriterException e) {
+                throw new RuntimeException(e);
             }
+            return Response.status(200).entity(json).build();
+        } finally {
+            dataProvider.closeConnection();
         }
-        return result;
     }
 }

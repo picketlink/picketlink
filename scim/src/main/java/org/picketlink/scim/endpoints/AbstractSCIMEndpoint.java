@@ -17,22 +17,15 @@
  */
 package org.picketlink.scim.endpoints;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.inject.Inject;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.servlet.ServletContext;
 
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.jpa.internal.JPAContextInitializer;
-import org.picketlink.idm.jpa.schema.CredentialObject;
-import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
-import org.picketlink.idm.jpa.schema.IdentityObject;
-import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
-import org.picketlink.idm.jpa.schema.PartitionObject;
-import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
-import org.picketlink.idm.jpa.schema.RelationshipObject;
-import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
-import org.picketlink.idm.model.Realm;
+import org.jboss.logging.Logger;
 import org.picketlink.scim.DataProvider;
 import org.picketlink.scim.providers.PicketLinkIDMDataProvider;
 
@@ -43,53 +36,50 @@ import org.picketlink.scim.providers.PicketLinkIDMDataProvider;
  * @since Apr 16, 2013
  */
 public class AbstractSCIMEndpoint {
-    protected EntityManagerFactory entityManagerFactory;
-    protected ThreadLocal<EntityManager> entityManagerThreadLocal = new ThreadLocal<EntityManager>();
+    private static Logger log = Logger.getLogger(AbstractSCIMEndpoint.class);
+
+    @Inject
+    protected DataProvider dataProvider;
+
+    protected BeanManager getBeanManager(ServletContext sc) {
+        InitialContext initialContext = null;
+        BeanManager beanManager = null;
+        try {
+            beanManager = (BeanManager) sc.getAttribute("org.jboss.weld.environment.servlet." + BeanManager.class.getName());
+            if (beanManager != null) {
+                return beanManager;
+            }
+
+            initialContext = new InitialContext();
+            beanManager = (BeanManager) initialContext.lookup("java:comp/BeanManager");
+        } catch (NamingException e) {
+            try {
+                beanManager = (BeanManager) initialContext.lookup("java:comp/env/BeanManager");
+            } catch (NamingException e1) {
+                if (log.isTraceEnabled()) {
+                    log.trace("Couldn't get BeanManager through JNDI");
+                }
+
+            }
+        }
+        return beanManager;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T> T getContextualInstance(final BeanManager manager, final Class<T> type) {
+        T result = null;
+        Bean<T> bean = (Bean<T>) manager.resolve(manager.getBeans(type));
+        if (bean != null) {
+            CreationalContext<T> context = manager.createCreationalContext(bean);
+            if (context != null) {
+                result = (T) manager.getReference(bean, type, context);
+            }
+        }
+        return result;
+    }
 
     protected DataProvider createDefaultDataProvider() {
-        PicketLinkIDMDataProvider dataProvider = new PicketLinkIDMDataProvider();
-
-        // Use JPA
-        entityManagerFactory = Persistence.createEntityManagerFactory("picketlink-scim-pu");
-
-        IdentityConfiguration configuration = new IdentityConfiguration();
-
-        configuration.jpaStore().addRealm(Realm.DEFAULT_REALM).setIdentityClass(IdentityObject.class)
-                .setAttributeClass(IdentityObjectAttribute.class).setRelationshipClass(RelationshipObject.class)
-                .setRelationshipIdentityClass(RelationshipIdentityObject.class)
-                .setRelationshipAttributeClass(RelationshipObjectAttribute.class).setCredentialClass(CredentialObject.class)
-                .setCredentialAttributeClass(CredentialObjectAttribute.class).setPartitionClass(PartitionObject.class)
-                .supportAllFeatures().addContextInitializer(new JPAContextInitializer(entityManagerFactory) {
-                    @Override
-                    public EntityManager getEntityManager() {
-                        return entityManagerThreadLocal.get();
-                    }
-                });
-
-        IdentityManager identityManager = configuration.buildIdentityManagerFactory().createIdentityManager();
-
-        dataProvider.setIdentityManager(identityManager);
-        return dataProvider;
-    }
-
-    protected void closeEntityManager() {
-        if (this.entityManagerFactory != null) {
-            EntityManager entityManager = this.entityManagerThreadLocal.get();
-
-            entityManager.getTransaction().commit();
-            entityManager.close();
-
-            this.entityManagerThreadLocal.remove();
-        }
-    }
-
-    protected void initializeEntityManager() {
-        if (this.entityManagerFactory != null) {
-            EntityManager entityManager = this.entityManagerFactory.createEntityManager();
-
-            entityManager.getTransaction().begin();
-
-            this.entityManagerThreadLocal.set(entityManager);
-        }
+        PicketLinkIDMDataProvider plidmp = new PicketLinkIDMDataProvider();
+        return plidmp;
     }
 }
