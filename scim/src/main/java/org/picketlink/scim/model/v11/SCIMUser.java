@@ -24,7 +24,6 @@ package org.picketlink.scim.model.v11;
  * @since Apr 8, 2013
  */
 public class SCIMUser extends AbstractResource {
-    private String userName;
     private UserName name;
 
     private Addresses[] addresses;
@@ -45,15 +44,6 @@ public class SCIMUser extends AbstractResource {
     private String timezone;
     private boolean active;
     private String password;
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public SCIMUser setUserName(String userName) {
-        this.userName = userName;
-        return this;
-    }
 
     public UserName getName() {
         return name;

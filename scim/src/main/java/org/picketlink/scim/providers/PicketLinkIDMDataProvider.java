@@ -36,6 +36,7 @@ import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
@@ -47,6 +48,7 @@ import org.picketlink.scim.DataProvider;
 import org.picketlink.scim.model.v11.SCIMGroups;
 import org.picketlink.scim.model.v11.SCIMResource;
 import org.picketlink.scim.model.v11.SCIMUser;
+import org.picketlink.scim.model.v11.UserName;
 
 /**
  * An IDM implementation of the {@link DataProvider}
@@ -76,7 +78,10 @@ public class PicketLinkIDMDataProvider implements DataProvider {
         if (result.size() > 0) {
             user = result.get(0);
             scimUser.setId(id);
-            scimUser.setUserName(user.getFirstName() + " " + user.getLastName());
+            UserName userName = new UserName();
+            userName.setGivenName(user.getFirstName());
+            userName.setFamilyName(user.getLastName());
+            scimUser.setName(userName);
         }
         // TODO: populate SCIM object
         return scimUser;
@@ -116,6 +121,14 @@ public class PicketLinkIDMDataProvider implements DataProvider {
 
         SimpleUser simpleUser = new SimpleUser();
         simpleUser.setLoginName(user.getDisplayName());
+        UserName userName = user.getName();
+        
+        if(userName != null){
+            simpleUser.setFirstName(userName.getGivenName());
+            simpleUser.setLastName(userName.getFamilyName());
+            
+            simpleUser.setAttribute(new Attribute<String>("FullName", userName.getFormatted()));   
+        }
         identityManager.add(simpleUser);
 
         User storedUser = identityManager.getUser(user.getDisplayName());
