@@ -50,7 +50,7 @@ public class UserParsingTestCase {
 
         assertEquals("2819c223-7f76-453a-919d-413861904646", user.getId());
         assertEquals("701984", user.getExternalId());
-        assertEquals("bjensen@example.com", user.getUserName());
+        assertEquals("Ms. Barbara J Jensen III", user.getName().getFormatted());
 
         // Validate User Name
         UserName userName = user.getName();
