@@ -153,7 +153,7 @@ public class OAuthResourceFilter implements Filter {
             }
 
             if (isJPAStoreConfigured()) {
-                this.entityManagerFactory = Persistence.createEntityManagerFactory("oauth-pu");
+                this.entityManagerFactory = Persistence.createEntityManagerFactory("picketlink-oauth-pu");
 
                 IdentityConfiguration configuration = new IdentityConfiguration();
 
