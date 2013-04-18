@@ -25,6 +25,7 @@
   </info>
 
   <xi:include href="picketlink-overview.xml" />
+  <xi:include href="picketlink-authentication.xml" />
   <xi:include href="picketlink-idm.xml"/>
 
 </book>
