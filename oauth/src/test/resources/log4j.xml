@@ -66,10 +66,10 @@
   -->
 
   <category name="org.jboss">
-    <priority value="TRACE"/>
+    <priority value="INFO"/>
   </category>
   <category name="org.picketlink">
-    <priority value="TRACE"/>
+    <priority value="INFO"/>
   </category>
 
   <!-- ======================= -->
