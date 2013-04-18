@@ -49,11 +49,11 @@ public interface Identity extends Serializable
      * to whether authentication is successful or not.  The following events may be raised
      * during the call to login():
      * <p/>
-     * {@link org.apache.deltaspike.security.api.authentication.event.LoggedInEvent}
+     * {@link org.picketlink.authentication.event.LoggedInEvent}
      * - raised when authentication is successful
-     * {@link org.apache.deltaspike.security.api.authentication.event.LoginFailedEvent}
+     * {@link org.picketlink.authentication.event.LoginFailedEvent}
      * - raised when authentication fails
-     * {@link org.apache.deltaspike.security.api.authentication.event.AlreadyLoggedInEvent}
+     * {@link org.picketlink.authentication.event.AlreadyLoggedInEvent}
      * - raised if the user is already authenticated
      *
      * @return AuthenticationResult returns SUCCESS if user is authenticated,

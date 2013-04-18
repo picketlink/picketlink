@@ -19,7 +19,6 @@
 package org.picketlink.authentication;
 
 import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.User;
 
 
 /**
