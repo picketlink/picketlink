@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
 
@@ -38,6 +39,7 @@ public class BaseEndpoint implements Serializable {
     private static final long serialVersionUID = 1L;
     private static Logger log = Logger.getLogger(BaseEndpoint.class.getName());
 
+    @Inject
     protected IdentityManager identityManager = null;
 
     @Context

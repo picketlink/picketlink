@@ -39,7 +39,11 @@
       <url>http://www.jboss.org</url>
    </organization>
    <properties>
-      <resteasy.version>2.3.4.Final</resteasy.version>
+      <resteasy.version>2.3.6.Final</resteasy.version>
+      <jboss.bom.version>1.0.0.M7</jboss.bom.version>
+      <javaee6.spec.version>3.0.2.Final</javaee6.spec.version>
+      <jetty.version>8.1.9.v20130131</jetty.version>
+      <slf4j.version>1.6.1</slf4j.version>
    </properties>
    <build>
       <plugins>
@@ -52,7 +56,7 @@
                <includes>
                   <include>**/**TestCase.java</include>
                </includes>
-               <!-- <forkMode>pertest</forkMode> --> 
+               <forkMode>pertest</forkMode> 
                <useFile>false</useFile>
                <trimStackTrace>false</trimStackTrace>
             </configuration>
@@ -106,12 +110,30 @@
          </plugin>
       </plugins>
    </build>
-   <dependencies>
+   <dependencyManagement>
+        <dependencies>
+          <dependency>
+            <groupId>org.jboss.spec</groupId>
+            <artifactId>jboss-javaee-6.0</artifactId>
+            <version>${javaee6.spec.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+          </dependency>
+        </dependencies>
+     </dependencyManagement>
+     <dependencies>
+
       <dependency>
          <groupId>org.jboss.spec.javax.servlet</groupId>
          <artifactId>jboss-servlet-api_3.0_spec</artifactId>
          <version>1.0.0.Final</version>
       </dependency>
+      <dependency>
+          <groupId>javax.enterprise</groupId>
+          <artifactId>cdi-api</artifactId>
+          <scope>provided</scope>
+        </dependency>
+
       <dependency>
          <groupId>org.picketlink</groupId>
       	 <artifactId>picketlink-idm-api</artifactId>
@@ -156,21 +178,34 @@
      <!-- depends on slf4j-api, log4j -->
      <dependency>
          <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-api</artifactId>
+         <version>${slf4j.version}</version>
+         <scope>test</scope>
+     </dependency>
+
+     <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-ext</artifactId>
+         <version>${slf4j.version}</version>
+         <scope>test</scope>
+     </dependency>
+     <dependency>
+         <groupId>org.slf4j</groupId>
          <artifactId>slf4j-log4j12</artifactId>
-         <version>1.6.0</version>
+         <version>${slf4j.version}</version>
          <scope>test</scope>
      </dependency>
 
       <dependency>
          <groupId>org.eclipse.jetty</groupId>
          <artifactId>jetty-server</artifactId>
-         <version>8.1.8.v20121106</version>
+         <version>${jetty.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.eclipse.jetty</groupId>
          <artifactId>jetty-webapp</artifactId>
-         <version>8.1.8.v20121106</version>
+         <version>${jetty.version}</version>
          <scope>test</scope>
       </dependency>
       <dependency>

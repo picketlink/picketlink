@@ -24,7 +24,6 @@ import static org.junit.Assert.fail;
 import java.util.Date;
 import java.util.Map;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.oauth.OAuthUtils;
 import org.picketlink.oauth.client.ClientOAuth;
@@ -43,10 +42,6 @@ import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
  */
 public class AuthorizationEndpointTestCase extends EndpointTestBase {
 
-    /*
-     * @Override protected boolean needLDAP() { return true; }
-     */
-
     private String registrationEndpoint = "http://localhost:11080/oauth/register";
 
     private String appName = "Sample Application";
@@ -58,7 +53,6 @@ public class AuthorizationEndpointTestCase extends EndpointTestBase {
     private ClientOAuth client = new ClientOAuth();
 
     @Test
-    @Ignore
     public void testEndUserAuthorization() throws Exception {
         // Step 1: Perform the registration
         RegistrationClient registrationClient = client.registrationClient();
