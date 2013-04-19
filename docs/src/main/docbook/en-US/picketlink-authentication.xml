@@ -13,7 +13,7 @@
       <para>
         Authentication is the act of confirming the identity of a user.  PicketLink provides an extensible authentication API
         that allows for significant customization of the authentication process, and also supports both synchronous and asynchronous
-        user authentication
+        user authentication.  This chapter describes the authentication API and the authentication process in detail.
       </para>
     </section>
     
@@ -29,8 +29,10 @@
 
 void logout();      
 
-boolean isLoggedIn();]]></programlisting>
-      
+boolean isLoggedIn();
+
+Agent getUser();]]></programlisting>
+           
       <para>
         The <code>login()</code> method is the <emphasis>primary</emphasis> point of entry for the authentication process. Invoking
         this method will cause PicketLink to attempt to authenticate the user based on the credentials that they have provided.
@@ -45,33 +47,82 @@ boolean isLoggedIn();]]></programlisting>
       <para>
         If the authentication process is successful, the <code>login()</code> method will return a result of <code>SUCCESS</code>,
         otherwise it will return a result of <code>FAILED</code>.  By default, the <code>Identity</code> bean is session-scoped,
-        which means that once a user is authenticated they will stay authenticated for the duration of the session.  The
-        <code>logout()</code> method allows the user to log out, thereby clearing the authentication state for their session.  
-        Also, if the user's session expires (for example due to inactivity) their authentication state will also be lost 
-        requiring the user to authenticate again.
+        which means that once a user is authenticated they will stay authenticated for the duration of the session.  
       </para>
-      
+
       <note>
         <para>
-          Another point to note is that the <code>Identity</code> bean is annotated with the CDI <code>@Named</code> annotation, 
-          which means that it may be invoked directly from the view layer (if the view layer, such as JSF, supports it) via an 
+          An important point to note is that the <code>Identity</code> bean is annotated with the CDI <code>@Named</code> annotation, 
+          which means that its methods may be invoked directly from the view layer (if the view layer, such as JSF, supports it) via an 
           EL expression.</para>      
       </note>
       
       <para>
-        While the user is authenticated, it is possible to access their <code>User</code> object via the <code>Identity</code>
-        bean's <code>getUser()</code> method:
+        One possible way to control the authentication process is by using an action bean, for example the following code might be
+        used in a JSF application:
       </para>
       
-      <programlisting language="JAVA"><![CDATA[Agent getUser();]]></programlisting>
+      <programlisting language="JAVA"><![CDATA[public @RequestScoped @Named class LoginAction {
+
+    @Inject Identity identity;
+
+    public void login() {
+        AuthenticationResult result = identity.login();
+        if (AuthenticationResult.FAILED.equals(result)) {
+            FacesContext.getCurrentInstance().addMessage(null, 
+                new FacesMessage(
+                        "Authentication was unsuccessful.  Please check your username and password " +
+                        "before trying again."));
+        }
+    }
+}]]></programlisting>      
+
+      <para>
+        In the above code, the <code>Identity</code> bean is injected into the action bean via the CDI <code>@Inject</code> 
+        annotation.  The <code>login()</code> method
+        is essentially a wrapper method that delegates to <code>Identity.login()</code> and stores the authentication result in 
+        a variable.  If authentication was unsuccessful, a <code>FacesMessage</code> is created to let the user know that
+        their login failed.  Also, since the bean is <code>@Named</code> it can be invoked directly from a JSF control like so:
+      </para>
+      
+      <programlisting language="XML"><![CDATA[<h:commandButton value="LOGIN" action="#{loginAction.login}"/>]]></programlisting>
+      
+      <para>
+        The <code>isLoggedIn()</code> method may be used to determine whether there is a user logged in for the current session.
+        It is typically used as an authorization check to control either an aspect of the user interface (for example, not
+        displaying a menu item if the user isn't logged in), or to restrict certain business logic.  While logged in, 
+        the <code>getUser()</code> method can be used to retrieve the currently authenticated user.  If there is none, then 
+        <code>getUser()</code> will return <code>null</code>.  The following example shows both the <code>isLoggedIn()</code> 
+        and <code>getUser()</code> methods being used inside a JSF page:
+      </para>
+      
+      <programlisting language="XML"><![CDATA[<ui:fragment rendered="#{identity.loggedIn}">Welcome, #{identity.user.loginName}]]></programlisting>
       
       <note>
         <para>
           Don't worry that the <code>getUser()</code> method returns an <code>Agent</code> object - <code>Agent</code> is actually 
           the superclass of <code>User</code>, and represents a non-human entity (while <code>User</code> represents a human entity).
         </para>
-      </note>
+      </note>      
       
+      <para>
+        The <code>logout()</code> method allows the user to log out, thereby clearing the authentication state for their session.  
+        Also, if the user's session expires (for example due to inactivity) their authentication state will also be lost 
+        requiring the user to authenticate again.  The following JSF code example demonstrates how to render a log out button
+        when the current user is logged in:
+      </para>
+      
+      <programlisting language="XML"><![CDATA[<ui:fragment rendered="#{identity.loggedIn}">
+    <h:form>
+        <h:commandButton value="Log out" action="#{identity.logout}"/>
+    </h:form>
+</ui:fragment>]]></programlisting>
+      
+      <para>
+        While it is the <code>Identity</code> bean that controls the overall authentication process, the actual authentication
+        "business logic" is defined by the <code>Authenticator</code> interface:
+      </para>
+     
       <programlisting language="JAVA"><![CDATA[public interface Authenticator {
     public enum AuthenticationStatus {
         SUCCESS, 
@@ -88,6 +139,26 @@ boolean isLoggedIn();]]></programlisting>
     Agent getUser();
 }]]></programlisting>
 
+      <para>
+        During the authentication process, the <code>Identity</code> bean will invoke the methods of the <emphasis>active</emphasis>
+        <code>Authenticator</code> (more on this in a moment) to perform user authentication.  The <code>authenticate()</code> method 
+        is the most important of these,
+        as it defines the actual authentication logic.  After <code>authenticate()</code> has been invoked by the <code>Identity</code> 
+        bean, the <code>getStatus()</code> method will reflect the authentication status (either a <code>SUCCESS</code>, 
+        <code>FAILURE</code> or <code>DEFERRED</code>).  If the authentication process was a success, the <code>getUser()</code> method 
+        will return the authenticated user object and the <code>postAuthenticate()</code> method will be invoked also.  If the authentication
+        was not a success, <code>getUser()</code> will return <code>null</code>.
+      </para>
+      
+      <section>
+        <title>Active Authenticator</title>
+        
+        <para>
+          It is possible to have multiple <code>Authenticator</code> beans deployed in a single application, so the <code>Identity</code>
+          bean has a few simple rules to determine which <code>Authenticator</code> implementation it should be using to carry out an
+          authentication request.
+        </para>
+      </section>
 
     </section>
     
