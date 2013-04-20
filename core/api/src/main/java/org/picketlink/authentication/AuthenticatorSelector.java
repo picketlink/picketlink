@@ -23,8 +23,7 @@ package org.picketlink.authentication;
  * 
  * @author Shane Bryzak
  */
-public interface AuthenticatorSelector
-{
+public interface AuthenticatorSelector {
     Class<? extends Authenticator> getAuthenticatorClass();
 
     void setAuthenticatorClass(Class<? extends Authenticator> authenticatorClass);
@@ -32,6 +31,6 @@ public interface AuthenticatorSelector
     String getAuthenticatorName();
 
     void setAuthenticatorName(String authenticatorName);
-    
+
     Authenticator getSelectedAuthenticator();
 }

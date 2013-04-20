@@ -41,7 +41,6 @@ import org.picketlink.authentication.event.PreLoggedOutEvent;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.deltaspike.core.util.ExceptionUtils;
 import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.User;
 
 /**
  * Default Identity implementation
@@ -150,7 +149,7 @@ public class DefaultIdentity implements Identity
             {
                 throw new AuthenticationException("No Authenticator has been configured.");
             }
-            
+
             activeAuthenticator.authenticate();
 
             if (activeAuthenticator.getStatus() == null) 
@@ -182,7 +181,7 @@ public class DefaultIdentity implements Identity
         }
         return false;
     }
-    
+
     protected void postAuthenticate(Authenticator activeAuthenticator)
     {
         activeAuthenticator.postAuthenticate();
