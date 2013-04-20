@@ -11,9 +11,12 @@
       <title>Overview</title>
       
       <para>
-        Authentication is the act of confirming the identity of a user.  PicketLink provides an extensible authentication API
-        that allows for significant customization of the authentication process, and also supports both synchronous and asynchronous
-        user authentication.  This chapter describes the authentication API and the authentication process in detail.
+        Authentication is the act of verifying the identity of a user.  PicketLink offers an extensible authentication API
+        that allows for significant customization of the authentication process, while also providing sensible defaults
+        for developers that wish to get up and running quickly.  It also supports both synchronous and asynchronous
+        user authentication, allowing for both a traditional style of authentication (such as logging in with a username
+        and password), or alternatively allowing authentication via a federated identity service, such as OpenID, SAML or OAuth.  
+        This chapter will endeavour to describe the authentication API and the authentication process in detail.
       </para>
     </section>
     
@@ -21,8 +24,10 @@
       <title>The Authentication API</title>
       
       <para>
-        The <code>Identity</code> bean (which can be found in the <code>org.picketlink</code> package) provides an Authentication 
-        API supported by the following methods:
+        The <code>Identity</code> bean (which can be found in the <code>org.picketlink</code> package) is central to PicketLink's
+        security API.  This bean represents the authenticated user for the current session, and provides many useful methods for
+        controlling the authentication process and querying the user's assigned privileges.  In terms of authentication, the
+        <code>Identity</code> bean provides the following methods:
       </para>
       
       <programlisting language="JAVA"><![CDATA[AuthenticationResult login();
@@ -108,8 +113,11 @@ Agent getUser();]]></programlisting>
       <para>
         The <code>logout()</code> method allows the user to log out, thereby clearing the authentication state for their session.  
         Also, if the user's session expires (for example due to inactivity) their authentication state will also be lost 
-        requiring the user to authenticate again.  The following JSF code example demonstrates how to render a log out button
-        when the current user is logged in:
+        requiring the user to authenticate again.
+      </para>
+      
+      <para>
+        The following JSF code example demonstrates how to render a log out button when the current user is logged in:
       </para>
       
       <programlisting language="XML"><![CDATA[<ui:fragment rendered="#{identity.loggedIn}">
@@ -142,12 +150,12 @@ Agent getUser();]]></programlisting>
       <para>
         During the authentication process, the <code>Identity</code> bean will invoke the methods of the <emphasis>active</emphasis>
         <code>Authenticator</code> (more on this in a moment) to perform user authentication.  The <code>authenticate()</code> method 
-        is the most important of these,
-        as it defines the actual authentication logic.  After <code>authenticate()</code> has been invoked by the <code>Identity</code> 
-        bean, the <code>getStatus()</code> method will reflect the authentication status (either a <code>SUCCESS</code>, 
-        <code>FAILURE</code> or <code>DEFERRED</code>).  If the authentication process was a success, the <code>getUser()</code> method 
-        will return the authenticated user object and the <code>postAuthenticate()</code> method will be invoked also.  If the authentication
-        was not a success, <code>getUser()</code> will return <code>null</code>.
+        is the most important of these, as it defines the actual authentication logic.  After <code>authenticate()</code> has been 
+        invoked by the <code>Identity</code> bean, the <code>getStatus()</code> method will reflect the authentication status 
+        (either <code>SUCCESS</code>, <code>FAILURE</code> or <code>DEFERRED</code>).  If the authentication process was a 
+        success, the <code>getUser()</code> method will return the authenticated <code>User</code> object and the 
+        <code>postAuthenticate()</code> method will be invoked also.  If the authentication was not a success, 
+        <code>getUser()</code> will return <code>null</code>. 
       </para>
       
       <section>
@@ -155,9 +163,60 @@ Agent getUser();]]></programlisting>
         
         <para>
           It is possible to have multiple <code>Authenticator</code> beans deployed in a single application, so the <code>Identity</code>
-          bean has a few simple rules to determine which <code>Authenticator</code> implementation it should be using to carry out an
-          authentication request.
+          bean must have a way of selecting the correct one for any authentication request.  This task is delegated to the
+          <code>AuthenticatorSelector</code> bean, which defines the following methods:
         </para>
+        
+        <programlisting language="JAVA"><![CDATA[public interface AuthenticatorSelector {
+    Class<? extends Authenticator> getAuthenticatorClass();
+
+    void setAuthenticatorClass(Class<? extends Authenticator> authenticatorClass);
+
+    String getAuthenticatorName();
+
+    void setAuthenticatorName(String authenticatorName);
+
+    Authenticator getSelectedAuthenticator();
+}]]></programlisting> 
+          
+        <para>
+          The default <code>AuthenticatorSelector</code> implementation has a few simple rules to determine which 
+          <code>Authenticator</code> implementation it should be using to carry out an authentication request. These rules are:
+        </para>
+        
+        <itemizedlist>
+          <listitem>
+            <para>
+              If the <code>authenticatorClass</code> property has been set, then the <code>Authenticator</code> bean with
+              that exact type will be selected.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              Otherwise, if the <code>authenticatorName</code> property has been set, then the <code>Authenticator</code> bean
+              with that bean name will be selected.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              If neither the <code>authenticatorClass</code> or <code>authenticatorName</code> properties have been set, and
+              a single, custom (i.e. not provided by PicketLink) <code>Authenticator</code> bean is found then that one will
+              be selected.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              If the user has not provided their own custom <code>Authenticator</code>, then use the built-in
+              <code>IdmAuthenticator</code> (which will use the Identity Management API to authenticate).
+            </para>
+          </listitem>
+        </itemizedlist>
+        
+        <para>
+          As the default <code>AuthenticatorSelector</code> implementation is a request-scoped bean, it is possible to control
+          <code>Authenticator</code> selection for every single authentication request.
+        </para>
+        
       </section>
 
     </section>
@@ -166,7 +225,8 @@ Agent getUser();]]></programlisting>
       <title>The Authentication Process</title>
       
       <para>
-      
+        Now that we've looked at all the individual pieces, let's take a look at how they all work together to carry out an
+        authentication request.
       </para>
     </section>
 
