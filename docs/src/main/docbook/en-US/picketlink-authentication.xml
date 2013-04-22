@@ -214,7 +214,11 @@ Agent getUser();]]></programlisting>
         
         <para>
           As the default <code>AuthenticatorSelector</code> implementation is a request-scoped bean, it is possible to control
-          <code>Authenticator</code> selection for every single authentication request.
+          <code>Authenticator</code> selection for every single authentication request.  This might be useful for example if
+          the user is to be given a choice of which method of authentication they wish to use to log in; a common use case is
+          to allows users to either log in using a username and password, or use a single sign-on service (such as OpenID)
+          instead.  From the view layer the selected authenticator can be set by name, allowing the user to easily choose
+          themselves which authentication method they desire.
         </para>
         
       </section>
