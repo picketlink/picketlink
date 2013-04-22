@@ -19,14 +19,10 @@
 package org.picketlink.credential;
 
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.event.Observes;
 import javax.inject.Named;
 
-import org.picketlink.authentication.event.LoginFailedEvent;
-import org.picketlink.authentication.event.PostAuthenticateEvent;
-import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.AbstractBaseCredentials;
 import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.model.Agent;
 
 /**
  * The default Credentials implementation.  This implementation allows for a
@@ -34,7 +30,7 @@ import org.picketlink.idm.model.Agent;
  */
 @Named("loginCredentials")
 @RequestScoped
-public class DefaultLoginCredentials implements Credentials {
+public class DefaultLoginCredentials extends AbstractBaseCredentials {
     private Object credential;
 
     private String userId;
@@ -70,35 +66,13 @@ public class DefaultLoginCredentials implements Credentials {
         this.credential = new Password(password.toCharArray());
     }
 
+    @Override
     public void invalidate() {
         credential = null;
-        userId = null;
-    }
-
-    protected void setValid(@Observes PostAuthenticateEvent event) {
-        invalidate();
-    }
-
-    protected void afterLogin(@Observes PostAuthenticateEvent event) {
-        invalidate();
-    }
-
-    protected void loginFailed(@Observes LoginFailedEvent event) {
-        invalidate();
     }
 
     @Override
     public String toString() {
-        return "LoginCredential[" + (userId != null ? userId : "unknown" ) + "]";
-    }
-
-    @Override
-    public Agent getValidatedAgent() {
-        return null;
-    }
-
-    @Override
-    public Status getStatus() {
-        return null;
+        return "DefaultLoginCredentials[" + (userId != null ? userId : "unknown" ) + "]";
     }
 }
