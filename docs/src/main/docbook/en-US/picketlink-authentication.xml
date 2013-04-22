@@ -57,9 +57,9 @@ Agent getUser();]]></programlisting>
 
       <note>
         <para>
-          An important point to note is that the <code>Identity</code> bean is annotated with the CDI <code>@Named</code> annotation, 
-          which means that its methods may be invoked directly from the view layer (if the view layer, such as JSF, supports it) via an 
-          EL expression.</para>      
+          A point of note is that the <code>Identity</code> bean is annotated with the CDI <code>@Named</code> annotation, 
+          which means that its methods may be invoked directly from the view layer (if the view layer, such as JSF, supports it) 
+          via an EL expression.</para>      
       </note>
       
       <para>
@@ -291,6 +291,83 @@ Agent getUser();]]></programlisting>
           </para>
         </listitem>
       </itemizedlist>     
+      
+      <para>
+        The authentication process ends when the <code>Identity.authenticate()</code> method returns a value of 
+        <literal>true</literal> to the <code>login()</code> method, which in turn returns an authentication result
+        of <literal>SUCCESS</literal> to the invoking user.
+      </para>
+      
+      <section>
+        <title>A Basic Authenticator</title>
+        
+        <para>
+          Let's take a closer look at an extremely simple example of an <code>Authenticator</code>.  The following
+          code demonstrates an <code>Authenticator</code> implementation that simple tests the username and password
+          credentials that the user has provided against hard coded values of <literal>jsmith</literal> for the username,
+          and <literal>abc123</literal> for the password, and if they match then authentication is deemed to be a success:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[public class SimpleAuthenticator extends BaseAuthenticator {
+
+    @Inject DefaultLoginCredentials credentials;
+
+    @Override
+    public void authenticate() {
+        if ("jsmith".equals(credentials.getUserId()) &&
+                "abc123".equals(credentials.getPassword())) {
+            setStatus(AuthenticationStatus.SUCCESS);
+            setUser(new SimpleUser("jsmith"));
+        } else {
+            setStatus(AuthenticationStatus.FAILURE);
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(
+                    "Authentication Failure - The username or password you provided were invalid."));
+        }
+    }
+}]]></programlisting>
+
+        <para>
+          The first point of interest in the above code is that the authenticator class extends something called
+          <code>BaseAuthenticator</code>.  This abstract base class provided by PicketLink implements the 
+          <code>Authenticator</code> interface and provides implementations of the <code>getStatus()</code> and 
+          <code>getUser()</code> methods (while also providing matching <code>setStatus()</code> and 
+          <code>setUser()</code> methods), and also provides an empty implementation of
+          the <code>postAuthenticate()</code> method.  By extending <code>BaseAuthenticator</code>, our 
+          <code>Authenticator</code> implementation simply needs to implement the <code>authenticate()</code> method
+          itself.
+        </para>
+        
+        <para>
+          We can see in the above code that in the case of a successful authentication, the <code>setStatus()</code> method
+          is used to set the authentication status to <literal>SUCCESS</literal>, and the <code>setUser()</code> method
+          is used to set the user (in this case by creating a new instance of <code>SimpleUser</code>).  For an 
+          unsuccessful authentication, the <code>setStatus()</code> method is used to set the authentication status to
+          <literal>FAILURE</literal>, and a new <code>FacesMessage</code> is created to indicate to the user that
+          authentication has failed.  While this code is obviously meant for a JSF application, it's possible to
+          execute whichever suitable business logic is required for the view layer technology being used.
+        </para>
+        
+        <para>
+          One thing that hasn't been touched on yet is the following line of code:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[@Inject DefaultLoginCredentials credentials;]]></programlisting>
+        
+        <para>
+          What this line does is inject the credentials that have been provided by the user using CDI's 
+          <code>@Inject</code> annotation, so that our <code>Authenticator</code> implementation can query
+          the credential values to determine whether they're valid or not.  We'll take a look at credentials in
+          more detail in the next section.
+        </para>
+      </section>
+      
+      <section>
+        <title>Credentials</title>
+        
+        <para>
+        
+        </para>
+      </section>
       
     </section>
 
