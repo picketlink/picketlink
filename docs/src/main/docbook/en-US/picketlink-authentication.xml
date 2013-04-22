@@ -377,7 +377,7 @@ Agent getUser();]]></programlisting>
 
         <para>
           In the previous section, we saw a code example in which a <code>DefaultLoginCredentials</code> (an implementation of
-          the <code>Credentials</code> interface that supports a username and password) was injected into the 
+          the <code>Credentials</code> interface that supports a user ID and a credential value) was injected into the 
           <code>SimpleAuthenticator</code>
           bean.  The most important thing to know about the <code>Credentials</code> interface in relation to writing your own
           custom <code>Authenticator</code> implementation is that <emphasis>you're not forced to use it</emphasis>.  
@@ -385,7 +385,7 @@ Agent getUser();]]></programlisting>
           Identity Management API (which is documented in a separate chapter) and its methods would rarely be used in a custom
           <code>Authenticator</code>, PicketLink provides some implementations which are suitably convenient to use as such, 
           <code>DefaultLoginCredentials</code> being one of them.
-        </para>
+        </para>   
         
         <para>
           So, in a custom <code>Authenticator</code> such as this:
@@ -426,9 +426,47 @@ Agent getUser();]]></programlisting>
 }]]></programlisting> 
         
         <para>
-          Of course it is not recommended that you actually do this, however for the sake of demonstrating what is possible 
-          this simplistic example serves well.
+          Of course it is not recommended that you actually do this, however this simplistic example serves adequately for
+          demonstrating the case in point.
         </para>
+
+      </section>
+      
+      <section>
+        <title>DefaultLoginCredentials</title>
+        
+        <para>
+          The <code>DefaultLoginCredentials</code> bean is provided by PicketLink as a convenience, and is intended to
+          serve as a general purpose <code>Credentials</code> implementation suitable for a variety of use cases.  It
+          supports the setting of a <code>userId</code> and <code>credential</code> property, and provides convenience
+          methods for working with text-based passwords.  It is a request-scoped bean and is also annotated with
+          <code>@Named</code> so as to make it accessible directly from the view layer.
+        </para>
+        
+        <mediaobject>
+          <imageobject role="fo">
+            <imagedata fileref="diagrams/defaultlogincredentials.png" align="center" scalefit="1"/>
+          </imageobject>
+          <imageobject role="html">
+            <imagedata fileref="diagrams/defaultlogincredentials.png" align="center"/>
+          </imageobject>
+        </mediaobject>       
+        
+        <para>
+          A view technology with support for EL binding (such as JSF) can access the <code>DefaultLoginCredentials</code>
+          bean directly via its bean name, <literal>loginCredentials</literal>.  The following code snippet shows some
+          JSF markup that binds the controls of a login form to <code>DefaultLoginCredentials</code>:
+        </para>   
+        
+        <programlisting language="XML"><![CDATA[<div class="loginRow">
+  <h:outputLabel for="name" value="Username" styleClass="loginLabel"/>
+  <h:inputText id="name" value="#{loginCredentials.userId}"/>
+</div>
+
+<div class="loginRow">
+  <h:outputLabel for="password" value="Password" styleClass="loginLabel"/>
+  <h:inputSecret id="password" value="#{loginCredentials.password}" redisplay="true"/>
+</div>]]></programlisting>
 
       </section>
       
