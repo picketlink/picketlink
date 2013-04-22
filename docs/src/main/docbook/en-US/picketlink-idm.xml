@@ -1461,13 +1461,61 @@ public class PartitionObject implements Serializable {
    void invalidate();
 }]]></programlisting>
 
+      <itemizedlist>
+        <listitem>
+          <para>
+            The <code>Status</code> enum defines the following values, which reflect the various credential states:
+          </para>
+          <itemizedlist>
+            <listitem>
+              <para>
+                <code>UNVALIDATED</code> - The credential is yet to be validated.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <code>IN_PROGRESS</code> - The credential is in the process of being validated.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <code>INVALID</code> - The credential has been validated unsuccessfully
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <code>VALID</code> - The credential has been validated successfully
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <code>EXPIRED</code> - The credential has expired
+              </para>
+            </listitem>
+          </itemizedlist>
+        </listitem>
+        <listitem>
+          <para>
+            <code>getValidatedAgent()</code> - If the credential was successfully validated, this method returns the
+            <code>Agent</code> object representing the validated user.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <code>getStatus()</code> - Returns the current status of the credential, i.e. one of the above enum values.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <code>invalidate()</code> - Invalidate the credential.  Implementations of <code>Credential</code> should use
+            this method to clean up internal credential state.
+          </para>
+        </listitem>
+      </itemizedlist>
+
       <para>
-        As we can see from the above code, the basic contract of the interface is quite simple.  Firstly, it defines a <code>Status</code> 
-        enum that represents the possible authentication status of the credentials.  Next, the <code>getValidatedAgent()</code> method
-        returns the <emphasis>successfully authenticated</emphasis> agent or user instance.  The <code>getStatus()</code> method returns
-        the current authentication status of the credentials, and the <code>invalidate()</code> method is used to mark the credentials
-        as invalid.  Let's take a look at a more concrete example - <code>UsernamePasswordCredentials</code> is a <code>Credentials</code>
-        implementation that supports a traditional username/password based authentication:
+        Let's take a look at a concrete example - <code>UsernamePasswordCredentials</code> is a <code>Credentials</code>
+        implementation that supports traditional username/password-based authentication:
       </para>
       
       <programlisting language="JAVA"><![CDATA[public class UsernamePasswordCredentials extends AbstractBaseCredentials {

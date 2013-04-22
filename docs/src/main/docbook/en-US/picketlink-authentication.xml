@@ -303,7 +303,7 @@ Agent getUser();]]></programlisting>
         
         <para>
           Let's take a closer look at an extremely simple example of an <code>Authenticator</code>.  The following
-          code demonstrates an <code>Authenticator</code> implementation that simple tests the username and password
+          code demonstrates an <code>Authenticator</code> implementation that simply tests the username and password
           credentials that the user has provided against hard coded values of <literal>jsmith</literal> for the username,
           and <literal>abc123</literal> for the password, and if they match then authentication is deemed to be a success:
         </para>
@@ -365,8 +365,67 @@ Agent getUser();]]></programlisting>
         <title>Credentials</title>
         
         <para>
-        
+          Credentials are something that provides evidence of a user's identity; for example a username and password,
+          an X509 certificate or some kind of biometric data such as a fingerprint.  PicketLink has extensive support for
+          a variety of credential types, and also makes it relatively simple to add custom support for credential types 
+          that PicketLink doesn't support out of the box itself.
         </para>
+
+        <para>
+          In the previous section, we saw a code example in which a <code>DefaultLoginCredentials</code> (an implementation of
+          the <code>Credentials</code> interface that supports a username and password) was injected into the 
+          <code>SimpleAuthenticator</code>
+          bean.  The most important thing to know about the <code>Credentials</code> interface in relation to writing your own
+          custom <code>Authenticator</code> implementation is that <emphasis>you're not forced to use it</emphasis>.  
+          <emphasis>However</emphasis>, while the <code>Credentials</code> interface is mainly designed for use with the 
+          Identity Management API (which is documented in a separate chapter) and its methods would rarely be used in a custom
+          <code>Authenticator</code>, PicketLink provides some implementations which are suitably convenient to use as such, 
+          <code>DefaultLoginCredentials</code> being one of them.
+        </para>
+        
+        <para>
+          So, in a custom <code>Authenticator</code> such as this:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[public class SimpleAuthenticator extends BaseAuthenticator {
+
+    @Inject DefaultLoginCredentials credentials;
+    
+    // code snipped
+}]]></programlisting>        
+
+        <para>
+          The credential injection is totally optional.  As an alternative example, it is totally valid to create a
+          request-scoped bean called <code>UsernamePassword</code> with simple getters and setters like so:
+        </para>
+
+        <programlisting language="JAVA"><![CDATA[public @RequestScoped class UsernamePassword {
+    private String username;
+    private String password;
+    
+    public String getUsername() { return username; }
+    public String getPassword() { return password; }
+    
+    public void setUsername(String username) { this.username = username; }
+    public void setPassword(String password) { this.password = password; }
+}]]></programlisting>
+
+       <para>
+         And then inject that into the <code>Authenticator</code> bean instead:
+       </para>
+
+        <programlisting language="JAVA"><![CDATA[public class SimpleAuthenticator extends BaseAuthenticator {
+
+    @Inject UsernamePassword usernamePassword;
+    
+    // code snipped
+}]]></programlisting> 
+        
+        <para>
+          Of course it is not recommended that you actually do this, however for the sake of demonstrating what is possible 
+          this simplistic example serves well.
+        </para>
+
       </section>
       
     </section>
