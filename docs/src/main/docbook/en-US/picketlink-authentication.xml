@@ -225,9 +225,73 @@ Agent getUser();]]></programlisting>
       <title>The Authentication Process</title>
       
       <para>
-        Now that we've looked at all the individual pieces, let's take a look at how they all work together to carry out an
-        authentication request.
+        Now that we've looked at all the individual pieces, let's take a look at how they all work together to process an
+        authentication request.  For starters, the following sequence diagram shows the class interaction that occurs during 
+        a successful authentication:
       </para>
+      
+      <mediaobject>
+        <imageobject role="fo">
+          <imagedata fileref="diagrams/authentication_sequence.png" align="center" scalefit="1"/>
+        </imageobject>
+        <imageobject role="html">
+          <imagedata fileref="diagrams/authentication_sequence.png" align="center"/>
+        </imageobject>
+      </mediaobject>     
+      
+      <itemizedlist>
+        <listitem>
+          <para>
+            <emphasis>1</emphasis> -
+            The user invokes the <code>login()</code> method of the <code>Identity</code> bean.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis>1.1</emphasis> -
+            The <code>Identity</code> bean (after performing a couple of validations) invokes its own <code>authenticate()</code>
+            method.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis>1.1.1</emphasis> - 
+            The <code>Identity</code> bean invokes <code>AuthenticatorSelector.getSelectedAuthenticator()</code> to
+            determine which <code>Authenticator</code> bean to use for the authentication request.
+          </para>
+        </listitem>
+        <listitem>                
+          <para>
+            <emphasis>1.1.2</emphasis> - 
+            Once the <code>Identity</code> bean has the correct <code>Authenticator</code>, it invokes its
+            <code>authenticate()</code> method (which has a return value of <code>void</code>).
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis>1.1.3</emphasis> - 
+            To determine whether authentication was successful, the <code>Identity</code> bean invokes the
+            <code>Authenticator</code>'s <code>getStatus()</code> method, which returns a <code>SUCCESS</code>.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis>1.1.4</emphasis> - 
+            Upon a successful authentication, the <code>Identity</code> bean then invokes the 
+            <code>Authenticator</code>'s <code>postAuthenticate()</code> method to perform any post-authentication
+            logic.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis>1.1.5</emphasis> - 
+            The <code>Identity</code> bean then invokes the <code>Authenticator</code>'s <code>getUser()</code> method,
+            which returns a <code>User</code> object representing the authenticated user, which is then stored as a 
+            private field in the <code>Identity</code> bean.
+          </para>
+        </listitem>
+      </itemizedlist>     
+      
     </section>
 
 </chapter>
