@@ -33,7 +33,7 @@ public class IdmAuthenticator extends BaseAuthenticator {
         }
 
         Credentials creds = null;
-        
+
         if (Password.class.equals(credentials.getCredential().getClass())) {
             creds = new UsernamePasswordCredentials(credentials.getUserId(),
                     (Password) credentials.getCredential());
@@ -42,7 +42,7 @@ public class IdmAuthenticator extends BaseAuthenticator {
         } else {
             throw new IllegalArgumentException("Unsupported credential type [" + credentials.getCredential() + "].");
         }
-        
+
         identityManager.validateCredentials(creds);
 
 
