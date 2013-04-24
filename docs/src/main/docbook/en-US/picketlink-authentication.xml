@@ -16,7 +16,10 @@
         for developers that wish to get up and running quickly.  It also supports both synchronous and asynchronous
         user authentication, allowing for both a traditional style of authentication (such as logging in with a username
         and password), or alternatively allowing authentication via a federated identity service, such as OpenID, SAML or OAuth.  
-        This chapter will endeavour to describe the authentication API and the authentication process in detail.
+        This chapter will endeavour to describe the authentication API and the authentication process in some detail, and is 
+        a good place to gain a general overall understanding of authentication in PicketLink.  However, please note that since
+        authentication is a cross-cutting concern, various aspects (for example Identity Management-based authentication and Federated
+        authentication) are documented in other chapters of this book.
       </para>
     </section>
     

@@ -31,5 +31,91 @@
         <ulink url="http://www.apache.org/licenses/LICENSE-2.0.html">apache.org</ulink>.
       </para>
     </section>
+    
+    <section>
+      <title>Maven Dependencies</title>
+      
+      <para>
+        The PicketLink libraries are available from the Maven Central Repository.  To use PicketLink in your Maven-based
+        project, it is recommended that you first define a version property for PicketLink in your project's 
+        <literal>pom.xml</literal> file like so:
+      </para>
+      
+      <programlisting language="XML"><![CDATA[<properties>
+  <picketlink.version>]]>&project.version;<![CDATA[</picketlink.version>
+</properties>]]></programlisting>
+
+      <para>
+        For a typical application, it is suggested that you include the following PicketLink dependencies:
+      </para>
+
+      <programlisting language="XML"><![CDATA[<dependencies>
+  <dependency>
+      <groupId>org.picketlink</groupId>
+      <artifactId>picketlink-core-api</artifactId>
+      <scope>compile</scope>
+      <version>${picketlink.version}</version>
+  </dependency>
+  
+  <dependency>
+      <groupId>org.picketlink</groupId>
+      <artifactId>picketlink-core-impl</artifactId>
+      <scope>runtime</scope>
+      <version>${picketlink.version}</version>
+  </dependency>
+  
+  <dependency>
+      <groupId>org.picketlink</groupId>
+      <artifactId>picketlink-idm-api</artifactId>
+      <scope>compile</scope>
+      <version>${picketlink.version}</version>
+  </dependency>
+  
+  <dependency>
+      <groupId>org.picketlink</groupId>
+      <artifactId>picketlink-idm-impl</artifactId>
+      <scope>runtime</scope>
+      <version>${picketlink.version}</version>
+  </dependency>
+</dependencies>]]></programlisting>
+
+      <itemizedlist>
+        <listitem>
+          <para>
+            <literal>picketlink-core-api</literal> - This is the core PicketLink library, which defines the Authentication and
+            Identity APIs, authentication events and CDI integration of other PicketLink components.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <literal>picketlink-core-impl</literal> - Internal implementation classes for the core API.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <literal>picketlink-idm-api</literal> - PicketLink's Identity Management (IDM) API.  This library defines the 
+            Identity Model central to all of PicketLink, and all of the identity management-related interfaces.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <literal>picketlink-idm-impl</literal> - Internal implementation classes for the IDM API.
+          </para>
+        </listitem>
+      </itemizedlist>
+
+      <para>
+        If you wish to use PicketLink's Identity Management features and want to include the default database schema
+        (see the Identity Management chapter for more details) then include the following dependency also:
+      </para>
+
+      <programlisting language="XML"><![CDATA[  <dependency>
+    <groupId>org.picketlink</groupId>
+    <artifactId>picketlink-idm-schema</artifactId>
+    <version>${picketlink.version}</version>
+  </dependency>]]></programlisting>
+
+      
+    </section>
 
 </chapter>
