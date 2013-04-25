@@ -52,7 +52,14 @@ execute_cmd git checkout develop
 echo "    Merging latest changes into develop branch..."
 execute_cmd git merge master
 echo "Local repository updated."
+echo ""
+
+echo "Preparing to release using git flow."
+echo "    Starting release $RELEASE_VERSION..."
+execute_cmd git flow release start $RELEASE_VERSION
+echo "Release started."
+echo ""
 
 echo "Preparing project to be released."
-echo "    Executing maven-release-plugin in DryRun mode"
+echo "    Executing maven-release-plugin in DryRun mode..."
 #execute_cmd mvn release:prepare --batch-mode -Drelease -DdevelopmentVersion=$DEVELOPMENT_VERSION -DreleaseVersion=$RELEASE_VERSION -Dtag=vRELEASE_VERSION -DdryRun -DignoreSnapshots=true
