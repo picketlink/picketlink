@@ -162,11 +162,11 @@
    
    <build>
       <pluginManagement>
-
         <plugins>
            <plugin>
              <groupId>org.apache.maven.plugins</groupId>
              <artifactId>maven-javadoc-plugin</artifactId>
+             <version>2.9</version>
              <executions>
                <execution>
                  <id>attach-javadocs</id>
@@ -179,7 +179,6 @@
                </execution>
              </executions>
            </plugin>
-
            <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-release-plugin</artifactId>
@@ -249,7 +248,6 @@
                </execution>
              </executions>
            </plugin>
-           
            <plugin>
              <groupId>org.jboss.maven.plugins</groupId>
              <artifactId>maven-javadoc-plugin</artifactId>
@@ -286,6 +284,7 @@
              <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-source-plugin</artifactId>
+               <version>2.2.1</version>
                <executions>
                  <execution>
                    <id>attach-sources</id>
@@ -298,17 +297,6 @@
              <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-javadoc-plugin</artifactId>
-               <executions>
-                 <execution>
-                   <id>attach-javadocs</id>
-                   <goals>
-                     <goal>jar</goal>
-                   </goals>
-                   <configuration>
-                     <detectOfflineLinks>false</detectOfflineLinks>
-                   </configuration>
-                 </execution>
-               </executions>
              </plugin>
            </plugins>
          </build>

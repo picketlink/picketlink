@@ -20,9 +20,7 @@
       <relativePath>../pom.xml</relativePath>
    </parent>
    <modelVersion>4.0.0</modelVersion>
-   <groupId>org.picketlink</groupId>
    <artifactId>picketlink-oauth</artifactId>
-   <version>3.0.0-SNAPSHOT</version>
    <packaging>jar</packaging>
    <name>PicketLink OAuth</name>
    <url>http://jboss.org/picketlink/</url>
@@ -242,29 +240,4 @@
       </dependency>
 
    </dependencies>
-   <reporting>
-      <plugins>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-               <doclet>org.jboss.apiviz.APIviz</doclet>
-               <docletArtifact>
-                  <groupId>org.jboss.apiviz</groupId>
-                  <artifactId>apiviz</artifactId>
-                  <version>1.2.5.GA</version>
-               </docletArtifact>
-               <additionalparam> -charset UTF-8 -docencoding UTF-8 -version
-                  -author -breakiterator -windowtitle "${project.name}
-                  ${project.version} API Reference" -doctitle "${project.name}
-                  ${project.version} API Reference" -bottom "Copyright ©
-                  ${project.inceptionYear}-Present ${project.organization.name}. All
-                  Rights Reserved." -link http://java.sun.com/javase/6/docs/api/
-                  -sourceclasspath ${project.build.outputDirectory}
-               </additionalparam>
-               <encoding>UTF-8</encoding>
-            </configuration>
-         </plugin>
-      </plugins>
-   </reporting>
 </project>
