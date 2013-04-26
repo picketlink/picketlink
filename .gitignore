@@ -55,3 +55,5 @@ PutObjectStoreDirHere
 release.properties
 # Files produced by the Eclipse annotations processor
 .factorypath
+# Files produced by the release script
+pl-release.log
