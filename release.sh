@@ -49,7 +49,6 @@ upload_docs() {
 RELEASE_VERSION=""
 DEVELOPMENT_VERSION=""
 FLAG_NO_DEPENDENCY_CHECK="false"
-FLAG_PERFORM_RELEASE="false"
 
 while [ "$1" != "" ]; do
     echo $1 > /dev/null
@@ -63,10 +62,10 @@ while [ "$1" != "" ]; do
         --no-dependency-check )	FLAG_NO_DEPENDENCY_CHECK="true"
 				;;
         --rollback )		rollback
-				exit 1
+				exit 0
 				;;
 	--upload-docs )		upload_docs
-				exit 1
+				exit 0
 				;;
     esac
     shift
@@ -91,7 +90,6 @@ echo ""
 
 echo "Current version: $DEVELOPMENT_VERSION"
 echo "Release version: $RELEASE_VERSION"
-
 echo ""
 
 echo "Preparing local repository to release."
@@ -126,6 +124,8 @@ echo "    Starting release $RELEASE_VERSION..."
 execute_cmd git flow release start $RELEASE_VERSION
 echo "Done."
 echo ""
+
+FLAG_PERFORM_RELEASE="false"
 
 echo "Preparing to release."
 echo "    Executing maven-release-plugin in DryRun mode..."
@@ -169,3 +169,4 @@ echo ""
 echo "Finishing the release."
 execute_cmd git flow release finish $RELEASE_VERSION
 echo "Done."
+exit 0
