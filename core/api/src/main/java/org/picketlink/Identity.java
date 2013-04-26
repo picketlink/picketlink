@@ -42,7 +42,7 @@ public interface Identity extends Serializable
      */
     boolean isLoggedIn();
 
-    Agent getUser();
+    Agent getAgent();
 
     /**
      * Attempts to authenticate the user.  This method raises the following events in response 
