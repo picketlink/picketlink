@@ -1,5 +1,5 @@
 #PicketLink Release Procedure#
- 
+
 ##Pre-requisites##
 
 Before releasing make sure your environment is properly configured as follows:
@@ -32,7 +32,9 @@ To release, simply run:
   6. Create a tag for the new version
   7. Publish the artifacts into nexus  
 
-###Closing the Staging repository in JBoss Nexus###
+###Post-Release steps###
+
+####Closing the Staging repository in JBoss Nexus####
 
 While you published your artifacts, they won't get automatically synced to the JBoss Community repository without a nod from you. You give the nod by promoting the staged artifacts through the Nexus web interface. 
 
@@ -43,13 +45,19 @@ Follow these steps to kick off the promotion:
 3. Look for the staging activity with your username in the repository name with a status closed
 4. Check the row and click Release or Drop
 
-###Uploading documentation to docs.jboss.org###
+####Uploading documentation to docs.jboss.org####
 
 You can also use the script to upload the documenration to docs.jboss.org. Just execute the following command:
 
     ./release.sh --upload-docs --current-version <old snapshot version> --version <release version>
     
 After check if the documentation is available at http://docs.jboss.org/picketlink/3/
+
+####Update JDF BOMs with the new version####
+
+It is important to update the JDF BOMs with the new version. Basically you should send a PR updating the following project:
+
+* https://github.com/jboss-jdf/jboss-bom/tree/master/jboss-javaee-6.0-with-security
 
 ##If something goes wrong##
 
