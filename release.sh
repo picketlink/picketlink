@@ -1,18 +1,13 @@
 #!/bin/sh
 
-VERBOSE="false"
+RELEASE_LOG_FILE="pl-release.log"
 
 execute_cmd() {
-
-    if [ "$VERBOSE" == "true" ]; then
-        "$@"
-    else
-        "$@" > pl-release.log
-    fi
+    "$@" > $RELEASE_LOG_FILE
 }
 
 check_build_result() {
-    if grep -F "BUILD SUCCESS" pl-release.log 
+    if tail -n 100 pl-release.log|grep -F "BUILD SUCCESS" 
     then
         return 0
     else
@@ -24,7 +19,31 @@ clean_local_repo() {
     git clean -f -d
     git reset --hard
     rm -rf release.properties
-    rm -rf pl-release.log
+    rm -rf $RELEASE_LOG_FILE
+}
+
+rollback() {
+    echo "Aborting ..."
+    clean_local_repo
+    git checkout develop
+    clean_local_repo
+    git checkout master
+    clean_local_repo
+    git branch -D release/$RELEASE_VERSION
+    echo "Done."    
+}
+
+upload_docs() {
+    echo "Preparing documentation."
+    DOCS_DIR="target/$RELEASE_VERSION"
+    execute_cmd rm -rf $DOCS_DIR
+    execute_cmd mkdir -p $DOCS_DIR
+    execute_cmd unzip dist/target/picketlink-$RELEASE_VERSION.zip picketlink-$RELEASE_VERSION/doc/* -d $DOCS_DIR/.
+    execute_cmd mv $DOCS_DIR/picketlink-$RELEASE_VERSION/doc/api $DOCS_DIR/.
+    execute_cmd mv $DOCS_DIR/picketlink-$RELEASE_VERSION/doc/reference $DOCS_DIR/.
+    rm -rf $DOCS_DIR/picketlink-$RELEASE_VERSION
+    scp -r $DOCS_DIR/ picketlink@filemgmt.jboss.org:/docs_htdocs/picketlink/3
+    echo "Done."
 }
 
 RELEASE_VERSION=""
@@ -32,24 +51,26 @@ DEVELOPMENT_VERSION=""
 FLAG_NO_DEPENDENCY_CHECK="false"
 FLAG_PERFORM_RELEASE="false"
 
-if [ "$1" == "-D"  ]; then
+while [ "$1" != "" ]; do
+    echo $1 > /dev/null
+    case $1 in
+        --current-version )     shift                                
+                                DEVELOPMENT_VERSION=$1
+                                ;;
+        --version )    		shift
+				RELEASE_VERSION=$1
+                                ;;
+        --no-dependency-check )	FLAG_NO_DEPENDENCY_CHECK="true"
+				;;
+        --rollback )		rollback
+				exit 1
+				;;
+	--upload-docs )		upload_docs
+				exit 1
+				;;
+    esac
     shift
-    VERBOSE="true"
-fi
-if [ "$1" == "--current-version"  ]; then
-    shift
-    DEVELOPMENT_VERSION="$1"
-    shift
-fi
-if [ "$1" == "--version"  ]; then
-    shift
-    RELEASE_VERSION="$1"
-    shift
-fi
-if [ "$1" == "--no-dependency-check" ]; then
-    shift
-    FLAG_NO_DEPENDENCY_CHECK="true"
-fi
+done
 
 if [ "$DEVELOPMENT_VERSION" == "" ]; then
    echo "--current-version not specified. Please use: --current-version X"
@@ -60,31 +81,7 @@ if [ "$RELEASE_VERSION" == "" ]; then
    exit 1
 fi
 
-if [ "$1" == "--rollback" ]; then
-    echo "Aborting ..."
-    clean_local_repo
-    git checkout develop
-    clean_local_repo
-    git checkout master
-    clean_local_repo
-    git branch -D release/$RELEASE_VERSION 
-    echo "Done."    
-    exit 0
-fi
-
-if [ "$1" == "--upload-docs" ]; then
-    echo "Preparing documentation."
-    DOCS_DIR="target/$RELEASE_VERSION"
-    execute_cmd rm -rf $DOCS_DIR
-    execute_cmd mkdir -p $DOCS_DIR
-    execute_cmd unzip dist/target/picketlink-$RELEASE_VERSION.zip picketlink-$RELEASE_VERSION/doc/* -d $DOCS_DIR/.
-    execute_cmd mv $DOCS_DIR/picketlink-$RELEASE_VERSION/doc/api $DOCS_DIR/.
-    execute_cmd mv $DOCS_DIR/picketlink-$RELEASE_VERSION/doc/reference $DOCS_DIR/.
-    rm -rf $DOCS_DIR/picketlink-$RELEASE_VERSION
-    scp -i ~/.ssh/psilva.rsa -r $DOCS_DIR/ picketlink@filemgmt.jboss.org:/docs_htdocs/picketlink/3
-    echo "Done."
-    exit 1
-fi
+rm -rf $RELEASE_LOG_FILE
 
 echo "###################################################"
 echo "            PicketLink Release Script              "
