@@ -122,12 +122,12 @@ public class PicketLinkIDMDataProvider implements DataProvider {
         SimpleUser simpleUser = new SimpleUser();
         simpleUser.setLoginName(user.getDisplayName());
         UserName userName = user.getName();
-        
+
         if(userName != null){
             simpleUser.setFirstName(userName.getGivenName());
             simpleUser.setLastName(userName.getFamilyName());
-            
-            simpleUser.setAttribute(new Attribute<String>("FullName", userName.getFormatted()));   
+
+            simpleUser.setAttribute(new Attribute<String>("FullName", userName.getFormatted()));
         }
         identityManager.add(simpleUser);
 

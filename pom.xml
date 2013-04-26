@@ -37,15 +37,16 @@
 
    <properties>
       <jboss.javaee.version>2.0.0.Final</jboss.javaee.version>
-      <deltaspike.version>0.3-incubating</deltaspike.version>
       <jboss.releases.repo.url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</jboss.releases.repo.url>
       <jboss.snapshots.repo.url>https://repository.jboss.org/nexus/content/repositories/snapshots/</jboss.snapshots.repo.url>
       <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
       <pressgang.version>3.0.1-SNAPSHOT</pressgang.version>
       <shrinkwrap.resolver.version>2.0.0-beta-2</shrinkwrap.resolver.version>
       <arquillian.version>1.0.3.Final</arquillian.version>
-      <jboss.logging.version>3.1.0.GA</jboss.logging.version>
-      <jboss.logging.processor.version>1.0.0.Final</jboss.logging.processor.version>
+      <jboss.logging.version>3.1.1.GA</jboss.logging.version>
+      <jboss.logging.processor.version>1.0.3.Final</jboss.logging.processor.version>
+      <junit.version>4.10</junit.version>
+      <mockito.version>1.9.0</mockito.version>
    </properties>
 
    <modules>
@@ -73,14 +74,12 @@
           <groupId>org.picketlink</groupId>
           <artifactId>picketlink-common</artifactId>
           <version>${project.version}</version>
-          <scope>compile</scope>
       </dependency>
       
       <dependency>
           <groupId>org.picketlink</groupId>
           <artifactId>picketlink-core-api</artifactId>
           <version>${project.version}</version>
-          <scope>compile</scope>
       </dependency>
 
       <dependency>
@@ -93,7 +92,6 @@
           <groupId>org.picketlink</groupId>
           <artifactId>picketlink-idm-api</artifactId>
           <version>${project.version}</version>
-          <scope>compile</scope>
       </dependency>
 
       <dependency>
@@ -117,34 +115,6 @@
       </dependency>
 
       <dependency>
-          <groupId>org.apache.deltaspike.core</groupId>
-          <artifactId>deltaspike-core-api</artifactId>
-          <version>${deltaspike.version}</version>
-          <scope>compile</scope>
-      </dependency>
-
-      <dependency>
-          <groupId>org.apache.deltaspike.core</groupId>
-          <artifactId>deltaspike-core-impl</artifactId>
-          <version>${deltaspike.version}</version>
-          <scope>runtime</scope>
-      </dependency>
-
-      <dependency>
-          <groupId>org.apache.deltaspike.modules</groupId>
-          <artifactId>deltaspike-security-module-api</artifactId>
-          <version>${deltaspike.version}</version>
-          <scope>compile</scope>
-      </dependency>
-
-      <dependency>
-          <groupId>org.apache.deltaspike.modules</groupId>
-          <artifactId>deltaspike-security-module-impl</artifactId>
-          <version>${deltaspike.version}</version>
-          <scope>runtime</scope>
-      </dependency>
-      
-      <dependency>
           <groupId>org.jboss.logging</groupId>
           <artifactId>jboss-logging</artifactId>
           <version>${jboss.logging.version}</version>
@@ -154,8 +124,8 @@
           <groupId>org.jboss.logging</groupId>
           <artifactId>jboss-logging-processor</artifactId>
           <version>${jboss.logging.processor.version}</version>
+          <scope>provided</scope>
       </dependency>
-      
       
       <dependency>
           <groupId>org.jboss.shrinkwrap.resolver</groupId>
@@ -171,6 +141,20 @@
           <version>${arquillian.version}</version>
           <scope>import</scope>
           <type>pom</type>
+      </dependency>
+      
+      <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>${junit.version}</version>
+          <scope>test</scope>
+      </dependency>
+      
+      <dependency>
+         <groupId>org.mockito</groupId>
+         <artifactId>mockito-all</artifactId>
+         <version>${mockito.version}</version>
+         <scope>test</scope>
       </dependency>
 
     </dependencies>

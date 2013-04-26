@@ -50,10 +50,6 @@ import org.w3c.dom.Element;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-/**
- * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
- */
 public class DefaultPicketLinkLogger implements PicketLinkLogger {
 
     private Logger logger = Logger.getLogger(PicketLinkLogger.class.getPackage().getName());
