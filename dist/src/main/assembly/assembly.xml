@@ -57,12 +57,19 @@
       
       <!-- Pull in javadoc for api -->
       <dependencySet>
-         <outputDirectory>doc/api</outputDirectory>
+         <outputDirectory>doc/idm-api</outputDirectory>
+         <unpack>true</unpack>
+         <useProjectArtifact>false</useProjectArtifact>
+         <includes>
+            <include>org.picketlink:picketlink-idm-api:jar:javadoc</include>
+         </includes>
+      </dependencySet>
+      <dependencySet>
+         <outputDirectory>doc/core-api</outputDirectory>
          <unpack>true</unpack>
          <useProjectArtifact>false</useProjectArtifact>
          <includes>
             <include>org.picketlink:picketlink-core-api:jar:javadoc</include>
-            <include>org.picketlink:picketlink-idm-api:jar:javadoc</include>
          </includes>
       </dependencySet>
       
