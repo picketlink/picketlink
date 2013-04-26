@@ -1,5 +1,5 @@
 #PicketLink Release Procedure#
-
+ 
 ##Pre-requisites##
 
 Before releasing make sure your environment is properly configured as follows:
