@@ -51,7 +51,7 @@ You can also use the script to upload the documenration to docs.jboss.org. Just 
 
     ./release.sh --upload-docs --current-version <old snapshot version> --version <release version>
     
-After check if the documentation is available at http://docs.jboss.org/picketlink/3/
+When it finishes, check if the documentation is available at http://docs.jboss.org/picketlink/3/.
 
 ####Update JDF BOMs with the new version####
 
