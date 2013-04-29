@@ -1719,7 +1719,7 @@ identityManager.updateCredential(user, digest);]]></programlisting>
         <listitem>
           <para>
             <emphasis>1</emphasis> -
-            The user (or some other code) invokes the <code>validateCredentials()</code> method on <code>IdentityManager</code>,
+            The user (or some other code) first invokes the <code>validateCredentials()</code> method on <code>IdentityManager</code>,
             passing in the <code>Credentials</code> instance to validate.
           </para>
         </listitem>
@@ -1750,14 +1750,50 @@ identityManager.updateCredential(user, digest);]]></programlisting>
         </listitem>
       </itemizedlist>           
       
+      <para>
+        The <code>CredentialHandler</code> interface declares three methods, as follows:
+      </para>
+      
       <programlisting language="JAVA"><![CDATA[public interface CredentialHandler {
     void setup(IdentityStore<?> identityStore);
-    
-    void validate(SecurityContext context, Credentials credentials, IdentityStore<?> identityStore);
 
-    void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate);
+    void validate(SecurityContext context, Credentials credentials, 
+                  IdentityStore<?> identityStore);
+
+    void update(SecurityContext context, Agent agent, Object credential, 
+                IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate);
 
 }]]></programlisting>
+
+      <para>
+        The <code>setup()</code> method is called once, when the <code>CredentialHandler</code> instance is first created. 
+        Credential handler instantiation is controlled by the <code>CredentialHandlerFactory</code>, which creates a single
+        instance of each <code>CredentialHandler</code> implementation to service all credential requests for that handler.
+        Each <code>CredentialHandler</code> implementation must declare the types of credentials that it is capable of supporting,
+        which is done by annotating the implementation class with the <code>@SupportsCredentials</code> annotation like so:
+      </para>
+    
+      <programlisting language="JAVA"><![CDATA[@SupportsCredentials({ UsernamePasswordCredentials.class, Password.class })
+public class PasswordCredentialHandler implements CredentialHandler {]]></programlisting>
+  
+      <para>
+        Since the <code>validate()</code> and <code>update()</code> methods receive different parameter types (<code>validate()</code>
+        takes a <code>Credentials</code> parameter value while <code>update()</code> takes an <code>Object</code> that represents
+        a single credential value), the <code>@SupportsCredentials</code> annotation must contain a complete list of all types supported
+        by that handler.
+      </para>
+      
+      <para>
+        Similarly, if the <code>IdentityStore</code> implementation makes use of the credential handler SPI then it also must declare
+        which credential handlers support that identity store.  This is done using the <code>@CredentialHandlers</code> annotation; 
+        for example, the following code shows how <code>JPAIdentityStore</code> is configured to be capable of handling credential
+        requests for usernames and passwords, X509 certificates and digest-based authentication:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[@CredentialHandlers({ PasswordCredentialHandler.class,
+          X509CertificateCredentialHandler.class, DigestCredentialHandler.class })
+public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfiguration>, 
+                                         CredentialStore {]]></programlisting>
 
     </section>
     
