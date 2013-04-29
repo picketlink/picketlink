@@ -1424,13 +1424,13 @@ public class PartitionObject implements Serializable {
     </section>
     
     <section>
-      <title>Authentication</title>
+      <title>Validating Credentials</title>
       
       <note>
         <para>
           While the IDM module of PicketLink provides authentication features, for common use cases involving standard username and
           password based authentication in a Java EE environment, the PicketLink core module provides a more streamlined method
-          of authentication.  Please refer to the authentication chapter of this documentation for more information.
+          of authentication.  Please refer to the Authentication chapter of this documentation for more information.
         </para>
       </note>
       
@@ -1628,8 +1628,8 @@ void updateCredential(Agent agent, Object credential, Date effectiveDate, Date e
       <warning>
         <para>
           Not all built-in <code>IdentityStore</code> implementations support all credential types.  For example, since the
-          <code>LDAPIdentityStore</code> is backed by an LDAP directory server, only password credentials are supported.  The
-          following table lists the built-in <code>IdentityStore</code> implementations that support each credential type.
+          <code>LDAPIdentityStore</code> is backed by an LDAP directory server, only password credentials are natively supported.  
+          The following table lists the built-in <code>IdentityStore</code> implementations that support each credential type.
         </para>
       </warning>
       
@@ -1696,14 +1696,45 @@ identityManager.updateCredential(user, digest);]]></programlisting>
     </section>
     
     <section>
-      <title>Credential Handler Customization</title>
+      <title>Credential Handlers</title>
+      
+      <para>
+        For <code>IdentityStore</code> implementations that support multiple credential types, PicketLink provides
+        an optional SPI to allow the default credential handling logic to be easily customized and extended. To get
+        a better picture of the overall workings of the Credential Handler SPI, let's take a look at the sequence
+        of events during the credential validation process when validating a username and password against
+        <code>JPAIdentityStore</code>:
+      </para>
+      
+      <mediaobject>
+        <imageobject role="fo">
+          <imagedata fileref="diagrams/username_password_validation.png" align="center" scalefit="1"/>
+        </imageobject>
+        <imageobject role="html">
+          <imagedata fileref="diagrams/username_password_validation.png" align="center"/>
+        </imageobject>
+      </mediaobject>       
+      
+      <programlisting language="JAVA"><![CDATA[public interface CredentialHandler {
+    void setup(IdentityStore<?> identityStore);
+    
+    void validate(SecurityContext context, Credentials credentials, IdentityStore<?> identityStore);
+
+    void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate);
+
+}]]></programlisting>
+
+    </section>
+    
+    <section>
+      <title>Credential Handler Configuration</title>
       
       <para>
         Specific credential handler options can be set when creating a new <code>IdentityConfiguration</code>.  Configured options 
-        are always specific to a particular identity store configuration, allowing different options to be specified between two or
-        more identity stores.  The <code>IdentityStoreConfiguration</code> interface provides a method called
-        <code>getCredentialHandlersConfig()</code> that provides access to a <code>Map</code> which allows configuration options
-        to be set for the identity store's credential handlers:
+        are always specific to the credential handler configuration for a particular identity store, allowing different options 
+        to be specified between two or more identity stores.  The <code>IdentityStoreConfiguration</code> interface provides a 
+        method called <code>getCredentialHandlersConfig()</code> that provides access to a <code>Map</code> which allows configuration
+        options to be set for the identity store's credential handlers:
       </para>
       
       <programlisting language="JAVA"><![CDATA[public interface IdentityStoreConfiguration {
@@ -1711,8 +1742,16 @@ identityManager.updateCredential(user, digest);]]></programlisting>
 }]]></programlisting>
 
       <para>
-      
+        The following sections list the available configuration options for each of the built-in credential handlers:
       </para>
+      
+      <section>
+        <title></title>
+        
+        <para>
+        
+        </para>
+      </section>
 
     </section>
 
