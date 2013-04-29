@@ -1794,6 +1794,92 @@ public class PasswordCredentialHandler implements CredentialHandler {]]></progra
           X509CertificateCredentialHandler.class, DigestCredentialHandler.class })
 public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfiguration>, 
                                          CredentialStore {]]></programlisting>
+                                         
+      <section>
+        <title>The CredentialStore interface</title>
+        
+        <para>
+          For <code>IdentityStore</code> implementations that support multiple credential types (such as <code>JPAIdentityStore</code>
+          and <code>FileBasedIdentityStore</code>), the implementation may choose to also implement the <code>CredentialStore</code>
+          interface to simplify the interaction between the <code>CredentialHandler</code> and the <code>IdentityStore</code>.  The
+          <code>CredentialStore</code> interface declares methods for storing and retrieving credential values within an identity
+          store, as follows:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[public interface CredentialStore {
+   void storeCredential(SecurityContext context, Agent agent, 
+                        CredentialStorage storage);
+   <T extends CredentialStorage> T retrieveCurrentCredential(SecurityContext context, 
+                                                 Agent agent, Class<T> storageClass);
+   <T extends CredentialStorage> List<T> retrieveCredentials(SecurityContext context, 
+                                                 Agent agent, Class<T> storageClass);
+}]]></programlisting>
+
+        <para>
+          The <code>CredentialStorage</code> interface is quite simple and only declares two methods, <code>getEffectiveDate()</code>
+          and <code>getExpiryDate()</code>:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[public interface CredentialStorage {
+   @Stored Date getEffectiveDate();
+   @Stored Date getExpiryDate();
+}]]></programlisting>
+
+        <para>
+          The most important thing to note above is the usage of the <code>@Stored</code> annotation.  This annotation is used to
+          mark the properties of the <code>CredentialStorage</code> implementation that should be persisted.  The only requirement
+          for any property values that are marked as <code>@Stored</code> is that they are serializable (i.e. they implement the
+          <code>java.io.Serializable</code> interface).  The <code>@Stored</code> annotation may be placed on either the getter 
+          method or the field variable itself.  Here's an example of one of a <code>CredentialStorage</code> implementation that
+          is built into PicketLink - <code>EncodedPasswordStorage</code> is used to store a password hash and salt value:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[public class EncodedPasswordStorage implements CredentialStorage {
+
+    private Date effectiveDate;
+    private Date expiryDate;
+    private String encodedHash;
+    private String salt;
+
+    @Override @Stored
+    public Date getEffectiveDate() {
+        return effectiveDate;
+    }
+
+    public void setEffectiveDate(Date effectiveDate) {
+        this.effectiveDate = effectiveDate;
+    }
+
+    @Override @Stored
+    public Date getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(Date expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
+    @Stored
+    public String getEncodedHash() {
+        return encodedHash;
+    }
+
+    public void setEncodedHash(String encodedHash) {
+        this.encodedHash = encodedHash;
+    }
+
+    @Stored
+    public String getSalt() {
+        return this.salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
+
+}]]></programlisting>
+      
+      </section>
 
     </section>
     
