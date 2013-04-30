@@ -15,7 +15,7 @@ Before releasing make sure your environment is properly configured as follows:
 
         git remote add upstream https://github.com/picketlink/picketlink
 
-5. Check for uncommited changes, before continuing.
+5. Check for uncommitted changes, before continuing.
 
 ##Release##
 
@@ -26,11 +26,11 @@ To release, simply run:
   This will perform the following steps:
   
   1. Update your master and develop branchs with the latest changes and sync them.
-  3. Check if all depencies are available in central
-  4. Execute the maven-release-plugin in DryRun mode
-  5. Perform the release
-  6. Create a tag for the new version
-  7. Publish the artifacts into nexus  
+  3. Check if all depencies are available in central.
+  4. Execute the maven-release-plugin in DryRun mode.
+  5. Perform the release.
+  6. Create a tag for the new version.
+  7. Publish the artifacts into JBoss Nexus.  
 
 ###Post-Release steps###
 
@@ -58,6 +58,17 @@ When it finishes, check if the documentation is available at http://docs.jboss.o
 It is important to update the JDF BOMs with the new version. Basically you should send a PR updating the following project:
 
 * https://github.com/jboss-jdf/jboss-bom/tree/master/jboss-javaee-6.0-with-security
+
+####Update PicketLink Site####
+
+The PicketLink site must be update with the new release. The site is located at http://jboss.org/picketlink.
+
+You need a valid account in order to make the changes. The administration panel can accessed at http://jboss.org/picketlink/author.
+
+The following changes need to be done:
+
+* Update the announcement on the main page to reflect the new version.
+* Update the downloads page with the new version.
 
 ##If something goes wrong##
 
