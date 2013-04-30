@@ -82,18 +82,25 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
 
     // Agent
 
-    Agent getAgent(SecurityContext context, String id);
+    /**
+     * Returns the Agent with the specified login name
+     * 
+     * @param context
+     * @param loginName
+     * @return
+     */
+    Agent getAgent(SecurityContext context, String loginName);
 
     // User
 
     /**
-     * Returns the User with the specified id value.
+     * Returns the User with the specified login name.
      *
-     * @param ctx
-     * @param id
+     * @param context
+     * @param loginName
      * @return
      */
-    User getUser(SecurityContext context, String id);
+    User getUser(SecurityContext context, String loginName);
 
     // Group
 
