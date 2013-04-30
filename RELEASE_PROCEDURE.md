@@ -46,6 +46,10 @@ Follow these steps to kick off the promotion:
 3. Look for the staging activity with your username in the repository name with a status closed
 4. Check the row and click Release or Drop
 
+####Upload the distribution package to sourceforge####
+
+TODO
+
 ####Update JDF BOMs with the new version####
 
 It is important to update the JDF BOMs with the new version. Basically you should send a PR updating the following project:
