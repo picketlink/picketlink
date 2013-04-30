@@ -63,12 +63,12 @@ It is important to update the JDF BOMs with the new version. Basically you shoul
 
 The PicketLink site must be update with the new release. The site is located at http://jboss.org/picketlink.
 
-You need a valid account in order to make the changes. The administration panel can accessed at http://jboss.org/picketlink/author.
+You need a valid account in order to make the changes. The administration panel is at http://jboss.org/author.
 
 The following changes need to be done:
 
-* Update the announcement on the main page to reflect the new version.
-* Update the downloads page with the new version.
+* Update the announcement on the Main Page to reflect the new version.
+* Update the Download Page with the new version.
 
 ##If something goes wrong##
 
