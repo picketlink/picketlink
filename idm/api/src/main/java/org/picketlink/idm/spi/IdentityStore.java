@@ -84,7 +84,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
 
     /**
      * Returns the Agent with the specified login name
-     * 
+     *
      * @param context
      * @param loginName
      * @return
