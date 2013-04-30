@@ -1,6 +1,7 @@
 #!/bin/sh
 
 RELEASE_LOG_FILE="pl-release.log"
+RELEASE_VERSION=""
 
 execute_cmd() {
     "$@" > $RELEASE_LOG_FILE
@@ -15,6 +16,13 @@ check_build_result() {
     fi
 }
 
+check_release_version() {
+	if [ "$RELEASE_VERSION" == "" ]; then
+	   echo "--version not specified. Please use: --version X"
+	   exit 1
+	fi
+}
+
 clean_local_repo() {
     git clean -f -d
     git reset --hard
@@ -23,6 +31,7 @@ clean_local_repo() {
 }
 
 rollback() {
+	check_release_version
     echo "Aborting ..."
     clean_local_repo
     git checkout develop
@@ -34,6 +43,7 @@ rollback() {
 }
 
 upload_docs() {
+	check_release_version
     echo "Preparing documentation."
     DOCS_DIR="target/$RELEASE_VERSION"
     execute_cmd rm -rf $DOCS_DIR
@@ -46,7 +56,6 @@ upload_docs() {
     echo "Done."
 }
 
-RELEASE_VERSION=""
 DEVELOPMENT_VERSION=""
 FLAG_NO_DEPENDENCY_CHECK="false"
 
@@ -56,17 +65,17 @@ while [ "$1" != "" ]; do
         --current-version )     shift                                
                                 DEVELOPMENT_VERSION=$1
                                 ;;
-        --version )    		shift
-				RELEASE_VERSION=$1
+        --version )    			shift
+								RELEASE_VERSION=$1
                                 ;;
         --no-dependency-check )	FLAG_NO_DEPENDENCY_CHECK="true"
-				;;
-        --rollback )		rollback
-				exit 0
-				;;
-	--upload-docs )		upload_docs
-				exit 0
-				;;
+								;;
+        --rollback )			rollback
+								exit 0
+								;;
+		--upload-docs )			upload_docs
+								exit 0
+								;;
     esac
     shift
 done
@@ -75,10 +84,8 @@ if [ "$DEVELOPMENT_VERSION" == "" ]; then
    echo "--current-version not specified. Please use: --current-version X"
    exit 1
 fi
-if [ "$RELEASE_VERSION" == "" ]; then
-   echo "--version not specified. Please use: --version X"
-   exit 1
-fi
+
+check_release_version
 
 rm -rf $RELEASE_LOG_FILE
 
@@ -163,6 +170,16 @@ if [ "$FLAG_PUBLISH_NEXUS" == "y" ]; then
     echo "Publishing artifacts to Nexus. "
     execute_cmd mvn release:perform nexus:staging-close -Prelease
     echo "Done. You can now go to Nexus and finish release the artifacts."
+fi
+echo ""
+
+FLAG_UPLOAD_DOC="n"
+read -p "Do you want to upload the documentation to docs.jboss.org ?[y/n] " FLAG_UPLOAD_DOC
+
+if [ "$FLAG_UPLOAD_DOC" == "y" ]; then
+    echo "Uploading documentation to docs.jboss.org. "
+    upload_docs
+    echo "Done. Check if the documentation is now available at http://docs.jboss.org/picketlink/3/"
 fi
 echo ""
 

@@ -11,7 +11,7 @@ Before releasing make sure your environment is properly configured as follows:
     
 3. Make sure you're able to upload the documentation to docs.jboss.org/picketlink/3/.
 
-4. If you are in a fork, check if you have a remote repository configured as the following:
+4. If you are in a fork, check if you have a remote repository configured as follows:
 
         git remote add upstream https://github.com/picketlink/picketlink
 
@@ -30,7 +30,8 @@ To release, simply run:
   4. Execute the maven-release-plugin in DryRun mode.
   5. Perform the release.
   6. Create a tag for the new version.
-  7. Publish the artifacts into JBoss Nexus.  
+  7. Publish the artifacts into JBoss Nexus.
+  8. Upload the documentation to docs.jboss.org.
 
 ###Post-Release steps###
 
@@ -44,14 +45,6 @@ Follow these steps to kick off the promotion:
 2. Click on Staging Repositories link in the left hand navigation
 3. Look for the staging activity with your username in the repository name with a status closed
 4. Check the row and click Release or Drop
-
-####Uploading documentation to docs.jboss.org####
-
-You can also use the script to upload the documenration to docs.jboss.org. Just execute the following command:
-
-    ./release.sh --upload-docs --current-version <old snapshot version> --version <release version>
-    
-When it finishes, check if the documentation is available at http://docs.jboss.org/picketlink/3/.
 
 ####Update JDF BOMs with the new version####
 
