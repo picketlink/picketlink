@@ -72,4 +72,4 @@ The release script generates a log file called pl-release.log. You can check it 
 ###Rollback###
 You can always rollback the release in order to start again. For that use the following command:
 
-    ./release.sh --rollback --current-version <old snapshot version> --version <release version>
+    ./release.sh --version <release version> --rollback
