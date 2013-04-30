@@ -164,7 +164,7 @@ fi
 echo ""
 
 FLAG_PUBLISH_NEXUS="n"
-read -p "Do you want to publish artifacts to Nexus stagin repository ?[y/n] " FLAG_PUBLISH_NEXUS
+read -p "Do you want to publish artifacts to Nexus staging repository ?[y/n] " FLAG_PUBLISH_NEXUS
 
 if [ "$FLAG_PUBLISH_NEXUS" == "y" ]; then
     echo "Publishing artifacts to Nexus. "
