@@ -31,10 +31,10 @@ public class AuthenticationFilter implements Filter {
     private static final String DEFAULT_REALM_NAME = "PicketLink Default Realm";
 
     @Inject
-    Instance<Identity> identityInstance;
+    private Instance<Identity> identityInstance;
     
     @Inject
-    Instance<DefaultLoginCredentials> credentials;
+    private Instance<DefaultLoginCredentials> credentialsInstance;
 
     private Map<AuthType, HTTPAuthenticationScheme> authenticationSchemes = new HashMap<AuthType, HTTPAuthenticationScheme>();
 
@@ -84,7 +84,7 @@ public class AuthenticationFilter implements Filter {
         DefaultLoginCredentials creds;
 
         try {
-            creds = credentials.get();
+            creds = credentialsInstance.get();
         } catch (Exception e) {
             throw new ServletException(
                     "DefaultLoginCredentials not found - please ensure that the DefaultLoginCredentials component is created on startup.",
