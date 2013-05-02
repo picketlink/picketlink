@@ -1884,9 +1884,10 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     </section>
     
     <section>
-      <title>Credential Handler Configuration</title>
+      <title>Built-in Credential Handlers</title>
       
       <para>
+        This section describes each of the built-in credential handlers, and any configuration parameters that may be set for them.
         Specific credential handler options can be set when creating a new <code>IdentityConfiguration</code>.  Configured options 
         are always specific to the credential handler configuration for a particular identity store, allowing different options 
         to be specified between two or more identity stores.  The <code>IdentityStoreConfiguration</code> interface provides a 
@@ -1899,9 +1900,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 }]]></programlisting>
 
       <para>
-        The following sections list the available configuration options for each of the built-in credential handlers:
+        To gain access to the <code>IdentityStoreConfiguration</code> object before PicketLink is initialized, there are a couple of
+        options.  The first option is to provide an <code>IdentityConfiguration</code> object itself via a producer method.
       </para>
       
+      <programlisting language="JAVA"><![CDATA[
+      
+      ]]></programlisting>
+
       <section>
         <title></title>
         
