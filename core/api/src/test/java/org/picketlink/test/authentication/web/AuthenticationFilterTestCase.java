@@ -1,13 +1,10 @@
-package org.picketlink.authentication.web;
+package org.picketlink.test.authentication.web;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
-import org.picketlink.Identity;
-import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.idm.model.SimpleUser;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.UUID;
 
 import javax.enterprise.inject.Instance;
 import javax.servlet.FilterChain;
@@ -17,40 +14,54 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import java.io.IOException;
-import java.util.UUID;
-
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.picketlink.Identity;
+import org.picketlink.authentication.web.AuthenticationFilter;
+import org.picketlink.authentication.web.HTTPAuthenticationScheme;
+import org.picketlink.credential.DefaultLoginCredentials;
+import org.picketlink.idm.model.SimpleUser;
 
 public class AuthenticationFilterTestCase {
 
     @InjectMocks
     private AuthenticationFilter filter;
+    
     @Mock
     private HttpServletRequest request;
+    
     @Mock
     private HttpServletResponse response;
+    
     @Mock
     private FilterChain filterChain;
+    
     @Mock
     private FilterConfig config;
+    
     @Mock
-    Instance<Identity> identityInstance;
+    private Instance<Identity> identityInstance;
+    
     @Mock
-    Instance<DefaultLoginCredentials> credentialsInstance;
+    private Instance<DefaultLoginCredentials> credentialsInstance;
+    
     @Mock
     private Identity identity;
+    
     @Mock
     private DefaultLoginCredentials credentials;
+    
     @Mock
     private HTTPAuthenticationScheme authenticationScheme;
+    
     @Mock
     private HttpSession session;
 
     @Before
     public void setUp() throws ServletException {
-        filter = new AuthenticationFilter();
         MockitoAnnotations.initMocks(this);
     }
 

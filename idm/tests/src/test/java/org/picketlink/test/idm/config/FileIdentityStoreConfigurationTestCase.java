@@ -24,8 +24,6 @@ package org.picketlink.test.idm.config;
 
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.IdentityManagerFactory;
-import org.picketlink.idm.config.FeatureSet;
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
@@ -46,28 +44,10 @@ public class FileIdentityStoreConfigurationTestCase extends
     @Override
     protected FileIdentityStoreConfiguration createMinimalConfiguration() {
         FileIdentityStoreConfiguration fileConfig = new FileIdentityStoreConfiguration();
-
-        FeatureSet.addFeatureSupport(fileConfig.getFeatureSet());
-        FeatureSet.addRelationshipSupport(fileConfig.getFeatureSet());
-        fileConfig.getFeatureSet().setSupportsCustomRelationships(true);
-        fileConfig.getFeatureSet().setSupportsMultiRealm(true);
-
-        // enabled basic features for identitytypes
-        FeatureSet.addFeatureSupport(fileConfig.getFeatureSet(), FeatureGroup.user);
-        FeatureSet.addFeatureSupport(fileConfig.getFeatureSet(), FeatureGroup.role);
-        FeatureSet.addFeatureSupport(fileConfig.getFeatureSet(), FeatureGroup.group);
-
-        // enable relationship features. this enables the default/built-in relationship classes
-        FeatureSet.addFeatureSupport(fileConfig.getFeatureSet(), FeatureGroup.relationship);
-
-        // to enable custom relationship classes we need to set this flag.
-        fileConfig.getFeatureSet().setSupportsCustomRelationships(true);
         
-        // enable the custom relationship class
-        FeatureSet.addRelationshipSupport(fileConfig.getFeatureSet(), CustomRelationship.class);
-        
-        // enable credentials
-        FeatureSet.addFeatureSupport(fileConfig.getFeatureSet(), FeatureGroup.credential);
+        fileConfig
+            .supportRelationshipType(CustomRelationship.class)
+            .supportAllFeatures();
 
         return fileConfig;
     }

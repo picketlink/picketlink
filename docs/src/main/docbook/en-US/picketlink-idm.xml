@@ -273,15 +273,6 @@
         </para>
         
         <section>
-          <title>FileIdentityStoreConfiguration</title>
-          
-          <para>
-            This identity store uses the file system to persist identity state in a series of data files.  
-          </para>
-          
-        </section>
-        
-        <section>
           <title>JPAIdentityStoreConfiguration</title>
           
           <para>
@@ -303,7 +294,7 @@
             <title>Configuring the Identity class</title>
             
             <para>
-              The Identity class is the entity bean that is used to store the masterClass Diagram0 record for users, roles and groups. It should
+              The Identity class is the entity bean that is used to store the record for users, roles and groups. It should
               be annotated with <code>@IDMEntity(EntityType.IDENTITY_TYPE)</code> and declare the following field values:
             </para>
             
@@ -918,10 +909,200 @@ public class PartitionObject implements Serializable {
           <title>LDAPIdentityStoreConfiguration</title>
           
           <para>
-            The LDAP identity store allows an LDAP directory server to be used to provide identity state.
+            The LDAP identity store allows an LDAP directory server to be used to provide identity state. You can use this store in read-only or write-read mode, depending on your permissions on the server.
           </para>
+          
+          <section>
+            <title>Configuration</title>
+            
+            <para>
+              The LDAP identity store can be configured by providing the following configuration:
+			</para>
+			
+            <programlisting language="JAVA"><![CDATA[LDAPIdentityStoreConfiguration ldapStoreConfig = new LDAPIdentityStoreConfiguration();
+
+ldapStoreConfig
+	.setBaseDN(BASE_DN)
+	.setBindDN(BIND_DN)
+    .setBindCredential(BIND_CREDENTIAL)
+    .setLdapURL(LDAP_URL)
+    .setUserDNSuffix(USER_DN_SUFFIX)
+    .setRoleDNSuffix(ROLES_DN_SUFFIX)
+    .setAgentDNSuffix(AGENT_DN_SUFFIX)
+    .setGroupDNSuffix(GROUP_DN_SUFFIX)
+    .addRealm(Realm.DEFAULT_REALM)
+    .supportAllFeatures();]]></programlisting>
+			
+			<para>
+				The following table describes all configuration options:
+			</para>
+			
+			<table>
+              <title>LDAP Configuration Options</title>
+              
+              <tgroup cols="3" align="left">
+                <thead>
+                  <row>
+                    <entry>Option</entry>
+                    <entry>Description</entry>
+                    <entry>Required</entry>
+                  </row>
+                </thead>
+                <tbody>
+                  <row>
+                    <entry><code>setBaseDN</code></entry>
+                    <entry>Sets the fixed DN of the context from where identity types are stored.</entry>
+                    <entry>Yes</entry>
+                  </row>
+                  <row>
+                    <entry><code>setBindDN</code></entry>
+                    <entry>Sets the the DN used to bind against the ldap server. If you want to perform write operations the DN must have permissions on the agent,user,role and group contexts.</entry>
+                    <entry>Yes</entry>
+                  </row>
+                  <row>
+                    <entry><code>setBindCredential</code></entry>
+                    <entry>Sets the password for the bindDN.</entry>
+                    <entry>Yes</entry>
+                  </row>
+                  <row>
+                    <entry><code>setLdapURL</code></entry>
+                    <entry>Sets the url that should be used to connect to the server. Eg.: <![CDATA[ldap://<<server>>:389]]>.</entry>
+                    <entry>Yes</entry>
+                  </row>
+                  <row>
+                    <entry><code>setUserDNSuffix</code></entry>
+                    <entry>Sets the fixed DN of the context where users should be read/stored from.</entry>
+                    <entry>Yes</entry>
+                  </row>
+                  <row>
+                    <entry><code>setAgentDNSuffix</code></entry>
+                    <entry>Sets the fixed DN of the context where agents should be read/stored from. If not provided, will be used the context provided by the <code>setUserDNSuffix</code></entry>
+                    <entry>No</entry>
+                  </row>
+                  <row>
+                    <entry><code>setRoleDNSuffix</code></entry>
+                    <entry>Sets the fixed DN of the context where roles should be read/stored from.</entry>
+                    <entry>Yes</entry>
+                  </row>
+                  <row>
+                    <entry><code>setGroupDNSuffix</code></entry>
+                    <entry>Sets the fixed DN of the context where groups should be read/stored from.</entry>
+                    <entry>Yes</entry>
+                  </row>
+                </tbody>
+              </tgroup>
+            </table>
+            
+            <section>
+            	<title>Mapping Groups to different contexts</title>
+            	
+            	<para>
+            		Sometimes may be useful to map a specific group to a specific context or DN. By default, all groups are stored and read from the DN provided by the <code>setGroupDNSuffix</code> method, which means that you can not have groups with the same name.
+            	</para>
+
+            	<para>
+            		The following configuration maps the group with path <emphasis>/QA Group</emphasis> to <emphasis>ou=QA,dc=jboss,dc=org</emphasis> 
+            	</para>
+            	
+            	<programlisting language="JAVA"><![CDATA[LDAPIdentityStoreConfiguration ldapStoreConfig = new LDAPIdentityStoreConfiguration();
+
+ldapStoreConfig
+    .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org");]]></programlisting>
+				
+				<para>
+					With this configuration you can have groups with the same name, but with different paths.
+				</para>
+
+            	<programlisting language="JAVA"><![CDATA[IdentityManager identityManager = getIdentityManager();
+        
+Group managerGroup = identityManager.add(new SimpleGroup("managers")); // group's path is /manager 
+                
+Group qaGroup = identityManager.getGroup("QA Group");        
+        
+// the QA Group was mapped to a different DN.
+Group qaManagerGroup = identityManager.add(new SimpleGroup("managers", qaGroup)); // group's path is /QA Group/managers]]></programlisting>
+				    
+            </section>			
+          </section>
         </section>
-      
+        
+        <section>
+          <title>FileIdentityStoreConfiguration</title>
+          
+          <para>
+		  	This identity store uses the file system to persist identity state.  The configuration for this 
+            identity store provides control over where to store identity data and if the state should be preserved between initializatons. 
+          </para>
+
+          <section>
+            <title>Filesystem Structure</title>
+            
+            <para>
+			 Identity data is stored in the filesystem using the following structure:
+            </para>
+            
+		 	<programlisting language="xml"><![CDATA[${WORKING_DIR}/
+	pl-idm-partitions.db
+	pl-idm-relationships.db
+	<<partition_name_directory>>
+		pl-idm.agents.db
+		pl-idm.roles.db
+		pl-idm.groups.db
+		pl-idm.credentials.db
+	<<another_partition_directory>>
+		...]]></programlisting>
+		
+			<para>
+				By default, files are stored in the <emphasis>${java.io.tmpdir}/pl-idm</emphasis> directory. For each partition there is a corresponding directory where agents, roles groups and credentials are stored in specific files. 
+			</para>
+			
+		  </section>
+		  		
+          <section>
+            <title>Configuration</title>
+            
+            <para>
+              The file identity store can be easily configured by providing the following configuration:
+			</para>
+			              
+            <programlisting language="JAVA"><![CDATA[FileIdentityStoreConfiguration fileStoreConfig = new FileIdentityStoreConfiguration();
+
+fileStoreConfig
+   	.addRealm(Realm.DEFAULT_REALM)
+   	.supportAllFeatures();]]></programlisting>
+
+          	<section>
+            	<title>Preserving State Between Initializations</title>
+            	
+            	<para>
+            		By default, during the initialization, the working directory is re-created. If you want to preserve state between initializations you should use the following configuration:
+            	</para>
+            	
+            	<programlisting language="JAVA"><![CDATA[FileIdentityStoreConfiguration fileStoreConfig = new FileIdentityStoreConfiguration();
+				
+fileStoreConfig
+    .setAlwaysCreateFiles(false) // preserve data
+   	.addRealm(Realm.DEFAULT_REALM)
+   	.supportAllFeatures();]]></programlisting>
+			</section>
+			
+			<section>
+            	<title>Changing the Working Directory</title>
+            	
+            	<para>
+				 If you want to change the working directory, where files are stored, you can use the following configuration:            		
+            	</para>
+            	
+              	<programlisting language="JAVA"><![CDATA[FileIdentityStoreConfiguration fileStoreConfig = new FileIdentityStoreConfiguration();
+				
+fileStoreConfig
+    .setWorkingDir("/tmp/pl-idm") // changes the working directory
+   	.addRealm(Realm.DEFAULT_REALM)
+   	.supportAllFeatures();]]></programlisting>
+       	
+			</section>            
+          </section>          
+        </section>      
       </section>
       
       <section>
@@ -1424,13 +1605,13 @@ public class PartitionObject implements Serializable {
     </section>
     
     <section>
-      <title>Validating Credentials</title>
+      <title>Authentication</title>
       
       <note>
         <para>
           While the IDM module of PicketLink provides authentication features, for common use cases involving standard username and
           password based authentication in a Java EE environment, the PicketLink core module provides a more streamlined method
-          of authentication.  Please refer to the Authentication chapter of this documentation for more information.
+          of authentication.  Please refer to the authentication chapter of this documentation for more information.
         </para>
       </note>
       
@@ -1628,8 +1809,8 @@ void updateCredential(Agent agent, Object credential, Date effectiveDate, Date e
       <warning>
         <para>
           Not all built-in <code>IdentityStore</code> implementations support all credential types.  For example, since the
-          <code>LDAPIdentityStore</code> is backed by an LDAP directory server, only password credentials are natively supported.  
-          The following table lists the built-in <code>IdentityStore</code> implementations that support each credential type.
+          <code>LDAPIdentityStore</code> is backed by an LDAP directory server, only password credentials are supported.  The
+          following table lists the built-in <code>IdentityStore</code> implementations that support each credential type.
         </para>
       </warning>
       
@@ -1885,14 +2066,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     
     <section>
       <title>Built-in Credential Handlers</title>
-      
+     
       <para>
         This section describes each of the built-in credential handlers, and any configuration parameters that may be set for them.
         Specific credential handler options can be set when creating a new <code>IdentityConfiguration</code>.  Configured options 
-        are always specific to the credential handler configuration for a particular identity store, allowing different options 
-        to be specified between two or more identity stores.  The <code>IdentityStoreConfiguration</code> interface provides a 
-        method called <code>getCredentialHandlersConfig()</code> that provides access to a <code>Map</code> which allows configuration
-        options to be set for the identity store's credential handlers:
+        are always specific to a particular identity store configuration, allowing different options to be specified between two or
+        more identity stores.  The <code>IdentityStoreConfiguration</code> interface provides a method called
+        <code>getCredentialHandlersConfig()</code> that provides access to a <code>Map</code> which allows configuration options
+        to be set for the identity store's credential handlers:
       </para>
       
       <programlisting language="JAVA"><![CDATA[public interface IdentityStoreConfiguration {
