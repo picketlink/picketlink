@@ -30,8 +30,11 @@ import org.picketlink.authentication.AuthenticationException;
 import org.picketlink.authentication.Authenticator;
 import org.picketlink.authentication.Authenticator.AuthenticationStatus;
 import org.picketlink.authentication.AuthenticatorSelector;
+import org.picketlink.authentication.LockedAccountException;
 import org.picketlink.authentication.UnexpectedCredentialException;
+import org.picketlink.authentication.UserAlreadyLoggedInException;
 import org.picketlink.authentication.event.AlreadyLoggedInEvent;
+import org.picketlink.authentication.event.LockedAccountEvent;
 import org.picketlink.authentication.event.LoggedInEvent;
 import org.picketlink.authentication.event.LoginFailedEvent;
 import org.picketlink.authentication.event.PostAuthenticateEvent;
@@ -39,7 +42,6 @@ import org.picketlink.authentication.event.PostLoggedOutEvent;
 import org.picketlink.authentication.event.PreAuthenticateEvent;
 import org.picketlink.authentication.event.PreLoggedOutEvent;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.deltaspike.core.util.ExceptionUtils;
 import org.picketlink.idm.model.Agent;
 
 /**
@@ -91,46 +93,70 @@ public class DefaultIdentity implements Identity
                     throw new UnexpectedCredentialException("active agent: " + this.agent.getLoginName() +
                             " provided credentials: [" + this.loginCredential.getUserId() + "]");
                 }
-
-                beanManager.fireEvent(new AlreadyLoggedInEvent());
-                throw new SecurityException("Already Logged In");
+                
+                throw new UserAlreadyLoggedInException("active agent: " + this.agent.getLoginName());
             }
 
-            boolean success = authenticate();
+            Agent validatedAgent = authenticate();
 
-            if (success) 
+            if (validatedAgent != null) 
             {
-                beanManager.fireEvent(new LoggedInEvent()); 
+                if (!validatedAgent.isEnabled()) {
+                    throw new LockedAccountException(validatedAgent);
+                }
+
+                handleSuccessfulLoginAttempt(validatedAgent); 
                 return AuthenticationResult.SUCCESS;
             }
 
-            beanManager.fireEvent(new LoginFailedEvent(null));
+            handleUnsuccesfulLoginAttempt(null);
             return AuthenticationResult.FAILED;
         } 
         catch (Throwable e) 
         {
-            //X TODO discuss special handling of UnexpectedCredentialException
-            beanManager.fireEvent(new LoginFailedEvent(e));
-
-            if (e instanceof RuntimeException)
-            {
-                throw (RuntimeException)e;
+            handleUnsuccesfulLoginAttempt(e);
+            
+            if (AuthenticationException.class.isInstance(e)) {
+                throw (AuthenticationException) e;
             }
-
-            ExceptionUtils.throwAsRuntimeException(e);
-            //Attention: the following line is just for the compiler (and analysis tools) - it won't get executed
-            throw new IllegalStateException(e);
+            
+            throw new AuthenticationException("Login failed with a unexpected error.", e);            
+//            ExceptionUtils.throwAsRuntimeException(e);
+//            //Attention: the following line is just for the compiler (and analysis tools) - it won't get executed
+//            throw new IllegalStateException(e);
         }
+    }
+
+    protected void handleSuccessfulLoginAttempt(Agent validatedAgent) {
+        this.agent = validatedAgent;
+        beanManager.fireEvent(new LoggedInEvent());
+    }
+
+    protected void handleUnsuccesfulLoginAttempt(Throwable e) {
+        if (e != null) {
+            if (UnexpectedCredentialException.class.isInstance(e)) {
+              //X TODO discuss special handling of UnexpectedCredentialException                
+            } else if (UserAlreadyLoggedInException.class.isInstance(e)) {
+                beanManager.fireEvent(new AlreadyLoggedInEvent());
+            } else if (LockedAccountException.class.isInstance(e)) {
+                LockedAccountException lockedException = (LockedAccountException) e;
+                beanManager.fireEvent(new LockedAccountEvent(lockedException.getLockedAccount()));
+            }
+        }
+        
+        beanManager.fireEvent(new LoginFailedEvent(e));
     }
 
     private boolean isAuthenticationRequestWithDifferentUserId()
     {
         return isLoggedIn() && this.loginCredential.getUserId() != null &&
-                !this.loginCredential.getUserId().equals(this.agent.getId());
+                !this.loginCredential.getUserId().equals(this.agent.getLoginName());
     }
 
-    protected boolean authenticate() throws AuthenticationException 
+    protected Agent authenticate() throws AuthenticationException 
     {
+        Agent validatedAgent = null;
+        
         if (authenticating) 
         {
             authenticating = false; //X TODO discuss it
@@ -159,27 +185,22 @@ public class DefaultIdentity implements Identity
 
             if (activeAuthenticator.getStatus() == AuthenticationStatus.SUCCESS)
             {
+                validatedAgent = activeAuthenticator.getUser();
                 postAuthenticate(activeAuthenticator);
-                this.agent = activeAuthenticator.getUser();
-                return true;
             } 
         } 
-        catch (Throwable ex) 
+        catch (AuthenticationException e) {
+            throw (AuthenticationException) e;
+        } catch (Throwable ex) 
         {
-            if (ex instanceof AuthenticationException)
-            {
-                throw (AuthenticationException) ex;
-            } 
-            else 
-            {
-                throw new AuthenticationException("Authentication failed.", ex);
-            }
+            throw new AuthenticationException("Authentication failed.", ex);
         }
         finally
         {
             authenticating = false;
         }
-        return false;
+        
+        return validatedAgent;
     }
 
     protected void postAuthenticate(Authenticator activeAuthenticator)

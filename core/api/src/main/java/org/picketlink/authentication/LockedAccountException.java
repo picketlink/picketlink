@@ -16,25 +16,27 @@
  * limitations under the License.
  */
 
-package org.picketlink;
+package org.picketlink.authentication;
+
+import org.picketlink.idm.model.Agent;
 
 /**
- * Base class for security related exceptions
  * 
- * @author Shane Bryzak
- *
+ * 
+ * @author Pedro Igor
+ * 
  */
-public class SecurityException extends RuntimeException 
-{
-    private static final long serialVersionUID = -1809156359762519539L;
+public class LockedAccountException extends AuthenticationException {
 
-    public SecurityException(String message) 
-    {
-        super(message);
+    private static final long serialVersionUID = -1555087586933373287L;
+    private Agent lockedAccount;
+
+    public LockedAccountException(Agent agent) {
+        super("Agent is disabled.");
+        this.lockedAccount = agent;
     }
-
-    public SecurityException(String message, Throwable cause) 
-    {
-        super(message, cause);
+    
+    public Agent getLockedAccount() {
+        return this.lockedAccount;
     }
 }
