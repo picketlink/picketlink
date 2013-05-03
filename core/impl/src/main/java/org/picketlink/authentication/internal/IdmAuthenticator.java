@@ -27,7 +27,7 @@ public class IdmAuthenticator extends BaseAuthenticator {
 
     @Override
     public void authenticate() {
-        if (credentials.getCredential() == null) {
+        if (credentials.getCredential() == null || credentials.getUserId() == null) {
             setStatus(AuthenticationStatus.FAILURE);
             return;
         }

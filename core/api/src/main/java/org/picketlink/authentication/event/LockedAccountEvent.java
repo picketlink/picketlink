@@ -16,25 +16,25 @@
  * limitations under the License.
  */
 
-package org.picketlink;
+package org.picketlink.authentication.event;
+
+import org.picketlink.idm.model.Agent;
 
 /**
- * Base class for security related exceptions
+ * This event is fired when an already authenticated user attempts to authenticate again
  * 
  * @author Shane Bryzak
- *
  */
-public class SecurityException extends RuntimeException 
+public class LockedAccountEvent 
 {
-    private static final long serialVersionUID = -1809156359762519539L;
 
-    public SecurityException(String message) 
-    {
-        super(message);
+    private Agent lockedAccount;
+
+    public LockedAccountEvent(Agent lockedAccount) {
+        this.lockedAccount = lockedAccount;
     }
-
-    public SecurityException(String message, Throwable cause) 
-    {
-        super(message, cause);
+    
+    public Agent getLockedAccount() {
+        return this.lockedAccount;
     }
 }
