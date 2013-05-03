@@ -20,6 +20,10 @@ package org.picketlink;
 
 import java.io.Serializable;
 
+import org.picketlink.authentication.AuthenticationException;
+import org.picketlink.authentication.LockedAccountException;
+import org.picketlink.authentication.UnexpectedCredentialException;
+import org.picketlink.authentication.UserAlreadyLoggedInException;
 import org.picketlink.idm.model.Agent;
 
 /**
@@ -55,6 +59,8 @@ public interface Identity extends Serializable
      * - raised when authentication fails
      * {@link org.picketlink.authentication.event.AlreadyLoggedInEvent}
      * - raised if the user is already authenticated
+     * {@link org.picketlink.authentication.event.LockedAccountEvent}
+     * - raised if the user is locked
      *
      * @return AuthenticationResult returns SUCCESS if user is authenticated,
      * FAILED if authentication FAILED, or
@@ -64,9 +70,9 @@ public interface Identity extends Serializable
      * a LoginFailedEvent) however in these conditions it is the responsibility of the Authenticator
      * implementation to take over the authentication process, for example by redirecting the user to
      * a third party authentication service such as an OpenID provider.
-     * @throws SecurityException if login called on an already authenticated user
+     * @throws AuthenticationException if some unexpected error occurs or a subclass which identifies why the login failed.
      */
-    AuthenticationResult login();
+    AuthenticationResult login() throws AuthenticationException;
 
     /**
      * Logs out the currently authenticated user
