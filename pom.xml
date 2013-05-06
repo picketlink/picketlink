@@ -49,17 +49,19 @@
       <mockito.version>1.9.0</mockito.version>
    </properties>
 
-   <modules>
+   <modules>     
       <module>build-config</module>
-      <module>common</module>
-      <module>config</module>
-      <module>idm</module>
-      <module>core</module>
+      <module>modules/common</module>
+      <module>modules/config</module>
+      <module>modules/idm</module>
 
-      <module>federation</module>
-      <module>social</module>
-      <module>oauth</module>
-      <module>scim</module>
+      <module>api</module>
+      <module>impl</module>
+
+      <module>modules/federation</module>
+      <module>modules/social</module>
+      <module>modules/oauth</module>
+      <module>modules/scim</module>
    </modules>
 
    <dependencyManagement>
@@ -78,13 +80,13 @@
       
       <dependency>
           <groupId>org.picketlink</groupId>
-          <artifactId>picketlink-core-api</artifactId>
+          <artifactId>picketlink-api</artifactId>
           <version>${project.version}</version>
       </dependency>
 
       <dependency>
           <groupId>org.picketlink</groupId>
-          <artifactId>picketlink-core-impl</artifactId>
+          <artifactId>picketlink-impl</artifactId>
           <version>${project.version}</version>
       </dependency>
 
