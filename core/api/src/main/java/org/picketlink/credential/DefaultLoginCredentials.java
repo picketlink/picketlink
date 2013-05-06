@@ -31,8 +31,8 @@ import org.picketlink.idm.credential.Password;
 @Named("loginCredentials")
 @RequestScoped
 public class DefaultLoginCredentials extends AbstractBaseCredentials {
+    
     private Object credential;
-
     private String userId;
 
     public String getUserId() {
@@ -40,6 +40,10 @@ public class DefaultLoginCredentials extends AbstractBaseCredentials {
     }
 
     public void setUserId(String userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("User id can not be null.");
+        }
+        
         this.userId = userId;
     }
 
@@ -63,12 +67,17 @@ public class DefaultLoginCredentials extends AbstractBaseCredentials {
      * Convenience method that allows a plain text password credential to be set
      */
     public void setPassword(final String password) {
+        if (password == null) {
+            throw new IllegalArgumentException("Password can not be null.");
+        }
+        
         this.credential = new Password(password.toCharArray());
     }
 
     @Override
     public void invalidate() {
-        credential = null;
+        this.credential = null;
+        this.userId = null;
     }
 
     @Override

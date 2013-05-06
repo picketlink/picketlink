@@ -16,25 +16,20 @@
  * limitations under the License.
  */
 
-package org.picketlink;
+package org.picketlink.authentication;
 
 /**
- * Base class for security related exceptions
  * 
- * @author Shane Bryzak
- *
+ * 
+ * @author Pedro Igor
+ * 
  */
-public class SecurityException extends RuntimeException 
-{
-    private static final long serialVersionUID = -1809156359762519539L;
+public class UserAlreadyLoggedInException extends AuthenticationException {
 
-    public SecurityException(String message) 
-    {
+    private static final long serialVersionUID = -1555087586933373287L;
+
+    public UserAlreadyLoggedInException(String message) {
         super(message);
     }
 
-    public SecurityException(String message, Throwable cause) 
-    {
-        super(message, cause);
-    }
 }
