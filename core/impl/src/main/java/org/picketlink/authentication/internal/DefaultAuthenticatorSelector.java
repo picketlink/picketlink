@@ -18,18 +18,18 @@
 
 package org.picketlink.authentication.internal;
 
-import org.picketlink.deltaspike.core.api.literal.NamedLiteral;
-import org.picketlink.deltaspike.core.api.provider.BeanProvider;
-import org.picketlink.deltaspike.core.util.StringUtils;
-import org.picketlink.authentication.Authenticator;
-import org.picketlink.authentication.AuthenticatorSelector;
+import java.util.Iterator;
 
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
+import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
+import javax.inject.Named;
 
-import java.util.List;
+import org.picketlink.authentication.Authenticator;
+import org.picketlink.authentication.AuthenticatorSelector;
+import org.picketlink.common.util.StringUtil;
 
 /**
  * Default implementation of AuthenticatorSelector
@@ -37,6 +37,26 @@ import java.util.List;
 @RequestScoped
 public class DefaultAuthenticatorSelector implements AuthenticatorSelector
 {
+    public class NamedLiteral extends AnnotationLiteral<Named> implements Named {
+        private static final long serialVersionUID = 3459877665505130834L;
+        private final String value;
+
+        public NamedLiteral(String value)
+        {
+            this.value = value;
+        }
+
+        public NamedLiteral()
+        {
+            value = "";
+        }
+
+        @Override public String value()
+        {
+            return value;
+        }
+    };
+
     private String authenticatorName;
     
     private Class<? extends Authenticator> authenticatorClass;
@@ -64,7 +84,7 @@ public class DefaultAuthenticatorSelector implements AuthenticatorSelector
             return authenticators.select(authenticatorClass).get();
         }
 
-        if (!StringUtils.isEmpty(authenticatorName))
+        if (!StringUtil.isNullOrEmpty(authenticatorName))
         {
             Instance<Authenticator> selected = authenticators.select(new NamedLiteral(authenticatorName));
             if (selected.isAmbiguous()) 
@@ -84,10 +104,9 @@ public class DefaultAuthenticatorSelector implements AuthenticatorSelector
 
         Authenticator selectedAuth = null;
 
-        List<Authenticator> references = BeanProvider.getContextualReferences(Authenticator.class, true);
-
-        for (Authenticator auth : references) 
-        {
+        Iterator<Authenticator> auths = authenticators.iterator();
+        while (auths.hasNext()) {
+            Authenticator auth = auths.next();
             // If the user has provided their own custom authenticator then use it
             if (isExternalAuthenticator(auth.getClass()))
             {

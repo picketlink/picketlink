@@ -39,7 +39,6 @@ import org.picketlink.authentication.event.PostLoggedOutEvent;
 import org.picketlink.authentication.event.PreAuthenticateEvent;
 import org.picketlink.authentication.event.PreLoggedOutEvent;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.deltaspike.core.util.ExceptionUtils;
 import org.picketlink.idm.model.Agent;
 
 /**
@@ -117,9 +116,7 @@ public class DefaultIdentity implements Identity
                 throw (RuntimeException)e;
             }
 
-            ExceptionUtils.throwAsRuntimeException(e);
-            //Attention: the following line is just for the compiler (and analysis tools) - it won't get executed
-            throw new IllegalStateException(e);
+            throw new RuntimeException(e);
         }
     }
 
