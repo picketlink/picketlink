@@ -29,6 +29,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Group;
@@ -43,6 +44,7 @@ import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
+import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.StoreFactory;
@@ -532,6 +534,32 @@ public class DefaultIdentityManager implements IdentityManager {
             throw MESSAGES.partitionInvalidTypeForCredential(this.context.getPartition().getClass());
         }
 
+    }
+
+    @Override
+    public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
+        checkCurrentPartitionForCredential();
+
+        IdentityStore<?> store = storeFactory.getStoreForFeature(context, FeatureGroup.credential, FeatureOperation.read);
+        if (!CredentialStore.class.isInstance(store)) {
+            throw MESSAGES.credentialInvalidCredentialStoreType(store.getClass());
+        } else {
+            CredentialStore credStore = (CredentialStore) store;
+            return credStore.retrieveCurrentCredential(this.context, agent, storageClass);
+        }
+    }
+
+    @Override
+    public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
+        checkCurrentPartitionForCredential();
+
+        IdentityStore<?> store = storeFactory.getStoreForFeature(context, FeatureGroup.credential, FeatureOperation.read);
+        if (!CredentialStore.class.isInstance(store)) {
+            throw MESSAGES.credentialInvalidCredentialStoreType(store.getClass());
+        } else {
+            CredentialStore credStore = (CredentialStore) store;
+            return credStore.retrieveCredentials(this.context, agent, storageClass);
+        }
     }
 
 }

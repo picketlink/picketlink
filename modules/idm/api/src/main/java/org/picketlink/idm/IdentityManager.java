@@ -19,8 +19,10 @@ package org.picketlink.idm;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
@@ -349,8 +351,31 @@ public interface IdentityManager extends Serializable {
      */
     void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate);
 
+    /**
+     * Returns the current stored credential value for the specific agent and credential storage class
+     *
+     * @param agent
+     * @param storageClass
+     * @return
+     */
+    <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass);
+
+    /**
+     * Returns a list of all stored credential values for the specified agent and credential storage class
+     *
+     * @param agent
+     * @param storageClass
+     * @return
+     */
+    <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass);
+
     // Attributes
 
+    /**
+     *
+     * @param identityType
+     * @param attributeName
+     */
     void loadAttribute(IdentityType identityType, String attributeName);
 
 }
