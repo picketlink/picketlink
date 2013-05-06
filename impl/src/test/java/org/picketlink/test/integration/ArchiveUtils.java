@@ -35,10 +35,9 @@ import org.jboss.shrinkwrap.resolver.api.maven.MavenDependencyResolver;
  * Utility classes to help create deployable archives during the integration tests.
  * </p>
  * <p>
- * Instead of adding the project's classes individually we add the final jar using the {@link MavenDependencyResolver}. In order
- * to do that, we need the current project version which is obtained from a system property named <i>project.version</i>. During
- * the build this property is automatically configured, but if you're running in an IDE, make sure you have this property
- * properly configured in your test execution.
+ * Instead of adding the project's classes individually we add and test the final jar using the {@link MavenDependencyResolver}.
+ * In order to do that, we need the current project version which is obtained from a system property named
+ * <i>project.version</i>.
  * </p>
  * 
  * @author Pedro Igor
@@ -52,7 +51,7 @@ public class ArchiveUtils {
                 .addAsWebInfResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"))
                 .addAsLibraries(
                         DependencyResolvers.use(MavenDependencyResolver.class).loadMetadataFromPom("pom.xml")
-                                .artifact("org.picketlink:picketlink-impl:" + System.getProperty("project.version"))
+                                .artifact("org.picketlink:picketlink-impl:" + getCurrentProjectVersion())
                                 .resolveAs(JavaArchive.class));
 
         if (classesToAdd != null) {
@@ -62,6 +61,19 @@ public class ArchiveUtils {
         }
 
         return archive;
+    }
+
+    /**
+     * <p>
+     * During the build this property is automatically configured, but if you're running in an IDE, make sure you have this
+     * property properly configured in your test execution.
+     * </p>
+     * <p>If not defined, the specified default value would be used.</p>
+     * 
+     * @return
+     */
+    private static String getCurrentProjectVersion() {
+        return System.getProperty("project.version", "3.0.0-SNAPSHOT");
     }
 
 }
