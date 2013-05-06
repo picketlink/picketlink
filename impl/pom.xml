@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.picketlink</groupId>
-        <artifactId>picketlink-parent</artifactId>
-        <version>3.0.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
+	<parent>
+		<groupId>org.picketlink</groupId>
+		<artifactId>picketlink-parent</artifactId>
+		<version>3.0.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
 
-    <artifactId>picketlink-impl</artifactId>
-    <packaging>jar</packaging>
+	<artifactId>picketlink-impl</artifactId>
+	<packaging>jar</packaging>
 
-    <name>PicketLink Main Implementation</name>
-	
+	<name>PicketLink Main Implementation</name>
+
 	<properties>
 		<weld.version>1.1.5.Final</weld.version>
 	</properties>
-	
-  <dependencyManagement>
+
+	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>org.jboss.weld</groupId>
@@ -45,10 +46,10 @@
 			<groupId>org.picketlink</groupId>
 			<artifactId>picketlink-idm-impl</artifactId>
 		</dependency>
-		
+
 		<dependency>
-		  <groupId>javax.enterprise</groupId>
-		  <artifactId>cdi-api</artifactId>
+			<groupId>javax.enterprise</groupId>
+			<artifactId>cdi-api</artifactId>
 		</dependency>
 
 		<dependency>
@@ -70,7 +71,7 @@
 		</dependency>
 
 		<!-- Test scoped dependencies -->
-		
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -140,5 +141,51 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+					<systemPropertyVariables>
+						<project.version>${project.version}</project.version>
+					</systemPropertyVariables>
+				</configuration>
+				<executions>
+					<!-- Unit tests configuration. -->
+					<execution>
+						<id>unit-tests</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<excludes>
+								<exclude>**/integration/**/*TestCase.java</exclude>
+							</excludes>
+						</configuration>
+					</execution>
+					
+					<!-- Integration tests configuration. All tests classes that belongs to a package **/integration/** will be executed. -->
+					<execution>
+						<id>integration-tests</id>
+						<phase>install</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<includes>
+								<include>**/integration/**/*TestCase.java</include>
+							</includes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

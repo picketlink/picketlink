@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.authentication;
+package org.picketlink.test.integration.authentication;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -34,16 +34,9 @@ import javax.inject.Inject;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.ArchivePaths;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.jboss.shrinkwrap.resolver.api.DependencyResolvers;
-import org.jboss.shrinkwrap.resolver.api.maven.MavenDependencyResolver;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.picketlink.Identity;
@@ -57,6 +50,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
+import org.picketlink.test.integration.ArchiveUtils;
 
 /**
  * <p>
@@ -67,7 +61,6 @@ import org.picketlink.idm.model.User;
  * 
  */
 @RunWith(Arquillian.class)
-@Ignore
 public class IDMAuthenticationTestCase {
 
     @Inject
@@ -81,16 +74,7 @@ public class IDMAuthenticationTestCase {
 
     @Deployment
     public static WebArchive createTestArchive() {
-        WebArchive archive = ShrinkWrap
-                .create(WebArchive.class, "test.war")
-                .addAsWebInfResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"))
-                .addAsLibraries(
-                        DependencyResolvers.use(MavenDependencyResolver.class).loadMetadataFromPom("pom.xml")
-                                .artifact("org.picketlink:picketlink-impl").resolveAs(JavaArchive.class));
-
-        archive.addClass(IDMAuthenticationTestCase.class);
-
-        return archive;
+        return ArchiveUtils.create(IDMAuthenticationTestCase.class);
     }
 
     @Before
