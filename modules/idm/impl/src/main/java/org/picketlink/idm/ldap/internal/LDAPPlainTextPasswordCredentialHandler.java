@@ -37,12 +37,13 @@ import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 
 /**
- * This particular implementation supports the validation of UsernamePasswordCredentials, and updating PlainTextPassword credentials.
+ * This particular implementation supports the validation of UsernamePasswordCredentials, and updating PlainTextPassword
+ * credentials.
  *
  * @author Shane Bryzak
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-@SupportsCredentials({UsernamePasswordCredentials.class, Password.class})
+@SupportsCredentials({ UsernamePasswordCredentials.class, Password.class })
 public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler {
 
     private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
@@ -68,20 +69,25 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
 
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
-            LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) identityStore;
-            LDAPUser ldapUser = ldapIdentityStore.lookupEntryById(context, LDAPUser.class, agent.getId());
-            char[] password = usernamePassword.getPassword().getValue();
+            if (agent.isEnabled()) {
+                LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) identityStore;
+                LDAPUser ldapUser = ldapIdentityStore.lookupEntryById(context, LDAPUser.class, agent.getId());
+                char[] password = usernamePassword.getPassword().getValue();
 
-            boolean isValid = ldapIdentityStore.getLDAPManager().authenticate(ldapUser.getDN(), new String(password));
+                boolean isValid = ldapIdentityStore.getLDAPManager().authenticate(ldapUser.getDN(), new String(password));
 
-            if (isValid) {
-                usernamePassword.setStatus(Status.VALID);
+                if (isValid) {
+                    usernamePassword.setStatus(Status.VALID);
+                }
+            } else {
+                usernamePassword.setStatus(Status.AGENT_DISABLED);
             }
         }
     }
 
     @Override
-    public void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
+    public void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore,
+            Date effectiveDate, Date expiryDate) {
         checkIdentityStoreInstance(identityStore);
 
         if (!Password.class.isInstance(credential)) {
@@ -113,8 +119,7 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
 
     private void checkIdentityStoreInstance(IdentityStore<?> store) {
         if (!LDAPIdentityStore.class.isInstance(store)) {
-            throw new IllegalArgumentException("IdentityStore class [" +
-                    store.getClass() + "] not supported by this handler.");
+            throw new IllegalArgumentException("IdentityStore class [" + store.getClass() + "] not supported by this handler.");
         }
     }
 

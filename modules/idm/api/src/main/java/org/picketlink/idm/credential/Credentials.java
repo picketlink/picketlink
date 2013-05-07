@@ -30,7 +30,47 @@ import org.picketlink.idm.model.Agent;
  */
 public interface Credentials {
     public enum Status {
-        UNVALIDATED, IN_PROGRESS, INVALID, VALID, EXPIRED
+        /**
+         * <p>
+         * Indicates that the credential was not validated yet.
+         * </p>
+         */
+        UNVALIDATED,
+
+        /**
+         * <p>
+         * Indicates that the credential is being validated.
+         * </p>
+         */
+        IN_PROGRESS,
+
+        /**
+         * <p>
+         * Indicates that the credential is not valid after a validation attempt.
+         * </p>
+         */
+        INVALID,
+
+        /**
+         * <p>
+         * Indicates that the credential is valid after a validation attempt.
+         * </p>
+         */
+        VALID,
+
+        /**
+         * <p>
+         * Indicates that the credential has expired.
+         * </p>
+         */
+        EXPIRED,
+
+        /**
+         * <p>
+         * Indicates that the {@link Agent} which credentials were validated is disabled.
+         * </p>
+         */
+        AGENT_DISABLED
     };
 
     /**

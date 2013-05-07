@@ -3,6 +3,7 @@ package org.picketlink.authentication.internal;
 import javax.inject.Inject;
 
 import org.picketlink.authentication.BaseAuthenticator;
+import org.picketlink.authentication.LockedAccountException;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials;
@@ -49,6 +50,8 @@ public class IdmAuthenticator extends BaseAuthenticator {
         if (Credentials.Status.VALID.equals(creds.getStatus())) {
             setStatus(AuthenticationStatus.SUCCESS);
             setUser((User) creds.getValidatedAgent());
+        } else if (Credentials.Status.AGENT_DISABLED.equals(creds.getStatus())) { 
+            throw new LockedAccountException("Agent [" + this.credentials.getUserId() + "] is disabled.");
         } else {
             setStatus(AuthenticationStatus.FAILURE);
         }
