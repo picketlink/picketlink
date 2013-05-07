@@ -54,7 +54,9 @@ import org.picketlink.idm.spi.SecurityContext;
  * default a SHA-512 encoding is performed.
  * </p>
  *
- * <p>Password are always salted before encoding.</p>
+ * <p>
+ * Password are always salted before encoding.
+ * </p>
  *
  * @author Shane Bryzak
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -107,22 +109,26 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
-            EncodedPasswordStorage hash = store.retrieveCurrentCredential(context, agent, EncodedPasswordStorage.class);
+            if (agent.isEnabled()) {
+                EncodedPasswordStorage hash = store.retrieveCurrentCredential(context, agent, EncodedPasswordStorage.class);
 
-            // If the stored hash is null we automatically fail validation
-            if (hash != null) {
-                if (!isCredentialExpired(hash)) {
-                    String rawPassword = new String(usernamePassword.getPassword().getValue());
+                // If the stored hash is null we automatically fail validation
+                if (hash != null) {
+                    if (!isCredentialExpired(hash)) {
+                        String rawPassword = new String(usernamePassword.getPassword().getValue());
 
-                    String encoded = this.passwordEncoder.encode(saltPassword(rawPassword, hash.getSalt()));
+                        String encoded = this.passwordEncoder.encode(saltPassword(rawPassword, hash.getSalt()));
 
-                    if (hash.getEncodedHash().equals(encoded)) {
-                        usernamePassword.setStatus(Status.VALID);
-                        usernamePassword.setValidatedAgent(agent);
+                        if (hash.getEncodedHash().equals(encoded)) {
+                            usernamePassword.setStatus(Status.VALID);
+                            usernamePassword.setValidatedAgent(agent);
+                        }
+                    } else {
+                        usernamePassword.setStatus(Status.EXPIRED);
                     }
-                } else {
-                    usernamePassword.setStatus(Status.EXPIRED);
                 }
+            } else {
+                usernamePassword.setStatus(Status.AGENT_DISABLED);
             }
         }
     }
