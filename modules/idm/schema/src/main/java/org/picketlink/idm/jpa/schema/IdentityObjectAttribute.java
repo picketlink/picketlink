@@ -27,17 +27,16 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import org.picketlink.idm.jpa.annotations.EntityType;
-import org.picketlink.idm.jpa.annotations.IDMEntity;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
+import org.picketlink.idm.jpa.annotations.IdentityAttribute;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
+@IdentityAttribute
 @Entity
-@IDMEntity(EntityType.IDENTITY_ATTRIBUTE)
 public class IdentityObjectAttribute implements Serializable {
 
     private static final long serialVersionUID = 3072864795743589609L;

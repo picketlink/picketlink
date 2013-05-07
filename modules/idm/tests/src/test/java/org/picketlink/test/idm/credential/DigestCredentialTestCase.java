@@ -189,6 +189,34 @@ public class DigestCredentialTestCase extends AbstractIdentityManagerTestCase {
         identityManager.validateCredentials(realmBCredentials);
 
         assertEquals(Status.INVALID, realmBCredentials.getStatus());
+    }
+    
+    @Test
+    public void testUserDisabled() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = createUser("someUser");
+        Digest digestPassword = new Digest();
 
+        digestPassword.setRealm("pl-idm");
+        digestPassword.setUsername(user.getLoginName());
+        digestPassword.setPassword("somePassword");
+        
+        identityManager.updateCredential(user, digestPassword);
+        
+        digestPassword.setDigest(DigestUtil.calculateA1(user.getLoginName(), digestPassword.getRealm(), digestPassword.getPassword().toCharArray()));
+        
+        DigestCredentials credential = new DigestCredentials(digestPassword);
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.VALID, credential.getStatus());
+        
+        user.setEnabled(false);
+        
+        identityManager.update(user);
+        
+        identityManager.validateCredentials(credential);
+        
+        assertEquals(Status.AGENT_DISABLED, credential.getStatus());
     }
 }

@@ -27,8 +27,8 @@ import java.security.cert.X509Certificate;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.credential.Credentials.Status;
+import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
@@ -74,6 +74,28 @@ public class CertificateCredentialTestCase extends AbstractIdentityManagerTestCa
         identityManager.validateCredentials(badCredential);
 
         assertEquals(Status.INVALID, badCredential.getStatus());
+    }
+    
+    @Test
+    public void testUserDisabled() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        X509Certificate clientCert = getTestingCertificate("servercert.txt");
+        X509CertificateCredentials credential = new X509CertificateCredentials(clientCert);
+
+        User user = createUser(credential.getUsername());
+
+        identityManager.updateCredential(user, clientCert);
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.VALID, credential.getStatus());
+        
+        user.setEnabled(false);
+        
+        identityManager.update(user);
+        
+        identityManager.validateCredentials(credential);
+        
+        assertEquals(Status.AGENT_DISABLED, credential.getStatus());
     }
 
     private X509Certificate getTestingCertificate(String fromTextFile) {

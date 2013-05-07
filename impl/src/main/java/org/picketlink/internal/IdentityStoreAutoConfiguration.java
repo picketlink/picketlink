@@ -9,7 +9,13 @@ import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.persistence.Entity;
 
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.jpa.annotations.IDMEntity;
+import org.picketlink.idm.jpa.annotations.CredentialAttribute;
+import org.picketlink.idm.jpa.annotations.IdentityAttribute;
+import org.picketlink.idm.jpa.annotations.IdentityCredential;
+import org.picketlink.idm.jpa.annotations.IdentityType;
+import org.picketlink.idm.jpa.annotations.Partition;
+import org.picketlink.idm.jpa.annotations.RelationshipAttribute;
+import org.picketlink.idm.jpa.annotations.RelationshipIdentity;
 
 /**
  * Automatic configuration builder for JPAIdentityStore
@@ -28,34 +34,20 @@ public class IdentityStoreAutoConfiguration implements Extension {
         if (event.getAnnotatedType().isAnnotationPresent(Entity.class)) {
             AnnotatedType<X> type = event.getAnnotatedType();
 
-            if (type.isAnnotationPresent(IDMEntity.class)) {
-                IDMEntity a = type.getAnnotation(IDMEntity.class);
-
-                switch(a.value()) { 
-                    case IDENTITY_TYPE: 
-                        jpaConfig.setIdentityClass(type.getJavaClass());
-                        break;
-                    case IDENTITY_CREDENTIAL:
-                        jpaConfig.setCredentialClass(type.getJavaClass());
-                        break;
-                    case CREDENTIAL_ATTRIBUTE:
-                        jpaConfig.setCredentialAttributeClass(type.getJavaClass());
-                    case IDENTITY_ATTRIBUTE:
-                        jpaConfig.setAttributeClass(type.getJavaClass());
-                        break;
-                    case RELATIONSHIP:
-                        jpaConfig.setRelationshipClass(type.getJavaClass());
-                        break;
-                    case RELATIONSHIP_IDENTITY:
-                        jpaConfig.setRelationshipIdentityClass(type.getJavaClass());
-                        break;
-                    case RELATIONSHIP_ATTRIBUTE:
-                        jpaConfig.setRelationshipAttributeClass(type.getJavaClass());
-                        break;
-                    case PARTITION:
-                        jpaConfig.setPartitionClass(type.getJavaClass());
-                        break;
-                }
+            if (type.isAnnotationPresent(IdentityType.class)) {
+                jpaConfig.setIdentityClass(type.getJavaClass());
+            } else if (type.isAnnotationPresent(IdentityCredential.class)) {
+                jpaConfig.setCredentialClass(type.getJavaClass());
+            } else if (type.isAnnotationPresent(CredentialAttribute.class)) {
+                jpaConfig.setCredentialAttributeClass(type.getJavaClass());
+            } else if (type.isAnnotationPresent(IdentityAttribute.class)) {
+                jpaConfig.setAttributeClass(type.getJavaClass()); 
+            } else if (type.isAnnotationPresent(RelationshipIdentity.class)) {
+                jpaConfig.setRelationshipIdentityClass(type.getJavaClass());
+            } else if (type.isAnnotationPresent(RelationshipAttribute.class)) {
+                jpaConfig.setRelationshipAttributeClass(type.getJavaClass());
+            } else if (type.isAnnotationPresent(Partition.class)) {
+                jpaConfig.setPartitionClass(type.getJavaClass());
             }
         }
     }

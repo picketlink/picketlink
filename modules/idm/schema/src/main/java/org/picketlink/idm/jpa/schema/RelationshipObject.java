@@ -23,16 +23,15 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-import org.picketlink.idm.jpa.annotations.EntityType;
-import org.picketlink.idm.jpa.annotations.IDMEntity;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
 import org.picketlink.idm.jpa.annotations.PropertyType;
+import org.picketlink.idm.jpa.annotations.Relationship;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@IDMEntity(EntityType.RELATIONSHIP)
+@Relationship
 @Entity
 public class RelationshipObject implements Serializable {
 

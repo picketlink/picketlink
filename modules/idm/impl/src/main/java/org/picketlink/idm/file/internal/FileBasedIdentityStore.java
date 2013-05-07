@@ -76,8 +76,8 @@ import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.model.annotation.RelationshipAttribute;
-import org.picketlink.idm.model.annotation.RelationshipIdentity;
+import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.model.annotation.IdentityProperty;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
@@ -545,7 +545,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         List<Property<IdentityType>> relationshipIdentityTypes = PropertyQueries
                 .<IdentityType> createQuery(clonedRelationship.getClass())
-                .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
+                .addCriteria(new AnnotatedPropertyCriteria(IdentityProperty.class)).getResultList();
 
         for (Property<IdentityType> annotatedProperty : relationshipIdentityTypes) {
             IdentityType identityType = lookupIdentityTypeById(context,
@@ -687,7 +687,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         List<Property<IdentityType>> relationshipIdentityTypes = PropertyQueries
                 .<IdentityType> createQuery(newRelationship.getClass())
-                .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
+                .addCriteria(new AnnotatedPropertyCriteria(IdentityProperty.class)).getResultList();
 
         for (Property<IdentityType> annotatedProperty : relationshipIdentityTypes) {
             annotatedProperty.setValue(newRelationship, annotatedProperty.getValue(relationship));
@@ -856,7 +856,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         List<Property<Serializable>> attributeProperties = PropertyQueries
                 .<Serializable> createQuery(fromIdentityType.getClass())
-                .addCriteria(new AnnotatedPropertyCriteria(RelationshipAttribute.class)).getResultList();
+                .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class)).getResultList();
 
         for (Property<Serializable> attributeProperty : attributeProperties) {
             attributeProperty.setValue(toIdentityType, attributeProperty.getValue(fromIdentityType));

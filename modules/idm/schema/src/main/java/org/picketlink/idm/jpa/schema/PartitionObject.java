@@ -24,17 +24,16 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-import org.picketlink.idm.jpa.annotations.EntityType;
-import org.picketlink.idm.jpa.annotations.IDMEntity;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
+import org.picketlink.idm.jpa.annotations.Partition;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
+@Partition
 @Entity
-@IDMEntity(EntityType.PARTITION)
 public class PartitionObject implements Serializable {
 
     private static final long serialVersionUID = 3488600508986507443L;

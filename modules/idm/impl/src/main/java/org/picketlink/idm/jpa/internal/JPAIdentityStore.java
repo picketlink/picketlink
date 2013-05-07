@@ -77,8 +77,8 @@ import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.model.annotation.RelationshipAttribute;
-import org.picketlink.idm.model.annotation.RelationshipIdentity;
+import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.model.annotation.IdentityProperty;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
@@ -1090,7 +1090,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      */
     private void updateRelationshipAttributes(SecurityContext context, Relationship relationship, Object identity) {
         List<Property<Serializable>> attributeProperties = PropertyQueries.<Serializable> createQuery(relationship.getClass())
-                .addCriteria(new AnnotatedPropertyCriteria(RelationshipAttribute.class)).getResultList();
+                .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class)).getResultList();
 
         for (Property<Serializable> attributeProperty : attributeProperties) {
             relationship.setAttribute(new Attribute<Serializable>(attributeProperty.getName(), attributeProperty
@@ -1219,7 +1219,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
                     List<Property<Serializable>> attributeProperties = PropertyQueries
                             .<Serializable> createQuery(relationshipType.getClass())
-                            .addCriteria(new AnnotatedPropertyCriteria(RelationshipAttribute.class)).getResultList();
+                            .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class)).getResultList();
 
                     Property<Serializable> relationshipAttributeProperty = null;
 
@@ -1282,7 +1282,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         getConfig().getModelProperty(PropertyType.RELATIONSHIP_CLASS).setValue(entity, relationship.getClass().getName());
 
         List<Property<IdentityType>> props = PropertyQueries.<IdentityType> createQuery(relationship.getClass())
-                .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
+                .addCriteria(new AnnotatedPropertyCriteria(IdentityProperty.class)).getResultList();
 
         EntityManager em = getEntityManager(context);
 

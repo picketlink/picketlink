@@ -20,9 +20,9 @@
 			<artifactId>jboss-logging-processor</artifactId>
 		</dependency>
 		<dependency>
-          <groupId>org.jboss.logging</groupId>
-          <artifactId>jboss-logging</artifactId>
-        </dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>jboss-logging</artifactId>
+    </dependency>
 	</dependencies>
 
 	<modules>

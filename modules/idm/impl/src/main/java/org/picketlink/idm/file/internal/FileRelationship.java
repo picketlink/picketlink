@@ -32,8 +32,8 @@ import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.annotation.RelationshipAttribute;
-import org.picketlink.idm.model.annotation.RelationshipIdentity;
+import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.model.annotation.IdentityProperty;
 
 /**
  * <p>
@@ -66,7 +66,7 @@ public class FileRelationship extends AbstractAttributedTypeEntry<Relationship> 
 
         List<Property<IdentityType>> relationshipIdentityTypes = PropertyQueries
                 .<IdentityType> createQuery(getEntry().getClass())
-                .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
+                .addCriteria(new AnnotatedPropertyCriteria(IdentityProperty.class)).getResultList();
 
         for (Property<IdentityType> annotatedProperty : relationshipIdentityTypes) {
             IdentityType identityType = annotatedProperty.getValue(getEntry());
@@ -78,7 +78,7 @@ public class FileRelationship extends AbstractAttributedTypeEntry<Relationship> 
 
         List<Property<Serializable>> relationshipAttributeTypes = PropertyQueries
                 .<Serializable> createQuery(getEntry().getClass())
-                .addCriteria(new AnnotatedPropertyCriteria(RelationshipAttribute.class)).getResultList();
+                .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class)).getResultList();
 
         for (Property<Serializable> property : relationshipAttributeTypes) {
             properties.put(property.getName(), property.getValue(getEntry()));
@@ -102,7 +102,7 @@ public class FileRelationship extends AbstractAttributedTypeEntry<Relationship> 
 
         List<Property<Serializable>> relationshipAttributeTypes = PropertyQueries
                 .<Serializable> createQuery(relationship.getClass())
-                .addCriteria(new AnnotatedPropertyCriteria(RelationshipAttribute.class)).getResultList();
+                .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class)).getResultList();
 
         for (Property<Serializable> property : relationshipAttributeTypes) {
             property.setValue(relationship, properties.get(property.getName()));

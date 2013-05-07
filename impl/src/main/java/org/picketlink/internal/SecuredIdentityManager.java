@@ -19,11 +19,13 @@
 package org.picketlink.internal;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.enterprise.inject.Typed;
 
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
@@ -182,5 +184,15 @@ public class SecuredIdentityManager implements IdentityManager {
     @Override
     public void loadAttribute(IdentityType identityType, String attributeName) { 
         decorated.loadAttribute(identityType, attributeName);
+    }
+
+    @Override
+    public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
+        return decorated.retrieveCurrentCredential(agent, storageClass);
+    }
+
+    @Override
+    public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
+        return decorated.retrieveCredentials(agent, storageClass);
     }
 }
