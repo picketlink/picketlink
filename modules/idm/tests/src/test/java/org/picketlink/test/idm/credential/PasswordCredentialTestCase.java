@@ -201,4 +201,31 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         
         identityManager.validateCredentials(johnCredential);
     }
+    
+    @Test
+    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
+    public void testUserDisabled() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = createUser("someUser");
+        Password plainTextPassword = new Password("updated_password".toCharArray());
+
+        identityManager.updateCredential(user, plainTextPassword);
+
+        UsernamePasswordCredentials credential = new UsernamePasswordCredentials();
+
+        credential.setUsername(user.getLoginName());
+        credential.setPassword(plainTextPassword);
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.VALID, credential.getStatus());
+        
+        user.setEnabled(false);
+        
+        identityManager.update(user);
+        
+        identityManager.validateCredentials(credential);
+        
+        assertEquals(Status.AGENT_DISABLED, credential.getStatus());
+    }
 }

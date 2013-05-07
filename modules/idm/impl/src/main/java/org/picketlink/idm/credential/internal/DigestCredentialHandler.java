@@ -78,37 +78,41 @@ public class DigestCredentialHandler implements CredentialHandler {
         Agent agent = identityStore.getAgent(context, digest.getUsername());
 
         if (agent != null) {
-            List<DigestCredentialStorage> storages = credentialStore.retrieveCredentials(context, agent,
-                    DigestCredentialStorage.class);
-            DigestCredentialStorage currentCredential = null;
+            if (agent.isEnabled()) {
+                List<DigestCredentialStorage> storages = credentialStore.retrieveCredentials(context, agent,
+                        DigestCredentialStorage.class);
+                DigestCredentialStorage currentCredential = null;
 
-            for (DigestCredentialStorage storage : storages) {
-                if (storage.getRealm().equals(digest.getRealm()) && isCurrentCredential(storage)) {
-                    currentCredential = storage;
-                    break;
-                }
-            }
-
-            if (currentCredential != null) {
-                if (digest.getMethod() != null && digest.getUri() != null) {
-                    byte[] storedHA1 = currentCredential.getHa1();
-                    byte[] ha2 = calculateA2(digest.getMethod(), digest.getUri());
-
-                    String calculateDigest = calculateDigest(digest, storedHA1, ha2);
-
-                    if (calculateDigest.equals(digest.getDigest())) {
-                        digestCredential.setStatus(Status.VALID);
-                    }
-                } else {
-                    String storedDigestPassword = Base64.encodeBytes(currentCredential.getHa1());
-                    String providedDigest = digest.getDigest();
-
-                    if (String.valueOf(storedDigestPassword).equals(providedDigest)) {
-                        digestCredential.setStatus(Status.VALID);
+                for (DigestCredentialStorage storage : storages) {
+                    if (storage.getRealm().equals(digest.getRealm()) && isCurrentCredential(storage)) {
+                        currentCredential = storage;
+                        break;
                     }
                 }
-            } else if (isLastCredentialExpired(context, agent, credentialStore, DigestCredentialStorage.class)) {
-                digestCredential.setStatus(Status.EXPIRED);
+
+                if (currentCredential != null) {
+                    if (digest.getMethod() != null && digest.getUri() != null) {
+                        byte[] storedHA1 = currentCredential.getHa1();
+                        byte[] ha2 = calculateA2(digest.getMethod(), digest.getUri());
+
+                        String calculateDigest = calculateDigest(digest, storedHA1, ha2);
+
+                        if (calculateDigest.equals(digest.getDigest())) {
+                            digestCredential.setStatus(Status.VALID);
+                        }
+                    } else {
+                        String storedDigestPassword = Base64.encodeBytes(currentCredential.getHa1());
+                        String providedDigest = digest.getDigest();
+
+                        if (String.valueOf(storedDigestPassword).equals(providedDigest)) {
+                            digestCredential.setStatus(Status.VALID);
+                        }
+                    }
+                } else if (isLastCredentialExpired(context, agent, credentialStore, DigestCredentialStorage.class)) {
+                    digestCredential.setStatus(Status.EXPIRED);
+                }
+            } else {
+                digestCredential.setStatus(Status.AGENT_DISABLED);
             }
 
             if (digestCredential.getStatus().equals(Status.VALID)) {
@@ -118,7 +122,8 @@ public class DigestCredentialHandler implements CredentialHandler {
     }
 
     @Override
-    public void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
+    public void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore,
+            Date effectiveDate, Date expiryDate) {
         CredentialStore credentialStore = validateCredentialStore(identityStore);
 
         if (!Digest.class.isInstance(credential)) {
@@ -153,4 +158,5 @@ public class DigestCredentialHandler implements CredentialHandler {
             return (CredentialStore) identityStore;
         }
     }
+
 }

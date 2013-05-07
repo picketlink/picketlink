@@ -18,10 +18,9 @@
 
 package org.picketlink.authentication;
 
-import org.picketlink.idm.model.Agent;
 
 /**
- * 
+ * <p>Thrown during the authentication process to indicate that the agent being validated is disabled.</p> 
  * 
  * @author Pedro Igor
  * 
@@ -29,14 +28,9 @@ import org.picketlink.idm.model.Agent;
 public class LockedAccountException extends AuthenticationException {
 
     private static final long serialVersionUID = -1555087586933373287L;
-    private Agent lockedAccount;
 
-    public LockedAccountException(Agent agent) {
-        super("Agent is disabled.");
-        this.lockedAccount = agent;
+    public LockedAccountException(String message) {
+        super(message);
     }
     
-    public Agent getLockedAccount() {
-        return this.lockedAccount;
-    }
 }

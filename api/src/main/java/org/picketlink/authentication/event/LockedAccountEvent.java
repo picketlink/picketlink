@@ -18,23 +18,16 @@
 
 package org.picketlink.authentication.event;
 
-import org.picketlink.idm.model.Agent;
 
 /**
- * This event is fired when an already authenticated user attempts to authenticate again
+ * <p>This event is fired during the authentication process if the agent is disabled.</p>
  * 
  * @author Shane Bryzak
+ * @author Pedro Igor
  */
-public class LockedAccountEvent 
-{
+public class LockedAccountEvent {
 
-    private Agent lockedAccount;
+    public LockedAccountEvent() {
+    }
 
-    public LockedAccountEvent(Agent lockedAccount) {
-        this.lockedAccount = lockedAccount;
-    }
-    
-    public Agent getLockedAccount() {
-        return this.lockedAccount;
-    }
 }
