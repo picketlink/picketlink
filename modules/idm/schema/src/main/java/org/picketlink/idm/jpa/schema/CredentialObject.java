@@ -28,17 +28,16 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.picketlink.idm.jpa.annotations.EntityType;
-import org.picketlink.idm.jpa.annotations.IDMEntity;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
+import org.picketlink.idm.jpa.annotations.IdentityCredential;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
+@IdentityCredential
 @Entity
-@IDMEntity(EntityType.IDENTITY_CREDENTIAL)
 public class CredentialObject implements Serializable {
 
     private static final long serialVersionUID = -5133066075760567565L;

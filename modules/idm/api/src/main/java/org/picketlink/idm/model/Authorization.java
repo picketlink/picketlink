@@ -18,8 +18,8 @@
 
 package org.picketlink.idm.model;
 
-import org.picketlink.idm.model.annotation.RelationshipAttribute;
-import org.picketlink.idm.model.annotation.RelationshipIdentity;
+import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.model.annotation.IdentityProperty;
 import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
@@ -64,7 +64,7 @@ public class Authorization extends AbstractAttributedType implements Relationshi
         this.application = application;
     }
 
-    @RelationshipIdentity
+    @IdentityProperty
     public User getUser() {
         return user;
     }
@@ -73,7 +73,7 @@ public class Authorization extends AbstractAttributedType implements Relationshi
         this.user = user;
     }
 
-    @RelationshipIdentity
+    @IdentityProperty
     public Agent getApplication() {
         return application;
     }
@@ -82,7 +82,7 @@ public class Authorization extends AbstractAttributedType implements Relationshi
         this.application = application;
     }
 
-    @RelationshipAttribute
+    @AttributeProperty
     public String getAuthorizationCode() {
         return authorizationCode;
     }
@@ -91,7 +91,7 @@ public class Authorization extends AbstractAttributedType implements Relationshi
         this.authorizationCode = authorizationCode;
     }
 
-    @RelationshipAttribute
+    @AttributeProperty
     public String getAccessToken() {
         return accessToken;
     }
@@ -100,7 +100,7 @@ public class Authorization extends AbstractAttributedType implements Relationshi
         this.accessToken = accessToken;
     }
 
-    @RelationshipAttribute
+    @AttributeProperty
     public String getRefreshToken() {
         return refreshToken;
     }

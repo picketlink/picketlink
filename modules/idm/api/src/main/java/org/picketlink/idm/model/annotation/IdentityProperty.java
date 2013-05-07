@@ -16,44 +16,25 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.jpa.annotations;
+package org.picketlink.idm.model.annotation;
+
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /**
- * This enum defines the valid entity types that may be used to store Identity Management state
+ * Marks the property of a Relationship as an identity that participates in the relationship.
  *
  * @author Shane Bryzak
+ *
  */
-public enum EntityType {
-    /**
-     *
-     */
-    IDENTITY_TYPE,
-    /**
-     *
-     */
-    IDENTITY_CREDENTIAL,
-    /**
-     *
-     */
-    CREDENTIAL_ATTRIBUTE,
-    /**
-     *
-     */
-    IDENTITY_ATTRIBUTE,
-    /**
-     *
-     */
-    RELATIONSHIP,
-    /**
-     *
-     */
-    RELATIONSHIP_IDENTITY,
-    /**
-     *
-     */
-    RELATIONSHIP_ATTRIBUTE,
-    /**
-     *
-     */
-    PARTITION
-}
+@Target({METHOD, FIELD})
+@Documented
+@Retention(RUNTIME)
+@Inherited
+public @interface IdentityProperty { }

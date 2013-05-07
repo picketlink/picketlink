@@ -27,9 +27,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.picketlink.idm.jpa.annotations.EntityType;
-import org.picketlink.idm.jpa.annotations.IDMEntity;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
+import org.picketlink.idm.jpa.annotations.IdentityType;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 
 /**
@@ -38,7 +37,7 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@IDMEntity(EntityType.IDENTITY_TYPE)
+@IdentityType
 @Entity
 public class IdentityObject implements Serializable {
 

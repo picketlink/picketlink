@@ -17,7 +17,7 @@
  */
 package org.picketlink.idm.model;
 
-import org.picketlink.idm.model.annotation.RelationshipIdentity;
+import org.picketlink.idm.model.annotation.IdentityProperty;
 import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
@@ -48,7 +48,7 @@ public class GroupRole extends Grant implements Relationship {
         this.group = group;
     }
 
-    @RelationshipIdentity
+    @IdentityProperty
     public Group getGroup() {
         return group;
     }

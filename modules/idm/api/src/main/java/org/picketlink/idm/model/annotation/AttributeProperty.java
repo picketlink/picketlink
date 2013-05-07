@@ -28,7 +28,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Marks the property of a Relationship as an identity that participates in the relationship.
+ * Marks a property of a Relationship as being an attribute of that Relationship.
  *
  * @author Shane Bryzak
  *
@@ -37,4 +37,4 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RUNTIME)
 @Inherited
-public @interface RelationshipIdentity { }
+public @interface AttributeProperty { }

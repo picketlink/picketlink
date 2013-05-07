@@ -18,7 +18,7 @@
 
 package org.picketlink.idm.model;
 
-import org.picketlink.idm.model.annotation.RelationshipIdentity;
+import org.picketlink.idm.model.annotation.IdentityProperty;
 import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
@@ -57,7 +57,7 @@ public class Grant extends AbstractAttributedType implements Relationship {
         this.role = role;
     }
 
-    @RelationshipIdentity
+    @IdentityProperty
     public IdentityType getAssignee() {
         return assignee;
     }
@@ -66,7 +66,7 @@ public class Grant extends AbstractAttributedType implements Relationship {
         this.assignee = assignee;
     }
 
-    @RelationshipIdentity
+    @IdentityProperty
     public Role getRole() {
         return role;
     }

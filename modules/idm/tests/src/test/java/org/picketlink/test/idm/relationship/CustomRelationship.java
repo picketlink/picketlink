@@ -21,8 +21,8 @@ package org.picketlink.test.idm.relationship;
 import org.picketlink.idm.model.AbstractAttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.annotation.RelationshipAttribute;
-import org.picketlink.idm.model.annotation.RelationshipIdentity;
+import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.model.annotation.IdentityProperty;
 import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
@@ -65,7 +65,7 @@ public class CustomRelationship extends AbstractAttributedType implements Relati
     private String attributeB;
     private String attributeC;
 
-    @RelationshipIdentity
+    @IdentityProperty
     public IdentityType getIdentityTypeA() {
         return this.identityTypeA;
     }
@@ -74,7 +74,7 @@ public class CustomRelationship extends AbstractAttributedType implements Relati
         this.identityTypeA = identityTypeA;
     }
 
-    @RelationshipIdentity
+    @IdentityProperty
     public IdentityType getIdentityTypeB() {
         return this.identityTypeB;
     }
@@ -83,7 +83,7 @@ public class CustomRelationship extends AbstractAttributedType implements Relati
         this.identityTypeB = identityTypeB;
     }
 
-    @RelationshipIdentity
+    @IdentityProperty
     public IdentityType getIdentityTypeC() {
         return this.identityTypeC;
     }
@@ -92,7 +92,7 @@ public class CustomRelationship extends AbstractAttributedType implements Relati
         this.identityTypeC = identityTypeC;
     }
 
-    @RelationshipAttribute
+    @AttributeProperty
     public String getAttributeA() {
         return this.attributeA;
     }
@@ -101,7 +101,7 @@ public class CustomRelationship extends AbstractAttributedType implements Relati
         this.attributeA = attributeA;
     }
 
-    @RelationshipAttribute
+    @AttributeProperty
     public String getAttributeB() {
         return this.attributeB;
     }
@@ -110,7 +110,7 @@ public class CustomRelationship extends AbstractAttributedType implements Relati
         this.attributeB = attributeB;
     }
 
-    @RelationshipAttribute
+    @AttributeProperty
     public String getAttributeC() {
         return this.attributeC;
     }
