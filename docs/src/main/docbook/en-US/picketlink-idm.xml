@@ -118,81 +118,7 @@
       </itemizedlist>
       
     </section>
-    
-    <section>
-      <title>Multi Realm Support</title>
-      
-      <para>
-        PicketLink has been designed from the ground up to support a system of <emphasis>partitioning</emphasis>, allowing the
-        users, groups and roles of an application to be divided into <emphasis>Realms</emphasis> and <emphasis>Tiers</emphasis>.
-      </para>
-           
-      <mediaobject>
-        <imageobject role="fo">
-          <imagedata fileref="diagrams/realm_tier.png" align="center" scalefit="1"/>
-        </imageobject>
-        <imageobject role="html">
-          <imagedata fileref="diagrams/realm_tier.png" align="center"/>
-        </imageobject>
-      </mediaobject>   
-      
-      <para>
-        A <emphasis>Realm</emphasis> is used to define a discrete set of users, groups and roles.  A typical use case for realms
-        is the segregation of corporate user accounts within a multi-tenant application, although it is not limited this use case only.
-        As all identity management operations must be performed within the context of an <emphasis>active partition</emphasis>, 
-        PicketLink defines the concept of a <emphasis>default realm</emphasis> which becomes the active partition if no other 
-        partition has been specified.
-      </para>
-      
-      <para>
-        A <emphasis>Tier</emphasis> is a more restrictive type of partition than a realm, as it only allows groups and roles to be 
-        defined (but not users).  A Tier may be used to define a set of application-specific groups and roles, which may then be 
-        assigned to groups within the same Tier, or to users and groups within a separate Realm.
-      </para>
-      
-      <para>
-        In terms of API, both the <code>Realm</code> and <code>Tier</code> classes implement the <code>Partition</code> interface,
-        as shown in the following class diagram:
-      </para>
-      
-      <mediaobject>
-        <imageobject role="fo">
-          <imagedata fileref="diagrams/partition.png" align="center" scalefit="1"/>
-        </imageobject>
-        <imageobject role="html">
-          <imagedata fileref="diagrams/partition.png" align="center"/>
-        </imageobject>
-      </mediaobject> 
-      
-      <para>
-        Selecting the specific partition that the identity management operations are performed in is controlled by specifying 
-        the partition when creating the <code>IdentityManager</code> via the <code>IdentityManagerFactory</code>'s overloaded 
-        <code>createIdentityManager()</code> methods:
-      </para>
-      
-      <programlisting language="JAVA"><![CDATA[  IdentityManager createIdentityManager();
-  IdentityManager createIdentityManager(Partition partition);]]></programlisting>
-  
-      <para>
-        The first method (without parameters) will create an <code>IdentityManager</code> instance for the default realm.  The
-        second parameter allows a <code>Partition</code> object to be specified.  Once the <code>IdentityManager</code> has been
-        created, any identity management methods invoked on it will be performed within the selected partition.  To look up the 
-        partition object, the <code>IdentityManagerFactory</code> provides two additional methods:
-      </para>
-      
-      <programlisting language="JAVA"><![CDATA[  Realm getRealm(String id);
-  Tier getTier(String id);]]></programlisting>
-  
-      <para>
-        Here's an example demonstrating how a new user called "bob" is created in a realm called <emphasis>acme</emphasis>:
-      </para>
-      
-      <programlisting language="JAVA"><![CDATA[  Realm acme = identityManagerFactory.getRealm("acme");
-  IdentityManager im = identityManagerFactory.createIdentityManager(acme);
-  im.add(new SimpleUser("bob"));]]></programlisting>
-      
-    </section>
-       
+          
     <section>
       <title>Configuration</title>
     
@@ -2097,6 +2023,85 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         </para>
       </section>
 
+    </section>
+    
+    <section>
+      <title>Advanced Topics</title>
+      
+      <section>
+        <title>Multi Realm Support</title>
+        
+        <para>
+          PicketLink has been designed from the ground up to support a system of <emphasis>partitioning</emphasis>, allowing the
+          users, groups and roles of an application to be divided into <emphasis>Realms</emphasis> and <emphasis>Tiers</emphasis>.
+        </para>
+             
+        <mediaobject>
+          <imageobject role="fo">
+            <imagedata fileref="diagrams/realm_tier.png" align="center" scalefit="1"/>
+          </imageobject>
+          <imageobject role="html">
+            <imagedata fileref="diagrams/realm_tier.png" align="center"/>
+          </imageobject>
+        </mediaobject>   
+        
+        <para>
+          A <emphasis>Realm</emphasis> is used to define a discrete set of users, groups and roles.  A typical use case for realms
+          is the segregation of corporate user accounts within a multi-tenant application, although it is not limited this use case only.
+          As all identity management operations must be performed within the context of an <emphasis>active partition</emphasis>, 
+          PicketLink defines the concept of a <emphasis>default realm</emphasis> which becomes the active partition if no other 
+          partition has been specified.
+        </para>
+        
+        <para>
+          A <emphasis>Tier</emphasis> is a more restrictive type of partition than a realm, as it only allows groups and roles to be 
+          defined (but not users).  A Tier may be used to define a set of application-specific groups and roles, which may then be 
+          assigned to groups within the same Tier, or to users and groups within a separate Realm.
+        </para>
+        
+        <para>
+          In terms of API, both the <code>Realm</code> and <code>Tier</code> classes implement the <code>Partition</code> interface,
+          as shown in the following class diagram:
+        </para>
+        
+        <mediaobject>
+          <imageobject role="fo">
+            <imagedata fileref="diagrams/partition.png" align="center" scalefit="1"/>
+          </imageobject>
+          <imageobject role="html">
+            <imagedata fileref="diagrams/partition.png" align="center"/>
+          </imageobject>
+        </mediaobject> 
+        
+        <para>
+          Selecting the specific partition that the identity management operations are performed in is controlled by specifying 
+          the partition when creating the <code>IdentityManager</code> via the <code>IdentityManagerFactory</code>'s overloaded 
+          <code>createIdentityManager()</code> methods:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  IdentityManager createIdentityManager();
+    IdentityManager createIdentityManager(Partition partition);]]></programlisting>
+    
+        <para>
+          The first method (without parameters) will create an <code>IdentityManager</code> instance for the default realm.  The
+          second parameter allows a <code>Partition</code> object to be specified.  Once the <code>IdentityManager</code> has been
+          created, any identity management methods invoked on it will be performed within the selected partition.  To look up the 
+          partition object, the <code>IdentityManagerFactory</code> provides two additional methods:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  Realm getRealm(String id);
+    Tier getTier(String id);]]></programlisting>
+    
+        <para>
+          Here's an example demonstrating how a new user called "bob" is created in a realm called <emphasis>acme</emphasis>:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  Realm acme = identityManagerFactory.getRealm("acme");
+    IdentityManager im = identityManagerFactory.createIdentityManager(acme);
+    im.add(new SimpleUser("bob"));]]></programlisting>
+        
+      </section>      
+      
     </section>
 
 </chapter>
