@@ -1,0 +1,49 @@
+<PicketLink xmlns="urn:picketlink:identity-federation:config:2.1">
+	<PicketLinkIDP xmlns="urn:picketlink:identity-federation:config:1.0"
+		StrictPostBinding="false" SupportsSignatures="true"
+		IdentityParticipantStack="org.picketlink.test.identity.federation.bindings.authenticators.idp.TestIdentityParticipantStack"
+		RoleGenerator="org.picketlink.test.identity.federation.bindings.authenticators.idp.TestRoleGenerator">
+		<IdentityURL>${idp-sig.url::http://192.168.1.1:8080/idp-sig/}
+		</IdentityURL>
+		<Trust>
+			<Domains>192.168.1.1, 192.168.1.2, 192.168.1.4</Domains>
+		</Trust>
+		<KeyProvider
+			ClassName="org.picketlink.identity.federation.core.impl.KeyStoreKeyManager">
+			<Auth Key="KeyStoreURL"
+				Value="saml2/redirect/idp-sig/WEB-INF/jbid_test_keystore.jks" />
+			<Auth Key="KeyStorePass" Value="MASK-O1P+U1Domeec8lCaoIkTGg==" />
+			<Auth Key="SigningKeyPass" Value="MASK-AJbh4WmHwy8=" />
+			<Auth Key="SigningKeyAlias" Value="servercert" />
+			<Auth Key="salt" Value="18273645" />
+			<Auth Key="iterationCount" Value="11" />
+			<ValidatingAlias Key="192.168.1.1" Value="servercert" />
+			<ValidatingAlias Key="192.168.1.2" Value="servercert" />
+			<ValidatingAlias Key="192.168.1.4" Value="servercert" />
+			<ValidatingAlias Key="192.168.1.5" Value="servercert" />
+		</KeyProvider>
+	</PicketLinkIDP>
+	<PicketLinkSTS xmlns="urn:picketlink:identity-federation:config:1.0"
+		TokenTimeout="1000" ClockSkew="1000">
+		<TokenProviders>
+			<TokenProvider
+				ProviderClass="org.picketlink.identity.federation.core.saml.v2.providers.SAML20AssertionTokenProvider"
+				TokenType="urn:oasis:names:tc:SAML:2.0:assertion" TokenElement="Assertion"
+				TokenElementNS="urn:oasis:names:tc:SAML:2.0:assertion" />
+		</TokenProviders>
+	</PicketLinkSTS>
+	<Handlers xmlns="urn:picketlink:identity-federation:handler:config:1.0">
+		<Handler
+			class="org.picketlink.identity.federation.web.handlers.saml2.SAML2IssuerTrustHandler" />
+		<Handler
+			class="org.picketlink.identity.federation.web.handlers.saml2.SAML2SignatureValidationHandler" />
+		<Handler
+			class="org.picketlink.identity.federation.web.handlers.saml2.SAML2LogOutHandler" />
+		<Handler
+			class="org.picketlink.identity.federation.web.handlers.saml2.RolesGenerationHandler" />
+		<Handler
+			class="org.picketlink.identity.federation.web.handlers.saml2.SAML2AuthenticationHandler" />
+		<Handler
+			class="org.picketlink.identity.federation.web.handlers.saml2.SAML2SignatureGenerationHandler" />
+	</Handlers>
+</PicketLink>

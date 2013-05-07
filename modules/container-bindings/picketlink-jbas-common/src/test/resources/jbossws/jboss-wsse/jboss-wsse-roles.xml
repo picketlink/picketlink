@@ -1,0 +1,10 @@
+<jboss-ws-security>
+  
+  <config>
+    <authorize>      
+      <role>friend</role>
+      <role>family</role>
+    </authorize>
+  </config>
+  
+</jboss-ws-security>

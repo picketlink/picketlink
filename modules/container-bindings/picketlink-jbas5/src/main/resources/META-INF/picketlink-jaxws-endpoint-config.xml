@@ -1,0 +1,16 @@
+<endpoint-config>
+	<config-name>SAML WSSecurity Endpoint</config-name>
+	<post-handler-chains>
+		<javaee:handler-chain>
+			<javaee:protocol-bindings>##SOAP11_HTTP ##SOAP11_HTTP_MTOM</javaee:protocol-bindings>
+			<javaee:handler>
+				<javaee:handler-name>SAML WSSecurity Handler</javaee:handler-name>
+				<javaee:handler-class>org.picketlink.trust.jbossws.handler.SAML2Handler</javaee:handler-class>
+			</javaee:handler>
+			<javaee:handler>
+				<javaee:handler-name>Recording Handler</javaee:handler-name>
+				<javaee:handler-class>org.jboss.wsf.framework.invocation.RecordingServerHandler</javaee:handler-class>
+			</javaee:handler>
+		</javaee:handler-chain>
+	</post-handler-chains>
+</endpoint-config>

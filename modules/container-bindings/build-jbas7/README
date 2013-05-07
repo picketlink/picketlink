@@ -1,0 +1,5 @@
+This assembly should build code that has everything in:
+Tomcat 5
+Tomcat Common
+JBoss Common
+JBoss AS 7

@@ -1,0 +1,229 @@
+<samlp:Response Destination="https://201.000.000.00/gctxyz" InResponseTo="ID_76b05a86-993e-4ba4-83b6-e0fe7d292e78"
+
+                IssueInstant="2011-02-21T17:35:08.182Z" ID="o5x7YnbyTo.XL_47-oLmZwgUgpP" Version="2.0"
+
+                xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol">
+
+    <saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">https://test.xyz.com</saml:Issuer>
+
+    <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+
+        <ds:SignedInfo>
+
+            <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+
+            <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+
+            <ds:Reference URI="#o5x7YnbyTo.XL_47-oLmZwgUgpP">
+
+                <ds:Transforms>
+
+                    <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+
+                    <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+
+                </ds:Transforms>
+
+                <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+
+                <ds:DigestValue>joOnzlFL1squOg8uAb5fLcA9x0s=</ds:DigestValue>
+
+            </ds:Reference>
+
+        </ds:SignedInfo>
+
+        <ds:SignatureValue>
+
+            ...
+
+        </ds:SignatureValue>
+
+        <ds:KeyInfo>
+
+            <ds:X509Data>
+
+                <ds:X509Certificate>
+
+                    ...
+
+                </ds:X509Certificate>
+
+            </ds:X509Data>
+
+            <ds:KeyValue>
+
+                <ds:RSAKeyValue>
+
+                    <ds:Modulus>
+
+                        ...
+
+                    </ds:Modulus>
+
+                    <ds:Exponent>AQAB</ds:Exponent>
+
+                </ds:RSAKeyValue>
+
+            </ds:KeyValue>
+
+        </ds:KeyInfo>
+
+    </ds:Signature>
+
+    <samlp:Status>
+
+        <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
+
+    </samlp:Status>
+
+    <saml:Assertion Version="2.0" IssueInstant="2011-02-21T17:35:08.196Z" ID="RM9ViMLu.M-ejey1FVNCeeIBws."
+
+                    xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+
+        <saml:Issuer>https://test.xyz.com</saml:Issuer>
+
+        <saml:Subject>
+
+            <saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">asptest</saml:NameID>
+
+            <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+
+                <saml:SubjectConfirmationData InResponseTo="ID_76b05a86-993e-4ba4-83b6-e0fe7d292e78"
+
+                                              NotOnOrAfter="2023-02-21T17:40:08.196Z"
+
+                                              Recipient="https://201.000.000.00/gctxyz"/>
+
+            </saml:SubjectConfirmation>
+
+        </saml:Subject>
+
+        <saml:Conditions NotOnOrAfter="2023-02-21T17:40:08.196Z" NotBefore="2011-02-21T17:30:08.196Z">
+
+            <saml:AudienceRestriction>
+
+                <saml:Audience>https://201.000.000.00/gctxyz</saml:Audience>
+
+            </saml:AudienceRestriction>
+
+        </saml:Conditions>
+
+        <saml:AuthnStatement AuthnInstant="2011-02-21T17:35:08.195Z" SessionIndex="RM9ViMLu.M-ejey1FVNCeeIBws.">
+
+            <saml:AuthnContext>
+
+                <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified
+
+                </saml:AuthnContextClassRef>
+
+            </saml:AuthnContext>
+
+        </saml:AuthnStatement>
+
+        <saml:AttributeStatement xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+            <saml:Attribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified" Name="street">
+
+                <saml:AttributeValue xsi:type="xs:string" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+                    asptest_street
+
+                </saml:AttributeValue>
+
+            </saml:Attribute>
+
+            <saml:Attribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified" Name="zipcode">
+
+                <saml:AttributeValue xsi:type="xs:string" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+                    asptest_zipcode
+
+                </saml:AttributeValue>
+
+            </saml:Attribute>
+
+            <saml:Attribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified" Name="state">
+
+                <saml:AttributeValue xsi:type="xs:string" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+                    asptest_state
+
+                </saml:AttributeValue>
+
+            </saml:Attribute>
+
+            <saml:Attribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified" Name="lastname">
+
+                <saml:AttributeValue xsi:type="xs:string" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+                    asptest_lastname
+
+                </saml:AttributeValue>
+
+            </saml:Attribute>
+
+            <saml:Attribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified" Name="firstname">
+
+                <saml:AttributeValue xsi:type="xs:string" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+                    asptest_firstname
+
+                </saml:AttributeValue>
+
+            </saml:Attribute>
+
+            <saml:Attribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified" Name="billtoid">
+
+                <saml:AttributeValue xsi:type="xs:string" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+                    asptest_billtoid
+
+                </saml:AttributeValue>
+
+            </saml:Attribute>
+
+            <saml:Attribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified" Name="telephonenumber">
+
+                <saml:AttributeValue xsi:type="xs:string" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+                    asptest_telephonenumber
+
+                </saml:AttributeValue>
+
+            </saml:Attribute>
+
+            <saml:Attribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified" Name="city">
+
+                <saml:AttributeValue xsi:type="xs:string" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+                    asptest_city
+
+                </saml:AttributeValue>
+
+            </saml:Attribute>
+
+            <saml:Attribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified" Name="email">
+
+                <saml:AttributeValue xsi:type="xs:string" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+                    asptest_email
+
+                </saml:AttributeValue>
+
+            </saml:Attribute>
+
+            <saml:Attribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified" Name="contractnumber">
+
+                <saml:AttributeValue xsi:type="xs:string" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+                    asptest_contractnumber
+
+                </saml:AttributeValue>
+
+            </saml:Attribute>
+
+        </saml:AttributeStatement>
+
+    </saml:Assertion>
+
+</samlp:Response>

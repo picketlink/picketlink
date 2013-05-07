@@ -1,0 +1,35 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.picketlink</groupId>
+    <artifactId>picketlink-fed-parent</artifactId>
+    <version>2.1.7-SNAPSHOT</version>
+    <relativePath>../../parent</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.picketlink.distribution</groupId>
+  <artifactId>picketlink-tomcat5</artifactId>
+  <packaging>pom</packaging>
+  <name>PicketLink Federation- Assembly - Tomcat5/6</name>
+  <url>http://www.picketlink.org/</url>
+  <description>PicketLink Federation</description>
+  <licenses>
+    <license>
+      <name>lgpl</name>
+      <url>http://repository.jboss.com/licenses/lgpl.txt</url>
+    </license>
+  </licenses>
+  <organization>
+    <name>JBoss Inc.</name>
+    <url>http://www.jboss.org</url>
+  </organization>
+    
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+  
+</project>
