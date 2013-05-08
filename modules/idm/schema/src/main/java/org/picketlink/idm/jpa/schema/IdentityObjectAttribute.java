@@ -27,9 +27,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import org.picketlink.idm.jpa.annotations.IDMProperty;
+import org.picketlink.idm.jpa.annotations.AttributeName;
+import org.picketlink.idm.jpa.annotations.AttributeType;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.IdentityAttribute;
-import org.picketlink.idm.jpa.annotations.PropertyType;
+import org.picketlink.idm.jpa.annotations.Parent;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -47,17 +49,17 @@ public class IdentityObjectAttribute implements Serializable {
 
     @ManyToOne
     @JoinColumn
-    @IDMProperty (PropertyType.ATTRIBUTE_IDENTITY)
+    @Parent
     private IdentityObject identityObject;
 
-    @IDMProperty(PropertyType.ATTRIBUTE_NAME)
+    @AttributeName
     private String name;
 
-    @IDMProperty(PropertyType.ATTRIBUTE_VALUE)
+    @AttributeValue
     @Column (length=1024)
     private String value;
 
-    @IDMProperty(PropertyType.ATTRIBUTE_TYPE)
+    @AttributeType
     private String type;
 
     public Long getId() {

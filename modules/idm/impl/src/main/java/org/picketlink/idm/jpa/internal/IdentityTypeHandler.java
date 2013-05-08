@@ -37,9 +37,9 @@ import javax.persistence.criteria.Subquery;
 
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.internal.util.IDMUtil;
-import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.AttributedType.AttributeParameter;
 import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Group;

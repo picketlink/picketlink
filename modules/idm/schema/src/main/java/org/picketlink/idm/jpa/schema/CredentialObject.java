@@ -28,9 +28,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.picketlink.idm.jpa.annotations.IDMProperty;
+import org.picketlink.idm.jpa.annotations.CredentialType;
+import org.picketlink.idm.jpa.annotations.CredentialValue;
+import org.picketlink.idm.jpa.annotations.EffectiveDate;
+import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.IdentityCredential;
-import org.picketlink.idm.jpa.annotations.PropertyType;
+import org.picketlink.idm.jpa.annotations.Parent;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -46,21 +49,21 @@ public class CredentialObject implements Serializable {
     @GeneratedValue
     private Long id;
 
-    @IDMProperty (PropertyType.CREDENTIAL_TYPE)
+    @CredentialType
     private String type;
 
-    @IDMProperty (PropertyType.CREDENTIAL_VALUE)
+    @CredentialValue
     private String credential;
 
-    @IDMProperty (PropertyType.CREDENTIAL_EFFECTIVE_DATE)
+    @EffectiveDate
     @Temporal (TemporalType.TIMESTAMP)
     private Date effectiveDate;
 
-    @IDMProperty (PropertyType.CREDENTIAL_EXPIRY_DATE)
+    @ExpiryDate
     @Temporal (TemporalType.TIMESTAMP)
     private Date expiryDate;
 
-    @IDMProperty (PropertyType.CREDENTIAL_IDENTITY)
+    @Parent
     @ManyToOne
     private IdentityObject identityType;
 

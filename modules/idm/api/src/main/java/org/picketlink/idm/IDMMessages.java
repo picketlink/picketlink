@@ -283,7 +283,7 @@ public interface IDMMessages {
     SecurityConfigurationException configurationDefaultRealmNotDefined();
 
     @Message(id = 71, value = "The same feature [%s] was configured for different IdentityStoreConfiguration [%s, %s].")
-    SecurityConfigurationException configurationAmbiguosFeatureForStore(FeatureGroup feature, IdentityStoreConfiguration config1, IdentityStoreConfiguration config2);
+    SecurityConfigurationException configurationAmbiguousFeatureForStore(FeatureGroup feature, IdentityStoreConfiguration config1, IdentityStoreConfiguration config2);
 
     @Message(id = 72, value = "No such algorithm [%s] for encoding passwords. Using PasswordEncoder [%s].")
     IdentityManagementException credentialInvalidEncodingAlgorithm(String algorithm, PasswordEncoder encoder, @Cause Throwable t);

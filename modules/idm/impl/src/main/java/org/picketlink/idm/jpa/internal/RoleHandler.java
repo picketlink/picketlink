@@ -31,7 +31,7 @@ import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.event.RoleCreatedEvent;
 import org.picketlink.idm.event.RoleDeletedEvent;
 import org.picketlink.idm.event.RoleUpdatedEvent;
-import org.picketlink.idm.jpa.annotations.PropertyType;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
 import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleRole;

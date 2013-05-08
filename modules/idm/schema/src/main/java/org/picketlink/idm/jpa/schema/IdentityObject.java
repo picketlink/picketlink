@@ -27,9 +27,20 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.picketlink.idm.jpa.annotations.IDMProperty;
+import org.picketlink.idm.jpa.annotations.CreationDate;
+import org.picketlink.idm.jpa.annotations.Discriminator;
+import org.picketlink.idm.jpa.annotations.Email;
+import org.picketlink.idm.jpa.annotations.Enabled;
+import org.picketlink.idm.jpa.annotations.ExpiryDate;
+import org.picketlink.idm.jpa.annotations.FirstName;
+import org.picketlink.idm.jpa.annotations.GroupPath;
+import org.picketlink.idm.jpa.annotations.Identifier;
+import org.picketlink.idm.jpa.annotations.IdentityName;
+import org.picketlink.idm.jpa.annotations.IdentityPartition;
 import org.picketlink.idm.jpa.annotations.IdentityType;
-import org.picketlink.idm.jpa.annotations.PropertyType;
+import org.picketlink.idm.jpa.annotations.LastName;
+import org.picketlink.idm.jpa.annotations.LoginName;
+import org.picketlink.idm.jpa.annotations.Parent;
 
 /**
  * <p>JPA {@link Entity} that maps IdentityType instances.</p>
@@ -43,48 +54,48 @@ public class IdentityObject implements Serializable {
 
     private static final long serialVersionUID = -9155861474157098664L;
 
-    @IDMProperty(PropertyType.IDENTITY_DISCRIMINATOR)
+    @Discriminator
     private String discriminator;
 
+    @IdentityPartition
     @ManyToOne
-    @IDMProperty (PropertyType.IDENTITY_PARTITION)
     private PartitionObject partition;
 
-    @IDMProperty(PropertyType.IDENTITY_ID)
+    @Identifier
     @Id
     private String id;
 
-    @IDMProperty(PropertyType.AGENT_LOGIN_NAME)
+    @LoginName
     private String loginName;
 
-    @IDMProperty(PropertyType.IDENTITY_NAME)
+    @IdentityName
     private String name;
 
-    @IDMProperty(PropertyType.USER_FIRST_NAME)
+    @FirstName
     private String firstName;
 
-    @IDMProperty(PropertyType.USER_LAST_NAME)
+    @LastName
     private String lastName;
 
-    @IDMProperty(PropertyType.USER_EMAIL)
+    @Email
     private String email;
 
-    @IDMProperty(PropertyType.IDENTITY_ENABLED)
+    @Enabled
     private boolean enabled;
 
-    @IDMProperty(PropertyType.IDENTITY_CREATION_DATE)
+    @CreationDate
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationDate;
 
-    @IDMProperty(PropertyType.IDENTITY_EXPIRY_DATE)
+    @ExpiryDate
     @Temporal(TemporalType.TIMESTAMP)
     private Date expiryDate;
 
+    @Parent
     @ManyToOne
-    @IDMProperty(PropertyType.GROUP_PARENT)
     private IdentityObject parent;
 
-    @IDMProperty (PropertyType.GROUP_PATH)
+    @GroupPath
     private String groupPath;
 
     public String getDiscriminator() {

@@ -23,9 +23,9 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-import org.picketlink.idm.jpa.annotations.IDMProperty;
-import org.picketlink.idm.jpa.annotations.PropertyType;
+import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.Relationship;
+import org.picketlink.idm.jpa.annotations.RelationshipClass;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -38,10 +38,10 @@ public class RelationshipObject implements Serializable {
     private static final long serialVersionUID = -7482143409681874546L;
 
     @Id
-    @IDMProperty(PropertyType.RELATIONSHIP_ID)
+    @Identifier
     private String id;
 
-    @IDMProperty(PropertyType.RELATIONSHIP_CLASS)
+    @RelationshipClass
     private String type;
 
     public String getId() {

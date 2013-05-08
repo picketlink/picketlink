@@ -27,8 +27,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import org.picketlink.idm.jpa.annotations.IDMProperty;
-import org.picketlink.idm.jpa.annotations.PropertyType;
+import org.picketlink.idm.jpa.annotations.AttributeName;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.jpa.annotations.Parent;
 import org.picketlink.idm.jpa.annotations.RelationshipAttribute;
 
 /**
@@ -45,15 +46,15 @@ public class RelationshipObjectAttribute implements Serializable {
     @GeneratedValue
     private Long id;
 
+    @Parent
     @ManyToOne
     @JoinColumn
-    @IDMProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP)
     private RelationshipObject relationshipObject;
 
-    @IDMProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME)
+    @AttributeName
     private String name;
 
-    @IDMProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE)
+    @AttributeValue
     @Column(length = 1024)
     private String value;
 

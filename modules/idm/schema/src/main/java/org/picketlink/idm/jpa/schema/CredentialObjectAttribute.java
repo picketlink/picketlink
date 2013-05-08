@@ -27,9 +27,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.picketlink.idm.jpa.annotations.AttributeName;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.CredentialAttribute;
-import org.picketlink.idm.jpa.annotations.IDMProperty;
-import org.picketlink.idm.jpa.annotations.PropertyType;
+import org.picketlink.idm.jpa.annotations.Parent;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -47,13 +48,13 @@ public class CredentialObjectAttribute implements Serializable {
 
     @ManyToOne
     @JoinColumn
-    @IDMProperty (PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL)
+    @Parent
     private CredentialObject credentialObject;
 
-    @IDMProperty(PropertyType.CREDENTIAL_ATTRIBUTE_NAME)
+    @AttributeName
     private String name;
 
-    @IDMProperty(PropertyType.CREDENTIAL_ATTRIBUTE_VALUE)
+    @AttributeValue
     @Column (length=1024)
     private String value;
 

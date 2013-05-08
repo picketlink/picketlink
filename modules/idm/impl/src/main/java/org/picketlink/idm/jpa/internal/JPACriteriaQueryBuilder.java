@@ -30,7 +30,7 @@ import javax.persistence.criteria.Root;
 
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.event.AbstractBaseEvent;
-import org.picketlink.idm.jpa.annotations.PropertyType;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.spi.SecurityContext;

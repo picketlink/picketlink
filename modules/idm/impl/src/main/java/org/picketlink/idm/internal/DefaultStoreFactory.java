@@ -90,7 +90,7 @@ public class DefaultStoreFactory implements StoreFactory {
                 if (storeConfigForFeature == null) {
                     supportedFeatures.put(feature, config);
                 } else {
-                    throw MESSAGES.configurationAmbiguosFeatureForStore(feature, storeConfigForFeature, config);
+                    throw MESSAGES.configurationAmbiguousFeatureForStore(feature, storeConfigForFeature, config);
                 }
             }
 

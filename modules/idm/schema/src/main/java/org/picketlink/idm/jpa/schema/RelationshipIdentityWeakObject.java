@@ -25,8 +25,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-import org.picketlink.idm.jpa.annotations.IDMProperty;
-import org.picketlink.idm.jpa.annotations.PropertyType;
+import org.picketlink.idm.jpa.annotations.Identity;
+import org.picketlink.idm.jpa.annotations.Parent;
+import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
 import org.picketlink.idm.jpa.annotations.RelationshipIdentity;
 
 /**
@@ -52,13 +53,13 @@ public class RelationshipIdentityWeakObject implements Serializable {
     @GeneratedValue
     private Long id;
 
-    @IDMProperty(PropertyType.RELATIONSHIP_DESCRIPTOR)
+    @RelationshipDescriptor
     private String descriptor;
 
-    @IDMProperty(PropertyType.RELATIONSHIP_IDENTITY)
+    @Identity
     private String identityObjectId;
 
-    @IDMProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP)
+    @Parent
     @ManyToOne
     private RelationshipObject relationshipObject;
 
