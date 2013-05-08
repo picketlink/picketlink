@@ -1,0 +1,58 @@
+<env:Envelope xmlns:env='http://schemas.xmlsoap.org/soap/envelope/'>
+	" +
+	<env:Header>
+		<wsse:Security
+			xmlns:wsse='http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'>
+			<saml:Assertion xmlns:saml='urn:oasis:names:tc:SAML:2.0:assertion'
+				xmlns='urn:oasis:names:tc:SAML:2.0:assertion' ID='ID_7069926b-792e-4f90-8727-0e16ec9c3073'
+				IssueInstant='2011-07-13T00:16:13.990Z' Version='2.0'>
+				<Issuer xmlns:saml='urn:oasis:names:tc:SAML:2.0:assertion'>PicketLinkSTS</Issuer>
+				<saml:Subject>
+					<saml:NameID NameQualifier='urn:picketlink:identity-federation'
+						xmlns:saml='urn:oasis:names:tc:SAML:2.0:assertion'>admin</saml:NameID>
+					<saml:SubjectConfirmation Method='urn:oasis:names:tc:SAML:2.0:cm:bearer' />
+				</saml:Subject>
+				<saml:Conditions NotBefore='2011-07-13T00:16:13.990Z'
+					NotOnOrAfter='2030-07-13T02:16:13.990Z'>
+					<saml:AudienceRestriction>
+						<saml:Audience>http://services.testcorp.org/provider1
+						</saml:Audience>
+					</saml:AudienceRestriction>
+				</saml:Conditions>
+				<saml:AuthnStatement AuthnInstant="2011-06-06T21:30:07Z"
+					xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+					<saml:AuthnContext xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+						<saml:AuthnContextClassRef xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">urn:oasis:names:tc:SAML:2.0:ac:classes:Password
+						</saml:AuthnContextClassRef>
+					</saml:AuthnContext>
+				</saml:AuthnStatement>
+				<saml:AttributeStatement xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+					<saml:Attribute Name="FGADataset"
+						NameFormat="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+						<saml:AttributeValue xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+							xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">1234
+						</saml:AttributeValue>
+						<saml:AttributeValue xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+							xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">4768
+						</saml:AttributeValue>
+					</saml:Attribute>
+					<saml:Attribute Name="Roles"
+						NameFormat="urn:oasis:names:tc:SAML:2.0:profiles:attribute:DCE:groups">
+						<saml:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+							xsi:type="xs:string">meco</saml:AttributeValue>
+						<saml:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+							xsi:type="xs:string">aispoc_grp1</saml:AttributeValue>
+						<saml:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+							xsi:type="xs:string">grp-poc</saml:AttributeValue>
+					</saml:Attribute>
+					<saml:Attribute Name="Membership"
+						NameFormat="urn:oasis:names:tc:SAML:2.0:profiles:attribute:DCE:groups">
+						<saml:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+							xsi:type="xs:string">meco</saml:AttributeValue>
+					</saml:Attribute>
+				</saml:AttributeStatement>
+			</saml:Assertion>
+		</wsse:Security>
+	</env:Header>
+	<env:Body />
+</env:Envelope>

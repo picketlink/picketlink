@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<samlp:RequestAbstract xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+	xmlns:xacml-samlp="urn:oasis:xacml:2.0:saml:protocol:schema:os"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Consent="consent-uri"
+	Destination="destination-uri" ID="s292657a1c39f12d36dd1f1ba2cf834bb2ebad825c"
+	IssueInstant="2009-03-16T19:01:52Z" Version="2.0"
+	xacml-samlp:InputContextOnly="true" xacml-samlp:ReturnContext="true"
+	xsi:type="xacml-samlp:XACMLAuthzDecisionQueryType">
+	<saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">vaPepEntity
+	</saml:Issuer>
+	<xacml-context:Request xmlns="urn:oasis:names:tc:xacml:2.0:context:schema:os" xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance/"
+		xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:context:schema:os http://docs.oasis-open.org/xacml/access_control-xacml-2.0-context-schema-os.xsd">
+		<Subject
+			SubjectCategory="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
+			<Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+				DataType="http://www.w3.org/2001/XMLSchema#string">
+				<AttributeValue>Doctor,Bob</AttributeValue>
+			</Attribute>
+			<Attribute AttributeId="urn:va:xacml:2.0:interop:rsa8:subject:role"
+				DataType="http://www.w3.org/2001/XMLSchema#string">
+				<AttributeValue>physician</AttributeValue>
+			</Attribute>
+			<Attribute AttributeId="urn:va:xacml:2.0:interop:rsa8:subject:hl7:permission"
+				DataType="http://www.w3.org/2001/XMLSchema#string">
+				<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-010
+				</AttributeValue>
+				<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-012
+				</AttributeValue>
+				<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-017
+				</AttributeValue>
+				<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-005
+				</AttributeValue>
+				<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-003
+				</AttributeValue>
+				<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-009
+				</AttributeValue>
+				<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-006
+				</AttributeValue>
+			</Attribute>
+			<Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:locality"
+				DataType="http://www.w3.org/2001/XMLSchema#string">
+				<AttributeValue>Healthcare Domain A</AttributeValue>
+			</Attribute>
+		</Subject>
+		<xacml-context:Resource>
+			<Attribute AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:type"
+				DataType="http://www.w3.org/2001/XMLSchema#string">
+				<AttributeValue>
+					urn:va:xacml:2.0:interop:rsa8:resource:hl7:medical-record
+				</AttributeValue>
+			</Attribute>
+			<Attribute AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:permission"
+				DataType="http://www.w3.org/2001/XMLSchema#string">
+				<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-010
+				</AttributeValue>
+				<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-012
+				</AttributeValue>
+				<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-005
+				</AttributeValue>
+				<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-003
+				</AttributeValue>
+			</Attribute>
+			<Attribute
+				AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:confidentiality-code"
+				DataType="http://www.w3.org/2001/XMLSchema#string">
+				<AttributeValue>MA</AttributeValue>
+			</Attribute>
+			<Attribute
+				AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:medications:dissented-subject-id"
+				DataType="http://www.w3.org/2001/XMLSchema#string">
+				<AttributeValue>Doctor, Bob I</AttributeValue>
+			</Attribute>
+		</xacml-context:Resource>
+		<xacml-context:Action>
+			<Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+				DataType="http://www.w3.org/2001/XMLSchema#string">
+				<AttributeValue>read</AttributeValue>
+			</Attribute>
+		</xacml-context:Action>
+		<xacml-context:Environment>
+			<Attribute AttributeId="urn:va:xacml:2.0:interop:rsa8:environment:locality"
+				DataType="http://www.w3.org/2001/XMLSchema#string">
+				<AttributeValue>Healthcare Domain A</AttributeValue>
+			</Attribute>
+		</xacml-context:Environment>
+	</xacml-context:Request>
+
+</samlp:RequestAbstract>

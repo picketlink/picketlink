@@ -1,0 +1,3 @@
+To run the tests that take long time:
+$> mvn install -Plong-tests
+

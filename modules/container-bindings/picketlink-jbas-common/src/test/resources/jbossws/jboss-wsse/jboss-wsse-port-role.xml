@@ -1,0 +1,29 @@
+<jboss-ws-security xmlns='http://www.jboss.com/ws-security/config'
+                   xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+                   xsi:schemaLocation='http://www.jboss.com/ws-security/config http://www.jboss.com/ws-security/schema/jboss-ws-security_1_0.xsd'>
+
+  <config>
+    <authorize>
+      <role>Trader</role>
+    </authorize>
+  </config>  
+  
+  <port name="TestPort">
+    <config>
+      <authorize>
+        <role>Trader</role> 
+      </authorize>
+    </config>
+  </port>
+  
+  <port name="MaxiPort">
+    <config>
+      <authorize>
+        <role>Trader</role> 
+        <role>friend</role> 
+        <role>family</role> 
+      </authorize>
+    </config>
+  </port>
+  
+</jboss-ws-security>
