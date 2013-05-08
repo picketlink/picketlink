@@ -1,0 +1,37 @@
+<PicketLinkSP xmlns="urn:picketlink:identity-federation:config:1.0" ServerEnvironment="tomcat">
+
+    <IdentityURL>https://fedtst.company.com/idp/SSO.saml2</IdentityURL>
+
+    <ServiceURL>https://201.000.000.00/gctxyz</ServiceURL> 
+    <Trust>
+
+        <Domains>localhost,jboss.com,jboss.org,fedtst.company.com,201.000.000.00</Domains>
+
+    </Trust> 
+    <KeyProvider
+
+        ClassName="org.picketlink.identity.federation.core.impl.KeyStoreKeyManager">
+
+ 
+
+        <Auth Key="KeyStoreURL" Value="/jbid_test_keystore.jks" />
+
+        <Auth Key="KeyStorePass" Value="store123" />
+
+        <Auth Key="SigningKeyPass" Value="test123" />
+
+        <Auth Key="SigningKeyAlias" Value="servercert" />
+
+   
+
+        <ValidatingAlias Key="localhost" Value="picketlink"/>
+
+        <ValidatingAlias Key="127.0.0.1" Value="picketlink"/>           
+
+        <ValidatingAlias Key="fedtst.company.com" Value="test"/>
+
+    </KeyProvider>
+
+ 
+
+</PicketLinkSP>

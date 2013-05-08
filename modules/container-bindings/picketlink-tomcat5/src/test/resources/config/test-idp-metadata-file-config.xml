@@ -1,0 +1,6 @@
+<PicketLinkSP xmlns="urn:picketlink:identity-federation:config:2.0" 
+  AttributeManager="org.picketlink.identity.federation.core.impl.EmptyAttributeManager"> 
+<IDPMetadataFile>/WEB-INF/testshib.org.idp-metadata.xml</IDPMetadataFile>
+<ServiceURL>http://localhost:8080/sales/</ServiceURL>  
+
+</PicketLinkSP>

@@ -1,0 +1,21 @@
+<saml:Assertion	ID="ID_18295e54-1748-4aab-82ee-c6e0d3e27bb1" IssueInstant="2012-11-09T19:21:20.413Z"
+	Version="2.0" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+	<saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">testIssuer</saml:Issuer>
+	<saml:Subject>
+		<saml:NameID xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">jduke_was_attacked</saml:NameID>
+	</saml:Subject>
+	<saml:AuthnStatement AuthnInstant="2012-11-09T19:21:20.409Z">
+		<saml:AuthnContext>
+			<saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password
+			</saml:AuthnContextClassRef>
+		</saml:AuthnContext>
+	</saml:AuthnStatement>
+	<saml:AttributeStatement>
+		<saml:Attribute Name="Role">
+			<saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">SUPER
+				MANAGER
+			</saml:AttributeValue>
+		</saml:Attribute>
+	</saml:AttributeStatement>
+</saml:Assertion>

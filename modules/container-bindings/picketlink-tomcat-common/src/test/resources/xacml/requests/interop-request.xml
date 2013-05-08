@@ -1,0 +1,99 @@
+<soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+	<soap-env:Body>
+		<xacml-samlp:XACMLAuthzDecisionQuery
+			xmlns:xacml-samlp="urn:oasis:xacml:2.0:saml:protocol:schema:os"
+			xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+			xacml-samlp:InputContextOnly="true" xacml-samlp:ReturnContext="true"
+			ID="s22e30cf15f08e3da00d3837fcf5b6c8cf3fcc9e0f" Version="2.0"
+			IssueInstant="2009-01-12T15:34:29Z">
+			<saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">vaPepEntity
+			</saml:Issuer>
+			<xacml-context:Request
+				xmlns="urn:oasis:names:tc:xacml:2.0:context:schema:os"
+				xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance/"
+				xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:context:schema:os http://docs.oasis-open.org/xacml/access_control-xacml-2.0-context-schema-os.xsd">
+				<xacml-context:Subject
+					SubjectCategory="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
+					<xacml-context:Attribute
+						AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+						DataType="http://www.w3.org/2001/XMLSchema#string">
+						<AttributeValue>Doctor, Bob I</AttributeValue>
+					</xacml-context:Attribute>
+					<xacml-context:Attribute
+						AttributeId="urn:va:xacml:2.0:interop:rsa8:subject:role" DataType="http://www.w3.org/2001/XMLSchema#string">
+						<AttributeValue>physician</AttributeValue>
+					</xacml-context:Attribute>
+					<xacml-context:Attribute
+						AttributeId="urn:va:xacml:2.0:interop:rsa8:subject:hl7:permission"
+						DataType="http://www.w3.org/2001/XMLSchema#string">
+						<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-010
+						</AttributeValue>
+						<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-012
+						</AttributeValue>
+						<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-017
+						</AttributeValue>
+						<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-005
+						</AttributeValue>
+						<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-003
+						</AttributeValue>
+						<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-009
+						</AttributeValue>
+						<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-006
+						</AttributeValue>
+					</xacml-context:Attribute>
+					<xacml-context:Attribute
+						AttributeId="urn:oasis:names:tc:xacml:1.0:subject:locality"
+						DataType="http://www.w3.org/2001/XMLSchema#string">
+						<AttributeValue>Facility A</AttributeValue>
+					</xacml-context:Attribute>
+				</xacml-context:Subject>
+				<xacml-context:Resource>
+					<xacml-context:Attribute
+						AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:type"
+						DataType="http://www.w3.org/2001/XMLSchema#string">
+						<AttributeValue>
+							urn:va:xacml:2.0:interop:rsa8:resource:hl7:medical-record
+						</AttributeValue>
+					</xacml-context:Attribute>
+					<xacml-context:Attribute
+						AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:permission"
+						DataType="http://www.w3.org/2001/XMLSchema#string">
+						<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-010
+						</AttributeValue>
+						<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-012
+						</AttributeValue>
+						<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-005
+						</AttributeValue>
+						<AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-003
+						</AttributeValue>
+					</xacml-context:Attribute>
+					<xacml-context:Attribute
+						AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:confidentiality-code"
+						DataType="http://www.w3.org/2001/XMLSchema#string">
+						<AttributeValue>MA</AttributeValue>
+					</xacml-context:Attribute>
+					<xacml-context:Attribute
+						AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:radiology:dissented-subject-id"
+						DataType="http://www.w3.org/2001/XMLSchema#string">
+						<AttributeValue>Doctor, Bob I</AttributeValue>
+					</xacml-context:Attribute>
+				</xacml-context:Resource>
+				<xacml-context:Action>
+					<xacml-context:Attribute
+						AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+						DataType="http://www.w3.org/2001/XMLSchema#string">
+						<AttributeValue>read</AttributeValue>
+					</xacml-context:Attribute>
+				</xacml-context:Action>
+				<xacml-context:Environment>
+					<xacml-context:Attribute
+						AttributeId="urn:va:xacml:2.0:interop:rsa8:environment:locality"
+						DataType="http://www.w3.org/2001/XMLSchema#string">
+						<AttributeValue>Facility A</AttributeValue>
+					</xacml-context:Attribute>
+				</xacml-context:Environment>
+			</xacml-context:Request>
+		</xacml-samlp:XACMLAuthzDecisionQuery>
+	</soap-env:Body>
+</soap-env:Envelope>

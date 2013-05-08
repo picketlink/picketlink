@@ -1,0 +1,4 @@
+<Handlers xmlns="urn:picketlink:identity-federation:handler:config:1.0"> 
+  <Handler class="org.picketlink.identity.federation.web.handlers.saml2.SAML2LogOutHandler"/> 
+  <Handler class="org.picketlink.identity.federation.web.handlers.saml2.SAML2AuthenticationHandler"/>   
+</Handlers>
