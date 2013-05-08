@@ -1,0 +1,45 @@
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+	<soap:Body>
+		<MessageBody xmlns="urn:picketlink:identity-federation:pdp">
+			<xacml-samlp:XACMLAuthzDecisionQuery
+				xmlns:xacml-samlp="urn:oasis:names:tc:xacml:2.0:profile:saml2.0:v2:schema:protocol"
+				ID="_418788ee-3f2b-4b95-92eb-2d0c15fcb1d8" InputContextOnly="true"
+				IssueInstant="2012-04-01T12:45:40.780Z" ReturnContext="true"
+				Version="2.0">
+				<saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">testIssuer</saml2:Issuer>
+				<xacml-context:Request
+					xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os">
+					<xacml-context:Subject
+						SubjectCategory="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
+						<xacml-context:Attribute
+							AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+							DataType="http://www.w3.org/2001/XMLSchema#string">
+							<xacml-context:AttributeValue>alice
+							</xacml-context:AttributeValue>
+						</xacml-context:Attribute>
+						<xacml-context:Attribute
+							AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role" DataType="http://www.w3.org/2001/XMLSchema#string">
+							<xacml-context:AttributeValue>developers
+							</xacml-context:AttributeValue>
+						</xacml-context:Attribute>
+					</xacml-context:Subject>
+					<xacml-context:Resource>
+						<xacml-context:Attribute
+							AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id"
+							DataType="http://www.w3.org/2001/XMLSchema#anyURI">
+							<xacml-context:AttributeValue>https://localhost:9000/doubleit/services/doubleittransport
+							</xacml-context:AttributeValue>
+						</xacml-context:Attribute>
+					</xacml-context:Resource>
+					<xacml-context:Action>
+						<xacml-context:Attribute
+							AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"
+							DataType="http://www.w3.org/2001/XMLSchema#string">
+							<xacml-context:AttributeValue>read</xacml-context:AttributeValue>
+						</xacml-context:Attribute>
+					</xacml-context:Action>
+				</xacml-context:Request>
+			</xacml-samlp:XACMLAuthzDecisionQuery>
+		</MessageBody>
+	</soap:Body>
+</soap:Envelope>

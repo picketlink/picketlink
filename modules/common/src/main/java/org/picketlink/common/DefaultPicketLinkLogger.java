@@ -1370,16 +1370,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
         logger.error("Exception initializing role generator:", t);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerAttributeSetup(java.lang.String)
-     */
-    @Override
-    public void samlHandlerAttributeSetup(String name) {
-        logger.trace("AttributeManager set to " + name);
-    }
-
     @Override
     public RuntimeException samlHandlerAssertionNotFound() {
         return new RuntimeException(ErrorCodes.NULL_VALUE + "Assertion not found in the handler request");

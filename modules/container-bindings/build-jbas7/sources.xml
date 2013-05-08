@@ -1,0 +1,34 @@
+<assembly>
+  <id>sources</id>
+  <formats>
+    <format>jar</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <!-- filesets are in reverse order in sense of inheritance, because assembly plugin never overwrites already added file. -->
+    <fileSet>
+      <directory>${basedir}/../picketlink-jbas7/src/main/java</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${basedir}/../picketlink-jbas-common/src/main/java</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${basedir}/../picketlink-tomcat5/src/main/java</directory>
+      <!-- has to be excluded because PicketLinkAuthenticator is present at picketlink-jbas7 as well -->
+      <excludes>
+         <exclude>org/picketlink/identity/federation/bindings/tomcat/PicketLinkAuthenticator.*</exclude>
+      </excludes>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${basedir}/../picketlink-tomcat-common/src/main/java</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${basedir}/../picketlink-core/src/main/java</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+  </fileSets>
+</assembly>

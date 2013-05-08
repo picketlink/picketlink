@@ -1,0 +1,30 @@
+<jboss-ws-security xmlns="http://www.jboss.com/ws-security/config"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.jboss.com/ws-security/config
+                   http://www.jboss.com/ws-security/schema/jboss-ws-security_1_0.xsd">
+
+  <config>
+    <authorize>      
+      <role>friend</role>
+      <role>family</role>
+    </authorize>
+  </config>
+  
+  <port name="POJOBeanPort">
+    <operation name="{http://ws.trust.test.picketlink.org/}echoUnchecked">
+      <config>
+        <authorize>
+          <unchecked/>
+        </authorize>
+      </config>    
+    </operation>
+    
+    <operation name="{http://ws.trust.test.picketlink.org/}echo">
+      <config>
+        <authorize>
+          <role>JBossAdmin</role>
+        </authorize>
+      </config>    
+    </operation>        
+  </port>
+</jboss-ws-security>
