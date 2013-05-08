@@ -102,7 +102,7 @@ public class DefaultIdentity implements Identity
             if (validatedAgent != null) 
             {
                 if (!validatedAgent.isEnabled()) {
-                    throw new LockedAccountException(validatedAgent);
+                    throw new LockedAccountException("Agent [" + validatedAgent.getLoginName() + "] is disabled.");
                 }
 
                 handleSuccessfulLoginAttempt(validatedAgent); 
@@ -139,8 +139,7 @@ public class DefaultIdentity implements Identity
             } else if (UserAlreadyLoggedInException.class.isInstance(e)) {
                 beanManager.fireEvent(new AlreadyLoggedInEvent());
             } else if (LockedAccountException.class.isInstance(e)) {
-                LockedAccountException lockedException = (LockedAccountException) e;
-                beanManager.fireEvent(new LockedAccountEvent(lockedException.getLockedAccount()));
+                beanManager.fireEvent(new LockedAccountEvent());
             }
         }
 
