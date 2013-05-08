@@ -26,11 +26,11 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.config.KeyValueType;
-import org.picketlink.identity.federation.core.config.MetadataProviderType;
-import org.picketlink.identity.federation.core.config.TrustType;
-import org.picketlink.identity.federation.core.parsers.config.SAMLConfigParser;
+import org.picketlink.config.federation.IDPType;
+import org.picketlink.config.federation.KeyValueType;
+import org.picketlink.config.federation.MetadataProviderType;
+import org.picketlink.config.federation.TrustType;
+import org.picketlink.config.federation.parsers.SAMLConfigParser;
 
 /**
  * Config for the SAMLv2 Metadata Profile

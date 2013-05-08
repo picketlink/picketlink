@@ -25,8 +25,7 @@ import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.util.LifecycleSupport;
-import org.picketlink.identity.federation.bindings.tomcat.idp.AbstractIDPValve;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.common.ErrorCodes;
 
 /**
  * Generic Web Browser SSO valve for the IDP

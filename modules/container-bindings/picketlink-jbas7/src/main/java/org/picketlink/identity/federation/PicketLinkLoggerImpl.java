@@ -34,16 +34,17 @@ import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.stream.Location;
 import javax.xml.ws.WebServiceException;
 
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
-import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
-import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
-import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
-import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
-import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
-import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.TrustKeyConfigurationException;
+import org.picketlink.common.exceptions.TrustKeyProcessingException;
+import org.picketlink.common.exceptions.fed.AssertionExpiredException;
+import org.picketlink.common.exceptions.fed.IssueInstantMissingException;
+import org.picketlink.common.exceptions.fed.IssuerNotTrustedException;
+import org.picketlink.common.exceptions.fed.SignatureValidationException;
+import org.picketlink.common.exceptions.fed.WSTrustException;
 import org.w3c.dom.Element;
 
 /**

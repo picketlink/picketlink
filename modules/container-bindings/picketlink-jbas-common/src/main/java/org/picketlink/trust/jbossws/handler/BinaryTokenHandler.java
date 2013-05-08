@@ -38,8 +38,8 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.core.util.SOAPUtil;
-import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.trust.jbossws.Constants;
 import org.picketlink.trust.jbossws.Util;
 

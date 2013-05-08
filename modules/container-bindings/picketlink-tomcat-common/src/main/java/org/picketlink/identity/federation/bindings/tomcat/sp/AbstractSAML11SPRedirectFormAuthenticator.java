@@ -1,6 +1,6 @@
 package org.picketlink.identity.federation.bindings.tomcat.sp;
 
-import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,8 +14,9 @@ import org.apache.catalina.authenticator.Constants;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.LoginConfig;
+import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.bindings.tomcat.sp.holder.ServiceProviderSAMLContext;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
@@ -23,7 +24,6 @@ import org.picketlink.identity.federation.saml.v1.assertion.SAML11Authentication
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11StatementAbstractType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11ResponseType;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.picketlink.identity.federation.web.util.ServerDetector;
 

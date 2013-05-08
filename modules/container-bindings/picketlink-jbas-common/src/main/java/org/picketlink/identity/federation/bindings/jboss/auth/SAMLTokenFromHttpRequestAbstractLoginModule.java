@@ -32,9 +32,9 @@ import javax.security.jacc.PolicyContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.jboss.security.auth.spi.AbstractServerLoginModule;
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.util.Base64;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.util.Base64;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 
 /**

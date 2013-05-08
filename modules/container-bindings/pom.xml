@@ -1,41 +1,95 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-   <parent>
-      <groupId>org.picketlink</groupId>
-      <artifactId>picketlink-fed-parent</artifactId>
-      <version>2.1.7-SNAPSHOT</version>
-      <relativePath>../parent</relativePath>
-   </parent>
-   <modelVersion>4.0.0</modelVersion>
-   <groupId>org.picketlink</groupId>
-   <artifactId>picketlink-fed-bindings-pom</artifactId>
-   <packaging>pom</packaging>
-   <name>PicketLink Federation- Aggregator</name>
-   <url>http://labs.jboss.org/portal/picketlink/</url>
-   <description>PicketLink Federation is the federated identity project for JEMS projects</description>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-   <modules>
-     <module>picketlink-tomcat-common</module>
-     <module>picketlink-tomcat5</module>
-     <module>picketlink-tomcat7</module>
-     <module>picketlink-jbas-common</module>
-     <module>picketlink-jbas5</module>
-     <module>picketlink-jbas7</module>
-     <module>build-tomcat5</module>
-     <module>build-tomcat7</module>
-     <module>build-jbas5</module>
-     <module>build-jbas7</module>
-   </modules>
+	<parent>
+		<groupId>org.picketlink</groupId>
+		<artifactId>picketlink-parent</artifactId>
+		<version>3.0.0-SNAPSHOT</version>
+		<relativePath>../../pom.xml</relativePath>
+	</parent>
 
-   <reporting>
-     <plugins>
-       <plugin>
-         <groupId>org.apache.maven.plugins</groupId>
-         <artifactId>maven-javadoc-plugin</artifactId>
-         <configuration>
-           <aggregate>true</aggregate>
-         </configuration>
-        </plugin>
-     </plugins>
-   </reporting>
+	<artifactId>picketlink-bindings-parent</artifactId>
+	<packaging>pom</packaging>
 
+	<name>PicketLink Container Bindings</name>
+
+	<modules>
+		<module>picketlink-tomcat-common</module>
+		<module>picketlink-tomcat5</module>
+		<module>picketlink-tomcat7</module>
+		<module>picketlink-jbas-common</module>
+		<module>picketlink-jbas5</module>
+		<module>picketlink-jbas7</module>
+		<module>build-tomcat5</module>
+		<module>build-tomcat7</module>
+		<module>build-jbas5</module>
+		<module>build-jbas7</module>
+	</modules>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.3</version>
+					<executions>
+						<execution>
+							<id>distribution</id>
+							<phase>package</phase>
+							<goals>
+								<goal>single</goal>
+							</goals>
+							<configuration>
+								<appendAssemblyId>false</appendAssemblyId>
+								<finalName>${project.artifactId}-${project.version}</finalName>
+								<archive>
+									<manifestEntries>
+										<Specification-Title>PicketLink</Specification-Title>
+										<Specification-Version>${project.version}</Specification-Version>
+										<Specification-Vendor>Red Hat Inc</Specification-Vendor>
+										<Implementation-Title>PicketLink</Implementation-Title>
+										<Implementation-Version>${project.version}</Implementation-Version>
+										<Implementation-VendorId>org.picketlink</Implementation-VendorId>
+										<Implementation-Vendor>Red Hat Inc</Implementation-Vendor>
+										<Implementation-URL>http://jboss.org/picketlink</Implementation-URL>
+									</manifestEntries>
+								</archive>
+								<descriptors>
+									<descriptor>bin.xml</descriptor>
+								</descriptors>
+							</configuration>
+						</execution>
+						<execution>
+							<id>create-source-file</id>
+							<phase>package</phase>
+							<goals>
+								<goal>single</goal>
+							</goals>
+							<configuration>
+								<archive>
+									<manifestEntries>
+										<Specification-Title>PicketLink</Specification-Title>
+										<Specification-Version>${project.version}</Specification-Version>
+										<Specification-Vendor>Red Hat Inc</Specification-Vendor>
+										<Implementation-Title>PicketLink</Implementation-Title>
+										<Implementation-Version>${project.version}</Implementation-Version>
+										<Implementation-VendorId>org.picketlink</Implementation-VendorId>
+										<Implementation-Vendor>Red Hat Inc</Implementation-Vendor>
+										<Implementation-URL>http://jboss.org/picketlink</Implementation-URL>
+									</manifestEntries>
+								</archive>
+								<descriptors>
+									<descriptor>sources.xml</descriptor>
+								</descriptors>
+							</configuration>
+						</execution>
+					</executions>
+					<inherited>true</inherited>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 </project>

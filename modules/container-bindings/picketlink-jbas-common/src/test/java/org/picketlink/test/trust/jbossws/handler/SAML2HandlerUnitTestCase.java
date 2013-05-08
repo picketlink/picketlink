@@ -27,7 +27,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.Principal;
 import java.security.acl.Group;
 import java.util.Collection;
 import java.util.HashMap;
@@ -47,7 +46,6 @@ import org.jboss.security.SecurityContextAssociation;
 import org.jboss.security.SimplePrincipal;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.util.SOAPUtil;
-import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.trust.jbossws.handler.AbstractSAML2Handler;
 
 /**

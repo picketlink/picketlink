@@ -23,20 +23,10 @@
 package org.picketlink.identity.federation.bindings.jboss.auth;
 
 import java.security.KeyStore;
-import java.security.cert.CertPath;
-import java.security.cert.CertPathValidator;
-import java.security.cert.CertPathValidatorResult;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.PKIXParameters;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.Enumeration;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.security.auth.login.LoginException;
+
 import org.jboss.security.plugins.JaasSecurityDomain;
 
 /**

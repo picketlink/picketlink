@@ -31,8 +31,6 @@ import javax.security.jacc.PolicyContextException;
 
 import org.jboss.security.CacheableManager;
 import org.jboss.security.SecurityConstants;
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.bindings.tomcat.SubjectSecurityInteraction;
 
 /**

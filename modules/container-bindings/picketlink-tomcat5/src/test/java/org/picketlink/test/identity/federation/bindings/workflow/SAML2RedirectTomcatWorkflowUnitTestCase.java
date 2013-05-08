@@ -31,11 +31,17 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.catalina.realm.GenericPrincipal;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve;
 import org.picketlink.identity.federation.bindings.tomcat.sp.SPRedirectFormAuthenticator;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
-import org.picketlink.test.identity.federation.bindings.mock.*;
+import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContext;
+import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContextClassLoader;
+import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaLoginConfig;
+import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaRealm;
+import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaRequest;
+import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaResponse;
+import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaSession;
 
 /**
  * Unit test for the Workflow for the SAML2 Redirect Binding

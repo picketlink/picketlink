@@ -21,34 +21,9 @@
  */
 package org.picketlink.trust.jbossws.handler;
 
-import java.io.InputStream;
-import java.security.Principal;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.security.auth.Subject;
-import javax.servlet.ServletContext;
-import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.jboss.security.AuthorizationManager;
-import org.jboss.security.SecurityConstants;
-import org.jboss.security.SecurityContext;
-import org.jboss.security.SecurityContextAssociation;
-import org.jboss.security.SimplePrincipal;
-import org.jboss.security.callbacks.SecurityContextCallbackHandler;
-import org.jboss.wsf.spi.invocation.SecurityAdaptor;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.trust.jbossws.util.JBossWSNativeStackUtil;
-import org.picketlink.trust.jbossws.util.JBossWSSERoleExtractor;
-import org.w3c.dom.Node;
 
 /**
  * An authorization handler for the POJO Web services Based on the Authorize Operation on the JBossWS Native stack

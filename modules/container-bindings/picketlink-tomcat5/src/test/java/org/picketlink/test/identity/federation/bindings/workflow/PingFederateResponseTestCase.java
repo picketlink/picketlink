@@ -37,8 +37,8 @@ import java.util.Map;
 
 import org.apache.catalina.deploy.LoginConfig;
 import org.junit.Test;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.bindings.tomcat.sp.SPPostFormAuthenticator;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.util.PostBindingUtil;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContext;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContextClassLoader;

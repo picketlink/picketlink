@@ -33,8 +33,8 @@ import javax.security.auth.login.LoginException;
 import org.jboss.security.SimpleGroup;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.auth.spi.UsernamePasswordLoginModule;
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.bindings.tomcat.sp.holder.ServiceProviderSAMLContext;
-import org.picketlink.identity.federation.core.util.StringUtil;
 
 /**
  * Login Module that is capable of dealing with SAML2 cases

@@ -21,7 +21,6 @@
  */
 package org.picketlink.identity.federation.bindings.jboss.auth;
 
-import org.picketlink.identity.federation.bindings.jboss.auth.SAML2CommonLoginModule;
 import org.picketlink.identity.federation.bindings.tomcat.sp.holder.ServiceProviderSAMLContext;
 
 /**

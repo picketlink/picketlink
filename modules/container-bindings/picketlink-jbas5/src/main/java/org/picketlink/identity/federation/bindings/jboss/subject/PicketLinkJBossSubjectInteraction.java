@@ -32,8 +32,8 @@ import javax.security.jacc.PolicyContextException;
 
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.SubjectSecurityManager;
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.bindings.tomcat.SubjectSecurityInteraction;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory.TimeCacheExpiry;

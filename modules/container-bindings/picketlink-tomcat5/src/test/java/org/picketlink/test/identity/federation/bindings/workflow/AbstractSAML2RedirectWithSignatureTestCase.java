@@ -29,10 +29,10 @@ import junit.framework.Assert;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Session;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve;
 import org.picketlink.identity.federation.bindings.tomcat.sp.SPRedirectSignatureFormAuthenticator;
 import org.picketlink.identity.federation.bindings.tomcat.sp.ServiceProviderAuthenticator;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.picketlink.test.identity.federation.bindings.authenticators.AuthenticatorTestUtils;

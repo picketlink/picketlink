@@ -22,6 +22,7 @@
 package org.picketlink.trust.jbossws.handler;
 
 import java.util.Map;
+
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
@@ -32,7 +33,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.common.ErrorCodes;
 import org.picketlink.identity.federation.core.util.SOAPUtil;
 import org.picketlink.trust.jbossws.Constants;
 import org.picketlink.trust.jbossws.Util;

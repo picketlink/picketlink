@@ -33,8 +33,8 @@ import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityContextAssociation;
 import org.jboss.security.identity.Identity;
 import org.jboss.security.identity.extensions.CredentialIdentity;
-import org.picketlink.identity.federation.core.ErrorCodes;
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.exceptions.ConfigurationException;
 
 /**
  * <p>Base class to perform Authentication for POJO Web Services based on the Authorize Operation on the JBossWS Native stack.</p>

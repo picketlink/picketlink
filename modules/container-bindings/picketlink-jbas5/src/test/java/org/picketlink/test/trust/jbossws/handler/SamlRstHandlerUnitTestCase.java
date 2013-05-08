@@ -45,8 +45,8 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
 import org.junit.Test;
+import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.identity.federation.core.util.SOAPUtil;
-import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.trust.jbossws.Constants;
 import org.picketlink.trust.jbossws.handler.SamlRequestSecurityTokenHandler;
 import org.w3c.dom.NodeList;

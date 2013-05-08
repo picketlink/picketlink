@@ -26,16 +26,17 @@ import java.util.Set;
 
 import javax.servlet.http.HttpSession;
 
-import org.picketlink.config.federation.IDPType;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.StringUtil;
+import org.picketlink.config.federation.IDPType;
 import org.picketlink.identity.federation.core.impl.EmptyAttributeManager;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerConfig;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
@@ -43,7 +44,6 @@ import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 
 /**
@@ -134,6 +134,7 @@ public class SAML2AttributeHandler extends BaseSAML2Handler {
         Map<String, Object> attribs = (Map<String, Object>) session.getAttribute(GeneralConstants.ATTRIBUTES);
         if (attribs == null) {
             attribs = this.attribManager.getAttributes(userPrincipal, attributeKeys);
+            request.addOption(GeneralConstants.ATTRIBUTES, attribs);
             session.setAttribute(GeneralConstants.ATTRIBUTES, attribs);
         }
     }
@@ -150,7 +151,7 @@ public class SAML2AttributeHandler extends BaseSAML2Handler {
         if (attribStr != null && !"".equals(attribStr)) {
             try {
                 attribManager = (AttributeManager) SecurityActions.loadClass(getClass(), attribStr).newInstance();
-                logger.samlHandlerAttributeSetup(this.attribManager.getClass().getName());
+                logger.trace("AttributeManager set to " + attribStr);
             } catch (Exception e) {
                 logger.attributeProviderInstationError(e);
                 throw logger.configurationError(e);
@@ -193,4 +194,5 @@ public class SAML2AttributeHandler extends BaseSAML2Handler {
             }
         }
     }
+    
 }

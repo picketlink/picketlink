@@ -23,8 +23,10 @@
 package org.picketlink.identity.federation.bindings.jboss.auth;
 
 import java.security.KeyStore;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
+
 import org.jboss.security.JBossJSSESecurityDomain;
 
 

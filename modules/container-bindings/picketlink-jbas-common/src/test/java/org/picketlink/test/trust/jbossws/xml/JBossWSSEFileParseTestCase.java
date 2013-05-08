@@ -30,7 +30,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.junit.Test;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.trust.jbossws.util.JBossWSSERoleExtractor;
 
 /**

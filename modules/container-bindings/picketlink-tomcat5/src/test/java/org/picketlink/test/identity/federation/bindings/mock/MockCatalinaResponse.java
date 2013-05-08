@@ -27,9 +27,9 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.catalina.connector.Response;
-
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.catalina.connector.Response;
 
 /**
  * Mock catalina response

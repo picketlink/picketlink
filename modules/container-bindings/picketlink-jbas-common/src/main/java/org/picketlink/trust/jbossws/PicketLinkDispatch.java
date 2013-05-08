@@ -56,11 +56,11 @@ import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.util.Base64;
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.util.SOAPUtil;
-import org.picketlink.identity.federation.core.util.StringUtil;
 
 /**
  * <p>

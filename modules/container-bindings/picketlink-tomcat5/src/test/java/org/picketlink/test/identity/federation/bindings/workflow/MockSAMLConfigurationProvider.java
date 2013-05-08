@@ -22,16 +22,16 @@
 
 package org.picketlink.test.identity.federation.bindings.workflow;
 
-import org.picketlink.identity.federation.core.config.AuthPropertyType;
-import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.config.KeyProviderType;
-import org.picketlink.identity.federation.core.config.KeyValueType;
-import org.picketlink.identity.federation.core.config.PicketLinkType;
-import org.picketlink.identity.federation.core.config.ProviderType;
-import org.picketlink.identity.federation.core.config.SPType;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.handler.config.Handler;
-import org.picketlink.identity.federation.core.handler.config.Handlers;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.config.federation.AuthPropertyType;
+import org.picketlink.config.federation.IDPType;
+import org.picketlink.config.federation.KeyProviderType;
+import org.picketlink.config.federation.KeyValueType;
+import org.picketlink.config.federation.PicketLinkType;
+import org.picketlink.config.federation.ProviderType;
+import org.picketlink.config.federation.SPType;
+import org.picketlink.config.federation.handler.Handler;
+import org.picketlink.config.federation.handler.Handlers;
 import org.picketlink.identity.federation.web.config.AbstractSAMLConfigurationProvider;
 
 /**

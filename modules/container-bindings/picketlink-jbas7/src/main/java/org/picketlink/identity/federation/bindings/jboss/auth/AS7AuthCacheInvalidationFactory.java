@@ -9,8 +9,8 @@ import javax.naming.InitialContext;
 
 import org.jboss.security.CacheableManager;
 import org.jboss.security.SecurityConstants;
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory.TimeCacheExpiry;
 
 public class AS7AuthCacheInvalidationFactory {

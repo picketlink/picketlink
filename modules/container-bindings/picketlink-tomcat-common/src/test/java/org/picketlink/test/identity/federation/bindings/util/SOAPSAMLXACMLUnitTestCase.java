@@ -24,8 +24,8 @@ package org.picketlink.test.identity.federation.bindings.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.picketlink.identity.federation.api.soap.SOAPSAMLXACML;
-import org.picketlink.identity.federation.api.soap.SOAPSAMLXACML.Result;
+import junit.framework.TestCase;
+
 import org.jboss.security.xacml.core.model.context.ActionType;
 import org.jboss.security.xacml.core.model.context.AttributeType;
 import org.jboss.security.xacml.core.model.context.AttributeValueType;
@@ -34,8 +34,8 @@ import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResourceType;
 import org.jboss.security.xacml.core.model.context.SubjectType;
 import org.jboss.security.xacml.factories.RequestAttributeFactory;
-
-import junit.framework.TestCase;
+import org.picketlink.identity.federation.api.soap.SOAPSAMLXACML;
+import org.picketlink.identity.federation.api.soap.SOAPSAMLXACML.Result;
 
 /**
  * Unit test the SOAP SAML XACML Unit Test

@@ -26,6 +26,7 @@ import java.security.Principal;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBodyElement;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
@@ -34,12 +35,11 @@ import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
-import javax.xml.namespace.QName;
 
+import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.identity.federation.core.util.SOAPUtil;
-import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
-import org.picketlink.trust.jbossws.Util;
 import org.picketlink.trust.jbossws.Constants;
+import org.picketlink.trust.jbossws.Util;
 
 /**
  * 

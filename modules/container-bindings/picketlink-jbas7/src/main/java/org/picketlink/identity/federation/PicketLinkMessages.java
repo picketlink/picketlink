@@ -34,17 +34,17 @@ import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
 import org.jboss.logging.Messages;
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
-import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
-import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
-import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
-import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
-import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
-import org.picketlink.identity.federation.core.wstrust.WSTrustException;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.TrustKeyConfigurationException;
+import org.picketlink.common.exceptions.TrustKeyProcessingException;
+import org.picketlink.common.exceptions.fed.AssertionExpiredException;
+import org.picketlink.common.exceptions.fed.IssueInstantMissingException;
+import org.picketlink.common.exceptions.fed.IssuerNotTrustedException;
+import org.picketlink.common.exceptions.fed.SignatureValidationException;
+import org.picketlink.common.exceptions.fed.WSTrustException;
 import org.w3c.dom.Element;
 
 /**

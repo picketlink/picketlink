@@ -1,6 +1,5 @@
 package org.picketlink.identity.federation.bindings.jboss.auth;
 
-import org.picketlink.identity.federation.bindings.jboss.auth.SAML20CommonTokenRoleAttributeProvider;
 
 /**
  * <p>

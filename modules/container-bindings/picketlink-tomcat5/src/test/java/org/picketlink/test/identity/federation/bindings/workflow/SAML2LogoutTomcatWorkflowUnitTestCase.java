@@ -40,16 +40,14 @@ import javax.servlet.http.HttpSessionEvent;
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.realm.GenericPrincipal;
 import org.junit.Test;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve;
 import org.picketlink.identity.federation.bindings.tomcat.sp.SPRedirectFormAuthenticator;
-import org.picketlink.identity.federation.core.ErrorCodes;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContext;
@@ -125,6 +123,7 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase {
         ByteArrayOutputStream filterbaos = new ByteArrayOutputStream();
         response.setWriter(new PrintWriter(filterbaos));
         catalinaRequest.setParameter(GeneralConstants.GLOBAL_LOGOUT, "true");
+        catalinaRequest.setSession(session);
         sp.authenticate(catalinaRequest, response, loginConfig);
 
         String redirectStr = response.redirectString;

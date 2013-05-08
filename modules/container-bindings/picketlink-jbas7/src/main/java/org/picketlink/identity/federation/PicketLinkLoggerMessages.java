@@ -29,7 +29,7 @@ import org.jboss.logging.Logger;
 import org.jboss.logging.Logger.Level;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ConfigurationException;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>

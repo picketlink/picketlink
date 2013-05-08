@@ -31,8 +31,8 @@ import junit.framework.Assert;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.realm.GenericPrincipal;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContext;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContextClassLoader;
