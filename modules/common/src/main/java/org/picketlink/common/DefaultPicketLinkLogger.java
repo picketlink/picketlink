@@ -2273,6 +2273,16 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
         return new IllegalArgumentException("Cache duration could not be created using '" + timeValue
                 + "'. This value must be an ISO-8601 period or a numeric value representing the duration in milliseconds.");
     }
+    
+    @Override
+    public ConfigurationException samlMetaDataNoIdentityProviderDefined() {
+        return new ConfigurationException("No configuration provided for the Identity Provider.");
+    }
+    
+    @Override
+    public ConfigurationException samlMetaDataNoServiceProviderDefined() {
+        return new ConfigurationException("No configuration provided for the Service Provider.");
+    }
 
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#securityDomainNotFound()

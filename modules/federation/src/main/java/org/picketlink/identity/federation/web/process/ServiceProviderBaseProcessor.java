@@ -31,13 +31,17 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.exceptions.TrustKeyConfigurationException;
-import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.common.exceptions.TrustKeyProcessingException;
+import org.picketlink.common.util.StringUtil;
+import org.picketlink.config.federation.ProviderType;
+import org.picketlink.config.federation.SPType;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerRequest;
@@ -47,9 +51,6 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler.H
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.common.util.StringUtil;
-import org.picketlink.common.constants.GeneralConstants;
-import org.picketlink.config.federation.ProviderType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 
 /**
@@ -152,6 +153,15 @@ public class ServiceProviderBaseProcessor {
 
         saml2HandlerResponse.setPostBindingForResponse(postBinding);
         saml2HandlerResponse.setDestination(identityURL);
+        
+        // if the request is a GLO. Check if there is a specific URL for logout.
+        if (isLogOutRequest(httpContext)) {
+            String logoutUrl = ((SPType) this.spConfiguration).getLogoutUrl();
+            
+            if (logoutUrl != null) {
+                saml2HandlerResponse.setDestination(logoutUrl);
+            }
+        }
 
         // Reset the state
         try {
