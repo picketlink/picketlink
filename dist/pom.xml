@@ -12,7 +12,7 @@
    <artifactId>picketlink-distribution</artifactId>
    <name>PicketLink Distribution</name>
    <description>Builds a PicketLink release distribution</description>
-   <packaging>pom</packaging>
+   <packaging>jar</packaging>
 
    <properties>
       <maven.deploy.skip>true</maven.deploy.skip>
@@ -23,14 +23,14 @@
       
       <dependency>
          <groupId>org.picketlink</groupId>
-         <artifactId>picketlink-core-api</artifactId>
+         <artifactId>picketlink-api</artifactId>
          <version>${project.version}</version>         
          <optional>true</optional>
       </dependency>      
 
       <dependency>
          <groupId>org.picketlink</groupId>
-         <artifactId>picketlink-core-impl</artifactId>
+         <artifactId>picketlink-impl</artifactId>
          <version>${project.version}</version>         
          <optional>true</optional>
       </dependency>      
@@ -55,12 +55,18 @@
          <version>${project.version}</version>         
          <optional>true</optional>
       </dependency>   
+      
+      <!-- Included for JavaDoc -->
+      <dependency>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging</artifactId>
+      </dependency>
             
       <!-- Source -->
 
       <dependency>
          <groupId>org.picketlink</groupId>
-         <artifactId>picketlink-core-api</artifactId>
+         <artifactId>picketlink-api</artifactId>
          <version>${project.version}</version>
          <classifier>sources</classifier>
          <optional>true</optional>
@@ -68,7 +74,7 @@
 
       <dependency>
          <groupId>org.picketlink</groupId>
-         <artifactId>picketlink-core-impl</artifactId>
+         <artifactId>picketlink-impl</artifactId>
          <version>${project.version}</version>
          <classifier>sources</classifier>
       </dependency>
@@ -97,9 +103,9 @@
                   
       <!-- Javadoc -->
 
-      <dependency>
+      <!--dependency>
          <groupId>org.picketlink</groupId>
-         <artifactId>picketlink-core-api</artifactId>
+         <artifactId>picketlink-api</artifactId>
          <version>${project.version}</version>
          <classifier>javadoc</classifier>
          <optional>true</optional>
@@ -111,7 +117,7 @@
          <version>${project.version}</version>
          <classifier>javadoc</classifier>
          <optional>true</optional>
-      </dependency>
+      </dependency-->
 
       <!-- Reference docs -->
 
@@ -128,10 +134,63 @@
    <build>
       <finalName>picketlink</finalName>
       <plugins>
+
+         <plugin>
+           <artifactId>maven-source-plugin</artifactId>
+           <version>2.1.1</version>
+           <executions>
+             <execution>
+               <id>bundle-sources</id>
+               <phase>package</phase>
+               <goals>
+                 <goal>jar-no-fork</goal>
+               </goals>
+             </execution>
+           </executions>
+         </plugin>
+         
+         <plugin>
+           <artifactId>maven-javadoc-plugin</artifactId>
+           <version>2.9</version>
+           
+           <executions>
+             <execution>
+               <id>javadoc-jar</id>
+               <phase>package</phase>
+               <goals>
+                 <goal>jar</goal>
+               </goals>
+               <configuration>
+                 <includeDependencySources>true</includeDependencySources>
+                 
+                 <!--dependencySourceExcludes>
+                   <dependencySourceExclude>javax.enterprise:*</dependencySourceExclude>
+                   <dependencySourceExclude>org.jboss.logging:*</dependencySourceExclude>
+                 </dependencySourceExcludes-->
+                 
+                 <dependencySourceIncludes>
+                   <dependencySourceInclude>org.picketlink:picketlink-api</dependencySourceInclude>
+                   <dependencySourceInclude>org.picketlink:picketlink-idm-api</dependencySourceInclude>
+                 </dependencySourceIncludes>
+               
+                 <!--sourcepath>${project.build.directory}/sources</sourcepath-->
+                 <links>
+                   <link>http://docs.oracle.com/javaee/6/api/</link>
+                   <link>http://docs.oracle.com/javase/6/docs/api/</link>
+                 </links>
+                 
+                 <!--keywords>true</keywords>
+                 <author>true</author-->
+               </configuration>
+             </execution>
+           </executions>
+         </plugin>
+           
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
          </plugin>
+         
       </plugins>
    </build>
 </project>

@@ -23,6 +23,16 @@
             <include>notice.txt</include>
          </includes>
       </fileSet>
+      
+      <!-- Pull in javadoc for api -->
+      <fileSet>
+        <directory>${project.build.directory}/apidocs</directory>
+        <outputDirectory>doc/api</outputDirectory>
+        <excludes>
+          <exclude>argfile</exclude>
+          <exclude>options</exclude>
+        </excludes>
+      </fileSet>      
    </fileSets>
 
    <dependencySets>
@@ -31,8 +41,8 @@
          <outputDirectory>artifacts</outputDirectory>
          <useProjectArtifact>false</useProjectArtifact>
          <includes>
-            <include>org.picketlink:picketlink-core-api</include>
-            <include>org.picketlink:picketlink-core-impl</include>
+            <include>org.picketlink:picketlink-api</include>
+            <include>org.picketlink:picketlink-impl</include>
             <include>org.picketlink:picketlink-idm-api</include>
             <include>org.picketlink:picketlink-idm-impl</include>
             <include>org.picketlink:picketlink-idm-schema</include>
@@ -55,8 +65,7 @@
          <outputFileNameMapping>${artifact.artifactId}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
       </dependencySet>
       
-      <!-- Pull in javadoc for api -->
-      <dependencySet>
+      <!--dependencySet>
          <outputDirectory>doc/idm-api</outputDirectory>
          <unpack>true</unpack>
          <useProjectArtifact>false</useProjectArtifact>
@@ -71,7 +80,7 @@
          <includes>
             <include>org.picketlink:picketlink-core-api:jar:javadoc</include>
          </includes>
-      </dependencySet>
+      </dependencySet-->
       
       <!-- Pull in docbook artifacts -->
       
@@ -105,8 +114,8 @@
          <unpack>true</unpack>
          <useProjectArtifact>false</useProjectArtifact>
          <includes>
-            <include>org.picketlink:picketlink-core-api:*:sources</include>
-            <include>org.picketlink:picketlink-core-impl:*:sources</include>
+            <include>org.picketlink:picketlink-api:*:sources</include>
+            <include>org.picketlink:picketlink-impl:*:sources</include>
             <include>org.picketlink:picketlink-idm-api:*:sources</include>
             <include>org.picketlink:picketlink-idm-impl:*:sources</include>
             <include>org.picketlink:picketlink-idm-schema:*:sources</include>

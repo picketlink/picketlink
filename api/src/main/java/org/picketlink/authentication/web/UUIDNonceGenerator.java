@@ -26,7 +26,7 @@ import java.util.UUID;
 import org.picketlink.common.util.Base64;
 
 /**
- * An instance of {@link NonceGenerator} that uses {@link UUID} level 4
+ * A nonce generator that uses {@link java.util.UUID} level 4
  *
  * @author anil saldhana
  */
