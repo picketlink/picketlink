@@ -12,8 +12,19 @@
       
       <para>
         PicketLink is an Application Security Framework for Java EE applications.  It provides features for authenticating users,
-        authorizing access to the business methods of your application, and managing your application's users, groups, roles and permissions.
+        authorizing access to the business methods of your application, managing your application's users, groups, roles and
+        permissions, plus much more.  The following diagram presents a high level overview of the PicketLink modules.
       </para>
+      
+      <mediaobject>
+        <imageobject role="fo">
+          <imagedata fileref="diagrams/overview.png" align="center" scalefit="1"/>
+        </imageobject>
+        <imageobject role="html">
+          <imagedata fileref="diagrams/overview.png" align="center"/>
+        </imageobject>
+      </mediaobject>       
+      
     </section>
     
     <section>
@@ -105,7 +116,14 @@
       </itemizedlist>
 
       <para>
-        If you wish to use PicketLink's Identity Management features and want to include the default database schema
+        If you wish to use PicketLink's Identity Management features and want         <mediaobject>
+          <imageobject role="fo">
+            <imagedata fileref="diagrams/partition.png" align="center" scalefit="1"/>
+          </imageobject>
+          <imageobject role="html">
+            <imagedata fileref="diagrams/partition.png" align="center"/>
+          </imageobject>
+        </mediaobject> to include the default database schema
         (see the Identity Management chapter for more details) then include the following dependency also:
       </para>
 
