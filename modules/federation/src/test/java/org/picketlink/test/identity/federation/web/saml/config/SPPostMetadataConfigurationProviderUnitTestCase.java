@@ -23,8 +23,8 @@ import static org.junit.Assert.assertNotNull;
 import java.io.InputStream;
 
 import org.junit.Test;
-import org.picketlink.config.federation.SPType;
 import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.config.federation.SPType;
 import org.picketlink.identity.federation.web.config.SPPostMetadataConfigurationProvider;
 
 /**
@@ -40,6 +40,7 @@ public class SPPostMetadataConfigurationProviderUnitTestCase {
         SPType sp = provider.getSPConfiguration();
         assertNotNull(sp);
         assertEquals("https://sp.testshib.org/Shibboleth.sso/SAML2/POST", sp.getServiceURL());
+        assertEquals("https://idp.testshib.org/idp/profile/SAML2/POST/SLO", sp.getLogoutUrl());
     }
 
     @SuppressWarnings("deprecation")
