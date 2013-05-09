@@ -27,17 +27,19 @@ import javax.servlet.http.HttpSession;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.jboss.security.audit.AuditLevel;
+import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.config.federation.SPType;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
-import org.picketlink.common.exceptions.ConfigurationException;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLProtocolContext;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
@@ -53,7 +55,6 @@ import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusCodeType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
-import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 
@@ -116,19 +117,6 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
         } else {
             sp.handleStatusResponseType(request, response);
         }
-    }
-
-    /**
-     * @param request
-     * @return
-     */
-    Principal getUserPrincipal(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        Principal userPrincipal = request.getUserPrincipal();
-        if (userPrincipal ==  null) {
-            userPrincipal = (Principal) session.getAttribute(GeneralConstants.PRINCIPAL_ID);
-        }
-        return userPrincipal;
     }
 
     private class IDPLogOutHandler {
@@ -264,7 +252,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
                     LogoutRequestType lort = saml2Request.createLogoutRequest(request.getIssuer().getValue());
 
-                    Principal userPrincipal = getUserPrincipal(httpServletRequest);
+                    Principal userPrincipal = httpServletRequest.getUserPrincipal();
                     if (userPrincipal == null) {
                         throw logger.samlHandlerPrincipalNotFoundError();
                     }
@@ -363,7 +351,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
             HTTPContext httpContext = (HTTPContext) request.getContext();
             HttpServletRequest httpRequest = httpContext.getRequest();
-            Principal userPrincipal = getUserPrincipal(httpRequest);
+            Principal userPrincipal = httpRequest.getUserPrincipal();
             if (userPrincipal == null) {
                 throw logger.samlHandlerPrincipalNotFoundError();
             }
@@ -373,7 +361,16 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                 NameIDType nameID = new NameIDType();
                 nameID.setValue(userPrincipal.getName());
                 lot.setNameID(nameID);
-
+                
+                SPType spConfiguration = (SPType) getProviderconfig();
+                String logoutUrl = spConfiguration.getLogoutUrl();
+                
+                if (logoutUrl == null) {
+                    logoutUrl = spConfiguration.getIdentityURL();
+                }
+                
+                lot.setDestination(URI.create(logoutUrl));
+                
                 response.setResultingDocument(samlRequest.convert(lot));
                 response.setSendRequest(true);
             } catch (Exception e) {
