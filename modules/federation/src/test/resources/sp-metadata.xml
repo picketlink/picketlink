@@ -52,9 +52,15 @@
 				Location="https://idp.testshib.org/idp/profile/Shibboleth/SSO" />
 			<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
 				Location="https://idp.testshib.org/idp/profile/SAML2/POST/SSO" />
+			<SingleLogoutService
+				Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+				Location="https://idp.testshib.org/idp/profile/SAML2/POST/SLO" />
 			<SingleSignOnService
 				Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
 				Location="https://idp.testshib.org/idp/profile/SAML2/Redirect/SSO" />
+			<SingleLogoutService
+				Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+				Location="https://idp.testshib.org/idp/profile/SAML2/Redirect/SLO" />
 		</IDPSSODescriptor>
 		<AttributeAuthorityDescriptor
 			protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol urn:oasis:names:tc:SAML:2.0:protocol">
@@ -83,7 +89,8 @@
 							UTK+qEqaEl1vjZVKmvNSdDet06EQ+MGZf1MnW6jid4AMrSdboDHFW34qet+tr9gf
 							5k6bZx6oIiOILgXWHk7hK1ZuxK5w0bpbktNIfO35HoQSPBx6u6wuxt4yN/m6QLiq
 							nGEzsHlzsPFv1Iw+ccdALcqR0zor7GEJrKmp4Gcb/zH3oy1rQNZHUlz29emJhS/1
-							q1og9SGCUU2yRL1tC+Y=</ds:X509Certificate>
+							q1og9SGCUU2yRL1tC+Y=
+						</ds:X509Certificate>
 					</ds:X509Data>
 				</ds:KeyInfo>
 			</KeyDescriptor>
@@ -218,7 +225,8 @@
 				Location="https://www.testshib.org/Shibboleth.sso/SAML/POST" index="8" />
 			<AssertionConsumerService
 				Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
-				Location="https://www.testshib.org/Shibboleth.sso/SAML/REDIRECT" index="9" />
+				Location="https://www.testshib.org/Shibboleth.sso/SAML/REDIRECT"
+				index="9" />
 		</SPSSODescriptor>
 		<Organization>
 			<OrganizationName xmlns="urn:oasis:names:tc:SAML:2.0:metadata"

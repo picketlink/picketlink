@@ -21,8 +21,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
-import org.picketlink.config.federation.SPType;
 import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.config.federation.SPType;
 import org.picketlink.identity.federation.web.config.SPRedirectMetadataConfigurationProvider;
 
 /**
@@ -38,6 +38,7 @@ public class SPRedirectMetadataConfigurationProviderUnitTestCase {
         SPType sp = provider.getSPConfiguration();
         assertNotNull(sp);
         assertEquals("https://www.testshib.org/Shibboleth.sso/SAML/REDIRECT", sp.getServiceURL());
+        assertEquals("https://idp.testshib.org/idp/profile/SAML2/Redirect/SLO", sp.getLogoutUrl());
     }
 
 }

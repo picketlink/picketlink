@@ -35,14 +35,11 @@ import javax.servlet.ServletContext;
 
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.PBEUtils;
 import org.picketlink.common.util.StringUtil;
-import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
-import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.config.federation.AuthPropertyType;
 import org.picketlink.config.federation.ClaimsProcessorType;
 import org.picketlink.config.federation.IDPType;
@@ -52,6 +49,9 @@ import org.picketlink.config.federation.MetadataProviderType;
 import org.picketlink.config.federation.ProviderType;
 import org.picketlink.config.federation.SPType;
 import org.picketlink.config.federation.TokenProviderType;
+import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
+import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
@@ -73,7 +73,7 @@ public class CoreConfigUtil {
 
     /**
      * Given either the IDP Configuration or the SP Configuration, derive the TrustKeyManager
-     *
+     * 
      * @param idpOrSPConfiguration
      * @return
      */
@@ -84,7 +84,7 @@ public class CoreConfigUtil {
 
     /**
      * Once the {@code KeyProviderType} is derived, get the {@code TrustKeyManager}
-     *
+     * 
      * @param keyProvider
      * @return
      */
@@ -107,7 +107,7 @@ public class CoreConfigUtil {
 
     /**
      * Get the validating key
-     *
+     * 
      * @param idpSpConfiguration
      * @param domain
      * @return
@@ -123,7 +123,7 @@ public class CoreConfigUtil {
 
     /**
      * Get the validating key given the trust key manager
-     *
+     * 
      * @param trustKeyManager
      * @param domain
      * @return
@@ -140,7 +140,7 @@ public class CoreConfigUtil {
 
     /**
      * Given a {@code KeyProviderType}, return the list of auth properties that have been decrypted for any masked password
-     *
+     * 
      * @param keyProviderType
      * @return
      * @throws GeneralSecurityException
@@ -157,7 +157,7 @@ public class CoreConfigUtil {
 
     /**
      * Given a {@code TokenProviderType}, return the list of properties that have been decrypted for any masked property value
-     *
+     * 
      * @param tokenProviderType
      * @return
      * @throws GeneralSecurityException
@@ -173,7 +173,7 @@ public class CoreConfigUtil {
 
     /**
      * Given a {@code ClaimsProcessorType}, return the list of properties that have been decrypted for any masked property value
-     *
+     * 
      * @param claimsProcessorType
      * @return
      * @throws GeneralSecurityException
@@ -190,7 +190,7 @@ public class CoreConfigUtil {
     /**
      * Given a key value list, check if decrypt of any properties is needed. Unless one of the keys is "salt", we cannot figure
      * out is decrypt is needed
-     *
+     * 
      * @param keyValueList
      * @return
      */
@@ -211,7 +211,7 @@ public class CoreConfigUtil {
     /**
      * Given a key value pair read from PicketLink configuration, ensure that we replace the masked passwords with the decoded
      * passwords and pass it back
-     *
+     * 
      * @param keyValueList
      * @return
      * @throws GeneralSecurityException
@@ -280,7 +280,7 @@ public class CoreConfigUtil {
 
     /**
      * Given a metadata {@link EntityDescriptorType}, construct the Service provider configuration
-     *
+     * 
      * @param entityDescriptor
      * @param bindingURI
      * @return
@@ -309,58 +309,70 @@ public class CoreConfigUtil {
 
     /**
      * Given a metadata {@link EntityDescriptorType}, construct the Service provider configuration
-     *
+     * 
      * @param entityDescriptor
      * @param bindingURI
      * @return
+     * @throws ConfigurationException
      */
-    public static SPType getSPConfiguration(EntitiesDescriptorType entitiesDescriptor, String bindingURI) {
-        SPType spType = null;
-        String identityURL = null;
-        String serviceURL = null;
+    public static SPType getSPConfiguration(EntitiesDescriptorType entitiesDescriptor, String bindingURI)
+            throws ConfigurationException {
+        SPType spType = new SPType();
 
         List<Object> list = entitiesDescriptor.getEntityDescriptor();
+
+        IDPSSODescriptorType idpSSO = null;
+        SPSSODescriptorType spSSO = null;
+
         if (list != null) {
             for (Object theObject : list) {
                 if (theObject instanceof EntitiesDescriptorType) {
                     spType = getSPConfiguration((EntitiesDescriptorType) theObject, bindingURI);
                 } else if (theObject instanceof EntityDescriptorType) {
-                    if (identityURL == null) {
-                        IDPSSODescriptorType idpSSO = getIDPDescriptor((EntityDescriptorType) theObject);
-                        if (idpSSO != null) {
-                            identityURL = getIdentityURL(idpSSO, bindingURI);
-                        }
-                        if (identityURL != null && spType != null) {
-                            spType.setIdentityURL(identityURL);
-                        } else if (identityURL != null && spType == null) {
-                            spType = new SPType();
-                            spType.setIdentityURL(identityURL);
-                        }
+                    if (idpSSO == null) {
+                        // Ideally we should lookup the IDP metadata considering the specs. For now the IDP metadata must be
+                        // defined within the SP metadata file.
+                        idpSSO = getIDPDescriptor((EntityDescriptorType) theObject);
                     }
-                    if (serviceURL == null) {
-                        SPSSODescriptorType spSSO = getSPDescriptor((EntityDescriptorType) theObject);
-                        if (spSSO != null) {
-                            serviceURL = getServiceURL(spSSO, bindingURI);
-                        }
-                        if (serviceURL != null && spType != null) {
-                            spType.setServiceURL(serviceURL);
-                        } else if (serviceURL != null && spType == null) {
-                            spType = new SPType();
-                            spType.setServiceURL(serviceURL);
-                        }
+
+                    if (spSSO == null) {
+                        spSSO = getSPDescriptor((EntityDescriptorType) theObject);
                     }
                 }
-                if (spType != null && !StringUtil.isNullOrEmpty(spType.getIdentityURL())
-                        && !StringUtil.isNullOrEmpty(spType.getServiceURL()))
-                    break;
             }
+
+            if (idpSSO == null) {
+                throw logger.samlMetaDataNoIdentityProviderDefined();
+            }
+
+            if (spSSO == null) {
+                throw logger.samlMetaDataNoServiceProviderDefined();
+            }
+
+            String identityURL = getIdentityURL(idpSSO, bindingURI);
+
+            if (identityURL == null) {
+                throw logger.samlMetaDataNoIdentityProviderDefined();
+            }
+
+            spType.setIdentityURL(identityURL);
+            spType.setLogoutUrl(getLogoutURL(idpSSO, bindingURI));
+
+            String serviceURL = getServiceURL(spSSO, bindingURI);
+
+            if (serviceURL == null) {
+                throw logger.samlMetaDataNoServiceProviderDefined();
+            }
+
+            spType.setServiceURL(serviceURL);
         }
+
         return spType;
     }
 
     /**
      * Get the first metadata descriptor for an IDP
-     *
+     * 
      * @param entitiesDescriptor
      * @return
      */
@@ -382,7 +394,7 @@ public class CoreConfigUtil {
 
     /**
      * Get the IDP metadata descriptor from an entity descriptor
-     *
+     * 
      * @param entityDescriptor
      * @return
      */
@@ -402,7 +414,7 @@ public class CoreConfigUtil {
 
     /**
      * Get the SP Descriptor from an entity descriptor
-     *
+     * 
      * @param entityDescriptor
      * @return
      */
@@ -422,7 +434,7 @@ public class CoreConfigUtil {
 
     /**
      * Given a binding uri, get the IDP identity url
-     *
+     * 
      * @param idp
      * @param bindingURI
      * @return
@@ -442,8 +454,29 @@ public class CoreConfigUtil {
     }
 
     /**
+     * Given a binding uri, get the IDP identity url
+     * 
+     * @param idp
+     * @param bindingURI
+     * @return
+     */
+    public static String getLogoutURL(IDPSSODescriptorType idp, String bindingURI) {
+        String logoutURL = null;
+
+        List<EndpointType> endpoints = idp.getSingleLogoutService();
+        for (EndpointType endpoint : endpoints) {
+            if (endpoint.getBinding().toString().equals(bindingURI)) {
+                logoutURL = endpoint.getLocation().toString();
+                break;
+            }
+
+        }
+        return logoutURL;
+    }
+
+    /**
      * Get the service url for the SP
-     *
+     * 
      * @param sp
      * @param bindingURI
      * @return
@@ -464,7 +497,7 @@ public class CoreConfigUtil {
 
     /**
      * Get the IDP Type
-     *
+     * 
      * @param idpSSODescriptor
      * @return
      */
@@ -490,6 +523,7 @@ public class CoreConfigUtil {
 
     /**
      * Read metadata from ProviderType
+     * 
      * @param providerType
      * @param servletContext
      * @return
@@ -507,9 +541,8 @@ public class CoreConfigUtil {
         IMetadataProvider metadataProvider;
         try {
             metadataProvider = (IMetadataProvider) clazz.newInstance();
-        }
-        catch (Exception iae) {
-           throw new RuntimeException(iae);
+        } catch (Exception iae) {
+            throw new RuntimeException(iae);
         }
 
         List<KeyValueType> keyValues = metadataProviderType.getOption();
@@ -529,8 +562,7 @@ public class CoreConfigUtil {
         if (metadataProvider.isMultiple()) {
             EntitiesDescriptorType metadatas = (EntitiesDescriptorType) metadataProvider.getMetaData();
             addAllEntityDescriptorsRecursively(resultList, metadatas);
-        }
-        else {
+        } else {
             EntityDescriptorType metadata = (EntityDescriptorType) metadataProvider.getMetaData();
             resultList.add(metadata);
         }
@@ -538,18 +570,16 @@ public class CoreConfigUtil {
     }
 
     private static void addAllEntityDescriptorsRecursively(List<EntityDescriptorType> resultList,
-                                                           EntitiesDescriptorType entitiesDescriptorType) {
-         List<Object> entities = entitiesDescriptorType.getEntityDescriptor();
-         for (Object o : entities) {
-             if (o instanceof EntitiesDescriptorType) {
-                 addAllEntityDescriptorsRecursively(resultList, (EntitiesDescriptorType)o);
-             }
-             else if (o instanceof EntityDescriptorType) {
-                 resultList.add((EntityDescriptorType)o);
-             }
-             else {
-                 throw new IllegalArgumentException("Wrong type: " + o.getClass());
-             }
-         }
+            EntitiesDescriptorType entitiesDescriptorType) {
+        List<Object> entities = entitiesDescriptorType.getEntityDescriptor();
+        for (Object o : entities) {
+            if (o instanceof EntitiesDescriptorType) {
+                addAllEntityDescriptorsRecursively(resultList, (EntitiesDescriptorType) o);
+            } else if (o instanceof EntityDescriptorType) {
+                resultList.add((EntityDescriptorType) o);
+            } else {
+                throw new IllegalArgumentException("Wrong type: " + o.getClass());
+            }
+        }
     }
 }

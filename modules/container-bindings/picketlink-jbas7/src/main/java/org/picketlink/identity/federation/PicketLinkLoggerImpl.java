@@ -54,7 +54,7 @@ import org.w3c.dom.Element;
 @SuppressWarnings("restriction")
 public final class PicketLinkLoggerImpl implements PicketLinkLogger {
 
-    PicketLinkLoggerImpl() {
+PicketLinkLoggerImpl() {
         
     }
 
