@@ -30,6 +30,17 @@
     <section>
       <title>Features</title>
       
+      <section>
+        <title>Identity Management</title>
+        
+        <para>
+          The Identity Management module defines the base identity model; a collection of interfaces and classes
+          that represent the identity constructs (such as users, groups and roles) used throughout PicketLink (see
+          the Identity Management chapter for more details).  It also provides a uniform API for managing the
+          identity objects within your application.
+          
+        </para>
+      </section>
       
     
     </section>
