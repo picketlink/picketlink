@@ -29,13 +29,14 @@ package org.picketlink.cache;
  */
 public interface Cacheable {
     /**
-     * Get the {@link CacheManager}
+     * Get the {@link Cache}
      * @return
      */
-    CacheManager getCacheManager();
+    <K,V> Cache<K,V> getCache();
     /**
      * Set the {@link CacheManager}
+     * @param <V>
      * @param cacheManager
      */
-    void setCacheManager(CacheManager cacheManager);
+    <K,V> void setCacheManager(Cache<K,V> cache);
 }
