@@ -18,14 +18,12 @@
 
 package org.picketlink.idm.config;
 
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.Collections.unmodifiableSet;
 import static org.picketlink.idm.IDMLogger.LOGGER;
-import static org.picketlink.idm.config.FeatureSet.addFeatureSupport;
-import static org.picketlink.idm.config.FeatureSet.addRelationshipSupport;
-import static org.picketlink.idm.config.FeatureSet.getDefaultRelationshipClasses;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,34 +35,49 @@ import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
-import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
-
 
 /**
  * The base class for store configurations
  *
  * @author Shane Bryzak
  */
-public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStoreConfiguration<?>> implements IdentityStoreConfiguration {
+public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStoreConfiguration<?>> implements
+        IdentityStoreConfiguration {
 
-    private final FeatureSet featureSet = new FeatureSet();
     private final Set<String> realms = new HashSet<String>();
     private final Set<String> tiers = new HashSet<String>();
     private List<ContextInitializer> contextInitializers = new ArrayList<ContextInitializer>();
-    private Map<String, Object> credentialHandlerProperties = new HashMap<String,Object>();
+    private Map<String, Object> credentialHandlerProperties = new HashMap<String, Object>();
     private List<Class<? extends CredentialHandler>> credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
+    /**
+     * Metadata reflecting which features are supported by this identity store
+     */
+    private final Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures;
+    private final Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships;
+
+    public BaseAbstractStoreConfiguration(Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
+            Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms,
+            Set<String> tiers, List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties,
+            List<Class<? extends CredentialHandler>> credentialHandlers) {
+        this.realms.addAll(realms);
+        this.tiers.addAll(tiers);
+        this.contextInitializers.addAll(contextInitializers);
+        this.credentialHandlerProperties.putAll(credentialHandlerProperties);
+        this.credentialHandlers.addAll(credentialHandlers);
+        this.supportedFeatures = supportedFeatures;
+        this.supportedRelationships = supportedRelationships;
+    }
 
     @Override
     public final void init() throws SecurityConfigurationException {
         initConfig();
-        this.featureSet.lock();
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debugf("FeatureSet for %s", this);
             LOGGER.debug("Features [");
 
-            for (Entry<FeatureGroup, Set<FeatureOperation>> entry : this.featureSet.getSupportedFeatures().entrySet()) {
+            for (Entry<FeatureGroup, Set<FeatureOperation>> entry : getSupportedFeatures().entrySet()) {
                 LOGGER.debugf("%s.%s", entry.getKey(), entry.getValue());
             }
 
@@ -72,7 +85,7 @@ public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStore
 
             LOGGER.debug("Relationships [");
 
-            for (Entry<Class<? extends Relationship>, Set<FeatureOperation>> entry : this.featureSet.getSupportedRelationships().entrySet()) {
+            for (Entry<Class<? extends Relationship>, Set<FeatureOperation>> entry : getSupportedRelationships().entrySet()) {
                 LOGGER.debugf("%s.%s", entry.getKey(), entry.getValue());
             }
 
@@ -84,89 +97,93 @@ public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStore
 
     @Override
     public List<ContextInitializer> getContextInitializers() {
-        return this.contextInitializers;
+        return unmodifiableList(this.contextInitializers);
     }
 
     @Override
     public List<Class<? extends CredentialHandler>> getCredentialHandlers() {
-        return this.credentialHandlers;
+        return unmodifiableList(this.credentialHandlers);
     }
 
     @Override
     public Map<String, Object> getCredentialHandlerProperties() {
-        return this.credentialHandlerProperties;
+        return unmodifiableMap(this.credentialHandlerProperties);
     }
 
+    /**
+     * <p>
+     * Check if the {@link FeatureGroup} is supported.
+     * </p>
+     *
+     * @param feature
+     * @param operation
+     * @return
+     */
     @Override
-    public FeatureSet getFeatureSet() {
-        return featureSet;
-    }
-
-    public C addContextInitializer(ContextInitializer contextInitializer) {
-        this.contextInitializers.add(contextInitializer);
-        return (C) this;
-    }
-
-    public C setCredentialHandlerProperty(String propertyName, Object value) {
-        this.credentialHandlerProperties.put(propertyName, value);
-        return (C) this;
-    }
-
-    public C addCredentialHandler(Class<? extends CredentialHandler> credentialHandler) {
-        this.credentialHandlers.add(credentialHandler);
-        return (C) this;
-    }
-
-    public C supportFeature(FeatureGroup... feature) {
-        FeatureSet.addFeatureSupport(getFeatureSet(), feature);
-        return (C) this;
-    }
-
-    public C supportRelationshipType(Class<? extends Relationship>... types) {
-        addRelationshipSupport(getFeatureSet(), types);
-
-        if (types != null) {
-            for (Class<? extends Relationship> relationshipType : types) {
-                if (!getDefaultRelationshipClasses().contains(relationshipType)) {
-                    getFeatureSet().setSupportsCustomRelationships(true);
-                }
-            }
+    public boolean supportsFeature(FeatureGroup feature, FeatureOperation operation) {
+        if (!this.supportedFeatures.containsKey(feature)) {
+            return false;
         }
 
-        return (C) this;
-    }
-
-    public C supportAllFeatures() {
-        addFeatureSupport(getFeatureSet());
-        return (C) this;
-    }
-
-    public C addRealm(String... realmNames) {
-        if (realmNames != null) {
-            this.realms.addAll(Arrays.asList(realmNames));
+        if (operation == null) {
+            return true;
         }
 
-        return (C) this;
+        return this.supportedFeatures.get(feature).contains(operation);
     }
 
-    public C addTier(String... tierNames) {
-        if (tierNames != null) {
-            this.tiers.addAll(Arrays.asList(tierNames));
+    /**
+     * <p>
+     * Check if the given Relationship type is supported.
+     * </p>
+     *
+     * @param feature
+     * @param operation
+     * @return
+     */
+    @Override
+    public boolean supportsRelationship(Class<? extends Relationship> relationshipType, FeatureOperation operation) {
+        if (!this.supportedRelationships.containsKey(relationshipType)) {
+            return false;
         }
 
-        return (C) this;
+        if (operation == null) {
+            return true;
+        }
+
+        return this.supportedRelationships.get(relationshipType).contains(operation);
     }
 
     public Set<String> getRealms() {
-        if (this.realms.isEmpty()) {
-            this.realms.add(Realm.DEFAULT_REALM);
-        }
-
-        return Collections.unmodifiableSet(this.realms);
+        return unmodifiableSet(this.realms);
     }
 
     public Set<String> getTiers() {
-        return Collections.unmodifiableSet(this.tiers);
+        return unmodifiableSet(this.tiers);
+    }
+
+    public Map<FeatureGroup, Set<FeatureOperation>> getSupportedFeatures() {
+        return unmodifiableMap(this.supportedFeatures);
+    }
+
+    public Map<Class<? extends Relationship>, Set<FeatureOperation>> getSupportedRelationships() {
+        return unmodifiableMap(this.supportedRelationships);
+    }
+
+    /**
+     * <p>
+     * Removes the given {@link FeatureGroup} and all supported {@link FeatureOperation} from the features set.
+     * </p>
+     *
+     * @param feature
+     * @throws SecurityConfigurationException If this instance is locked and changes are no more allowed.
+     */
+    protected void removeFeature(FeatureGroup feature) throws SecurityConfigurationException {
+        this.supportedFeatures.remove(feature);
+
+        if (FeatureGroup.relationship.equals(feature)) {
+            this.supportedRelationships.clear();
+        }
     }
 
 }

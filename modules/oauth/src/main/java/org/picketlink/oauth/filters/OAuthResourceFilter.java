@@ -37,7 +37,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.builder.IdentityConfigurationBuilder;
+import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -155,14 +156,20 @@ public class OAuthResourceFilter implements Filter {
             if (isJPAStoreConfigured()) {
                 this.entityManagerFactory = Persistence.createEntityManagerFactory("picketlink-oauth-pu");
 
-                IdentityConfiguration configuration = new IdentityConfiguration();
+                IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
-                configuration.jpaStore().addRealm(Realm.DEFAULT_REALM).setIdentityClass(IdentityObject.class)
-                        .setAttributeClass(IdentityObjectAttribute.class).setRelationshipClass(RelationshipObject.class)
-                        .setRelationshipIdentityClass(RelationshipIdentityObject.class)
-                        .setRelationshipAttributeClass(RelationshipObjectAttribute.class)
-                        .setCredentialClass(CredentialObject.class)
-                        .setCredentialAttributeClass(CredentialObjectAttribute.class).setPartitionClass(PartitionObject.class)
+                builder
+                    .stores()
+                        .jpa()
+                        .addRealm(Realm.DEFAULT_REALM)
+                        .identityClass(IdentityObject.class)
+                        .attributeClass(IdentityObjectAttribute.class)
+                        .relationshipClass(RelationshipObject.class)
+                        .relationshipIdentityClass(RelationshipIdentityObject.class)
+                        .relationshipAttributeClass(RelationshipObjectAttribute.class)
+                        .credentialClass(CredentialObject.class)
+                        .credentialAttributeClass(CredentialObjectAttribute.class)
+                        .partitionClass(PartitionObject.class)
                         .supportAllFeatures().addContextInitializer(new JPAContextInitializer(this.entityManagerFactory) {
                             @Override
                             public EntityManager getEntityManager() {
@@ -170,29 +177,32 @@ public class OAuthResourceFilter implements Filter {
                             }
                         });
 
-                identityManager = configuration.buildIdentityManagerFactory().createIdentityManager();
+                // FIXME: IdentityManager is not threadsafe
+                identityManager = new DefaultIdentityManagerFactory(builder.build()).createIdentityManager();
             }
 
             if (isLDAPStoreConfigured()) {
-                IdentityConfiguration configuration = new IdentityConfiguration();
+                IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
                 Properties properties = getProperties();
 
-                configuration
-                        .ldapStore()
-                        .setBaseDN(properties.getProperty("baseDN"))
-                        .setBindDN(properties.getProperty("bindDN"))
-                        .setBindCredential(properties.getProperty("bindCredential"))
-                        .setLdapURL(properties.getProperty("ldapURL"))
-                        .setUserDNSuffix(properties.getProperty("userDNSuffix"))
-                        .setRoleDNSuffix(properties.getProperty("roleDNSuffix"))
-                        .setAgentDNSuffix(properties.getProperty("agentDNSuffix"))
-                        .setGroupDNSuffix(properties.getProperty("groupDNSuffix"))
-                        .addRealm(Realm.DEFAULT_REALM)
-                        .supportFeature(FeatureGroup.user, FeatureGroup.agent, FeatureGroup.user, FeatureGroup.group,
-                                FeatureGroup.role, FeatureGroup.attribute, FeatureGroup.relationship, FeatureGroup.credential);
+                builder
+                    .stores()
+                        .ldap()
+                            .baseDN(properties.getProperty("baseDN"))
+                            .bindDN(properties.getProperty("bindDN"))
+                            .bindCredential(properties.getProperty("bindCredential"))
+                            .url(properties.getProperty("ldapURL"))
+                            .userDNSuffix(properties.getProperty("userDNSuffix"))
+                            .roleDNSuffix(properties.getProperty("roleDNSuffix"))
+                            .agentDNSuffix(properties.getProperty("agentDNSuffix"))
+                            .groupDNSuffix(properties.getProperty("groupDNSuffix"))
+                            .addRealm(Realm.DEFAULT_REALM)
+                            .supportFeature(FeatureGroup.user, FeatureGroup.agent, FeatureGroup.user, FeatureGroup.group,
+                                    FeatureGroup.role, FeatureGroup.attribute, FeatureGroup.relationship, FeatureGroup.credential);
 
-                identityManager = configuration.buildIdentityManagerFactory().createIdentityManager();
+                // FIXME: IdentityManager is not threadsafe
+                identityManager = new DefaultIdentityManagerFactory(builder.build()).createIdentityManager();
             }
         }
     }

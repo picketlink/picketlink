@@ -1705,7 +1705,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     private boolean isCustomAttributesSupported() {
-        return this.configuration.getFeatureSet().supports(FeatureGroup.attribute);
+        return this.configuration.supportsFeature(FeatureGroup.attribute, null);
     }
 
 }

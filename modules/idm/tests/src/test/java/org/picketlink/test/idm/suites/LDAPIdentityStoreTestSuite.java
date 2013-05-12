@@ -26,9 +26,9 @@ import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.builder.IdentityConfigurationBuilder;
+import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
-import org.picketlink.idm.model.Realm;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -59,9 +59,9 @@ import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ RelationshipQueryTestCase.class, UserManagementTestCase.class, PasswordCredentialTestCase.class, RoleManagementTestCase.class,
-        GroupManagementTestCase.class, AgentManagementTestCase.class, AgentQueryTestCase.class, UserQueryTestCase.class,
-        RoleQueryTestCase.class, GroupQueryTestCase.class, AgentGroupRoleRelationshipTestCase.class,
+@SuiteClasses({ RelationshipQueryTestCase.class, UserManagementTestCase.class, PasswordCredentialTestCase.class,
+        RoleManagementTestCase.class, GroupManagementTestCase.class, AgentManagementTestCase.class, AgentQueryTestCase.class,
+        UserQueryTestCase.class, RoleQueryTestCase.class, GroupQueryTestCase.class, AgentGroupRoleRelationshipTestCase.class,
         AgentGroupsRelationshipTestCase.class, UserGrantRelationshipTestCase.class, AgentGrantRelationshipTestCase.class,
         GroupGrantRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class, GroupMembershipTestCase.class })
 public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements TestLifecycle {
@@ -115,31 +115,30 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
 
     @Override
     public IdentityManagerFactory createIdentityManagerFactory() {
-        IdentityConfiguration configuration = new IdentityConfiguration();
-        
-        configuration
-            .ldapStore()
-                .setBaseDN(BASE_DN)
-                .setBindDN("uid=admin,ou=system")
-                .setBindCredential("secret")
-                .setLdapURL(LDAP_URL)
-                .setUserDNSuffix(USER_DN_SUFFIX)
-                .setRoleDNSuffix(ROLES_DN_SUFFIX)
-                .setAgentDNSuffix(AGENT_DN_SUFFIX)
-                .setGroupDNSuffix(GROUP_DN_SUFFIX)
-                .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
-                .addRealm(Realm.DEFAULT_REALM)
-                .supportFeature(
-                    FeatureGroup.user, 
-                    FeatureGroup.agent, 
-                    FeatureGroup.user, 
-                    FeatureGroup.group,
-                    FeatureGroup.role, 
-                    FeatureGroup.attribute, 
-                    FeatureGroup.relationship, 
-                    FeatureGroup.credential);
-        
-        return configuration.buildIdentityManagerFactory();
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+            .stores()
+                .ldap()
+                    .baseDN(BASE_DN)
+                    .bindDN("uid=admin,ou=system")
+                    .bindCredential("secret")
+                    .url(LDAP_URL)
+                    .userDNSuffix(USER_DN_SUFFIX)
+                    .roleDNSuffix(ROLES_DN_SUFFIX)
+                    .agentDNSuffix(AGENT_DN_SUFFIX)
+                    .groupDNSuffix(GROUP_DN_SUFFIX)
+                    .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
+                    .supportFeature(FeatureGroup.user, 
+                                    FeatureGroup.agent, 
+                                    FeatureGroup.user, 
+                                    FeatureGroup.group,
+                                    FeatureGroup.role, 
+                                    FeatureGroup.attribute, 
+                                    FeatureGroup.relationship, 
+                                    FeatureGroup.credential);
+
+        return new DefaultIdentityManagerFactory(builder.build());
     }
 
     @Override

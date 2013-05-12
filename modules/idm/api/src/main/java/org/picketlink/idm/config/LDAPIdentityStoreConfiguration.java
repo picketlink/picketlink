@@ -17,9 +17,8 @@
  */
 package org.picketlink.idm.config;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -27,6 +26,10 @@ import java.util.Set;
 
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.spi.ContextInitializer;
 
 /**
  * A {@link BaseAbstractStoreConfiguration} for the LDAP store.
@@ -54,157 +57,85 @@ public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
     private String baseDN;
     private Map<String, String> groupMapping = new HashMap<String, String>();
 
+    public LDAPIdentityStoreConfiguration(String url, String bindDN, String bindCredential, String baseDN,
+            String agentDNSuffix, String userDNSuffix, String roleDNSuffix, String groupDNSuffix,
+            Map<String, String> groupMapping, Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
+            Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms,
+            Set<String> tiers, List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties,
+            List<Class<? extends CredentialHandler>> credentialHandlers) {
+        super(supportedFeatures, supportedRelationships, realms, tiers, contextInitializers, credentialHandlerProperties,
+                credentialHandlers);
+        this.ldapURL = url;
+        this.bindDN = bindDN;
+        this.bindCredential = bindCredential;
+        this.baseDN = baseDN;
+        this.agentDNSuffix = agentDNSuffix;
+        this.userDNSuffix = userDNSuffix;
+        this.roleDNSuffix = roleDNSuffix;
+        this.groupDNSuffix = groupDNSuffix;
+        this.groupMapping = groupMapping;
+    }
+
     @Override
     protected void initConfig() throws SecurityConfigurationException {
-        if (getUserDNSuffix() == null) {
-            throw MESSAGES.ldapConfigUserDNNotProvided();
-        }
-
-        if (getRoleDNSuffix() == null) {
-            throw MESSAGES.ldapConfigRoleDNNotProvided();
-        }
-
-        if (getGroupDNSuffix() == null) {
-            throw MESSAGES.ldapConfigGroupDNNotProvided();
-        }
-
-        if (getAgentDNSuffix() == null) {
-            setAgentDNSuffix(getUserDNSuffix());
-        }
-
-        getFeatureSet().removeFeature(FeatureGroup.realm);
-        getFeatureSet().removeFeature(FeatureGroup.tier);
-        getFeatureSet().setSupportsCustomRelationships(false);
-        getFeatureSet().setSupportsMultiRealm(false);
+        removeFeature(FeatureGroup.realm);
+        removeFeature(FeatureGroup.tier);
     }
 
     public String getStandardAttributesFileName() {
-        return standardAttributesFileName;
-    }
-
-    public LDAPIdentityStoreConfiguration setStandardAttributesFileName(String standardAttributesFileName) {
-        this.standardAttributesFileName = standardAttributesFileName;
-        return this;
-    }
-
-    public LDAPIdentityStoreConfiguration setLdapURL(String ldapURL) {
-        this.ldapURL = ldapURL;
-        return this;
-    }
-
-    public LDAPIdentityStoreConfiguration setUserDNSuffix(String userDNSuffix) {
-        this.userDNSuffix = userDNSuffix;
-        return this;
-    }
-
-    public LDAPIdentityStoreConfiguration setRoleDNSuffix(String roleDNSuffix) {
-        this.roleDNSuffix = roleDNSuffix;
-        return this;
-    }
-
-    public LDAPIdentityStoreConfiguration setGroupDNSuffix(String groupDNSuffix) {
-        this.groupDNSuffix = groupDNSuffix;
-        return this;
-    }
-
-    public LDAPIdentityStoreConfiguration setFactoryName(String factoryName) {
-        this.factoryName = factoryName;
-        return this;
-    }
-
-    public LDAPIdentityStoreConfiguration setAuthType(String authType) {
-        this.authType = authType;
-        return this;
-    }
-
-    public LDAPIdentityStoreConfiguration setProtocol(String protocol) {
-        this.protocol = protocol;
-        return this;
-    }
-
-    public LDAPIdentityStoreConfiguration setBindDN(String bindDN) {
-        this.bindDN = bindDN;
-        return this;
-    }
-
-    public LDAPIdentityStoreConfiguration setBindCredential(String bindCredential) {
-        this.bindCredential = bindCredential;
-        return this;
+        return this.standardAttributesFileName;
     }
 
     public String getLdapURL() {
-        return ldapURL;
+        return this.ldapURL;
     }
 
     public String getUserDNSuffix() {
-        return userDNSuffix;
+        return this.userDNSuffix;
     }
 
     public String getRoleDNSuffix() {
-        return roleDNSuffix;
+        return this.roleDNSuffix;
     }
 
     public String getGroupDNSuffix() {
-        return groupDNSuffix;
+        return this.groupDNSuffix;
     }
 
     public String getFactoryName() {
-        return factoryName;
+        return this.factoryName;
     }
 
     public String getAuthType() {
-        return authType;
+        return this.authType;
     }
 
     public String getProtocol() {
-        return protocol;
+        return this.protocol;
     }
 
     public String getBindDN() {
-        return bindDN;
+        return this.bindDN;
     }
 
     public String getBindCredential() {
-        return bindCredential;
+        return this.bindCredential;
     }
 
     public boolean isActiveDirectory() {
-        return isActiveDirectory;
-    }
-
-    public void setActiveDirectory(boolean isActiveDirectory) {
-        this.isActiveDirectory = isActiveDirectory;
+        return this.isActiveDirectory;
     }
 
     public Properties getAdditionalProperties() {
-        return additionalProperties;
-    }
-
-    public void setAdditionalProperties(Properties additionalProperties) {
-        this.additionalProperties.putAll(additionalProperties);
+        return this.additionalProperties;
     }
 
     public String getAgentDNSuffix() {
         return this.agentDNSuffix;
     }
 
-    public LDAPIdentityStoreConfiguration setAgentDNSuffix(String agentDNSuffix) {
-        this.agentDNSuffix = agentDNSuffix;
-        return this;
-    }
-
-    public LDAPIdentityStoreConfiguration setBaseDN(String baseDN) {
-        this.baseDN = baseDN;
-        return this;
-    }
-
     public String getBaseDN() {
         return this.baseDN;
-    }
-
-    public LDAPIdentityStoreConfiguration addGroupMapping(String groupPath, String groupBaseDN) {
-        this.groupMapping.put(groupPath, groupBaseDN);
-        return this;
     }
 
     public String getGroupMappingDN(String groupPath) {

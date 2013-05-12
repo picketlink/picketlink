@@ -27,8 +27,9 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.builder.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -67,21 +68,31 @@ public abstract class AbstractEndpointTestCase extends EmbeddedWebServerBase {
 
         entityManager.getTransaction().begin();
 
-        IdentityConfiguration configuration = new IdentityConfiguration();
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
-        configuration.jpaStore().addRealm(Realm.DEFAULT_REALM).setIdentityClass(IdentityObject.class)
-                .setAttributeClass(IdentityObjectAttribute.class).setRelationshipClass(RelationshipObject.class)
-                .setRelationshipIdentityClass(RelationshipIdentityObject.class)
-                .setRelationshipAttributeClass(RelationshipObjectAttribute.class).setCredentialClass(CredentialObject.class)
-                .setCredentialAttributeClass(CredentialObjectAttribute.class).setPartitionClass(PartitionObject.class)
-                .supportAllFeatures().addContextInitializer(new JPAContextInitializer(entityManagerFactory) {
-                    @Override
-                    public EntityManager getEntityManager() {
-                        return entityManager;
-                    }
-                });
+        builder
+            .stores()
+                .jpa()
+                    .addRealm(Realm.DEFAULT_REALM)
+                    .identityClass(IdentityObject.class)
+                    .attributeClass(IdentityObjectAttribute.class)
+                    .relationshipClass(RelationshipObject.class)
+                    .relationshipIdentityClass(RelationshipIdentityObject.class)
+                    .relationshipAttributeClass(RelationshipObjectAttribute.class)
+                    .credentialClass(CredentialObject.class)
+                    .credentialAttributeClass(CredentialObjectAttribute.class)
+                    .partitionClass(PartitionObject.class)
+                    .supportAllFeatures()
+                    .addContextInitializer(new JPAContextInitializer(entityManagerFactory) {
+                        @Override
+                        public EntityManager getEntityManager() {
+                            return entityManager;
+                        }
+                    });
 
-        IdentityManager identityManager = configuration.buildIdentityManagerFactory().createIdentityManager();
+        // FIXME: IdentityManager is not threadsafe
+        IdentityManager  identityManager = new DefaultIdentityManagerFactory(builder.build()).createIdentityManager();
+
         User anil = identityManager.getUser("anil");
 
         // Check when tests are running in unforked JVM

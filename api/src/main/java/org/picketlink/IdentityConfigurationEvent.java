@@ -18,7 +18,7 @@
 
 package org.picketlink;
 
-import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.builder.IdentityConfigurationBuilder;
 
 /**
  * This event is raised during PicketLink configuration 
@@ -27,13 +27,14 @@ import org.picketlink.idm.config.IdentityConfiguration;
  *
  */
 public class IdentityConfigurationEvent {
-    private IdentityConfiguration config;
+    
+    private IdentityConfigurationBuilder config;
 
-    public IdentityConfigurationEvent(IdentityConfiguration config) {
+    public IdentityConfigurationEvent(IdentityConfigurationBuilder config) {
         this.config = config;
     }
 
-    public IdentityConfiguration getConfig() {
+    public IdentityConfigurationBuilder getConfig() {
         return config;
     }
 }
