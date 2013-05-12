@@ -46,7 +46,6 @@ public class FileIdentityStoreConfigurationTestCase extends
         FileStoreConfigurationBuilder fileConfig = builder.stores().file();
         
         fileConfig
-            .preserveState(false)
             .supportAllFeatures();
         
         return fileConfig;
