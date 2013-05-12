@@ -133,23 +133,24 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
     }
 
     private static IdentityManagerFactory createIdentityManagerFactory() {
-        IdentityConfiguration configuration = new IdentityConfiguration();
-        
-        configuration
-            .jpaStore()
-                .addRealm(Realm.DEFAULT_REALM, "Testing")
-                .setIdentityClass(IdentityObject.class)
-                .setAttributeClass(IdentityObjectAttribute.class)
-                .setPartitionClass(PartitionObject.class)
-                .supportAllFeatures()
-                .addContextInitializer(new JPAContextInitializer(emf) {
-                    @Override
-                    public EntityManager getEntityManager() {
-                        return entityManager.get();
-                    }
-                });
-
-            return configuration.buildIdentityManagerFactory();    
+        return identityManagerFactory;
+//        IdentityConfiguration configuration = new IdentityConfiguration();
+//        
+//        configuration
+//            .jpaStore()
+//                .addRealm(Realm.DEFAULT_REALM, "Testing")
+//                .setIdentityClass(IdentityObject.class)
+//                .setAttributeClass(IdentityObjectAttribute.class)
+//                .setPartitionClass(PartitionObject.class)
+//                .supportAllFeatures()
+//                .addContextInitializer(new JPAContextInitializer(emf) {
+//                    @Override
+//                    public EntityManager getEntityManager() {
+//                        return entityManager.get();
+//                    }
+//                });
+//
+//            return configuration.buildIdentityManagerFactory();    
         }
 
 }

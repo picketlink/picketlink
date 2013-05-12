@@ -100,15 +100,16 @@ public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerCli
     }
 
     private static IdentityManagerFactory createIdentityManagerFactory() {
-        IdentityConfiguration configuration = new IdentityConfiguration();
-
-        configuration
-            .fileStore()
-                .setAlwaysCreateFiles(true)
-                .addRealm(Realm.DEFAULT_REALM)
-                .supportAllFeatures();
-
-        return configuration.buildIdentityManagerFactory();
+        return identityManagerFactory;
+//        IdentityConfiguration configuration = new IdentityConfiguration();
+//
+//        configuration
+//            .fileStore()
+//                .setAlwaysCreateFiles(true)
+//                .addRealm(Realm.DEFAULT_REALM)
+//                .supportAllFeatures();
+//
+//        return configuration.buildIdentityManagerFactory();
     }
 
 }

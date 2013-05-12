@@ -18,15 +18,10 @@
 
 package org.picketlink.idm.config;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.picketlink.idm.IdentityManagerFactory;
-import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.spi.SecurityContextFactory;
 import org.picketlink.idm.spi.StoreFactory;
 
@@ -40,88 +35,19 @@ import org.picketlink.idm.spi.StoreFactory;
  * </p>
  *
  * @author Shane Bryzak
+ *
  */
 public class IdentityConfiguration {
-
-    private static final String DEFAULT_IDENTITY_MANAGER_FACTORY_IMPL = "org.picketlink.idm.internal.DefaultIdentityManagerFactory";
 
     private List<IdentityStoreConfiguration> configuredStores = new ArrayList<IdentityStoreConfiguration>();
     private SecurityContextFactory securityContextFactory;
     private StoreFactory storeFactory;
 
-    /**
-     * <p>
-     * Returns a {@link FileIdentityStoreConfiguration} instance with all configuration options for the file identity store. For
-     * every invocation a new instance will be returned and added to the configuration.
-     * </p>
-     *
-     * @return
-     */
-    public FileIdentityStoreConfiguration fileStore() {
-        FileIdentityStoreConfiguration storeConfig = new FileIdentityStoreConfiguration();
-
-        addConfig(storeConfig);
-
-        return storeConfig;
-    }
-
-    /**
-     * <p>
-     * Returns a {@link JPAIdentityStoreConfiguration} instance with all configuration options for the JPA identity store. For
-     * every invocation a new instance will be returned and added to the configuration.
-     * </p>
-     *
-     * @return
-     */
-    public JPAIdentityStoreConfiguration jpaStore() {
-        JPAIdentityStoreConfiguration storeConfig = new JPAIdentityStoreConfiguration();
-
-        addConfig(storeConfig);
-
-        return storeConfig;
-    }
-
-    /**
-     * <p>
-     * Returns a {@link JPAIdentityStoreConfiguration} instance with all configuration options for the JPA identity store. For
-     * every invocation a new instance will be returned and added to the configuration.
-     * </p>
-     *
-     * @return
-     */
-    public LDAPIdentityStoreConfiguration ldapStore() {
-        LDAPIdentityStoreConfiguration storeConfig = new LDAPIdentityStoreConfiguration();
-
-        addConfig(storeConfig);
-
-        return storeConfig;
-    }
-
-    /**
-     * <p>
-     * Sets the {@link SecurityContextFactory} that should be used. If not specified, the implementation will use the default
-     * one.
-     * </p>
-     *
-     * @param securityContextFactory
-     * @return
-     */
-    public IdentityConfiguration contextFactory(SecurityContextFactory securityContextFactory) {
-        this.securityContextFactory = securityContextFactory;
-        return this;
-    }
-
-    /**
-     * <p>
-     * Sets the {@link StoreFactory} that should be used. If not specified, the implementation will use the default one.
-     * </p>
-     *
-     * @param storeFactory
-     * @return
-     */
-    public IdentityConfiguration storeFactory(StoreFactory storeFactory) {
+    public IdentityConfiguration(List<IdentityStoreConfiguration> storesConfiguration, StoreFactory storeFactory,
+            SecurityContextFactory securityContextFactory) {
+        this.configuredStores.addAll(storesConfiguration);
         this.storeFactory = storeFactory;
-        return this;
+        this.securityContextFactory = securityContextFactory;
     }
 
     /**
@@ -135,56 +61,12 @@ public class IdentityConfiguration {
         return Collections.unmodifiableList(this.configuredStores);
     }
 
-    /**
-     * <p>
-     * Registers a {@link IdentityStoreConfiguration}. This method can be used to provide other
-     * {@link IdentityStoreConfiguration} for identity stores that are not provided by default.
-     * </p>
-     *
-     * @param config
-     */
-    public void addConfig(IdentityStoreConfiguration config) {
-        this.configuredStores.add(config);
+    public StoreFactory getStoreFactory() {
+        return this.storeFactory;
     }
 
-    /**
-     * <p>
-     * Builds and returns a new {@link IdentityManagerFactory} instance considering all configurations provided.
-     * </p>
-     *
-     * @return
-     * @throws SecurityConfigurationException if some error occurs when creating an {@link IdentityManagerFactory} instance.
-     */
-    @SuppressWarnings("unchecked")
-    public IdentityManagerFactory buildIdentityManagerFactory() throws SecurityConfigurationException {
-        IdentityManagerFactory identityManagerFactory = null;
-
-        try {
-            Class<IdentityManagerFactory> implementationClass = (Class<IdentityManagerFactory>) Class
-                    .forName(DEFAULT_IDENTITY_MANAGER_FACTORY_IMPL);
-
-            if (this.securityContextFactory != null && this.storeFactory != null) {
-                identityManagerFactory = implementationClass.getConstructor(
-                        new Class[] { IdentityConfiguration.class, SecurityContextFactory.class, StoreFactory.class })
-                        .newInstance(new Object[] { this, this.securityContextFactory, this.storeFactory });
-            } else if (this.securityContextFactory != null) {
-                identityManagerFactory = implementationClass.getConstructor(
-                        new Class[] { IdentityConfiguration.class, SecurityContextFactory.class }).newInstance(
-                        new Object[] { this, this.securityContextFactory });
-            } else if (this.storeFactory != null) {
-                identityManagerFactory = implementationClass.getConstructor(
-                        new Class[] { IdentityConfiguration.class, StoreFactory.class }).newInstance(
-                        new Object[] { this, this.storeFactory });
-            } else {
-                identityManagerFactory = implementationClass.getConstructor(IdentityConfiguration.class).newInstance(this);
-            }
-        } catch (InvocationTargetException e) {
-            throw MESSAGES.configurationCouldNotCreateIdentityManagerFactoryImpl(DEFAULT_IDENTITY_MANAGER_FACTORY_IMPL,
-                    e.getTargetException());
-        } catch (Exception e) {
-            throw MESSAGES.configurationCouldNotCreateIdentityManagerFactoryImpl(DEFAULT_IDENTITY_MANAGER_FACTORY_IMPL, e);
-        }
-
-        return identityManagerFactory;
+    public SecurityContextFactory getSecurityContextFactory() {
+        return this.securityContextFactory;
     }
+
 }

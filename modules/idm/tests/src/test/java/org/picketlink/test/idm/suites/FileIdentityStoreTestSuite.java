@@ -22,8 +22,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.IdentityManagerFactory;
-import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.builder.IdentityConfigurationBuilder;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
+import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.model.Authorization;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.test.idm.IdentityManagerRunner;
@@ -85,17 +86,29 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
     @SuppressWarnings("unchecked")
     @Override
     public IdentityManagerFactory createIdentityManagerFactory() {
-        IdentityConfiguration configuration = new IdentityConfiguration();
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
         
-        configuration
-            .fileStore()
-                .setAlwaysCreateFiles(true)
-                .addRealm(Realm.DEFAULT_REALM, "Testing")
-                .addTier("Application")
-                .supportAllFeatures()
-                .supportRelationshipType(CustomRelationship.class, Authorization.class);
+        builder
+            .stores()
+                .file()
+                    .preserveState(false)
+                    .addRealm(Realm.DEFAULT_REALM, "Testing")
+                    .addTier("Application")
+                    .supportAllFeatures()
+                    .supportRelationshipType(CustomRelationship.class, Authorization.class);
         
-        return configuration.buildIdentityManagerFactory();
+        return new DefaultIdentityManagerFactory(builder.build());
+//        IdentityConfiguration configuration = new IdentityConfiguration();
+//        
+//        configuration
+//            .fileStore()
+//                .setAlwaysCreateFiles(true)
+//                .addRealm(Realm.DEFAULT_REALM, "Testing")
+//                .addTier("Application")
+//                .supportAllFeatures()
+//                .supportRelationshipType(CustomRelationship.class, Authorization.class);
+//        
+//        return configuration.buildIdentityManagerFactory();
     }
 
     @Override

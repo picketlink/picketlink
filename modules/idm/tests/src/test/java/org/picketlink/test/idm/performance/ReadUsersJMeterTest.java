@@ -28,18 +28,9 @@ import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.IdentityManagerFactory;
-import org.picketlink.idm.config.FeatureSet;
-import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
-import org.picketlink.idm.internal.DefaultSecurityContextFactory;
-import org.picketlink.idm.model.Authorization;
-import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.test.idm.relationship.CustomRelationship;
 
 /**
  * @author Pedro Silva
@@ -82,31 +73,32 @@ public class ReadUsersJMeterTest extends AbstractJavaSamplerClient {
     }
 
     private static IdentityManager createIdentityManager() {
-        IdentityConfiguration config = new IdentityConfiguration();
-
-        addDefaultConfiguration(config);
-
-        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
-        return factory.createIdentityManager();
+        return identityManager;
+//        IdentityConfiguration config = new IdentityConfiguration();
+//
+//        addDefaultConfiguration(config);
+//
+//        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
+//        return factory.createIdentityManager();
     }
 
     private static void addDefaultConfiguration(IdentityConfiguration config) {
-        FileIdentityStoreConfiguration configuration = new FileIdentityStoreConfiguration();
-
-        // add the realms that should be supported by the file store
-        configuration.addRealm(Realm.DEFAULT_REALM);
-        configuration.addRealm("Testing");
-
-        configuration.setAlwaysCreateFiles(false);
-        
-        FeatureSet.addFeatureSupport(configuration.getFeatureSet());
-        FeatureSet.addRelationshipSupport(configuration.getFeatureSet());
-        FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), CustomRelationship.class);
-        FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), Authorization.class);
-        configuration.getFeatureSet().setSupportsCustomRelationships(true);
-        configuration.getFeatureSet().setSupportsMultiRealm(true);
-
-        config.addConfig(configuration);
+//        FileIdentityStoreConfiguration configuration = new FileIdentityStoreConfiguration();
+//
+//        // add the realms that should be supported by the file store
+//        configuration.addRealm(Realm.DEFAULT_REALM);
+//        configuration.addRealm("Testing");
+//
+//        configuration.setAlwaysCreateFiles(false);
+//        
+//        FeatureSet.addFeatureSupport(configuration.getFeatureSet());
+//        FeatureSet.addRelationshipSupport(configuration.getFeatureSet());
+//        FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), CustomRelationship.class);
+//        FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), Authorization.class);
+//        configuration.getFeatureSet().setSupportsCustomRelationships(true);
+//        configuration.getFeatureSet().setSupportsMultiRealm(true);
+//
+//        config.addConfig(configuration);
     }
 
 }

@@ -18,7 +18,16 @@
 
 package org.picketlink.idm.config;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.spi.ContextInitializer;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -31,6 +40,18 @@ public class FileIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
     private boolean alwaysCreateFiles = true;
     private String workingDir;
 
+    public FileIdentityStoreConfiguration(String workingDir, boolean preserveState, boolean asyncWrite,
+            int asyncWriteThreadPool, Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
+            Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms, Set<String> tiers,
+            List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties,
+            List<Class<? extends CredentialHandler>> credentialHandlers) {
+        super(supportedFeatures, supportedRelationships, realms, tiers, contextInitializers, credentialHandlerProperties, credentialHandlers);
+        this.workingDir = workingDir;
+        this.alwaysCreateFiles = !preserveState;
+        this.asyncWrite = asyncWrite;
+        this.asyncThreadPool = asyncWriteThreadPool;
+    }
+
     @Override
     protected void initConfig() throws SecurityConfigurationException {
     }
@@ -39,32 +60,12 @@ public class FileIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
         return this.workingDir;
     }
 
-    public FileIdentityStoreConfiguration setWorkingDir(String workingDir) {
-        this.workingDir = workingDir;
-        return this;
-    }
-
     public boolean isAlwaysCreateFiles() {
         return this.alwaysCreateFiles;
     }
 
-    public FileIdentityStoreConfiguration setAlwaysCreateFiles(boolean alwaysCreateFiles) {
-        this.alwaysCreateFiles = alwaysCreateFiles;
-        return this;
-    }
-
-    public FileIdentityStoreConfiguration setAsyncWrite(boolean asyncWrite) {
-        this.asyncWrite = asyncWrite;
-        return this;
-    }
-
     public boolean isAsyncWrite() {
         return this.asyncWrite;
-    }
-
-    public FileIdentityStoreConfiguration setAsyncThreadPool(int asyncThreadPool) {
-        this.asyncThreadPool = asyncThreadPool;
-        return this;
     }
 
     public int getAsyncThreadPool() {

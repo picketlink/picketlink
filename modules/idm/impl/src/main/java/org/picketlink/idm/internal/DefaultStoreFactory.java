@@ -80,7 +80,7 @@ public class DefaultStoreFactory implements StoreFactory {
         for (IdentityStoreConfiguration config : identityConfig.getConfiguredStores()) {
             LOGGER.identityManagerInitConfigForRealms(config, config.getRealms());
 
-            Map<FeatureGroup, Set<FeatureOperation>> storeFeatures = config.getFeatureSet().getSupportedFeatures();
+            Map<FeatureGroup, Set<FeatureOperation>> storeFeatures = config.getSupportedFeatures();
 
             // let's check for duplicated features
             for (Entry<FeatureGroup, Set<FeatureOperation>> entry : storeFeatures.entrySet()) {
@@ -202,15 +202,15 @@ public class DefaultStoreFactory implements StoreFactory {
 
             for (IdentityStoreConfiguration cfg : configs) {
                 if (relationshipClass != null) {
-                    if (cfg.getFeatureSet().supportsRelationship(relationshipClass)) {
-                        if (cfg.getFeatureSet().supportsRelationshipFeature(relationshipClass, operation)) {
+                    if (cfg.supportsRelationship(relationshipClass, null)) {
+                        if (cfg.supportsRelationship(relationshipClass, operation)) {
                             config = cfg;
                             break;
                         }
                     } else {
                         isUnsupportedRelationship = true;
                     }
-                } else if (cfg.getFeatureSet().supports(feature, operation)) {
+                } else if (cfg.supportsFeature(feature, operation)) {
                     config = cfg;
                     break;
                 }
