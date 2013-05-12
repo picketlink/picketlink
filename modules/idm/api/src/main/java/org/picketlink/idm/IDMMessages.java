@@ -36,6 +36,7 @@ import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.OperationNotSupportedException;
+import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;

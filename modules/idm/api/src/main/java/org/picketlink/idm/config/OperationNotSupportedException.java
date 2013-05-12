@@ -22,7 +22,6 @@
 
 package org.picketlink.idm.config;
 
-import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 

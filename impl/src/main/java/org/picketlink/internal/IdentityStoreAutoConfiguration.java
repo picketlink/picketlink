@@ -8,8 +8,8 @@ import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.persistence.Entity;
 
-import org.picketlink.idm.config.builder.IdentityConfigurationBuilder;
-import org.picketlink.idm.config.builder.JPAStoreConfigurationBuilder;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.config.JPAStoreConfigurationBuilder;
 import org.picketlink.idm.jpa.annotations.CredentialAttribute;
 import org.picketlink.idm.jpa.annotations.IdentityAttribute;
 import org.picketlink.idm.jpa.annotations.IdentityCredential;

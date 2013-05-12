@@ -32,7 +32,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.PropertyNamingStrategy;
 import org.jboss.logging.Logger;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.builder.IdentityConfigurationBuilder;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.internal.DefaultIdentityManagerFactory;

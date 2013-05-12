@@ -7,7 +7,7 @@ package org.picketlink.idm.config;
  * @author Shane Bryzak
  *
  */
-public class FeatureSet {
+public final class FeatureSet {
 
     public enum FeatureGroup {
         agent, user, group, role, relationship, attribute, credential, realm, tier

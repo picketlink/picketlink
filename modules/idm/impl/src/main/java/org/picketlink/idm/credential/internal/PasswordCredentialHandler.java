@@ -27,7 +27,7 @@ import java.util.Date;
 import java.util.Map;
 
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;

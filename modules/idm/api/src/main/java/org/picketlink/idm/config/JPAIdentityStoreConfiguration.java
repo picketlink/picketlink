@@ -34,7 +34,6 @@ import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.PropertyQuery;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
@@ -114,7 +113,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     private Class<?> relationshipAttributeClass;
     private Class<?> partitionClass;
 
-    public JPAIdentityStoreConfiguration(Class<?> identityClass, Class<?> attributeClass, Class<?> credentialClass,
+    JPAIdentityStoreConfiguration(Class<?> identityClass, Class<?> attributeClass, Class<?> credentialClass,
             Class<?> credentialAttributeClass, Class<?> relationshipClass, Class<?> relationshipIdentityClass,
             Class<?> relationshipAttributeClass, Class<?> partitionClass, Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
             Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms, Set<String> tiers,

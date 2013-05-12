@@ -15,7 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.idm;
+package org.picketlink.idm.config;
+
+import org.picketlink.idm.SecurityException;
 
 /**
  * This exception is thrown when a problem is found with the Security API configuration

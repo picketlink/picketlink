@@ -24,10 +24,10 @@ package org.picketlink.test.idm.config;
 
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.IdentityManagerFactory;
+import org.picketlink.idm.config.FileStoreConfigurationBuilder;
 import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.config.builder.FileStoreConfigurationBuilder;
-import org.picketlink.idm.config.builder.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 
 /**

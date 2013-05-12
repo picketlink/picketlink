@@ -22,7 +22,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.IdentityManagerFactory;
-import org.picketlink.idm.config.builder.IdentityConfigurationBuilder;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.model.Authorization;

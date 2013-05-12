@@ -19,7 +19,7 @@
 package org.picketlink.config.idm.resolver;
 
 import org.picketlink.config.idm.ObjectType;
-import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.SecurityConfigurationException;
 
 /**
  * Base implementation of property resolver

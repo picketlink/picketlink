@@ -22,7 +22,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.builder.IdentityConfigurationBuilder;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;

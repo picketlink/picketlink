@@ -25,28 +25,23 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
     private StoreFactory storeFactory;
 
     public DefaultIdentityManagerFactory(IdentityConfiguration identityConfig) {
-        this(identityConfig, new DefaultSecurityContextFactory());
-    }
-
-    public DefaultIdentityManagerFactory(IdentityConfiguration identityConfig, SecurityContextFactory contextFactory) {
-        this(identityConfig, contextFactory, new DefaultStoreFactory(identityConfig));
-    }
-
-    public DefaultIdentityManagerFactory(IdentityConfiguration identityConfig, SecurityContextFactory contextFactory,
-            StoreFactory storeFactory) {
-
         if (identityConfig == null) {
             throw MESSAGES.nullArgument("IdentityConfiguration");
         }
 
         if (contextFactory == null) {
-            throw MESSAGES.nullArgument("IdentityStoreInvocationContextFactory");
+            this.contextFactory = new DefaultSecurityContextFactory();
+        } else {
+            this.contextFactory = identityConfig.getSecurityContextFactory();
+        }
+
+        if (storeFactory == null) {
+            this.storeFactory = new DefaultStoreFactory(identityConfig);
+        } else {
+            this.storeFactory = identityConfig.getStoreFactory();
         }
 
         LOGGER.identityManagerBootstrapping();
-
-        this.contextFactory = contextFactory;
-        this.storeFactory = storeFactory;
     }
 
     public void setIdentityStoreFactory(StoreFactory factory) {

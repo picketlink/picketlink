@@ -27,7 +27,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.builder.IdentityConfigurationBuilder;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
