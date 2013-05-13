@@ -37,7 +37,7 @@ public interface PermissionHandler
      * @return
      */
     boolean canHandle(Class<?> resourceClass);
-    
+
     /**
      * Returns true if the implementation can load the resource instance for the specified identifier
      * 
@@ -53,7 +53,7 @@ public interface PermissionHandler
      * @return
      */
     String getGeneratedIdentifier(Object resource);
-    
+
     /**
      * Returns the natural identifier value of the specified resource
      * 
@@ -61,7 +61,7 @@ public interface PermissionHandler
      * @return
      */
     Serializable getNaturalIdentifier(Object resource);
-    
+
     /**
      * Returns the resource instance for the specified identifier
      * 
@@ -69,7 +69,7 @@ public interface PermissionHandler
      * @return
      */
     Object lookupResource(String identifier);
-    
+
     /**
      * Returns a set containing the available permissions for a particular resource.  If there are no hard coded
      * permissions defined (i.e. any permission is allowed) then this method will return an empty set.
@@ -78,7 +78,7 @@ public interface PermissionHandler
      * @return
      */
     Set<String> listAvailablePermissions(Class<?> resourceClass);
-    
+
     /**
      * 
      * @param resourceClass

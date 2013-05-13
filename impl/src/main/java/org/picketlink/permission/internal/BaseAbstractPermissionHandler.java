@@ -35,33 +35,26 @@ import org.picketlink.permission.spi.PermissionHandler;
  *
  * @author Shane Bryzak
  */
-public abstract class BaseAbstractPermissionHandler implements PermissionHandler 
-{
+public abstract class BaseAbstractPermissionHandler implements PermissionHandler {
     private Map<Class<?>, Boolean> usesMask = new HashMap<Class<?>, Boolean>();
-    
+
     private Map<Class<?>, Map<String, Long>> classPermissions = new HashMap<Class<?>, Map<String, Long>>();
 
-    private synchronized void initClassPermissions(Class<?> cls) 
-    {
-        if (!classPermissions.containsKey(cls)) 
-        {
+    private synchronized void initClassPermissions(Class<?> cls) {
+        if (!classPermissions.containsKey(cls)) {
             Map<String, Long> actions = new HashMap<String, Long>();
 
             boolean useMask = false;
 
             AllowedPermissions p = (AllowedPermissions) cls.getAnnotation(AllowedPermissions.class);
-            
-            if (p != null) 
-            {
+
+            if (p != null) {
                 AllowedPermission[] permissions = p.value();
-                if (permissions != null) 
-                {
-                    for (AllowedPermission permission : permissions) 
-                    {
+                if (permissions != null) {
+                    for (AllowedPermission permission : permissions) {
                         actions.put(permission.name(), permission.mask());
 
-                        if (permission.mask() != 0) 
-                        {
+                        if (permission.mask() != 0) {
                             useMask = true;
                         }
                     }
@@ -69,27 +62,22 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
             }
 
             // Validate that all actions have a proper mask
-            if (useMask) 
-            {
+            if (useMask) {
                 Set<Long> masks = new HashSet<Long>();
 
-                for (String action : actions.keySet()) 
-                {
+                for (String action : actions.keySet()) {
                     Long mask = actions.get(action);
-                    if (masks.contains(mask)) 
-                    {
+                    if (masks.contains(mask)) {
                         throw new IllegalArgumentException("Class " + cls.getName() +
                                 " defines a duplicate mask for permission action [" + action + "]");
                     }
 
-                    if (mask == 0) 
-                    {
+                    if (mask == 0) {
                         throw new IllegalArgumentException("Class " + cls.getName() +
                                 " must define a valid mask value for action [" + action + "]");
                     }
 
-                    if ((mask & (mask - 1)) != 0) 
-                    {
+                    if ((mask & (mask - 1)) != 0) {
                         throw new IllegalArgumentException("Class " + cls.getName() +
                                 " must define a mask value that is a power of 2 for action [" + action + "]");
                     }
@@ -103,96 +91,82 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
         }
     }
 
-    protected class PermissionSet 
-    {
+    protected class PermissionSet {
         private Set<String> permissions = new HashSet<String>();
-        
+
         private Class<?> resourceClass;
 
-        public PermissionSet(Class<?> resourceClass, String members) 
-        {
+        public PermissionSet(Class<?> resourceClass, String members) {
             this.resourceClass = resourceClass;
             addMembers(members);
         }
 
-        public void addMembers(String members)
-        {
-            if (members == null) return;
+        public void addMembers(String members) {
+            if (members == null) {
+                return;
+            }
 
-            if (usesMask.get(resourceClass)) 
-            {
+            if (usesMask.get(resourceClass)) {
                 // bit mask-based actions
                 long vals = Long.valueOf(members);
 
                 Map<String, Long> permissions = classPermissions.get(resourceClass);
-                for (String permission : permissions.keySet()) 
-                {
+                for (String permission : permissions.keySet()) {
                     long mask = permissions.get(permission).longValue();
-                    if ((vals & mask) != 0) 
-                    {
+                    if ((vals & mask) != 0) {
                         this.permissions.add(permission);
                     }
                 }
             } 
-            else 
-            {
+            else {
                 // comma-separated string based actions
                 String[] permissions = members.split(",");
-                for (String permission : permissions) 
-                {
+                for (String permission : permissions) {
                     this.permissions.add(permission);
                 }
             }
         }
 
-        public boolean contains(String action) 
-        {
+        public boolean contains(String action) {
             return permissions.contains(action);
         }
 
-        public PermissionSet add(String action) 
-        {
+        public PermissionSet add(String action) {
             permissions.add(action);
             return this;
         }
 
-        public PermissionSet remove(String action) 
-        {
+        public PermissionSet remove(String action) {
             permissions.remove(action);
             return this;
         }
 
-        public Set<String> getPermissions() 
-        {
+        public Set<String> getPermissions() {
             return permissions;
         }
 
-        public boolean isEmpty() 
-        {
+        public boolean isEmpty() {
             return permissions.isEmpty();
         }
 
         @Override
-        public String toString() 
-        {
-            if (usesMask.get(resourceClass)) 
-            {
+        public String toString() {
+            if (usesMask.get(resourceClass)) {
                 Map<String, Long> actions = classPermissions.get(resourceClass);
                 long mask = 0;
 
-                for (String member : permissions) 
-                {
+                for (String member : permissions) {
                     mask |= actions.get(member).longValue();
                 }
 
                 return "" + mask;
             } 
-            else 
-            {
+            else {
                 StringBuilder sb = new StringBuilder();
-                for (String member : permissions) 
-                {
-                    if (sb.length() > 0) sb.append(',');
+                for (String member : permissions) {
+                    if (sb.length() > 0) {
+                        sb.append(',');
+                    }
                     sb.append(member);
                 }
                 return sb.toString();
@@ -202,8 +176,7 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
 
     public PermissionSet createPermissionSet(Class<?> resourceClass, String members) 
     {
-        if (!classPermissions.containsKey(resourceClass)) 
-        {
+        if (!classPermissions.containsKey(resourceClass)) {
             initClassPermissions(resourceClass);
         }
 
@@ -211,23 +184,22 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
     }
 
     @Override
-    public Set<String> listAvailablePermissions(Class<?> resourceClass) 
-    {
-        if (!classPermissions.containsKey(resourceClass)) initClassPermissions(resourceClass);
-        
+    public Set<String> listAvailablePermissions(Class<?> resourceClass) {
+        if (!classPermissions.containsKey(resourceClass)) {
+            initClassPermissions(resourceClass);
+        }
+
         Set<String> permissions = new HashSet<String>();
-        
-        for (String permission : classPermissions.get(resourceClass).keySet()) 
-        {
+
+        for (String permission : classPermissions.get(resourceClass).keySet()) {
             permissions.add(permission);
         }
 
         return permissions;
     }
-    
+
     @Override
-    public Set<String> convertResourcePermissions(Class<?> resourceClass, Object permissions) 
-    {
+    public Set<String> convertResourcePermissions(Class<?> resourceClass, Object permissions) {
         return createPermissionSet(resourceClass, permissions.toString()).getPermissions();
-    }    
+    }
 }
