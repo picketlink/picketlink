@@ -28,9 +28,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.schema.IdentityObject;
@@ -131,47 +131,40 @@ public class LDAPJPAMixedStoreTestSuite extends AbstractLDAPTest implements Test
     @SuppressWarnings("unchecked")
     @Override
     public IdentityManagerFactory createIdentityManagerFactory() {
-        IdentityConfiguration configuration = new IdentityConfiguration();
-        
-        configuration
-            .ldapStore()
-                .setBaseDN(BASE_DN)
-                .setBindDN("uid=admin,ou=system")
-                .setBindCredential("secret")
-                .setLdapURL(LDAP_URL)
-                .setUserDNSuffix(USER_DN_SUFFIX)
-                .setRoleDNSuffix(ROLES_DN_SUFFIX)
-                .setAgentDNSuffix(AGENT_DN_SUFFIX)
-                .setGroupDNSuffix(GROUP_DN_SUFFIX)
-                .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
-                .addRealm(Realm.DEFAULT_REALM)
-                .supportFeature(
-                    FeatureGroup.user, 
-                    FeatureGroup.agent, 
-                    FeatureGroup.user, 
-                    FeatureGroup.group,
-                    FeatureGroup.role, 
-                    FeatureGroup.attribute, 
-                    FeatureGroup.credential);
-        configuration
-            .jpaStore()
-                .addRealm(Realm.DEFAULT_REALM)
-                .setIdentityClass(IdentityObject.class)
-                .setAttributeClass(IdentityObjectAttribute.class)
-                .setRelationshipClass(RelationshipObject.class)
-                .setRelationshipIdentityClass(RelationshipIdentityWeakObject.class)
-                .setRelationshipAttributeClass(RelationshipObjectAttribute.class)
-                .setPartitionClass(PartitionObject.class)
-                .supportFeature(FeatureGroup.relationship)
-                .supportRelationshipType(CustomRelationship.class, Authorization.class)
-                .addContextInitializer(new JPAContextInitializer(emf) {
-                    @Override
-                    public EntityManager getEntityManager() {
-                        return entityManager;
-                    }
-                });
-        
-        return configuration.buildIdentityManagerFactory();
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+            .stores()
+                .ldap()
+                    .baseDN(BASE_DN)
+                    .bindDN("uid=admin,ou=system")
+                    .bindCredential("secret")
+                    .url(LDAP_URL)
+                    .userDNSuffix(USER_DN_SUFFIX)
+                    .roleDNSuffix(ROLES_DN_SUFFIX)
+                    .agentDNSuffix(AGENT_DN_SUFFIX)
+                    .groupDNSuffix(GROUP_DN_SUFFIX)
+                    .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
+                    .supportAllFeatures()
+                    .removeFeature(FeatureGroup.relationship)
+                .jpa()
+                    .addRealm(Realm.DEFAULT_REALM)
+                    .identityClass(IdentityObject.class)
+                    .attributeClass(IdentityObjectAttribute.class)
+                    .relationshipClass(RelationshipObject.class)
+                    .relationshipIdentityClass(RelationshipIdentityWeakObject.class)
+                    .relationshipAttributeClass(RelationshipObjectAttribute.class)
+                    .partitionClass(PartitionObject.class)
+                    .supportFeature(FeatureGroup.relationship)
+                    .supportRelationshipType(CustomRelationship.class, Authorization.class)
+                    .addContextInitializer(new JPAContextInitializer(emf) {
+                        @Override
+                        public EntityManager getEntityManager() {
+                            return entityManager;
+                        }
+                    });
+
+        return new IdentityManagerFactory(builder.build());
     }
 
     @Override

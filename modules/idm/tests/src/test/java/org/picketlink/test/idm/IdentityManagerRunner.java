@@ -34,7 +34,7 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.IdentityManagerFactory;
+import org.picketlink.idm.internal.IdentityManagerFactory;
 
 /**
  * <p>

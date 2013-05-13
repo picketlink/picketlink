@@ -29,9 +29,7 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.IdentityManagerFactory;
-import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.model.SimpleUser;
 
 /**
@@ -100,15 +98,16 @@ public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerCli
     }
 
     private static IdentityManagerFactory createIdentityManagerFactory() {
-        IdentityConfiguration configuration = new IdentityConfiguration();
-
-        configuration
-            .fileStore()
-                .setAlwaysCreateFiles(true)
-                .addRealm(Realm.DEFAULT_REALM)
-                .supportAllFeatures();
-
-        return configuration.buildIdentityManagerFactory();
+        return identityManagerFactory;
+//        IdentityConfiguration configuration = new IdentityConfiguration();
+//
+//        configuration
+//            .fileStore()
+//                .setAlwaysCreateFiles(true)
+//                .addRealm(Realm.DEFAULT_REALM)
+//                .supportAllFeatures();
+//
+//        return configuration.buildIdentityManagerFactory();
     }
 
 }

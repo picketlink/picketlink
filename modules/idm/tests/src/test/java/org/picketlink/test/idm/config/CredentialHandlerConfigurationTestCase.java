@@ -37,13 +37,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.IdentityManagerFactory;
-import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.AbstractBaseCredentials;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
+import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -54,7 +54,6 @@ import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.IdentityStore;
@@ -90,29 +89,29 @@ public class CredentialHandlerConfigurationTestCase {
     
     @Test
     public void testCredentialHandlerLifeCycle() throws Exception {
-        IdentityConfiguration configuration = new IdentityConfiguration();
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
-        configuration
-            .jpaStore()
-                .addCredentialHandler(CustomCredentialHandler.class)
-                .addContextInitializer(new JPAContextInitializer(emf) {
-                    @Override
-                    public EntityManager getEntityManager() {
-                        return entityManager;
-                    }
-                })
-                .addRealm(Realm.DEFAULT_REALM)
-                .supportAllFeatures()
-                .setIdentityClass(IdentityObject.class)
-                .setAttributeClass(IdentityObjectAttribute.class)
-                .setRelationshipClass(RelationshipObject.class)
-                .setRelationshipIdentityClass(RelationshipIdentityObject.class)
-                .setRelationshipAttributeClass(RelationshipObjectAttribute.class)
-                .setCredentialClass(CredentialObject.class)
-                .setCredentialAttributeClass(CredentialObjectAttribute.class)
-                .setPartitionClass(PartitionObject.class);
+        builder
+            .stores()
+                .jpa()
+                    .addCredentialHandler(CustomCredentialHandler.class)
+                    .addContextInitializer(new JPAContextInitializer(emf) {
+                        @Override
+                        public EntityManager getEntityManager() {
+                            return entityManager;
+                        }
+                    })
+                    .supportAllFeatures()
+                    .identityClass(IdentityObject.class)
+                    .attributeClass(IdentityObjectAttribute.class)
+                    .relationshipClass(RelationshipObject.class)
+                    .relationshipIdentityClass(RelationshipIdentityObject.class)
+                    .relationshipAttributeClass(RelationshipObjectAttribute.class)
+                    .credentialClass(CredentialObject.class)
+                    .credentialAttributeClass(CredentialObjectAttribute.class)
+                    .partitionClass(PartitionObject.class);
 
-        IdentityManagerFactory identityManagerFactory = configuration.buildIdentityManagerFactory();
+        IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(builder.build());
 
         IdentityManager identityManager = identityManagerFactory.createIdentityManager();
 
@@ -141,29 +140,29 @@ public class CredentialHandlerConfigurationTestCase {
     
     @Test
     public void testCustomCredentialHandler() throws Exception {
-        IdentityConfiguration configuration = new IdentityConfiguration();
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
-        configuration
-            .jpaStore()
-                .addCredentialHandler(CustomCredentialHandler.class)
-                .addContextInitializer(new JPAContextInitializer(emf) {
-                    @Override
-                    public EntityManager getEntityManager() {
-                        return entityManager;
-                    }
-                })
-                .addRealm(Realm.DEFAULT_REALM)
-                .supportAllFeatures()
-                .setIdentityClass(IdentityObject.class)
-                .setAttributeClass(IdentityObjectAttribute.class)
-                .setRelationshipClass(RelationshipObject.class)
-                .setRelationshipIdentityClass(RelationshipIdentityObject.class)
-                .setRelationshipAttributeClass(RelationshipObjectAttribute.class)
-                .setCredentialClass(CredentialObject.class)
-                .setCredentialAttributeClass(CredentialObjectAttribute.class)
-                .setPartitionClass(PartitionObject.class);
+        builder
+            .stores()
+                .jpa()
+                    .addCredentialHandler(CustomCredentialHandler.class)
+                    .addContextInitializer(new JPAContextInitializer(emf) {
+                        @Override
+                        public EntityManager getEntityManager() {
+                            return entityManager;
+                        }
+                    })
+                    .supportAllFeatures()
+                    .identityClass(IdentityObject.class)
+                    .attributeClass(IdentityObjectAttribute.class)
+                    .relationshipClass(RelationshipObject.class)
+                    .relationshipIdentityClass(RelationshipIdentityObject.class)
+                    .relationshipAttributeClass(RelationshipObjectAttribute.class)
+                    .credentialClass(CredentialObject.class)
+                    .credentialAttributeClass(CredentialObjectAttribute.class)
+                    .partitionClass(PartitionObject.class);
 
-        IdentityManagerFactory identityManagerFactory = configuration.buildIdentityManagerFactory();
+        IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(builder.build());
 
         IdentityManager identityManager = identityManagerFactory.createIdentityManager();
 

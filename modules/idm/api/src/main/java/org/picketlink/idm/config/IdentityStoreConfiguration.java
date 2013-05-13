@@ -21,8 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
 
 /**
@@ -62,15 +64,6 @@ public interface IdentityStoreConfiguration {
 
     /**
      * <p>
-     * Returns a {@link FeatureSet} describing the features supported by this identity store configuration.
-     * </p>
-     *
-     * @return
-     */
-    FeatureSet getFeatureSet();
-
-    /**
-     * <p>
      * Returns all {@link ContextInitializer} instances configured for a specific identity store.
      * </p>
      *
@@ -91,4 +84,10 @@ public interface IdentityStoreConfiguration {
      * @return
      */
     Map<String, Object> getCredentialHandlerProperties();
+
+    Map<FeatureGroup, Set<FeatureOperation>> getSupportedFeatures();
+
+    boolean supportsRelationship(Class<? extends Relationship> relationshipClass, FeatureOperation operation);
+
+    boolean supportsFeature(FeatureGroup feature, FeatureOperation operation);
 }

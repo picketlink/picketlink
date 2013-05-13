@@ -51,6 +51,7 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration.MappedAttribute;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.internal.DigestCredentialHandler;
 import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
@@ -61,7 +62,6 @@ import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.spi.annotations.Stored;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.jpa.annotations.IDMAttribute;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
@@ -1067,7 +1067,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * @param entity
      */
     private void updateIdentityTypeAttributes(SecurityContext context, IdentityType identityType, Object entity) {
-        if (getConfig().getFeatureSet().supports(FeatureGroup.attribute)) {
+        if (getConfig().supportsFeature(FeatureGroup.attribute, null)) {
             Collection<Attribute<? extends Serializable>> attributes = identityType.getAttributes();
 
             if (attributes != null) {

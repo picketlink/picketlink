@@ -22,39 +22,42 @@
 
 package org.picketlink.test.idm.config;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.FileStoreConfigurationBuilder;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.internal.IdentityManagerFactory;
+import org.picketlink.idm.model.SimpleUser;
 
 /**
- * <p>
- * Test case for the {@link JPAIdentityStoreConfiguration}.
- * </p>
- * 
- * @author Pedro Silva
- * 
+ * @author Pedro Igor
+ *
  */
-public class FileIdentityStoreConfigurationTestCase extends
-        AbstractFeaturesSetConfigurationTestCase<FileStoreConfigurationBuilder> {
+public class ConfigurationAPITestCase {
 
-    @Override
-    protected FileStoreConfigurationBuilder createMinimalConfiguration(IdentityConfigurationBuilder builder) {
-        FileStoreConfigurationBuilder fileConfig = builder.stores().file();
+    @Test
+    public void testConfiguration() throws Exception {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
         
-        fileConfig
-            .preserveState(false)
-            .supportAllFeatures();
+        builder
+            .stores()
+                .file()
+                    .workingDirectory("/tmp/pl-idm")
+                    .preserveState(false)
+                    .asyncWrite(true)
+                    .asyncWriteThreadPool(10)
+                    .supportAllFeatures();
         
-        return fileConfig;
+        IdentityConfiguration configuration = builder.build();
+        
+        Assert.assertNotNull(configuration);
+        
+        IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(configuration);
+        
+        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+        
+        identityManager.add(new SimpleUser("john"));
     }
-
-    @Override
-    protected IdentityManager createIdentityManager(IdentityConfiguration config) {
-        IdentityManagerFactory factory = new IdentityManagerFactory(config);
-        return factory.createIdentityManager();
-    }
-
+    
 }

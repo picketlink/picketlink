@@ -18,7 +18,7 @@
 
 package org.picketlink.test.idm;
 
-import org.picketlink.idm.IdentityManagerFactory;
+import org.picketlink.idm.internal.IdentityManagerFactory;
 
 /**
  * <p>
