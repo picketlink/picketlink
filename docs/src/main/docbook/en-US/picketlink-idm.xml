@@ -116,7 +116,82 @@
         </listitem>
       
       </itemizedlist>
-      
+      <section>
+          <title>Architectural Overview</title>
+          <para>The following diagram shows the main components that realize PicketLink Identity Management:</para>
+          <mediaobject>
+            <imageobject role="fo">
+              <imagedata fileref="diagrams/idm_architecture_overview.png" align="center" scalefit="1"/>
+            </imageobject>
+            <imageobject role="html">
+              <imagedata fileref="diagrams/idm_architecture_overview.png" align="center"/>
+            </imageobject>
+          </mediaobject>
+          <para>
+          	<itemizedlist>
+        		<listitem>
+          			<para>
+            			<code>IdentityConfiguration</code> is the the class responsible for holding all PicketLink configuration options. 
+            			This class is usually built using the Configuration Builder API, which we'll cover in the next sections. 
+            			Once created and populated with the configuration options, an instance is used to create a <code>IdentityManagerFactory</code>.
+          			</para>
+       	 		</listitem>
+        		<listitem>
+          			<para>
+            			<code>IdentityManagerFactory</code> is the class from which <code>IdentityManager</code> instances are created for a specific <emphasis>realm</emphasis>, 
+            			considering all configurations provided by a <code>IdentityConfiguration</code> instance. 
+          			</para>
+       	 		</listitem>
+        		<listitem>
+          			<para>
+            			<code>SecurityContextFactory</code> is an interface that provides methods for creating <code>SecurityContext</code> instances. This component knows how to properly create and prepare 
+            			the context that will be propagated during identity management operations.   
+          			</para>
+       	 		</listitem>
+        		<listitem>
+          			<para>
+            			<code>SecurityContext</code> is the class that holds context data that will be used during the execution of identity management operations. 
+            			Once created, the context is used to create <code>IdentityStore</code> instances and to invoke their methods.
+            		</para>
+            		<para>This component allows to share data between the <code>IdentityManager</code> and <code>IdentityStore</code> instances. 
+            		And also provides direct access for some IDM subsystems such as: event handling, caching and so on.</para>
+            		<para>Beyond that, this component is critical when access to external resources are required, such as the current <code>EntityManager</code> when using a JPA-based store.</para>
+            		<para> 
+            			<emphasis>Each <code>IdentityManager</code> instance is associated with a single <code>SecurityContext</code>.</emphasis>     
+          			</para>
+       	 		</listitem>
+        		<listitem>
+          			<para>
+            			<code>StoreFactory</code> is an interface that provides methods for creating <code>IdentityStore</code> instances. 
+            			Instances are created considering the <emphasis>Feature Set</emphasis> supported by each identity store and also the current <code>SecurityContext</code> instance.
+            		</para>
+       	 		</listitem>
+        		<listitem>
+          			<para>
+            			<code>IdentityStore</code> is an interface that provides a contract for implementations that store data using a specific repository such as: LDAP, databases, file system, etc.
+            		</para>
+            		<para>It is a critical component as it provides all the necessary logic about how to store data.</para>
+       	 		</listitem>
+        		<listitem>
+          			<para>
+            			<code>IdentityManager</code> is an interface that provides a simple access for all identity management operations using one or more of the configured identity stores.
+            		</para>
+            		<para>All functionality provided by PicketLink is available from this interface, from where applications will interact most of the time.</para>
+       	 		</listitem>
+       	 	</itemizedlist>
+          </para>
+          <para>For most use cases, users will only work with the <code>IdentityManagerFactory</code> and <code>IdentityManager</code> classes. 
+          Only advanced use cases may require a deep knowledge about other components in order to customize the default behaviour/implementation to suit a specific requirement.</para>
+          <para>The diagram bellow shows a overview about how a specific identity management operation is realized:</para>
+          <mediaobject>
+            <imageobject role="fo">
+              <imagedata fileref="diagrams/idm_operation_execution.png" align="center" scalefit="1"/>
+            </imageobject>
+            <imageobject role="html">
+              <imagedata fileref="diagrams/idm_operation_execution.png" align="center"/>
+            </imageobject>
+          </mediaobject>
+      </section>
     </section>
           
     <section>
@@ -127,8 +202,8 @@
           
           <para>
             Configuration in PicketLink is in essence quite simple; an <code>IdentityConfiguration</code> object must first 
-            be created to hold the PicketLink configuration options.  Once all configuration options have been set, the 
-            <code>buildIdentityManagerFactory()</code> method is used to create an <code>IdentityManagerFactory</code> instance.
+            be created to hold the PicketLink configuration options.  Once all configuration options have been set, you just create a 
+            <code>IdentityManagerFactory</code> instance passing the previously created configuration.            
             The <code>IdentityManagerFactory</code> can then be used to create <code>IdentityManager</code> instances 
             via the <code>createIdentityManager()</code> method.  
           </para>          
@@ -141,7 +216,17 @@
               <imagedata fileref="diagrams/architecture.png" align="center"/>
             </imageobject>
           </mediaobject>
-          
+
+          <para>
+            The <code>IdentityConfiguration</code> is usually created using a Configuration Builder API, which provides a rich and fluent API for every single aspect of PicketLink configuration.
+		  </para>
+
+          <note>
+            <para>
+              For now, all configuration is set programmatically using the Configuration Builder API only. Later versions will also support a declarative configuration in a form of XML documents.   
+            </para>
+          </note>
+			          
           <para>
             Each <code>IdentityManager</code> instance has its own <emphasis>security context</emphasis>, represented by
             the <code>SecurityContext</code> class.  The security context contains temporary state which is maintained 
@@ -164,32 +249,62 @@
         <title>Programmatic Configuration</title>
       
         <para>
-          Configuration for Identity Management can be defined programmatically by creating an instance of the
-          <code>org.picketlink.config.IdentityConfiguration</code> class.  This class provides an API that allows one or 
-          more identity stores to be configured (along with a number of other options) which are then used to 
-          create an <code>IdentityManagerFactory</code>.  An <code>IdentityConfiguration</code> can be created via its
-          default constructor like so:
+          Configuration for Identity Management can be defined programmatically using the Configuration Builder API. The aim of this API is to make it easier to chaing coding
+          of configuration options in order to speed up the coding itself and make the configuration more <emphasis>readable</emphasis>.
+        </para>
+        <para>        
+          Let's assume that you want to quick start with PicketLink Identity Management features using a file-based Identity Store. 
+          First, a fresh instance of <code>IdentityConfiguration</code> is created using the <code>IdentityConfigurationBuilder</code> helper object, 
+          where we choose which identity store we want to use (in this case a file-based store) and any other configuration option, if necessary. 
+          Finally, we use the configuration to create a <code>IdentityManagerFactory</code> from where we can create <code>IdentityManager</code> instances and start to perform Identity Management operations: 
         </para>
         
-        <programlisting><![CDATA[  IdentityConfiguration config = new IdentityConfiguration();]]></programlisting>
+        <programlisting><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
         
-        <para>
-          Let's start by looking at the methods we use to configure the identity stores.
-        </para>
-      
-        <programlisting language="JAVA"><![CDATA[public class IdentityConfiguration {
+builder
+    .stores()
+        .file()
+            .supportAllFeatures();
 
-    public List<IdentityStoreConfiguration> getConfiguredStores() {
-        return this.configuredStores;
-    }
-  
-    public void addStoreConfiguration(IdentityStoreConfiguration config) {
-        this.configuredStores.add(config);
-    }
-}]]></programlisting>
+IdentityConfiguration configuration = builder.build();
 
+IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(configuration);
+
+IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+
+User user = new SimpleUser("john");
+
+identityManager.add(user);]]></programlisting>
+
+	  <section>
+	  	<title>IdentityConfigurationBuilder for Programmatic Configuration</title>
+	  	
+	  	<para>The <code>IdentityConfigurationBuilder</code> is the entry point for PicketLink configuration. 
+	  	It is a very simple class with some meanniful methods for all supported configuration options.</para>
+		<programlisting><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+	.stores() // supported identity stores configuration	
+		.file() 
+			// file-based identity store configuration
+		.jpa()
+			// JPA-based identity store configuration
+		.ldap()
+			// LDAP-based identity store configuration			
+	.contextFactory(...); // for custom SecurityContextFactory implementations]]></programlisting>	
+		<para>In the next sections we'll cover each supported Identity Store and their specific configuration.</para>			  	
+	  </section>
+        
       </section>
       
+      <section>
+        <title>Security Context Configuration</title>
+      
+        <para>
+          TODO
+        </para>
+      </section>
+            
       <section>
         <title>Identity Store Configurations</title>
       
@@ -197,829 +312,849 @@
           For each of the built-in <code>IdentityStore</code> implementations there is a corresponding
           <code>IdentityStoreConfiguration</code> implementation - the following sections describe each of these in more detail.
         </para>
-      </section>
-        
-      <section>
-        <title>JPAIdentityStoreConfiguration</title>
-        
-        <para>
-          The JPA identity store uses a relational database to store identity state.  The configuration for this identity store
-          provides control over which entity beans are used to store identity data, and how their fields should be used to store
-          various identity-related state.  The entity beans that store the identity data must be configured using the 
-          annotations found in the <code>org.picketlink.jpa.annotations</code> package.  All identity configuration annotations
-          listed in the tables below are from this package.
-        </para>
-        
+
         <section>
-          <title>Configuring an EntityManager</title>
-          
-          <para>
-            Before the JPA identity store can be used, it must be provided with an <code>EntityManager</code> so that it can
-            connect to a database.  In Java EE this can be done by providing a producer method within your application that 
-            specifies the <code>@org.picketlink.annotations.PicketLink</code> qualifier, for example like so:
-          </para>
-          
-          <programlisting language="JAVA"><![CDATA[@Produces
-@PicketLink
-@PersistenceContext(unitName = "picketlink")
-private EntityManager picketLinkEntityManager;]]></programlisting>
-        </section>
+	      <title>Feature Set</title>
+	      
+	      <para>
+	         TODO
+	      </para>
+	    </section>
         
-        <section>
-          <title>Configuring the Identity class</title>
-          
-          <para>
-            The Identity class is the entity bean that is used to store the record for users, roles and groups. It should
-            be annotated with <code>@IdentityType</code> and declare the following field values:
-          </para>
-          
-          <table>
-            <title>Identity class fields</title>
-            
-            <tgroup cols="3" align="left">
-              <thead>
-                <row>
-                  <entry>Property</entry>
-                  <entry>Annotation</entry>
-                  <entry>Description</entry>
-                </row>
-              </thead>
-              <tbody>
-                <row>
-                  <entry>ID</entry>
-                  <entry><code>@Identifier</code></entry>
-                  <entry>The unique identifier value for the identity (can also double as the primary key value)</entry>
-                </row>
-                <row>
-                  <entry>Discriminator</entry>
-                  <entry><code>@Discriminator</code></entry>
-                  <entry>Indicates the identity type (i.e. user, agent, group or role) of the identity.</entry>
-                </row>
-                <row>
-                  <entry>Partition</entry>
-                  <entry><code>@IdentityPartition</code></entry>
-                  <entry>The partition (realm or tier) that the identity belongs to</entry>
-                </row>
-                <row>
-                  <entry>Login name</entry>
-                  <entry><code>@LoginName</code></entry>
-                  <entry>The login name for agent and user identities (for other identity types this will be null)</entry>
-                </row>
-                <row>
-                  <entry>Name</entry>
-                  <entry><code>@IdentityName</code></entry>
-                  <entry>The name for group and role identities (for other identity types this will be null)</entry>
-                </row>
-                <row>
-                  <entry>First Name</entry>
-                  <entry><code>@FirstName</code></entry>
-                  <entry>The first name of a user identity</entry>
-                </row>
-                <row>
-                  <entry>Last Name</entry>
-                  <entry><code>@LastName</code></entry>
-                  <entry>The last name of a user identity</entry>
-                </row>
-                <row>
-                  <entry>E-mail</entry>
-                  <entry><code>@Email</code></entry>
-                  <entry>The primary e-mail address of a user identity</entry>
-                </row>
-                <row>
-                  <entry>Enabled</entry>
-                  <entry><code>@Enabled</code></entry>
-                  <entry>Indicates whether the identity is enabled</entry>
-                </row>
-                <row>
-                  <entry>Creation date</entry>
-                  <entry><code>@CreationDate</code></entry>
-                  <entry>The creation date of the identity</entry>
-                </row>
-                <row>
-                  <entry>Expiry date</entry>
-                  <entry><code>@ExpiryDate</code></entry>
-                  <entry>The expiry date of the identity</entry>
-                </row>
-                <row>
-                  <entry>Group parent</entry>
-                  <entry><code>@Parent</code></entry>
-                  <entry>The parent group (only used for Group identity types, for other types will be null)</entry>
-                </row>
-                <row>
-                  <entry>Group path</entry>
-                  <entry><code>@GroupPath</code></entry>
-                  <entry>Represents the full group path (for Group identity types only)</entry>
-                </row>
-              </tbody>
-            </tgroup>
-            
-          </table>
-          
-          <para>
-            The following code shows an example of an entity class configured to store Identity instances:
-          </para>
-          
-          <example>
-            <title>Example Identity class</title>
-            <programlisting language="JAVA"><![CDATA[@IdentityType
-@Entity
-public class IdentityObject implements Serializable {
-
-  @Discriminator
-  private String discriminator;
-
-  @ManyToOne
-  @IdentityPartition
-  private PartitionObject partition;
-
-  @Identifier
-  @Id
-  private String id;
-
-  @LoginName
-  private String loginName;
-
-  @IdentityName
-  private String name;
-
-  @FirstName
-  private String firstName;
-
-  @LastName
-  private String lastName;
-
-  @Email
-  private String email;
-
-  @Enabled
-  private boolean enabled;
-
-  @CreationDate
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date creationDate;
-
-  @ExpiryDate
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date expiryDate;
-
-  @ManyToOne
-  @Parent
-  private IdentityObject parent;
-
-  @GroupPath
-  private String groupPath;              
-  
-  // getters and setters
-}]]></programlisting>
-          </example>
-          
-        </section>
-        
-        <section>
-          <title>Configuring the Attribute class</title>
-          
-          <para>
-            The Attribute class is used to store Identity attributes, and should be annotated with
-            <code>@IdentityAttribute</code>
-          </para>
-          
-          <table>
-            <title>Attribute class fields</title>
-            
-            <tgroup cols="3" align="left">
-              <thead>
-                <row>
-                  <entry>Property</entry>
-                  <entry>Annotation</entry>
-                  <entry>Description</entry>
-                </row>
-              </thead>
-              <tbody>
-                <row>
-                  <entry>Identity</entry>
-                  <entry><code>@Parent</code></entry>
-                  <entry>The parent identity object to which the attribute value belongs</entry>
-                </row>
-                <row>
-                  <entry>Name</entry>
-                  <entry><code>@AttributeName</code></entry>
-                  <entry>The name of the attribute</entry>
-                </row>
-                <row>
-                  <entry>Value</entry>
-                  <entry><code>@AttributeValue</code></entry>
-                  <entry>The value of the attribute</entry>
-                </row>
-                <row>
-                  <entry>Type</entry>
-                  <entry><code>@AttributeType</code></entry>
-                  <entry>The fully qualified classname of the attribute value class</entry>
-                </row>
-              </tbody>
-            </tgroup>
-          </table>          
-          
-          <example>
-            <title>Example Attribute class</title>
-            <programlisting language="JAVA"><![CDATA[@Entity
-@IdentityAttribute
-public class IdentityAttribute implements Serializable {
-  @Id @GeneratedValue private Long id;
-
-  @ManyToOne @JoinColumn
-  @Parent
-  private IdentityObject identityObject;
-
-  @AttributeName
-  private String name;
-
-  @AttributeValue
-  private String value;
-
-  @AttributeType
-  private String type;
-  
-  // getters and setters
-}]]></programlisting>
-          </example>
-          
-        </section>
-        
-        <section>
-          <title>Configuring the Credential class</title>
-          
-          <para>
-            The credential entity is used to store user credentials such as passwords and certificates, and should be annotated
-            with <code>@IdentityCredential</code>.
-          </para>
-          
-          <table>
-            <title>Credential class fields</title>
-            
-            <tgroup cols="3" align="left">
-              <thead>
-                <row>
-                  <entry>Property</entry>
-                  <entry>Annotation</entry>
-                  <entry>Description</entry>
-                </row>
-              </thead>
-              <tbody>
-                <row>
-                  <entry>Type</entry>
-                  <entry><code>@CredentialType</code></entry>
-                  <entry>The fully qualified classname of the credential type</entry>
-                </row>
-                <row>
-                  <entry>Value</entry>
-                  <entry><code>@CredentialValue</code></entry>
-                  <entry>The value of the credential</entry>
-                </row>
-                <row>
-                  <entry>Effective Date</entry>
-                  <entry><code>@EffectiveDate</code></entry>
-                  <entry>The effective date of the credential</entry>
-                </row>
-                <row>
-                  <entry>Expiry Date</entry>
-                  <entry><code>@ExpiryDate</code></entry>
-                  <entry>The expiry date of the credential</entry>
-                </row>
-                <row>
-                  <entry>Identity</entry>
-                  <entry><code>@Parent</code></entry>
-                  <entry>The parent identity to which the credential belongs</entry>
-                </row>
-              </tbody>
-            </tgroup>
-          </table>
-          
-          <example>
-            <title>Example Credential class</title>
-            <programlisting language="JAVA"><![CDATA[@Entity
-@IdentityCredential
-public class IdentityCredential implements Serializable {
-  @Id @GeneratedValue private Long id;
-
-  @CredentialType
-  private String type;
-
-  @CredentialValue
-  private String credential;
-
-  @EffectiveDate
-  @Temporal (TemporalType.TIMESTAMP)
-  private Date effectiveDate;
-
-  @ExpiryDate
-  @Temporal (TemporalType.TIMESTAMP)
-  private Date expiryDate;
-
-  @Parent
-  @ManyToOne
-  private IdentityObject identityType;
-  
-  // getters and setters
-}]]></programlisting>
-          </example>
-            
-        </section>
-        
-        <section>
-          <title>Configuring the Credential Attribute class</title>
-          
-          <para>
-            The Credential Attribute class is used to store arbitrary attribute values relating to the credential.  It
-            should be annotated with <code>@CredentialAttribute</code>.
-          </para>
-          
-          <table>
-            <title>Credential Attribute class fields</title>
-            
-            <tgroup cols="3" align="left">
-              <thead>
-                <row>
-                  <entry>Property</entry>
-                  <entry>Annotation</entry>
-                  <entry>Description</entry>
-                </row>
-              </thead>
-              <tbody>
-                <row>
-                  <entry>Credential Object</entry>
-                  <entry><code>@Parent</code></entry>
-                  <entry>The parent credential to which this attribute belongs</entry>
-                </row>
-                <row>
-                  <entry>Attribute Name</entry>
-                  <entry><code>@AttributeName</code></entry>
-                  <entry>The name of the attribute</entry>
-                </row>
-                <row>
-                  <entry>Attribute Value</entry>
-                  <entry><code>@AttributeValue</code></entry>
-                  <entry>The value of the attribute</entry>
-                </row>
-              </tbody>
-            </tgroup>
-          </table>
-          
-          <example>
-            <title>Example Credential Attribute class</title>
-            <programlisting language="JAVA"><![CDATA[@Entity
-@CredentialAttribute
-public class IdentityCredentialAttribute implements Serializable {
-  @Id @GeneratedValue private Long id;
-
-  @ManyToOne @JoinColumn
-  @Parent
-  private IdentityCredential credential;
-
-  @AttributeName
-  private String name;
-
-  @AttributeValue
-  private String value;
-  
-  // getters and setters
-}]]></programlisting>
-          </example>
-          
-        </section>
-        
-        <section>
-          <title>Configuring the Relationship class</title>
-          
-          <para>
-            Relationships are used to define typed associations between two or more identities.  The Relationship class should
-            be annotated with <code>@Relationship</code>.
-          </para>
-          
-          <table>
-            <title>Relationship class fields</title>
-            
-            <tgroup cols="3" align="left">
-              <thead>
-                <row>
-                  <entry>Property</entry>
-                  <entry>Annotation</entry>
-                  <entry>Description</entry>
-                </row>
-              </thead>
-              <tbody>
-                <row>
-                  <entry>Identifier</entry>
-                  <entry><code>@Identifier</code></entry>
-                  <entry>Unique identifier that represents the specific relationship (can also double as the primary key)</entry>
-                </row>
-                <row>
-                  <entry>Relationship Class</entry>
-                  <entry><code>@RelationshipClass</code></entry>
-                  <entry>The fully qualified class name of the relationship type</entry>
-                </row>
-              </tbody>
-            </tgroup>
-          </table>
-          
-          <example>
-            <title>Example Relationship class</title>
-            <programlisting language="JAVA"><![CDATA[@Relationship
-@Entity
-public class Relationship implements Serializable {
-  @Id 
-  @Identifier
-  private String id;
-
-  @RelationshipClass
-  private String type;
-
-  // getters and setters
-}]]></programlisting>
-          </example>
-        </section>
-        
-        <section>
-          <title>Configuring the Relationship Identity class</title>
-          
-          <para>
-            The Relationship Identity class is used to store the specific identities that participate in a relationship. It
-            should be annotated with <code>@RelationshipIdentity</code>.
-          </para>
-          
-          <table>
-            <title>Relationship Identity class fields</title>
-            
-            <tgroup cols="3" align="left">
-              <thead>
-                <row>
-                  <entry>Property</entry>
-                  <entry>Annotation</entry>
-                  <entry>Description</entry>
-                </row>
-              </thead>
-              <tbody>
-                <row>
-                  <entry>Relationship Descriptor</entry>
-                  <entry><code>@Discriminator</code></entry>
-                  <entry>Denotes the role of the identity in the relationship</entry>
-                </row>
-                <row>
-                  <entry>Relationship Identity</entry>
-                  <entry><code>@Identity</code></entry>
-                  <entry>The identity that is participating in the relationship</entry>
-                </row>
-                <row>
-                  <entry>Relationship</entry>
-                  <entry><code>@Parent</code></entry>
-                  <entry>The parent relationship object to which the relationship identity belongs</entry>
-                </row>
-              </tbody>
-            </tgroup>
-          </table>
-          
-          <example>
-            <title>Example Relationship Identity class</title>
-            <programlisting language="JAVA"><![CDATA[@RelationshipIdentity
-@Entity
-public class RelationshipIdentityObject implements Serializable {
-  @Id @GeneratedValue private Long id;
-
-  @Discriminator
-  private String descriptor;
-
-  @RelationshipIdentity
-  @ManyToOne
-  private IdentityObject identityObject;
-
-  @Parent
-  @ManyToOne
-  private RelationshipObject relationshipObject;
-  
-  // getters and setters
-}]]></programlisting>
-          </example>
-        </section>
-        
-        <section>
-          <title>Configuring the Relationship Attribute class</title>
-          
-          <para>
-            The Relationship Attribute class is used to store arbitrary attribute values that relate to a specific relationship.
-            It should be annotated with <code>@RelationshipAttribute</code>.
-          </para>
-          
-          <table>
-            <title>Relationship Attribute class fields</title>
-            
-            <tgroup cols="3" align="left">
-              <thead>
-                <row>
-                  <entry>Property</entry>
-                  <entry>Annotation</entry>
-                  <entry>Description</entry>
-                </row>
-              </thead>
-              <tbody>
-                <row>
-                  <entry>Relationship</entry>
-                  <entry><code>@Parent</code></entry>
-                  <entry>The parent relationship object to which the attribute belongs</entry>
-                </row>
-                <row>
-                  <entry>Attribute Name</entry>
-                  <entry><code>@AttributeName</code></entry>
-                  <entry>The name of the attribute</entry>
-                </row>
-                <row>
-                  <entry>Attribute value</entry>
-                  <entry><code>@AttributeValue</code></entry>
-                  <entry>The value of the attribute</entry>
-                </row>
-              </tbody>
-            </tgroup>
-          </table>
-          
-          <example>
-            <title>Example Relationship Attribute class</title>
-
-            <programlisting language="JAVA"><![CDATA[@Entity
-@RelationshipAttribute
-public class RelationshipObjectAttribute implements Serializable {
-  @Id @GeneratedValue private Long id;
-
-  @ManyToOne @JoinColumn
-  @Parent
-  private Relationship relationship;
-
-  @AttributeName
-  private String name;
-
-  @RelationshipValue
-  private String value;
-  
-  // getters and setters
-}]]></programlisting>
-          </example>
-        </section>
-        
-        <section>
-          <title>Configuring the Partition class</title>
-          
-          <para>
-            The Partition class is used to store information about partitions, i.e. Realms and Tiers.  It should be 
-            annotated with <code>@Partition</code>.
-          </para>
-          
-          <table>
-            <title>Partition class fields</title>
-            
-            <tgroup cols="3" align="left">
-              <thead>
-                <row>
-                  <entry>Property</entry>
-                  <entry>Annotation</entry>
-                  <entry>Description</entry>
-                </row>
-              </thead>
-              <tbody>
-                <row>
-                  <entry>ID</entry>
-                  <entry><code>@Identifier</code></entry>
-                  <entry>The unique identifier value for the partition</entry>
-                </row>
-                <row>
-                  <entry>Type</entry>
-                  <entry><code>@Discriminator</code></entry>
-                  <entry>The type of partition, either Realm or Tier</entry>
-                </row>
-                <row>
-                  <entry>Parent</entry>
-                  <entry><code>@Parent</code></entry>
-                  <entry>The parent partition (only used for Tiers)</entry>
-                </row>
-              </tbody>
-            </tgroup>
-          </table>
-          
-          <example>
-            <title>Example Partition class</title>
-            <programlisting language="JAVA"><![CDATA[@Entity
-@Partition
-public class PartitionObject implements Serializable {
-  @Id @Identifier
-  private String id;
-
-  @Discriminator
-  private String type;
-
-  @ManyToOne 
-  @Parent
-  private PartitionObject parent;
-  
-  // getters and setters
-}]]></programlisting>
-          </example>
-        </section>
-               
-      </section>
-      
-      <section>
-        <title>LDAPIdentityStoreConfiguration</title>
-        
-        <para>
-          The LDAP identity store allows an LDAP directory server to be used to provide identity state. You can use this store in read-only or write-read mode, depending on your permissions on the server.
-        </para>
-        
-        <section>
-          <title>Configuration</title>
-          
-          <para>
-            The LDAP identity store can be configured by providing the following configuration:
-		</para>
-		
-          <programlisting language="JAVA"><![CDATA[LDAPIdentityStoreConfiguration ldapStoreConfig = new LDAPIdentityStoreConfiguration();
-
-ldapStoreConfig
-.setBaseDN(BASE_DN)
-.setBindDN(BIND_DN)
-  .setBindCredential(BIND_CREDENTIAL)
-  .setLdapURL(LDAP_URL)
-  .setUserDNSuffix(USER_DN_SUFFIX)
-  .setRoleDNSuffix(ROLES_DN_SUFFIX)
-  .setAgentDNSuffix(AGENT_DN_SUFFIX)
-  .setGroupDNSuffix(GROUP_DN_SUFFIX)
-  .addRealm(Realm.DEFAULT_REALM)
-  .supportAllFeatures();]]></programlisting>
-		
-		<para>
-			The following table describes all configuration options:
-		</para>
-		
-		<table>
-            <title>LDAP Configuration Options</title>
-            
-            <tgroup cols="3" align="left">
-              <thead>
-                <row>
-                  <entry>Option</entry>
-                  <entry>Description</entry>
-                  <entry>Required</entry>
-                </row>
-              </thead>
-              <tbody>
-                <row>
-                  <entry><code>setBaseDN</code></entry>
-                  <entry>Sets the fixed DN of the context from where identity types are stored.</entry>
-                  <entry>Yes</entry>
-                </row>
-                <row>
-                  <entry><code>setBindDN</code></entry>
-                  <entry>Sets the the DN used to bind against the ldap server. If you want to perform write operations the DN must have permissions on the agent,user,role and group contexts.</entry>
-                  <entry>Yes</entry>
-                </row>
-                <row>
-                  <entry><code>setBindCredential</code></entry>
-                  <entry>Sets the password for the bindDN.</entry>
-                  <entry>Yes</entry>
-                </row>
-                <row>
-                  <entry><code>setLdapURL</code></entry>
-                  <entry>Sets the url that should be used to connect to the server. Eg.: <![CDATA[ldap://<<server>>:389]]>.</entry>
-                  <entry>Yes</entry>
-                </row>
-                <row>
-                  <entry><code>setUserDNSuffix</code></entry>
-                  <entry>Sets the fixed DN of the context where users should be read/stored from.</entry>
-                  <entry>Yes</entry>
-                </row>
-                <row>
-                  <entry><code>setAgentDNSuffix</code></entry>
-                  <entry>Sets the fixed DN of the context where agents should be read/stored from. If not provided, will be used the context provided by the <code>setUserDNSuffix</code></entry>
-                  <entry>No</entry>
-                </row>
-                <row>
-                  <entry><code>setRoleDNSuffix</code></entry>
-                  <entry>Sets the fixed DN of the context where roles should be read/stored from.</entry>
-                  <entry>Yes</entry>
-                </row>
-                <row>
-                  <entry><code>setGroupDNSuffix</code></entry>
-                  <entry>Sets the fixed DN of the context where groups should be read/stored from.</entry>
-                  <entry>Yes</entry>
-                </row>
-              </tbody>
-            </tgroup>
-          </table>
-          
-          <section>
-          	<title>Mapping Groups to different contexts</title>
-          	
-          	<para>
-          		Sometimes may be useful to map a specific group to a specific context or DN. By default, all groups are stored and read from the DN provided by the <code>setGroupDNSuffix</code> method, which means that you can not have groups with the same name.
-          	</para>
-
-          	<para>
-          		The following configuration maps the group with path <emphasis>/QA Group</emphasis> to <emphasis>ou=QA,dc=jboss,dc=org</emphasis> 
-          	</para>
-          	
-          	<programlisting language="JAVA"><![CDATA[LDAPIdentityStoreConfiguration ldapStoreConfig = new LDAPIdentityStoreConfiguration();
-
-ldapStoreConfig
-  .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org");]]></programlisting>
+	      <section>
+	        <title>JPAIdentityStoreConfiguration</title>
+	        
+	        <para>
+	          The JPA identity store uses a relational database to store identity state.  The configuration for this identity store
+	          provides control over which entity beans are used to store identity data, and how their fields should be used to store
+	          various identity-related state.  The entity beans that store the identity data must be configured using the 
+	          annotations found in the <code>org.picketlink.jpa.annotations</code> package.  All identity configuration annotations
+	          listed in the tables below are from this package.
+	        </para>
+	        
+	        <section>
+	          <title>Configuring an EntityManager</title>
+	          
+	          <para>
+	            Before the JPA identity store can be used, it must be provided with an <code>EntityManager</code> so that it can
+	            connect to a database.  In Java EE this can be done by providing a producer method within your application that 
+	            specifies the <code>@org.picketlink.annotations.PicketLink</code> qualifier, for example like so:
+	          </para>
+	          
+	          <programlisting language="JAVA"><![CDATA[@Produces
+	@PicketLink
+	@PersistenceContext(unitName = "picketlink")
+	private EntityManager picketLinkEntityManager;]]></programlisting>
+	        </section>
+	        
+	        <section>
+	          <title>Configuring the Identity class</title>
+	          
+	          <para>
+	            The Identity class is the entity bean that is used to store the record for users, roles and groups. It should
+	            be annotated with <code>@IdentityType</code> and declare the following field values:
+	          </para>
+	          
+	          <table>
+	            <title>Identity class fields</title>
+	            
+	            <tgroup cols="3" align="left">
+	              <thead>
+	                <row>
+	                  <entry>Property</entry>
+	                  <entry>Annotation</entry>
+	                  <entry>Description</entry>
+	                </row>
+	              </thead>
+	              <tbody>
+	                <row>
+	                  <entry>ID</entry>
+	                  <entry><code>@Identifier</code></entry>
+	                  <entry>The unique identifier value for the identity (can also double as the primary key value)</entry>
+	                </row>
+	                <row>
+	                  <entry>Discriminator</entry>
+	                  <entry><code>@Discriminator</code></entry>
+	                  <entry>Indicates the identity type (i.e. user, agent, group or role) of the identity.</entry>
+	                </row>
+	                <row>
+	                  <entry>Partition</entry>
+	                  <entry><code>@IdentityPartition</code></entry>
+	                  <entry>The partition (realm or tier) that the identity belongs to</entry>
+	                </row>
+	                <row>
+	                  <entry>Login name</entry>
+	                  <entry><code>@LoginName</code></entry>
+	                  <entry>The login name for agent and user identities (for other identity types this will be null)</entry>
+	                </row>
+	                <row>
+	                  <entry>Name</entry>
+	                  <entry><code>@IdentityName</code></entry>
+	                  <entry>The name for group and role identities (for other identity types this will be null)</entry>
+	                </row>
+	                <row>
+	                  <entry>First Name</entry>
+	                  <entry><code>@FirstName</code></entry>
+	                  <entry>The first name of a user identity</entry>
+	                </row>
+	                <row>
+	                  <entry>Last Name</entry>
+	                  <entry><code>@LastName</code></entry>
+	                  <entry>The last name of a user identity</entry>
+	                </row>
+	                <row>
+	                  <entry>E-mail</entry>
+	                  <entry><code>@Email</code></entry>
+	                  <entry>The primary e-mail address of a user identity</entry>
+	                </row>
+	                <row>
+	                  <entry>Enabled</entry>
+	                  <entry><code>@Enabled</code></entry>
+	                  <entry>Indicates whether the identity is enabled</entry>
+	                </row>
+	                <row>
+	                  <entry>Creation date</entry>
+	                  <entry><code>@CreationDate</code></entry>
+	                  <entry>The creation date of the identity</entry>
+	                </row>
+	                <row>
+	                  <entry>Expiry date</entry>
+	                  <entry><code>@ExpiryDate</code></entry>
+	                  <entry>The expiry date of the identity</entry>
+	                </row>
+	                <row>
+	                  <entry>Group parent</entry>
+	                  <entry><code>@Parent</code></entry>
+	                  <entry>The parent group (only used for Group identity types, for other types will be null)</entry>
+	                </row>
+	                <row>
+	                  <entry>Group path</entry>
+	                  <entry><code>@GroupPath</code></entry>
+	                  <entry>Represents the full group path (for Group identity types only)</entry>
+	                </row>
+	              </tbody>
+	            </tgroup>
+	            
+	          </table>
+	          
+	          <para>
+	            The following code shows an example of an entity class configured to store Identity instances:
+	          </para>
+	          
+	          <example>
+	            <title>Example Identity class</title>
+	            <programlisting language="JAVA"><![CDATA[@IdentityType
+	@Entity
+	public class IdentityObject implements Serializable {
+	
+	  @Discriminator
+	  private String discriminator;
+	
+	  @ManyToOne
+	  @IdentityPartition
+	  private PartitionObject partition;
+	
+	  @Identifier
+	  @Id
+	  private String id;
+	
+	  @LoginName
+	  private String loginName;
+	
+	  @IdentityName
+	  private String name;
+	
+	  @FirstName
+	  private String firstName;
+	
+	  @LastName
+	  private String lastName;
+	
+	  @Email
+	  private String email;
+	
+	  @Enabled
+	  private boolean enabled;
+	
+	  @CreationDate
+	  @Temporal(TemporalType.TIMESTAMP)
+	  private Date creationDate;
+	
+	  @ExpiryDate
+	  @Temporal(TemporalType.TIMESTAMP)
+	  private Date expiryDate;
+	
+	  @ManyToOne
+	  @Parent
+	  private IdentityObject parent;
+	
+	  @GroupPath
+	  private String groupPath;              
+	  
+	  // getters and setters
+	}]]></programlisting>
+	          </example>
+	          
+	        </section>
+	        
+	        <section>
+	          <title>Configuring the Attribute class</title>
+	          
+	          <para>
+	            The Attribute class is used to store Identity attributes, and should be annotated with
+	            <code>@IdentityAttribute</code>
+	          </para>
+	          
+	          <table>
+	            <title>Attribute class fields</title>
+	            
+	            <tgroup cols="3" align="left">
+	              <thead>
+	                <row>
+	                  <entry>Property</entry>
+	                  <entry>Annotation</entry>
+	                  <entry>Description</entry>
+	                </row>
+	              </thead>
+	              <tbody>
+	                <row>
+	                  <entry>Identity</entry>
+	                  <entry><code>@Parent</code></entry>
+	                  <entry>The parent identity object to which the attribute value belongs</entry>
+	                </row>
+	                <row>
+	                  <entry>Name</entry>
+	                  <entry><code>@AttributeName</code></entry>
+	                  <entry>The name of the attribute</entry>
+	                </row>
+	                <row>
+	                  <entry>Value</entry>
+	                  <entry><code>@AttributeValue</code></entry>
+	                  <entry>The value of the attribute</entry>
+	                </row>
+	                <row>
+	                  <entry>Type</entry>
+	                  <entry><code>@AttributeType</code></entry>
+	                  <entry>The fully qualified classname of the attribute value class</entry>
+	                </row>
+	              </tbody>
+	            </tgroup>
+	          </table>          
+	          
+	          <example>
+	            <title>Example Attribute class</title>
+	            <programlisting language="JAVA"><![CDATA[@Entity
+	@IdentityAttribute
+	public class IdentityAttribute implements Serializable {
+	  @Id @GeneratedValue private Long id;
+	
+	  @ManyToOne @JoinColumn
+	  @Parent
+	  private IdentityObject identityObject;
+	
+	  @AttributeName
+	  private String name;
+	
+	  @AttributeValue
+	  private String value;
+	
+	  @AttributeType
+	  private String type;
+	  
+	  // getters and setters
+	}]]></programlisting>
+	          </example>
+	          
+	        </section>
+	        
+	        <section>
+	          <title>Configuring the Credential class</title>
+	          
+	          <para>
+	            The credential entity is used to store user credentials such as passwords and certificates, and should be annotated
+	            with <code>@IdentityCredential</code>.
+	          </para>
+	          
+	          <table>
+	            <title>Credential class fields</title>
+	            
+	            <tgroup cols="3" align="left">
+	              <thead>
+	                <row>
+	                  <entry>Property</entry>
+	                  <entry>Annotation</entry>
+	                  <entry>Description</entry>
+	                </row>
+	              </thead>
+	              <tbody>
+	                <row>
+	                  <entry>Type</entry>
+	                  <entry><code>@CredentialType</code></entry>
+	                  <entry>The fully qualified classname of the credential type</entry>
+	                </row>
+	                <row>
+	                  <entry>Value</entry>
+	                  <entry><code>@CredentialValue</code></entry>
+	                  <entry>The value of the credential</entry>
+	                </row>
+	                <row>
+	                  <entry>Effective Date</entry>
+	                  <entry><code>@EffectiveDate</code></entry>
+	                  <entry>The effective date of the credential</entry>
+	                </row>
+	                <row>
+	                  <entry>Expiry Date</entry>
+	                  <entry><code>@ExpiryDate</code></entry>
+	                  <entry>The expiry date of the credential</entry>
+	                </row>
+	                <row>
+	                  <entry>Identity</entry>
+	                  <entry><code>@Parent</code></entry>
+	                  <entry>The parent identity to which the credential belongs</entry>
+	                </row>
+	              </tbody>
+	            </tgroup>
+	          </table>
+	          
+	          <example>
+	            <title>Example Credential class</title>
+	            <programlisting language="JAVA"><![CDATA[@Entity
+	@IdentityCredential
+	public class IdentityCredential implements Serializable {
+	  @Id @GeneratedValue private Long id;
+	
+	  @CredentialType
+	  private String type;
+	
+	  @CredentialValue
+	  private String credential;
+	
+	  @EffectiveDate
+	  @Temporal (TemporalType.TIMESTAMP)
+	  private Date effectiveDate;
+	
+	  @ExpiryDate
+	  @Temporal (TemporalType.TIMESTAMP)
+	  private Date expiryDate;
+	
+	  @Parent
+	  @ManyToOne
+	  private IdentityObject identityType;
+	  
+	  // getters and setters
+	}]]></programlisting>
+	          </example>
+	            
+	        </section>
+	        
+	        <section>
+	          <title>Configuring the Credential Attribute class</title>
+	          
+	          <para>
+	            The Credential Attribute class is used to store arbitrary attribute values relating to the credential.  It
+	            should be annotated with <code>@CredentialAttribute</code>.
+	          </para>
+	          
+	          <table>
+	            <title>Credential Attribute class fields</title>
+	            
+	            <tgroup cols="3" align="left">
+	              <thead>
+	                <row>
+	                  <entry>Property</entry>
+	                  <entry>Annotation</entry>
+	                  <entry>Description</entry>
+	                </row>
+	              </thead>
+	              <tbody>
+	                <row>
+	                  <entry>Credential Object</entry>
+	                  <entry><code>@Parent</code></entry>
+	                  <entry>The parent credential to which this attribute belongs</entry>
+	                </row>
+	                <row>
+	                  <entry>Attribute Name</entry>
+	                  <entry><code>@AttributeName</code></entry>
+	                  <entry>The name of the attribute</entry>
+	                </row>
+	                <row>
+	                  <entry>Attribute Value</entry>
+	                  <entry><code>@AttributeValue</code></entry>
+	                  <entry>The value of the attribute</entry>
+	                </row>
+	              </tbody>
+	            </tgroup>
+	          </table>
+	          
+	          <example>
+	            <title>Example Credential Attribute class</title>
+	            <programlisting language="JAVA"><![CDATA[@Entity
+	@CredentialAttribute
+	public class IdentityCredentialAttribute implements Serializable {
+	  @Id @GeneratedValue private Long id;
+	
+	  @ManyToOne @JoinColumn
+	  @Parent
+	  private IdentityCredential credential;
+	
+	  @AttributeName
+	  private String name;
+	
+	  @AttributeValue
+	  private String value;
+	  
+	  // getters and setters
+	}]]></programlisting>
+	          </example>
+	          
+	        </section>
+	        
+	        <section>
+	          <title>Configuring the Relationship class</title>
+	          
+	          <para>
+	            Relationships are used to define typed associations between two or more identities.  The Relationship class should
+	            be annotated with <code>@Relationship</code>.
+	          </para>
+	          
+	          <table>
+	            <title>Relationship class fields</title>
+	            
+	            <tgroup cols="3" align="left">
+	              <thead>
+	                <row>
+	                  <entry>Property</entry>
+	                  <entry>Annotation</entry>
+	                  <entry>Description</entry>
+	                </row>
+	              </thead>
+	              <tbody>
+	                <row>
+	                  <entry>Identifier</entry>
+	                  <entry><code>@Identifier</code></entry>
+	                  <entry>Unique identifier that represents the specific relationship (can also double as the primary key)</entry>
+	                </row>
+	                <row>
+	                  <entry>Relationship Class</entry>
+	                  <entry><code>@RelationshipClass</code></entry>
+	                  <entry>The fully qualified class name of the relationship type</entry>
+	                </row>
+	              </tbody>
+	            </tgroup>
+	          </table>
+	          
+	          <example>
+	            <title>Example Relationship class</title>
+	            <programlisting language="JAVA"><![CDATA[@Relationship
+	@Entity
+	public class Relationship implements Serializable {
+	  @Id 
+	  @Identifier
+	  private String id;
+	
+	  @RelationshipClass
+	  private String type;
+	
+	  // getters and setters
+	}]]></programlisting>
+	          </example>
+	        </section>
+	        
+	        <section>
+	          <title>Configuring the Relationship Identity class</title>
+	          
+	          <para>
+	            The Relationship Identity class is used to store the specific identities that participate in a relationship. It
+	            should be annotated with <code>@RelationshipIdentity</code>.
+	          </para>
+	          
+	          <table>
+	            <title>Relationship Identity class fields</title>
+	            
+	            <tgroup cols="3" align="left">
+	              <thead>
+	                <row>
+	                  <entry>Property</entry>
+	                  <entry>Annotation</entry>
+	                  <entry>Description</entry>
+	                </row>
+	              </thead>
+	              <tbody>
+	                <row>
+	                  <entry>Relationship Descriptor</entry>
+	                  <entry><code>@Discriminator</code></entry>
+	                  <entry>Denotes the role of the identity in the relationship</entry>
+	                </row>
+	                <row>
+	                  <entry>Relationship Identity</entry>
+	                  <entry><code>@Identity</code></entry>
+	                  <entry>The identity that is participating in the relationship</entry>
+	                </row>
+	                <row>
+	                  <entry>Relationship</entry>
+	                  <entry><code>@Parent</code></entry>
+	                  <entry>The parent relationship object to which the relationship identity belongs</entry>
+	                </row>
+	              </tbody>
+	            </tgroup>
+	          </table>
+	          
+	          <example>
+	            <title>Example Relationship Identity class</title>
+	            <programlisting language="JAVA"><![CDATA[@RelationshipIdentity
+	@Entity
+	public class RelationshipIdentityObject implements Serializable {
+	  @Id @GeneratedValue private Long id;
+	
+	  @Discriminator
+	  private String descriptor;
+	
+	  @RelationshipIdentity
+	  @ManyToOne
+	  private IdentityObject identityObject;
+	
+	  @Parent
+	  @ManyToOne
+	  private RelationshipObject relationshipObject;
+	  
+	  // getters and setters
+	}]]></programlisting>
+	          </example>
+	        </section>
+	        
+	        <section>
+	          <title>Configuring the Relationship Attribute class</title>
+	          
+	          <para>
+	            The Relationship Attribute class is used to store arbitrary attribute values that relate to a specific relationship.
+	            It should be annotated with <code>@RelationshipAttribute</code>.
+	          </para>
+	          
+	          <table>
+	            <title>Relationship Attribute class fields</title>
+	            
+	            <tgroup cols="3" align="left">
+	              <thead>
+	                <row>
+	                  <entry>Property</entry>
+	                  <entry>Annotation</entry>
+	                  <entry>Description</entry>
+	                </row>
+	              </thead>
+	              <tbody>
+	                <row>
+	                  <entry>Relationship</entry>
+	                  <entry><code>@Parent</code></entry>
+	                  <entry>The parent relationship object to which the attribute belongs</entry>
+	                </row>
+	                <row>
+	                  <entry>Attribute Name</entry>
+	                  <entry><code>@AttributeName</code></entry>
+	                  <entry>The name of the attribute</entry>
+	                </row>
+	                <row>
+	                  <entry>Attribute value</entry>
+	                  <entry><code>@AttributeValue</code></entry>
+	                  <entry>The value of the attribute</entry>
+	                </row>
+	              </tbody>
+	            </tgroup>
+	          </table>
+	          
+	          <example>
+	            <title>Example Relationship Attribute class</title>
+	
+	            <programlisting language="JAVA"><![CDATA[@Entity
+	@RelationshipAttribute
+	public class RelationshipObjectAttribute implements Serializable {
+	  @Id @GeneratedValue private Long id;
+	
+	  @ManyToOne @JoinColumn
+	  @Parent
+	  private Relationship relationship;
+	
+	  @AttributeName
+	  private String name;
+	
+	  @RelationshipValue
+	  private String value;
+	  
+	  // getters and setters
+	}]]></programlisting>
+	          </example>
+	        </section>
+	        
+	        <section>
+	          <title>Configuring the Partition class</title>
+	          
+	          <para>
+	            The Partition class is used to store information about partitions, i.e. Realms and Tiers.  It should be 
+	            annotated with <code>@Partition</code>.
+	          </para>
+	          
+	          <table>
+	            <title>Partition class fields</title>
+	            
+	            <tgroup cols="3" align="left">
+	              <thead>
+	                <row>
+	                  <entry>Property</entry>
+	                  <entry>Annotation</entry>
+	                  <entry>Description</entry>
+	                </row>
+	              </thead>
+	              <tbody>
+	                <row>
+	                  <entry>ID</entry>
+	                  <entry><code>@Identifier</code></entry>
+	                  <entry>The unique identifier value for the partition</entry>
+	                </row>
+	                <row>
+	                  <entry>Type</entry>
+	                  <entry><code>@Discriminator</code></entry>
+	                  <entry>The type of partition, either Realm or Tier</entry>
+	                </row>
+	                <row>
+	                  <entry>Parent</entry>
+	                  <entry><code>@Parent</code></entry>
+	                  <entry>The parent partition (only used for Tiers)</entry>
+	                </row>
+	              </tbody>
+	            </tgroup>
+	          </table>
+	          
+	          <example>
+	            <title>Example Partition class</title>
+	            <programlisting language="JAVA"><![CDATA[@Entity
+	@Partition
+	public class PartitionObject implements Serializable {
+	  @Id @Identifier
+	  private String id;
+	
+	  @Discriminator
+	  private String type;
+	
+	  @ManyToOne 
+	  @Parent
+	  private PartitionObject parent;
+	  
+	  // getters and setters
+	}]]></programlisting>
+	          </example>
+	        </section>
+	               
+	      </section>
+	      
+	      <section>
+	        <title>LDAPIdentityStoreConfiguration</title>
+	        
+	        <para>
+	          The LDAP identity store allows an LDAP directory server to be used to provide identity state. You can use this store in read-only or write-read mode, depending on your permissions on the server.
+	        </para>
+	        
+	        <section>
+	          <title>Configuration</title>
+	          
+	          <para>
+	            The LDAP identity store can be configured by providing the following configuration:
+			</para>
+			
+	          <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+	
+	builder
+	    .stores()
+	        .ldap()
+	            .baseDN("dc=jboss,dc=org")
+	            .bindDN("uid=admin,ou=system")
+	            .bindCredential("secret")
+	            .url("ldap://localhost:10389")
+	            .userDNSuffix("ou=People,dc=jboss,dc=org")
+	            .roleDNSuffix("ou=Roles,dc=jboss,dc=org")
+	            .groupDNSuffix("ou=Groups,dc=jboss,dc=org")
+	            .supportAllFeatures();]]></programlisting>
 			
 			<para>
-				With this configuration you can have groups with the same name, but with different paths.
+				The following table describes all configuration options:
 			</para>
-
-          	<programlisting language="JAVA"><![CDATA[IdentityManager identityManager = getIdentityManager();
-      
-Group managerGroup = identityManager.add(new SimpleGroup("managers")); // group's path is /manager 
-              
-Group qaGroup = identityManager.getGroup("QA Group");        
-      
-// the QA Group was mapped to a different DN.
-Group qaManagerGroup = identityManager.add(new SimpleGroup("managers", qaGroup)); // group's path is /QA Group/managers]]></programlisting>
-			    
-          </section>			
-        </section>
-      </section>
-      
-      <section>
-        <title>FileIdentityStoreConfiguration</title>
-        
-        <para>
-	  	This identity store uses the file system to persist identity state.  The configuration for this 
-          identity store provides control over where to store identity data and if the state should be preserved between initializatons. 
-        </para>
-
-        <section>
-          <title>Filesystem Structure</title>
-          
-          <para>
-		 Identity data is stored in the filesystem using the following structure:
-          </para>
-          
-	 	<programlisting language="xml"><![CDATA[${WORKING_DIR}/
-pl-idm-partitions.db
-pl-idm-relationships.db
-<<partition_name_directory>>
-	pl-idm.agents.db
-	pl-idm.roles.db
-	pl-idm.groups.db
-	pl-idm.credentials.db
-<<another_partition_directory>>
-	...]]></programlisting>
+			
+			<table>
+	            <title>LDAP Configuration Options</title>
+	            
+	            <tgroup cols="3" align="left">
+	              <thead>
+	                <row>
+	                  <entry>Option</entry>
+	                  <entry>Description</entry>
+	                  <entry>Required</entry>
+	                </row>
+	              </thead>
+	              <tbody>
+	                <row>
+	                  <entry><code>baseDN</code></entry>
+	                  <entry>Sets the fixed DN of the context from where identity types are stored.</entry>
+	                  <entry>Yes</entry>
+	                </row>
+	                <row>
+	                  <entry><code>bindDN</code></entry>
+	                  <entry>Sets the the DN used to bind against the ldap server. If you want to perform write operations the DN must have permissions on the agent,user,role and group contexts.</entry>
+	                  <entry>Yes</entry>
+	                </row>
+	                <row>
+	                  <entry><code>bindCredential</code></entry>
+	                  <entry>Sets the password for the bindDN.</entry>
+	                  <entry>Yes</entry>
+	                </row>
+	                <row>
+	                  <entry><code>url</code></entry>
+	                  <entry>Sets the url that should be used to connect to the server. Eg.: <![CDATA[ldap://<<server>>:389]]>.</entry>
+	                  <entry>Yes</entry>
+	                </row>
+	                <row>
+	                  <entry><code>userDNSuffix</code></entry>
+	                  <entry>Sets the fixed DN of the context where users should be read/stored from.</entry>
+	                  <entry>Yes</entry>
+	                </row>
+	                <row>
+	                  <entry><code>agentDNSuffix</code></entry>
+	                  <entry>Sets the fixed DN of the context where agents should be read/stored from. If not provided, will be used the context provided by the <code>setUserDNSuffix</code></entry>
+	                  <entry>No</entry>
+	                </row>
+	                <row>
+	                  <entry><code>roleDNSuffix</code></entry>
+	                  <entry>Sets the fixed DN of the context where roles should be read/stored from.</entry>
+	                  <entry>Yes</entry>
+	                </row>
+	                <row>
+	                  <entry><code>groupDNSuffix</code></entry>
+	                  <entry>Sets the fixed DN of the context where groups should be read/stored from.</entry>
+	                  <entry>Yes</entry>
+	                </row>
+	              </tbody>
+	            </tgroup>
+	          </table>
+	          
+	          <section>
+	          	<title>Mapping Groups to different contexts</title>
+	          	
+	          	<para>
+	          		Sometimes may be useful to map a specific group to a specific context or DN. By default, all groups are stored and read from the DN provided by the <code>setGroupDNSuffix</code> method, which means that you can not have groups with the same name.
+	          	</para>
 	
-		<para>
-			By default, files are stored in the <emphasis>${java.io.tmpdir}/pl-idm</emphasis> directory. For each partition there is a corresponding directory where agents, roles groups and credentials are stored in specific files. 
-		</para>
+	          	<para>
+	          		The following configuration maps the group with path <emphasis>/QA Group</emphasis> to <emphasis>ou=QA,dc=jboss,dc=org</emphasis> 
+	          	</para>
+	          	
+	          	<programlisting language="JAVA"><![CDATA[LDAPIdentityStoreConfiguration ldapStoreConfig = new LDAPIdentityStoreConfiguration();
+	
+	ldapStoreConfig
+	  .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org");]]></programlisting>
+				
+				<para>
+					With this configuration you can have groups with the same name, but with different paths.
+				</para>
+	
+	          	<programlisting language="JAVA"><![CDATA[IdentityManager identityManager = getIdentityManager();
+	Group managers = new SimpleGroup("managers");      
+	
+	identityManager.add(managers); // group's path is /manager 
+	              
+	Group qaGroup = identityManager.getGroup("QA Group");        
+	Group managersQA = new SimpleGroup("managers", qaGroup);
+	      
+	// the QA Group is mapped to a different DN.
+	Group qaManagerGroup = identityManager.add(managersQA); // group's path is /QA Group/managers]]></programlisting>			    
+	          </section>			
+	        </section>
+	      </section>
+	      
+	      <section>
+	        <title>FileIdentityStoreConfiguration</title>
+	        
+	        <para>
+		  	This identity store uses the file system to persist identity state.  The configuration for this 
+	          identity store provides control over where to store identity data and if the state should be preserved between initializatons. 
+	        </para>
+	        <para>Identity data is stored using the <emphasis>Java Serialization API</emphasis>.</para>
+	
+	        <section>
+	          <title>Filesystem Structure</title>
+	          
+	          <para>
+			 Identity data is stored in the filesystem using the following structure:
+	          </para>
+	          
+		 	<programlisting language="xml"><![CDATA[${WORKING_DIR}/
+	pl-idm-partitions.db
+	pl-idm-relationships.db
+	<<partition_name_directory>>
+		pl-idm.agents.db
+		pl-idm.roles.db
+		pl-idm.groups.db
+		pl-idm.credentials.db
+	<<another_partition_directory>>
+		...]]></programlisting>
 		
-	  </section>
-	  		
-        <section>
-          <title>Configuration</title>
-          
-          <para>
-            The file identity store can be easily configured by providing the following configuration:
-		</para>
-		              
-          <programlisting language="JAVA"><![CDATA[FileIdentityStoreConfiguration fileStoreConfig = new FileIdentityStoreConfiguration();
-
-fileStoreConfig
- 	.addRealm(Realm.DEFAULT_REALM)
- 	.supportAllFeatures();]]></programlisting>
-
-        	<section>
-          	<title>Preserving State Between Initializations</title>
-          	
-          	<para>
-          		By default, during the initialization, the working directory is re-created. If you want to preserve state between initializations you should use the following configuration:
-          	</para>
-          	
-          	<programlisting language="JAVA"><![CDATA[FileIdentityStoreConfiguration fileStoreConfig = new FileIdentityStoreConfiguration();
+			<para>
+				By default, files are stored in the <emphasis>${java.io.tmpdir}/pl-idm</emphasis> directory. For each partition there is a corresponding directory where agents, roles groups and credentials are stored in specific files. 
+			</para>
 			
-fileStoreConfig
-  .setAlwaysCreateFiles(false) // preserve data
- 	.addRealm(Realm.DEFAULT_REALM)
- 	.supportAllFeatures();]]></programlisting>
-		</section>
-		
-		<section>
-          	<title>Changing the Working Directory</title>
-          	
-          	<para>
-			 If you want to change the working directory, where files are stored, you can use the following configuration:            		
-          	</para>
-          	
-            	<programlisting language="JAVA"><![CDATA[FileIdentityStoreConfiguration fileStoreConfig = new FileIdentityStoreConfiguration();
+		  </section>
+		  		
+	        <section>
+	          <title>Configuration</title>
+	          
+	          <para>
+	            The file identity store can be easily configured by providing the following configuration:
+			</para>
+			              
+	          <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+	        
+	builder
+	    .stores()
+	        .file()
+	            .preserveState(false)
+	            .addRealm(Realm.DEFAULT_REALM, "Testing")
+	            .addTier("Application")
+	            .supportAllFeatures()
+	            .supportRelationshipType(CustomRelationship.class, Authorization.class);]]></programlisting>
+	
+	        	<section>
+	          	<title>Preserving State Between Initializations</title>
+	          	
+	          	<para>
+	          		By default, during the initialization, the working directory is re-created. If you want to preserve state between initializations you should use the following configuration:
+	          	</para>
+	          	
+	          	<programlisting language="JAVA"><![CDATA[builder
+	.stores()
+	    .file()
+	        .preserveState(true) // preserve data
+			.supportAllFeatures();]]></programlisting>
+			</section>
 			
-fileStoreConfig
-  .setWorkingDir("/tmp/pl-idm") // changes the working directory
- 	.addRealm(Realm.DEFAULT_REALM)
- 	.supportAllFeatures();]]></programlisting>
-     	
-		</section>            
-        </section>          
+			<section>
+	          	<title>Changing the Working Directory</title>
+	          	
+	          	<para>
+				 If you want to change the working directory, where files are stored, you can use the following configuration:            		
+	          	</para>
+	          	
+	            	<programlisting language="JAVA"><![CDATA[builder
+	.stores()
+	    .file()
+	        .workingDir("/tmp/pl-idm")
+			.supportAllFeatures();]]></programlisting>
+	     	
+			</section>            
+	      </section>
+	    </section>
+	    <section>
+        	<title>Providing a Custom IdentityStore</title>
+      
+	        <para>
+	          TODO
+	        </para>
+      	</section>        
       </section>      
     </section>
     
