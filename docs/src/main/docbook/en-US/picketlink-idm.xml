@@ -1271,12 +1271,11 @@ fileStoreConfig
         </para>
         
         <section>
-          <title>Grant</title>
+          <title>Application Roles</title>
           
           <para>
-            A <code>Grant</code> relationship is used to assign a <code>Role</code> to an identity type such as a <code>User</code>
-            or <code>Agent</code>.  It is typically used to represent an <emphasis>application role</emphasis>, in which an entity
-            is granted the privilege to perform certain restricted operations within the scope of an application or service.
+            Application roles are represented by the <code>Grant</code> relationship, which is used to assign application-wide
+            privileges to a <code>User</code> or <code>Agent</code>.
           </para>
           
           <mediaobject>
@@ -1323,20 +1322,30 @@ fileStoreConfig
         </section>
         
         <section>
-          <title>Group Membership</title>
+          <title>Groups and Group Roles</title>
           
           <para>
-            The <code>GroupMembership</code> relationship is used to represent an identity's membership of a <code>Group</code>.
+            The <code>GroupMembership</code> and <code>GroupRole</code> relationships are used to represent a user's membership
+            within a <code>Group</code>, and a user's role for a group, respectively.
           </para>
           
           <mediaobject>
             <imageobject role="fo">
-              <imagedata fileref="diagrams/groupmembership.png" align="center" scalefit="0"/>
+              <imagedata fileref="diagrams/grouprole.png" align="center" scalefit="1"/>
             </imageobject>
             <imageobject role="html">
-              <imagedata fileref="diagrams/groupmembership.png" align="center"/>
+              <imagedata fileref="diagrams/grouprole.png" align="center"/>
             </imageobject>
-          </mediaobject>           
+          </mediaobject>  
+          
+          <note>
+            <para>
+              While the <code>GroupRole</code> relationship type extends <code>GroupMembership</code>, it does 
+              <emphasis>not</emphasis> mean that a member of a <code>GroupRole</code> automatically receives 
+              <code>GroupMembership</code> membership also - these are two distinct relationship types with
+              different semantics.
+            </para>
+          </note>                              
           
           <para>
             A <code>Group</code> is typically used to form logical collections of users.  Within an organisation, groups are 
@@ -1349,16 +1358,86 @@ fileStoreConfig
             Specific application privileges can then be blanket assigned to the <emphasis>sales</emphasis> group, and anyone who 
             is a member of the group is free to access the application's features that require those privileges.
           </para>
+         
+          <para>
+            The <code>GroupRole</code> relationship type should be used when it is intended for an identity to perform a specific
+            role for a group, but not be an actual member of the group itself.  For example, an administrator of a group of doctors
+            may not be a doctor themselves, but have an administrative role to perform for that group.  If the intent is for 
+            an individual identity to both be a member of a group <emphasis>and</emphasis> have an assigned role in that group 
+            also, then the identity should have both <code>GroupRole</code> and <code>GroupMembership</code> relationships for 
+            that group.
+          </para>          
           
           <para>
-            Let's start by looking at a simple example.  The following code demonstrates how we would create the hypothetical 
-            <emphasis>sales</emphasis> group described above, and assign group membership to user "janet":
+            Let's start by looking at a simple example - we'll begin by making the assumption that our organization is
+            structured in the following way:
           </para>
           
-          <programlisting language="JAVA"><![CDATA[  Group sales = new SimpleGroup("sales");
-  identityManager.add(sales);
-  User janet = identityManager.getUser("janet");
-  identityManager.addToGroup(janet, sales);]]></programlisting>
+          <mediaobject>
+            <imageobject role="fo">
+              <imagedata fileref="diagrams/example_group_structure.png" align="center" scalefit="1"/>
+            </imageobject>
+            <imageobject role="html">
+              <imagedata fileref="diagrams/example_group_structure.png" align="center"/>
+            </imageobject>
+          </mediaobject>            
+          
+          <para>
+            The following code demonstrates how we would create the hypothetical <emphasis>Sales</emphasis> group which 
+            is displayed at the head of the above organisational chart:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[  Group sales = new SimpleGroup("Sales");
+  identityManager.add(sales);]]></programlisting>
+  
+          <para>
+            We can then proceed to create its subgroups:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[identityManager.add(new SimpleGroup("North America", sales);
+identityManager.add(new SimpleGroup("EMEA", sales);
+identityManager.add(new SimpleGroup("Asia", sales);
+// and so forth]]></programlisting>          
+
+          <para>
+            The second parameter of the <code>SimpleGroup()</code> constructor is used to specify the group's parent group.
+            This allows us to create a hierarchical group structure, which can be used to mirror either a simple or complex 
+            personnel structure of an organisation.  Let's now take a look at how we assign users to these groups.
+          </para>
+          
+          <para>
+            The following code demonstrates how to assign an <emphasis>administrator</emphasis> group role for the
+            <emphasis>Northeast</emphasis> sales group to user <emphasis>jsmith</emphasis>.  The 
+            <emphasis>administrator</emphasis> group role may be used to grant certain users the privilege to modify
+            permissions and roles for that group:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[Role admin = identityManager.getRole("administrator");
+User user = identityManager.getUser("jsmith");
+Group group = identityManager.getGroup("Northeast");
+identityManager.grantGroupRole(user, admin, group);]]></programlisting>
+
+          <para>
+            A group role can be revoked using the <code>revokeGroupRole()</code> method:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[identityManager.revokeGroupRole(user, admin, group);]]></programlisting>
+  
+          <para>
+            To test whether a user has a particular group role, you can use the <code>hasGroupRole()</code> method:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[boolean isUserAGroupAdmin = identityManager.hasGroupRole(user, admin, group);]]></programlisting> 
+
+          <para>
+            Next, let's look at some examples of how to work with simple group memberships. 
+            The following code demonstrates how we assign sales staff <emphasis>rbrown</emphasis> to the 
+            <emphasis>Northeast</emphasis> sales group:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[User user = identityManager.getUser("rbrown");
+Group group = identityManager.getGroup("Northeast");
+identityManager.addToGroup(user, group);]]></programlisting>          
           
           <para>
             A <code>User</code> may also be a member of more than one <code>Group</code>; there are no built-in limitations on 
@@ -1366,97 +1445,29 @@ fileStoreConfig
           </para>
           
           <para>
-            We can use the <code>removeFromGroup()</code> method to remove the user from the group:
+            We can use the <code>removeFromGroup()</code> method to remove the same user from the group:
           </para>
           
-          <programlisting language="JAVA"><![CDATA[  Group sales = identityManager.getGroup("sales");
-  User janet = identityManager.getUser("janet");
-  identityManager.removeFromGroup(janet, sales);]]></programlisting>
+          <programlisting language="JAVA"><![CDATA[identityManager.removeFromGroup(user, group);]]></programlisting>
   
           <para>
-            To check whether an identity is the member of a group we can use the <code>isMember()</code> method:
+            To check whether a user is the member of a group we can use the <code>isMember()</code> method:
           </para>
           
-          <programlisting language="JAVA"><![CDATA[  Group sales = identityManager.getGroup("sales");
-  User janet = identityManager.getUser("janet");
-  boolean isJanetInSales = identityManager.isMember(janet, sales);]]></programlisting>
+          <programlisting language="JAVA"><![CDATA[boolean isUserAMember = identityManager.isMember(user, group);]]></programlisting>
+ 
+          <para>
+            Relationships can also be created via the <code>add()</code> method.  The following code is equivalent
+            to assigning a group role via the <code>grantGroupRole()</code> method shown above:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[Role admin = identityManager.getRole("administrator");
+User user = identityManager.getUser("jsmith");
+Group group = identityManager.getGroup("Northeast");
+GroupRole groupRole = new GroupRole(user, group, admin);
+identityManager.add(groupRole);]]></programlisting>
         </section>
         
-        <section>
-          <title>Group Role</title>
-          
-          <para>
-            The <code>GroupRole</code> relationship type extends <code>GroupMembership</code> by adding a role property, and is
-            used to represent identities that have a specific role within the context of a group. 
-          </para>
-          
-          <mediaobject>
-            <imageobject role="fo">
-              <imagedata fileref="diagrams/grouprole.png" align="center" scalefit="1"/>
-            </imageobject>
-            <imageobject role="html">
-              <imagedata fileref="diagrams/grouprole.png" align="center"/>
-            </imageobject>
-          </mediaobject>   
-          
-          <note>
-            <para>
-              While the <code>GroupRole</code> relationship type extends <code>GroupMembership</code>, it does <emphasis>not</emphasis> 
-              mean that a member of a <code>GroupRole</code> automatically receives <code>GroupMembership</code> membership also.
-            </para>
-          </note>
-          
-          <para>
-            The <code>GroupRole</code> relationship type should be used when it is intended for an identity to perform a specific
-            role for a group, but not be an actual member of the group itself.  For example, an administrator of a group of doctors
-            may not be a doctor themselves, but have an administrative role to perform for them.  If the intent is for an individual
-            identity to both be a member of a group <emphasis>and</emphasis> have an assigned role in that group also, then the identity
-            should have both <code>GroupRole</code> and <code>GroupMembership</code> relationships for that group.
-          </para>
-          
-          <para>
-            The <code>IdentityManager</code> interface provides some convenience methods for managing group roles.  The following example
-            demonstrates how to assign a group role to a user:
-          </para>
-          
-          <programlisting language="JAVA"><![CDATA[  Group doctors = new SimpleGroup("doctors");
-  identityManager.add(doctors);
-  User sally = identityManager.getUser("sally");
-  Role admin = identityManager.getRole("administrator");
-  identityManager.grantGroupRole(sally, doctors, admin);]]></programlisting>
-  
-          <para>
-            The above code is equivalent to creating a <code>GroupRole</code> relationship manually, and adding it via the 
-            <code>add()</code> method:
-          </para>
-          
-          <programlisting language="JAVA"><![CDATA[  Group doctors = new SimpleGroup("doctors");
-  identityManager.add(doctors);
-  User sally = identityManager.getUser("sally");
-  Role admin = identityManager.getRole("administrator");
-  GroupRole groupRole = new GroupRole(sally, doctors, admin);
-  identityManager.add(groupRole);]]></programlisting>
-  
-          <para>
-            A group role can be revoked using the <code>revokeGroupRole()</code> method:
-          </para>
-          
-          <programlisting language="JAVA"><![CDATA[  User sally = identityManager.getUser("sally");
-  Role admin = identityManager.getRole("administrator");
-  Group doctors = identityManager.getGroup("doctors");
-  identityManager.revokeGroupRole(sally, admin, doctors);]]></programlisting>
-  
-          <para>
-            To test whether an identity has a particular group role, you can use the <code>hasGroupRole()</code> method:
-          </para>
-          
-          <programlisting language="JAVA"><![CDATA[  User sally = identityManager.getUser("sally");
-  Role admin = identityManager.getRole("administrator");
-  Group doctors = identityManager.getGroup("doctors");
-  boolean isSallyDoctorsAdmin = identityManager.hasGroupRole(sally, admin, doctors);]]></programlisting>
-  
-        </section>
-
       </section>
       
       <section>
