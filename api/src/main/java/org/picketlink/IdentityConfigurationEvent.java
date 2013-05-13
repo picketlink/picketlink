@@ -18,7 +18,7 @@
 
 package org.picketlink;
 
-import org.picketlink.idm.config.builder.IdentityConfigurationBuilder;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 
 /**
  * This event is raised during PicketLink configuration 

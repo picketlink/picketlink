@@ -34,12 +34,11 @@ import java.io.Serializable;
  */
 public interface PermissionResolver
 {
-    public enum PermissionStatus 
-    {
+    public enum PermissionStatus {
         ALLOW, DENY, NOT_APPLICABLE
     }
-        
+
     PermissionStatus hasPermission(Object resource, String operation);
-    
+
     PermissionStatus hasPermission(Class<?> resourceClass, Serializable identifier, String operation);
 }

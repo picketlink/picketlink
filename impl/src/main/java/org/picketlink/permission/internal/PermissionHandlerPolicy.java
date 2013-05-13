@@ -39,26 +39,22 @@ import org.picketlink.permission.spi.PermissionHandler;
  * @author Shane Bryzak
  */
 @ApplicationScoped
-public class PermissionHandlerPolicy 
-{
+public class PermissionHandlerPolicy {
     private Map<Class<?>, PermissionHandler> handlers = new ConcurrentHashMap<Class<?>, PermissionHandler>();
 
     private Set<PermissionHandler> registeredHandlers = new HashSet<PermissionHandler>();
 
     @Inject
-    public void create() 
-    {
-        if (registeredHandlers.isEmpty()) 
-        {
-            registeredHandlers.add(new EntityPermissionHandler());
+    public void create() {
+        if (registeredHandlers.isEmpty()) {
+            // FIXME add back once ACL permissions are reinstated
+            //registeredHandlers.add(new EntityPermissionHandler());
             registeredHandlers.add(new ClassPermissionHandler());
         }
     }
 
-    public String getGeneratedIdentifier(Object resource) 
-    {
-        if (resource instanceof String) 
-        {
+    public String getGeneratedIdentifier(Object resource) {
+        if (resource instanceof String) {
             return (String) resource;
         }
 
@@ -66,122 +62,96 @@ public class PermissionHandlerPolicy
 
         return handler != null ? handler.getGeneratedIdentifier(resource) : null;
     }
-    
-    public Object lookupResource(String identifier, Collection<Object> loadedResources)
-    {
+
+    public Object lookupResource(String identifier, Collection<Object> loadedResources) {
         Map<String,Object> loadedResourceIdentifiers = loadResourceIdentifiers(loadedResources);
-        if (loadedResourceIdentifiers.containsKey(identifier))
-        {
+        if (loadedResourceIdentifiers.containsKey(identifier)) {
             return loadedResourceIdentifiers.get(identifier);
         }
-        else
-        {
+        else {
             PermissionHandler handler = getHandlerForIdentifier(identifier);
             return handler != null ? handler.lookupResource(identifier) : null;
-        }               
+        }
     }
-    
-    private Map<String,Object> loadResourceIdentifiers(Collection<Object> resources)
-    {
-        if (resources == null || resources.isEmpty())
-        {
+
+    private Map<String,Object> loadResourceIdentifiers(Collection<Object> resources) {
+        if (resources == null || resources.isEmpty()) {
             return null;
         }
-        
+
         Map<String,Object> identifiers = new HashMap<String,Object>();
-        
-        for (Object resource: resources)
-        {
+
+        for (Object resource: resources) {
             PermissionHandler handler = getHandlerForResource(resource);
-            
-            if (handler != null)
-            {
+
+            if (handler != null) {
                 String identifier = handler.getGeneratedIdentifier(resource);
-                if (!identifiers.containsKey(identifier))
-                {
+                if (!identifiers.containsKey(identifier)) {
                     identifiers.put(identifier, resource);
                 }
             }
-        }                
-        
+        }
+
         return identifiers;
     }
-    
-    public Map<String,Object> lookupResources(Collection<String> identifiers, Collection<Object> loadedResources)
-    {
+
+    public Map<String,Object> lookupResources(Collection<String> identifiers, 
+            Collection<Object> loadedResources) {
         Map<String,Object> resources = new HashMap<String,Object>();
         Map<String,Object> loadedResourceIdentifiers = loadResourceIdentifiers(loadedResources);
-        
-        for (String identifier : identifiers)
-        {
-            if (loadedResourceIdentifiers.containsKey(identifier))
-            {
+
+        for (String identifier : identifiers) {
+            if (loadedResourceIdentifiers.containsKey(identifier)) {
                 resources.put(identifier, loadedResourceIdentifiers.get(identifier));
-            }
-            else
-            {
+            } else {
                 PermissionHandler handler = getHandlerForIdentifier(identifier);
-                if (handler != null)
-                {
+                if (handler != null) {
                     Object resource = handler.lookupResource(identifier);
-                    if (resource != null)
-                    {
-                        resources.put(identifier, resource);    
+                    if (resource != null) {
+                        resources.put(identifier, resource);
                     }
                 }
            }
         }
-        
+
         return resources;
     }
-    
-    public Serializable getNaturalIdentifier(Object resource)
-    {
+
+    public Serializable getNaturalIdentifier(Object resource) {
         PermissionHandler strategy = getHandlerForResource(resource);
         return strategy != null ? strategy.getNaturalIdentifier(resource) : null;
     }
-    
-    private PermissionHandler getHandlerForIdentifier(String identifier)
-    {
-        for (PermissionHandler handler : handlers.values())
-        {
-            if (handler.canLoadResource(identifier))
-            {
+
+    private PermissionHandler getHandlerForIdentifier(String identifier) {
+        for (PermissionHandler handler : handlers.values()) {
+            if (handler.canLoadResource(identifier)) {
                 return handler;
             }
         }
-        
-        for (PermissionHandler handler : registeredHandlers)
-        {
-            if (handler.canLoadResource(identifier))
-            {
+
+        for (PermissionHandler handler : registeredHandlers) {
+            if (handler.canLoadResource(identifier)) {
                 return handler;
             }
         }
-        
+
         return null;
     }
-    
-    private PermissionHandler getHandlerForResource(Object resource)
-    {
+
+    private PermissionHandler getHandlerForResource(Object resource) {
         PermissionHandler handler = handlers.get(resource.getClass());
 
-        if (handler == null)
-        {
-            if (resource.getClass().isAnnotationPresent(PermissionsHandledBy.class)) 
-            {
+        if (handler == null) {
+            if (resource.getClass().isAnnotationPresent(PermissionsHandledBy.class)) {
                 Class<? extends PermissionHandler> handlerClass =
                         resource.getClass().getAnnotation(PermissionsHandledBy.class).value();
 
-                if (handlerClass != PermissionHandler.class) 
-                {
-                    try 
-                    {
+                if (handlerClass != PermissionHandler.class) {
+                    try {
                         handler = handlerClass.newInstance();
                         handlers.put(resource.getClass(), handler);
-                    } 
-                    catch (Exception ex) 
-                    {
+                    }
+                    catch (Exception ex) {
                         throw new RuntimeException("Error instantiating IdentifierStrategy for object " + resource, ex);
                     }
                 }
@@ -195,14 +165,13 @@ public class PermissionHandlerPolicy
                 }
             }
         }
-        
+
         return handler;
     }
-    
-    public Set<String> convertResourcePermissions(Object resource, Object permissions)
-    {
+
+    public Set<String> convertResourcePermissions(Object resource, Object permissions) {
         PermissionHandler handler = getHandlerForResource(resource);
-        
+
         return handler != null ? handler.convertResourcePermissions(resource.getClass(), permissions) : null;
     }
 

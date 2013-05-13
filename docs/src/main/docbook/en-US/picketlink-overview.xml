@@ -28,7 +28,36 @@
     </section>
     
     <section>
-      <title>Features</title>
+      <title>Modules</title>
+      
+      <section>
+        <title>Base module</title>
+        
+        <para>
+          The base module provides the integration framework required to use PicketLink within a Java EE application.  
+          It defines a flexible authentication API that allows pluggable authentication mechanisms to be easy configured,
+          with a sensible default authentication policy that delegates to the identity management subsystem. It provides
+          session-scoped authentication tracking for web applications and other session-capable clients, plus a
+          customisable permissions SPI that supports a flexible range of authorization mechanisms for object-level security.
+        </para>
+        
+        <para>
+          The base module libraries are as follows:
+        </para>
+        
+        <itemizedlist>
+          <listitem>
+            <para>
+              <literal>picketlink-api</literal> - API for PicketLink's base module.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <literal>picketlink-impl</literal> - Internal implementation classes for the base API.
+            </para>
+          </listitem>
+        </itemizedlist>        
+      </section>
       
       <section>
         <title>Identity Management</title>
@@ -36,12 +65,38 @@
         <para>
           The Identity Management module defines the base identity model; a collection of interfaces and classes
           that represent the identity constructs (such as users, groups and roles) used throughout PicketLink (see
-          the Identity Management chapter for more details).  It also provides a uniform API for managing the
-          identity objects within your application.
-          
+          the Identity Management chapter for more details).  As such, it is a required module and must always be 
+          included in any application deployments that use PicketLink for security. It also provides a uniform API 
+          for managing the identity objects within your application. 
         </para>
+        
+        <para>
+          Libraries are as follows:
+        </para>
+        
+        <itemizedlist>
+          <listitem>
+            <para>
+              <literal>picketlink-idm-api</literal> - PicketLink's Identity Management (IDM) API.  This library defines the 
+              Identity Model central to all of PicketLink, and all of the identity management-related interfaces.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <literal>picketlink-idm-impl</literal> - Internal implementation classes for the IDM API.
+            </para>
+          </listitem>
+        </itemizedlist>        
       </section>
       
+      <section>
+        <title>Federation</title>
+        
+        <para>
+          The Federation module is an optional module that implements a number of Federated Identity standards, 
+          such as SAML (both version 1.1 and 2.0), WS-Trust and OpenID.
+        </para>
+      </section>
     
     </section>
     
@@ -74,68 +129,25 @@
       <programlisting language="XML"><![CDATA[<dependencies>
   <dependency>
       <groupId>org.picketlink</groupId>
-      <artifactId>picketlink-core-api</artifactId>
+      <artifactId>picketlink-api</artifactId>
       <scope>compile</scope>
       <version>${picketlink.version}</version>
   </dependency>
   
   <dependency>
       <groupId>org.picketlink</groupId>
-      <artifactId>picketlink-core-impl</artifactId>
+      <artifactId>picketlink-impl</artifactId>
       <scope>runtime</scope>
       <version>${picketlink.version}</version>
-  </dependency>
+  </dependency>]]></programlisting>
   
-  <dependency>
-      <groupId>org.picketlink</groupId>
-      <artifactId>picketlink-idm-api</artifactId>
-      <scope>compile</scope>
-      <version>${picketlink.version}</version>
-  </dependency>
-  
-  <dependency>
-      <groupId>org.picketlink</groupId>
-      <artifactId>picketlink-idm-impl</artifactId>
-      <scope>runtime</scope>
-      <version>${picketlink.version}</version>
-  </dependency>
-</dependencies>]]></programlisting>
-
-      <itemizedlist>
-        <listitem>
-          <para>
-            <literal>picketlink-core-api</literal> - This is the core PicketLink library, which defines the Authentication and
-            Identity APIs, authentication events and CDI integration of other PicketLink components.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            <literal>picketlink-core-impl</literal> - Internal implementation classes for the core API.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            <literal>picketlink-idm-api</literal> - PicketLink's Identity Management (IDM) API.  This library defines the 
-            Identity Model central to all of PicketLink, and all of the identity management-related interfaces.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            <literal>picketlink-idm-impl</literal> - Internal implementation classes for the IDM API.
-          </para>
-        </listitem>
-      </itemizedlist>
+      <para>
+        The identity management library is a required dependency of the base module and so will be automatically included.
+      </para>
 
       <para>
-        If you wish to use PicketLink's Identity Management features and want         <mediaobject>
-          <imageobject role="fo">
-            <imagedata fileref="diagrams/partition.png" align="center" scalefit="1"/>
-          </imageobject>
-          <imageobject role="html">
-            <imagedata fileref="diagrams/partition.png" align="center"/>
-          </imageobject>
-        </mediaobject> to include the default database schema
-        (see the Identity Management chapter for more details) then include the following dependency also:
+        If you wish to use PicketLink's Identity Management features and want to include the default database schema
+        (see the Identity Management chapter for more details) then configure the following dependency also:
       </para>
 
       <programlisting language="XML"><![CDATA[  <dependency>

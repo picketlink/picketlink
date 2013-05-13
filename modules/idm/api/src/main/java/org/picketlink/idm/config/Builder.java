@@ -20,32 +20,17 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.idm.config.builder;
-
-import java.util.List;
-
-import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.spi.StoreFactory;
+package org.picketlink.idm.config;
 
 /**
  * @author Pedro Igor
  *
  */
-public class IdentityStoresConfiguration {
+public interface Builder<T> {
 
-    private List<IdentityStoreConfiguration> configurations;
-    private StoreFactory storeFactory;
+    T create();
 
-    public IdentityStoresConfiguration(List<IdentityStoreConfiguration> configurations, StoreFactory storeFactory) {
-        this.configurations = configurations;
-        this.storeFactory = storeFactory;
-    }
+    void validate();
 
-    public List<IdentityStoreConfiguration> getConfigurations() {
-        return this.configurations;
-    }
-
-    public StoreFactory getStoreFactory() {
-        return this.storeFactory;
-    }
+    Builder<?> readFrom(T configuration);
 }

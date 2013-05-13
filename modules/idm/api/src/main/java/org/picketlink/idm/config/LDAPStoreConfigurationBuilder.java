@@ -20,14 +20,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.idm.config.builder;
+package org.picketlink.idm.config;
 
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 
 /**
  * @author Pedro Igor

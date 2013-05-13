@@ -20,7 +20,7 @@ package org.picketlink.config.idm.resolver;
 
 import java.util.Map;
  
-import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;

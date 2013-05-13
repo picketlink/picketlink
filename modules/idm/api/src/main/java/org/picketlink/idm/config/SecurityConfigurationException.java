@@ -15,42 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.picketlink.idm.config;
 
-package org.picketlink.permission;
-
-import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.SecurityException;
 
 /**
- * Represents a specific permission grant for a domain object 
- * 
- * @author Shane Bryzak
+ * This exception is thrown when a problem is found with the Security API configuration
  *
  */
-public class Permission
-{
-    private Object resource;
-    private IdentityType recipient;
-    private String permission;
+public class SecurityConfigurationException extends SecurityException {
+    private static final long serialVersionUID = -8895836939958745981L;
 
-    public Permission(Object resource, IdentityType recipient, String permission)
-    {
-        this.resource = resource;
-        this.recipient = recipient;
-        this.permission = permission;
+    public SecurityConfigurationException() {
+        super();
     }
 
-    public Object getResource()
-    {
-        return resource;
+    public SecurityConfigurationException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public IdentityType getRecipient()
-    {
-        return recipient;
+    public SecurityConfigurationException(String message) {
+        super(message);
     }
 
-    public String getPermission()
-    {
-        return permission;
+    public SecurityConfigurationException(Throwable cause) {
+        super(cause);
     }
+
 }

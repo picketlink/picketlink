@@ -24,10 +24,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.builder.IdentityConfigurationBuilder;
-import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
@@ -132,7 +131,7 @@ public class LDAPIdentityStoreWithoutAttributesTestSuite extends AbstractLDAPTes
                     .supportAllFeatures()
                     .removeFeature(FeatureGroup.attribute);
 
-        return new DefaultIdentityManagerFactory(builder.build());
+        return new IdentityManagerFactory(builder.build());
     }
 
     @Override

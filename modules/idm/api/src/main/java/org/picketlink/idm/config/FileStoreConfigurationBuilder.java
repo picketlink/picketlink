@@ -20,10 +20,8 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.idm.config.builder;
+package org.picketlink.idm.config;
 
-import org.picketlink.idm.SecurityConfigurationException;
-import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 
 /**
  * @author Pedro Igor

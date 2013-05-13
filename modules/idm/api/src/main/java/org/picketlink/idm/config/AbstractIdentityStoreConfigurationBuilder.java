@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.idm.config.builder;
+package org.picketlink.idm.config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,10 +32,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
-import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.GroupMembership;

@@ -36,6 +36,7 @@ import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.OperationNotSupportedException;
+import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
@@ -114,7 +115,7 @@ public interface IDMMessages {
     IdentityManagementException marshallingError(@Cause Throwable t);
 
     @Message(id = 12, value = "Could not create contextual IdentityManager for Partition [%s]. Partition not found or it was null.")
-    IdentityManagementException couldNotCreateContextualIdentityManager(Class<? extends Partition> type);
+    IdentityManagementException couldNotCreateContextualIdentityManager(Partition partition);
 
     @Message(id = 13, value = "QueryParameter [%s] is not supported for sorting.")
     IdentityManagementException notSortableQueryParameter(QueryParameter queryParam);

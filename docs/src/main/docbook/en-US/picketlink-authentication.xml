@@ -39,7 +39,7 @@ void logout();
 
 boolean isLoggedIn();
 
-Agent getUser();]]></programlisting>
+Agent getAgent();]]></programlisting>
            
       <para>
         The <code>login()</code> method is the <emphasis>primary</emphasis> point of entry for the authentication process. Invoking
@@ -60,7 +60,7 @@ Agent getUser();]]></programlisting>
 
       <note>
         <para>
-          A point of note is that the <code>Identity</code> bean is annotated with the CDI <code>@Named</code> annotation, 
+          One significant point to note is the presence of the <code>@Named</code> annotation on the <code>Identity</code> bean,
           which means that its methods may be invoked directly from the view layer (if the view layer, such as JSF, supports it) 
           via an EL expression.</para>      
       </note>
@@ -99,17 +99,19 @@ Agent getUser();]]></programlisting>
         The <code>isLoggedIn()</code> method may be used to determine whether there is a user logged in for the current session.
         It is typically used as an authorization check to control either an aspect of the user interface (for example, not
         displaying a menu item if the user isn't logged in), or to restrict certain business logic.  While logged in, 
-        the <code>getUser()</code> method can be used to retrieve the currently authenticated user.  If there is none, then 
-        <code>getUser()</code> will return <code>null</code>.  The following example shows both the <code>isLoggedIn()</code> 
-        and <code>getUser()</code> methods being used inside a JSF page:
+        the <code>getAgent()</code> method can be used to retrieve the currently authenticated agent (or user).  If the current
+        session is not authenticated, then <code>getAgent()</code> will return <code>null</code>.  The following example 
+        shows both the <code>isLoggedIn()</code> and <code>getAgent()</code> methods being used inside a JSF page:
       </para>
       
-      <programlisting language="XML"><![CDATA[<ui:fragment rendered="#{identity.loggedIn}">Welcome, #{identity.user.loginName}]]></programlisting>
+      <programlisting language="XML"><![CDATA[<ui:fragment rendered="#{identity.loggedIn}">Welcome, #{identity.agent.loginName}]]></programlisting>
       
       <note>
         <para>
-          Don't worry that the <code>getUser()</code> method returns an <code>Agent</code> object - <code>Agent</code> is actually 
-          the superclass of <code>User</code>, and represents a non-human entity (while <code>User</code> represents a human entity).
+          If you're wondering what an <code>Agent</code> is, it is simply a representation of the external entity that is 
+          interacting with your application, whether that be a human user or some third party (non-human) system.  
+          The <code>Agent</code> interface is actually the superclass of <code>User</code> - see the Identity Management
+          chapter for more details.
         </para>
       </note>      
       
@@ -147,7 +149,7 @@ Agent getUser();]]></programlisting>
 
     AuthenticationStatus getStatus();
 
-    Agent getUser();
+    Agent getAgent();
 }]]></programlisting>
 
       <para>
@@ -156,9 +158,9 @@ Agent getUser();]]></programlisting>
         is the most important of these, as it defines the actual authentication logic.  After <code>authenticate()</code> has been 
         invoked by the <code>Identity</code> bean, the <code>getStatus()</code> method will reflect the authentication status 
         (either <code>SUCCESS</code>, <code>FAILURE</code> or <code>DEFERRED</code>).  If the authentication process was a 
-        success, the <code>getUser()</code> method will return the authenticated <code>User</code> object and the 
+        success, the <code>getAgent()</code> method will return the authenticated <code>Agent</code> object and the 
         <code>postAuthenticate()</code> method will be invoked also.  If the authentication was not a success, 
-        <code>getUser()</code> will return <code>null</code>. 
+        <code>getAgent()</code> will return <code>null</code>. 
       </para>
       
       <section>
@@ -292,8 +294,8 @@ Agent getUser();]]></programlisting>
         <listitem>
           <para>
             <emphasis>1.1.5</emphasis> - 
-            The <code>Identity</code> bean then invokes the <code>Authenticator</code>'s <code>getUser()</code> method,
-            which returns a <code>User</code> object representing the authenticated user, which is then stored as a 
+            The <code>Identity</code> bean then invokes the <code>Authenticator</code>'s <code>getAgent()</code> method,
+            which returns an <code>Agent</code> object representing the authenticated agent, which is then stored as a 
             private field in the <code>Identity</code> bean.
           </para>
         </listitem>
@@ -337,8 +339,8 @@ Agent getUser();]]></programlisting>
           The first point of interest in the above code is that the authenticator class extends something called
           <code>BaseAuthenticator</code>.  This abstract base class provided by PicketLink implements the 
           <code>Authenticator</code> interface and provides implementations of the <code>getStatus()</code> and 
-          <code>getUser()</code> methods (while also providing matching <code>setStatus()</code> and 
-          <code>setUser()</code> methods), and also provides an empty implementation of
+          <code>getAgent()</code> methods (while also providing matching <code>setStatus()</code> and 
+          <code>setAgent()</code> methods), and also provides an empty implementation of
           the <code>postAuthenticate()</code> method.  By extending <code>BaseAuthenticator</code>, our 
           <code>Authenticator</code> implementation simply needs to implement the <code>authenticate()</code> method
           itself.

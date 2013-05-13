@@ -43,7 +43,7 @@ public class IdentityConfiguration {
     private SecurityContextFactory securityContextFactory;
     private StoreFactory storeFactory;
 
-    public IdentityConfiguration(List<IdentityStoreConfiguration> storesConfiguration, StoreFactory storeFactory,
+    IdentityConfiguration(List<IdentityStoreConfiguration> storesConfiguration, StoreFactory storeFactory,
             SecurityContextFactory securityContextFactory) {
         this.configuredStores.addAll(storesConfiguration);
         this.storeFactory = storeFactory;

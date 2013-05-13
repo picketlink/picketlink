@@ -27,12 +27,11 @@ import javax.inject.Inject;
 
 import org.picketlink.IdentityConfigurationEvent;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.IdentityManagerFactory;
-import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.config.builder.IdentityConfigurationBuilder;
-import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
+import org.picketlink.idm.config.SecurityConfigurationException;
+import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.internal.EEJPAContextInitializer;
 import org.picketlink.internal.EESecurityContextFactory;
 import org.picketlink.internal.IdentityStoreAutoConfiguration;
@@ -88,7 +87,7 @@ public class IdentityManagerProducer {
 
         builder.contextFactory(this.icf);
 
-        this.factory = new DefaultIdentityManagerFactory(builder.build());
+        this.factory = new IdentityManagerFactory(builder.build());
     }
 
     private void loadAutoConfig(IdentityConfigurationBuilder builder) {

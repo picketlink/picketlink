@@ -25,9 +25,8 @@ import javax.persistence.Persistence;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.IdentityManagerFactory;
-import org.picketlink.idm.config.builder.IdentityConfigurationBuilder;
-import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.schema.CredentialObject;
@@ -135,7 +134,7 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
                         }
                     });
         
-        return new DefaultIdentityManagerFactory(builder.build());
+        return new IdentityManagerFactory(builder.build());
     }
 
 }

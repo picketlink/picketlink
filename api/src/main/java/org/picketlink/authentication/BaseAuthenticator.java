@@ -29,7 +29,7 @@ import org.picketlink.idm.model.Agent;
 public abstract class BaseAuthenticator implements Authenticator
 {
     private AuthenticationStatus status = AuthenticationStatus.FAILURE;
-    private Agent user;
+    private Agent agent;
 
     @Override
     public AuthenticationStatus getStatus()
@@ -42,15 +42,15 @@ public abstract class BaseAuthenticator implements Authenticator
         this.status = status;
     }
 
-    protected void setUser(Agent user)
+    protected void setAgent(Agent agent)
     {
-        this.user = user;
+        this.agent = agent;
     }
 
     @Override
-    public Agent getUser()
+    public Agent getAgent()
     {
-        return user;
+        return agent;
     }
 
     @Override

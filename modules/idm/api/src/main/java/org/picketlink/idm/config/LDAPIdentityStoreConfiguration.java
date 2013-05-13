@@ -24,7 +24,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
-import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
@@ -57,7 +56,7 @@ public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
     private String baseDN;
     private Map<String, String> groupMapping = new HashMap<String, String>();
 
-    public LDAPIdentityStoreConfiguration(String url, String bindDN, String bindCredential, String baseDN,
+    LDAPIdentityStoreConfiguration(String url, String bindDN, String bindCredential, String baseDN,
             String agentDNSuffix, String userDNSuffix, String roleDNSuffix, String groupDNSuffix,
             Map<String, String> groupMapping, Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
             Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms,

@@ -25,10 +25,9 @@ package org.picketlink.test.idm.config;
 import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.config.builder.IdentityConfigurationBuilder;
-import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.model.SimpleUser;
 
 /**
@@ -53,7 +52,7 @@ public class ConfigurationAPITestCase {
         
         Assert.assertNotNull(configuration);
         
-        IdentityManagerFactory identityManagerFactory = new DefaultIdentityManagerFactory(configuration);
+        IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(configuration);
         
         IdentityManager identityManager = identityManagerFactory.createIdentityManager();
         

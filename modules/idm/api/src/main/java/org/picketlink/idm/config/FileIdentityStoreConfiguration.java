@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
@@ -40,7 +39,7 @@ public class FileIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
     private boolean alwaysCreateFiles = true;
     private String workingDir;
 
-    public FileIdentityStoreConfiguration(String workingDir, boolean preserveState, boolean asyncWrite,
+    FileIdentityStoreConfiguration(String workingDir, boolean preserveState, boolean asyncWrite,
             int asyncWriteThreadPool, Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
             Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms, Set<String> tiers,
             List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties,

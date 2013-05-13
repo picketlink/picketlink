@@ -19,18 +19,35 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+package org.picketlink.idm.config;
 
-package org.picketlink.idm.config.builder;
+import org.picketlink.idm.spi.SecurityContextFactory;
 
 /**
  * @author Pedro Igor
  *
  */
-public interface Builder<T> {
+public abstract class AbstractIdentityConfigurationChildBuilder implements IdentityConfigurationChildBuilder {
 
-    T create();
+    private IdentityConfigurationChildBuilder identityConfigurationBuilder;
 
-    void validate();
+    public AbstractIdentityConfigurationChildBuilder(IdentityConfigurationChildBuilder builder) {
+        this.identityConfigurationBuilder = builder;
+    }
 
-    Builder<?> readFrom(T configuration);
+    @Override
+    public IdentityStoresConfigurationBuilder stores() {
+        return this.identityConfigurationBuilder.stores();
+    }
+
+    @Override
+    public IdentityConfiguration build() {
+        return this.identityConfigurationBuilder.build();
+    }
+
+    @Override
+    public IdentityConfigurationBuilder contextFactory(SecurityContextFactory securityContextFactory) {
+        return this.identityConfigurationBuilder.contextFactory(securityContextFactory);
+    }
+
 }
