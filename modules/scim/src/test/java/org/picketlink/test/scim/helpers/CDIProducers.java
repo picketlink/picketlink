@@ -22,7 +22,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
 import org.picketlink.idm.jpa.schema.IdentityObject;
@@ -48,16 +49,24 @@ public class CDIProducers {
 
     @Produces
     public IdentityManager configure() {
-        IdentityConfiguration configuration = new IdentityConfiguration();
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
-        configuration.jpaStore().addRealm(Realm.DEFAULT_REALM, "Testing").addTier("Application")
-                .setIdentityClass(IdentityObject.class).setAttributeClass(IdentityObjectAttribute.class)
-                .setRelationshipClass(RelationshipObject.class).setRelationshipIdentityClass(RelationshipIdentityObject.class)
-                .setRelationshipAttributeClass(RelationshipObjectAttribute.class).setCredentialClass(CredentialObject.class)
-                .setCredentialAttributeClass(CredentialObjectAttribute.class).setPartitionClass(PartitionObject.class)
-                .supportAllFeatures();
+        builder
+            .stores()
+                .jpa()
+                    .addRealm(Realm.DEFAULT_REALM, "Testing")
+                    .addTier("Application")
+                    .identityClass(IdentityObject.class)
+                    .attributeClass(IdentityObjectAttribute.class)
+                    .relationshipClass(RelationshipObject.class)
+                    .relationshipIdentityClass(RelationshipIdentityObject.class)
+                    .relationshipAttributeClass(RelationshipObjectAttribute.class)
+                    .credentialClass(CredentialObject.class)
+                    .credentialAttributeClass(CredentialObjectAttribute.class)
+                    .partitionClass(PartitionObject.class)
+                    .supportAllFeatures();
 
-        return configuration.buildIdentityManagerFactory().createIdentityManager();
+        return new IdentityManagerFactory(builder.build()).createIdentityManager();
     }
 
     @Produces

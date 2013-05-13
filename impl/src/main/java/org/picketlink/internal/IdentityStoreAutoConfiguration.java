@@ -8,7 +8,8 @@ import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.persistence.Entity;
 
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.config.JPAStoreConfigurationBuilder;
 import org.picketlink.idm.jpa.annotations.CredentialAttribute;
 import org.picketlink.idm.jpa.annotations.IdentityAttribute;
 import org.picketlink.idm.jpa.annotations.IdentityCredential;
@@ -26,8 +27,9 @@ import org.picketlink.idm.jpa.annotations.RelationshipIdentity;
 @ApplicationScoped
 public class IdentityStoreAutoConfiguration implements Extension {
 
-    private JPAIdentityStoreConfiguration jpaConfig = new JPAIdentityStoreConfiguration();
-
+    private JPAStoreConfigurationBuilder jpaConfig = new IdentityConfigurationBuilder().stores().jpa();
+    private boolean configured;
+    
     public <X> void processAnnotatedType(@Observes ProcessAnnotatedType<X> event,
             final BeanManager beanManager) {
 
@@ -35,24 +37,29 @@ public class IdentityStoreAutoConfiguration implements Extension {
             AnnotatedType<X> type = event.getAnnotatedType();
 
             if (type.isAnnotationPresent(IdentityType.class)) {
-                jpaConfig.setIdentityClass(type.getJavaClass());
+                jpaConfig.identityClass(type.getJavaClass());
+                this.configured = true;
             } else if (type.isAnnotationPresent(IdentityCredential.class)) {
-                jpaConfig.setCredentialClass(type.getJavaClass());
+                jpaConfig.credentialClass(type.getJavaClass());
             } else if (type.isAnnotationPresent(CredentialAttribute.class)) {
-                jpaConfig.setCredentialAttributeClass(type.getJavaClass());
+                jpaConfig.credentialAttributeClass(type.getJavaClass());
             } else if (type.isAnnotationPresent(IdentityAttribute.class)) {
-                jpaConfig.setAttributeClass(type.getJavaClass()); 
+                jpaConfig.attributeClass(type.getJavaClass()); 
             } else if (type.isAnnotationPresent(RelationshipIdentity.class)) {
-                jpaConfig.setRelationshipIdentityClass(type.getJavaClass());
+                jpaConfig.relationshipIdentityClass(type.getJavaClass());
             } else if (type.isAnnotationPresent(RelationshipAttribute.class)) {
-                jpaConfig.setRelationshipAttributeClass(type.getJavaClass());
+                jpaConfig.relationshipAttributeClass(type.getJavaClass());
             } else if (type.isAnnotationPresent(Partition.class)) {
-                jpaConfig.setPartitionClass(type.getJavaClass());
+                jpaConfig.partitionClass(type.getJavaClass());
             }
         }
     }
 
-    public JPAIdentityStoreConfiguration getJPAConfiguration() {
-        return jpaConfig;
+    public JPAStoreConfigurationBuilder getJPAConfiguration() {
+        return this.jpaConfig;
+    }
+    
+    public boolean isConfigured() {
+        return this.configured;
     }
 }

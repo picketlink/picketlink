@@ -18,7 +18,7 @@
 package org.picketlink.test.idm;
 
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.IdentityManagerFactory;
+import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Partition;

@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.picketlink.config.idm.ObjectType;
-import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.SecurityConfigurationException;
 
 /**
  * resolver for creating {@link java.util.Properties} from passed ObjectType

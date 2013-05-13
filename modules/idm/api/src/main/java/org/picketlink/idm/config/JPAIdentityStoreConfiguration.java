@@ -25,6 +25,7 @@ import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
@@ -33,8 +34,9 @@ import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.PropertyQuery;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeType;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
@@ -61,8 +63,10 @@ import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
+import org.picketlink.idm.spi.ContextInitializer;
 
 /**
  * This interface defines the configuration parameters for a JPA based IdentityStore implementation.
@@ -78,14 +82,8 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     private static final String DEFAULT_GROUP_IDENTITY_DISCRIMINATOR = "GROUP";
     private static final String DEFAULT_AGENT_IDENTITY_DISCRIMINATOR = "AGENT";
 
-    public enum PropertyType {IDENTITY_ID, IDENTITY_DISCRIMINATOR, GROUP_PATH, IDENTITY_NAME, IDENTITY_ENABLED,
-        IDENTITY_CREATION_DATE, IDENTITY_EXPIRY_DATE, CREDENTIAL_VALUE, ATTRIBUTE_IDENTITY, ATTRIBUTE_NAME,
-        ATTRIBUTE_TYPE, ATTRIBUTE_VALUE, GROUP_PARENT, AGENT_LOGIN_NAME, USER_FIRST_NAME, USER_LAST_NAME,
-        USER_EMAIL, IDENTITY_PARTITION, PARTITION_ID, PARTITION_TYPE, PARTITION_PARENT, CREDENTIAL_IDENTITY,
-        CREDENTIAL_TYPE, CREDENTIAL_EFFECTIVE_DATE, CREDENTIAL_EXPIRY_DATE, CREDENTIAL_ATTRIBUTE_CREDENTIAL,
-        CREDENTIAL_ATTRIBUTE_NAME, CREDENTIAL_ATTRIBUTE_VALUE, RELATIONSHIP_ID, RELATIONSHIP_CLASS,
-        RELATIONSHIP_IDENTITY, RELATIONSHIP_IDENTITY_RELATIONSHIP, RELATIONSHIP_DESCRIPTOR,
-        RELATIONSHIP_ATTRIBUTE_NAME, RELATIONSHIP_ATTRIBUTE_VALUE, RELATIONSHIP_ATTRIBUTE_RELATIONSHIP
+    public enum PropertyType {
+        IDENTITY_ID, IDENTITY_DISCRIMINATOR, GROUP_PATH, IDENTITY_NAME, IDENTITY_ENABLED, IDENTITY_CREATION_DATE, IDENTITY_EXPIRY_DATE, CREDENTIAL_VALUE, ATTRIBUTE_IDENTITY, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, ATTRIBUTE_VALUE, GROUP_PARENT, AGENT_LOGIN_NAME, USER_FIRST_NAME, USER_LAST_NAME, USER_EMAIL, IDENTITY_PARTITION, PARTITION_ID, PARTITION_TYPE, PARTITION_PARENT, CREDENTIAL_IDENTITY, CREDENTIAL_TYPE, CREDENTIAL_EFFECTIVE_DATE, CREDENTIAL_EXPIRY_DATE, CREDENTIAL_ATTRIBUTE_CREDENTIAL, CREDENTIAL_ATTRIBUTE_NAME, CREDENTIAL_ATTRIBUTE_VALUE, RELATIONSHIP_ID, RELATIONSHIP_CLASS, RELATIONSHIP_IDENTITY, RELATIONSHIP_IDENTITY_RELATIONSHIP, RELATIONSHIP_DESCRIPTOR, RELATIONSHIP_ATTRIBUTE_NAME, RELATIONSHIP_ATTRIBUTE_VALUE, RELATIONSHIP_ATTRIBUTE_RELATIONSHIP
     };
 
     private String identityTypeAgent = DEFAULT_AGENT_IDENTITY_DISCRIMINATOR;
@@ -115,16 +113,26 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     private Class<?> relationshipAttributeClass;
     private Class<?> partitionClass;
 
+    JPAIdentityStoreConfiguration(Class<?> identityClass, Class<?> attributeClass, Class<?> credentialClass,
+            Class<?> credentialAttributeClass, Class<?> relationshipClass, Class<?> relationshipIdentityClass,
+            Class<?> relationshipAttributeClass, Class<?> partitionClass, Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
+            Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms, Set<String> tiers,
+            List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties,
+            List<Class<? extends CredentialHandler>> credentialHandlers) {
+        super(supportedFeatures, supportedRelationships, realms, tiers, contextInitializers, credentialHandlerProperties,
+                credentialHandlers);
+        this.identityClass = identityClass;
+        this.attributeClass = attributeClass;
+        this.credentialAttributeClass = credentialAttributeClass;
+        this.credentialClass = credentialClass;
+        this.relationshipAttributeClass = relationshipAttributeClass;
+        this.relationshipClass = relationshipClass;
+        this.relationshipIdentityClass = relationshipIdentityClass;
+        this.partitionClass = partitionClass;
+    }
+
     @Override
     protected void initConfig() throws SecurityConfigurationException {
-        if (this.identityClass == null) {
-            throw MESSAGES.jpaConfigIdentityClassNotProvided();
-        }
-
-        if (this.partitionClass == null) {
-            throw MESSAGES.jpaConfigPartitionClassNotProvided();
-        }
-
         configureIdentity();
         configurePartitions();
         configureRelationships();
@@ -132,30 +140,15 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     }
 
     public Class<?> getIdentityClass() {
-        return identityClass;
-    }
-
-    public JPAIdentityStoreConfiguration setIdentityClass(Class<?> identityClass) {
-        this.identityClass = identityClass;
-        return this;
+        return this.identityClass;
     }
 
     public Class<?> getCredentialClass() {
-        return credentialClass;
-    }
-
-    public JPAIdentityStoreConfiguration setCredentialClass(Class<?> credentialClass) {
-        this.credentialClass = credentialClass;
-        return this;
+        return this.credentialClass;
     }
 
     public Class<?> getCredentialAttributeClass() {
         return this.credentialAttributeClass;
-    }
-
-    public JPAIdentityStoreConfiguration setCredentialAttributeClass(Class<?> credentialAttributeClass) {
-        this.credentialAttributeClass = credentialAttributeClass;
-        return this;
     }
 
     public Class<?> getRelationshipClass() {
@@ -166,45 +159,17 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         return this.partitionClass;
     }
 
-    public JPAIdentityStoreConfiguration setRelationshipClass(Class<?> relationshipClass) {
-        this.relationshipClass = relationshipClass;
-        return this;
-    }
-
-    public JPAIdentityStoreConfiguration setPartitionClass(Class<?> partitionClass) {
-        this.partitionClass = partitionClass;
-        return this;
-    }
-
     public Class<?> getRelationshipIdentityClass() {
-        return relationshipIdentityClass;
-    }
-
-    public JPAIdentityStoreConfiguration setRelationshipIdentityClass(Class<?> relationshipIdentityClass) {
-        this.relationshipIdentityClass = relationshipIdentityClass;
-        return this;
+        return this.relationshipIdentityClass;
     }
 
     public Class<?> getRelationshipAttributeClass() {
-        return relationshipAttributeClass;
+        return this.relationshipAttributeClass;
     }
 
-    public JPAIdentityStoreConfiguration setRelationshipAttributeClass(Class<?> relationshipAttributeClass) {
-        this.relationshipAttributeClass = relationshipAttributeClass;
-        return this;
-    }
 
     public Class<?> getAttributeClass() {
-        return attributeClass;
-    }
-
-    public JPAIdentityStoreConfiguration setAttributeClass(Class<?> attributeClass) {
-        this.attributeClass = attributeClass;
-        return this;
-    }
-
-    public boolean isConfigured() {
-        return identityClass != null;
+        return this.attributeClass;
     }
 
     /**
@@ -240,8 +205,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         return modelProperties.get(propertyType);
     }
 
-    public <P> P getModelPropertyValue(Class<P> propertyClass, Object instance,
-            PropertyType propertyType) {
+    public <P> P getModelPropertyValue(Class<P> propertyClass, Object instance, PropertyType propertyType) {
         @SuppressWarnings("unchecked")
         Property<P> property = (Property<P>) getModelProperty(propertyType);
         return property == null ? null : property.getValue(instance);
@@ -316,16 +280,19 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     }
 
     private void configureIdentity() throws SecurityConfigurationException {
-        configureModelProperty(PropertyType.IDENTITY_DISCRIMINATOR, Discriminator.class, identityClass, null, "discriminator", "identityType",
-                "identityTypeName", "typeName", "type");
+        configureModelProperty(PropertyType.IDENTITY_DISCRIMINATOR, Discriminator.class, identityClass, null, "discriminator",
+                "identityType", "identityTypeName", "typeName", "type");
 
         // Common properties
         configureModelProperty(PropertyType.IDENTITY_ID, Identifier.class, identityClass, null, "id", "identifier");
         configureModelProperty(PropertyType.IDENTITY_NAME, IdentityName.class, identityClass, null, "name");
         configureModelProperty(PropertyType.IDENTITY_ENABLED, Enabled.class, identityClass, null, "enabled", "active");
-        configureModelProperty(PropertyType.IDENTITY_CREATION_DATE, CreationDate.class, identityClass, null, false, "created", "creationDate");
-        configureModelProperty(PropertyType.IDENTITY_EXPIRY_DATE, ExpiryDate.class, identityClass, null, false, "expires", "expiryDate");
-        configureModelProperty(PropertyType.IDENTITY_PARTITION, IdentityPartition.class, identityClass, null, false, "partition");
+        configureModelProperty(PropertyType.IDENTITY_CREATION_DATE, CreationDate.class, identityClass, null, false, "created",
+                "creationDate");
+        configureModelProperty(PropertyType.IDENTITY_EXPIRY_DATE, ExpiryDate.class, identityClass, null, false, "expires",
+                "expiryDate");
+        configureModelProperty(PropertyType.IDENTITY_PARTITION, IdentityPartition.class, identityClass, null, false,
+                "partition");
 
         // Group properties
         configureModelProperty(PropertyType.GROUP_PARENT, Parent.class, identityClass, null, "parentGroup", "parent");
@@ -351,9 +318,12 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         // If an attribute class has been configured, scan it for attribute properties
         if (attributeClass != null) {
             configureModelProperty(PropertyType.ATTRIBUTE_IDENTITY, Parent.class, attributeClass, identityClass);
-            configureModelProperty(PropertyType.ATTRIBUTE_NAME, AttributeName.class, attributeClass, null, "attributeName", "name");
-            configureModelProperty(PropertyType.ATTRIBUTE_TYPE, AttributeType.class, attributeClass, null, "attributeType", "type");
-            configureModelProperty(PropertyType.ATTRIBUTE_VALUE, AttributeValue.class, attributeClass, null, "attributeValue", "value");
+            configureModelProperty(PropertyType.ATTRIBUTE_NAME, AttributeName.class, attributeClass, null, "attributeName",
+                    "name");
+            configureModelProperty(PropertyType.ATTRIBUTE_TYPE, AttributeType.class, attributeClass, null, "attributeType",
+                    "type");
+            configureModelProperty(PropertyType.ATTRIBUTE_VALUE, AttributeValue.class, attributeClass, null, "attributeValue",
+                    "value");
         }
 
         // Scan for attribute properties in the identity class
@@ -381,24 +351,28 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
             configureModelProperty(PropertyType.CREDENTIAL_IDENTITY, Parent.class, credentialClass, null);
             configureModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE, EffectiveDate.class, credentialClass, null);
             configureModelProperty(PropertyType.CREDENTIAL_EXPIRY_DATE, ExpiryDate.class, credentialClass, null);
-            configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_NAME, AttributeName.class, credentialAttributeClass, String.class);
-            configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_VALUE, AttributeValue.class, credentialAttributeClass, null);
-            configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL, Parent.class, credentialAttributeClass, credentialClass);
+            configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_NAME, AttributeName.class, credentialAttributeClass,
+                    String.class);
+            configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_VALUE, AttributeValue.class, credentialAttributeClass,
+                    null);
+            configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL, Parent.class, credentialAttributeClass,
+                    credentialClass);
         } else {
             LOGGER.jpaConfigDisablingCredentialFeatures();
-            getFeatureSet().removeFeature(FeatureGroup.credential);
+            removeFeature(FeatureGroup.credential);
         }
     }
 
     private void configurePartitions() {
         if (this.partitionClass != null) {
             configureModelProperty(PropertyType.PARTITION_ID, Identifier.class, partitionClass, null, "id", "id");
-            configureModelProperty(PropertyType.PARTITION_TYPE, Discriminator.class, partitionClass, null, "type", "partitionType");
+            configureModelProperty(PropertyType.PARTITION_TYPE, Discriminator.class, partitionClass, null, "type",
+                    "partitionType");
             configureModelProperty(PropertyType.PARTITION_PARENT, Parent.class, partitionClass, null, "parent");
         } else {
             LOGGER.jpaConfigDisablingPartitionFeatures();
-            getFeatureSet().removeFeature(FeatureGroup.realm);
-            getFeatureSet().removeFeature(FeatureGroup.tier);
+            removeFeature(FeatureGroup.realm);
+            removeFeature(FeatureGroup.tier);
         }
     }
 
@@ -410,20 +384,27 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         if (this.relationshipClass != null && this.relationshipIdentityClass != null && this.relationshipAttributeClass != null) {
             // Base relationship info
             configureModelProperty(PropertyType.RELATIONSHIP_ID, Identifier.class, relationshipClass, null, "id");
-            configureModelProperty(PropertyType.RELATIONSHIP_CLASS, RelationshipClass.class, relationshipClass, null, "relationshipClass");
+            configureModelProperty(PropertyType.RELATIONSHIP_CLASS, RelationshipClass.class, relationshipClass, null,
+                    "relationshipClass");
 
             // Relationship identities
-            configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY, Identity.class, relationshipIdentityClass, null, "identityObject");
-            configureModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR, RelationshipDescriptor.class, relationshipIdentityClass, null, "descriptor");
-            configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP, Parent.class, relationshipIdentityClass, relationshipClass);
+            configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY, Identity.class, relationshipIdentityClass, null,
+                    "identityObject");
+            configureModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR, RelationshipDescriptor.class,
+                    relationshipIdentityClass, null, "descriptor");
+            configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP, Parent.class, relationshipIdentityClass,
+                    relationshipClass);
 
             // Relationship attributes
-            configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME, AttributeName.class, relationshipAttributeClass, null, "attributeName", "name");
-            configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE, AttributeValue.class, relationshipAttributeClass, null, "attributeValue", "value");
-            configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP, Parent.class, relationshipAttributeClass, null);
+            configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME, AttributeName.class, relationshipAttributeClass,
+                    null, "attributeName", "name");
+            configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE, AttributeValue.class, relationshipAttributeClass,
+                    null, "attributeValue", "value");
+            configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP, Parent.class, relationshipAttributeClass,
+                    null);
         } else {
             LOGGER.jpaConfigDisablingRelationshipFeatures();
-            getFeatureSet().removeFeature(FeatureGroup.relationship);
+            removeFeature(FeatureGroup.relationship);
         }
     }
 
@@ -460,9 +441,8 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
             }
 
             if (!optional) {
-                throw new SecurityConfigurationException("Error configuring JPAIdentityStore - no " +
-                        annotationClass.getName() + " property found in identity class [" +
-                        targetClass.getName() + "]");
+                throw new SecurityConfigurationException("Error configuring JPAIdentityStore - no " + annotationClass.getName()
+                        + " property found in identity class [" + targetClass.getName() + "]");
             }
         }
     }

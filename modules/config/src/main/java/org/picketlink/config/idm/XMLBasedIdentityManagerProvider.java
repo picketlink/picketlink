@@ -19,6 +19,8 @@ package org.picketlink.config.idm;
  */
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.picketlink.common.exceptions.ParsingException;
@@ -31,9 +33,11 @@ import org.picketlink.config.PicketLinkConfigParser;
 import org.picketlink.config.federation.PicketLinkType;
 import org.picketlink.config.idm.resolver.PropertyResolverMapper;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.config.IdentityStoresConfiguration;
+import org.picketlink.idm.config.SecurityConfigurationException;
 
 /**
  * Creating IDM runtime from parsed XML configuration
@@ -144,19 +148,23 @@ public class XMLBasedIdentityManagerProvider {
     // }
 
     protected IdentityConfiguration buildIdentityConfiguration(IdentityConfigurationType identityConfigurationType) {
-        IdentityConfiguration identityConfig = new IdentityConfiguration();
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
+        List<IdentityStoreConfiguration> storeConfigs = new ArrayList<IdentityStoreConfiguration>();
+        
         for (StoreConfigurationType storeConfigType : identityConfigurationType.getIdentityStoreConfigurations()) {
-            identityConfig.addConfig(buildStoreConfiguration(storeConfigType));
+            storeConfigs.add(buildStoreConfiguration(storeConfigType));
         }
 
         if (identityConfigurationType.getPartitionStoreConfiguration() != null) {
             IdentityStoreConfiguration partitionStoreConfig = buildStoreConfiguration(identityConfigurationType
                     .getPartitionStoreConfiguration());
-            identityConfig.addConfig(partitionStoreConfig);
+            storeConfigs.add(partitionStoreConfig);
         }
 
-        return identityConfig;
+        builder.stores().readFrom(new IdentityStoresConfiguration(storeConfigs, null));
+        
+        return builder.build();
     }
 
     protected IdentityStoreConfiguration buildStoreConfiguration(StoreConfigurationType storeConfigType) {

@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;

@@ -24,39 +24,38 @@ package org.picketlink.idm.config;
 
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.spi.ContextInitializer;
 
 /**
- * <p>
- * An <code>OperationNotSupportedException</code> is thrown to indicate that a {@link FeatureGroup} or {@link FeatureOperation}
- * is not supported by the underlying IdentityStore configured for a specific IdentityManager instance.
- * </p>
- * <p>
- * You should check the {@link IdentityStoreConfiguration} for individual features supported by a IdentityStore.
- * </p>
- *
- * @author Pedro Silva
+ * @author Pedro Igor
  *
  */
-public class OperationNotSupportedException extends SecurityConfigurationException {
+public interface IdentityStoreConfigurationBuilder<T extends IdentityStoreConfiguration, S extends IdentityStoreConfigurationBuilder<T, S>> extends Builder<T> {
 
-    private static final long serialVersionUID = -669582364091679894L;
+    S addTier(String... tierNames);
 
-    private FeatureGroup featureGroup;
-    private FeatureOperation featureOperation;
+    S addRealm(String... realmNames);
 
-    public OperationNotSupportedException(String message, FeatureGroup feature, FeatureOperation operation) {
-        super(message);
-        this.featureGroup = feature;
-        this.featureOperation = operation;
-    }
+    S supportAllFeatures();
 
-    public FeatureGroup getFeatureGroup() {
-        return this.featureGroup;
-    }
+    S supportRelationshipType(Class<? extends Relationship>... types);
 
-    public FeatureOperation getFeatureOperation() {
-        return this.featureOperation;
-    }
+    S supportFeature(FeatureGroup... feature);
 
+    S addCredentialHandler(Class<? extends CredentialHandler> credentialHandler);
+
+    S setCredentialHandlerProperty(String propertyName, Object value);
+
+    S addContextInitializer(ContextInitializer contextInitializer);
+
+    S removeFeature(FeatureGroup feature, FeatureOperation operation);
+
+    S removeFeature(FeatureGroup feature);
+
+    S removeRelationshipFeature(Class<? extends Relationship> relationshipClass, FeatureOperation operation);
+
+    S removeRelationship(Class<? extends Relationship>... relationshipClasses);
 
 }
