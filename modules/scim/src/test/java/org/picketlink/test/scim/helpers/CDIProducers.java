@@ -23,7 +23,7 @@ import javax.persistence.PersistenceContext;
 
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
+import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
 import org.picketlink.idm.jpa.schema.IdentityObject;
@@ -66,7 +66,7 @@ public class CDIProducers {
                     .partitionClass(PartitionObject.class)
                     .supportAllFeatures();
 
-        return new DefaultIdentityManagerFactory(builder.build()).createIdentityManager();
+        return new IdentityManagerFactory(builder.build()).createIdentityManager();
     }
 
     @Produces

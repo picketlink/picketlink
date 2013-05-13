@@ -27,7 +27,7 @@ import javax.persistence.Persistence;
 import org.jboss.logging.Logger;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
+import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -215,6 +215,6 @@ public class PicketLinkIDMDataProvider implements DataProvider {
                     });
 
         // FIXME: IdentityManager is not threadsafe
-        identityManager = new DefaultIdentityManagerFactory(builder.build()).createIdentityManager();
+        identityManager = new IdentityManagerFactory(builder.build()).createIdentityManager();
     }
 }

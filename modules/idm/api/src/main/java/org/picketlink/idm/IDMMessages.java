@@ -115,7 +115,7 @@ public interface IDMMessages {
     IdentityManagementException marshallingError(@Cause Throwable t);
 
     @Message(id = 12, value = "Could not create contextual IdentityManager for Partition [%s]. Partition not found or it was null.")
-    IdentityManagementException couldNotCreateContextualIdentityManager(Class<? extends Partition> type);
+    IdentityManagementException couldNotCreateContextualIdentityManager(Partition partition);
 
     @Message(id = 13, value = "QueryParameter [%s] is not supported for sorting.")
     IdentityManagementException notSortableQueryParameter(QueryParameter queryParam);
