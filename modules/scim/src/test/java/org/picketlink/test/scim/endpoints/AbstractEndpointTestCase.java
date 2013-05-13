@@ -29,7 +29,7 @@ import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
+import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -91,7 +91,7 @@ public abstract class AbstractEndpointTestCase extends EmbeddedWebServerBase {
                     });
 
         // FIXME: IdentityManager is not threadsafe
-        IdentityManager  identityManager = new DefaultIdentityManagerFactory(builder.build()).createIdentityManager();
+        IdentityManager  identityManager = new IdentityManagerFactory(builder.build()).createIdentityManager();
 
         User anil = identityManager.getUser("anil");
 

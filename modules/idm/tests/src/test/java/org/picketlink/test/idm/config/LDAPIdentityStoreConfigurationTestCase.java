@@ -28,13 +28,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPStoreConfigurationBuilder;
-import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
+import org.picketlink.idm.internal.IdentityManagerFactory;
 
 /**
  * <p>
@@ -147,7 +146,7 @@ public class LDAPIdentityStoreConfigurationTestCase extends
 
     @Override
     protected IdentityManager createIdentityManager(IdentityConfiguration config) {
-        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
+        IdentityManagerFactory factory = new IdentityManagerFactory(config);
         return factory.createIdentityManager();
     }
 

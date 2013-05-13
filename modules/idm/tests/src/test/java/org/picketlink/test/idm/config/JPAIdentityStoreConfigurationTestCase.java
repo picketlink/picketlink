@@ -34,14 +34,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAStoreConfigurationBuilder;
 import org.picketlink.idm.config.SecurityConfigurationException;
-import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
+import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -292,7 +291,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
 
     @Override
     protected IdentityManager createIdentityManager(IdentityConfiguration config) {
-        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
+        IdentityManagerFactory factory = new IdentityManagerFactory(config);
         return factory.createIdentityManager();
     }
 

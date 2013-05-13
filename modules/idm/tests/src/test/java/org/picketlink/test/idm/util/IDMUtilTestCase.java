@@ -20,8 +20,8 @@ package org.picketlink.test.idm.util;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.picketlink.idm.internal.util.IDMUtil;
 import org.junit.Test;
+import org.picketlink.idm.internal.util.IDMUtil;
 
 /**
  * Unit test {@link IDMUtil}

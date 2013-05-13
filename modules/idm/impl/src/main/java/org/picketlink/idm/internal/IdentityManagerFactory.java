@@ -4,7 +4,6 @@ import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
@@ -19,12 +18,12 @@ import org.picketlink.idm.spi.StoreFactory;
  * @author Shane Bryzak
  *
  */
-public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
+public class IdentityManagerFactory {
 
     private SecurityContextFactory contextFactory;
     private StoreFactory storeFactory;
 
-    public DefaultIdentityManagerFactory(IdentityConfiguration identityConfig) {
+    public IdentityManagerFactory(IdentityConfiguration identityConfig) {
         if (identityConfig == null) {
             throw MESSAGES.nullArgument("IdentityConfiguration");
         }
@@ -52,7 +51,7 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
         this.contextFactory = contextFactory;
     }
 
-    @Override
+
     public IdentityManager createIdentityManager() {
         Realm defaultRealm = getRealm(Realm.DEFAULT_REALM);
 
@@ -63,7 +62,7 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
         return createIdentityManager(defaultRealm);
     }
 
-    @Override
+
     public IdentityManager createIdentityManager(Partition partition) {
         if (partition == null) {
             throw MESSAGES.nullArgument("Partition");
@@ -73,12 +72,12 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
         return new DefaultIdentityManager(context, storeFactory);
     }
 
-    @Override
+
     public Realm getRealm(String id) {
         return storeFactory.getRealm(id);
     }
 
-    @Override
+
     public Tier getTier(String id) {
         return storeFactory.getTier(id);
     }
