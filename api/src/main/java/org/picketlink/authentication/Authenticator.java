@@ -41,5 +41,5 @@ public interface Authenticator
 
     AuthenticationStatus getStatus();
 
-    Agent getUser();
+    Agent getAgent();
 }

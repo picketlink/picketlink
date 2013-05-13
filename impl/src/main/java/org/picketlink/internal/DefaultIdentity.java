@@ -184,7 +184,7 @@ public class DefaultIdentity implements Identity
 
             if (activeAuthenticator.getStatus() == AuthenticationStatus.SUCCESS)
             {
-                validatedAgent = activeAuthenticator.getUser();
+                validatedAgent = activeAuthenticator.getAgent();
                 postAuthenticate(activeAuthenticator);
             } 
         } 
