@@ -42,8 +42,8 @@ public interface Group extends IdentityType, Serializable {
     QueryParameter PARENT = new QueryParameter() {};
 
     /**
-     * Group name is unique identifier in specific group tree branch. For example group with id "/acme/departments/marketing"
-     * will have name "marketing" and parent group of id "/acme/departments"
+     * Group name is unique identifier in specific group tree branch. For example group with path "/acme/departments/marketing"
+     * will have name "marketing" and parent group path of "/acme/departments"
      *
      * @return name
      */
