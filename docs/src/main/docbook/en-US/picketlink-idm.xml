@@ -342,16 +342,10 @@ builder
           For each of the built-in <code>IdentityStore</code> implementations there is a corresponding
           <code>IdentityStoreConfiguration</code> implementation - the following sections describe each of these in more detail.
         </para>
+      </section>
 
+       
         <section>
-	      <title>Feature Set</title>
-	      
-	      <para>
-	         TODO
-	      </para>
-	    </section>
-        
-	      <section>
 	        <title>JPAIdentityStoreConfiguration</title>
 	        
 	        <para>
@@ -372,9 +366,9 @@ builder
 	          </para>
 	          
 	          <programlisting language="JAVA"><![CDATA[@Produces
-	@PicketLink
-	@PersistenceContext(unitName = "picketlink")
-	private EntityManager picketLinkEntityManager;]]></programlisting>
+@PicketLink
+@PersistenceContext(unitName = "picketlink")
+private EntityManager picketLinkEntityManager;]]></programlisting>
 	        </section>
 	        
 	        <section>
@@ -474,55 +468,55 @@ builder
 	          <example>
 	            <title>Example Identity class</title>
 	            <programlisting language="JAVA"><![CDATA[@IdentityType
-	@Entity
-	public class IdentityObject implements Serializable {
+@Entity
+public class IdentityObject implements Serializable {
 	
-	  @Discriminator
-	  private String discriminator;
-	
-	  @ManyToOne
-	  @IdentityPartition
-	  private PartitionObject partition;
-	
-	  @Identifier
-	  @Id
-	  private String id;
-	
-	  @LoginName
-	  private String loginName;
-	
-	  @IdentityName
-	  private String name;
-	
-	  @FirstName
-	  private String firstName;
-	
-	  @LastName
-	  private String lastName;
-	
-	  @Email
-	  private String email;
-	
-	  @Enabled
-	  private boolean enabled;
-	
-	  @CreationDate
-	  @Temporal(TemporalType.TIMESTAMP)
-	  private Date creationDate;
-	
-	  @ExpiryDate
-	  @Temporal(TemporalType.TIMESTAMP)
-	  private Date expiryDate;
-	
-	  @ManyToOne
-	  @Parent
-	  private IdentityObject parent;
-	
-	  @GroupPath
-	  private String groupPath;              
-	  
-	  // getters and setters
-	}]]></programlisting>
+    @Discriminator
+    private String discriminator;
+
+    @ManyToOne
+    @IdentityPartition
+    private PartitionObject partition;
+
+    @Identifier
+    @Id
+    private String id;
+
+    @LoginName
+    private String loginName;
+
+    @IdentityName
+    private String name;
+
+    @FirstName
+    private String firstName;
+
+    @LastName
+    private String lastName;
+
+    @Email
+    private String email;
+
+    @Enabled
+    private boolean enabled;
+
+    @CreationDate
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date creationDate;
+
+    @ExpiryDate
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date expiryDate;
+
+    @ManyToOne
+    @Parent
+    private IdentityObject parent;
+
+    @GroupPath
+    private String groupPath;              
+    
+    // getters and setters
+}]]></programlisting>
 	          </example>
 	          
 	        </section>
@@ -574,25 +568,25 @@ builder
 	          <example>
 	            <title>Example Attribute class</title>
 	            <programlisting language="JAVA"><![CDATA[@Entity
-	@IdentityAttribute
-	public class IdentityAttribute implements Serializable {
-	  @Id @GeneratedValue private Long id;
-	
-	  @ManyToOne @JoinColumn
-	  @Parent
-	  private IdentityObject identityObject;
-	
-	  @AttributeName
-	  private String name;
-	
-	  @AttributeValue
-	  private String value;
-	
-	  @AttributeType
-	  private String type;
-	  
-	  // getters and setters
-	}]]></programlisting>
+@IdentityAttribute
+public class IdentityAttribute implements Serializable {
+    @Id @GeneratedValue private Long id;
+
+    @ManyToOne @JoinColumn
+    @Parent
+    private IdentityObject identityObject;
+
+    @AttributeName
+    private String name;
+
+    @AttributeValue
+    private String value;
+
+    @AttributeType
+    private String type;
+    
+    // getters and setters
+}]]></programlisting>
 	          </example>
 	          
 	        </section>
@@ -649,30 +643,30 @@ builder
 	          <example>
 	            <title>Example Credential class</title>
 	            <programlisting language="JAVA"><![CDATA[@Entity
-	@IdentityCredential
-	public class IdentityCredential implements Serializable {
-	  @Id @GeneratedValue private Long id;
-	
-	  @CredentialType
-	  private String type;
-	
-	  @CredentialValue
-	  private String credential;
-	
-	  @EffectiveDate
-	  @Temporal (TemporalType.TIMESTAMP)
-	  private Date effectiveDate;
-	
-	  @ExpiryDate
-	  @Temporal (TemporalType.TIMESTAMP)
-	  private Date expiryDate;
-	
-	  @Parent
-	  @ManyToOne
-	  private IdentityObject identityType;
-	  
-	  // getters and setters
-	}]]></programlisting>
+@IdentityCredential
+public class IdentityCredential implements Serializable {
+    @Id @GeneratedValue private Long id;
+
+    @CredentialType
+    private String type;
+
+    @CredentialValue
+    private String credential;
+
+    @EffectiveDate
+    @Temporal (TemporalType.TIMESTAMP)
+    private Date effectiveDate;
+
+    @ExpiryDate
+    @Temporal (TemporalType.TIMESTAMP)
+    private Date expiryDate;
+
+    @Parent
+    @ManyToOne
+    private IdentityObject identityType;
+    
+    // getters and setters
+}]]></programlisting>
 	          </example>
 	            
 	        </section>
@@ -719,22 +713,22 @@ builder
 	          <example>
 	            <title>Example Credential Attribute class</title>
 	            <programlisting language="JAVA"><![CDATA[@Entity
-	@CredentialAttribute
-	public class IdentityCredentialAttribute implements Serializable {
-	  @Id @GeneratedValue private Long id;
-	
-	  @ManyToOne @JoinColumn
-	  @Parent
-	  private IdentityCredential credential;
-	
-	  @AttributeName
-	  private String name;
-	
-	  @AttributeValue
-	  private String value;
-	  
-	  // getters and setters
-	}]]></programlisting>
+@CredentialAttribute
+public class IdentityCredentialAttribute implements Serializable {
+    @Id @GeneratedValue private Long id;
+
+    @ManyToOne @JoinColumn
+    @Parent
+    private IdentityCredential credential;
+
+    @AttributeName
+    private String name;
+
+    @AttributeValue
+    private String value;
+    
+    // getters and setters
+}]]></programlisting>
 	          </example>
 	          
 	        </section>
@@ -776,17 +770,17 @@ builder
 	          <example>
 	            <title>Example Relationship class</title>
 	            <programlisting language="JAVA"><![CDATA[@Relationship
-	@Entity
-	public class Relationship implements Serializable {
-	  @Id 
-	  @Identifier
-	  private String id;
-	
-	  @RelationshipClass
-	  private String type;
-	
-	  // getters and setters
-	}]]></programlisting>
+@Entity
+public class Relationship implements Serializable {
+    @Id 
+    @Identifier
+    private String id;
+
+    @RelationshipClass
+    private String type;
+
+    // getters and setters
+}]]></programlisting>
 	          </example>
 	        </section>
 	        
@@ -832,23 +826,23 @@ builder
 	          <example>
 	            <title>Example Relationship Identity class</title>
 	            <programlisting language="JAVA"><![CDATA[@RelationshipIdentity
-	@Entity
-	public class RelationshipIdentityObject implements Serializable {
-	  @Id @GeneratedValue private Long id;
-	
-	  @Discriminator
-	  private String descriptor;
-	
-	  @RelationshipIdentity
-	  @ManyToOne
-	  private IdentityObject identityObject;
-	
-	  @Parent
-	  @ManyToOne
-	  private RelationshipObject relationshipObject;
-	  
-	  // getters and setters
-	}]]></programlisting>
+@Entity
+public class RelationshipIdentityObject implements Serializable {
+    @Id @GeneratedValue private Long id;
+
+    @Discriminator
+    private String descriptor;
+
+    @RelationshipIdentity
+    @ManyToOne
+    private IdentityObject identityObject;
+
+    @Parent
+    @ManyToOne
+    private RelationshipObject relationshipObject;
+    
+    // getters and setters
+}]]></programlisting>
 	          </example>
 	        </section>
 	        
@@ -895,22 +889,22 @@ builder
 	            <title>Example Relationship Attribute class</title>
 	
 	            <programlisting language="JAVA"><![CDATA[@Entity
-	@RelationshipAttribute
-	public class RelationshipObjectAttribute implements Serializable {
-	  @Id @GeneratedValue private Long id;
-	
-	  @ManyToOne @JoinColumn
-	  @Parent
-	  private Relationship relationship;
-	
-	  @AttributeName
-	  private String name;
-	
-	  @RelationshipValue
-	  private String value;
-	  
-	  // getters and setters
-	}]]></programlisting>
+@RelationshipAttribute
+public class RelationshipObjectAttribute implements Serializable {
+    @Id @GeneratedValue private Long id;
+
+    @ManyToOne @JoinColumn
+    @Parent
+    private Relationship relationship;
+
+    @AttributeName
+    private String name;
+
+    @RelationshipValue
+    private String value;
+    
+    // getters and setters
+}]]></programlisting>
 	          </example>
 	        </section>
 	        
@@ -956,40 +950,40 @@ builder
 	          <example>
 	            <title>Example Partition class</title>
 	            <programlisting language="JAVA"><![CDATA[@Entity
-	@Partition
-	public class PartitionObject implements Serializable {
-	  @Id @Identifier
-	  private String id;
-	
-	  @Discriminator
-	  private String type;
-	
-	  @ManyToOne 
-	  @Parent
-	  private PartitionObject parent;
-	  
-	  // getters and setters
-	}]]></programlisting>
-	          </example>
-	        </section>
-	               
-	      </section>
+@Partition
+public class PartitionObject implements Serializable {
+    @Id @Identifier
+    private String id;
+
+    @Discriminator
+    private String type;
+
+    @ManyToOne 
+    @Parent
+    private PartitionObject parent;
+    
+    // getters and setters
+}]]></programlisting>
+          </example>
+        </section>
+               
+      </section>
 	      
-	      <section>
-	        <title>LDAPIdentityStoreConfiguration</title>
-	        
-	        <para>
-	          The LDAP identity store allows an LDAP directory server to be used to provide identity state. You can use this store in read-only or write-read mode, depending on your permissions on the server.
-	        </para>
-	        
-	        <section>
-	          <title>Configuration</title>
-	          
-	          <para>
-	            The LDAP identity store can be configured by providing the following configuration:
-			</para>
-			
-	          <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+      <section>
+        <title>LDAPIdentityStoreConfiguration</title>
+        
+        <para>
+          The LDAP identity store allows an LDAP directory server to be used to provide identity state. You can use this store in read-only or write-read mode, depending on your permissions on the server.
+        </para>
+        
+        <section>
+          <title>Configuration</title>
+          
+          <para>
+            The LDAP identity store can be configured by providing the following configuration:
+          </para>
+		
+          <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 	
 	builder
 	    .stores()
@@ -1003,13 +997,12 @@ builder
 	            .groupDNSuffix("ou=Groups,dc=jboss,dc=org")
 	            .supportAllFeatures();]]></programlisting>
 			
-			<para>
-				The following table describes all configuration options:
-			</para>
+          <para>
+            The following table describes all configuration options:
+          </para>
 			
-			<table>
-	            <title>LDAP Configuration Options</title>
-	            
+          <table>
+            <title>LDAP Configuration Options</title>
 	            <tgroup cols="3" align="left">
 	              <thead>
 	                <row>
@@ -1135,7 +1128,7 @@ builder
 	          
 	          <para>
 	            The file identity store can be easily configured by providing the following configuration:
-			</para>
+            </para>
 			              
 	          <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 	        
@@ -1178,15 +1171,16 @@ builder
 			</section>            
 	      </section>
 	    </section>
-	    <section>
-        	<title>Providing a Custom IdentityStore</title>
+	    
+    <section>
+      	<title>Providing a Custom IdentityStore</title>
+    
+        <para>
+          TODO
+        </para>
+    	</section>        
+    </section>      
       
-	        <para>
-	          TODO
-	        </para>
-      	</section>        
-      </section>      
-    </section>
     
     <section>
       <title>Java EE Environments</title>
@@ -1215,7 +1209,7 @@ builder
         <title>Accessing the <code>IdentityManager</code> in Java EE</title>
         
         <para>
-          In a Java EE environment, the PicketLink Core module provides a producer method for <code>IdentityManager</code>, 
+          In a Java EE environment, PicketLink provides a producer method for <code>IdentityManager</code>, 
           so getting a reference to it is as simply as injecting it into your beans:
         </para>
       
@@ -1702,7 +1696,7 @@ identityManager.add(groupRole);]]></programlisting>
       <note>
         <para>
           While the IDM module of PicketLink provides authentication features, for common use cases involving standard username and
-          password based authentication in a Java EE environment, the PicketLink core module provides a more streamlined method
+          password based authentication in a Java EE environment, PicketLink provides a more streamlined method
           of authentication.  Please refer to the authentication chapter of this documentation for more information.
         </para>
       </note>
