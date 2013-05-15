@@ -26,16 +26,19 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 import org.picketlink.IdentityConfigurationEvent;
+import org.picketlink.annotations.PicketLink;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.internal.IdentityManagerFactory;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.internal.EEJPAContextInitializer;
 import org.picketlink.internal.EESecurityContextFactory;
 import org.picketlink.internal.IdentityStoreAutoConfiguration;
 import org.picketlink.internal.SecuredIdentityManager;
+import org.picketlink.internal.util.Strings;
 
 /**
  * 
@@ -58,6 +61,8 @@ public class IdentityManagerProducer {
 
     @Inject
     IdentityStoreAutoConfiguration autoConfig;
+
+    @Inject @PicketLink Instance<Realm> defaultRealm;
 
     private IdentityManagerFactory factory;
 
@@ -99,9 +104,18 @@ public class IdentityManagerProducer {
     }
 
     @Produces
+    public IdentityManagerFactory createIdentityManagerFactory() {
+        return factory;
+    }
+
+    @Produces
     @Dependent
     public IdentityManager createIdentityManager() {
-        return new SecuredIdentityManager(this.factory.createIdentityManager());
+        if (defaultRealm.isUnsatisfied() || Strings.isEmpty(defaultRealm.get().getId())) {
+            return new SecuredIdentityManager(this.factory.createIdentityManager());
+        } else {
+            return new SecuredIdentityManager(this.factory.createIdentityManager(defaultRealm.get()));
+        }
     }
 
 }
