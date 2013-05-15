@@ -191,6 +191,36 @@
               <imagedata fileref="diagrams/idm_operation_execution.png" align="center"/>
             </imageobject>
           </mediaobject>
+          <para>
+          	<itemizedlist>
+        		<listitem>
+          			<para>
+            			The first step is create a <code>IdentityManagerFactory</code> instance from a previously created <code>IdentityConfiguration</code>. 
+            			At this point, the factory reads the configuration and bootstrap the identity management ecosystem. 
+          			</para>
+       	 		</listitem>
+        		<listitem>
+          			<para>
+            			With a fully initialized <code>IdentityManagerFactory</code> instance, the application is able to create <code>IdentityManager</code> instances and execute
+            			operations. <code>IdentityManager</code> instances are created for a specific <ns:emphasis>realm</ns:emphasis>, in this specific case we're 
+            			creating an instance for the default realm.
+          			</para>
+          			<para>
+            			A <code>IdentityManager</code> instance is always associated with a <code>SecurityContext</code> and a <code>StoreFactory</code> instance. 
+            			The same security context is used during all the life time of a <code>IdentityManager</code>, it will be used to share data with the underlying identity stores
+            			and provide access to external resources (if necessary) in order to execute operations.
+          			</para>
+       	 		</listitem>
+        		<listitem>
+          			<para>
+            			Now the application holds a reference for a <code>IdentityManager</code> instance and it is ready to perform identity management operations. 
+            			But before executing them, the <code>IdentityManager</code> needs to obtain from the <code>StoreFactory</code> the <code>IdentityStore</code> instance
+            			that should be used to execute a specific operation. Identity stores are choosen by looking the configuration to see which store configuration supports a
+            			specific operation or feature. After that, the <code>IdentityStore</code> is invoked and the operation is finally executed.
+          			</para>
+       	 		</listitem>
+       	 	</itemizedlist>
+       	 </para>
       </section>
     </section>
           
@@ -259,7 +289,7 @@
           Finally, we use the configuration to create a <code>IdentityManagerFactory</code> from where we can create <code>IdentityManager</code> instances and start to perform Identity Management operations: 
         </para>
         
-        <programlisting><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+        <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
         
 builder
     .stores()
@@ -281,7 +311,7 @@ identityManager.add(user);]]></programlisting>
 	  	
 	  	<para>The <code>IdentityConfigurationBuilder</code> is the entry point for PicketLink configuration. 
 	  	It is a very simple class with some meanniful methods for all supported configuration options.</para>
-		<programlisting><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+		<programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
 builder
 	.stores() // supported identity stores configuration	
