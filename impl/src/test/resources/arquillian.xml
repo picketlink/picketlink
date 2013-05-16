@@ -6,7 +6,7 @@
 		<property name="deploymentExportPath">target/</property>
 	</engine>
 
-	<weld:container>
-	</weld:container>
+	<container qualifier="weld-ee-embedded-1.1">
+	</container>
 
 </arquillian>

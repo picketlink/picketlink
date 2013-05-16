@@ -59,10 +59,19 @@ public class ArchiveUtils {
                 archive.addClass(classToAdd);
             }
         }
+        
+        archive.addClass(AbstractArquillianTestCase.class);
 
         return archive;
     }
 
+    public static void addDependency(WebArchive archive, String gav) {
+        archive.addAsLibraries(
+                DependencyResolvers.use(MavenDependencyResolver.class).loadMetadataFromPom("pom.xml")
+                        .artifact(gav)
+                        .resolveAs(JavaArchive.class));
+    }
+    
     /**
      * <p>
      * During the build this property is automatically configured, but if you're running in an IDE, make sure you have this
@@ -72,7 +81,7 @@ public class ArchiveUtils {
      * 
      * @return
      */
-    private static String getCurrentProjectVersion() {
+    public static String getCurrentProjectVersion() {
         return System.getProperty("project.version", "3.0.0-SNAPSHOT");
     }
 

@@ -22,38 +22,41 @@
 
 package org.picketlink.test.integration.authentication;
 
-import java.net.Authenticator;
-
 import javax.inject.Inject;
 
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.After;
 import org.junit.Before;
+import org.picketlink.Identity;
 import org.picketlink.authentication.internal.IdmAuthenticator;
+import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
-import org.picketlink.test.integration.ArchiveUtils;
+import org.picketlink.test.integration.AbstractArquillianTestCase;
 
 /**
  * <p>
- * Perform some authentication tests using the {@link IdmAuthenticator}, which is the default {@link Authenticator}.
+ * Base class for test cases that requires authentication. By default, the {@link IdmAuthenticator} is used by default.
  * </p>
  * 
  * @author Pedro Igor
  * 
  */
-public class IDMAuthenticationTestCase extends AbstractAuthenticatorTestCase {
+public abstract class AbstractAuthenticationTestCase extends AbstractArquillianTestCase {
+
+    protected static final String USER_NAME = "john";
+    protected static final String USER_PASSWORD = "mypasswd";
 
     @Inject
-    private IdentityManager identityManager;
+    protected Identity identity;
 
-    @Deployment
-    public static WebArchive createDeployment() {
-        return ArchiveUtils.create(IDMAuthenticationTestCase.class);
-    }
-    
+    @Inject
+    protected DefaultLoginCredentials credentials;
+
+    @Inject
+    protected IdentityManager identityManager;
+
     @Before
     public void onSetup() {
         User john = this.identityManager.getUser(USER_NAME);
@@ -71,16 +74,15 @@ public class IDMAuthenticationTestCase extends AbstractAuthenticatorTestCase {
 
         this.identityManager.updateCredential(john, password);
     }
-    
-    @Override
-    protected User doLockUserAccount() {
-        User john = this.identityManager.getUser(USER_NAME);
 
-        john.setEnabled(false);
-
-        this.identityManager.update(john);
-        
-        return john;
+    @After
+    public void onFinish() {
+        this.identity.logout();
     }
-    
+
+    protected void populateCredentials() {
+        this.credentials.setUserId(USER_NAME);
+        this.credentials.setPassword(USER_PASSWORD);
+    }
+
 }
