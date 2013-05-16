@@ -1,3 +1,1 @@
 org.picketlink.internal.IdentityStoreAutoConfiguration
-org.picketlink.deltaspike.security.impl.extension.SecurityExtension
-org.picketlink.deltaspike.core.api.provider.BeanManagerProvider
