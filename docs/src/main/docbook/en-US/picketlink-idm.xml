@@ -198,7 +198,7 @@
         </para>
         
         <para>
-          The diagram bellow shows a overview about how a specific identity management operation is realized:
+          The diagram below shows an overview about how a specific identity management operation is realized:
         </para>
         
         <mediaobject>
@@ -214,8 +214,8 @@
           <itemizedlist>
             <listitem>
               <para>
-                The first step is create a <code>IdentityManagerFactory</code> instance from a previously created <code>IdentityConfiguration</code>. 
-                At this point, the factory reads the configuration and bootstrap the identity management ecosystem, <emphasis>steps 1.1 and 1.2</emphasis>. 
+                The first step is create an <code>IdentityManagerFactory</code> instance from a previously created <code>IdentityConfiguration</code>. 
+                At this point, the factory reads the configuration and bootstraps the identity management ecosystem, <emphasis>steps 1.1 and 1.2</emphasis>. 
               </para>
             </listitem>
             <listitem>
@@ -226,9 +226,9 @@
               </para>
               
               <para>
-                A <code>IdentityManager</code> instance is always associated with a <code>SecurityContext</code>. In <emphasis>steps 2.1 and 2.1.1</emphasis>, 
-                the <code>SecurityContext</code> is created and setted into the <code>IdentityManager</code> instance.
-                The same security context is used during all the life time of a <code>IdentityManager</code>, it will be used to share data with the underlying identity stores
+                An <code>IdentityManager</code> instance is always associated with a <code>SecurityContext</code>. In <emphasis>steps 2.1 and 2.1.1</emphasis>, 
+                the <code>SecurityContext</code> is created and set into the <code>IdentityManager</code> instance.
+                The same security context is used during the entire lifecycle of the <code>IdentityManager</code>, it will be used to share state with the underlying identity stores
                 and provide access to external resources (if necessary) in order to execute operations.
               </para>
               
@@ -239,20 +239,20 @@
             </listitem>
             <listitem>
               <para>
-                Now the application holds a reference for a <code>IdentityManager</code> instance and it is ready to perform identity management operations (eg.: add an user, queries, validate credentials, etc).  
+                Now the application holds a reference to the <code>IdentityManager</code> instance and it is ready to perform identity management operations (eg.: add an user, queries, validate credentials, etc).  
                 But before executing them, the <code>IdentityManager</code> needs to obtain from the <code>StoreFactory</code> the <code>IdentityStore</code> instance 
-                that should be used to execute a specific operation, <emphasis>step 3.1</emphasis>. Identity stores are choosen by looking the configuration to see which store configuration supports a 
+                that should be used to execute a specific operation, <emphasis>step 3.1</emphasis>. Identity stores are selected by examining the configuration to see which store configuration supports a 
                 specific operation or feature, <emphasis>step 3.1.1</emphasis>. After that, the <code>IdentityStore</code> is invoked and the operation is finally executed <emphasis>steps 3.2.2</emphasis>.
               </para>
               <para>Note that the <code>IdentityStore</code> uses the current <code>SecurityContext</code> while executing an operation, as described by <emphasis>step 3.2.1</emphasis>. 
-              The <code>SecurityContext</code> can hold some state that may be useful during the execution (eg.: the JPA store uses the security context to get access to the current <code>EntityManager</code> instance)
+              The <code>SecurityContext</code> can hold some state that may be useful during the execution (eg.: the JPA store uses the security context to gain access to the current <code>EntityManager</code> instance)
               and also provide access for some IDM internal services like event handling, caching, etc.</para>
             </listitem>
           </itemizedlist>
         </para>
         <para>
-          PicketLink IDM design is quite flexible and allows you to configure or even customize most of the behaviors described above.
-          As said before, most of use cases require minimal knowledge about all those details and the default implementation should be enough to satisfy your requirements.
+          PicketLink IDM design is quite flexible and allows you to configure or even customize most of the behaviours described above.
+          As stated earlier, most use cases require minimal knowledge about these details and the default implementation should be enough to satisfy the majority of requirements.
         </para>
       </section>
     </section>
@@ -311,7 +311,7 @@
         <title>Programmatic Configuration</title>
       
         <para>
-          Configuration for Identity Management can be defined programmatically using the Configuration Builder API. The aim of this API is to make it easier to chaing coding
+          Configuration for Identity Management can be defined programmatically using the Configuration Builder API. The aim of this API is to make it easier to chain coding
           of configuration options in order to speed up the coding itself and make the configuration more <emphasis>readable</emphasis>.
         </para>
         <para>        
@@ -343,7 +343,7 @@ identityManager.add(user);]]></programlisting>
 
           <para>
             The <code>IdentityConfigurationBuilder</code> is the entry point for PicketLink configuration. 
-            It is a very simple class with some meanniful methods for all supported configuration options.
+            It is a very simple class with some meaningful methods for all supported configuration options.
           </para>
             
           <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
