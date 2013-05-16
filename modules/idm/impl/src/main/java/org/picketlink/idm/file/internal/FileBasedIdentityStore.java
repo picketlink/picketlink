@@ -19,6 +19,7 @@
 package org.picketlink.idm.file.internal;
 
 import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.credential.internal.CredentialUtils.getCurrentCredential;
 import static org.picketlink.idm.file.internal.FileIdentityQueryHelper.isQueryParameterEquals;
 
 import java.io.Serializable;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +36,7 @@ import java.util.Set;
 
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
@@ -41,8 +44,10 @@ import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.internal.DigestCredentialHandler;
 import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
 import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
+import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
+import org.picketlink.idm.credential.spi.annotations.Stored;
 import org.picketlink.idm.event.AgentCreatedEvent;
 import org.picketlink.idm.event.AgentDeletedEvent;
 import org.picketlink.idm.event.AgentUpdatedEvent;
@@ -85,7 +90,6 @@ import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
-import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 
 /**
@@ -97,10 +101,9 @@ import org.picketlink.idm.spi.SecurityContext;
  *
  */
 @CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class })
-public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreConfiguration>, CredentialStore {
+public class FileBasedIdentityStore implements CredentialStore<FileIdentityStoreConfiguration> {
 
     private FileIdentityStoreConfiguration config;
-    private FileCredentialStore credentialStore;
     private FileDataSource fileDataSource;
 
     @Override
@@ -110,8 +113,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         this.fileDataSource.init(config);
 
         this.config = config;
-
-        this.credentialStore = new FileCredentialStore(this);
     }
 
     @Override
@@ -465,31 +466,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         }
 
         return result;
-    }
-
-    @Override
-    public void storeCredential(SecurityContext context, Agent agent, CredentialStorage storage) {
-        this.credentialStore.storeCredential(context, agent, storage);
-    }
-
-    @Override
-    public <T extends CredentialStorage> List<T> retrieveCredentials(SecurityContext context, Agent agent, Class<T> storageClass) {
-        return this.credentialStore.retrieveCredentials(context, agent, storageClass);
-    }
-
-    @Override
-    public <T extends CredentialStorage> T retrieveCurrentCredential(SecurityContext context, Agent agent, Class<T> storageClass) {
-        return this.credentialStore.retrieveCurrentCredential(context, agent, storageClass);
-    }
-
-    @Override
-    public void updateCredential(SecurityContext context, Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
-        this.credentialStore.updateCredential(context, agent, credential, effectiveDate, expiryDate);
-    }
-
-    @Override
-    public void validateCredentials(SecurityContext context, Credentials credentials) {
-        this.credentialStore.validateCredentials(context, credentials);
     }
 
     @SuppressWarnings("unchecked")
@@ -1031,7 +1007,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         getDataSource().flushAgents(partition);
 
-        this.credentialStore.removeCredentials(context, storedAgent);
+        removeCredentials(context, storedAgent);
 
         if (IDMUtil.isUserType(agent.getClass())) {
             context.getEventBridge().raiseEvent(new UserDeletedEvent((User) agent));
@@ -1301,6 +1277,162 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         }
 
         return results.get(0);
+    }
+
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void validateCredentials(SecurityContext context, Credentials credentials) {
+        CredentialHandler handler = context.getCredentialValidator(credentials.getClass(), this);
+
+        if (handler == null) {
+            throw MESSAGES.credentialHandlerNotFoundForCredentialType(credentials.getClass());
+        }
+
+        handler.validate(context, credentials, this);
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void updateCredential(SecurityContext context, Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
+        CredentialHandler handler = context.getCredentialUpdater(credential.getClass(), this);
+
+        if (handler == null) {
+            throw MESSAGES.credentialHandlerNotFoundForCredentialType(credential.getClass());
+        }
+
+        handler.update(context, agent, credential, this, effectiveDate, expiryDate);
+    }
+
+    @Override
+    public void storeCredential(SecurityContext context, Agent agent, CredentialStorage storage) {
+        List<FileCredentialStorage> credentials = getCredentials(context, agent, storage.getClass());
+
+        FileCredentialStorage credential = new FileCredentialStorage();
+
+        List<Property<Object>> annotatedTypes = PropertyQueries.createQuery(storage.getClass())
+                .addCriteria(new AnnotatedPropertyCriteria(Stored.class)).getResultList();
+
+        for (Property<Object> property : annotatedTypes) {
+            credential.getStoredFields().put(property.getName(), (Serializable) property.getValue(storage));
+        }
+
+        if (credential.getEffectiveDate() == null) {
+            credential.setEffectiveDate(new Date());
+        }
+
+        credentials.add(credential);
+
+        flushCredentials(context);
+    }
+
+    @Override
+    public <T extends CredentialStorage> T retrieveCurrentCredential(SecurityContext context, Agent agent, Class<T> storageClass) {
+        return getCurrentCredential(context, agent, this, storageClass);
+    }
+
+    @Override
+    public <T extends CredentialStorage> List<T> retrieveCredentials(SecurityContext context, Agent agent, Class<T> storageTyper) {
+        ArrayList<T> storedCredentials = new ArrayList<T>();
+
+        List<FileCredentialStorage> credentials = getCredentials(context, agent, storageTyper);
+
+        for (FileCredentialStorage fileCredentialStorage : credentials) {
+            storedCredentials.add(convertToCredentialStorage(storageTyper, fileCredentialStorage));
+        }
+
+        return storedCredentials;
+    }
+
+    /**
+     * <p>
+     * Remove all stored credentials for the given {@link Agent}.
+     * </p>
+     *
+     * @param agent
+     */
+    public void removeCredentials(SecurityContext context, Agent agent) {
+        getCredentialsForCurrentPartition(context).remove(agent.getLoginName());
+        flushCredentials(context);
+    }
+
+    /**
+     * <p>
+     * Converts a {@link FileCredentialStorage} to a specific {@link CredentialStorage} instance.
+     * </p>
+     *
+     * @param storageClass
+     * @param fileCredentialStorage
+     * @return
+     */
+    private <T extends CredentialStorage> T convertToCredentialStorage(Class<T> storageClass,
+            FileCredentialStorage fileCredentialStorage) {
+        T storage = null;
+
+        try {
+            storage = storageClass.newInstance();
+        } catch (Exception e) {
+            throw MESSAGES.instantiationError(storageClass.getName(), e);
+        }
+
+        Set<Entry<String, Serializable>> storedFields = fileCredentialStorage.getStoredFields().entrySet();
+
+        for (Entry<String, Serializable> storedField : storedFields) {
+            List<Property<Object>> annotatedTypes = PropertyQueries.createQuery(storageClass)
+                    .addCriteria(new NamedPropertyCriteria(storedField.getKey())).getResultList();
+
+            if (annotatedTypes.isEmpty()) {
+                throw new IdentityManagementException("Could not find property [" + storedField.getKey()
+                        + "] on CredentialStorage [" + storageClass.getName() + "].");
+            } else if (annotatedTypes.size() > 1) {
+                throw new IdentityManagementException("Ambiguos property [" + storedField.getKey() + "] on CredentialStorage ["
+                        + storageClass.getName() + "].");
+            }
+
+            annotatedTypes.get(0).setValue(storage, storedField.getValue());
+        }
+
+        return storage;
+    }
+
+    /**
+     * <p>
+     * Returns the stored credentials for the given {@link Agent}.
+     * </p>
+     *
+     * @param agent
+     * @param storageType
+     * @return
+     */
+    private List<FileCredentialStorage> getCredentials(SecurityContext context, Agent agent,
+            Class<? extends CredentialStorage> storageType) {
+        Map<String, List<FileCredentialStorage>> agentCredentials = getCredentialsForCurrentPartition(context).get(
+                agent.getLoginName());
+
+        if (agentCredentials == null) {
+            agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
+        }
+
+        List<FileCredentialStorage> credentials = agentCredentials.get(storageType.getName());
+
+        if (credentials == null) {
+            credentials = new ArrayList<FileCredentialStorage>();
+        }
+
+        agentCredentials.put(storageType.getName(), credentials);
+        getCredentialsForCurrentPartition(context).put(agent.getLoginName(), agentCredentials);
+
+        return credentials;
+    }
+
+    private Map<String, Map<String, List<FileCredentialStorage>>> getCredentialsForCurrentPartition(SecurityContext context) {
+        Realm realm = (Realm) context.getPartition();
+
+        return getDataSource().getCredentials(realm);
+    }
+
+    private void flushCredentials(SecurityContext context) {
+        Realm realm = (Realm) context.getPartition();
+
+        getDataSource().flushCredentials(realm);
     }
 
 }

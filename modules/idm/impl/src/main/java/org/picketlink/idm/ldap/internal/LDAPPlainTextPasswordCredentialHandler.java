@@ -26,14 +26,12 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 
 /**
@@ -44,25 +42,18 @@ import org.picketlink.idm.spi.SecurityContext;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @SupportsCredentials({ UsernamePasswordCredentials.class, Password.class })
-public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler {
+public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
+    implements CredentialHandler<LDAPIdentityStore, UsernamePasswordCredentials, Password> {
 
     private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
 
     @Override
-    public void setup(IdentityStore<?> identityStore) {
+    public void setup(LDAPIdentityStore store) {
     }
 
     @Override
-    public void validate(SecurityContext context, Credentials credentials, IdentityStore<?> identityStore) {
-        checkIdentityStoreInstance(identityStore);
-
-        if (!UsernamePasswordCredentials.class.isInstance(credentials)) {
-            throw new IllegalArgumentException("Credentials class [" + credentials.getClass().getName()
-                    + "] not supported by this handler.");
-        }
-
-        UsernamePasswordCredentials usernamePassword = (UsernamePasswordCredentials) credentials;
-
+    public void validate(SecurityContext context, UsernamePasswordCredentials usernamePassword,
+            LDAPIdentityStore identityStore) {
         usernamePassword.setStatus(Status.INVALID);
 
         Agent agent = identityStore.getAgent(context, usernamePassword.getUsername());
@@ -86,22 +77,13 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
     }
 
     @Override
-    public void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore,
+    public void update(SecurityContext context, Agent agent, Password password, LDAPIdentityStore store,
             Date effectiveDate, Date expiryDate) {
-        checkIdentityStoreInstance(identityStore);
 
-        if (!Password.class.isInstance(credential)) {
-            throw new IllegalArgumentException("Credential class [" + credential.getClass().getName()
-                    + "] not supported by this handler.");
-        }
+        LDAPUser ldapuser = store.lookupEntryById(context, LDAPUser.class, agent.getId());
 
-        Password password = (Password) credential;
-
-        LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) identityStore;
-        LDAPUser ldapuser = ldapIdentityStore.lookupEntryById(context, LDAPUser.class, agent.getId());
-
-        if (ldapIdentityStore.getConfig().isActiveDirectory()) {
-            updateADPassword(ldapuser, new String(password.getValue()), ldapIdentityStore);
+        if (store.getConfig().isActiveDirectory()) {
+            updateADPassword(ldapuser, new String(password.getValue()), store);
         } else {
             ModificationItem[] mods = new ModificationItem[1];
 
@@ -110,16 +92,10 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
 
                 mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, mod0);
 
-                ldapIdentityStore.getLDAPManager().modifyAttribute(ldapuser.getDN(), mod0);
+                store.getLDAPManager().modifyAttribute(ldapuser.getDN(), mod0);
             } catch (Exception e) {
                 throw new IdentityManagementException("Error updating password.", e);
             }
-        }
-    }
-
-    private void checkIdentityStoreInstance(IdentityStore<?> store) {
-        if (!LDAPIdentityStore.class.isInstance(store)) {
-            throw new IllegalArgumentException("IdentityStore class [" + store.getClass() + "] not supported by this handler.");
         }
     }
 

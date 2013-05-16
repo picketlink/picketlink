@@ -30,7 +30,6 @@ import java.util.List;
 
 import org.picketlink.common.util.Base64;
 import org.picketlink.common.util.StringUtil;
-import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
@@ -38,7 +37,6 @@ import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.CredentialStore;
-import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 
 /**
@@ -56,15 +54,15 @@ import org.picketlink.idm.spi.SecurityContext;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @SupportsCredentials({ DigestCredentials.class, Digest.class })
-public class DigestCredentialHandler implements CredentialHandler {
+public class DigestCredentialHandler<S,V,U>
+    implements CredentialHandler<CredentialStore<?>, DigestCredentials, Digest> {
 
     @Override
-    public void setup(IdentityStore<?> identityStore) {
+    public void setup(CredentialStore<?> identityStore) {
     }
 
     @Override
-    public void validate(SecurityContext context, Credentials credentials, IdentityStore<?> identityStore) {
-        CredentialStore credentialStore = validateCredentialStore(identityStore);
+    public void validate(SecurityContext context, DigestCredentials credentials, CredentialStore<?> store) {
 
         if (!DigestCredentials.class.isInstance(credentials)) {
             throw MESSAGES.credentialUnsupportedType(credentials.getClass(), this);
@@ -75,11 +73,11 @@ public class DigestCredentialHandler implements CredentialHandler {
         digestCredential.setStatus(Status.INVALID);
 
         Digest digest = digestCredential.getDigest();
-        Agent agent = identityStore.getAgent(context, digest.getUsername());
+        Agent agent = store.getAgent(context, digest.getUsername());
 
         if (agent != null) {
             if (agent.isEnabled()) {
-                List<DigestCredentialStorage> storages = credentialStore.retrieveCredentials(context, agent,
+                List<DigestCredentialStorage> storages = store.retrieveCredentials(context, agent,
                         DigestCredentialStorage.class);
                 DigestCredentialStorage currentCredential = null;
 
@@ -108,7 +106,7 @@ public class DigestCredentialHandler implements CredentialHandler {
                             digestCredential.setStatus(Status.VALID);
                         }
                     }
-                } else if (isLastCredentialExpired(context, agent, credentialStore, DigestCredentialStorage.class)) {
+                } else if (isLastCredentialExpired(context, agent, store, DigestCredentialStorage.class)) {
                     digestCredential.setStatus(Status.EXPIRED);
                 }
             } else {
@@ -122,41 +120,25 @@ public class DigestCredentialHandler implements CredentialHandler {
     }
 
     @Override
-    public void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore,
+    public void update(SecurityContext context, Agent agent, Digest digest, CredentialStore<?> store,
             Date effectiveDate, Date expiryDate) {
-        CredentialStore credentialStore = validateCredentialStore(identityStore);
-
-        if (!Digest.class.isInstance(credential)) {
-            throw MESSAGES.credentialUnsupportedType(credential.getClass(), this);
-        }
-
-        Digest digestCredential = (Digest) credential;
-
-        if (isNullOrEmpty(digestCredential.getRealm())) {
+        if (isNullOrEmpty(digest.getRealm())) {
             throw MESSAGES.credentialDigestInvalidRealm();
         }
 
-        if (StringUtil.isNullOrEmpty(digestCredential.getPassword())) {
+        if (StringUtil.isNullOrEmpty(digest.getPassword())) {
             throw MESSAGES.credentialInvalidPassword();
         }
 
-        byte[] ha1 = DigestUtil.calculateA1(agent.getLoginName(), digestCredential.getRealm(), digestCredential.getPassword()
+        byte[] ha1 = DigestUtil.calculateA1(agent.getLoginName(), digest.getRealm(), digest.getPassword()
                 .toCharArray());
 
-        DigestCredentialStorage storage = new DigestCredentialStorage(ha1, digestCredential.getRealm());
+        DigestCredentialStorage storage = new DigestCredentialStorage(ha1, digest.getRealm());
 
         storage.setEffectiveDate(effectiveDate);
         storage.setExpiryDate(expiryDate);
 
-        credentialStore.storeCredential(context, agent, storage);
-    }
-
-    private CredentialStore validateCredentialStore(IdentityStore<?> identityStore) {
-        if (!CredentialStore.class.isInstance(identityStore)) {
-            throw MESSAGES.credentialInvalidCredentialStoreType(identityStore.getClass());
-        } else {
-            return (CredentialStore) identityStore;
-        }
+        store.storeCredential(context, agent, storage);
     }
 
 }

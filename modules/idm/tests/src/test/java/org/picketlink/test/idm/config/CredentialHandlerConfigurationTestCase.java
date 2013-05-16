@@ -39,7 +39,6 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.AbstractBaseCredentials;
-import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
@@ -192,20 +191,20 @@ public class CredentialHandlerConfigurationTestCase {
     }
 
     @SupportsCredentials({ CustomCredentialHandler.TokenCredential.class, CustomCredentialHandler.Token.class })
-    public static class CustomCredentialHandler implements CredentialHandler {
+    public static class CustomCredentialHandler<S,V,U> 
+        implements CredentialHandler<IdentityStore<?>, CustomCredentialHandler.TokenCredential, Object> {
 
         public static boolean wasValidateCalled;
         public static boolean wasUpdateCalled;
         public static boolean wasSetupCalled;
         
         @Override
-        public void validate(SecurityContext context, Credentials credentials, IdentityStore<?> identityStore) {
-            TokenCredential credential = (TokenCredential) credentials;
+        public void validate(SecurityContext context, CustomCredentialHandler.TokenCredential credentials, 
+                IdentityStore<?> identityStore) {
+            credentials.setStatus(Status.INVALID);
             
-            credential.setStatus(Status.INVALID);
-            
-            if (credential.getToken().getValue().equals("123")) {
-                credential.setStatus(Status.VALID);
+            if (credentials.getToken().getValue().equals("123")) {
+                credentials.setStatus(Status.VALID);
             }
             
             wasValidateCalled = true;

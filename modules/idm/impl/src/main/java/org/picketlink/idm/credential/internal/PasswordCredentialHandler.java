@@ -28,7 +28,6 @@ import java.util.Map;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.SecurityConfigurationException;
-import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
@@ -39,7 +38,6 @@ import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.password.internal.EncodedPasswordStorage;
 import org.picketlink.idm.password.internal.SHAPasswordEncoder;
 import org.picketlink.idm.spi.CredentialStore;
-import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 
 /**
@@ -62,7 +60,8 @@ import org.picketlink.idm.spi.SecurityContext;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @SupportsCredentials({ UsernamePasswordCredentials.class, Password.class })
-public class PasswordCredentialHandler implements CredentialHandler {
+public class PasswordCredentialHandler<S, V, U>
+    implements CredentialHandler<CredentialStore<?>, UsernamePasswordCredentials, Password> {
 
     private static final String DEFAULT_SALT_ALGORITHM = "SHA1PRNG";
 
@@ -76,8 +75,8 @@ public class PasswordCredentialHandler implements CredentialHandler {
     private PasswordEncoder passwordEncoder = new SHAPasswordEncoder(512);
 
     @Override
-    public void setup(IdentityStore<?> identityStore) {
-        Map<String, Object> options = identityStore.getConfig().getCredentialHandlerProperties();
+    public void setup(CredentialStore<?> store) {
+        Map<String, Object> options = store.getConfig().getCredentialHandlerProperties();
 
         if (options != null) {
             Object providedEncoder = options.get(PASSWORD_ENCODER);
@@ -94,9 +93,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
     }
 
     @Override
-    public void validate(SecurityContext context, Credentials credentials, IdentityStore<?> identityStore) {
-        CredentialStore store = validateCredentialStore(identityStore);
-
+    public void validate(SecurityContext context, UsernamePasswordCredentials credentials, CredentialStore<?> store) {
         if (!UsernamePasswordCredentials.class.isInstance(credentials)) {
             throw MESSAGES.credentialUnsupportedType(credentials.getClass(), this);
         }
@@ -105,7 +102,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
         usernamePassword.setStatus(Status.INVALID);
 
-        Agent agent = identityStore.getAgent(context, usernamePassword.getUsername());
+        Agent agent = store.getAgent(context, usernamePassword.getUsername());
 
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
@@ -134,15 +131,8 @@ public class PasswordCredentialHandler implements CredentialHandler {
     }
 
     @Override
-    public void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore,
+    public void update(SecurityContext context, Agent agent, Password password, CredentialStore<?> store,
             Date effectiveDate, Date expiryDate) {
-        CredentialStore store = validateCredentialStore(identityStore);
-
-        if (!Password.class.isInstance(credential)) {
-            throw MESSAGES.credentialUnsupportedType(credential.getClass(), this);
-        }
-
-        Password password = (Password) credential;
 
         EncodedPasswordStorage hash = new EncodedPasswordStorage();
 
@@ -159,14 +149,6 @@ public class PasswordCredentialHandler implements CredentialHandler {
         }
 
         store.storeCredential(context, agent, hash);
-    }
-
-    private CredentialStore validateCredentialStore(IdentityStore<?> identityStore) {
-        if (!CredentialStore.class.isInstance(identityStore)) {
-            throw MESSAGES.credentialInvalidCredentialStoreType(identityStore.getClass());
-        } else {
-            return (CredentialStore) identityStore;
-        }
     }
 
     /**

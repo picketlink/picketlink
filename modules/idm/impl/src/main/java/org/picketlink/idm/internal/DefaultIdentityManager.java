@@ -544,7 +544,7 @@ public class DefaultIdentityManager implements IdentityManager {
         if (!CredentialStore.class.isInstance(store)) {
             throw MESSAGES.credentialInvalidCredentialStoreType(store.getClass());
         } else {
-            CredentialStore credStore = (CredentialStore) store;
+            CredentialStore<?> credStore = (CredentialStore<?>) store;
             return credStore.retrieveCurrentCredential(this.context, agent, storageClass);
         }
     }
@@ -557,7 +557,7 @@ public class DefaultIdentityManager implements IdentityManager {
         if (!CredentialStore.class.isInstance(store)) {
             throw MESSAGES.credentialInvalidCredentialStoreType(store.getClass());
         } else {
-            CredentialStore credStore = (CredentialStore) store;
+            CredentialStore<?> credStore = (CredentialStore<?>) store;
             return credStore.retrieveCredentials(this.context, agent, storageClass);
         }
     }

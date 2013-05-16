@@ -63,7 +63,7 @@ public final class CredentialUtils {
         return isCurrent;
     }
 
-    public static boolean isLastCredentialExpired(SecurityContext context, Agent agent, CredentialStore store, Class<? extends CredentialStorage> storageClass) {
+    public static boolean isLastCredentialExpired(SecurityContext context, Agent agent, CredentialStore<?> store, Class<? extends CredentialStorage> storageClass) {
         return isCredentialExpired(getCurrentCredential(context, agent, store, storageClass));
     }
 
@@ -75,7 +75,7 @@ public final class CredentialUtils {
      * @param storageClass
      * @return
      */
-    public static <T extends CredentialStorage> T getCurrentCredential(SecurityContext context, Agent agent, CredentialStore store,
+    public static <T extends CredentialStorage> T getCurrentCredential(SecurityContext context, Agent agent, CredentialStore<?> store,
             Class<T> storageClass) {
         T lastCredential = null;
         Date actualDate = new Date();

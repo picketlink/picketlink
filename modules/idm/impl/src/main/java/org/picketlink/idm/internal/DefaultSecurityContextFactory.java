@@ -20,7 +20,6 @@ package org.picketlink.idm.internal;
 
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityCache;
-import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.Partition;
@@ -51,7 +50,7 @@ public class DefaultSecurityContextFactory implements SecurityContextFactory {
             }
         };
 
-        this.credentialHandlerFactory = new DefaultCredentialHandlerFactory();
+        this.credentialHandlerFactory = new CredentialHandlerFactory();
         this.idGenerator = new DefaultIdGenerator();
     }
 
