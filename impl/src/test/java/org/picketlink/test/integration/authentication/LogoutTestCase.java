@@ -22,14 +22,16 @@
 
 package org.picketlink.test.integration.authentication;
 
-import java.net.Authenticator;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import javax.inject.Inject;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
-import org.picketlink.authentication.internal.IdmAuthenticator;
+import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.SimpleUser;
@@ -37,21 +39,17 @@ import org.picketlink.idm.model.User;
 import org.picketlink.test.integration.ArchiveUtils;
 
 /**
- * <p>
- * Perform some authentication tests using the {@link IdmAuthenticator}, which is the default {@link Authenticator}.
- * </p>
- * 
  * @author Pedro Igor
- * 
+ *
  */
-public class IDMAuthenticationTestCase extends AbstractAuthenticatorTestCase {
+public class LogoutTestCase extends AbstractAuthenticationTestCase {
 
     @Inject
     private IdentityManager identityManager;
 
     @Deployment
     public static WebArchive createDeployment() {
-        return ArchiveUtils.create(IDMAuthenticationTestCase.class);
+        return ArchiveUtils.create(LogoutTestCase.class);
     }
     
     @Before
@@ -72,15 +70,17 @@ public class IDMAuthenticationTestCase extends AbstractAuthenticatorTestCase {
         this.identityManager.updateCredential(john, password);
     }
     
-    @Override
-    protected User doLockUserAccount() {
-        User john = this.identityManager.getUser(USER_NAME);
-
-        john.setEnabled(false);
-
-        this.identityManager.update(john);
+    @Test
+    public void testLogout() throws Exception {
+        populateCredentials();
         
-        return john;
+        super.identity.login();
+        
+        assertTrue(super.identity.isLoggedIn());
+        
+        super.identity.logout();
+        
+        assertFalse(super.identity.isLoggedIn());
+        assertNull(super.identity.getAgent());
     }
-    
 }

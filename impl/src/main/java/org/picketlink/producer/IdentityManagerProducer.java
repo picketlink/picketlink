@@ -84,10 +84,10 @@ public class IdentityManagerProducer {
 
         if (builder.stores().isEmpty()) {
             loadAutoConfig(builder);
-        } else {
-            if (builder.stores().isConfigured(JPAIdentityStoreConfiguration.class)) {
-                builder.stores().jpa().addContextInitializer(this.jpaContextInitializer);
-            }
+        }
+        
+        if (builder.stores().isConfigured(JPAIdentityStoreConfiguration.class)) {
+            builder.stores().jpa().addContextInitializer(this.jpaContextInitializer);
         }
 
         builder.contextFactory(this.icf);
@@ -97,9 +97,16 @@ public class IdentityManagerProducer {
 
     private void loadAutoConfig(IdentityConfigurationBuilder builder) {
         if (this.autoConfig.isConfigured()) {
-            builder.stores().jpa().readFrom(this.autoConfig.getJPAConfiguration().create());
+            builder
+                .stores()
+                    .jpa()
+                        .readFrom(this.autoConfig.getJPAConfiguration().create())
+                        .supportAllFeatures();
         } else {
-            builder.stores().file().supportAllFeatures();
+            builder
+                .stores()
+                    .file()
+                        .supportAllFeatures();
         }
     }
 
