@@ -1297,6 +1297,33 @@ builder
         </para>
       
         <programlisting language="JAVA"><![CDATA[@Inject IdentityManager identityManager;]]></programlisting>
+        
+        <section>
+          <title>Configuring the Application Realm</title>
+          <para>
+            By default, an <code>IdentityManager</code> for the <emphasis>default</emphasis> realm will be injected.  If the application
+            should use a realm other than the default, then this must be configured via a producer method with the <code>@PicketLink</code>
+            qualifier.  The following code shows an example of a configuration bean that sets the application realm to <emphasis>acme</emphasis>:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[@ApplicationScoped
+public class RealmConfiguration {
+    private Realm applicationRealm;
+  
+    @Inject IdentityManagerFactory factory;
+  
+    @Init
+    public void init() {
+        applicationRealm = factory.getRealm("acme");
+    }
+
+    @Produces
+    @PicketLink
+    public Realm getApplicationRealm() {
+      return applicationRealm;
+    }
+}]]></programlisting>
+        </section>
   
       </section>
       
