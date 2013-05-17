@@ -52,7 +52,7 @@ import org.picketlink.test.integration.AbstractArquillianTestCase;
 import org.picketlink.test.integration.ArchiveUtils;
 
 /**
- * <p>Perform some tests agains an IDM configuration with multiple realms configured.</p>
+ * <p>Perform some tests against an IDM configuration with multiple realms configured.</p>
  * 
  * @author Pedro Igor
  *
@@ -146,14 +146,14 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
         
         this.identity.login();
         
-        // should fail. The provided password is configure for john when using the default realm. 
+        // should fail. The provided password is configured for john when using the default realm. 
         assertFalse(this.identity.isLoggedIn());
         
         this.credentials.setPassword("john" + TESTING_REALM_NAME);
         
         this.identity.login();
         
-        // should fail. The provided password is configure for john when using the default realm. 
+        // should fail. The provided password is configured for john when using the default realm. 
         assertTrue(this.identity.isLoggedIn());
     }
 
