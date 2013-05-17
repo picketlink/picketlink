@@ -108,9 +108,7 @@ public class JPAStoreConfigurationBuilder extends
 
     @Override
     public JPAStoreConfigurationBuilder readFrom(JPAIdentityStoreConfiguration configuration) {
-        if (configuration == null) {
-            throw MESSAGES.nullArgument("Configuration to read.");
-        }
+        super.readFrom(configuration);
 
         this.attributeClass = configuration.getAttributeClass();
         this.credentialAttributeClass = configuration.getCredentialAttributeClass();

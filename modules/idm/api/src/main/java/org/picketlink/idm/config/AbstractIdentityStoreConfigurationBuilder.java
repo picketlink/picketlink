@@ -22,6 +22,8 @@
 
 package org.picketlink.idm.config;
 
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -281,6 +283,20 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
             throw new SecurityConfigurationException(
                     "You must provide which features should be supported by the identity store.");
         }
+    }
+
+    @Override
+    public Builder<?> readFrom(T configuration) {
+        if (configuration == null) {
+            throw MESSAGES.nullArgument("Configuration to read.");
+        }
+
+        this.realms.addAll(configuration.getRealms());
+        this.tiers.addAll(configuration.getTiers());
+        this.supportedFeatures.putAll(configuration.getSupportedFeatures());
+        this.supportedRelationships.putAll(configuration.getSupportedRelationships());
+
+        return this;
     }
 
     protected Map<FeatureGroup, Set<FeatureOperation>> getSupportedFeatures() {

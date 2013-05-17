@@ -124,9 +124,7 @@ public class LDAPStoreConfigurationBuilder extends
 
     @Override
     public LDAPStoreConfigurationBuilder readFrom(LDAPIdentityStoreConfiguration configuration) {
-        if (configuration == null) {
-            throw MESSAGES.nullArgument("Configuration to read.");
-        }
+        super.readFrom(configuration);
 
         this.agentDNSuffix = configuration.getAgentDNSuffix();
         this.baseDN = configuration.getBaseDN();

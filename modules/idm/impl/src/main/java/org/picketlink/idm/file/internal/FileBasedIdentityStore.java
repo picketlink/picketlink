@@ -94,7 +94,7 @@ import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * <p>
- * File based {@link IdentityStore} implementation.
+ * File based {@link org.picketlink.idm.spi.IdentityStore} implementation.
  * </p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -809,6 +809,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         toIdentityType.setCreatedDate(fromIdentityType.getCreatedDate());
         toIdentityType.setExpirationDate(fromIdentityType.getExpirationDate());
         toIdentityType.setPartition(context.getPartition());
+        fromIdentityType.setPartition(context.getPartition());
 
         updateAttributedType(fromIdentityType, toIdentityType);
     }
