@@ -52,9 +52,9 @@ public class PermissionManagerTestCase {
                 .addAsWebInfResource(new FileAsset(new File("src/test/resources/META-INF/persistence.xml")), "classes/META-INF/persistence.xml")
                 .addAsLibraries(
                         DependencyResolvers.use(MavenDependencyResolver.class)
-                        .artifact("org.picketlink:picketlink-core-api:3.0.0-SNAPSHOT")
-                        .artifact("org.picketlink:picketlink-core-impl:3.0.0-SNAPSHOT")
-                        .artifact("org.picketlink:picketlink-idm-impl:3.0.0-SNAPSHOT")
+                        .artifact("org.picketlink:picketlink-core-api:2.5.0-SNAPSHOT")
+                        .artifact("org.picketlink:picketlink-core-impl:2.5.0-SNAPSHOT")
+                        .artifact("org.picketlink:picketlink-idm-impl:2.5.0-SNAPSHOT")
                         .resolveAsFiles()
                         );
 
