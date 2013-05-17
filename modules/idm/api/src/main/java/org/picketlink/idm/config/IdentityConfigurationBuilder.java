@@ -49,6 +49,7 @@ public class IdentityConfigurationBuilder implements IdentityConfigurationChildB
      * @param from
      */
     public IdentityConfigurationBuilder(IdentityConfiguration from) {
+        this();
         this.identityStoresConfigurationBuilder.readFrom(new IdentityStoresConfiguration(from.getConfiguredStores(), from
                 .getStoreFactory()));
         this.securityContextFactory = from.getSecurityContextFactory();

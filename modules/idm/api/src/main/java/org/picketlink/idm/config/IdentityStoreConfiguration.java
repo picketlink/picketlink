@@ -87,6 +87,8 @@ public interface IdentityStoreConfiguration {
 
     Map<FeatureGroup, Set<FeatureOperation>> getSupportedFeatures();
 
+    Map<Class<? extends Relationship>, Set<FeatureOperation>> getSupportedRelationships();
+
     boolean supportsRelationship(Class<? extends Relationship> relationshipClass, FeatureOperation operation);
 
     boolean supportsFeature(FeatureGroup feature, FeatureOperation operation);

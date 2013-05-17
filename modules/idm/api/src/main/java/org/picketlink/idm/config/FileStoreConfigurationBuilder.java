@@ -81,8 +81,9 @@ public class FileStoreConfigurationBuilder extends
 
     @Override
     public FileStoreConfigurationBuilder readFrom(FileIdentityStoreConfiguration configuration) {
+        super.readFrom(configuration);
         this.workingDirectory = configuration.getWorkingDir();
-        this.preserveState = configuration.isAlwaysCreateFiles();
+        this.preserveState = !configuration.isAlwaysCreateFiles();
         this.asyncWrite = configuration.isAsyncWrite();
         this.asyncWriteThreadPool = configuration.getAsyncThreadPool();
 
