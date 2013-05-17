@@ -90,12 +90,11 @@ import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
-import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * <p>
- * File based {@link IdentityStore} implementation.
+ * File based {@link org.picketlink.idm.spi.IdentityStore} implementation.
  * </p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
