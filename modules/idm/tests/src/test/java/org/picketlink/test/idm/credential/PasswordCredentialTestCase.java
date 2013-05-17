@@ -35,6 +35,8 @@ import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
+import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsFileRelationshipTestSuite;
+import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsRelationshipsTestSuite;
 
 /**
  * <p>
@@ -83,7 +85,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         UsernamePasswordCredentials badPassword = new UsernamePasswordCredentials();
 
         plainTextPassword = new Password("bad_password".toCharArray());
-        
+
         badPassword.setUsername(user.getLoginName());
         badPassword.setPassword(plainTextPassword);
 
@@ -110,18 +112,19 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
 
         assertEquals(Status.INVALID, badUserName.getStatus());
     }
-    
+
     @Test
-    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
+            LDAPIdentityStoreWithoutAttributesTestSuite.class, LDAPUsersJPARolesGroupsRelationshipsTestSuite.class, LDAPUsersJPARolesGroupsFileRelationshipTestSuite.class })
     public void testExpiration() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
         Password plainTextPassword = new Password("updated_password".toCharArray());
 
         Calendar expirationDate = Calendar.getInstance();
-        
+
         expirationDate.add(Calendar.MINUTE, -1);
-        
+
         identityManager.updateCredential(user, plainTextPassword, new Date(), expirationDate.getTime());
         UsernamePasswordCredentials credential = new UsernamePasswordCredentials();
 
@@ -131,18 +134,18 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         identityManager.validateCredentials(credential);
 
         assertEquals(Status.EXPIRED, credential.getStatus());
-        
+
         Password newPassword = new Password("new_password".toCharArray());
-        
+
         identityManager.updateCredential(user, newPassword);
-        
+
         credential = new UsernamePasswordCredentials(user.getLoginName(), newPassword);
-        
+
         identityManager.validateCredentials(credential);
 
         assertEquals(Status.VALID, credential.getStatus());
     }
-    
+
     @Test
     public void testUpdatePassword() throws Exception {
         IdentityManager identityManager = getIdentityManager();
@@ -156,22 +159,22 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         identityManager.validateCredentials(firstCredential);
 
         assertEquals(Status.VALID, firstCredential.getStatus());
-        
+
         Password secondPassword = new Password("password2".toCharArray());
-        
+
         identityManager.updateCredential(user, secondPassword);
-        
+
         UsernamePasswordCredentials secondCredential = new UsernamePasswordCredentials(user.getLoginName(), secondPassword);
 
         identityManager.validateCredentials(secondCredential);
 
         assertEquals(Status.VALID, secondCredential.getStatus());
-        
+
         identityManager.validateCredentials(firstCredential);
 
         Assert.assertEquals(Status.INVALID, firstCredential.getStatus());
     }
-    
+
     @Test
     public void testUserDeletion() throws Exception {
         IdentityManager identityManager = getIdentityManager();
@@ -185,25 +188,26 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         identityManager.validateCredentials(johnCredential);
 
         assertEquals(Status.VALID, johnCredential.getStatus());
-        
+
         User francesco = createUser("francesco");
         Password francescoPassword = new Password("123".toCharArray());
 
         identityManager.updateCredential(francesco, francescoPassword);
 
-        UsernamePasswordCredentials francescoCredential = new UsernamePasswordCredentials(francesco.getLoginName(), francescoPassword);
+        UsernamePasswordCredentials francescoCredential = new UsernamePasswordCredentials(francesco.getLoginName(),
+                francescoPassword);
 
         identityManager.validateCredentials(francescoCredential);
 
         assertEquals(Status.VALID, francescoCredential.getStatus());
-        
+
         identityManager.remove(francesco);
-        
+
         identityManager.validateCredentials(johnCredential);
     }
-    
+
     @Test
-    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
+    @ExcludeTestSuite(LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testUserDisabled() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
@@ -219,13 +223,13 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         identityManager.validateCredentials(credential);
 
         assertEquals(Status.VALID, credential.getStatus());
-        
+
         user.setEnabled(false);
-        
+
         identityManager.update(user);
-        
+
         identityManager.validateCredentials(credential);
-        
+
         assertEquals(Status.AGENT_DISABLED, credential.getStatus());
     }
 }

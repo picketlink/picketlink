@@ -40,6 +40,8 @@ import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
+import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsFileRelationshipTestSuite;
+import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsRelationshipsTestSuite;
 
 /**
  * <p>
@@ -57,16 +59,16 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         return (T) createAgent(name, partition);
     }
-    
+
     @Override
     protected T getIdentityType() {
         return (T) getIdentityManager().getAgent("someSimpleAgent");
     }
-    
+
     @After
     public void onFinish() {
         T agentType = createIdentityType(null, null);
-        
+
         IdentityQuery<T> query = getIdentityManager().createIdentityQuery((Class<T>) agentType.getClass());
 
         List<T> result = query.getResultList();
@@ -171,7 +173,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
      * <p>
      * Find an {@link User} by his associated {@link Group} and {@link Role}.
      * </p>
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -206,7 +208,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
      * <p>
      * Find an {@link User} by his associated {@link Group}.
      * </p>
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -240,7 +242,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
      * <p>
      * Find an {@link User} by his associated {@link Role}.
      * </p>
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -274,7 +276,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
      * <p>
      * Find an {@link User} by his associated {@link Group}.
      * </p>
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -321,7 +323,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
      * <p>
      * Find an {@link User} by his associated {@link Role}.
      * </p>
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -368,7 +370,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
      * <p>
      * Find an {@link User} by his associated {@link Group}.
      * </p>
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -412,7 +414,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
      * <p>
      * Find an {@link User} by his associated {@link Role}.
      * </p>
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -452,7 +454,9 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
     }
 
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class,
+            LDAPJPAMixedStoreTestSuite.class, LDAPUsersJPARolesGroupsRelationshipsTestSuite.class,
+            LDAPUsersJPARolesGroupsRelationshipsTestSuite.class, LDAPUsersJPARolesGroupsFileRelationshipTestSuite.class })
     public void testFindByLoginNameAndCreationDateWithSorting() throws Exception {
         createAgent("john");
         // Sleep is needed to avoid same createdDate

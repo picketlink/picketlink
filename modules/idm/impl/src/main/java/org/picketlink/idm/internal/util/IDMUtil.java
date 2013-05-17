@@ -40,35 +40,39 @@ public class IDMUtil {
         return Group.class.isAssignableFrom(identityType);
     }
 
-    public static  boolean isRoleType(Class<? extends IdentityType> identityType) {
+    public static boolean isRoleType(Class<? extends IdentityType> identityType) {
         return Role.class.isAssignableFrom(identityType);
     }
 
-    public static  boolean isUserType(Class<? extends IdentityType> identityType) {
+    public static boolean isUserType(Class<? extends IdentityType> identityType) {
         return User.class.isAssignableFrom(identityType);
     }
 
-    public static  boolean isAgentType(Class<? extends IdentityType> identityType) {
+    public static boolean isAgentType(Class<? extends IdentityType> identityType) {
         return Agent.class.isAssignableFrom(identityType);
     }
 
-    public static FeatureGroup getFeatureGroup(IdentityType identityType) {
-        if (User.class.isInstance(identityType)) {
+    public static FeatureGroup getFeatureGroup(Class<? extends IdentityType> identityType) {
+        if (User.class.isAssignableFrom(identityType)) {
             return FeatureGroup.user;
-        } else if (Agent.class.isInstance(identityType)) {
+        } else if (Agent.class.isAssignableFrom(identityType)) {
             return FeatureGroup.agent;
-        } else if (Group.class.isInstance(identityType)) {
+        } else if (Group.class.isAssignableFrom(identityType)) {
             return FeatureGroup.group;
-        } else if (Role.class.isInstance(identityType)) {
+        } else if (Role.class.isAssignableFrom(identityType)) {
             return FeatureGroup.role;
+        } else if (IdentityType.class.equals(identityType)) {
+            // TODO: we need this in order to allow queries using the IdentityType. Maybe we should have a more specific feature
+            // group for this cases.
+            return FeatureGroup.user;
         } else {
-            throw MESSAGES.identityTypeUnsupportedType(identityType.getClass());
+            throw MESSAGES.identityTypeUnsupportedType(identityType);
         }
     }
 
-
     /**
-     * Return default criterias for sorting query results. Those are used by default if there are not sorting criterias specified by user
+     * Return default criterias for sorting query results. Those are used by default if there are not sorting criterias
+     * specified by user
      *
      * @param clazz identity type
      * @return default sorting criteria for particular identity type

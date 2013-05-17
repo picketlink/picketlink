@@ -85,12 +85,16 @@ public class DefaultStoreFactory implements StoreFactory {
             // let's check for duplicated features
             for (Entry<FeatureGroup, Set<FeatureOperation>> entry : storeFeatures.entrySet()) {
                 FeatureGroup feature = entry.getKey();
-                IdentityStoreConfiguration storeConfigForFeature = supportedFeatures.get(feature);
 
-                if (storeConfigForFeature == null) {
-                    supportedFeatures.put(feature, config);
-                } else {
-                    throw MESSAGES.configurationAmbiguousFeatureForStore(feature, storeConfigForFeature, config);
+                // attributes can be stored for each store.
+                if (!FeatureGroup.attribute.equals(feature)) {
+                    IdentityStoreConfiguration storeConfigForFeature = supportedFeatures.get(feature);
+
+                    if (storeConfigForFeature == null) {
+                        supportedFeatures.put(feature, config);
+                    } else {
+                        throw MESSAGES.configurationAmbiguousFeatureForStore(feature, storeConfigForFeature, config);
+                    }
                 }
             }
 
