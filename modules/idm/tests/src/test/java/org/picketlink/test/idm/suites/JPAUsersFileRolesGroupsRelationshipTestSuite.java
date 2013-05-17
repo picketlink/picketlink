@@ -48,7 +48,7 @@ import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
 /**
  * <p>
  * Test suite for the {@link IdentityManager} using a {@link JPAIdentityStore} in conjunction with a {@link LDAPIdentityStore}.
- * This suite tests a common scenario where the LDAP is used to store only agents, users and credentials and the database for
+ * This suite tests a common scenario where the JPAis used to store only agents, users and credentials and the File store for
  * roles, groups and relationships.
  * </p>
  * 
