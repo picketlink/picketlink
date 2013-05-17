@@ -52,7 +52,8 @@ import org.picketlink.test.integration.ArchiveUtils;
 
 /**
  * <p>
- * Perform some tests against the events raised during authentication.
+ * Perform some tests against the events raised during authentication. We also check the order which they are fired, what
+ * allow us to assert better about how and when events are handled.
  * </p>
  * 
  * @author Pedro Igor
@@ -61,22 +62,18 @@ import org.picketlink.test.integration.ArchiveUtils;
 public class AuthenticationEventHandlingTestCase extends AbstractAuthenticationTestCase {
 
     @Inject
-    private EventObserver observer;
+    private EventExecutionObserver observer;
 
     @Deployment
     public static WebArchive createDeployment() {
-        return ArchiveUtils.create(AuthenticationEventHandlingTestCase.class, EventObserver.class, Listener.class);
+        return ArchiveUtils.create(AuthenticationEventHandlingTestCase.class, EventExecutionObserver.class, Listener.class);
     }
 
     @Test
     public void testSuccessfulAuthenticationEvents() throws Exception {
-        Listener preAuthenticationListener = new Listener(PreAuthenticateEvent.class);
-        Listener loggedInAuthenticationListener = new Listener(LoggedInEvent.class);
-        Listener postAuthenticationListener = new Listener(PostAuthenticateEvent.class);
-
-        this.observer.addListener(preAuthenticationListener);
-        this.observer.addListener(loggedInAuthenticationListener);
-        this.observer.addListener(postAuthenticationListener);
+        Listener preAuthenticationListener = this.observer.addListener(PreAuthenticateEvent.class);
+        Listener loggedInAuthenticationListener = this.observer.addListener(LoggedInEvent.class);
+        Listener postAuthenticationListener = this.observer.addListener(PostAuthenticateEvent.class);
 
         populateCredentials();
         super.identity.login();
@@ -88,13 +85,9 @@ public class AuthenticationEventHandlingTestCase extends AbstractAuthenticationT
 
     @Test
     public void testUnsuccessfulAuthenticationEvents() throws Exception {
-        Listener preAuthenticationListener = new Listener(PreAuthenticateEvent.class);
-        Listener loginFailedAuthenticationListener = new Listener(LoginFailedEvent.class);
-        Listener postAuthenticationListener = new Listener(PostAuthenticateEvent.class);
-
-        this.observer.addListener(preAuthenticationListener);
-        this.observer.addListener(loginFailedAuthenticationListener);
-        this.observer.addListener(postAuthenticationListener);
+        Listener preAuthenticationListener = this.observer.addListener(PreAuthenticateEvent.class);
+        Listener loginFailedAuthenticationListener = this.observer.addListener(LoginFailedEvent.class);
+        Listener postAuthenticationListener = this.observer.addListener(PostAuthenticateEvent.class);
 
         this.credentials.setUserId(USER_NAME);
         this.credentials.setPassword("badpassword");
@@ -107,16 +100,12 @@ public class AuthenticationEventHandlingTestCase extends AbstractAuthenticationT
 
     @Test
     public void testAlreadyLoggedInEvent() throws Exception {
-        Listener preAuthenticationListener = new Listener(PreAuthenticateEvent.class);
-        Listener alreadyLoggedInAuthenticationListener = new Listener(AlreadyLoggedInEvent.class);
-        Listener postAuthenticationListener = new Listener(PostAuthenticateEvent.class);
-
         populateCredentials();
         super.identity.login();
 
-        this.observer.addListener(preAuthenticationListener);
-        this.observer.addListener(alreadyLoggedInAuthenticationListener);
-        this.observer.addListener(postAuthenticationListener);
+        Listener preAuthenticationListener = this.observer.addListener(PreAuthenticateEvent.class);
+        Listener alreadyLoggedInAuthenticationListener = this.observer.addListener(AlreadyLoggedInEvent.class);
+        Listener postAuthenticationListener = this.observer.addListener(PostAuthenticateEvent.class);
 
         try {
             super.identity.login();
@@ -131,13 +120,9 @@ public class AuthenticationEventHandlingTestCase extends AbstractAuthenticationT
 
     @Test
     public void testLockedAccountEvent() throws Exception {
-        Listener preAuthenticationListener = new Listener(PreAuthenticateEvent.class);
-        Listener lockedAccountListener = new Listener(LockedAccountEvent.class);
-        Listener postAuthenticationListener = new Listener(PostAuthenticateEvent.class);
-
-        this.observer.addListener(preAuthenticationListener);
-        this.observer.addListener(lockedAccountListener);
-        this.observer.addListener(postAuthenticationListener);
+        Listener preAuthenticationListener = this.observer.addListener(PreAuthenticateEvent.class);
+        Listener lockedAccountListener = this.observer.addListener(LockedAccountEvent.class);
+        Listener postAuthenticationListener = this.observer.addListener(PostAuthenticateEvent.class);
 
         User user = super.identityManager.getUser(USER_NAME);
 
@@ -159,11 +144,8 @@ public class AuthenticationEventHandlingTestCase extends AbstractAuthenticationT
 
     @Test
     public void testLogoutEvents() throws Exception {
-        Listener preLoggedOutListener = new Listener(PreLoggedOutEvent.class);
-        Listener postLoggedOutListener = new Listener(PostLoggedOutEvent.class);
-
-        this.observer.addListener(preLoggedOutListener);
-        this.observer.addListener(postLoggedOutListener);
+        Listener preLoggedOutListener = this.observer.addListener(PreLoggedOutEvent.class);
+        Listener postLoggedOutListener = this.observer.addListener(PostLoggedOutEvent.class);
 
         populateCredentials();
         super.identity.login();
@@ -173,7 +155,7 @@ public class AuthenticationEventHandlingTestCase extends AbstractAuthenticationT
         assertEquals(1, postLoggedOutListener.getExecutionIndex());
     }
 
-    private class Listener {
+    public static class Listener {
         private Class<?> eventType;
         private int executionIndex = -1;
 
@@ -188,7 +170,7 @@ public class AuthenticationEventHandlingTestCase extends AbstractAuthenticationT
         Class<?> getEventType() {
             return this.eventType;
         }
-        
+
         void setExecutionIndex(int executionIndex) {
             this.executionIndex = executionIndex;
         }
@@ -199,7 +181,7 @@ public class AuthenticationEventHandlingTestCase extends AbstractAuthenticationT
     }
 
     @RequestScoped
-    public static class EventObserver {
+    public static class EventExecutionObserver {
 
         private List<Listener> listeners = new ArrayList<AuthenticationEventHandlingTestCase.Listener>();
 
@@ -213,10 +195,12 @@ public class AuthenticationEventHandlingTestCase extends AbstractAuthenticationT
             }
         }
 
-        void addListener(Listener... listeners) {
-            for (Listener listener : listeners) {
-                this.listeners.add(listener);
-            }
+        Listener addListener(Class<?> eventType) {
+            Listener listener = new Listener(eventType);
+
+            this.listeners.add(listener);
+
+            return listener;
         }
     }
 }

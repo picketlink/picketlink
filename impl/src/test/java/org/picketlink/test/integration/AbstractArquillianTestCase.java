@@ -26,6 +26,8 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.junit.runner.RunWith;
 
 /**
+ * <p>Base class for integration tests using Arquillian.</p>
+ * 
  * @author Pedro Igor
  *
  */
