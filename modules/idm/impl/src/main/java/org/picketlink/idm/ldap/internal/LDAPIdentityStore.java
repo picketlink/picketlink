@@ -219,7 +219,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             List<Relationship> relationships = query.getResultList();
 
             for (Relationship relationship : relationships) {
-                remove(context, relationship);
+                context.getIdentityManager().remove(relationship);
             }
 
             getLDAPManager().removeEntryById(baseDN, identityType.getId());

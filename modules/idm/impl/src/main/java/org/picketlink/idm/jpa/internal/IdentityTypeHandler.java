@@ -49,7 +49,7 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.query.QueryParameter;
-import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
+import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.SecurityContext;
 
 /**
@@ -97,10 +97,9 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         identityType.setPartition(partition);
 
-        identityType.setExpirationDate(jpaConfig.getModelPropertyValue(Date.class, identity,
-                PropertyType.IDENTITY_EXPIRY_DATE));
-        identityType.setCreatedDate(jpaConfig
-                .getModelPropertyValue(Date.class, identity, PropertyType.IDENTITY_CREATION_DATE));
+        identityType
+                .setExpirationDate(jpaConfig.getModelPropertyValue(Date.class, identity, PropertyType.IDENTITY_EXPIRY_DATE));
+        identityType.setCreatedDate(jpaConfig.getModelPropertyValue(Date.class, identity, PropertyType.IDENTITY_CREATION_DATE));
 
         return identityType;
     }
@@ -152,7 +151,8 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_DISCRIMINATOR, identityDiscriminator, true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ENABLED, fromIdentityType.isEnabled(), true);
-        jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_CREATION_DATE, fromIdentityType.getCreatedDate(), true);
+        jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_CREATION_DATE, fromIdentityType.getCreatedDate(),
+                true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_EXPIRY_DATE, fromIdentityType.getExpirationDate());
 
         doPopulateIdentityInstance(context, toIdentity, fromIdentityType, store);
@@ -258,7 +258,8 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * @param toIdentity
      * @param fromIdentityType
      */
-    protected abstract void doPopulateIdentityInstance(SecurityContext context, Object toIdentity, T fromIdentityType, JPAIdentityStore store);
+    protected abstract void doPopulateIdentityInstance(SecurityContext context, Object toIdentity, T fromIdentityType,
+            JPAIdentityStore store);
 
     protected abstract AbstractBaseEvent raiseCreatedEvent(T fromIdentityType);
 
@@ -309,7 +310,8 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void findByHasRole(SecurityContext context, JPACriteriaQueryBuilder criteria, List<Predicate> predicates, JPAIdentityStore store) {
+    private void findByHasRole(SecurityContext context, JPACriteriaQueryBuilder criteria, List<Predicate> predicates,
+            JPAIdentityStore store) {
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.HAS_ROLE);
 
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
@@ -320,7 +322,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
                     throw MESSAGES.queryUnsupportedParameterValue("IdentityType.HAS_ROLE", role);
                 }
 
-                DefaultRelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(context, Grant.class, store);
+                RelationshipQuery<Grant> query = context.getIdentityManager().createRelationshipQuery(Grant.class);
 
                 query.setParameter(Grant.ROLE, role);
 
@@ -330,30 +332,10 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
                     List<String> relIds = new ArrayList<String>();
 
                     for (Grant memberships : resultList) {
-                        relIds.add(memberships.getId());
+                        relIds.add(memberships.getAssignee().getId());
                     }
 
-                    Subquery<?> subquery = criteria.getCriteria().subquery(jpaConfig.getRelationshipIdentityClass());
-                    Root fromProject = subquery.from(jpaConfig.getRelationshipIdentityClass());
-                    subquery.select(fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY)
-                            .getName()));
-                    Join<Object, Object> join = fromProject.join(jpaConfig.getModelProperty(
-                            PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
-
-                    List<Predicate> subqueryPredicates = new ArrayList<Predicate>();
-
-                    subqueryPredicates.add(criteria.getBuilder().equal(
-                            fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).getName()),
-                            Grant.ASSIGNEE.getName()));
-                    subqueryPredicates.add(criteria.getBuilder().equal(
-                            fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
-                            criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.IDENTITY_ID).getName())));
-                    subqueryPredicates.add(criteria.getBuilder()
-                            .in(join.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_ID).getName())).value(relIds));
-
-                    subquery.where(subqueryPredicates.toArray(new Predicate[subqueryPredicates.size()]));
-
-                    predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(subquery));
+                    predicates.add(criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.IDENTITY_ID).getName()).in(relIds));
                 } else {
                     predicates.add(criteria.getBuilder().equal(
                             criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.IDENTITY_ID).getName()), "-1"));
@@ -363,7 +345,8 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void findByMemberOf(SecurityContext context, JPACriteriaQueryBuilder criteria, List<Predicate> predicates, JPAIdentityStore store) {
+    private void findByMemberOf(SecurityContext context, JPACriteriaQueryBuilder criteria, List<Predicate> predicates,
+            JPAIdentityStore store) {
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.MEMBER_OF);
 
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
@@ -374,8 +357,8 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
                     throw MESSAGES.queryUnsupportedParameterValue("IdentityType.MEMBER_OF", group);
                 }
 
-                DefaultRelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(
-                        context, GroupMembership.class, store);
+                RelationshipQuery<GroupMembership> query = context.getIdentityManager().createRelationshipQuery(
+                        GroupMembership.class);
 
                 query.setParameter(GroupMembership.GROUP, group);
 
@@ -385,30 +368,10 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
                     List<String> relIds = new ArrayList<String>();
 
                     for (GroupMembership memberships : resultList) {
-                        relIds.add(memberships.getId());
+                        relIds.add(memberships.getMember().getId());
                     }
 
-                    Subquery<?> subquery = criteria.getCriteria().subquery(jpaConfig.getRelationshipIdentityClass());
-                    Root fromProject = subquery.from(jpaConfig.getRelationshipIdentityClass());
-                    subquery.select(fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY)
-                            .getName()));
-                    Join<Object, Object> join = fromProject.join(jpaConfig.getModelProperty(
-                            PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
-
-                    List<Predicate> subqueryPredicates = new ArrayList<Predicate>();
-
-                    subqueryPredicates.add(criteria.getBuilder().equal(
-                            fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).getName()),
-                            GroupMembership.MEMBER.getName()));
-                    subqueryPredicates.add(criteria.getBuilder().equal(
-                            fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
-                            criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.IDENTITY_ID).getName())));
-                    subqueryPredicates.add(criteria.getBuilder()
-                            .in(join.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_ID).getName())).value(relIds));
-
-                    subquery.where(subqueryPredicates.toArray(new Predicate[subqueryPredicates.size()]));
-
-                    predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(subquery));
+                    predicates.add(criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.IDENTITY_ID).getName()).in(relIds));
                 } else {
                     predicates.add(criteria.getBuilder().equal(
                             criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.IDENTITY_ID).getName()), "-1"));
@@ -418,7 +381,8 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void findByGroupRole(SecurityContext context, JPACriteriaQueryBuilder criteria, List<Predicate> predicates, JPAIdentityStore store) {
+    private void findByGroupRole(SecurityContext context, JPACriteriaQueryBuilder criteria, List<Predicate> predicates,
+            JPAIdentityStore store) {
         Object[] parameterValues;
         parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.HAS_GROUP_ROLE);
 
@@ -430,7 +394,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
                 GroupRole groupRole = (GroupRole) object;
 
-                DefaultRelationshipQuery<GroupRole> query = new DefaultRelationshipQuery<GroupRole>(context, GroupRole.class, store);
+                RelationshipQuery<GroupRole> query = context.getIdentityManager().createRelationshipQuery(GroupRole.class);
 
                 query.setParameter(GroupRole.ASSIGNEE, groupRole.getAssignee());
                 query.setParameter(GroupRole.GROUP, groupRole.getGroup());
@@ -444,30 +408,10 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
                     List<String> relIds = new ArrayList<String>();
 
                     for (GroupRole memberships : resultList) {
-                        relIds.add(memberships.getId());
+                        relIds.add(memberships.getAssignee().getId());
                     }
 
-                    Subquery<?> subquery = criteria.getCriteria().subquery(jpaConfig.getRelationshipIdentityClass());
-                    Root fromProject = subquery.from(jpaConfig.getRelationshipIdentityClass());
-                    subquery.select(fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY)
-                            .getName()));
-                    Join<Object, Object> join = fromProject.join(jpaConfig.getModelProperty(
-                            PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
-
-                    List<Predicate> subqueryPredicates = new ArrayList<Predicate>();
-
-                    subqueryPredicates.add(criteria.getBuilder().equal(
-                            fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).getName()),
-                            GroupRole.ASSIGNEE.getName()));
-                    subqueryPredicates.add(criteria.getBuilder().equal(
-                            fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
-                            criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.IDENTITY_ID).getName())));
-                    subqueryPredicates.add(criteria.getBuilder()
-                            .in(join.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_ID).getName())).value(relIds));
-
-                    subquery.where(subqueryPredicates.toArray(new Predicate[subqueryPredicates.size()]));
-
-                    predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(subquery));
+                    predicates.add(criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.IDENTITY_ID).getName()).in(relIds));
                 } else {
                     predicates.add(criteria.getBuilder().equal(
                             criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.IDENTITY_ID).getName()), "-1"));
@@ -481,7 +425,8 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         if (parameterValues != null) {
             predicates.add(criteria.getBuilder().lessThanOrEqualTo(
-                    criteria.getRoot().<Date> get(store.getConfig().getModelProperty(PropertyType.IDENTITY_EXPIRY_DATE).getName()),
+                    criteria.getRoot().<Date> get(
+                            store.getConfig().getModelProperty(PropertyType.IDENTITY_EXPIRY_DATE).getName()),
                     (Date) parameterValues[0]));
         }
     }
@@ -491,7 +436,8 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         if (parameterValues != null) {
             predicates.add(criteria.getBuilder().lessThanOrEqualTo(
-                    criteria.getRoot().<Date> get(store.getConfig().getModelProperty(PropertyType.IDENTITY_CREATION_DATE).getName()),
+                    criteria.getRoot().<Date> get(
+                            store.getConfig().getModelProperty(PropertyType.IDENTITY_CREATION_DATE).getName()),
                     (Date) parameterValues[0]));
         }
     }
@@ -501,7 +447,8 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         if (parameterValues != null) {
             predicates.add(criteria.getBuilder().greaterThanOrEqualTo(
-                    criteria.getRoot().<Date> get(store.getConfig().getModelProperty(PropertyType.IDENTITY_EXPIRY_DATE).getName()),
+                    criteria.getRoot().<Date> get(
+                            store.getConfig().getModelProperty(PropertyType.IDENTITY_EXPIRY_DATE).getName()),
                     (Date) parameterValues[0]));
         }
     }
@@ -511,7 +458,8 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         if (parameterValues != null) {
             predicates.add(criteria.getBuilder().greaterThanOrEqualTo(
-                    criteria.getRoot().<Date> get(store.getConfig().getModelProperty(PropertyType.IDENTITY_CREATION_DATE).getName()),
+                    criteria.getRoot().<Date> get(
+                            store.getConfig().getModelProperty(PropertyType.IDENTITY_CREATION_DATE).getName()),
                     (Date) parameterValues[0]));
         }
     }
@@ -546,7 +494,8 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         }
     }
 
-    private void findByPartition(SecurityContext context, JPACriteriaQueryBuilder criteria, List<Predicate> predicates, JPAIdentityStore store) {
+    private void findByPartition(SecurityContext context, JPACriteriaQueryBuilder criteria, List<Predicate> predicates,
+            JPAIdentityStore store) {
         JPAIdentityStoreConfiguration config = store.getConfig();
 
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.PARTITION);
@@ -583,13 +532,15 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         }
     }
 
-//    protected void setModelPropertyValue(Object identity, PropertyType propertyType, Object value, boolean notNull, JPAIdentityStoreConfiguration config) {
-//        config.setModelPropertyValue(identity, propertyType, value, notNull);
-//    }
-//
-//    protected void setModelPropertyValue(Object identity, PropertyType propertyType, Object value, JPAIdentityStoreConfiguration config) {
-//        config.setModelPropertyValue(identity, propertyType, value);
-//    }
+    // protected void setModelPropertyValue(Object identity, PropertyType propertyType, Object value, boolean notNull,
+    // JPAIdentityStoreConfiguration config) {
+    // config.setModelPropertyValue(identity, propertyType, value, notNull);
+    // }
+    //
+    // protected void setModelPropertyValue(Object identity, PropertyType propertyType, Object value,
+    // JPAIdentityStoreConfiguration config) {
+    // config.setModelPropertyValue(identity, propertyType, value);
+    // }
 
     protected Map<QueryParameter, PropertyType> getSortParametersMapping() {
         return sortParametersMapping;
