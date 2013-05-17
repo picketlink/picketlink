@@ -1267,17 +1267,25 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
             throw MESSAGES.nullArgument("AttributedType identifier");
         }
 
+        IdentityType identityType = null;
+
         IdentityQuery<IdentityType> query = new DefaultIdentityQuery<IdentityType>(context, IdentityType.class, this);
 
         query.setParameter(IdentityType.ID, identityTypeId);
 
         List<IdentityType> results = query.getResultList();
 
-        if (results.isEmpty()) {
+        if (!results.isEmpty()) {
+            identityType = results.get(0);
+        } else {
+            identityType = context.getIdentityManager().lookupIdentityById(IdentityType.class, identityTypeId);
+        }
+
+        if (identityType == null) {
             throw MESSAGES.attributedTypeNotFoundWithId(IdentityType.class, identityTypeId, context.getPartition());
         }
 
-        return results.get(0);
+        return identityType;
     }
 
 
