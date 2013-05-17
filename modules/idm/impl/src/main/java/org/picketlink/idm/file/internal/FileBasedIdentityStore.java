@@ -90,6 +90,7 @@ import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
+import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 
 /**
@@ -809,6 +810,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         toIdentityType.setCreatedDate(fromIdentityType.getCreatedDate());
         toIdentityType.setExpirationDate(fromIdentityType.getExpirationDate());
         toIdentityType.setPartition(context.getPartition());
+        fromIdentityType.setPartition(context.getPartition());
 
         updateAttributedType(fromIdentityType, toIdentityType);
     }
