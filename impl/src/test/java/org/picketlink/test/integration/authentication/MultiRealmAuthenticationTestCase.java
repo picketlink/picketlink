@@ -152,8 +152,8 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
         this.credentials.setPassword("john" + TESTING_REALM_NAME);
         
         this.identity.login();
-        
-        // should fail. The provided password is configured for john when using the default realm. 
+
+        // correct credentials.
         assertTrue(this.identity.isLoggedIn());
     }
 
