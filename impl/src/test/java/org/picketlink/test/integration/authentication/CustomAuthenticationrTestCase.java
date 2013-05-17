@@ -34,6 +34,7 @@ import javax.inject.Inject;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
+import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.BaseAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.model.SimpleUser;
@@ -51,7 +52,7 @@ import org.picketlink.test.integration.ArchiveUtils;
  */
 public class CustomAuthenticationrTestCase extends AbstractAuthenticatorTestCase {
 
-    @Inject
+    @Inject @PicketLink
     private CustomAuthenticator authenticator;
 
     @Deployment
@@ -75,7 +76,7 @@ public class CustomAuthenticationrTestCase extends AbstractAuthenticatorTestCase
         return user;
     }
     
-    @RequestScoped
+    @RequestScoped @PicketLink
     public static class CustomAuthenticator extends BaseAuthenticator {
         
         private Map<String, User> users = new HashMap<String, User>();

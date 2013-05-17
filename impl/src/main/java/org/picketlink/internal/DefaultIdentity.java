@@ -21,15 +21,16 @@ package org.picketlink.internal;
 import java.io.Serializable;
 
 import javax.enterprise.context.SessionScoped;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.picketlink.Identity;
+import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.AuthenticationException;
 import org.picketlink.authentication.Authenticator;
 import org.picketlink.authentication.Authenticator.AuthenticationStatus;
-import org.picketlink.authentication.AuthenticatorSelector;
 import org.picketlink.authentication.LockedAccountException;
 import org.picketlink.authentication.UnexpectedCredentialException;
 import org.picketlink.authentication.UserAlreadyLoggedInException;
@@ -41,6 +42,7 @@ import org.picketlink.authentication.event.PostAuthenticateEvent;
 import org.picketlink.authentication.event.PostLoggedOutEvent;
 import org.picketlink.authentication.event.PreAuthenticateEvent;
 import org.picketlink.authentication.event.PreLoggedOutEvent;
+import org.picketlink.authentication.internal.IdmAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.model.Agent;
 
@@ -54,13 +56,17 @@ public class DefaultIdentity implements Identity
     private static final long serialVersionUID = 3696702275353144429L;
 
     @Inject
-    private AuthenticatorSelector authenticatorSelector;
-
-    @Inject
     private BeanManager beanManager;
 
     @Inject
     private DefaultLoginCredentials loginCredential;
+
+    @Inject
+    @PicketLink
+    private Instance<Authenticator> authenticatorInstance;
+
+    @Inject
+    private Instance<IdmAuthenticator> idmAuthenticatorInstance;
 
     /**
      * Flag indicating whether we are currently authenticating
@@ -93,7 +99,7 @@ public class DefaultIdentity implements Identity
                     throw new UnexpectedCredentialException("active agent: " + this.agent.getLoginName() +
                             " provided credentials: [" + this.loginCredential.getUserId() + "]");
                 }
-                
+
                 throw new UserAlreadyLoggedInException("active agent: " + this.agent.getLoginName());
             }
 
@@ -115,15 +121,12 @@ public class DefaultIdentity implements Identity
         catch (Throwable e) 
         {
             handleUnsuccesfulLoginAttempt(e);
-            
+
             if (AuthenticationException.class.isInstance(e)) {
                 throw (AuthenticationException) e;
             }
-            
+
             throw new AuthenticationException("Login failed with a unexpected error.", e);            
-//            ExceptionUtils.throwAsRuntimeException(e);
-//            //Attention: the following line is just for the compiler (and analysis tools) - it won't get executed
-//            throw new IllegalStateException(e);
         }
     }
 
@@ -155,7 +158,7 @@ public class DefaultIdentity implements Identity
     protected Agent authenticate() throws AuthenticationException 
     {
         Agent validatedAgent = null;
-        
+
         if (authenticating) 
         {
             authenticating = false; //X TODO discuss it
@@ -168,24 +171,26 @@ public class DefaultIdentity implements Identity
 
             beanManager.fireEvent(new PreAuthenticateEvent());
 
-            Authenticator activeAuthenticator = authenticatorSelector.getSelectedAuthenticator();
+            Authenticator authenticator = authenticatorInstance.isUnsatisfied() ?
+                    idmAuthenticatorInstance.get() :
+                    authenticatorInstance.get();
 
-            if (activeAuthenticator == null)
+            if (authenticator == null)
             {
                 throw new AuthenticationException("No Authenticator has been configured.");
             }
 
-            activeAuthenticator.authenticate();
+            authenticator.authenticate();
 
-            if (activeAuthenticator.getStatus() == null) 
+            if (authenticator.getStatus() == null) 
             {
                 throw new AuthenticationException("Authenticator must return a valid authentication status");
             }
 
-            if (activeAuthenticator.getStatus() == AuthenticationStatus.SUCCESS)
+            if (authenticator.getStatus() == AuthenticationStatus.SUCCESS)
             {
-                validatedAgent = activeAuthenticator.getAgent();
-                postAuthenticate(activeAuthenticator);
+                validatedAgent = authenticator.getAgent();
+                postAuthenticate(authenticator);
             } 
         } 
         catch (AuthenticationException e) {
@@ -198,15 +203,15 @@ public class DefaultIdentity implements Identity
         {
             authenticating = false;
         }
-        
+
         return validatedAgent;
     }
 
-    protected void postAuthenticate(Authenticator activeAuthenticator)
+    protected void postAuthenticate(Authenticator authenticator)
     {
-        activeAuthenticator.postAuthenticate();
+        authenticator.postAuthenticate();
 
-        if (!activeAuthenticator.getStatus().equals(AuthenticationStatus.SUCCESS))
+        if (!authenticator.getStatus().equals(AuthenticationStatus.SUCCESS))
         {
             return;
         }
@@ -246,7 +251,7 @@ public class DefaultIdentity implements Identity
             loginCredential.invalidate();
         }
     }
-    
+
     public boolean hasPermission(Object resource, String operation)
     {
         // TODO Auto-generated method stub
