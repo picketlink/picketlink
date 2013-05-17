@@ -15,14 +15,14 @@ import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
+import org.picketlink.idm.jpa.schema.CredentialObject;
+import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
 import org.picketlink.idm.jpa.schema.IdentityObject;
 import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
 import org.picketlink.idm.jpa.schema.PartitionObject;
-import org.picketlink.idm.jpa.schema.RelationshipIdentityWeakObject;
-import org.picketlink.idm.jpa.schema.RelationshipObject;
-import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.Authorization;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -118,29 +118,16 @@ public class JPAUsersFileRolesGroupsRelationshipTestSuite extends AbstractLDAPTe
 
         builder
             .stores()
-                .ldap()
-                    .baseDN(BASE_DN)
-                    .bindDN("uid=admin,ou=system")
-                    .bindCredential("secret")
-                    .url(LDAP_URL)
-                    .userDNSuffix(USER_DN_SUFFIX)
-                    .roleDNSuffix(ROLES_DN_SUFFIX)
-                    .agentDNSuffix(AGENT_DN_SUFFIX)
-                    .groupDNSuffix(GROUP_DN_SUFFIX)
-                    .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
+                .jpa()
+                    .identityClass(IdentityObject.class)
+                    .credentialClass(CredentialObject.class)
+                    .credentialAttributeClass(CredentialObjectAttribute.class)
+                    .attributeClass(IdentityObjectAttribute.class)
+                    .partitionClass(PartitionObject.class)
+                    .addRealm(Realm.DEFAULT_REALM, "Testing")
                     .supportFeature(FeatureGroup.agent)
                     .supportFeature(FeatureGroup.user)
                     .supportFeature(FeatureGroup.credential)
-                    .supportFeature(FeatureGroup.attribute)
-                .jpa()
-                    .identityClass(IdentityObject.class)
-                    .attributeClass(IdentityObjectAttribute.class)
-                    .relationshipClass(RelationshipObject.class)
-                    .relationshipIdentityClass(RelationshipIdentityWeakObject.class)
-                    .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                    .partitionClass(PartitionObject.class)
-                    .supportFeature(FeatureGroup.role)
-                    .supportFeature(FeatureGroup.group)
                     .supportFeature(FeatureGroup.attribute)
                     .addContextInitializer(new JPAContextInitializer(emf) {
                         @Override
@@ -149,6 +136,10 @@ public class JPAUsersFileRolesGroupsRelationshipTestSuite extends AbstractLDAPTe
                         }
                     })
                 .file()
+                    .addRealm(Realm.DEFAULT_REALM, "Testing")
+                    .supportFeature(FeatureGroup.group)
+                    .supportFeature(FeatureGroup.role)
+                    .supportFeature(FeatureGroup.attribute)
                     .supportFeature(FeatureGroup.relationship)
                     .supportRelationshipType(CustomRelationship.class, Authorization.class);
 

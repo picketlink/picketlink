@@ -115,7 +115,8 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
 
     @Test
     @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
-            LDAPIdentityStoreWithoutAttributesTestSuite.class, LDAPUsersJPARolesGroupsRelationshipsTestSuite.class, LDAPUsersJPARolesGroupsFileRelationshipTestSuite.class })
+            LDAPIdentityStoreWithoutAttributesTestSuite.class, LDAPUsersJPARolesGroupsRelationshipsTestSuite.class,
+            LDAPUsersJPARolesGroupsFileRelationshipTestSuite.class })
     public void testExpiration() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
