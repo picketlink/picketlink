@@ -54,5 +54,14 @@
           <para>SAML HTTP POST Binding</para>
         </listitem>
       </itemizedlist>
+      
     </section>
+  <section>
+    <title>Additional Information</title>
+    <note>Please refer to exhaustive documentation on PicketLink Confluence Site.
+       <itemizedlist>
+         <listitem> <para><ulink url="https://docs.jboss.org/author/display/PLINK/User+Guide">User Guide</ulink></para></listitem>
+       </itemizedlist>
+    </note>
+  </section>
 </chapter>
