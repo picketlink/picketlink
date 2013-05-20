@@ -181,7 +181,7 @@ release() {
 	echo ""
 
 	echo "Finishing the release."
-	execute_cmd git flow release finish $RELEASE_VERSION
+	git flow release finish $RELEASE_VERSION
 	echo "Done."
 	exit 0
 }
