@@ -114,7 +114,7 @@ echo ""
 
 if [ "$FLAG_NO_DEPENDENCY_CHECK" == "false" ]; then
     echo "Checking dependencies."
-    execute_cmd mvn -DskipTests=true dependency:resolve -Dmaven.repo.local=/tmp/release_repo
+    execute_cmd mvn -DskipTests=true clean install dependency:resolve -Dmaven.repo.local=/tmp/release_repo
     if check_build_result; then
         echo "Done."
     else
