@@ -44,6 +44,11 @@ rollback() {
     git checkout master
     clean_local_repo
     git branch -D release/$RELEASE_VERSION
+    git push origin :release/$RELEASE_VERSION
+    git push upstream :release/$RELEASE_VERSION
+    git tag -d v$RELEASE_VERSION
+    git push origin :refs/tags/v$RELEASE_VERSION
+    git push upstream :refs/tags/v$RELEASE_VERSION
     echo "Done."    
 }
 
@@ -96,7 +101,9 @@ release() {
 	echo "Done."
 	echo ""
 
-	if [ "$FLAG_NO_DEPENDENCY_CHECK" == "false" ]; then
+    read -p "Check all project dependencies before releasing ?[y/n] " FLAG_NO_DEPENDENCY_CHECK
+
+	if [ "$FLAG_NO_DEPENDENCY_CHECK" == "y" ]; then
 		echo "Checking dependencies."
 		execute_cmd mvn -DskipTests=true clean install dependency:resolve -Dmaven.repo.local=/tmp/release_repo
 		if check_build_result; then
