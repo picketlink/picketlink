@@ -63,7 +63,7 @@ upload_docs() {
     execute_cmd mv $DOCS_DIR/picketlink-$RELEASE_VERSION/doc/api $DOCS_DIR/.
     execute_cmd mv $DOCS_DIR/picketlink-$RELEASE_VERSION/doc/reference $DOCS_DIR/.
     rm -rf $DOCS_DIR/picketlink-$RELEASE_VERSION
-    scp -r $DOCS_DIR/ picketlink@filemgmt.jboss.org:/docs_htdocs/picketlink/3
+    execute_cmd scp -r $DOCS_DIR/ picketlink@filemgmt.jboss.org:/docs_htdocs/picketlink/3
     echo "Done."
 }
 
@@ -145,7 +145,7 @@ release() {
 		echo "Releasing version $RELEASE_VERSION."
 		cd maven-plugins/picketlink-jdocbook-style/
 		execute_cmd perl -pi -e 's/'$DEVELOPMENT_VERSION'/'$RELEASE_VERSION'/g' `find . -name pom.xml`
-		mvn clean install
+		execute_cmd mvn clean install
 		execute_cmd perl -pi -e 's/'$RELEASE_VERSION'/'$DEVELOPMENT_VERSION'/g' `find . -name pom.xml`
 		cd ../../
 		execute_cmd mvn release:prepare --batch-mode -Drelease -DdevelopmentVersion=$DEVELOPMENT_VERSION -DreleaseVersion=$RELEASE_VERSION -Dtag=v$RELEASE_VERSION -Dresume=false -Prelease -DignoreSnapshots=true
