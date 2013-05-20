@@ -44,6 +44,11 @@ rollback() {
     git checkout master
     clean_local_repo
     git branch -D release/$RELEASE_VERSION
+    git push origin :release/$RELEASE_VERSION
+    git push upstream :release/$RELEASE_VERSION
+    git tag -d v$RELEASE_VERSION
+    git push origin :refs/tags/v$RELEASE_VERSION
+    git push upstream :refs/tags/v$RELEASE_VERSION
     echo "Done."    
 }
 
@@ -125,7 +130,7 @@ release() {
 	if [ "$FLAG_PERFORM_RELEASE" == "y" ]; then
 	echo "Preparing to release."
 	echo "    Executing maven-release-plugin in DryRun mode..."
-	execute_cmd mvn release:prepare --batch-mode -Drelease -DdevelopmentVersion=$DEVELOPMENT_VERSION -DreleaseVersion=$RELEASE_VERSION -Dtag=vRELEASE_VERSION -DdryRun -DignoreSnapshots=true -Prelease
+	execute_cmd mvn clean install release:prepare --batch-mode -Drelease -DdevelopmentVersion=$DEVELOPMENT_VERSION -DreleaseVersion=$RELEASE_VERSION -Dtag=vRELEASE_VERSION -DdryRun -DignoreSnapshots=true -Prelease
 	if check_build_result; then     
 		 read -p "Project is ready to release. Do you want to proceed ?[y/n] " FLAG_PERFORM_RELEASE
 	else
@@ -143,7 +148,7 @@ release() {
 		mvn clean install
 		execute_cmd perl -pi -e 's/'$RELEASE_VERSION'/'$DEVELOPMENT_VERSION'/g' `find . -name pom.xml`
 		cd ../../
-		execute_cmd mvn release:prepare --batch-mode -Drelease -DdevelopmentVersion=$DEVELOPMENT_VERSION -DreleaseVersion=$RELEASE_VERSION -Dtag=v$RELEASE_VERSION -Dresume=false -Prelease -DignoreSnapshots=true
+		execute_cmd mvn clean install release:prepare --batch-mode -Drelease -DdevelopmentVersion=$DEVELOPMENT_VERSION -DreleaseVersion=$RELEASE_VERSION -Dtag=v$RELEASE_VERSION -Dresume=false -Prelease -DignoreSnapshots=true
 		if check_build_result; then
 			echo "Done."
 		else
