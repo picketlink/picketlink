@@ -96,7 +96,9 @@ release() {
 	echo "Done."
 	echo ""
 
-	if [ "$FLAG_NO_DEPENDENCY_CHECK" == "false" ]; then
+    read -p "Check all project dependencies before releasing ?[y/n] " FLAG_NO_DEPENDENCY_CHECK
+
+	if [ "$FLAG_NO_DEPENDENCY_CHECK" == "y" ]; then
 		echo "Checking dependencies."
 		execute_cmd mvn -DskipTests=true clean install dependency:resolve -Dmaven.repo.local=/tmp/release_repo
 		if check_build_result; then
