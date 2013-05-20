@@ -62,7 +62,6 @@
       <module>modules/social</module>
       <module>modules/oauth</module>
       <module>modules/scim</module>
-      <module>modules/container-bindings</module>
    </modules>
 
    <dependencyManagement>

@@ -1,9 +1,0 @@
-<jboss-ws-security>
-  
-  <config>
-    <authorize>      
-      <unchecked/>
-    </authorize>
-  </config>
-  
-</jboss-ws-security>
