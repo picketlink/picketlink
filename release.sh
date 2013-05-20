@@ -65,7 +65,7 @@ upload_docs() {
 # perform the release
 release() {
 	if [ "$DEVELOPMENT_VERSION" == "" ]; then
-	   echo "--current-version not specified. Please use: --current-version X"
+	   echo "--snapshot not specified. Please use: --snapshot X"
 	   exit 1
 	fi
 
