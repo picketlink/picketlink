@@ -26,28 +26,28 @@ import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 
 /**
- * Performs credential validation and persists credential state to an IdentityStore.
+ * Performs credential validation and persists credential state to a Store.
  *
  * @author Shane Bryzak
  */
-public interface CredentialHandler {
+public interface CredentialHandler<S extends IdentityStore<?>,V extends Credentials,U> {
     /**
      *
      * @param credentials
      * @param store
      * @return
      */
-    void validate(SecurityContext context, Credentials credentials, IdentityStore<?> identityStore);
+    void validate(SecurityContext context, V credentials, S store);
     /**
      *
      * @param user
      * @param credential
      * @param store
      */
-    void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate);
+    void update(SecurityContext context, Agent agent, U credential, S store, Date effectiveDate, Date expiryDate);
 
     /**
      * @param identityStore
      */
-    void setup(IdentityStore<?> identityStore);
+    void setup(S store);
 }

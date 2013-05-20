@@ -22,30 +22,14 @@
 
 package org.picketlink.test.integration.authentication;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.net.Authenticator;
 
 import javax.inject.Inject;
 
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.picketlink.Identity;
-import org.picketlink.Identity.AuthenticationResult;
-import org.picketlink.authentication.LockedAccountException;
-import org.picketlink.authentication.UnexpectedCredentialException;
-import org.picketlink.authentication.UserAlreadyLoggedInException;
 import org.picketlink.authentication.internal.IdmAuthenticator;
-import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.SimpleUser;
@@ -60,29 +44,22 @@ import org.picketlink.test.integration.ArchiveUtils;
  * @author Pedro Igor
  * 
  */
-@RunWith(Arquillian.class)
-public class IDMAuthenticationTestCase {
-
-    @Inject
-    private Identity identity;
-
-    @Inject
-    private DefaultLoginCredentials credentials;
+public class IDMAuthenticationTestCase extends AbstractAuthenticatorTestCase {
 
     @Inject
     private IdentityManager identityManager;
 
     @Deployment
-    public static WebArchive createTestArchive() {
+    public static WebArchive createDeployment() {
         return ArchiveUtils.create(IDMAuthenticationTestCase.class);
     }
-
+    
     @Before
     public void onSetup() {
-        User john = this.identityManager.getUser("john");
+        User john = this.identityManager.getUser(USER_NAME);
 
         if (john == null) {
-            john = new SimpleUser("john");
+            john = new SimpleUser(USER_NAME);
             this.identityManager.add(john);
         }
 
@@ -90,111 +67,20 @@ public class IDMAuthenticationTestCase {
 
         this.identityManager.update(john);
 
-        Password password = new Password("mypasswd");
+        Password password = new Password(USER_PASSWORD);
 
         this.identityManager.updateCredential(john, password);
     }
-
-    @After
-    public void onFinish() {
-        this.identity.logout();
-    }
-
-    @Test
-    public void testSuccessfulPasswordBasedAuthentication() throws Exception {
-        User john = this.identityManager.getUser("john");
-
-        this.credentials.setPassword("mypasswd");
-        this.credentials.setUserId(john.getLoginName());
-
-        AuthenticationResult status = this.identity.login();
-
-        assertEquals(AuthenticationResult.SUCCESS, status);
-        assertTrue(this.identity.isLoggedIn());
-        
-        User validatedAgent = (User) this.identity.getAgent();
-        
-        assertNotNull(validatedAgent);
-        assertEquals(john.getId(), validatedAgent.getId());
-    }
-
-    @Test
-    public void testUnsuccessfulPasswordBasedAuthentication() throws Exception {
-        User john = this.identityManager.getUser("john");
-
-        this.credentials.setPassword("badpasswd");
-        this.credentials.setUserId(john.getLoginName());
-
-        AuthenticationResult status = this.identity.login();
-
-        assertEquals(AuthenticationResult.FAILED, status);
-        assertFalse(this.identity.isLoggedIn());
-        
-        User validatedAgent = (User) this.identity.getAgent();
-        
-        assertNull(validatedAgent);
-    }
-
-    @Test
-    public void testEmptyCredentials() {
-        this.identity.login();
-
-        assertFalse(this.identity.isLoggedIn());
-    }
-
-    @Test(expected = UserAlreadyLoggedInException.class)
-    public void failUserAlreadyLoggedIn() {
-        User john = this.identityManager.getUser("john");
-
-        this.credentials.setPassword("mypasswd");
-        this.credentials.setUserId(john.getLoginName());
-
-        this.identity.login();
-
-        // should throw the exception. user is already authenticated.
-        this.identity.login();
-    }
-
-    @Test(expected = UnexpectedCredentialException.class)
-    public void failUnexpectedCredential() {
-        User john = this.identityManager.getUser("john");
-
-        this.credentials.setPassword("mypasswd");
-        this.credentials.setUserId(john.getLoginName());
-
-        this.identity.login();
-
-        this.credentials.setUserId("invalidId");
-
-        // should throw the exception. trying to login with a different credential.
-        this.identity.login();
-    }
-
-    @Test(expected = LockedAccountException.class)
-    public void failLockedAccount() {
-        User john = this.identityManager.getUser("john");
+    
+    @Override
+    protected User doLockUserAccount() {
+        User john = this.identityManager.getUser(USER_NAME);
 
         john.setEnabled(false);
 
         this.identityManager.update(john);
-
-        this.credentials.setPassword("mypasswd");
-        this.credentials.setUserId(john.getLoginName());
-
-        // should throw the exception. user is disabled/locked.
-        this.identity.login();
+        
+        return john;
     }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void failNullPassword() {
-        // should throw the exception. password can not be null.
-        this.credentials.setPassword(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void failNullUserId() {
-        // should throw the exception. user id can not be null.
-        this.credentials.setUserId(null);
-    }
-
+    
 }

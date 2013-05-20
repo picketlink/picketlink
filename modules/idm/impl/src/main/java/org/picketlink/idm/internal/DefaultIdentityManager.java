@@ -20,6 +20,8 @@ package org.picketlink.idm.internal;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.internal.util.IDMUtil.getFeatureGroup;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -123,8 +125,8 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         try {
-            storeFactory.getStoreForFeature(context, getFeatureGroup(identityType), FeatureOperation.create).add(context,
-                    identityType);
+            storeFactory.getStoreForFeature(context, getFeatureGroup(identityType.getClass()), FeatureOperation.create).add(
+                    context, identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeAddFailed(identityType, e);
         }
@@ -149,8 +151,8 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         try {
-            storeFactory.getStoreForFeature(context, getFeatureGroup(identityType), FeatureOperation.update).update(context,
-                    identityType);
+            storeFactory.getStoreForFeature(context, getFeatureGroup(identityType.getClass()), FeatureOperation.update).update(
+                    context, identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeUpdateFailed(identityType, e);
         }
@@ -175,8 +177,8 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         try {
-            storeFactory.getStoreForFeature(context, getFeatureGroup(identityType), FeatureOperation.delete).remove(context,
-                    identityType);
+            storeFactory.getStoreForFeature(context, getFeatureGroup(identityType.getClass()), FeatureOperation.delete).remove(
+                    context, identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeUpdateFailed(identityType, e);
         }
@@ -398,8 +400,8 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType) {
-        return new DefaultIdentityQuery<T>(context, identityType, storeFactory.getStoreForFeature(context, FeatureGroup.user,
-                FeatureOperation.read));
+        return new DefaultIdentityQuery<T>(context, identityType, storeFactory.getStoreForFeature(context,
+                getFeatureGroup(identityType), FeatureOperation.read));
     }
 
     @Override
@@ -418,11 +420,34 @@ public class DefaultIdentityManager implements IdentityManager {
             throw MESSAGES.nullArgument("Identifier for [" + identityType + "]");
         }
 
-        IdentityQuery<T> query = createIdentityQuery(identityType);
+        List<T> result = Collections.emptyList();
 
-        query.setParameter(IdentityType.ID, id);
+        if (IdentityType.class.equals(identityType)) {
+            List<Class<? extends IdentityType>> types = new ArrayList<Class<? extends IdentityType>>();
 
-        List<T> result = query.getResultList();
+            types.add(User.class);
+            types.add(Agent.class);
+            types.add(Group.class);
+            types.add(Role.class);
+
+            for (Class<? extends IdentityType> childType : types) {
+                IdentityQuery<T> query = (IdentityQuery<T>) createIdentityQuery(childType);
+
+                query.setParameter(IdentityType.ID, id);
+
+                result = query.getResultList();
+
+                if (!result.isEmpty()) {
+                    break;
+                }
+            }
+        } else {
+            IdentityQuery<T> query = (IdentityQuery<T>) createIdentityQuery(identityType);
+
+            query.setParameter(IdentityType.ID, id);
+
+            result = query.getResultList();
+        }
 
         T identity = null;
 
@@ -477,7 +502,9 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     /**
-     * <p>Check if the given {@link IdentityType} exists by using its identifier.</p>
+     * <p>
+     * Check if the given {@link IdentityType} exists by using its identifier.
+     * </p>
      *
      * @param identityType
      * @throws IdentityManagementException if no instance was found with the provided identifier.
@@ -488,7 +515,8 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         if (lookupIdentityById(identityType.getClass(), identityType.getId()) == null) {
-            throw MESSAGES.attributedTypeNotFoundWithId(identityType.getClass(), identityType.getId(), this.context.getPartition());
+            throw MESSAGES.attributedTypeNotFoundWithId(identityType.getClass(), identityType.getId(),
+                    this.context.getPartition());
         }
     }
 
@@ -511,7 +539,8 @@ public class DefaultIdentityManager implements IdentityManager {
 
     /**
      * <p>
-     * Helper method to check if the current partition is a {@link Realm}. {@link Agent} instances can only be managed using a {@link Realm}.
+     * Helper method to check if the current partition is a {@link Realm}. {@link Agent} instances can only be managed using a
+     * {@link Realm}.
      * </p>
      *
      * @throws IdentityManagementException if the current partition is not a {@link Realm}.
@@ -524,7 +553,8 @@ public class DefaultIdentityManager implements IdentityManager {
 
     /**
      * <p>
-     * Helper method to check if the current partition is a {@link Realm}. Credentials can only be managed using a {@link Realm}.
+     * Helper method to check if the current partition is a {@link Realm}. Credentials can only be managed using a {@link Realm}
+     * .
      * </p>
      *
      * @throws IdentityManagementException if the current partition is not a {@link Realm}.
@@ -544,7 +574,7 @@ public class DefaultIdentityManager implements IdentityManager {
         if (!CredentialStore.class.isInstance(store)) {
             throw MESSAGES.credentialInvalidCredentialStoreType(store.getClass());
         } else {
-            CredentialStore credStore = (CredentialStore) store;
+            CredentialStore<?> credStore = (CredentialStore<?>) store;
             return credStore.retrieveCurrentCredential(this.context, agent, storageClass);
         }
     }
@@ -557,7 +587,7 @@ public class DefaultIdentityManager implements IdentityManager {
         if (!CredentialStore.class.isInstance(store)) {
             throw MESSAGES.credentialInvalidCredentialStoreType(store.getClass());
         } else {
-            CredentialStore credStore = (CredentialStore) store;
+            CredentialStore<?> credStore = (CredentialStore<?>) store;
             return credStore.retrieveCredentials(this.context, agent, storageClass);
         }
     }

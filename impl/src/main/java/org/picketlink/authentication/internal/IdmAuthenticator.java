@@ -46,7 +46,6 @@ public class IdmAuthenticator extends BaseAuthenticator {
 
         identityManager.validateCredentials(creds);
 
-
         if (Credentials.Status.VALID.equals(creds.getStatus())) {
             setStatus(AuthenticationStatus.SUCCESS);
             setAgent((User) creds.getValidatedAgent());

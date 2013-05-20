@@ -162,74 +162,8 @@ Agent getAgent();]]></programlisting>
         <code>postAuthenticate()</code> method will be invoked also.  If the authentication was not a success, 
         <code>getAgent()</code> will return <code>null</code>. 
       </para>
-      
-      <section>
-        <title>Active Authenticator</title>
-        
-        <para>
-          It is possible to have multiple <code>Authenticator</code> beans deployed in a single application, so the <code>Identity</code>
-          bean must have a way of selecting the correct one for any authentication request.  This task is delegated to the
-          <code>AuthenticatorSelector</code> bean, which defines the following methods:
-        </para>
-        
-        <programlisting language="JAVA"><![CDATA[public interface AuthenticatorSelector {
-    Class<? extends Authenticator> getAuthenticatorClass();
-
-    void setAuthenticatorClass(Class<? extends Authenticator> authenticatorClass);
-
-    String getAuthenticatorName();
-
-    void setAuthenticatorName(String authenticatorName);
-
-    Authenticator getSelectedAuthenticator();
-}]]></programlisting> 
-          
-        <para>
-          The default <code>AuthenticatorSelector</code> implementation has a few simple rules to determine which 
-          <code>Authenticator</code> implementation it should be using to carry out an authentication request. These rules are:
-        </para>
-        
-        <itemizedlist>
-          <listitem>
-            <para>
-              If the <code>authenticatorClass</code> property has been set, then the <code>Authenticator</code> bean with
-              that exact type will be selected.
-            </para>
-          </listitem>
-          <listitem>
-            <para>
-              Otherwise, if the <code>authenticatorName</code> property has been set, then the <code>Authenticator</code> bean
-              with that bean name will be selected.
-            </para>
-          </listitem>
-          <listitem>
-            <para>
-              If neither the <code>authenticatorClass</code> or <code>authenticatorName</code> properties have been set, and
-              a single, custom (i.e. not provided by PicketLink) <code>Authenticator</code> bean is found then that one will
-              be selected.
-            </para>
-          </listitem>
-          <listitem>
-            <para>
-              If the user has not provided their own custom <code>Authenticator</code>, then use the built-in
-              <code>IdmAuthenticator</code> (which will use the Identity Management API to authenticate).
-            </para>
-          </listitem>
-        </itemizedlist>
-        
-        <para>
-          As the default <code>AuthenticatorSelector</code> implementation is a request-scoped bean, it is possible to control
-          <code>Authenticator</code> selection for every single authentication request.  This might be useful for example if
-          the user is to be given a choice of which method of authentication they wish to use to log in; a common use case is
-          to allows users to either log in using a username and password, or use a single sign-on service (such as OpenID)
-          instead.  From the view layer the selected authenticator can be set by name, allowing the user to easily choose
-          themselves which authentication method they desire.
-        </para>
-        
-      </section>
-
     </section>
-    
+   
     <section>
       <title>The Authentication Process</title>
       
@@ -262,30 +196,23 @@ Agent getAgent();]]></programlisting>
             method.
           </para>
         </listitem>
-        <listitem>
-          <para>
-            <emphasis>1.1.1</emphasis> - 
-            The <code>Identity</code> bean invokes <code>AuthenticatorSelector.getSelectedAuthenticator()</code> to
-            determine which <code>Authenticator</code> bean to use for the authentication request.
-          </para>
-        </listitem>
         <listitem>                
           <para>
-            <emphasis>1.1.2</emphasis> - 
-            Once the <code>Identity</code> bean has the correct <code>Authenticator</code>, it invokes its
+            <emphasis>1.1.1</emphasis> - 
+            Next the <code>Identity</code> bean invokes the <code>Authenticator</code> bean's
             <code>authenticate()</code> method (which has a return value of <code>void</code>).
           </para>
         </listitem>
         <listitem>
           <para>
-            <emphasis>1.1.3</emphasis> - 
+            <emphasis>1.1.2</emphasis> - 
             To determine whether authentication was successful, the <code>Identity</code> bean invokes the
             <code>Authenticator</code>'s <code>getStatus()</code> method, which returns a <code>SUCCESS</code>.
           </para>
         </listitem>
         <listitem>
           <para>
-            <emphasis>1.1.4</emphasis> - 
+            <emphasis>1.1.3</emphasis> - 
             Upon a successful authentication, the <code>Identity</code> bean then invokes the 
             <code>Authenticator</code>'s <code>postAuthenticate()</code> method to perform any post-authentication
             logic.
@@ -293,7 +220,7 @@ Agent getAgent();]]></programlisting>
         </listitem>
         <listitem>
           <para>
-            <emphasis>1.1.5</emphasis> - 
+            <emphasis>1.1.4</emphasis> - 
             The <code>Identity</code> bean then invokes the <code>Authenticator</code>'s <code>getAgent()</code> method,
             which returns an <code>Agent</code> object representing the authenticated agent, which is then stored as a 
             private field in the <code>Identity</code> bean.
@@ -317,7 +244,8 @@ Agent getAgent();]]></programlisting>
           and <literal>abc123</literal> for the password, and if they match then authentication is deemed to be a success:
         </para>
         
-        <programlisting language="JAVA"><![CDATA[public class SimpleAuthenticator extends BaseAuthenticator {
+        <programlisting language="JAVA"><![CDATA[@PicketLink
+public class SimpleAuthenticator extends BaseAuthenticator {
 
     @Inject DefaultLoginCredentials credentials;
 
@@ -336,7 +264,9 @@ Agent getAgent();]]></programlisting>
 }]]></programlisting>
 
         <para>
-          The first point of interest in the above code is that the authenticator class extends something called
+          The first thing we can notice about the above code is that the class is annotated with the 
+          <code>@PicketLink</code> annotation.  This annotation indicates that this bean should be used
+          for the authentication process.  The next thing is that the authenticator class extends something called
           <code>BaseAuthenticator</code>.  This abstract base class provided by PicketLink implements the 
           <code>Authenticator</code> interface and provides implementations of the <code>getStatus()</code> and 
           <code>getAgent()</code> methods (while also providing matching <code>setStatus()</code> and 
@@ -363,10 +293,63 @@ Agent getAgent();]]></programlisting>
         <programlisting language="JAVA"><![CDATA[@Inject DefaultLoginCredentials credentials;]]></programlisting>
         
         <para>
-          What this line does is inject the credentials that have been provided by the user using CDI's 
+          This line of code injects the credentials that have been provided by the user using CDI's 
           <code>@Inject</code> annotation, so that our <code>Authenticator</code> implementation can query
           the credential values to determine whether they're valid or not.  We'll take a look at credentials in
           more detail in the next section.
+        </para>
+        
+        <note>
+          <para>
+            You may be wondering what happens if you don't provide an <code>Authenticator</code> bean in your application.
+            If this is the case, PicketLink will automatically authenticate via the identity management API, using a 
+            sensible default configuration.  See the Identity Management chapter for more information.
+          </para>
+        </note>
+      </section>
+      
+      <section>
+        <title>Multiple Authenticator Support</title>
+        
+        <para>
+          If your application needs to support multiple authentication methods, you can provide the authenticator selection 
+          logic within a producer method annotated with <code>@PicketLink</code>, like so:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[@RequestScoped
+@Named
+public class AuthenticatorSelector {
+
+    @Inject Instance<CustomAuthenticator> customAuthenticator;
+    @Inject Instance<IdmAuthenticator> idmAuthenticator;
+    
+    private String authenticator;
+    
+    public String getAuthenticator() {
+        return authenticator;
+    }
+    
+    public void setAuthenticator(String authenticator) {
+        this.authenticator = authenticator;
+    }
+
+    @Produces
+    @PicketLink
+    public Authenticator selectAuthenticator() {
+        if ("custom".equals(authenticator)) {
+            return customAuthenticator.get();
+        } else {
+            return idmAuthenticator.get();
+        }
+    }
+}]]></programlisting>
+
+        <para>
+          This <code>@Named</code> bean exposes an <code>authenticator</code> property that can be set by a
+          user interface control in the view layer.  If its value is set to "custom" then <code>CustomAuthenticator</code>
+          will be used, otherwise <code>IdmAuthenticator</code> (the <code>Authenticator</code> used to authenticate
+          using the identity management API) will be used instead.  This is an extremely simple example but should give
+          you an idea of how to implement a producer method for authenticator selection.
         </para>
       </section>
       

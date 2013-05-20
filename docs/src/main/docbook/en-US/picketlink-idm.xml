@@ -6,7 +6,7 @@
          xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:ns="http://docbook.org/ns/docbook">
   <title>Identity Management</title>
-  
+
     <section>
       <title>Overview</title>
       
@@ -114,82 +114,532 @@
             that they are authorized to perform moderator functions.
           </para>
         </listitem>
-      
       </itemizedlist>
       
+      <section id="idm_architecture_overview">
+        <title>Architectural Overview</title>
+        
+        <para>The following diagram shows the main components that realize PicketLink Identity Management:</para>
+        
+        <mediaobject>
+          <imageobject role="fo">
+            <imagedata fileref="diagrams/idm_architecture_overview.png" align="center" scalefit="1"/>
+          </imageobject>
+          <imageobject role="html">
+            <imagedata fileref="diagrams/idm_architecture_overview.png" align="center"/>
+          </imageobject>
+        </mediaobject>
+        
+        <para>
+          <itemizedlist>
+            <listitem>
+              <para>
+                <code>IdentityConfiguration</code> is the the class responsible for holding all PicketLink configuration options. 
+                This class is usually built using the Configuration Builder API, which we'll cover in the next sections. 
+                Once created and populated with the configuration options, an instance is used to create a <code>IdentityManagerFactory</code>.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <code>IdentityManagerFactory</code> is the class from which <code>IdentityManager</code> instances are created for a specific <emphasis>realm</emphasis>, 
+                considering all configurations provided by a <code>IdentityConfiguration</code> instance. 
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <code>SecurityContextFactory</code> is an interface that provides methods for creating <code>SecurityContext</code> instances. This component knows how to properly create and prepare 
+                the context that will be propagated during identity management operations.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <code>SecurityContext</code> is the class that holds context data that will be used during the execution of identity management operations. 
+                Once created, the context is used to create <code>IdentityStore</code> instances and to invoke their methods.
+              </para>
+              <para>
+                This component allows to share data between the <code>IdentityManager</code> and <code>IdentityStore</code> instances. 
+                And also provides direct access for some IDM subsystems such as: event handling, caching and so on.
+              </para>
+              <para>
+                Beyond that, this component is critical when access to external resources are required, such as the current <code>EntityManager</code> when using a JPA-based store.
+              </para>
+              <para> 
+                <emphasis>Each <code>IdentityManager</code> instance is associated with a single <code>SecurityContext</code>.</emphasis>     
+              </para>
+            </listitem>
+        	<listitem>
+              <para>
+                <code>StoreFactory</code> is an interface that provides methods for creating <code>IdentityStore</code> instances. 
+                Instances are created considering the <emphasis>Feature Set</emphasis> supported by each identity store and also the current <code>SecurityContext</code> instance.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <code>IdentityStore</code> is an interface that provides a contract for implementations that store data using a specific repository such as: LDAP, databases, file system, etc.
+              </para>
+              <para>
+                It is a critical component as it provides all the necessary logic about how to store data.
+              </para>
+       	    </listitem>
+            <listitem>
+              <para>
+                <code>IdentityManager</code> is an interface that provides a simple access for all identity management operations using one or more of the configured identity stores.
+              </para>
+              <para>
+                All functionality provided by PicketLink is available from this interface, from where applications will interact most of the time.
+              </para>
+            </listitem>
+          </itemizedlist>
+        </para>
+        
+        <para>
+          For most use cases, users will only work with the <code>IdentityManagerFactory</code> and <code>IdentityManager</code> classes. 
+          Only advanced use cases may require a deep knowledge about other components in order to customize the default behaviour/implementation to suit a specific requirement.
+        </para>
+        
+        <para>
+          The diagram below shows an overview about how a specific identity management operation is realized:
+        </para>
+        
+        <mediaobject>
+          <imageobject role="fo">
+            <imagedata fileref="diagrams/idm_operation_execution.png" align="center" scalefit="1"/>
+          </imageobject>
+          <imageobject role="html">
+            <imagedata fileref="diagrams/idm_operation_execution.png" align="center"/>
+          </imageobject>
+        </mediaobject>
+        
+        <para>
+          <itemizedlist>
+            <listitem>
+              <para>
+              	<emphasis>1</emphasis> - The <emphasis>Application</emphasis> creates an <code>IdentityManagerFactory</code> instance from a previously created <code>IdentityConfiguration</code>. 
+                At this point, the factory reads the configuration and bootstraps the identity management ecosystem. 
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              	<emphasis>1.1</emphasis> - The <code>IdentityManagerFactory</code> initializes the <code>SecurityContextFactory</code>. 
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              	<emphasis>1.2</emphasis> - The <code>IdentityManagerFactory</code> initializes the <code>StoreFactory</code>. 
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              	<emphasis>2</emphasis> - With a fully initialized <code>IdentityManagerFactory</code> instance, the <emphasis>Application</emphasis> is able to create <code>IdentityManager</code> instances and execute
+                operations. <code>IdentityManager</code> instances are created for a specific <emphasis>realm</emphasis>, in this specific case we're 
+                creating an instance using the default realm. 
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              	<emphasis>2.1 and 2.1.1</emphasis> - An <code>IdentityManager</code> instance is always associated with a <code>SecurityContext</code>. 
+              	The <code>SecurityContext</code> is created and set into the <code>IdentityManager</code> instance.
+                The same security context is used during the entire lifecycle of the <code>IdentityManager</code>, it will be used to share state with the underlying identity stores
+                and provide access to external resources (if necessary) in order to execute operations.
+              </para>
+              <para>
+                At this time, the <code>IdentityManager</code> is also configured to hold a reference to the <code>StoreFactory</code> 
+                in order to execute the operations against the underlying/configured <code>IdentityStore</code> instances.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              	<emphasis>3</emphasis> - Now the application holds a reference to the <code>IdentityManager</code> instance and it is ready to 
+              	perform identity management operations (eg.: add an user, queries, validate credentials, etc).
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              	<emphasis>3.1 and 3.1.1</emphasis> - But before executing the operations, the <code>IdentityManager</code> needs to obtain from the <code>StoreFactory</code> the <code>IdentityStore</code> instance 
+                that should be used to execute a specific operation. Identity stores are selected by examining the configuration to see which store configuration supports a 
+                specific operation or feature. 
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              	<emphasis>3.2</emphasis> - Now that the <code>IdentityManager</code> have selected which <code>IdentityStore</code> instance should be used, this last is invoked in order to process the operation.  
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              	<emphasis>3.2.1</emphasis> - Usually, during the execution of an operation, the <code>IdentityStore</code> uses the current <code>SecurityContext</code>. 
+                The <code>SecurityContext</code> can hold some state that may be useful during the execution (eg.: the JPA store uses the security context to gain access to the current <code>EntityManager</code> instance)
+                and also provide access for some IDM internal services like event handling, caching, etc.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              	<emphasis>3.2.2</emphasis> - Finally, the <code>IdentityStore</code> executes the operation and persist or retrieve identity data from the underlying repository.
+              </para>
+            </listitem>
+          </itemizedlist>
+        </para>
+        <para>
+          PicketLink IDM design is quite flexible and allows you to configure or even customize most of the behaviours described above.
+          As stated earlier, most use cases require minimal knowledge about these details and the default implementation should be enough to satisfy the majority of requirements.
+        </para>
+      </section>
     </section>
-          
+
     <section>
       <title>Configuration</title>
     
-        <section>
-          <title>Architectural Overview</title>
+      <section>
+        <title>Architectural Overview</title>
           
+        <para>
+          Configuration in PicketLink is in essence quite simple; an <code>IdentityConfiguration</code> object must first 
+          be created to hold the PicketLink configuration options.  Once all configuration options have been set, you just create a 
+          <code>IdentityManagerFactory</code> instance passing the previously created configuration.            
+          The <code>IdentityManagerFactory</code> can then be used to create <code>IdentityManager</code> instances 
+          via the <code>createIdentityManager()</code> method.  
+        </para>          
+          
+        <mediaobject>
+          <imageobject role="fo">
+            <imagedata fileref="diagrams/architecture.png" align="center" scalefit="1"/>
+          </imageobject>
+          <imageobject role="html">
+            <imagedata fileref="diagrams/architecture.png" align="center"/>
+          </imageobject>
+        </mediaobject>
+
+        <para>
+          The <code>IdentityConfiguration</code> is usually created using a Configuration Builder API, which provides a rich and fluent API for every single aspect of PicketLink configuration.
+        </para>
+
+        <note>
           <para>
-            Configuration in PicketLink is in essence quite simple; an <code>IdentityConfiguration</code> object must first 
-            be created to hold the PicketLink configuration options.  Once all configuration options have been set, the 
-            <code>buildIdentityManagerFactory()</code> method is used to create an <code>IdentityManagerFactory</code> instance.
-            The <code>IdentityManagerFactory</code> can then be used to create <code>IdentityManager</code> instances 
-            via the <code>createIdentityManager()</code> method.  
-          </para>          
-          
-          <mediaobject>
-            <imageobject role="fo">
-              <imagedata fileref="diagrams/architecture.png" align="center" scalefit="1"/>
-            </imageobject>
-            <imageobject role="html">
-              <imagedata fileref="diagrams/architecture.png" align="center"/>
-            </imageobject>
-          </mediaobject>
-          
-          <para>
-            Each <code>IdentityManager</code> instance has its own <emphasis>security context</emphasis>, represented by
-            the <code>SecurityContext</code> class.  The security context contains temporary state which is maintained 
-            for one or more identity management operations within the scope of a single realm or tier.  The 
-            <code>IdentityManager</code> (and its associated <code>SecurityContext</code>) is typically modelled as a
-            request-scoped object (for environments which support such a paradigm, such as a servlet container), or alternatively
-            as an actor within the scope of a transaction.  In the latter case, the underlying resources being 
-            utilised by the configured identity stores (such as a JPA <code>EntityManager</code>) would participate in 
-            the active transaction, and changes made as a result of any identity management operations would either be 
-            committed or rolled back as appropriate for the logic of the encapsulating business method.
+            For now, all configuration is set programmatically using the Configuration Builder API only. Later versions will also support a declarative configuration in a form of XML documents.   
           </para>
+        </note>
+
+        <para>
+          Each <code>IdentityManager</code> instance has its own <emphasis>security context</emphasis>, represented by
+          the <code>SecurityContext</code> class.  The security context contains temporary state which is maintained 
+          for one or more identity management operations within the scope of a single realm or tier.  The 
+          <code>IdentityManager</code> (and its associated <code>SecurityContext</code>) is typically modelled as a
+          request-scoped object (for environments which support such a paradigm, such as a servlet container), or alternatively
+          as an actor within the scope of a transaction.  In the latter case, the underlying resources being 
+          utilised by the configured identity stores (such as a JPA <code>EntityManager</code>) would participate in 
+          the active transaction, and changes made as a result of any identity management operations would either be 
+          committed or rolled back as appropriate for the logic of the encapsulating business method.
+        </para>
             
-          <para>
-            The following sections describe various ways that configuration may be performed in different environments.
-          </para>
-          
-        </section>
+        <para>
+          The following sections describe various ways that configuration may be performed in different environments.
+        </para>
+      </section>
       
       <section>
         <title>Programmatic Configuration</title>
       
         <para>
-          Configuration for Identity Management can be defined programmatically by creating an instance of the
-          <code>org.picketlink.config.IdentityConfiguration</code> class.  This class provides an API that allows one or 
-          more identity stores to be configured (along with a number of other options) which are then used to 
-          create an <code>IdentityManagerFactory</code>.  An <code>IdentityConfiguration</code> can be created via its
-          default constructor like so:
+          Configuration for Identity Management can be defined programmatically using the Configuration Builder API. The aim of this API is to make it easier to chain coding
+          of configuration options in order to speed up the coding itself and make the configuration more <emphasis>readable</emphasis>.
+        </para>
+        <para>        
+          Let's assume that you want to quick start with PicketLink Identity Management features using a file-based Identity Store. 
+          First, a fresh instance of <code>IdentityConfiguration</code> is created using the <code>IdentityConfigurationBuilder</code> helper object, 
+          where we choose which identity store we want to use (in this case a file-based store) and any other configuration option, if necessary. 
+          Finally, we use the configuration to create a <code>IdentityManagerFactory</code> from where we can create <code>IdentityManager</code> instances and start to perform Identity Management operations: 
         </para>
         
-        <programlisting><![CDATA[  IdentityConfiguration config = new IdentityConfiguration();]]></programlisting>
+        <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
         
-        <para>
-          Let's start by looking at the methods we use to configure the identity stores.
-        </para>
-      
-        <programlisting language="JAVA"><![CDATA[public class IdentityConfiguration {
+builder
+  .stores()
+  .file()
+  .supportAllFeatures();
 
-    public List<IdentityStoreConfiguration> getConfiguredStores() {
-        return this.configuredStores;
-    }
-  
-    public void addStoreConfiguration(IdentityStoreConfiguration config) {
-        this.configuredStores.add(config);
-    }
+IdentityConfiguration configuration = builder.build();
+
+IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(configuration);
+
+IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+
+User user = new SimpleUser("john");
+
+identityManager.add(user);]]></programlisting>
+
+        <section>
+          <title>IdentityConfigurationBuilder for Programmatic Configuration</title>
+
+          <para>
+            The <code>IdentityConfigurationBuilder</code> is the entry point for PicketLink configuration. 
+            It is a very simple class with some meaningful methods for all supported configuration options.
+          </para>
+            
+          <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .stores() // supported identity stores configuration
+    .file() 
+      // file-based identity store configuration
+    .jpa()
+      // JPA-based identity store configuration
+    .ldap()
+      // LDAP-based identity store configuration
+  .contextFactory(...); // for custom SecurityContextFactory implementations]]></programlisting>
+
+          <para>In the next sections we'll cover each supported Identity Store and their specific configuration.</para>
+        </section>
+      </section>
+
+      <section id="idm_security_context_configuration">
+        <title>Security Context Configuration</title>
+      
+        <para>
+          The <code>SecurityContext</code> plays an important role in the PicketLink IDM achitecture. As discussed in the <link linkend='idm_architecture_overview'>Architectural Overview</link>, 
+          it is strongly used during the execution of operations. It carries very sensitive and contextual information for a specific operation and provides access for some of the 
+          IDM underlying services such as caching, event handling, UUID generator for <code>IdentityTpe</code> and <code>Relationship</code> instances, among others.  
+        </para>
+        <para>
+        	Operations are always executed by a specific <code>IdentityStore</code> in order to persist or store identity data using a specific repository (eg.: LDAP, databases, filesystem, etc). 
+        	When executing a operation the identity store must be able to:
+        </para>
+        <para>
+          <itemizedlist>
+            <listitem>
+              <para>
+             		Access the current <code>Partition</code>. All operations are executed for a specific <code>Realm</code> or <code>Tier</code>
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+             		Access the current <code>IdentityManager</code> instance, from which the operation was executed.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+             		Access the <emphasis>Event Handling API</emphasis> in order to fire events such as when an user is created, updated, etc.  
+              </para>
+            </listitem>
+						<listitem>
+              <para>
+             		Access the <emphasis>Caching API</emphasis> in order to cache identity data and increase performance.  
+              </para>
+            </listitem>
+						<listitem>
+              <para>
+             		Access the <emphasis>Credential Handler API</emphasis> in order to be able to update and validate credentials.  
+              </para>
+            </listitem>
+						<listitem>
+              <para>
+             		Access to external resources, provided before the operation is executed and initialized by a <code>ContextInitializer</code>.    
+              </para>
+            </listitem>
+          </itemizedlist>
+        </para>
+        <section>
+        	<title>Initializing the SecurityContext</title>
+          <para>
+          	Sometimes you may need to provide additional configuration or even references for external resources before the operation is executed by an identity store.
+          	An example is how you tell to the<code>JPAIdentityStore</code> which <code>EntityManager</code> instance should be used. 
+        	  When executing an operation, the <code>JPAIdentityStore</code> must be able to access the current <code>EntityManager</code> to persist or retrieve data from the database.
+        	  You need someway to populate the <code>SecurityContext</code> with such information. When you're configuring an identity store, there is a configuration option
+        	  that allows you to provide a <code>ContextInitializer</code> implementation.
+          </para>
+       	  <programlisting language="JAVA"><![CDATA[public interface ContextInitializer {    
+    void initContextForStore(SecurityContext context, IdentityStore<?> store);
+}]]></programlisting>
+				  <para>
+				  	The method <code>initContextForStore</code> will be invoked for every single operation and before its execution by the identity store. 
+			  		It can be implemented to provide all the necessary logic to initialize and populate the <code>SecurityContext</code> for a specific <code>IdentityStore</code>.
+		  		</para>
+	  			<para>
+  					The configuration is also very simple, you just need to provide the following configuration:
+				  </para>
+       	  <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .stores()
+    .file()
+      .addContextInitializer(new MySecurityContextInitializer());  
+}]]></programlisting>
+				  <para>You can provide multiple initializers.</para>
+				  <note>
+					  <para>
+						  Remember that initializers are executed for every single operation. 
+						  Also, the same instance is used between operations which means your implementation should be <quote>stateless</quote>. 
+						  You should be careful about the implementation in order to not impact performance, concurrency or introduce unexpected behaviors.
+					  </para>
+				  </note>
+				</section>
+        <section>
+        	<title>Configuring how SecurityContext instances are created</title>
+        	<para>
+        		<code>SecurityContext</code> instances are created by the <code>SecurityContextFactory</code>. If for some reason you need to change how <code>SecurityContext</code> instances are created,
+        		you can provide an implementation of this interface and configure it as follows:  
+        	</para>
+       	  <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .stores()
+    .contextFactory(mew MySecurityContextFactory());  
 }]]></programlisting>
 
+				</section>
       </section>
       
+      <section>
+        <title>Identity Store Feature Set</title>
+      
+        <para>
+          When configuring identity stores you must tell which features and operations should be executed by them. Features and operations are a key concept if you want to mix stores in order to execute
+          operations against different repositories.
+        </para>
+        <para>
+        	PicketLink provides a Java <code>enum</code>, called <code>FeatureGroup</code>, in which are defined all supported features. The table bellow summarize them:  
+        </para>
+        <table>
+          <title>Identity class fields</title>
+          <tgroup cols="2" align="left">
+            <thead>
+              <row>
+                <entry>Feature</entry>
+              </row>
+            </thead>
+            <tbody>
+              <row>
+                <entry><code>FeatureGroup.agent</code></entry>
+              </row>
+              <row>
+                <entry><code>FeatureGroup.user</code></entry>
+              </row>
+              <row>
+                <entry><code>FeatureGroup.role</code></entry>
+              </row>
+              <row>
+                <entry><code>FeatureGroup.group</code></entry>
+              </row>
+              <row>
+                <entry><code>FeatureGroup.relationship</code></entry>
+              </row>
+              <row>
+                <entry><code>FeatureGroup.credential</code></entry>
+              </row>
+              <row>
+                <entry><code>FeatureGroup.realm</code></entry>
+              </row>
+              <row>
+                <entry><code>FeatureGroup.tier</code></entry>
+              </row>
+      		  </tbody>
+      	  </tgroup>
+        </table>
+        <para>
+        	The features are a determinant factor when choosing an identity store to execute a specific operation. For example, if an identity store is configured with <code>FeatureGroup.user</code> we're saying
+        	that all <code>User</code> operations should be executed by this identity store. The same goes for <code>FeatureGroup.credential</code>, we're just saying that credentials can also be updated and validated using 
+        	the identity store.
+        </para>
+        <para>
+        	Beside that, provide only the feature is not enough. We must also tell the identity store which operations are supported by a feature. For example, we can configure a identity store to support only
+        	read operations for users, which is very common when using the LDAP identity store against a read-only tree. Operations are also defined by an <code>enum</code>, called <code>FeatureOperation</code>, as follows:    
+        </para>
+        <table>
+          <title>Identity class fields</title>
+          <tgroup cols="2" align="left">
+            <thead>
+              <row>
+                <entry>Operation</entry>
+              </row>
+            </thead>
+            <tbody>
+              <row>
+                <entry><code>Featureoperation.create</code></entry>
+              </row>
+              <row>
+                <entry><code>Featureoperation.read</code></entry>
+              </row>
+              <row>
+                <entry><code>Featureoperation.update</code></entry>
+              </row>
+              <row>
+                <entry><code>Featureoperation.delete</code></entry>
+              </row>
+              <row>
+                <entry><code>Featureoperation.validate</code></entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table>
+        <para>
+        	During the configuration you can provide which features and operations should be supported using the <ns:emphasis>Configuration API</ns:emphasis>. You don't need to be forced to specify them individually,
+        	if you want to support all features and operations for a particular identity store you can use:
+        </para>
+     	  <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .stores()
+    .file()
+      .supportAllFeatures();  
+}]]></programlisting>
+				<para>
+					For a more granular configuration you can also use:
+				</para>
+     	  <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .stores()
+    .file()
+      .supportFeature(
+      	FeatureGroup.agent, 
+      	FeatureGroup.user, 
+      	FeatureGroup.role, 
+      	FeatureGroup.group)  
+}]]></programlisting>
+			<para>
+				The configuration above defines the features individually. In this case the configured features are also supporting all operations. If you want to specify which operation should be supported by a feature you can use:
+			</para>
+   	  <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .stores()
+    .file()
+      .supportFeature(FeatureGroup.agent, FeatureOperation.read)
+      .supportFeature(FeatureGroup.user, FeatureOperation.read))
+      .supportFeature(FeatureGroup.role, FeatureOperation.create))
+      .supportFeature(FeatureGroup.role, FeatureOperation.read))
+      .supportFeature(FeatureGroup.role, FeatureOperation.update))
+      .supportFeature(FeatureGroup.role, FeatureOperation.delete))  
+      .supportFeature(FeatureGroup.group, FeatureOperation.create))
+      .supportFeature(FeatureGroup.group, FeatureOperation.read))
+      .supportFeature(FeatureGroup.group, FeatureOperation.update))
+      .supportFeature(FeatureGroup.group, FeatureOperation.delete))  
+}]]></programlisting>
+			<para>
+				For a more complex configuration evolving multiple identity stores with a different feature set, look at the example bellow:
+			</para>
+   	  <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .stores()
+    .ldap()
+      .supportFeature(FeatureGroup.agent)
+      .supportFeature(FeatureGroup.user)
+      .supportFeature(FeatureGroup.credential)
+    .jpa()
+      .supportFeature(FeatureGroup.role)
+      .supportFeature(FeatureGroup.group)
+      .supportFeature(FeatureGroup.relationship)
+}]]></programlisting>
+			<para>
+				The configuration above shows how to use LDAP to store only agents, users and credentials and database for roles, groups and relationships.
+			</para>
+			<note>
+				<para>
+					Remember that identity stores must have their features and operations configured. If you don't provide them you won't be able to build the configuration.
+				</para>
+			</note>
+      </section>
+            
       <section>
         <title>Identity Store Configurations</title>
       
@@ -198,10 +648,10 @@
           <code>IdentityStoreConfiguration</code> implementation - the following sections describe each of these in more detail.
         </para>
       </section>
-        
+
       <section>
         <title>JPAIdentityStoreConfiguration</title>
-        
+
         <para>
           The JPA identity store uses a relational database to store identity state.  The configuration for this identity store
           provides control over which entity beans are used to store identity data, and how their fields should be used to store
@@ -211,31 +661,87 @@
         </para>
         
         <section>
-          <title>Configuring an EntityManager</title>
+          <title>Recommended Database Schema</title>
           
+          <para>
+            The following schema diagram is an example of a suitable database structure for storing IDM-related data:
+          </para>
+          
+          <mediaobject>
+            <imageobject role="fo">
+              <imagedata fileref="diagrams/jpa_identity_store_er_diagram.png" align="center" scalefit="1"/>
+            </imageobject>
+            <imageobject role="html">
+              <imagedata fileref="diagrams/jpa_identity_store_er_diagram.png" align="center"/>
+            </imageobject>
+          </mediaobject>
+
+          <para>
+            Please note that the data types shown in the above diagram might not be available in your RDBMS; if that is the case
+            please adjust the data types to suit.
+          </para>
+
+        </section>
+        
+        <section>
+          <title>Default Database Schema</title>
+          
+          <para>
+            If you do not wish to provide your own JPA entities for storing IDM-related state, you may use the default schema
+            provided by PicketLink in the <literal>picketlink-idm-schema</literal> module.  This module contains a collection
+            of entity beans suitable for use with <code>JPAIdentityStore</code>.  To use this module, add the following dependency
+            to your Maven project's <literal>pom.xml</literal> file:
+          </para>
+          
+          <programlisting language="XML"><![CDATA[<dependency>
+    <groupId>org.picketlink</groupId>
+    <artifactId>picketlink-idm-schema</artifactId>
+    <version>${picketlink.version}</version>
+</dependency>]]></programlisting>
+
+          <para>
+            In addition to including the above dependency, the default schema entity beans must be configured in your application's
+            <literal>persistence.xml</literal> file.  Add the following entries within the <literal>persistence-unit</literal> 
+            section:
+          </para>
+          
+          <programlisting language="XML"><![CDATA[<class>org.picketlink.idm.jpa.schema.IdentityObject</class>
+<class>org.picketlink.idm.jpa.schema.PartitionObject</class>
+<class>org.picketlink.idm.jpa.schema.RelationshipObject</class>
+<class>org.picketlink.idm.jpa.schema.RelationshipIdentityObject</class>
+<class>org.picketlink.idm.jpa.schema.RelationshipObjectAttribute</class>
+<class>org.picketlink.idm.jpa.schema.IdentityObjectAttribute</class>
+<class>org.picketlink.idm.jpa.schema.CredentialObject</class>
+<class>org.picketlink.idm.jpa.schema.CredentialObjectAttribute</class>]]></programlisting>
+        
+        </section>
+
+        <section>
+          <title>Configuring an EntityManager</title>
+
           <para>
             Before the JPA identity store can be used, it must be provided with an <code>EntityManager</code> so that it can
             connect to a database.  In Java EE this can be done by providing a producer method within your application that 
             specifies the <code>@org.picketlink.annotations.PicketLink</code> qualifier, for example like so:
           </para>
-          
+              
           <programlisting language="JAVA"><![CDATA[@Produces
 @PicketLink
 @PersistenceContext(unitName = "picketlink")
 private EntityManager picketLinkEntityManager;]]></programlisting>
         </section>
-        
+
         <section>
           <title>Configuring the Identity class</title>
-          
+
           <para>
             The Identity class is the entity bean that is used to store the record for users, roles and groups. It should
             be annotated with <code>@IdentityType</code> and declare the following field values:
           </para>
-          
+
           <table>
             <title>Identity class fields</title>
-            
+
             <tgroup cols="3" align="left">
               <thead>
                 <row>
@@ -312,87 +818,84 @@ private EntityManager picketLinkEntityManager;]]></programlisting>
                 </row>
               </tbody>
             </tgroup>
-            
           </table>
-          
+              
           <para>
             The following code shows an example of an entity class configured to store Identity instances:
           </para>
-          
+              
           <example>
             <title>Example Identity class</title>
             <programlisting language="JAVA"><![CDATA[@IdentityType
 @Entity
 public class IdentityObject implements Serializable {
+    
+    @Discriminator
+    private String discriminator;
 
-  @Discriminator
-  private String discriminator;
+    @ManyToOne
+    @IdentityPartition
+    private PartitionObject partition;
 
-  @ManyToOne
-  @IdentityPartition
-  private PartitionObject partition;
+    @Identifier
+    @Id
+    private String id;
 
-  @Identifier
-  @Id
-  private String id;
+    @LoginName
+    private String loginName;
 
-  @LoginName
-  private String loginName;
+    @IdentityName
+    private String name;
 
-  @IdentityName
-  private String name;
+    @FirstName
+    private String firstName;
 
-  @FirstName
-  private String firstName;
+    @LastName
+    private String lastName;
 
-  @LastName
-  private String lastName;
+    @Email
+    private String email;
 
-  @Email
-  private String email;
+    @Enabled
+    private boolean enabled;
 
-  @Enabled
-  private boolean enabled;
+    @CreationDate
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date creationDate;
 
-  @CreationDate
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date creationDate;
+    @ExpiryDate
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date expiryDate;
 
-  @ExpiryDate
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date expiryDate;
+    @ManyToOne
+    @Parent
+    private IdentityObject parent;
 
-  @ManyToOne
-  @Parent
-  private IdentityObject parent;
-
-  @GroupPath
-  private String groupPath;              
-  
-  // getters and setters
+    @GroupPath
+    private String groupPath;              
+    
+    // getters and setters
 }]]></programlisting>
           </example>
-          
         </section>
-        
+
         <section>
           <title>Configuring the Attribute class</title>
-          
+
           <para>
             The Attribute class is used to store Identity attributes, and should be annotated with
             <code>@IdentityAttribute</code>
           </para>
-          
+
           <table>
             <title>Attribute class fields</title>
-            
             <tgroup cols="3" align="left">
               <thead>
                 <row>
                   <entry>Property</entry>
                   <entry>Annotation</entry>
                   <entry>Description</entry>
-                </row>
+                  </row>
               </thead>
               <tbody>
                 <row>
@@ -418,44 +921,43 @@ public class IdentityObject implements Serializable {
               </tbody>
             </tgroup>
           </table>          
-          
+
           <example>
             <title>Example Attribute class</title>
             <programlisting language="JAVA"><![CDATA[@Entity
 @IdentityAttribute
 public class IdentityAttribute implements Serializable {
-  @Id @GeneratedValue private Long id;
+    @Id @GeneratedValue private Long id;
 
-  @ManyToOne @JoinColumn
-  @Parent
-  private IdentityObject identityObject;
+    @ManyToOne @JoinColumn
+    @Parent
+    private IdentityObject identityObject;
 
-  @AttributeName
-  private String name;
+    @AttributeName
+    private String name;                
 
-  @AttributeValue
-  private String value;
+    @AttributeValue
+    private String value;
 
-  @AttributeType
-  private String type;
-  
-  // getters and setters
+    @AttributeType
+    private String type;
+    
+    // getters and setters
 }]]></programlisting>
           </example>
-          
         </section>
-        
+
         <section>
           <title>Configuring the Credential class</title>
-          
+
           <para>
             The credential entity is used to store user credentials such as passwords and certificates, and should be annotated
             with <code>@IdentityCredential</code>.
           </para>
-          
+
           <table>
             <title>Credential class fields</title>
-            
+                
             <tgroup cols="3" align="left">
               <thead>
                 <row>
@@ -493,46 +995,45 @@ public class IdentityAttribute implements Serializable {
               </tbody>
             </tgroup>
           </table>
-          
+              
           <example>
             <title>Example Credential class</title>
             <programlisting language="JAVA"><![CDATA[@Entity
 @IdentityCredential
 public class IdentityCredential implements Serializable {
-  @Id @GeneratedValue private Long id;
+    @Id @GeneratedValue private Long id;
 
-  @CredentialType
-  private String type;
+    @CredentialType
+    private String type;
 
-  @CredentialValue
-  private String credential;
+    @CredentialValue
+    private String credential;
 
-  @EffectiveDate
-  @Temporal (TemporalType.TIMESTAMP)
-  private Date effectiveDate;
+    @EffectiveDate
+    @Temporal (TemporalType.TIMESTAMP)
+    private Date effectiveDate;
 
-  @ExpiryDate
-  @Temporal (TemporalType.TIMESTAMP)
-  private Date expiryDate;
+    @ExpiryDate
+    @Temporal (TemporalType.TIMESTAMP)
+    private Date expiryDate;
 
-  @Parent
-  @ManyToOne
-  private IdentityObject identityType;
-  
-  // getters and setters
+    @Parent
+    @ManyToOne
+    private IdentityObject identityType;
+    
+    // getters and setters
 }]]></programlisting>
           </example>
-            
         </section>
-        
+            
         <section>
           <title>Configuring the Credential Attribute class</title>
-          
+              
           <para>
             The Credential Attribute class is used to store arbitrary attribute values relating to the credential.  It
             should be annotated with <code>@CredentialAttribute</code>.
           </para>
-          
+              
           <table>
             <title>Credential Attribute class fields</title>
             
@@ -569,32 +1070,32 @@ public class IdentityCredential implements Serializable {
             <programlisting language="JAVA"><![CDATA[@Entity
 @CredentialAttribute
 public class IdentityCredentialAttribute implements Serializable {
-  @Id @GeneratedValue private Long id;
+    @Id @GeneratedValue private Long id;
 
-  @ManyToOne @JoinColumn
-  @Parent
-  private IdentityCredential credential;
+    @ManyToOne @JoinColumn
+    @Parent
+    private IdentityCredential credential;
 
-  @AttributeName
-  private String name;
+    @AttributeName
+    private String name;
 
-  @AttributeValue
-  private String value;
-  
-  // getters and setters
+    @AttributeValue
+    private String value;
+    
+    // getters and setters
 }]]></programlisting>
           </example>
-          
+              
         </section>
-        
+            
         <section>
           <title>Configuring the Relationship class</title>
-          
+              
           <para>
             Relationships are used to define typed associations between two or more identities.  The Relationship class should
             be annotated with <code>@Relationship</code>.
           </para>
-          
+              
           <table>
             <title>Relationship class fields</title>
             
@@ -626,26 +1127,26 @@ public class IdentityCredentialAttribute implements Serializable {
             <programlisting language="JAVA"><![CDATA[@Relationship
 @Entity
 public class Relationship implements Serializable {
-  @Id 
-  @Identifier
-  private String id;
+    @Id 
+    @Identifier
+    private String id;
 
-  @RelationshipClass
-  private String type;
+    @RelationshipClass
+    private String type;
 
-  // getters and setters
+    // getters and setters
 }]]></programlisting>
           </example>
         </section>
-        
+            
         <section>
           <title>Configuring the Relationship Identity class</title>
-          
+              
           <para>
             The Relationship Identity class is used to store the specific identities that participate in a relationship. It
             should be annotated with <code>@RelationshipIdentity</code>.
           </para>
-          
+              
           <table>
             <title>Relationship Identity class fields</title>
             
@@ -682,35 +1183,35 @@ public class Relationship implements Serializable {
             <programlisting language="JAVA"><![CDATA[@RelationshipIdentity
 @Entity
 public class RelationshipIdentityObject implements Serializable {
-  @Id @GeneratedValue private Long id;
+    @Id @GeneratedValue private Long id;
 
-  @Discriminator
-  private String descriptor;
+    @Discriminator
+    private String descriptor;
 
-  @RelationshipIdentity
-  @ManyToOne
-  private IdentityObject identityObject;
+    @RelationshipIdentity
+    @ManyToOne
+    private IdentityObject identityObject;
 
-  @Parent
-  @ManyToOne
-  private RelationshipObject relationshipObject;
-  
-  // getters and setters
+    @Parent
+    @ManyToOne
+    private RelationshipObject relationshipObject;
+    
+    // getters and setters
 }]]></programlisting>
           </example>
         </section>
-        
+            
         <section>
           <title>Configuring the Relationship Attribute class</title>
-          
+              
           <para>
             The Relationship Attribute class is used to store arbitrary attribute values that relate to a specific relationship.
             It should be annotated with <code>@RelationshipAttribute</code>.
           </para>
-          
+              
           <table>
             <title>Relationship Attribute class fields</title>
-            
+                
             <tgroup cols="3" align="left">
               <thead>
                 <row>
@@ -738,33 +1239,33 @@ public class RelationshipIdentityObject implements Serializable {
               </tbody>
             </tgroup>
           </table>
-          
+              
           <example>
             <title>Example Relationship Attribute class</title>
-
+    
             <programlisting language="JAVA"><![CDATA[@Entity
 @RelationshipAttribute
 public class RelationshipObjectAttribute implements Serializable {
-  @Id @GeneratedValue private Long id;
+    @Id @GeneratedValue private Long id;
 
-  @ManyToOne @JoinColumn
-  @Parent
-  private Relationship relationship;
+    @ManyToOne @JoinColumn
+    @Parent
+    private Relationship relationship;
 
-  @AttributeName
-  private String name;
+    @AttributeName
+    private String name;
 
-  @RelationshipValue
-  private String value;
-  
-  // getters and setters
+    @RelationshipValue
+    private String value;
+    
+    // getters and setters
 }]]></programlisting>
           </example>
         </section>
-        
+            
         <section>
           <title>Configuring the Partition class</title>
-          
+              
           <para>
             The Partition class is used to store information about partitions, i.e. Realms and Tiers.  It should be 
             annotated with <code>@Partition</code>.
@@ -800,64 +1301,88 @@ public class RelationshipObjectAttribute implements Serializable {
               </tbody>
             </tgroup>
           </table>
-          
           <example>
             <title>Example Partition class</title>
             <programlisting language="JAVA"><![CDATA[@Entity
 @Partition
 public class PartitionObject implements Serializable {
-  @Id @Identifier
-  private String id;
+    @Id @Identifier
+    private String id;
 
-  @Discriminator
-  private String type;
+    @Discriminator
+    private String type;
 
-  @ManyToOne 
-  @Parent
-  private PartitionObject parent;
-  
-  // getters and setters
+    @ManyToOne 
+    @Parent
+    private PartitionObject parent;
+    
+    // getters and setters
 }]]></programlisting>
           </example>
         </section>
-               
+        <section>
+          <title>Providing a <code>EntityManager</code></title>
+        	<para>
+        		Sometimes you may need to configure how the <code>EntityManager</code> is provided to the <code>JPAIdentityStore</code>, like when your application is using CDI and you must run the operations
+        		in the scope of the current transaction by using a injected <code>EntityManager</code> instance.
+        	</para>
+        	<para>
+        		In cases like that, you need to initialize the <code>SecurityContext</code> by providing a <code>ContextInitializer</code> implementation, as discussed in <link linkend='idm_security_context_configuration'>Security Context Configuration</link>. 
+        		The <code>JPAContextInitializer</code> is provided by PicketLink and can be used to initialize the security context with a specific <code>EntityManager</code> instance.
+        		You can always extend this class and provide your own way to obtain the <code>EntityManager</code> from your application's environment.
+        	</para>
+          <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .stores()
+    .file()
+      .addContextInitializer(new JPAContextInitializer(emf) {
+        @Override
+        public EntityManager getEntityManager() {
+          // logic goes here
+        }
+      });
+}]]></programlisting>
+					<para>
+						By default, the <code>JPAContextInitializer</code> creates a <code>EntityManager</code> from the <code>EntityManagerFacatory</code> provided when creating a new instance.
+					</para>
+        </section>
       </section>
-      
+
       <section>
         <title>LDAPIdentityStoreConfiguration</title>
-        
+
         <para>
           The LDAP identity store allows an LDAP directory server to be used to provide identity state. You can use this store in read-only or write-read mode, depending on your permissions on the server.
         </para>
-        
+
         <section>
           <title>Configuration</title>
-          
+
           <para>
             The LDAP identity store can be configured by providing the following configuration:
-		</para>
-		
-          <programlisting language="JAVA"><![CDATA[LDAPIdentityStoreConfiguration ldapStoreConfig = new LDAPIdentityStoreConfiguration();
+          </para>
 
-ldapStoreConfig
-.setBaseDN(BASE_DN)
-.setBindDN(BIND_DN)
-  .setBindCredential(BIND_CREDENTIAL)
-  .setLdapURL(LDAP_URL)
-  .setUserDNSuffix(USER_DN_SUFFIX)
-  .setRoleDNSuffix(ROLES_DN_SUFFIX)
-  .setAgentDNSuffix(AGENT_DN_SUFFIX)
-  .setGroupDNSuffix(GROUP_DN_SUFFIX)
-  .addRealm(Realm.DEFAULT_REALM)
-  .supportAllFeatures();]]></programlisting>
-		
-		<para>
-			The following table describes all configuration options:
-		</para>
-		
-		<table>
+          <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .stores()
+    .ldap()
+      .baseDN("dc=jboss,dc=org")
+      .bindDN("uid=admin,ou=system")
+      .bindCredential("secret")
+      .url("ldap://localhost:10389")
+      .userDNSuffix("ou=People,dc=jboss,dc=org")
+      .roleDNSuffix("ou=Roles,dc=jboss,dc=org")
+      .groupDNSuffix("ou=Groups,dc=jboss,dc=org")
+      .supportAllFeatures();]]></programlisting>
+
+          <para>
+            The following table describes all configuration options:
+          </para>
+
+          <table>
             <title>LDAP Configuration Options</title>
-            
             <tgroup cols="3" align="left">
               <thead>
                 <row>
@@ -868,160 +1393,174 @@ ldapStoreConfig
               </thead>
               <tbody>
                 <row>
-                  <entry><code>setBaseDN</code></entry>
+                  <entry><code>baseDN</code></entry>
                   <entry>Sets the fixed DN of the context from where identity types are stored.</entry>
                   <entry>Yes</entry>
                 </row>
                 <row>
-                  <entry><code>setBindDN</code></entry>
+                  <entry><code>bindDN</code></entry>
                   <entry>Sets the the DN used to bind against the ldap server. If you want to perform write operations the DN must have permissions on the agent,user,role and group contexts.</entry>
                   <entry>Yes</entry>
                 </row>
                 <row>
-                  <entry><code>setBindCredential</code></entry>
+                  <entry><code>bindCredential</code></entry>
                   <entry>Sets the password for the bindDN.</entry>
                   <entry>Yes</entry>
                 </row>
                 <row>
-                  <entry><code>setLdapURL</code></entry>
+                  <entry><code>url</code></entry>
                   <entry>Sets the url that should be used to connect to the server. Eg.: <![CDATA[ldap://<<server>>:389]]>.</entry>
                   <entry>Yes</entry>
                 </row>
                 <row>
-                  <entry><code>setUserDNSuffix</code></entry>
+                  <entry><code>userDNSuffix</code></entry>
                   <entry>Sets the fixed DN of the context where users should be read/stored from.</entry>
                   <entry>Yes</entry>
                 </row>
                 <row>
-                  <entry><code>setAgentDNSuffix</code></entry>
+                  <entry><code>agentDNSuffix</code></entry>
                   <entry>Sets the fixed DN of the context where agents should be read/stored from. If not provided, will be used the context provided by the <code>setUserDNSuffix</code></entry>
                   <entry>No</entry>
                 </row>
                 <row>
-                  <entry><code>setRoleDNSuffix</code></entry>
+                  <entry><code>roleDNSuffix</code></entry>
                   <entry>Sets the fixed DN of the context where roles should be read/stored from.</entry>
                   <entry>Yes</entry>
                 </row>
                 <row>
-                  <entry><code>setGroupDNSuffix</code></entry>
+                  <entry><code>groupDNSuffix</code></entry>
                   <entry>Sets the fixed DN of the context where groups should be read/stored from.</entry>
                   <entry>Yes</entry>
                 </row>
               </tbody>
             </tgroup>
           </table>
-          
-          <section>
-          	<title>Mapping Groups to different contexts</title>
-          	
-          	<para>
-          		Sometimes may be useful to map a specific group to a specific context or DN. By default, all groups are stored and read from the DN provided by the <code>setGroupDNSuffix</code> method, which means that you can not have groups with the same name.
-          	</para>
 
-          	<para>
-          		The following configuration maps the group with path <emphasis>/QA Group</emphasis> to <emphasis>ou=QA,dc=jboss,dc=org</emphasis> 
-          	</para>
-          	
-          	<programlisting language="JAVA"><![CDATA[LDAPIdentityStoreConfiguration ldapStoreConfig = new LDAPIdentityStoreConfiguration();
+          <section>
+            <title>Mapping Groups to different contexts</title>
+
+            <para>
+              Sometimes may be useful to map a specific group to a specific context or DN. By default, all groups are stored and read from the DN provided by the <code>setGroupDNSuffix</code> method, which means that you can not have groups with the same name.
+            </para>
+
+            <para>
+              The following configuration maps the group with path <emphasis>/QA Group</emphasis> to <emphasis>ou=QA,dc=jboss,dc=org</emphasis> 
+            </para>
+
+            <programlisting language="JAVA"><![CDATA[LDAPIdentityStoreConfiguration ldapStoreConfig = new LDAPIdentityStoreConfiguration();
 
 ldapStoreConfig
   .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org");]]></programlisting>
-			
-			<para>
-				With this configuration you can have groups with the same name, but with different paths.
-			</para>
 
-          	<programlisting language="JAVA"><![CDATA[IdentityManager identityManager = getIdentityManager();
-      
-Group managerGroup = identityManager.add(new SimpleGroup("managers")); // group's path is /manager 
-              
+            <para>
+              With this configuration you can have groups with the same name, but with different paths.
+            </para>
+
+            <programlisting language="JAVA"><![CDATA[IdentityManager identityManager = getIdentityManager();
+Group managers = new SimpleGroup("managers");      
+
+identityManager.add(managers); // group's path is /manager 
+                  
 Group qaGroup = identityManager.getGroup("QA Group");        
-      
-// the QA Group was mapped to a different DN.
-Group qaManagerGroup = identityManager.add(new SimpleGroup("managers", qaGroup)); // group's path is /QA Group/managers]]></programlisting>
-			    
-          </section>			
+Group managersQA = new SimpleGroup("managers", qaGroup);
+
+// the QA Group is mapped to a different DN.
+Group qaManagerGroup = identityManager.add(managersQA); // group's path is /QA Group/managers]]></programlisting>                
+          </section>            
         </section>
       </section>
-      
+
       <section>
         <title>FileIdentityStoreConfiguration</title>
-        
+
         <para>
-	  	This identity store uses the file system to persist identity state.  The configuration for this 
+          This identity store uses the file system to persist identity state.  The configuration for this 
           identity store provides control over where to store identity data and if the state should be preserved between initializatons. 
         </para>
+        
+        <para>Identity data is stored using the <emphasis>Java Serialization API</emphasis>.</para>
 
         <section>
           <title>Filesystem Structure</title>
-          
+
           <para>
-		 Identity data is stored in the filesystem using the following structure:
+            Identity data is stored in the filesystem using the following structure:
           </para>
-          
-	 	<programlisting language="xml"><![CDATA[${WORKING_DIR}/
+
+          <programlisting language="xml"><![CDATA[${WORKING_DIR}/
 pl-idm-partitions.db
 pl-idm-relationships.db
-<<partition_name_directory>>
-	pl-idm.agents.db
-	pl-idm.roles.db
-	pl-idm.groups.db
-	pl-idm.credentials.db
-<<another_partition_directory>>
-	...]]></programlisting>
-	
-		<para>
-			By default, files are stored in the <emphasis>${java.io.tmpdir}/pl-idm</emphasis> directory. For each partition there is a corresponding directory where agents, roles groups and credentials are stored in specific files. 
-		</para>
-		
-	  </section>
-	  		
+  <<partition_name_directory>>
+    pl-idm.agents.db
+    pl-idm.roles.db
+    pl-idm.groups.db
+    pl-idm.credentials.db
+  <<another_partition_directory>>
+    ...]]></programlisting>
+
+          <para>
+            By default, files are stored in the <emphasis>${java.io.tmpdir}/pl-idm</emphasis> directory. 
+            For each partition there is a corresponding directory where agents, roles groups and credentials are stored in specific files. 
+          </para>
+        </section>
+
         <section>
           <title>Configuration</title>
-          
+
           <para>
             The file identity store can be easily configured by providing the following configuration:
-		</para>
-		              
-          <programlisting language="JAVA"><![CDATA[FileIdentityStoreConfiguration fileStoreConfig = new FileIdentityStoreConfiguration();
+          </para>
 
-fileStoreConfig
- 	.addRealm(Realm.DEFAULT_REALM)
- 	.supportAllFeatures();]]></programlisting>
+          <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+            
+builder
+  .stores()
+  .file()
+  .preserveState(false)
+  .addRealm(Realm.DEFAULT_REALM, "Testing")
+  .addTier("Application")
+  .supportAllFeatures()
+  .supportRelationshipType(CustomRelationship.class, Authorization.class);]]></programlisting>
 
-        	<section>
-          	<title>Preserving State Between Initializations</title>
-          	
-          	<para>
-          		By default, during the initialization, the working directory is re-created. If you want to preserve state between initializations you should use the following configuration:
-          	</para>
-          	
-          	<programlisting language="JAVA"><![CDATA[FileIdentityStoreConfiguration fileStoreConfig = new FileIdentityStoreConfiguration();
-			
-fileStoreConfig
-  .setAlwaysCreateFiles(false) // preserve data
- 	.addRealm(Realm.DEFAULT_REALM)
- 	.supportAllFeatures();]]></programlisting>
-		</section>
-		
-		<section>
-          	<title>Changing the Working Directory</title>
-          	
-          	<para>
-			 If you want to change the working directory, where files are stored, you can use the following configuration:            		
-          	</para>
-          	
-            	<programlisting language="JAVA"><![CDATA[FileIdentityStoreConfiguration fileStoreConfig = new FileIdentityStoreConfiguration();
-			
-fileStoreConfig
-  .setWorkingDir("/tmp/pl-idm") // changes the working directory
- 	.addRealm(Realm.DEFAULT_REALM)
- 	.supportAllFeatures();]]></programlisting>
-     	
-		</section>            
-        </section>          
-      </section>      
-    </section>
+          <section>
+            <title>Preserving State Between Initializations</title>
+
+            <para>
+              By default, during the initialization, the working directory is re-created. If you want to preserve state between initializations you should use the following configuration:
+            </para>
+
+            <programlisting language="JAVA"><![CDATA[builder
+.stores()
+  .file()
+  .preserveState(true) // preserve data
+  .supportAllFeatures();]]></programlisting>
+          </section>
+
+          <section>
+            <title>Changing the Working Directory</title>
+
+            <para>
+              If you want to change the working directory, where files are stored, you can use the following configuration:                    
+            </para>
+
+            <programlisting language="JAVA"><![CDATA[builder
+  .stores()
+    .file()
+      .workingDir("/tmp/pl-idm")
+      .supportAllFeatures();]]></programlisting>
+
+          </section>            
+        </section>
+      </section>
+        
+      <section>
+        <title>Providing a Custom IdentityStore</title>
+    
+        <para>
+          TODO
+        </para>
+      </section>        
+    </section>      
     
     <section>
       <title>Java EE Environments</title>
@@ -1050,11 +1589,38 @@ fileStoreConfig
         <title>Accessing the <code>IdentityManager</code> in Java EE</title>
         
         <para>
-          In a Java EE environment, the PicketLink Core module provides a producer method for <code>IdentityManager</code>, 
+          In a Java EE environment, PicketLink provides a producer method for <code>IdentityManager</code>, 
           so getting a reference to it is as simply as injecting it into your beans:
         </para>
       
         <programlisting language="JAVA"><![CDATA[@Inject IdentityManager identityManager;]]></programlisting>
+        
+        <section>
+          <title>Configuring the Application Realm</title>
+          <para>
+            By default, an <code>IdentityManager</code> for the <emphasis>default</emphasis> realm will be injected.  If the application
+            should use a realm other than the default, then this must be configured via a producer method with the <code>@PicketLink</code>
+            qualifier.  The following code shows an example of a configuration bean that sets the application realm to <emphasis>acme</emphasis>:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[@ApplicationScoped
+public class RealmConfiguration {
+    private Realm applicationRealm;
+  
+    @Inject IdentityManagerFactory factory;
+  
+    @Init
+    public void init() {
+        applicationRealm = factory.getRealm("acme");
+    }
+
+    @Produces
+    @PicketLink
+    public Realm getApplicationRealm() {
+      return applicationRealm;
+    }
+}]]></programlisting>
+        </section>
   
       </section>
       
@@ -1537,7 +2103,7 @@ identityManager.add(groupRole);]]></programlisting>
       <note>
         <para>
           While the IDM module of PicketLink provides authentication features, for common use cases involving standard username and
-          password based authentication in a Java EE environment, the PicketLink core module provides a more streamlined method
+          password based authentication in a Java EE environment, PicketLink provides a more streamlined method
           of authentication.  Please refer to the authentication chapter of this documentation for more information.
         </para>
       </note>

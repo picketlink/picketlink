@@ -18,8 +18,6 @@
 
 package org.picketlink.idm.credential.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -27,14 +25,12 @@ import java.util.Date;
 
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.CredentialStore;
-import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 
 /**
@@ -45,31 +41,23 @@ import org.picketlink.idm.spi.SecurityContext;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @SupportsCredentials({ X509CertificateCredentials.class, X509Certificate.class })
-public class X509CertificateCredentialHandler implements CredentialHandler {
+public class X509CertificateCredentialHandler<S,V,U>
+    implements CredentialHandler<CredentialStore<?>,X509CertificateCredentials, X509Certificate> {
 
     @Override
-    public void setup(IdentityStore<?> identityStore) {
+    public void setup(CredentialStore<?> identityStore) {
     }
 
     @Override
-    public void validate(SecurityContext context, Credentials credentials, IdentityStore<?> identityStore) {
-        validateCredentialStore(identityStore);
+    public void validate(SecurityContext context, X509CertificateCredentials credentials,
+            CredentialStore<?> store) {
+        Agent agent = store.getAgent(context, credentials.getUsername());
 
-        if (!X509CertificateCredentials.class.isInstance(credentials)) {
-            throw MESSAGES.credentialUnsupportedType(credentials.getClass(), this);
-        }
-
-        X509CertificateCredentials certCredentials = (X509CertificateCredentials) credentials;
-
-        Agent agent = identityStore.getAgent(context, certCredentials.getUsername());
-
-        certCredentials.setStatus(Status.INVALID);
+        credentials.setStatus(Status.INVALID);
 
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
             if (agent.isEnabled()) {
-                CredentialStore store = (CredentialStore) identityStore;
-
                 X509CertificateStorage storage = store.retrieveCurrentCredential(context, agent, X509CertificateStorage.class);
 
                 if (storage != null) {
@@ -81,43 +69,26 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
                         CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
                         X509Certificate storedCert = (X509Certificate) certFactory
                                 .generateCertificate(new ByteArrayInputStream(certBytes));
-                        X509Certificate providedCert = certCredentials.getCertificate();
+                        X509Certificate providedCert = credentials.getCertificate();
 
                         if (storedCert.equals(providedCert)) {
-                            certCredentials.setStatus(Status.VALID);
-                            certCredentials.setValidatedAgent(agent);
+                            credentials.setStatus(Status.VALID);
+                            credentials.setValidatedAgent(agent);
                         }
                     } catch (Exception e) {
                         throw new IdentityManagementException("Error while checking user's certificate.", e);
                     }
                 }
             } else {
-                certCredentials.setStatus(Status.AGENT_DISABLED);
+                credentials.setStatus(Status.AGENT_DISABLED);
             }
         }
     }
 
     @Override
-    public void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore,
+    public void update(SecurityContext context, Agent agent, X509Certificate cert, CredentialStore<?> store,
             Date effectiveDate, Date expiryDate) {
-        validateCredentialStore(identityStore);
-
-        if (!X509Certificate.class.isInstance(credential)) {
-            throw MESSAGES.credentialUnsupportedType(credential.getClass(), this);
-        }
-
-        X509Certificate certificate = (X509Certificate) credential;
-        X509CertificateStorage storage = new X509CertificateStorage(certificate);
-
-        CredentialStore store = (CredentialStore) identityStore;
-
+        X509CertificateStorage storage = new X509CertificateStorage(cert);
         store.storeCredential(context, agent, storage);
     }
-
-    private void validateCredentialStore(IdentityStore<?> identityStore) {
-        if (!CredentialStore.class.isInstance(identityStore)) {
-            throw MESSAGES.credentialInvalidCredentialStoreType(identityStore.getClass());
-        }
-    }
-
 }

@@ -153,18 +153,22 @@ public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStore
         return this.supportedRelationships.get(relationshipType).contains(operation);
     }
 
+    @Override
     public Set<String> getRealms() {
         return unmodifiableSet(this.realms);
     }
 
+    @Override
     public Set<String> getTiers() {
         return unmodifiableSet(this.tiers);
     }
 
+    @Override
     public Map<FeatureGroup, Set<FeatureOperation>> getSupportedFeatures() {
         return unmodifiableMap(this.supportedFeatures);
     }
 
+    @Override
     public Map<Class<? extends Relationship>, Set<FeatureOperation>> getSupportedRelationships() {
         return unmodifiableMap(this.supportedRelationships);
     }

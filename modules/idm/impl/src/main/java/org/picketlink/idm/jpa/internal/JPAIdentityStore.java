@@ -86,7 +86,6 @@ import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
-import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 
 /**
@@ -98,7 +97,7 @@ import org.picketlink.idm.spi.SecurityContext;
  *
  */
 @CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class })
-public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfiguration>, CredentialStore {
+public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfiguration> {
 
     // Invocation context parameters
     public static final String INVOCATION_CTX_ENTITY_MANAGER = "CTX_ENTITY_MANAGER";

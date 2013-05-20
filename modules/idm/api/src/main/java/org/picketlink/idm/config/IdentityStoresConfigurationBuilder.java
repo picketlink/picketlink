@@ -137,7 +137,7 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
     }
 
     public boolean isConfigured(Class<? extends IdentityStoreConfiguration> storeConfigType) {
-        return forIdentityStoreConfig(storeConfigType, false);
+        return forIdentityStoreConfig(storeConfigType, false) != null;
     }
 
 }

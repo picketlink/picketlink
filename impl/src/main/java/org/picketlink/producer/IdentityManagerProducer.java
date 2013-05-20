@@ -26,16 +26,19 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 import org.picketlink.IdentityConfigurationEvent;
+import org.picketlink.annotations.PicketLink;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.internal.IdentityManagerFactory;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.internal.EEJPAContextInitializer;
 import org.picketlink.internal.EESecurityContextFactory;
 import org.picketlink.internal.IdentityStoreAutoConfiguration;
 import org.picketlink.internal.SecuredIdentityManager;
+import org.picketlink.internal.util.Strings;
 
 /**
  * 
@@ -59,6 +62,8 @@ public class IdentityManagerProducer {
     @Inject
     IdentityStoreAutoConfiguration autoConfig;
 
+    @Inject @PicketLink Instance<Realm> defaultRealm;
+
     private IdentityManagerFactory factory;
 
     @Inject
@@ -79,10 +84,10 @@ public class IdentityManagerProducer {
 
         if (builder.stores().isEmpty()) {
             loadAutoConfig(builder);
-        } else {
-            if (builder.stores().isConfigured(JPAIdentityStoreConfiguration.class)) {
-                builder.stores().jpa().addContextInitializer(this.jpaContextInitializer);
-            }
+        }
+        
+        if (builder.stores().isConfigured(JPAIdentityStoreConfiguration.class)) {
+            builder.stores().jpa().addContextInitializer(this.jpaContextInitializer);
         }
 
         builder.contextFactory(this.icf);
@@ -92,16 +97,32 @@ public class IdentityManagerProducer {
 
     private void loadAutoConfig(IdentityConfigurationBuilder builder) {
         if (this.autoConfig.isConfigured()) {
-            builder.stores().jpa().readFrom(this.autoConfig.getJPAConfiguration().create());
+            builder
+                .stores()
+                    .jpa()
+                        .readFrom(this.autoConfig.getJPAConfiguration().create())
+                        .supportAllFeatures();
         } else {
-            builder.stores().file().supportAllFeatures();
+            builder
+                .stores()
+                    .file()
+                        .supportAllFeatures();
         }
+    }
+
+    @Produces
+    public IdentityManagerFactory createIdentityManagerFactory() {
+        return factory;
     }
 
     @Produces
     @Dependent
     public IdentityManager createIdentityManager() {
-        return new SecuredIdentityManager(this.factory.createIdentityManager());
+        if (defaultRealm.isUnsatisfied() || Strings.isEmpty(defaultRealm.get().getId())) {
+            return new SecuredIdentityManager(this.factory.createIdentityManager());
+        } else {
+            return new SecuredIdentityManager(this.factory.createIdentityManager(defaultRealm.get()));
+        }
     }
 
 }

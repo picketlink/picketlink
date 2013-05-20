@@ -23,7 +23,6 @@ import javax.inject.Inject;
 
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityCache;
-import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.internal.DefaultIdGenerator;
 import org.picketlink.idm.internal.DefaultIdentityCache;
@@ -47,7 +46,7 @@ public class EESecurityContextFactory extends DefaultSecurityContextFactory impl
     private IdGenerator idGenerator;
 
     public EESecurityContextFactory() {
-        credentialHandlerFactory = new DefaultCredentialHandlerFactory();
+        credentialHandlerFactory = new CredentialHandlerFactory();
         identityCache = new DefaultIdentityCache();
         idGenerator = new DefaultIdGenerator();
     }

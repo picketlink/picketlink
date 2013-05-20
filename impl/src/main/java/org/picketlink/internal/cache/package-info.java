@@ -16,21 +16,9 @@
  * limitations under the License.
  */
 
-package org.picketlink.authentication;
-
 /**
- * Selects which Authenticator implementation is used to manage the authentication process 
- * 
- * @author Shane Bryzak
+ * Package contains default cache implementation
+ * @author anil saldhana
+ * @since May 10, 2013
  */
-public interface AuthenticatorSelector {
-    Class<? extends Authenticator> getAuthenticatorClass();
-
-    void setAuthenticatorClass(Class<? extends Authenticator> authenticatorClass);
-
-    String getAuthenticatorName();
-
-    void setAuthenticatorName(String authenticatorName);
-
-    Authenticator getSelectedAuthenticator();
-}
+package org.picketlink.internal.cache;

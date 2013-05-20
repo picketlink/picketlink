@@ -20,16 +20,17 @@ package org.picketlink.idm.spi;
 
 import java.util.List;
 
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.model.Agent;
 
 /**
- * An optional interface typically implemented by an IdentityStore that supports the storage of credential related state
+ * A special type of IdentityStore that supports the storage of raw credential state also
  *
  * @author Shane Bryzak
  *
  */
-public interface CredentialStore {
+public interface CredentialStore<T extends IdentityStoreConfiguration> extends IdentityStore<T> {
 
     /**
      * Store the specified credential state
