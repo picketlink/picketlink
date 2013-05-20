@@ -21,7 +21,7 @@ Before releasing make sure your environment is properly configured as follows:
 
 To release, simply run:  
       
-      ./release.sh --current-version <old snapshot version> --version <release version>
+      ./release.sh --snapshot <from snapshot version> --version <release version>
 
   This will perform the following steps:
   
