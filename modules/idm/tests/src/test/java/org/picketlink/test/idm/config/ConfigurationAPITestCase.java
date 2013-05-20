@@ -44,7 +44,6 @@ public class ConfigurationAPITestCase {
             .stores()
                 .file()
                     .workingDirectory("/tmp/pl-idm")
-                    .preserveState(false)
                     .asyncWrite(true)
                     .asyncWriteThreadPool(10)
                     .supportAllFeatures();
