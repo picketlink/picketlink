@@ -56,14 +56,6 @@
       </itemizedlist>
       
     </section>
-  <section>
-    <title>Additional Information</title>
-    <note>Please refer to exhaustive documentation on PicketLink Confluence Site.
-       <itemizedlist>
-         <listitem> <para><ulink url="https://docs.jboss.org/author/display/PLINK/User+Guide">User Guide</ulink></para></listitem>
-       </itemizedlist>
-    </note>
-  </section>
   
    <section id="sid-23986211_FederationProtocols-PicketLinkSAMLSpecificationSupport">
         
@@ -154,7 +146,7 @@
 <title>TODO InformalFigure image title empty</title>
                   <mediaobject>
                     <imageobject>
-                      <imagedata fileref="author/download/attachments/24838682/sso.png"/>
+                      <imagedata fileref="diagrams/federation/sso.png"/>
                     </imageobject>
                   </mediaobject>
                 </figure>
@@ -1694,7 +1686,7 @@
 <title>TODO InformalFigure image title empty</title>
                   <mediaobject>
                     <imageobject>
-                      <imagedata fileref="author/download/attachments/24838548/sso.png"/>
+                      <imagedata fileref="diagrams/federation/sso.png"/>
                     </imageobject>
                   </mediaobject>
                 </figure>
@@ -3196,7 +3188,7 @@
 <title>TODO InformalFigure image title empty</title>
                 <mediaobject>
                   <imageobject>
-                    <imagedata fileref="author/download/attachments/6815858/sso.png"/>
+                    <imagedata fileref="diagrams/federation/sso.png"/>
                   </imageobject>
                 </mediaobject>
               </figure>
@@ -8308,7 +8300,7 @@ javax.security.auth.login.FailedLoginException: Password Incorrect/Password Requ
 <title>TODO InformalFigure image title empty</title>
                     <mediaobject>
                       <imageobject>
-                        <imagedata fileref="author/download/attachments/50004110/salesforce-sso-screenshot.png"/>
+                        <imagedata fileref="diagrams/federation/salesforce-sso-screenshot.png"/>
                       </imageobject>
                     </mediaobject>
                   </figure>
@@ -8372,7 +8364,7 @@ keytool -export -keystore jbid_test_keystore.jks -alias servercert -file test-ce
 <title>TODO InformalFigure image title empty</title>
               <mediaobject>
                 <imageobject>
-                  <imagedata fileref="author/download/attachments/50004110/salesforce-user-creation.png"/>
+                  <imagedata fileref="diagrams/federation/salesforce-user-creation.png"/>
                 </imageobject>
               </mediaobject>
             </figure>
@@ -8470,7 +8462,7 @@ keytool -import -keystore jbid_test_keystore.jks -file proxy-salesforce-com.123 
 <title>TODO InformalFigure image title empty</title>
                 <mediaobject>
                   <imageobject>
-                    <imagedata fileref="author/download/attachments/50004110/salesforce-sso-settings.png"/>
+                    <imagedata fileref="diagrams/federation/salesforce-sso-settings.png"/>
                   </imageobject>
                 </mediaobject>
               </figure>
@@ -8606,7 +8598,7 @@ keytool -import -keystore jbid_test_keystore.jks -file proxy-salesforce-com.123 
 <title>TODO InformalFigure image title empty</title>
                 <mediaobject>
                   <imageobject>
-                    <imagedata fileref="author/download/attachments/50004122/salesforce-idp-certificate-creation.png"/>
+                    <imagedata fileref="diagrams/federation/salesforce-idp-certificate-creation.png"/>
                   </imageobject>
                 </mediaobject>
               </figure>
@@ -8662,7 +8654,7 @@ keytool -import -keystore jbid_test_keystore.jks -file proxy-salesforce-com.123 
 <title>TODO InformalFigure image title empty</title>
                 <mediaobject>
                   <imageobject>
-                    <imagedata fileref="author/download/attachments/50004122/salesforce-idp-configurationOfSP.png"/>
+                    <imagedata fileref="diagrams/federation/salesforce-idp-configurationOfSP.png"/>
                   </imageobject>
                 </mediaobject>
               </figure>
@@ -8868,7 +8860,7 @@ tomcat=manager,employee,sales
 <title>TODO InformalFigure image title empty</title>
                 <mediaobject>
                   <imageobject>
-                    <imagedata fileref="author/download/attachments/50004133/google-users.png"/>
+                    <imagedata fileref="diagrams/federation/google-users.png"/>
                   </imageobject>
                 </mediaobject>
               </figure>
@@ -8909,7 +8901,7 @@ tomcat=manager,employee,sales
 <title>TODO InformalFigure image title empty</title>
               <mediaobject>
                 <imageobject>
-                  <imagedata fileref="author/download/attachments/50004133/google-sso.png"/>
+                  <imagedata fileref="diagrams/federation/google-sso.png"/>
                 </imageobject>
               </mediaobject>
             </figure>
