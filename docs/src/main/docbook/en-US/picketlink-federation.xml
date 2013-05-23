@@ -258,7 +258,10 @@
                     <row>
                       <entry>
                         <para>
-                          <link linkend="sid-6815860">org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve</link>
+                          <link linkend="sid-6815860">org.picketlink.
+                            identity.federation.
+                            bindings.tomcat.
+                            idp.IDPWebBrowserSSOValve</link>
                         </para>
                       </entry>
                       <entry>
@@ -318,9 +321,14 @@
                 <title>Attributes</title>
                 <informaltable>
                   <tgroup cols="5">
+                    <colspec colnum="1" colname="col1" colwidth="0.25*"/>
+                    <colspec colnum="2" colname="col2" colwidth="2.5*"/>
+                    <colspec colnum="3" colname="col3" colwidth="0.5**"/>
+                    <colspec colnum="4" colname="col4" colwidth="3*"/>
+                    <colspec colnum="5" colname="col5" colwidth="1*"/>
                     <thead>
                       <row>
-                        <entry>
+                        <entry >
                           <para>
                             #
                             
@@ -408,7 +416,8 @@
                           <para>
                             an
                             <emphasis role="italics">optional</emphasis>
-                            implementation of the SAMLConfigurationProvider interface. Provide the fully qualified name.
+                            implementation of the SAMLConfigurationProvider interface. 
+                            Provide the fully qualified name.
                             
                           </para>
                         </entry>
@@ -469,7 +478,8 @@
                         </entry>
                         <entry>
                           <para>
-                            if the IDP should not generate attribute statements in response to Service Providers
+                            if the IDP should not generate attribute statements in 
+                            response to Service Providers
                             
                           </para>
                         </entry>
@@ -507,7 +517,6 @@
                         <entry>
                           <para>
                             2.0
-                            
                             <emphasis role="strong">Deprecated since 2.1.2.</emphasis>
                             
                           </para>
@@ -534,7 +543,9 @@
                             optional fqn of a role generator
                             
                             
-                            Default: org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator
+                            Default: org.picketlink.identity.
+                            federation.bindings.
+                            tomcat.TomcatRoleGenerator
                           </para>
                         </entry>
                         <entry>
@@ -854,14 +865,19 @@
                         <entry>
                           <para>
                             Defines the name of the
-                            <emphasis role="strong">org.picketlink.identity.federation.core.interfaces.RoleGenerator</emphasis>
+                            <emphasis role="strong">org.picketlink.
+                              identity.federation.
+                              core.interfaces.
+                              RoleGenerator</emphasis>
                             subclass to be used to obtain user roles.
                           </para>
                         </entry>
                         <entry>
                           <para>
                             Defaults to
-                            <emphasis role="strong">org.picketlink.identity.federation.core.impl.EmptyRoleGenerator</emphasis>
+                            <emphasis role="strong">org.picketlink.identity.
+                              federation.core.
+                              impl.EmptyRoleGenerator</emphasis>
                             <emphasis role="italics">.</emphasis>
                             
                           </para>
@@ -877,7 +893,10 @@
                         <entry>
                           <para>
                             Defines the name of the
-                            <emphasis role="strong">org.picketlink.identity.federation.core.interfaces.AttributeManager</emphasis>
+                            <emphasis role="strong">org.picketlink.
+                              identity.federation.
+                              core.interfaces.
+                              AttributeManager</emphasis>
                             subclass to be used to obtain the SAML assertion attributes.
                             
                           </para>
@@ -885,7 +904,10 @@
                         <entry>
                           <para>
                             Defautls to
-                            <emphasis role="strong">org.picketlink.identity.federation.core.impl.EmptyAttributeManager</emphasis>
+                            <emphasis role="strong">org.picketlink.
+                              identity.federation.
+                              core.impl.
+                              EmptyAttributeManager</emphasis>
                             .
                           </para>
                         </entry>
@@ -955,14 +977,20 @@
                         <entry>
                           <para>
                             Defines the name of the
-                            <emphasis role="strong">org.picketlink.identity.federation.web.core.IdentityParticipantStack</emphasis>
+                            <emphasis role="strong">org.picketlink.
+                              identity.federation.
+                              web.core.
+                              IdentityParticipantStack</emphasis>
                             subclass to be used to register and deregister participants in the identity federation.
                           </para>
                         </entry>
                         <entry>
                           <para>
                             Defaults to
-                            <emphasis role="strong">org.picketlink.identity.federation.web.core.IdentityServer.STACK.</emphasis>
+                            <emphasis role="strong">org.picketlink.
+                              identity.federation.
+                              web.core.
+                              IdentityServer.STACK.</emphasis>
                           </para>
                         </entry>
                       </row>
@@ -1111,7 +1139,7 @@
 &lt;jboss-web&gt;    
     &lt;security-domain&gt;idp&lt;/security-domain&gt;
     &lt;valve&gt;
-        &lt;class-name&gt;org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve&lt;/class-name&gt;
+  &lt;class-name&gt;org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve&lt;/class-name&gt;
     &lt;/valve&gt;
 &lt;/jboss-web&gt;</programlisting>
               </informalexample>
@@ -1798,7 +1826,10 @@
                     <row>
                       <entry>
                         <para>
-                          <link linkend="sid-24674925">org.picketlink.identity.federation.bindings.tomcat.sp.ServiceProviderAuthenticator</link>
+                          <link linkend="sid-24674925">org.picketlink.identity.
+                            federation.bindings.
+                            tomcat.sp.
+                            ServiceProviderAuthenticator</link>
                           
                         </para>
                       </entry>
@@ -1809,7 +1840,10 @@
                     <row>
                       <entry>
                         <para>
-                          <link linkend="sid-6815869">org.picketlink.identity.federation.bindings.tomcat.sp.SPPostFormAuthenticator</link>
+                          <link linkend="sid-6815869">org.picketlink.
+                            identity.federation.
+                            bindings.tomcat.
+                            sp.SPPostFormAuthenticator</link>
                         </para>
                       </entry>
                       <entry>
@@ -1822,7 +1856,10 @@
                     <row>
                       <entry>
                         <para>
-                          <link linkend="sid-6815879">org.picketlink.identity.federation.bindings.tomcat.sp.SPPostSignatureFormAuthenticator</link>
+                          <link linkend="sid-6815879">org.picketlink.
+                            identity.federation.
+                            bindings.tomcat.
+                            sp.SPPostSignatureFormAuthenticator</link>
                         </para>
                       </entry>
                       <entry>
@@ -1835,7 +1872,10 @@
                     <row>
                       <entry>
                         <para>
-                          <link linkend="sid-6815876">org.picketlink.identity.federation.bindings.tomcat.sp.SPRedirectFormAuthenticator</link>
+                          <link linkend="sid-6815876">org.picketlink.
+                            identity.federation.
+                            bindings.tomcat.
+                            sp.SPRedirectFormAuthenticator</link>
                           
                         </para>
                       </entry>
@@ -1850,7 +1890,10 @@
                     <row>
                       <entry>
                         <para>
-                          <link linkend="sid-6815889">org.picketlink.identity.federation.bindings.tomcat.sp.SPRedirectSignatureFormAuthenticator</link>
+                          <link linkend="sid-6815889">org.picketlink.
+                            identity.federation.
+                            bindings.tomcat.
+                            sp.SPRedirectSignatureFormAuthenticator</link>
                           
                         </para>
                       </entry>
@@ -1968,6 +2011,11 @@
                   <title>Attributes</title>
                   <informaltable>
                     <tgroup cols="5">
+                      <colspec colnum="1" colname="col1" colwidth="0.25*"/>
+                      <colspec colnum="2" colname="col2" colwidth="2.5*"/>
+                      <colspec colnum="3" colname="col3" colwidth="0.5**"/>
+                      <colspec colnum="4" colname="col4" colwidth="3*"/>
+                      <colspec colnum="5" colname="col5" colwidth="1*"/>
                       <thead>
                         <row>
                           <entry>
@@ -2278,6 +2326,11 @@
                   <title>Attributes</title>
                   <informaltable>
                     <tgroup cols="5">
+                      <colspec colnum="1" colname="col1" colwidth="0.25*"/>
+                      <colspec colnum="2" colname="col2" colwidth="2.5*"/>
+                      <colspec colnum="3" colname="col3" colwidth="0.5**"/>
+                      <colspec colnum="4" colname="col4" colwidth="3*"/>
+                      <colspec colnum="5" colname="col5" colwidth="1*"/>
                       <thead>
                         <row>
                           <entry>
@@ -2580,6 +2633,11 @@
                   <title>Attributes</title>
                   <informaltable>
                     <tgroup cols="5">
+                      <colspec colnum="1" colname="col1" colwidth="0.25*"/>
+                      <colspec colnum="2" colname="col2" colwidth="2.5*"/>
+                      <colspec colnum="3" colname="col3" colwidth="0.5**"/>
+                      <colspec colnum="4" colname="col4" colwidth="3*"/>
+                      <colspec colnum="5" colname="col5" colwidth="1*"/>
                       <thead>
                         <row>
                           <entry>
@@ -2890,6 +2948,11 @@
                   <title>Attributes</title>
                   <informaltable>
                     <tgroup cols="5">
+                      <colspec colnum="1" colname="col1" colwidth="0.25*"/>
+                      <colspec colnum="2" colname="col2" colwidth="2.5*"/>
+                      <colspec colnum="3" colname="col3" colwidth="0.5**"/>
+                      <colspec colnum="4" colname="col4" colwidth="3*"/>
+                      <colspec colnum="5" colname="col5" colwidth="1*"/>
                       <thead>
                         <row>
                           <entry>
@@ -3516,14 +3579,22 @@
                       <entry>
                         <para>
                           Defines the name of a class that implements the
-                          <emphasis role="italics">org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChain</emphasis>
+                          <emphasis role="italics">org.picketlink.
+                            identity.federation.
+                            core.saml.
+                            v2.interfaces.
+                            SAML2HandlerChain</emphasis>
                           interface.
                         </para>
                       </entry>
                       <entry>
                         <para>
                           Defaults to
-                          <emphasis role="strong">org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChain.</emphasis>
+                          <emphasis role="strong">org.picketlink.
+                            identity.federation.
+                            core.saml.
+                            v2.impl.
+                            DefaultSAML2HandlerChain.</emphasis>
                         </para>
                       </entry>
                     </row>
@@ -3554,7 +3625,11 @@
                       </entry>
                       <entry>
                         <para>
-                          Defines the name of a class that implements the _org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler _interface.
+                          Defines the name of a class that implements the org.picketlink.
+                          identity.federation.
+                          core.saml.
+                          v2.interfaces.
+                          SAML2Handler interface.
                           
                         </para>
                       </entry>
@@ -3697,7 +3772,8 @@
                         </para>
                       </entry>
                       <entry>
-                        <para>ATTRIBUTE_MANAGER</para>
+                        <para>ATTRIBUTE_
+                          MANAGER</para>
                       </entry>
                       <entry>
                         <para>
@@ -3712,7 +3788,10 @@
                         </para>
                       </entry>
                       <entry>
-                        <para>org.picketlink.identity.federation.core.impl.EmptyAttributeManager</para>
+                        <para>org.picketlink.
+                          identity.federation.
+                          core.impl.
+                          EmptyAttributeManager</para>
                       </entry>
                       <entry>
                         <para>
@@ -3735,7 +3814,10 @@
                 <title>Example:</title>
                 <example>
                   <title>WEB-INF/picketlink-handlers.xml</title>
-                  <programlisting>&lt;Handler class="org.picketlink.identity.federation.web.handlers.saml2.RolesGenerationHandler"&gt;
+                  <programlisting>&lt;Handler class="org.picketlink.
+                    identity.federation.
+                    web.handlers.
+                    saml2.RolesGenerationHandler"&gt;
 &lt;Option Key="ATTRIBUTE_MANAGER" Value="org.some.fun.class"/&gt;
 &lt;/Handler&gt; </programlisting>
                 </example>
@@ -3833,7 +3915,8 @@
                         </para>
                       </entry>
                       <entry>
-                        <para>ATTRIBUTE_MANAGER</para>
+                        <para>ATTRIBUTE_
+                          MANAGER</para>
                       </entry>
                       <entry>
                         <para>
@@ -3848,7 +3931,10 @@
                         </para>
                       </entry>
                       <entry>
-                        <para>org.picketlink.identity.federation.core.impl.EmptyAttributeManager</para>
+                        <para>org.picketlink.
+                          identity.federation.
+                          core.impl.
+                          EmptyAttributeManager</para>
                       </entry>
                       <entry>
                         <para>
@@ -3871,7 +3957,8 @@
                         </para>
                       </entry>
                       <entry>
-                        <para>ATTRIBUTE_KEYS</para>
+                        <para>ATTRIBUTE_
+                          KEYS</para>
                       </entry>
                       <entry>
                         <para>
@@ -3906,7 +3993,10 @@
                         </para>
                       </entry>
                       <entry>
-                        <para>ATTRIBUTE_CHOOSE_FRIENDLY_NAME</para>
+                        <para>ATTRIBUTE_
+                          CHOOSE_
+                          FRIENDLY_
+                          NAME</para>
                       </entry>
                       <entry>
                         <para>
@@ -3941,7 +4031,10 @@
                 <title>Example:</title>
                 <example>
                   <title>WEB-INF/picketlink-handlers.xml</title>
-                  <programlisting>&lt;Handler class="org.picketlink.identity.federation.web.handlers.saml2.SAML2AttributeHandler"&gt;
+                  <programlisting>&lt;Handler class="org.picketlink.
+                    identity.federation.
+                    web.handlers.
+                    saml2.SAML2AttributeHandler"&gt;
 &lt;Option Key="ATTRIBUTE_CHOOSE_FRIENDLY_NAME" Value="true"/&gt;
 &lt;/Handler&gt;</programlisting>
                 </example>
@@ -4070,7 +4163,9 @@
                         </para>
                       </entry>
                       <entry>
-                        <para>CLOCK_SKEW_MILIS</para>
+                        <para>CLOCK_
+                          SKEW_
+                          MILIS</para>
                       </entry>
                       <entry>
                         <para>
@@ -4105,7 +4200,9 @@
                         </para>
                       </entry>
                       <entry>
-                        <para>DISABLE_AUTHN_STATEMENT</para>
+                        <para>DISABLE_
+                          AUTHN_
+                          STATEMENT</para>
                       </entry>
                       <entry>
                         <para>
@@ -4137,7 +4234,9 @@
                         </para>
                       </entry>
                       <entry>
-                        <para>DISABLE_SENDING_ROLES</para>
+                        <para>DISABLE_
+                          SENDING_
+                          ROLES</para>
                       </entry>
                       <entry>
                         <para>
@@ -4169,7 +4268,9 @@
                         </para>
                       </entry>
                       <entry>
-                        <para>DISABLE_ROLE_PICKING</para>
+                        <para>DISABLE_
+                          ROLE_
+                          PICKING</para>
                       </entry>
                       <entry>
                         <para>
@@ -4201,7 +4302,8 @@
                         </para>
                       </entry>
                       <entry>
-                        <para>ROLE_KEY</para>
+                        <para>ROLE_
+                          KEY</para>
                       </entry>
                       <entry>
                         <para>
@@ -4233,7 +4335,9 @@
                         </para>
                       </entry>
                       <entry>
-                        <para>ASSERTION_CONSUMER_URL</para>
+                        <para>ASSERTION_
+                          CONSUMER_
+                          URL</para>
                       </entry>
                       <entry>
                         <para>
@@ -4265,7 +4369,8 @@
                         </para>
                       </entry>
                       <entry>
-                        <para>NAMEID_FORMAT</para>
+                        <para>NAMEID_
+                          FORMAT</para>
                       </entry>
                       <entry>
                         <para>
@@ -4295,7 +4400,10 @@
                       </entry>
                       <entry>
                         <para>
-                          ASSERTION_SESSION_ATTRIBUTE_NAME
+                          ASSERTION_
+                          SESSION_
+                          ATTRIBUTE_
+                          NAME
                           
                         </para>
                       </entry>
@@ -4324,7 +4432,9 @@
                 <title>Example:</title>
                 <example>
                   <title>WEB-INF/picketlink-handlers.xml</title>
-                  <programlisting>&lt;Handler class="org.picketlink.identity.federation.web.handlers.saml2.SAML2AuthenticationHandler"&gt;
+                  <programlisting>&lt;Handler class="org.picketlink.identity.
+                    federation.web.
+                    handlers.saml2.SAML2AuthenticationHandler"&gt;
 &lt;Option Key="DISABLE_ROLE_PICKING" Value="true"/&gt;
 &lt;/Handler&gt;</programlisting>
                 </example>
@@ -5009,7 +5119,10 @@
                   <row>
                     <entry>
                       <para>
-                        org.picketlink.identity.federation.web.config.IDPMetadataConfigurationProvider
+                        org.picketlink.
+                        identity.federation.
+                        web.config.
+                        IDPMetadataConfigurationProvider
                         
                       </para>
                     </entry>
@@ -5023,7 +5136,10 @@
                   <row>
                     <entry>
                       <para>
-                        org.picketlink.identity.federation.web.config.SPPostMetadataConfigurationProvider
+                        org.picketlink.
+                        identity.federation.
+                        web.config.
+                        SPPostMetadataConfigurationProvider
                         
                       </para>
                     </entry>
@@ -5040,7 +5156,9 @@
                   <row>
                     <entry>
                       <para>
-                        org.picketlink.identity.federation.web.config.SPRedirectMetadataConfigurationProvider
+                        org.picketlink.identity.
+                        federation.web.
+                        config.SPRedirectMetadataConfigurationProvider
                         
                       </para>
                     </entry>
@@ -5193,7 +5311,10 @@
                   <row>
                     <entry>
                       <para>
-                        org.picketlink.identity.federation.core.sts.registry.DefaultTokenRegistry
+                        org.picketlink.
+                        identity.federation.
+                        core.sts.
+                        registry.DefaultTokenRegistry
                         
                       </para>
                     </entry>
@@ -5210,7 +5331,10 @@
                   <row>
                     <entry>
                       <para>
-                        org.picketlink.identity.federation.core.sts.registry.FileBasedTokenRegistry
+                        org.picketlink.
+                        identity.federation.
+                        core.sts.
+                        registry.FileBasedTokenRegistry
                         
                       </para>
                     </entry>
@@ -5224,7 +5348,10 @@
                   <row>
                     <entry>
                       <para>
-                        org.picketlink.identity.federation.core.sts.registry.JPABasedTokenRegistry
+                        org.picketlink.
+                        identity.federation.
+                        core.sts.
+                        registry.JPABasedTokenRegistry
                         
                       </para>
                     </entry>
@@ -5595,7 +5722,10 @@ to retry login
                         </para>
                       </entry>
                       <entry>
-                        <para>org.picketlink.identity.federation.web.handlers.DefaultLoginHandler</para>
+                        <para>org.picketlink.
+                          identity.federation.
+                          web.handlers.
+                          DefaultLoginHandler</para>
                       </entry>
                       <entry>
                         <para>
@@ -5717,7 +5847,8 @@ to retry login
                         </para>
                       </entry>
                       <entry>
-                        <para>CONFIG_PROVIDER</para>
+                        <para>CONFIG_
+                          PROVIDER</para>
                       </entry>
                       <entry>
                         <para>
@@ -5751,7 +5882,9 @@ to retry login
                         </para>
                       </entry>
                       <entry>
-                        <para>SIGN_OUTGOING_MESSAGES</para>
+                        <para>SIGN_
+                          OUTGOING_
+                          MESSAGES</para>
                       </entry>
                       <entry>
                         <para>
@@ -5783,7 +5916,8 @@ to retry login
                         </para>
                       </entry>
                       <entry>
-                        <para>ROLE_GENERATOR</para>
+                        <para>ROLE_
+                          GENERATOR</para>
                       </entry>
                       <entry>
                         <para>
@@ -5798,7 +5932,10 @@ to retry login
                         </para>
                       </entry>
                       <entry>
-                        <para>org.picketlink.identity.federation.web.roles.DefaultRoleGenerator</para>
+                        <para>org.picketlink.
+                          identity.federation.
+                          web.roles.
+                          DefaultRoleGenerator</para>
                       </entry>
                       <entry>
                         <para>
@@ -5815,7 +5952,8 @@ to retry login
                         </para>
                       </entry>
                       <entry>
-                        <para>ATTRIBUTE_KEYS</para>
+                        <para>ATTRIBUTE_
+                          KEYS</para>
                       </entry>
                       <entry>
                         <para>
@@ -5847,7 +5985,9 @@ to retry login
                         </para>
                       </entry>
                       <entry>
-                        <para>IDENTITY_PARTICIPANT_STACK</para>
+                        <para>IDENTITY_
+                          PARTICIPANT_
+                          STACK</para>
                       </entry>
                       <entry>
                         <para>
@@ -5963,7 +6103,8 @@ to retry login
                         </para>
                       </entry>
                       <entry>
-                        <para>IGNORE_SIGNATURES</para>
+                        <para>IGNORE_
+                          SIGNATURES</para>
                       </entry>
                       <entry>
                         <para>
@@ -5998,7 +6139,10 @@ to retry login
                         </para>
                       </entry>
                       <entry>
-                        <para>SAML_HANDLER_CHAIN_CLASS</para>
+                        <para>SAML_
+                          HANDLER_
+                          CHAIN_
+                          CLASS</para>
                       </entry>
                       <entry>
                         <para>
@@ -6032,7 +6176,8 @@ to retry login
                         </para>
                       </entry>
                       <entry>
-                        <para>ROLE_VALIDATOR</para>
+                        <para>ROLE_
+                          VALIDATOR</para>
                       </entry>
                       <entry>
                         <para>
@@ -6047,7 +6192,10 @@ to retry login
                         </para>
                       </entry>
                       <entry>
-                        <para>org.picketlink.identity.federation.web.roles.DefaultRoleValidator</para>
+                        <para>org.picketlink.
+                          identity.federation.
+                          web.roles.
+                          DefaultRoleValidator</para>
                       </entry>
                       <entry>
                         <para>
@@ -6096,7 +6244,8 @@ to retry login
                         </para>
                       </entry>
                       <entry>
-                        <para>LOGOUT_PAGE</para>
+                        <para>LOGOUT_
+                          PAGE</para>
                       </entry>
                       <entry>
                         <para>
