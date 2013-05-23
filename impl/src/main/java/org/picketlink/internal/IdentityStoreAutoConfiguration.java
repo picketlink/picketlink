@@ -15,6 +15,7 @@ import org.picketlink.idm.jpa.annotations.IdentityAttribute;
 import org.picketlink.idm.jpa.annotations.IdentityCredential;
 import org.picketlink.idm.jpa.annotations.IdentityType;
 import org.picketlink.idm.jpa.annotations.Partition;
+import org.picketlink.idm.jpa.annotations.Relationship;
 import org.picketlink.idm.jpa.annotations.RelationshipAttribute;
 import org.picketlink.idm.jpa.annotations.RelationshipIdentity;
 
@@ -45,6 +46,8 @@ public class IdentityStoreAutoConfiguration implements Extension {
                 jpaConfig.credentialAttributeClass(type.getJavaClass());
             } else if (type.isAnnotationPresent(IdentityAttribute.class)) {
                 jpaConfig.attributeClass(type.getJavaClass()); 
+            } else if (type.isAnnotationPresent(Relationship.class)) {
+                jpaConfig.relationshipClass(type.getJavaClass());
             } else if (type.isAnnotationPresent(RelationshipIdentity.class)) {
                 jpaConfig.relationshipIdentityClass(type.getJavaClass());
             } else if (type.isAnnotationPresent(RelationshipAttribute.class)) {
