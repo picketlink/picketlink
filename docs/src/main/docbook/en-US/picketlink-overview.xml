@@ -39,6 +39,7 @@
           with a sensible default authentication policy that delegates to the identity management subsystem. It provides
           session-scoped authentication tracking for web applications and other session-capable clients, plus a
           customisable permissions SPI that supports a flexible range of authorization mechanisms for object-level security.
+          It is also the "glue" that integrates all of the PicketLink modules together to provide a cohesive API.
         </para>
         
         <para>
@@ -67,7 +68,9 @@
           that represent the identity constructs (such as users, groups and roles) used throughout PicketLink (see
           the Identity Management chapter for more details).  As such, it is a required module and must always be 
           included in any application deployments that use PicketLink for security. It also provides a uniform API 
-          for managing the identity objects within your application. 
+          for managing the identity objects within your application.   The Identity Management module has been designed
+          with minimal dependencies and may be used in a Java SE environment, however the recommended environment is
+          Java EE in conjunction with the base module.
         </para>
         
         <para>
@@ -104,7 +107,7 @@
       <title>License</title>
       
       <para>
-        PicketLink 3.0 is licensed under the Apache License Version 2, the terms and conditions of which can be found at
+        PicketLink is licensed under the Apache License Version 2, the terms and conditions of which can be found at
         <ulink url="http://www.apache.org/licenses/LICENSE-2.0.html">apache.org</ulink>.
       </para>
     </section>

@@ -33,9 +33,54 @@
         </imageobject>
       </mediaobject> 
       
+    </section>
+    
+    <section>
+      <title>Getting Started in 5 Minutes</title>
+      
       <para>
-        Before PicketLink IDM can be used, it must first be configured.  See the configuration section below for details on
-        how to configure IDM for both Java EE and Java SE environments.
+        If you'd like to get up and running with IDM quickly, the good news is that PicketLink will provide a default configuration 
+        that stores your identity data on the file system if no other configuration is available.  This means that if you 
+        have the PicketLink libraries in your project, you can simply inject the <code>IdentityManager</code> bean into your own 
+        classes and start using it immediately:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[@Inject IdentityManager identityManager;]]></programlisting>
+      
+      <para>
+        Once you have injected the <code>IdentityManager</code> you can begin creating users, groups and roles for your 
+        application:  
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[User user = new SimpleUser("jane");
+user.setFirstName("Jane");
+user.setLastName("Doe");
+identityManager.add(user);
+
+Group group = new SimpleGroup("employees");
+identityManager.add(group);
+
+Role admin = new SimpleRole("admin");
+identityManager.add(admin);]]></programlisting>
+
+      <para>
+        It is also quite easy to override the default behaviour and provide your own configuration - simply provide a producer
+        method in your application that returns an <code>IdentityConfiguration</code> object:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[@Produces
+public IdentityConfiguration createIdentityConfiguration() {
+    IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+    builder
+        .stores()
+            .file()
+                .supportAllFeatures();
+    return builder.build();
+}]]></programlisting>
+
+      <para>
+        The code above essentially produces a configuration identical to the default configuration.  If you'd like to use LDAP or JPA
+        to store your identity data, you'll also find example configurations later in this chapter.
       </para>
     </section>
     
