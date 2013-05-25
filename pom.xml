@@ -61,7 +61,7 @@
       <module>modules/federation</module>
       <module>modules/social</module>
       <module>modules/oauth</module>
-      <module>modules/scim</module>
+      <module>modules/rest</module>
    </modules>
 
    <dependencyManagement>

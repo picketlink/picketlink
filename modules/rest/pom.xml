@@ -20,21 +20,23 @@
       <relativePath>../../pom.xml</relativePath>
    </parent>
    <modelVersion>4.0.0</modelVersion>
-   <artifactId>picketlink-scim</artifactId>
+   <artifactId>picketlink-rest</artifactId>
    <packaging>jar</packaging>
-   <name>PicketLink SCIM</name>
+   <name>PicketLink REST</name>
    <url>http://jboss.org/picketlink/</url>
-   <description>PicketLink SCIM contains implementation of the v1.1 specification</description>
+   <description>PicketLink REST provides a set of RESTful identity services and clients, including support for SCIM 1.1</description>
    <licenses>
       <license>
-         <name>lgpl</name>
-         <url>http://repository.jboss.com/licenses/lgpl.txt</url>
+         <name>Apache License, Version 2.0</name>
+         <distribution>repo</distribution>
+         <url>http://www.apache.org/licenses/LICENSE-2.0</url>
       </license>
    </licenses>
    <organization>
       <name>JBoss Inc.</name>
       <url>http://www.jboss.org</url>
    </organization>
+
    <properties>
       <resteasy.version>2.3.6.Final</resteasy.version>
       <arquillian.version>1.0.1.Final</arquillian.version>
@@ -42,6 +44,7 @@
       <jboss.bom.version>1.0.0.M7</jboss.bom.version>
       <javaee6.spec.version>3.0.2.Final</javaee6.spec.version>
    </properties>
+
    <build>
       <plugins>
          <plugin>
