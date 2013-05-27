@@ -20,6 +20,7 @@ package org.picketlink.permission.internal;
 
 import java.io.Serializable;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
@@ -30,16 +31,18 @@ import org.picketlink.permission.PermissionResolver.PermissionStatus;
  * Uses the available PermissionResolver instances to determine whether an application permission
  * is to be allowed or denied. 
  *
+ * @author Shane Bryzak
  */
+@ApplicationScoped
 public class PermissionMapper
 {
     @Inject 
     private Instance<PermissionResolver> resolvers;
-    
+
     public boolean resolvePermission(Object resource, String operation)
     {
         boolean permit = false;
-         
+
         for (PermissionResolver resolver : resolvers)
         {
             PermissionStatus status = resolver.hasPermission(resource, operation);
@@ -52,14 +55,14 @@ public class PermissionMapper
                 return false;
             }
         }
-        
+
         return permit;
     }
-    
+
     public boolean resolvePermission(Class<?> resourceClass, Serializable identifier, String operation)
     {
         boolean permit = false;
-        
+
         for (PermissionResolver resolver : resolvers)
         {
             PermissionStatus status = resolver.hasPermission(resourceClass, identifier, operation);
@@ -72,7 +75,7 @@ public class PermissionMapper
                 return false;
             }
         }
-        
-        return permit;        
+
+        return permit;
     }
 }
