@@ -49,6 +49,7 @@ import javax.xml.transform.stax.StAXSource;
 import org.picketlink.common.ErrorCodes;
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
@@ -92,13 +93,25 @@ public class TransformerUtil {
 
     /**
      * <p>Creates a {@link TransformerFactory}. The returned instance is cached and shared between different threads.</p>
-     * 
+     *
      * @return
      * @throws TransformerFactoryConfigurationError
      */
-    private static TransformerFactory getTransformerFactory() throws TransformerFactoryConfigurationError {
+    public static TransformerFactory getTransformerFactory() throws TransformerFactoryConfigurationError {
         if (transformerFactory == null) {
-            transformerFactory = TransformerFactory.newInstance();
+            boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP, "false")
+                    .equalsIgnoreCase("true");
+            ClassLoader prevTCCL = SecurityActions.getTCCL();
+            try{
+                if(tccl_jaxp){
+                    SecurityActions.setTCCL(TransformerUtil.class.getClassLoader());
+                }
+                transformerFactory = TransformerFactory.newInstance();
+            } finally {
+                if(tccl_jaxp){
+                    SecurityActions.setTCCL(prevTCCL);
+                }
+            }
         }
 
         return transformerFactory;
@@ -124,10 +137,31 @@ public class TransformerUtil {
      * @throws ParsingException
      */
     public static void transform(Transformer transformer, StAXSource stax, DOMResult result) throws ParsingException {
+        transform(transformer, (Source)stax, result);
+    }
+
+    /**
+     * Use the transformer to transform
+     *
+     * @param transformer
+     * @param source
+     * @param result
+     * @throws ParsingException
+     */
+    public static void transform(Transformer transformer, Source source, DOMResult result) throws ParsingException {
+        boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP,"false").equalsIgnoreCase("true");
+        ClassLoader prevCL = SecurityActions.getTCCL();
         try {
-            transformer.transform(stax, result);
+            if(tccl_jaxp){
+                SecurityActions.setTCCL(TransformerUtil.class.getClassLoader());
+            }
+            transformer.transform(source, result);
         } catch (TransformerException e) {
             throw logger.parserError(e);
+        }finally{
+            if(tccl_jaxp){
+                SecurityActions.setTCCL(prevCL);
+            }
         }
     }
 

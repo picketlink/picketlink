@@ -30,6 +30,7 @@ import javax.xml.validation.Validator;
 
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.common.util.SystemPropertiesUtil;
@@ -91,10 +92,22 @@ public class JAXPValidationUtil {
     }
 
     private static Schema getSchema() throws IOException {
-        schemaFactory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+        boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP,"false").equalsIgnoreCase("true");
 
-        schemaFactory.setResourceResolver(new IDFedLSInputResolver());
-        schemaFactory.setErrorHandler(new CustomErrorHandler());
+        ClassLoader prevTCCL = SecurityActions.getTCCL();
+        try{
+            if(tccl_jaxp){
+                SecurityActions.setTCCL(JAXPValidationUtil.class.getClassLoader());
+            }
+            schemaFactory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+
+            schemaFactory.setResourceResolver(new IDFedLSInputResolver());
+            schemaFactory.setErrorHandler(new CustomErrorHandler());
+        } finally{
+            if(tccl_jaxp){
+                SecurityActions.setTCCL(prevTCCL);
+            }
+        }
         Schema schemaGrammar = null;
         try {
             schemaGrammar = schemaFactory.newSchema(sources());

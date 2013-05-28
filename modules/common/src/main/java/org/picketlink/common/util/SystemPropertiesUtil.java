@@ -51,4 +51,14 @@ public class SystemPropertiesUtil {
      */
     public static void ensure() {
     }
+
+    /**
+     * Get the System Property
+     * @param key key of the system property
+     * @param defaultValue default value to be returned if the system property is not set
+     * @return
+     */
+    public static String getSystemProperty(final String key, final String defaultValue){
+        return SecurityActions.getSystemProperty(key,defaultValue);
+    }
 }

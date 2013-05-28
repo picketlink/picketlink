@@ -36,6 +36,7 @@ import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.common.util.StringUtil;
+import org.picketlink.common.util.TransformerUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -51,7 +52,7 @@ public final class SamlCredential implements Serializable {
     
     private static final long serialVersionUID = -8496414959425288835L;
 
-    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
+    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerUtil.getTransformerFactory();
 
     private final String assertion;
 

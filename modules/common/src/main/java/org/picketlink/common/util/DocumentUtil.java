@@ -42,6 +42,7 @@ import javax.xml.xpath.XPathException;
 
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
@@ -447,9 +448,9 @@ public class DocumentUtil {
         try {
             Transformer transformer = TransformerUtil.getTransformer();
             DOMResult result = new DOMResult();
-            transformer.transform(source, result);
+            TransformerUtil.transform(transformer,source, result);
             return result.getNode();
-        } catch (TransformerException te) {
+        } catch (ParsingException te) {
             throw logger.processingError(te);
         }
     }
@@ -458,9 +459,9 @@ public class DocumentUtil {
         try {
             Transformer transformer = TransformerUtil.getTransformer();
             DOMResult result = new DOMResult();
-            transformer.transform(source, result);
+            TransformerUtil.transform(transformer,source, result);
             return (Document) result.getNode();
-        } catch (TransformerException te) {
+        } catch (ParsingException te) {
             throw logger.processingError(te);
         }
     }
@@ -480,17 +481,32 @@ public class DocumentUtil {
     }
 
     /**
-     * <p>Creates a namespace aware {@link DocumentBuilderFactory}. The returned instance is cached and shared between different threads.</p>
+     * <p>
+     * Creates a namespace aware {@link DocumentBuilderFactory}. The returned instance is cached and shared between different
+     * threads.
+     * </p>
      *
      * @return
      */
     private static DocumentBuilderFactory getDocumentBuilderFactory() {
+        boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP, "false")
+                .equalsIgnoreCase("true");
+        ClassLoader prevTCCL = SecurityActions.getTCCL();
         if (documentBuilderFactory == null) {
-            documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            documentBuilderFactory.setXIncludeAware(true);
+            try {
+                if (tccl_jaxp) {
+                    SecurityActions.setTCCL(DocumentUtil.class.getClassLoader());
+                }
+                documentBuilderFactory = DocumentBuilderFactory.newInstance();
+                documentBuilderFactory.setNamespaceAware(true);
+                documentBuilderFactory.setXIncludeAware(true);
+            } finally {
+                if (tccl_jaxp) {
+                    SecurityActions.setTCCL(prevTCCL);
+                }
+            }
         }
-        
+
         return documentBuilderFactory;
     }
 }
