@@ -1,19 +1,23 @@
 /*
- * JBoss, Home of Professional Open Source
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
  *
- * Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
@@ -30,21 +34,24 @@ import javax.servlet.http.HttpSession;
 import javax.xml.namespace.QName;
 
 import org.jboss.security.audit.AuditLevel;
+import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.fed.AssertionExpiredException;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.common.util.StringUtil;
+import org.picketlink.config.federation.SPType;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.SerializablePrincipal;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
-import org.picketlink.config.federation.SPType;
-import org.picketlink.common.exceptions.ConfigurationException;
-import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
-import org.picketlink.common.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.common.constants.JBossSAMLConstants;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
-import org.picketlink.common.exceptions.fed.AssertionExpiredException;
 import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
@@ -53,12 +60,10 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
-import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
-import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
@@ -75,7 +80,6 @@ import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
-import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.interfaces.IRoleValidator;
@@ -89,16 +93,17 @@ import org.w3c.dom.Node;
  * </p>
  * <p>
  * Configuration Options:
- *
+ * 
  * @see SAML2Handler#CLOCK_SKEW_MILIS: a milisecond value sets a skew for checking the validity of assertion (SP Setting)
  * @see SAML2Handler#DISABLE_AUTHN_STATEMENT Setting a value will disable the generation of an AuthnStatement (IDP Setting)
  * @see SAML2Handler#DISABLE_SENDING_ROLES Setting any value will disable the generation and return of roles to SP (IDP Setting)
+ * @see SAML2Handler#USE_MULTI_VALUED_ROLES Setting any value will have an attribute statement with multiple values (IDP Setting)
  * @see SAML2Handler#DISABLE_ROLE_PICKING Setting to true will disable picking IDP attribute statements (SP Setting)
  * @see SAML2Handler#ROLE_KEY a csv list of strings that represent the roles coming from IDP (SP Setting)
  * @see GeneralConstants#NAMEID_FORMAT Setting to a value will provide the nameid format to be sent to IDP (SP Setting)
  * @see SAML2Handler#ASSERTION_CONSUMER_URL: the url to be used for assertionConsumerURL (SP Setting)
  *      </p>
- *
+ * 
  * @author Anil.Saldhana@redhat.com
  * @since Oct 8, 2009
  */
@@ -162,7 +167,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 throw logger.samlHandlerAuthnRequestIsNull();
 
             String destination = art.getAssertionConsumerServiceURL().toASCIIString();
-            
+
             logger.trace("Destination = " + destination);
 
             response.setDestination(destination);
@@ -192,8 +197,9 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 // for registration to IdentityServer
                 String participantLogoutURL = getParticipantURL(destination, request);
 
-                logger.trace("Participant " + destination + " will be registered to IdentityServer with logout URL " + participantLogoutURL);
-                
+                logger.trace("Participant " + destination + " will be registered to IdentityServer with logout URL "
+                        + participantLogoutURL);
+
                 // If URL is null, participant doesn't support global logout
                 if (participantLogoutURL != null) {
                     identityServer.stack().register(session.getId(), participantLogoutURL, isPost);
@@ -203,7 +209,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 boolean strictPostBinding = request.getOptions().get(GeneralConstants.SAML_IDP_STRICT_POST_BINDING) != null
                         && (Boolean) request.getOptions().get(GeneralConstants.SAML_IDP_STRICT_POST_BINDING);
                 boolean postBindingForResponse = isPost || strictPostBinding;
-                
+
                 response.setResultingDocument(samlResponse);
                 response.setRelayState(request.getRelayState());
                 response.setPostBindingForResponse(postBindingForResponse);
@@ -233,7 +239,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             String authMethod = (String) request.getOptions().get(GeneralConstants.LOGIN_TYPE);
 
             logger.trace("AssertionConsumerURL=" + assertionConsumerURL);
-            
+
             ResponseType responseType = null;
 
             SAML2Response saml2Response = new SAML2Response();
@@ -274,11 +280,19 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
                 AuthnStatementType authnStatement = StatementUtil.createAuthnStatement(XMLTimeUtil.getIssueInstant(),
                         authContextRef);
+
+                authnStatement.setSessionIndex(assertion.getID());
+
                 assertion.addStatement(authnStatement);
             }
 
             if (handlerConfig.getParameter(DISABLE_SENDING_ROLES) == null && (roles != null && !roles.isEmpty())) {
-                AttributeStatementType attrStatement = StatementUtil.createAttributeStatement(roles);
+                AttributeStatementType attrStatement = null;
+                if(handlerConfig.getParameter(USE_MULTI_VALUED_ROLES) != null){
+                    attrStatement = StatementUtil.createAttributeStatementForRoles(roles,true);
+                }else {
+                    attrStatement = StatementUtil.createAttributeStatement(roles);
+                }
                 if(attrStatement != null){
                     assertion.addStatement(attrStatement);   
                 }
@@ -291,7 +305,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             }
 
             // Add assertion to the session
-            session.setAttribute(GeneralConstants.ASSERTION, assertion); 
+            session.setAttribute(GeneralConstants.ASSERTION, assertion);
 
             Map<String, Object> requestOptions = request.getOptions();
             PicketLinkAuditHelper auditHelper = (PicketLinkAuditHelper) requestOptions.get(GeneralConstants.AUDIT_HELPER);
@@ -305,19 +319,20 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
             try {
                 samlResponseDocument = saml2Response.convert(responseType);
-                
+
                 if (logger.isTraceEnabled()) {
                     logger.trace("SAML Response Document: " + DocumentUtil.asString(samlResponseDocument));
                 }
             } catch (Exception e) {
-                logger.samlAssertionMarshallError(e);
+                throw logger.samlAssertionMarshallError(e);
             }
-            
+
             return samlResponseDocument;
         }
 
         private String getParticipantURL(String destination, SAML2HandlerRequest request) {
-            SPSSODescriptorType spMetadata = (SPSSODescriptorType)request.getOptions().get(GeneralConstants.SP_SSO_METADATA_DESCRIPTOR);
+            SPSSODescriptorType spMetadata = (SPSSODescriptorType) request.getOptions().get(
+                    GeneralConstants.SP_SSO_METADATA_DESCRIPTOR);
 
             // Metadata not found. We will use destination for registration to IdentityServer
             if (spMetadata == null) {
@@ -357,7 +372,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             try {
                 AuthnRequestType authn = samlRequest.createAuthnRequestType(id, assertionConsumerURL,
                         response.getDestination(), issuerValue);
-                
+
                 String bindingType = getSPConfiguration().getBindingType();
                 boolean isIdpUsesPostBinding = getSPConfiguration().isIdpUsesPostBinding();
 
@@ -370,7 +385,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                         throw logger.samlInvalidProtocolBinding();
                     }
                 }
-                
+
                 response.setResultingDocument(samlRequest.convert(authn));
                 response.setSendRequest(true);
 
@@ -416,9 +431,21 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             if (userPrincipal == null) {
                 response.setError(403, "User Principal not determined: Forbidden");
             } else {
-                // add it to the session
                 HttpSession session = httpContext.getRequest().getSession(false);
+
+                // add the principal to the session
                 session.setAttribute(GeneralConstants.PRINCIPAL_ID, userPrincipal);
+
+                Document assertionDocument = AssertionUtil.asDocument((AssertionType) assertion);
+                
+                String assertionAttributeName = (String) handlerConfig
+                        .getParameter(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME);
+                
+                if (assertionAttributeName != null) {
+                    session.setAttribute(assertionAttributeName, assertionDocument);
+                }
+                
+                session.setAttribute(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME, assertionDocument);
             }
         }
 
@@ -530,7 +557,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                     throw logger.nullValueError("Role Validator");
 
                 boolean validRole = roleValidator.userInRole(principal, roles);
-                
+
                 if (!validRole) {
                     logger.trace("Invalid role: " + roles);
                     principal = null;
@@ -541,7 +568,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
         /**
          * Get the roles from the attribute statement
-         *
+         * 
          * @param attributeStatement
          * @return
          */
@@ -587,16 +614,16 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             }
             return roles;
         }
-        
+
         private SPType getSPConfiguration() {
             SPType spConfiguration = (SPType) handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION);
-            
+
             if (spConfiguration == null) {
                 throw logger.samlHandlerServiceProviderConfigNotFound();
             }
-            
+
             return spConfiguration;
         }
     }
-    
+
 }

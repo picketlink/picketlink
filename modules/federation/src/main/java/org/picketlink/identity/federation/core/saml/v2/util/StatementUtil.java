@@ -1,23 +1,28 @@
 /*
- * JBoss, Home of Professional Open Source
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
  *
- * Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 package org.picketlink.identity.federation.core.saml.v2.util;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -26,17 +31,17 @@ import java.util.Set;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
-import org.picketlink.identity.federation.core.constants.AttributeConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.saml.v2.constants.X500SAMLProfileConstants;
 import org.picketlink.common.util.StringUtil;
+import org.picketlink.identity.federation.core.constants.AttributeConstants;
+import org.picketlink.identity.federation.core.saml.v2.constants.X500SAMLProfileConstants;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextClassRefType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
-import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType.AuthnContextTypeSequence;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 
 /**
  * Deals with SAML2 Statements
@@ -94,11 +99,7 @@ public class StatementUtil {
                 Object value = attributes.get(key);
                 if (value instanceof Collection<?>) {
                     Collection<?> roles = (Collection<?>) value;
-                    for (Object role : roles) {
-                        AttributeType roleAttr = new AttributeType("Role");
-                        roleAttr.addAttributeValue(role);
-                        attrStatement.addAttribute(new ASTChoiceType(roleAttr));
-                    }
+                    attrStatement = createAttributeStatement(new ArrayList(roles));
                 }
             }
 
@@ -135,10 +136,30 @@ public class StatementUtil {
             if(attrStatement == null){
                 attrStatement = new AttributeStatementType();
             }
-            AttributeType attr = new AttributeType("Role");
+            AttributeType attr = new AttributeType(AttributeConstants.ROLE_IDENTIFIER_ASSERTION);
             attr.addAttributeValue(role);
             attrStatement.addAttribute(new ASTChoiceType(attr));
         }
+        return attrStatement;
+    }
+
+    /**
+     * Given a set of roles, create an attribute statement
+     * 
+     * @param roles
+     * @param multivalued if you want the attribute to be multi valued
+     * @return
+     */
+    public static AttributeStatementType createAttributeStatementForRoles(List<String> roles, boolean multivalued) {
+        if (multivalued == false) {
+            return createAttributeStatement(roles);
+        }
+        AttributeStatementType attrStatement = new AttributeStatementType();
+        AttributeType attr = new AttributeType(AttributeConstants.ROLE_IDENTIFIER_ASSERTION);
+        for (String role : roles) {
+            attr.addAttributeValue(role);
+        }
+        attrStatement.addAttribute(new ASTChoiceType(attr));
         return attrStatement;
     }
 
