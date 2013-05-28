@@ -55,7 +55,7 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
     private final Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures;
     private final Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships;
 
-    public BaseAbstractStoreConfiguration(Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
+    protected BaseAbstractStoreConfiguration(Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
             Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms,
             Set<String> tiers, List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {

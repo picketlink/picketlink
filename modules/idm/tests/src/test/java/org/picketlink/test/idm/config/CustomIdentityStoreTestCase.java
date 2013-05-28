@@ -163,6 +163,7 @@ public class CustomIdentityStoreTestCase {
 
         @Override
         public void add(SecurityContext context, AttributedType value) {
+            value.setId(context.getIdGenerator().generate());
             getConfig().getMethodInvocationContext().setMethodName("addAttributedType");
         }
 
