@@ -31,6 +31,7 @@ import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.common.util.SystemPropertiesUtil;
 
 /**
  * Util class dealing with xml based time
@@ -55,7 +56,7 @@ public class XMLTimeUtil {
 
         Duration duration;
         try {
-            duration = DatatypeFactory.newInstance().newDuration(milis);
+            duration = newDatatypeFactory().newDuration(milis);
         } catch (DatatypeConfigurationException e) {
             throw logger.configurationError(e);
         }
@@ -89,7 +90,7 @@ public class XMLTimeUtil {
         TimeZone tz = TimeZone.getTimeZone(timezone);
         DatatypeFactory dtf;
         try {
-            dtf = DatatypeFactory.newInstance();
+            dtf = newDatatypeFactory();
         } catch (DatatypeConfigurationException e) {
             throw logger.configurationError(e);
         }
@@ -175,7 +176,7 @@ public class XMLTimeUtil {
         DatatypeFactory factory = null;
 
         try {
-            factory = DatatypeFactory.newInstance();
+            factory = newDatatypeFactory();
         } catch (DatatypeConfigurationException e) {
             throw logger.parserError(e);
         }
@@ -202,10 +203,32 @@ public class XMLTimeUtil {
     public static XMLGregorianCalendar parse(String timeString) throws ParsingException {
         DatatypeFactory factory = null;
         try {
-            factory = DatatypeFactory.newInstance();
+            factory = newDatatypeFactory();
         } catch (DatatypeConfigurationException e) {
             throw logger.parserError(e);
         }
         return factory.newXMLGregorianCalendar(timeString);
+    }
+
+
+    /**
+     * Create a new {@link DatatypeFactory}
+     * @return
+     * @throws DatatypeConfigurationException
+     */
+    public static DatatypeFactory newDatatypeFactory() throws DatatypeConfigurationException {
+        boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP, "false")
+                .equalsIgnoreCase("true");
+        ClassLoader prevTCCL = SecurityActions.getTCCL();
+        try{
+            if(tccl_jaxp){
+                SecurityActions.setTCCL(XMLTimeUtil.class.getClassLoader());
+            }
+            return DatatypeFactory.newInstance();
+        }finally{
+            if(tccl_jaxp){
+                SecurityActions.setTCCL(prevTCCL);
+            }
+        }
     }
 }

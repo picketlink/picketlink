@@ -64,10 +64,7 @@ import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.common.util.Base64;
-import org.picketlink.common.util.DocumentUtil;
-import org.picketlink.common.util.StringUtil;
-import org.picketlink.common.util.SystemPropertiesUtil;
+import org.picketlink.common.util.*;
 import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
@@ -412,7 +409,7 @@ public class XMLSignatureUtil {
      * @throws TransformerException
      */
     public static void marshall(Document signedDocument, OutputStream os) throws TransformerException {
-        TransformerFactory tf = TransformerFactory.newInstance();
+        TransformerFactory tf = TransformerUtil.getTransformerFactory();
         Transformer trans = tf.newTransformer();
         trans.transform(DocumentUtil.getXMLSource(signedDocument), new StreamResult(os));
     }
