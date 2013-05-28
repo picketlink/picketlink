@@ -1,0 +1,20 @@
+<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" Destination="http://localhost/sp" ID="ID_a132ad8b-3542-402c-ae2b-8028e2c433f8" InResponseTo="ID_c40f7c94-bba8-49e5-8369-1669adce1a69" IssueInstant="2012-11-20T08:00:04.018Z" Version="2.0">
+  <saml:Issuer>http://localhost/idp</saml:Issuer>
+  <samlp:Status><samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/></samlp:Status>
+  <saml:Assertion xmlns="urn:oasis:names:tc:SAML:2.0:assertion" ID="ID_d263fcc0-e2f5-4114-ba16-09617b814b15" IssueInstant="2012-11-20T08:00:04.014Z" Version="2.0">
+    <saml:Issuer>http://localhost/idp</saml:Issuer>
+    <saml:Subject>
+      <saml:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent">anil</saml:NameID>
+      <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+        <saml:SubjectConfirmationData InResponseTo="ID_c40f7c94-bba8-49e5-8369-1669adce1a69" NotOnOrAfter="2012-11-20T08:00:13.214Z" Recipient="http://localhost/sp"/>
+      </saml:SubjectConfirmation>
+    </saml:Subject>
+    <saml:Conditions NotBefore="2012-11-20T08:00:02.014Z" NotOnOrAfter="2012-11-20T08:00:13.214Z">
+      <saml:AudienceRestriction><saml:Audience>http://localhost/sp</saml:Audience></saml:AudienceRestriction>
+    </saml:Conditions>
+    <saml:AuthnStatement AuthnInstant="2012-11-20T08:00:04.020Z">
+      <saml:AuthnContext><saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</saml:AuthnContextClassRef></saml:AuthnContext>
+    </saml:AuthnStatement>
+  </saml:Assertion>
+</samlp:Response>
+

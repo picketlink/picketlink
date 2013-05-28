@@ -1,19 +1,19 @@
 /*
- * JBoss, Home of Professional Open Source
+ * JBoss, Home of Professional Open Source. Copyright 2008, Red Hat Middleware LLC, and individual contributors as
+ * indicated by the @author tags. See the copyright.txt file in the distribution for a full listing of individual
+ * contributors.
  *
- * Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ * This is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any
+ * later version.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU Lesser General Public License along with this software; if not, write to
+ * the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF site:
+ * http://www.fsf.org.
  */
 package org.picketlink.identity.federation.core.wstrust.writers;
 
@@ -23,13 +23,13 @@ import java.util.List;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 
+import org.picketlink.common.ErrorCodes;
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.ErrorCodes;
-import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
-import org.picketlink.common.util.StaxUtil;
 import org.picketlink.common.constants.WSTrustConstants;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.StaxUtil;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
@@ -195,6 +195,15 @@ public class WSTrustResponseWriter {
         if (response.getRequestedAttachedReference() != null) {
             RequestedReferenceType ref = response.getRequestedAttachedReference();
             StaxUtil.writeStartElement(this.writer, WSTrustConstants.PREFIX, WSTrustConstants.REQUESTED_ATTACHED_REFERENCE,
+                    WSTrustConstants.BASE_NAMESPACE);
+            new WSSecurityWriter(this.writer).writeSecurityTokenReference(ref.getSecurityTokenReference());
+            StaxUtil.writeEndElement(this.writer);
+        }
+
+        // write the unattached reference, if available.
+        if (response.getRequestedUnattachedReference() != null) {
+            RequestedReferenceType ref = response.getRequestedUnattachedReference();
+            StaxUtil.writeStartElement(this.writer, WSTrustConstants.PREFIX, WSTrustConstants.REQUESTED_UNATTACHED_REFERENCE,
                     WSTrustConstants.BASE_NAMESPACE);
             new WSSecurityWriter(this.writer).writeSecurityTokenReference(ref.getSecurityTokenReference());
             StaxUtil.writeEndElement(this.writer);
