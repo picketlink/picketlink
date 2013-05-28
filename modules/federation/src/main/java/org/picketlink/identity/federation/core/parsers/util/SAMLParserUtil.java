@@ -290,7 +290,19 @@ public class SAMLParserUtil {
 
         Attribute type = startElement.getAttributeByName(new QName(JBossSAMLURIConstants.XSI_NSURI.get(), "type", "xsi"));
         if (type == null) {
-            return StaxParserUtil.getElementText(xmlEventReader);
+            if (StaxParserUtil.hasTextAhead(xmlEventReader)) {
+                return StaxParserUtil.getElementText(xmlEventReader);
+            }
+            // Else we may have Child Element
+            XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent instanceof StartElement) {
+                startElement = (StartElement) xmlEvent;
+                String tag = StaxParserUtil.getStartElementName(startElement);
+                if (tag.equals(JBossSAMLConstants.NAMEID.get())) {
+                    return parseNameIDType(xmlEventReader);
+                }
+            }
+            throw logger.unsupportedType(StaxParserUtil.getStartElementName(startElement));
         }
 
         String typeValue = StaxParserUtil.getAttributeValue(type);

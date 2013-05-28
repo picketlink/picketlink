@@ -272,4 +272,19 @@ public class SAMLAssertionParserTestCase extends AbstractParserTest {
         EncryptedElementType eet = subType.getEncryptedID();
         assertNotNull(eet);
     }
+
+    /**
+     * PLINK2-10 and PLINK-143 : SAML2 Attribute Value should support nested elements
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testSAMLAssertionWithTestShib() throws Exception {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-assertion-testshib.xml");
+
+        SAMLParser parser = new SAMLParser();
+        AssertionType assertion = (AssertionType) parser.parse(configStream);
+        assertNotNull(assertion);
+    }
 }
