@@ -277,6 +277,17 @@ public class SAML2Signature {
         }
     }
 
+    public Node getNextSiblingOfIssuer(Document doc) {
+        // Find the sibling of Issuer
+        NodeList nl = doc.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get());
+        if (nl.getLength() > 0) {
+            Node issuer = nl.item(0);
+
+            return issuer.getNextSibling();
+        }
+        return null;
+    }
+
     /**
      * <p>
      * Sets the IDness of the ID attribute. Santuario 1.5.1 does not assumes IDness based on attribute names anymore. This
@@ -288,7 +299,7 @@ public class SAML2Signature {
     private void configureIdAttribute(Document document) {
         // Estabilish the IDness of the ID attribute.
         document.getDocumentElement().setIdAttribute(ID_ATTRIBUTE_NAME, true);
-        
+
         NodeList nodes = document.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(),
                 JBossSAMLConstants.ASSERTION.get());
 
@@ -298,16 +309,5 @@ public class SAML2Signature {
                 ((Element) n).setIdAttribute(ID_ATTRIBUTE_NAME, true);
             }
         }
-    }
-
-    public Node getNextSiblingOfIssuer(Document doc) {
-        // Find the sibling of Issuer
-        NodeList nl = doc.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get());
-        if (nl.getLength() > 0) {
-            Node issuer = nl.item(0);
-
-            return issuer.getNextSibling();
-        }
-        return null;
     }
 }
