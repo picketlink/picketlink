@@ -1,19 +1,23 @@
 /*
- * JBoss, Home of Professional Open Source
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
  *
- * Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 package org.picketlink.identity.federation.web.util;
 
@@ -22,15 +26,15 @@ import static org.picketlink.common.util.StringUtil.isNotNull;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
-import org.picketlink.common.util.Base64;
 import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.common.util.Base64;
+import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
 
 /**
  * Utility for the HTTP/Post binding
@@ -93,16 +97,17 @@ public class PostBindingUtil {
         String destination = holder.getDestination();
         String samlMessage = holder.getSamlMessage();
 
-        if (destination == null)
+        if (destination == null) {
             throw logger.nullValueError("Destination is null");
-
+        }
+        
         response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
         common(holder.getDestination(), response);
         StringBuilder builder = new StringBuilder();
 
         builder.append("<HTML>");
         builder.append("<HEAD>");
+        
         if (request)
             builder.append("<TITLE>HTTP Post Binding (Request)</TITLE>");
         else
@@ -113,15 +118,24 @@ public class PostBindingUtil {
 
         builder.append("<FORM METHOD=\"POST\" ACTION=\"" + destination + "\">");
         builder.append("<INPUT TYPE=\"HIDDEN\" NAME=\"" + key + "\"" + " VALUE=\"" + samlMessage + "\"/>");
+        
         if (isNotNull(relayState)) {
             builder.append("<INPUT TYPE=\"HIDDEN\" NAME=\"RelayState\" " + "VALUE=\"" + relayState + "\"/>");
         }
+        
         builder.append("</FORM></BODY></HTML>");
-
+        
         String str = builder.toString();
+        
         logger.trace(str);
-        out.println(str);
-        out.close();
+
+        ServletOutputStream outputStream = response.getOutputStream();
+
+        // we need to re-configure the content length, because Tomcat may have written some content.
+        response.setContentLength(str.length());
+
+        outputStream.println(str);
+        outputStream.close();
     }
 
     private static void common(String destination, HttpServletResponse response) {

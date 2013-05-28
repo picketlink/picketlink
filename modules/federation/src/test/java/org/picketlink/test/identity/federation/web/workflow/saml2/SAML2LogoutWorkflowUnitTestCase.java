@@ -1,19 +1,23 @@
 /*
- * JBoss, Home of Professional Open Source
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
  *
- * Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 package org.picketlink.test.identity.federation.web.workflow.saml2;
 
@@ -23,7 +27,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
 import java.security.Principal;
@@ -35,12 +38,12 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 
 import org.junit.Test;
-import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
-import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.util.Base64;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
-import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.filters.SPFilter;
 import org.picketlink.identity.federation.web.servlets.IDPServlet;
@@ -110,7 +113,7 @@ public class SAML2LogoutWorkflowUnitTestCase {
 
         MockHttpServletResponse filterResponse = new MockHttpServletResponse();
         ByteArrayOutputStream filterbaos = new ByteArrayOutputStream();
-        filterResponse.setWriter(new PrintWriter(filterbaos));
+        filterResponse.setOutputStream(filterbaos);
 
         spEmpl.doFilter(filterRequest, filterResponse, new MockFilterChain());
 
@@ -179,7 +182,7 @@ public class SAML2LogoutWorkflowUnitTestCase {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        response.setWriter(new PrintWriter(baos));
+        response.setOutputStream(baos);
 
         // The IDP is preloaded with 2 participants : "http://localhost:8080/sales/"
         // and "http://localhost:8080/employee"
@@ -223,7 +226,7 @@ public class SAML2LogoutWorkflowUnitTestCase {
 
         MockHttpServletResponse filterResponse = new MockHttpServletResponse();
         ByteArrayOutputStream filterbaos = new ByteArrayOutputStream();
-        filterResponse.setWriter(new PrintWriter(filterbaos));
+        filterResponse.setOutputStream(filterbaos);
 
         spEmpl.doFilter(filterRequest, filterResponse, new MockFilterChain());
         String spResponse = new String(filterbaos.toByteArray());
