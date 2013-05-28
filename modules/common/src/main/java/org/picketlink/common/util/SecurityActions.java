@@ -180,4 +180,38 @@ class SecurityActions {
         }
     }
 
+    /**
+     * Get the Thread Context ClassLoader
+     * @return
+     */
+    static ClassLoader getTCCL(){
+        if(System.getSecurityManager() != null){
+            return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+                public ClassLoader run() {
+                    return Thread.currentThread().getContextClassLoader();
+                }
+            });
+        } else {
+            return Thread.currentThread().getContextClassLoader();
+        }
+    }
+
+    /**
+     * Set the Thread Context ClassLoader
+     * @param paramCl
+     */
+    static void setTCCL(final ClassLoader paramCl){
+        if(System.getSecurityManager() != null){
+            AccessController.doPrivileged(new PrivilegedAction<Void>() {
+                public Void run() {
+                    Thread.currentThread().setContextClassLoader(paramCl);
+                    return null;
+                }
+            });
+        } else {
+
+            Thread.currentThread().setContextClassLoader(paramCl);
+        }
+    }
+
 }

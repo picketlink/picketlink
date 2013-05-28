@@ -101,6 +101,9 @@ public interface GeneralConstants {
     
     String SAML_IDP_STRICT_POST_BINDING = "SAML_IDP_STRICT_POST_BINDING";
 
+    // Should JAXP Factory operations cache the TCCL and revert after operation?
+    String TCCL_JAXP = "picketlink.jaxp.tccl";
+
     String TIMEZONE = "picketlink.timezone";
 
     String TIMEZONE_DEFAULT = "TIMEZONE_DEFAULT";
