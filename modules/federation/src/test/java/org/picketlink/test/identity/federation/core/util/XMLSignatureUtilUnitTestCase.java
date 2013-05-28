@@ -1,19 +1,23 @@
 /*
- * JBoss, Home of Professional Open Source
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2011, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
  *
- * Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 package org.picketlink.test.identity.federation.core.util;
 
@@ -30,9 +34,10 @@ import javax.xml.crypto.dsig.SignatureMethod;
 
 import org.jboss.logging.Logger;
 import org.junit.Test;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.util.DocumentUtil;
-import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
 import org.picketlink.identity.federation.core.util.KeyStoreUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
@@ -110,6 +115,74 @@ public class XMLSignatureUtilUnitTestCase {
 
         assertTrue(XMLSignatureUtil.validate(rstrDocument, keyPair.getPublic()));
     }
+
+   /**
+    * Testing method {@link XMLSignatureUtil#sign(org.w3c.dom.Element, org.w3c.dom.Node, java.security.KeyPair, String, String, String)}
+    *
+    * @throws Exception
+    */
+    @Test
+    public void testSignSAML2Assertion1() throws Exception {
+       String fileName = "signatures/saml20assertion.xml";
+       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+       InputStream is = tcl.getResourceAsStream(fileName);
+       if (is == null)
+           throw new RuntimeException("InputStream is null");
+
+       Document rstrDocument = DocumentUtil.getDocument(is);
+       assertNotNull(rstrDocument);
+
+       String signatureMethod = SignatureMethod.RSA_SHA1;
+       KeyPair keyPair = KeyStoreUtil.generateKeyPair("RSA");
+
+       Element assertionElement = (Element) rstrDocument.getElementsByTagNameNS("urn:oasis:names:tc:SAML:2.0:assertion",
+           "Assertion").item(0);
+       String referenceURI = "#" + assertionElement.getAttribute("ID");
+       assertionElement.setIdAttribute("ID", true);
+       Node nextSibling = assertionElement.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(),
+             JBossSAMLConstants.ISSUER.get()).item(0).getNextSibling();
+       XMLSignatureUtil.sign(assertionElement, nextSibling, keyPair, DigestMethod.SHA1, signatureMethod, referenceURI);
+
+       assertNotNull(rstrDocument);
+
+       Logger.getLogger(XMLSignatureUtilUnitTestCase.class).debug(DocumentUtil.asString(rstrDocument));
+
+       assertTrue(XMLSignatureUtil.validate(rstrDocument, keyPair.getPublic()));
+    }
+
+    /**
+     * Testing method {@link XMLSignatureUtil#sign(org.w3c.dom.Document, org.w3c.dom.Node, java.security.KeyPair, String, String, String)}
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testSignSAML2Assertion2() throws Exception {
+        String fileName = "signatures/saml20assertion.xml";
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream is = tcl.getResourceAsStream(fileName);
+        if (is == null)
+           throw new RuntimeException("InputStream is null");
+
+        Document rstrDocument = DocumentUtil.getDocument(is);
+        assertNotNull(rstrDocument);
+
+        String signatureMethod = SignatureMethod.RSA_SHA1;
+        KeyPair keyPair = KeyStoreUtil.generateKeyPair("RSA");
+
+        Element assertionElement = (Element) rstrDocument.getElementsByTagNameNS("urn:oasis:names:tc:SAML:2.0:assertion",
+             "Assertion").item(0);
+        String referenceURI = "#" + assertionElement.getAttribute("ID");
+        assertionElement.setIdAttribute("ID", true);
+        
+        XMLSignatureUtil.sign(rstrDocument.getDocumentElement(), assertionElement, keyPair, DigestMethod.SHA1, signatureMethod, referenceURI);
+
+        assertNotNull(rstrDocument);
+
+        Logger.getLogger(XMLSignatureUtilUnitTestCase.class).debug(DocumentUtil.asString(rstrDocument));
+
+        // TODO: This test is currently failing because of https://issues.jboss.org/browse/PLFED-377
+        assertTrue(XMLSignatureUtil.validate(rstrDocument, keyPair.getPublic()));
+    }
     
     @Test
     public void testDSAKeyValueParsing() throws Exception {
@@ -126,7 +199,7 @@ public class XMLSignatureUtilUnitTestCase {
         Element dsaEl = (Element) doc.getElementsByTagName("ds:DSAKeyValue").item(0);
         assertNotNull(dsaEl);
         
-        DSAKeyValueType dsa = SignatureUtil.getDSAKeyValue(dsaEl);
+        DSAKeyValueType dsa = XMLSignatureUtil.getDSAKeyValue(dsaEl);
         assertNotNull(dsa);
         assertNotNull(dsa.getP());
         assertNotNull(dsa.getQ());
@@ -154,7 +227,7 @@ public class XMLSignatureUtilUnitTestCase {
         Element rsaEl = (Element) doc.getElementsByTagName("ds:RSAKeyValue").item(0);
         assertNotNull(rsaEl);
         
-        RSAKeyValueType rsa = SignatureUtil.getRSAKeyValue(rsaEl);
+        RSAKeyValueType rsa = XMLSignatureUtil.getRSAKeyValue(rsaEl);
         assertNotNull(rsa);
         assertNotNull(rsa.getModulus());
         assertNotNull(rsa.getExponent()); 
