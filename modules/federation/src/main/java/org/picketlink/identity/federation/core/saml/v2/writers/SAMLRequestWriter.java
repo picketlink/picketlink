@@ -1,22 +1,27 @@
 /*
- * JBoss, Home of Professional Open Source
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
  *
- * Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 package org.picketlink.identity.federation.core.saml.v2.writers;
 
+import static org.picketlink.common.constants.JBossSAMLConstants.SESSION_INDEX;
 import static org.picketlink.common.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
 import static org.picketlink.common.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
 
@@ -31,15 +36,15 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.jboss.security.xacml.core.model.context.ObjectFactory;
 import org.jboss.security.xacml.core.model.context.RequestType;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.common.constants.JBossSAMLConstants;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.util.DocumentUtil;
-import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.common.util.StaxUtil;
 import org.picketlink.common.util.StringUtil;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
@@ -179,6 +184,17 @@ public class SAMLRequestWriter extends BaseWriter {
         NameIDType nameID = logOutRequest.getNameID();
         if (nameID != null) {
             write(nameID, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.NAMEID.get(), ASSERTION_PREFIX));
+        }
+        
+        List<String> sessionIndexes = logOutRequest.getSessionIndex();
+        
+        for (String sessionIndex : sessionIndexes) {
+            StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, SESSION_INDEX.get(), PROTOCOL_NSURI.get());
+
+            StaxUtil.writeCharacters(writer, sessionIndex);
+
+            StaxUtil.writeEndElement(writer);
+            StaxUtil.flush(writer);
         }
 
         StaxUtil.writeEndElement(writer);

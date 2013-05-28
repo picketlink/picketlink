@@ -58,3 +58,7 @@ release.properties
 .factorypath
 # Files produced by the release script
 pl-release.log
+# temp
+*.patch
+picketlink-core
+picketlink-bindings

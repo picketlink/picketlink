@@ -30,6 +30,7 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stax.StAXSource;
@@ -37,6 +38,7 @@ import javax.xml.validation.Validator;
 
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
@@ -125,7 +127,7 @@ public class StaxParserUtil {
             Document resultDocument = DocumentUtil.createDocument();
             DOMResult domResult = new DOMResult(resultDocument);
 
-            StAXSource source = new StAXSource(xmlEventReader);
+            Source source = new StAXSource(xmlEventReader);
 
             TransformerUtil.transform(transformer, source, domResult);
 
@@ -166,7 +168,7 @@ public class StaxParserUtil {
         XMLInputFactory xmlInputFactory = null;
         XMLEventReader xmlEventReader = null;
         try {
-            xmlInputFactory = XMLInputFactory.newInstance();
+            xmlInputFactory = getXMLInputFactory();
             xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.TRUE);
             xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
             xmlInputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.TRUE);
@@ -415,5 +417,21 @@ public class StaxParserUtil {
         String elementTag = getEndElementName(endElement);
         if (!tag.equals(elementTag))
             throw new RuntimeException(logger.parserExpectedEndTag("</" + tag + ">.  Found </" + elementTag + ">"));
+    }
+
+    private static XMLInputFactory getXMLInputFactory() {
+        boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP, "false")
+                .equalsIgnoreCase("true");
+        ClassLoader prevTCCL = SecurityActions.getTCCL();
+        try {
+            if (tccl_jaxp) {
+                SecurityActions.setTCCL(StaxParserUtil.class.getClassLoader());
+            }
+            return XMLInputFactory.newInstance();
+        } finally {
+            if (tccl_jaxp) {
+                SecurityActions.setTCCL(prevTCCL);
+            }
+        }
     }
 }
