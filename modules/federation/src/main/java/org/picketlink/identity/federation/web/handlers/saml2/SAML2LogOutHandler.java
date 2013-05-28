@@ -1,25 +1,30 @@
 /*
- * JBoss, Home of Professional Open Source
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
  *
- * Copyright 2013 Red Hat, Inc. and/or its affiliates.
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
 import java.net.URI;
 import java.security.Principal;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -46,9 +51,12 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
@@ -57,6 +65,7 @@ import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
+import org.w3c.dom.Document;
 
 /**
  * SAML2 LogOut Profile
@@ -371,10 +380,37 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                 
                 lot.setDestination(URI.create(logoutUrl));
                 
+                populateSessionIndex(httpRequest, lot);
+                
                 response.setResultingDocument(samlRequest.convert(lot));
                 response.setSendRequest(true);
             } catch (Exception e) {
                 throw logger.processingError(e);
+            }
+        }
+
+        private void populateSessionIndex(HttpServletRequest httpRequest, LogoutRequestType lot) throws ProcessingException,
+                ConfigurationException, ParsingException {
+            Document currentAssertion = (Document) httpRequest.getSession().getAttribute(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME);
+            
+            if (currentAssertion != null) {
+                AssertionType assertionType = SAMLUtil.fromElement(currentAssertion.getDocumentElement());
+                
+                Set<StatementAbstractType> statements = assertionType.getStatements();
+                
+                for (StatementAbstractType statementAbstractType : statements) {
+                    if (AuthnStatementType.class.isInstance(statementAbstractType)) {
+                        AuthnStatementType authnStatement = (AuthnStatementType) statementAbstractType;
+                        
+                        String sessionIndex = authnStatement.getSessionIndex();
+                        
+                        if (sessionIndex != null) {
+                            lot.addSessionIndex(sessionIndex);
+                        }
+                        
+                        break;
+                    }
+                }
             }
         }
 
