@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.identity.federation.core.parsers.config;
+package org.picketlink.config.federation.parsers;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -28,19 +28,19 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.picketlink.identity.federation.core.config.AuthPropertyType;
-import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.config.KeyProviderType;
-import org.picketlink.identity.federation.core.config.KeyValueType;
-import org.picketlink.identity.federation.core.config.MetadataProviderType;
-import org.picketlink.identity.federation.core.config.ProviderType;
-import org.picketlink.identity.federation.core.config.SPType;
-import org.picketlink.identity.federation.core.config.TrustType;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.handler.config.Handler;
-import org.picketlink.identity.federation.core.handler.config.Handlers;
-import org.picketlink.identity.federation.core.parsers.AbstractParser;
-import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.parsers.AbstractParser;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.config.federation.AuthPropertyType;
+import org.picketlink.config.federation.IDPType;
+import org.picketlink.config.federation.KeyProviderType;
+import org.picketlink.config.federation.KeyValueType;
+import org.picketlink.config.federation.MetadataProviderType;
+import org.picketlink.config.federation.ProviderType;
+import org.picketlink.config.federation.SPType;
+import org.picketlink.config.federation.TrustType;
+import org.picketlink.config.federation.handler.Handler;
+import org.picketlink.config.federation.handler.Handlers;
 
 /**
  * Parse the SAML IDP/SP config as well as the handlers
