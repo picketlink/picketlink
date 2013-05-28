@@ -55,6 +55,13 @@
          <version>${project.version}</version>         
          <optional>true</optional>
       </dependency>   
+
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-common</artifactId>
+        <version>${project.version}</version>
+        <optional>true</optional>
+      </dependency>
       
       <!-- Included for JavaDoc -->
       <dependency>

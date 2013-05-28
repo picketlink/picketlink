@@ -21,21 +21,18 @@ package org.picketlink.idm.jpa.internal;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
 
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.event.RoleCreatedEvent;
 import org.picketlink.idm.event.RoleDeletedEvent;
 import org.picketlink.idm.event.RoleUpdatedEvent;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
 import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleRole;
-import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
+import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.SecurityContext;
 
 /**
@@ -81,7 +78,6 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
         return role;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public List<Predicate> getPredicate(SecurityContext context, JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
         List<Predicate> predicates = super.getPredicate(context, criteria, store);
@@ -99,7 +95,7 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
 
         if (parameterValues != null) {
             for (Object object : parameterValues) {
-                DefaultRelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(context, Grant.class, store);
+                RelationshipQuery<Grant> query = context.getIdentityManager().createRelationshipQuery(Grant.class);
 
                 query.setParameter(Grant.ASSIGNEE, object);
 
@@ -109,30 +105,10 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
                     List<String> relIds = new ArrayList<String>();
 
                     for (Grant grant : resultList) {
-                        relIds.add(grant.getId());
+                        relIds.add(grant.getRole().getId());
                     }
 
-                    Subquery<?> subquery = criteria.getCriteria().subquery(jpaConfig.getRelationshipIdentityClass());
-                    Root fromProject = subquery.from(jpaConfig.getRelationshipIdentityClass());
-                    subquery.select(fromProject.get(jpaConfig.getModelProperty(
-                            PropertyType.RELATIONSHIP_IDENTITY).getName()));
-                    Join<Object, Object> join = fromProject.join(jpaConfig.getModelProperty(
-                            PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
-
-                    List<Predicate> subqueryPredicates = new ArrayList<Predicate>();
-
-                    subqueryPredicates.add(criteria.getBuilder().equal(
-                            fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).getName()),
-                            Grant.ROLE.getName()));
-                    subqueryPredicates.add(criteria.getBuilder().equal(
-                            fromProject.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
-                            criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.IDENTITY_ID).getName())));
-                    subqueryPredicates.add(criteria.getBuilder()
-                            .in(join.get(jpaConfig.getModelProperty(PropertyType.RELATIONSHIP_ID).getName())).value(relIds));
-
-                    subquery.where(subqueryPredicates.toArray(new Predicate[subqueryPredicates.size()]));
-
-                    predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(subquery));
+                    predicates.add(criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.IDENTITY_ID).getName()).in(relIds));
                 } else {
                     predicates.add(criteria.getBuilder().equal(
                             criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.IDENTITY_ID).getName()), "-1"));

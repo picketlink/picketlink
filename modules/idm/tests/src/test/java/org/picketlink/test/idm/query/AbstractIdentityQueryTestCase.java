@@ -42,18 +42,19 @@ import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
+import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsFileRelationshipTestSuite;
+import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsRelationshipsTestSuite;
 
 /**
  * @author Pedro Silva
- *
+ * 
  */
 public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> extends AbstractIdentityManagerTestCase {
-
 
     protected abstract T createIdentityType(String name, Partition partition);
 
     protected abstract T getIdentityType();
-    
+
     @Test
     public void testFindById() throws Exception {
         T identityType = createIdentityType(null, null);
@@ -70,12 +71,14 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertEquals(1, result.size());
         assertEquals(identityType.getId(), result.get(0).getId());
     }
-    
+
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class,
+            LDAPJPAMixedStoreTestSuite.class, LDAPUsersJPARolesGroupsRelationshipsTestSuite.class,
+            LDAPUsersJPARolesGroupsFileRelationshipTestSuite.class })
     public void testPagination() throws Exception {
         T identityType = null;
-        
+
         for (int i = 0; i < 50; i++) {
             identityType = createIdentityType("someIdentityType" + (i + 1), null);
         }
@@ -153,9 +156,11 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         assertTrue(invalidPage.isEmpty());
     }
-    
+
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class,
+            LDAPJPAMixedStoreTestSuite.class, LDAPUsersJPARolesGroupsRelationshipsTestSuite.class,
+            LDAPUsersJPARolesGroupsRelationshipsTestSuite.class, LDAPUsersJPARolesGroupsFileRelationshipTestSuite.class })
     public void testFindByRealm() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
@@ -178,11 +183,11 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         Realm testingRealm = getIdentityManagerFactory().getRealm("Testing");
 
         assertNotNull(testingRealm);
-        
+
         T someAnotherTypeTestingRealm = createIdentityType("someAnotherType", testingRealm);
 
-        query = getIdentityManagerFactory().createIdentityManager(testingRealm).
-                createIdentityQuery((Class<T>) someTypeDefaultRealm.getClass());
+        query = getIdentityManagerFactory().createIdentityManager(testingRealm).createIdentityQuery(
+                (Class<T>) someTypeDefaultRealm.getClass());
 
         query.setParameter(Agent.PARTITION, testingRealm);
 
@@ -192,9 +197,9 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertEquals(1, result.size());
         assertEquals(someAnotherTypeTestingRealm.getId(), result.get(0).getId());
     }
-    
+
     @Test
-    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreWithoutAttributesTestSuite.class })
     public void testFindEnabledAndDisabled() throws Exception {
         T someType = createIdentityType(null, null);
         T someAnotherType = createIdentityType("someAnotherAgent", null);
@@ -207,7 +212,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         identityManager.update(someType);
         identityManager.update(someAnotherType);
 
-        IdentityQuery<T> query = identityManager.<T> createIdentityQuery((Class<T>)someType.getClass());
+        IdentityQuery<T> query = identityManager.<T> createIdentityQuery((Class<T>) someType.getClass());
 
         query.setParameter(IdentityType.ENABLED, true);
 
@@ -219,7 +224,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertTrue(contains(result, someType.getId()));
         assertTrue(contains(result, someAnotherType.getId()));
 
-        query = identityManager.<T> createIdentityQuery((Class<T>)someType.getClass());
+        query = identityManager.<T> createIdentityQuery((Class<T>) someType.getClass());
 
         query.setParameter(IdentityType.ENABLED, false);
 
@@ -233,7 +238,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         // let's disabled the user and try to find him
         identityManager.update(someType);
 
-        query = identityManager.<T> createIdentityQuery((Class<T>)someType.getClass());
+        query = identityManager.<T> createIdentityQuery((Class<T>) someType.getClass());
 
         query.setParameter(IdentityType.ENABLED, false);
 
@@ -249,7 +254,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         // let's disabled the user and try to find him
         identityManager.update(someAnotherType);
 
-        query = identityManager.<T> createIdentityQuery((Class<T>)someType.getClass());
+        query = identityManager.<T> createIdentityQuery((Class<T>) someType.getClass());
 
         query.setParameter(IdentityType.ENABLED, true);
 
@@ -257,7 +262,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         assertTrue(result.isEmpty());
     }
-    
+
     @Test
     public void testFindCreationDate() throws Exception {
         T identityType = createIdentityType(null, null);
@@ -285,9 +290,9 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         assertTrue(query.getResultList().isEmpty());
     }
-    
+
     @Test
-    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreWithoutAttributesTestSuite.class })
     public void testFindExpiryDate() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -325,7 +330,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         assertTrue(result.isEmpty());
     }
-    
+
     @Test
     public void testFindBetweenCreationDate() throws Exception {
         T identityType = createIdentityType(null, null);
@@ -393,9 +398,9 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         assertTrue(result.isEmpty());
     }
-    
+
     @Test
-    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreWithoutAttributesTestSuite.class })
     public void testFindBetweenExpirationDate() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -493,9 +498,9 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         assertTrue(result.isEmpty());
     }
-    
+
     @Test
-    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreWithoutAttributesTestSuite.class })
     public void testFindByMultipleParameters() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -546,9 +551,9 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         assertTrue(result.isEmpty());
     }
-    
+
     @Test
-    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreWithoutAttributesTestSuite.class })
     public void testFindByDefinedAttributes() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -595,9 +600,9 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertEquals(1, result.size());
         assertTrue(contains(result, identityType.getId()));
     }
-    
+
     @Test
-    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreWithoutAttributesTestSuite.class })
     public void testFindByMultiValuedAttributes() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -676,7 +681,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         assertTrue(result.isEmpty());
     }
-    
+
     protected boolean contains(List<T> result, String id) {
         for (T identityType : result) {
             if (identityType.getId().equals(id)) {

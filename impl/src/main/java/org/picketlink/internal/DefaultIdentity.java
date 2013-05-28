@@ -45,6 +45,7 @@ import org.picketlink.authentication.event.PreLoggedOutEvent;
 import org.picketlink.authentication.internal.IdmAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.model.Agent;
+import org.picketlink.permission.internal.PermissionMapper;
 
 /**
  * Default Identity implementation
@@ -67,6 +68,9 @@ public class DefaultIdentity implements Identity
 
     @Inject
     private Instance<IdmAuthenticator> idmAuthenticatorInstance;
+
+    @Inject 
+    private PermissionMapper permissionMapper;
 
     /**
      * Flag indicating whether we are currently authenticating
@@ -254,13 +258,11 @@ public class DefaultIdentity implements Identity
 
     public boolean hasPermission(Object resource, String operation)
     {
-        // TODO Auto-generated method stub
-        return false;
+        return permissionMapper.resolvePermission(resource, operation);
     }
 
     public boolean hasPermission(Class<?> resourceClass, Serializable identifier, String operation)
     {
-        // TODO Auto-generated method stub
-        return false;
+        return permissionMapper.resolvePermission(resourceClass, identifier, operation);
     }
 }

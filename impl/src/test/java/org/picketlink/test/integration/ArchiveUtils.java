@@ -37,7 +37,8 @@ import org.jboss.shrinkwrap.resolver.api.maven.MavenDependencyResolver;
  * <p>
  * Instead of adding the project's classes individually we add and test the final jar using the {@link MavenDependencyResolver}.
  * In order to do that, we need the current project version which is obtained from a system property named
- * <i>project.version</i>.
+ * <i>project.version</i>. This allow us to test any project version by just providing this system property during the build,
+ * which is a good thing in order to perform some regression tests.
  * </p>
  * 
  * @author Pedro Igor
@@ -59,25 +60,25 @@ public class ArchiveUtils {
                 archive.addClass(classToAdd);
             }
         }
-        
+
         archive.addClass(AbstractArquillianTestCase.class);
 
         return archive;
     }
 
     public static void addDependency(WebArchive archive, String gav) {
-        archive.addAsLibraries(
-                DependencyResolvers.use(MavenDependencyResolver.class).loadMetadataFromPom("pom.xml")
-                        .artifact(gav)
-                        .resolveAs(JavaArchive.class));
+        archive.addAsLibraries(DependencyResolvers.use(MavenDependencyResolver.class).loadMetadataFromPom("pom.xml")
+                .artifact(gav).resolveAs(JavaArchive.class));
     }
-    
+
     /**
      * <p>
      * During the build this property is automatically configured, but if you're running in an IDE, make sure you have this
      * property properly configured in your test execution.
      * </p>
-     * <p>If not defined, the specified default value would be used.</p>
+     * <p>
+     * If not defined, the specified default value would be used.
+     * </p>
      * 
      * @return
      */
