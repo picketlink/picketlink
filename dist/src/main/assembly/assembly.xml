@@ -46,6 +46,7 @@
             <include>org.picketlink:picketlink-idm-api</include>
             <include>org.picketlink:picketlink-idm-impl</include>
             <include>org.picketlink:picketlink-idm-schema</include>
+            <include>org.picketlink:picketlink-common</include>
          </includes>
          <excludes>
             <exclude>org.picketlink:*:*:javadoc</exclude>
