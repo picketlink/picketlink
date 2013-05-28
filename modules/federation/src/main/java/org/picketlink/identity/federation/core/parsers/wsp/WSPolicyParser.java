@@ -87,6 +87,6 @@ public class WSPolicyParser extends AbstractParser {
     public boolean supports(QName qname) {
         String nsURI = qname.getNamespaceURI();
 
-        return WSTrustConstants.WSP_NS.equals(nsURI);
+        return WSTrustConstants.WSP_NS.equals(nsURI) || WSTrustConstants.WSP_15_NS.equals(nsURI);
     }
 }
