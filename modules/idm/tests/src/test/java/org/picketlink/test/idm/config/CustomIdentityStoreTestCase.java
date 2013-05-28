@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static junit.framework.Assert.assertEquals;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.AbstractIdentityStoreConfigurationBuilder;
@@ -58,6 +59,7 @@ import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
 
 /**
+ *
  * @author Pedro Igor
  * 
  */
@@ -67,11 +69,15 @@ public class CustomIdentityStoreTestCase {
     public void testConfiguration() throws Exception {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
+        // let's use this instance to test the custom store configuration and check for the methods invocation
+        MethodInvocationContext methodInvocationContext = new MethodInvocationContext();
+
         builder
             .stores()
                 .add(MyIdentityStoreConfiguration.class, 
                      MyIdentityStore.class, 
                      MyIdentityStoreConfigurationBuilder.class)
+                    .methodInvocationContext(methodInvocationContext)
                 .addRealm(Realm.DEFAULT_REALM)
                 .addTier("SomeTier")
                 .supportAllFeatures();
@@ -82,10 +88,18 @@ public class CustomIdentityStoreTestCase {
         IdentityManager identityManager = identityManagerFactory.createIdentityManager();
         
         identityManager.add(new SimpleUser("john"));
+
+        assertEquals("addAttributedType", methodInvocationContext.getMethodName());
+
+        identityManager.getUser("john");
+
+        assertEquals("getUser", methodInvocationContext.getMethodName());
     }
 
     public static class MyIdentityStoreConfigurationBuilder extends
             AbstractIdentityStoreConfigurationBuilder<MyIdentityStoreConfiguration, MyIdentityStoreConfigurationBuilder> {
+
+        private MethodInvocationContext methodInvocationContext;
 
         public MyIdentityStoreConfigurationBuilder(IdentityStoresConfigurationBuilder builder) {
             super(builder);
@@ -93,13 +107,23 @@ public class CustomIdentityStoreTestCase {
 
         @Override
         public MyIdentityStoreConfiguration create() {
-            return new MyIdentityStoreConfiguration(getSupportedFeatures(), getSupportedRelationships(), getRealms(),
+            MyIdentityStoreConfiguration config = new MyIdentityStoreConfiguration(getSupportedFeatures(), getSupportedRelationships(), getRealms(),
                     getTiers(), getContextInitializers(), getCredentialHandlerProperties(), getCredentialHandlers());
+
+            config.setMethodInvocationContext(this.methodInvocationContext);
+
+            return config;
         }
 
+        public MyIdentityStoreConfigurationBuilder methodInvocationContext(MethodInvocationContext methodInvocationContext) {
+            this.methodInvocationContext = methodInvocationContext;
+            return this;
+        }
     }
 
     public static class MyIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
+
+        private MethodInvocationContext methodInvocationContext;
 
         public MyIdentityStoreConfiguration(Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
                 Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms,
@@ -114,23 +138,32 @@ public class CustomIdentityStoreTestCase {
 
         }
 
+        public void setMethodInvocationContext(MethodInvocationContext assertion) {
+            this.methodInvocationContext = assertion;
+        }
+
+        public MethodInvocationContext getMethodInvocationContext() {
+            return this.methodInvocationContext;
+        }
     }
 
     public static class MyIdentityStore implements CredentialStore<MyIdentityStoreConfiguration> {
 
+        private MyIdentityStoreConfiguration config;
+
         @Override
         public void setup(MyIdentityStoreConfiguration config) {
-
+            this.config = config;
         }
 
         @Override
         public MyIdentityStoreConfiguration getConfig() {
-            return null;
+            return this.config;
         }
 
         @Override
         public void add(SecurityContext context, AttributedType value) {
-
+            getConfig().getMethodInvocationContext().setMethodName("addAttributedType");
         }
 
         @Override
@@ -150,6 +183,7 @@ public class CustomIdentityStoreTestCase {
 
         @Override
         public User getUser(SecurityContext context, String loginName) {
+            getConfig().getMethodInvocationContext().setMethodName("getUser");
             return null;
         }
 
@@ -247,5 +281,18 @@ public class CustomIdentityStoreTestCase {
             return null;
         }
 
+    }
+
+    public static class MethodInvocationContext {
+
+        private String methodName;
+
+        public void setMethodName(String methodName) {
+            this.methodName = methodName;
+        }
+
+        public String getMethodName() {
+            return this.methodName;
+        }
     }
 }
