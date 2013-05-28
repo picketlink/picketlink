@@ -21,7 +21,9 @@ package org.picketlink.idm.config;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
+import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContextFactory;
 import org.picketlink.idm.spi.StoreFactory;
 
@@ -42,12 +44,20 @@ public class IdentityConfiguration {
     private List<IdentityStoreConfiguration> configuredStores = new ArrayList<IdentityStoreConfiguration>();
     private SecurityContextFactory securityContextFactory;
     private StoreFactory storeFactory;
+    private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores;
 
     IdentityConfiguration(List<IdentityStoreConfiguration> storesConfiguration, StoreFactory storeFactory,
             SecurityContextFactory securityContextFactory) {
         this.configuredStores.addAll(storesConfiguration);
         this.storeFactory = storeFactory;
         this.securityContextFactory = securityContextFactory;
+    }
+
+    public IdentityConfiguration(List<IdentityStoreConfiguration> configurations, StoreFactory storeFactory,
+            SecurityContextFactory securityContextFactory,
+            Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores) {
+        this(configurations, storeFactory, securityContextFactory);
+        this.identityStores = identityStores;
     }
 
     /**
@@ -67,6 +77,10 @@ public class IdentityConfiguration {
 
     public SecurityContextFactory getSecurityContextFactory() {
         return this.securityContextFactory;
+    }
+
+    public Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> getIdentityStores() {
+        return this.identityStores;
     }
 
 }

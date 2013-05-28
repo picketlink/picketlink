@@ -42,8 +42,7 @@ import org.picketlink.idm.spi.ContextInitializer;
  *
  * @author Shane Bryzak
  */
-public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStoreConfiguration<?>> implements
-        IdentityStoreConfiguration {
+public abstract class BaseAbstractStoreConfiguration implements IdentityStoreConfiguration {
 
     private final Set<String> realms = new HashSet<String>();
     private final Set<String> tiers = new HashSet<String>();
