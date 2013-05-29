@@ -18,7 +18,12 @@
 package org.picketlink.rest;
 
 import javax.enterprise.context.RequestScoped;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 
 /**
  * Endpoint for REST identity services
@@ -29,5 +34,9 @@ import javax.ws.rs.Path;
 @Path("/identity")
 @RequestScoped
 public class IdentityEndpoint {
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public void addUser(@Context HttpServletRequest request) {
 
+    }
 }

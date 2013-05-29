@@ -17,53 +17,96 @@
  */
 package org.picketlink.idm.model;
 
-import java.io.Serializable;
-
-import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.model.annotation.AttributeProperty;
 
 /**
- * Group representation
+ * Represents a Group, which may be used to form collections of other identity objects
+ *
+ * @author Shane Bryzak
  */
-public interface Group extends IdentityType, Serializable {
+public class Group extends AbstractIdentityType {
 
-    /**
-     * A query parameter used to set the name value.
-     */
-    QueryParameter NAME = new QueryParameter() {};
+    private String name;
+    private Group parentGroup;
+    private String path;
 
-    /**
-     * A query parameter used to set the path.
-     */
-    QueryParameter PATH = new QueryParameter() {};
+    public Group() {
+    }
 
-    /**
-     * A query parameter used to set the parent value.
-     */
-    QueryParameter PARENT = new QueryParameter() {};
+    public Group(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Error creating SimpleGroup - name cannot be null or empty");
+        }
 
-    /**
-     * Group name is unique identifier in specific group tree branch. For example group with path "/acme/departments/marketing"
-     * will have name "marketing" and parent group path of "/acme/departments"
-     *
-     * @return name
-     */
-    String getName();
+        this.name = name;
+        this.path = getPath(this);
+    }
 
-    /**
-     * @return parent group or null if it refers to root ("/") in a group tree.
-     */
-    Group getParentGroup();
+    public Group(String name, Group parentGroup) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Error creating SimpleGroup - name cannot be null or empty");
+        }
 
-    /**
-     * <p>Sets the parent group.</p>
-     *
-     * @param group
-     */
-    void setParentGroup(Group group);
+        this.name = name;
+        this.parentGroup = parentGroup;
+        this.path = getPath(this);
+    }
 
-    /**
-     * @return group path (eg.: /parentGroup/childGroup.
-     */
-    String getPath();
+    @AttributeProperty
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPath() {
+        return this.path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    private String getPath(Group group) {
+        String name = "/" + group.getName();
+
+        if (group.getParentGroup() != null) {
+            name = getPath(group.getParentGroup()) + name;
+        }
+
+        return name;
+    }
+
+    @AttributeProperty
+    public Group getParentGroup() {
+        return parentGroup;
+    }
+
+    public void setParentGroup(Group group) {
+        this.parentGroup = group;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!(obj instanceof Group)) {
+            return false;
+        }
+
+        Group other = (Group) obj;
+
+        // FIXME The Partition should also be taken into account
+        return other.getId() != null && this.getId() != null && other.getId().equals(this.getId());
+    }
 
 }

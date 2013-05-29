@@ -17,18 +17,54 @@
  */
 package org.picketlink.idm.model;
 
-import java.io.Serializable;
-
-import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.model.annotation.AttributeProperty;
 
 /**
- * Role representation
+ * Represents a role, which may be assigned to account objects in various ways
+ * to grant specific application privileges
+ *
+ * @author Shane Bryzak
  */
-public interface Role extends IdentityType, Serializable {
-    /**
-     * A query parameter used to set the name value.
-     */
-    QueryParameter NAME = new QueryParameter() {};
+public class Role extends AbstractIdentityType {
+    private static final long serialVersionUID = -9044601754527766512L;
 
-    String getName();
+    private String name;
+
+    public Role() {
+    }
+
+    public Role(String name) {
+        this.name = name;
+    }
+
+    @AttributeProperty
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!(obj instanceof Role)) {
+            return false;
+        }
+
+        Role other = (Role) obj;
+
+        // FIXME The Partition should also be taken into account.
+        return other.getName() != null && this.getName() != null
+                && other.getName().equals(this.getName());
+    }
 }

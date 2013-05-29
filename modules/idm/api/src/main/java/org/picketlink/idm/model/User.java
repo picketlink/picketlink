@@ -17,50 +17,51 @@
  */
 package org.picketlink.idm.model;
 
-import java.io.Serializable;
-
-import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.model.annotation.AttributeProperty;
 
 /**
- * This interface represents a User; a human or non-human agent that may
+ * This class represents a User; a human or agent that may
  * consume the services provided by an application.
  *
  * @author Shane Bryzak
  */
-public interface User extends Agent, Serializable {
+public class User extends Agent {
 
-    /**
-     * A query parameter used to set the firstName value.
-     */
-    QueryParameter FIRST_NAME = new QueryParameter() {};
+    private static final long serialVersionUID = 4117586097100398485L;
 
-    /**
-     * A query parameter used to set the lastName value.
-     */
-    QueryParameter LAST_NAME = new QueryParameter() {};
+    private String firstName;
+    private String lastName;
+    private String email;
 
-    /**
-     * A query parameter used to set the email value.
-     */
-    QueryParameter EMAIL = new QueryParameter() {};
+    public User(String loginName) {
+        super(loginName);
+    }
 
-    /**
-     * This String prefixes all values returned by the getKey() method.
-     */
-    String KEY_PREFIX = "USER://";
+    @AttributeProperty
+    public String getFirstName() {
+        return firstName;
+    }
 
-    // Built in attributes
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
-    String getFirstName();
+    @AttributeProperty
+    public String getLastName() {
+        return lastName;
+    }
 
-    void setFirstName(String firstName);
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
-    String getLastName();
+    @AttributeProperty
+    public String getEmail() {
+        return email;
+    }
 
-    void setLastName(String lastName);
-
-    String getEmail();
-
-    void setEmail(String email);
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
 }

@@ -28,7 +28,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Marks a property of a Relationship as being an attribute of that Relationship.
+ * Marks a property of an IdentityType or Relationship as being an attribute of that
+ * IdentityType or Relationship.
  *
  * @author Shane Bryzak
  *
