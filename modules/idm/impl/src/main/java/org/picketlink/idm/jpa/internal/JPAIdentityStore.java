@@ -1371,7 +1371,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
         em.flush();
 
         AbstractBaseEvent event = handler.raiseDeletedEvent(identityType);
-        event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, entity);
+        event.getContext().setValue(EVENT_CONTEXT_IDENTITY, entity);
         context.getEventBridge().raiseEvent(event);
     }
 

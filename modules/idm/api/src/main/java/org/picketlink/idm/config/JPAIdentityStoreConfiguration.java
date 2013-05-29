@@ -86,7 +86,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
      * Identity Attribute Properties - this Map contains a Map of the formal attribute properties declared on
      * an IdentityType implementation, for example the firstName property of a User
      */
-    private Map<Class<? extends IdentityType>, Map<String,Property<Object>>> identityAttributeProperties = 
+    private Map<Class<? extends IdentityType>, Map<String,Property<Object>>> identityAttributeProperties =
             new HashMap<Class<? extends IdentityType>, Map<String,Property<Object>>>();
 
     /*
@@ -217,7 +217,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     }
 
     public Map<String, MappedAttribute> getAttributeProperties() {
-        return attributeProperties;    
+        return attributeProperties;
     }
 
     public Map<String,Property<Object>> getIdentityAttributeProperties(Class<? extends IdentityType> identityClass) {
