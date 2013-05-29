@@ -37,7 +37,7 @@ import org.picketlink.idm.spi.ContextInitializer;
  * @since Sep 6, 2012
  */
 
-public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfiguration<LDAPIdentityStoreConfiguration> {
+public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
 
     private String ldapURL;
     private String userDNSuffix;

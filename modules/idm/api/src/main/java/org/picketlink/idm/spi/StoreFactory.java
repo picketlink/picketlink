@@ -18,9 +18,9 @@
 
 package org.picketlink.idm.spi;
 
-import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
@@ -40,16 +40,6 @@ public interface StoreFactory {
      * @return
      */
     <T extends IdentityStoreConfiguration> IdentityStore<T> createIdentityStore(T config, SecurityContext context);
-
-    /**
-     * Maps specific implementations of IdentityStoreConfiguration to a corresponding
-     * IdentityStore implementation.
-     *
-     * @param configClass
-     * @param storeClass
-     */
-    void mapIdentityConfiguration(Class<? extends IdentityStoreConfiguration> configClass,
-            Class<? extends IdentityStore<?>> storeClass);
 
     /**
      *

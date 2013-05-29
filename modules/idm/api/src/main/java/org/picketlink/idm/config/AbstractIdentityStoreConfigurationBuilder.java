@@ -59,7 +59,7 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
     private List<Class<? extends CredentialHandler>> credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
     private IdentityStoresConfigurationBuilder identityStoresConfigurationBuilder;
 
-    public AbstractIdentityStoreConfigurationBuilder(IdentityStoresConfigurationBuilder builder) {
+    protected AbstractIdentityStoreConfigurationBuilder(IdentityStoresConfigurationBuilder builder) {
         super(builder);
         this.identityStoresConfigurationBuilder = builder;
     }

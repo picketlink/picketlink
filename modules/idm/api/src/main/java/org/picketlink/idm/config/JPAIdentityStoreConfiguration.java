@@ -74,7 +74,7 @@ import org.picketlink.idm.spi.ContextInitializer;
  * @author Shane Bryzak
  *
  */
-public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguration<JPAIdentityStoreConfiguration> {
+public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
 
     // Identity discriminator constants
     private static final String DEFAULT_USER_IDENTITY_DISCRIMINATOR = "USER";

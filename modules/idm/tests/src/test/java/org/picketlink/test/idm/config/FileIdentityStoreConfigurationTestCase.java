@@ -50,10 +50,4 @@ public class FileIdentityStoreConfigurationTestCase extends
         return fileConfig;
     }
 
-    @Override
-    protected IdentityManager createIdentityManager(IdentityConfiguration config) {
-        IdentityManagerFactory factory = new IdentityManagerFactory(config);
-        return factory.createIdentityManager();
-    }
-
 }

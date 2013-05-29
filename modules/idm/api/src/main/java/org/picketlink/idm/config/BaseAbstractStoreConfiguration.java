@@ -42,8 +42,7 @@ import org.picketlink.idm.spi.ContextInitializer;
  *
  * @author Shane Bryzak
  */
-public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStoreConfiguration<?>> implements
-        IdentityStoreConfiguration {
+public abstract class BaseAbstractStoreConfiguration implements IdentityStoreConfiguration {
 
     private final Set<String> realms = new HashSet<String>();
     private final Set<String> tiers = new HashSet<String>();
@@ -56,7 +55,7 @@ public abstract class BaseAbstractStoreConfiguration<C extends BaseAbstractStore
     private final Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures;
     private final Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships;
 
-    public BaseAbstractStoreConfiguration(Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
+    protected BaseAbstractStoreConfiguration(Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
             Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms,
             Set<String> tiers, List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {
