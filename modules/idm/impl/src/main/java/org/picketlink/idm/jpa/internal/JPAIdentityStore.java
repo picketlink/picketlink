@@ -61,6 +61,7 @@ import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.spi.annotations.Stored;
 import org.picketlink.idm.event.AbstractBaseEvent;
+import org.picketlink.idm.event.IdentityCreatedEvent;
 import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
@@ -129,20 +130,25 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
 
             IdentityType identityType = (IdentityType) value;
 
-            IdentityTypeHandler<IdentityType> handler = IdentityTypeHandlerFactory.getHandler(identityType.getClass());
+            try {
+                Object entity = config.getIdentityClass().newInstance();
+                String identifier = context.getIdGenerator().generate();
+                config.setModelPropertyValue(entity, PropertyType.IDENTITY_ID, identifier, true);
+                identityType.setId(identifier);
 
-            Object entity = handler.createEntity(context, identityType, this);
+                // TODO populate attributes
 
-            EntityManager em = getEntityManager(context);
+                EntityManager em = getEntityManager(context);
 
-            em.persist(entity);
-            em.flush();
+                em.persist(entity);
+                em.flush();
 
-            updateIdentityTypeAttributes(context, identityType, entity);
+                updateIdentityTypeAttributes(context, identityType, entity);
 
-            AbstractBaseEvent event = handler.raiseCreatedEvent(identityType);
-            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, entity);
-            context.getEventBridge().raiseEvent(event);
+                context.getEventBridge().raiseEvent(new IdentityCreatedEvent(identityType));
+            } catch (Exception e) {
+                throw MESSAGES.instantiationError(config.getIdentityClass().getName(), e);
+            }
         } else if (value instanceof Relationship) {
             checkRelationshipClassProvided();
 
