@@ -17,16 +17,16 @@
  */
 package org.picketlink.identity.federation.core.parsers.wst;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.events.StartElement;
- 
 import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.parsers.ParserNamespaceSupport;
 import org.picketlink.common.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenCollection;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.StartElement;
 
 /**
  * Parse the WS-Trust RequestSecurityToken Collection

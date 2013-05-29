@@ -17,12 +17,12 @@
  */
 package org.picketlink.identity.federation.saml.v1.protocol;
 
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeDesignatorType;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeDesignatorType;
 
 /**
  * <complexType name="AttributeQueryType"> <complexContent> <extension base="samlp:SubjectQueryAbstractType"> <sequence>

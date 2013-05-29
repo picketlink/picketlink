@@ -18,8 +18,6 @@
 
 package org.picketlink.idm.file.internal;
 
-import java.util.Comparator;
-
 import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
@@ -28,6 +26,8 @@ import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
+
+import java.util.Comparator;
 
 /**
  * Comparator for sorting identity objects according to given query parameters

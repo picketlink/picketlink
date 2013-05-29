@@ -22,19 +22,6 @@
 
 package org.picketlink.common;
 
-import static org.picketlink.common.ErrorCodes.EXPECTED_TAG;
-import static org.picketlink.common.ErrorCodes.REQD_ATTRIBUTE;
-import static org.picketlink.common.ErrorCodes.UNKNOWN_START_ELEMENT;
-import static org.picketlink.common.ErrorCodes.UNKNOWN_TAG;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-
-import javax.security.auth.login.LoginException;
-import javax.xml.crypto.dsig.XMLSignatureException;
-import javax.xml.stream.Location;
-import javax.xml.ws.WebServiceException;
-
 import org.jboss.logging.Logger;
 import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.constants.WSTrustConstants;
@@ -49,6 +36,18 @@ import org.picketlink.common.exceptions.fed.IssuerNotTrustedException;
 import org.picketlink.common.exceptions.fed.SignatureValidationException;
 import org.picketlink.common.exceptions.fed.WSTrustException;
 import org.w3c.dom.Element;
+
+import javax.security.auth.login.LoginException;
+import javax.xml.crypto.dsig.XMLSignatureException;
+import javax.xml.stream.Location;
+import javax.xml.ws.WebServiceException;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
+import static org.picketlink.common.ErrorCodes.EXPECTED_TAG;
+import static org.picketlink.common.ErrorCodes.REQD_ATTRIBUTE;
+import static org.picketlink.common.ErrorCodes.UNKNOWN_START_ELEMENT;
+import static org.picketlink.common.ErrorCodes.UNKNOWN_TAG;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>

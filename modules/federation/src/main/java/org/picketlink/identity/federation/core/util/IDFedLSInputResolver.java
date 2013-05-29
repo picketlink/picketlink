@@ -17,6 +17,12 @@
  */
 package org.picketlink.identity.federation.core.util;
 
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.util.StringUtil;
+import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSResourceResolver;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -25,12 +31,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.util.StringUtil;
-import org.w3c.dom.ls.LSInput;
-import org.w3c.dom.ls.LSResourceResolver;
 
 /**
  * An LSResource Resolver for schema validation

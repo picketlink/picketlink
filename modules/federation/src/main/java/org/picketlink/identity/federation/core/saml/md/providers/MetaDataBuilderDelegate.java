@@ -17,10 +17,6 @@
  */
 package org.picketlink.identity.federation.core.saml.md.providers;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.JBossSAMLConstants;
@@ -37,6 +33,10 @@ import org.picketlink.identity.federation.saml.v2.metadata.LocalizedURIType;
 import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.SSODescriptorType;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * SAML2 Metadata Builder API

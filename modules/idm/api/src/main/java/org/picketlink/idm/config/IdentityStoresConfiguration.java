@@ -22,11 +22,11 @@
 
 package org.picketlink.idm.config;
 
-import java.util.List;
-import java.util.Map;
-
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreFactory;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Pedro Igor

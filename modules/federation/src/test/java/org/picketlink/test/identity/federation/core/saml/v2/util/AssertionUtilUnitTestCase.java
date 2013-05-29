@@ -21,16 +21,6 @@
  */
 package org.picketlink.test.identity.federation.core.saml.v2.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.InputStream;
-import java.util.List;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
@@ -40,6 +30,15 @@ import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.io.InputStream;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test the AssertionUtil

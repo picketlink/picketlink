@@ -46,7 +46,6 @@ import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.model.Realm;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.integration.AbstractArquillianTestCase;
 import org.picketlink.test.integration.ArchiveUtils;
@@ -97,7 +96,7 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
     @Test
     @InSequence(1)
     public void testIdentityManagerForDefaultRealm() throws Exception {
-        User user = new SimpleUser(USER_NAME);
+        User user = new User(USER_NAME);
 
         IdentityManager identityManager = this.identityManagerInstance.get();
 
@@ -113,7 +112,7 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
     public void testIdentityManagerForStagingRealm() throws Exception {
         this.realmSelector.setRealmName(STAGING_REALM_NAME);
 
-        User user = new SimpleUser(USER_NAME);
+        User user = new User(USER_NAME);
 
         IdentityManager identityManager = this.identityManagerInstance.get();
 
@@ -129,7 +128,7 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
     public void testIdentityManagerForTestingRealm() throws Exception {
         this.realmSelector.setRealmName(TESTING_REALM_NAME);
 
-        User user = new SimpleUser(USER_NAME);
+        User user = new User(USER_NAME);
 
         IdentityManager identityManager = this.identityManagerInstance.get();
 

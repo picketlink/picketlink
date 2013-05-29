@@ -17,15 +17,6 @@
  */
 package org.picketlink.test.identity.federation.api.saml.v2;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.InputStream;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-
-import javax.xml.crypto.dsig.SignatureMethod;
-
 import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
@@ -46,6 +37,14 @@ import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import javax.xml.crypto.dsig.SignatureMethod;
+import java.io.InputStream;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Signatures related unit test cases

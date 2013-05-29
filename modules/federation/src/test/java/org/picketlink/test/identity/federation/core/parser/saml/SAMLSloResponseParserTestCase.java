@@ -17,18 +17,6 @@
  */
 package org.picketlink.test.identity.federation.core.parser.saml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.picketlink.common.constants.JBossSAMLConstants.LOGOUT_RESPONSE;
-import static org.picketlink.common.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-
-import javax.xml.namespace.QName;
-
 import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.picketlink.common.util.DocumentUtil;
@@ -38,6 +26,17 @@ import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
+
+import javax.xml.namespace.QName;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.picketlink.common.constants.JBossSAMLConstants.LOGOUT_RESPONSE;
+import static org.picketlink.common.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
 
 /**
  * Validate the parsing of SLO Response

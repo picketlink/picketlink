@@ -17,13 +17,13 @@
  */
 package org.picketlink.test.identity.federation.api.saml.v2.metadata;
 
-import static org.junit.Assert.assertNotNull;
-
 import org.junit.Test;
 import org.picketlink.identity.federation.api.saml.v2.metadata.KeyDescriptorMetaDataBuilder;
 import org.picketlink.identity.federation.api.w3.xmldsig.KeyInfoBuilder;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.w3c.dom.Element;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit Test the KeyDescriptorMetaDataBuilder

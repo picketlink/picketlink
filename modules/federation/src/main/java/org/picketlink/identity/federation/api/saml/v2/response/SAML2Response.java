@@ -17,42 +17,27 @@
  */
 package org.picketlink.identity.federation.api.saml.v2.response;
 
-import static org.picketlink.common.constants.JBossSAMLConstants.LOGOUT_RESPONSE;
-import static org.picketlink.common.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Writer;
-import java.net.URI;
-import java.util.Arrays;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.fed.IssueInstantMissingException;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLProtocolContext;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
-import org.picketlink.common.exceptions.fed.IssueInstantMissingException;
 import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnResponseFactory;
 import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
-import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
-import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.ActionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
@@ -76,6 +61,20 @@ import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.net.URI;
+import java.util.Arrays;
+
+import static org.picketlink.common.constants.JBossSAMLConstants.LOGOUT_RESPONSE;
+import static org.picketlink.common.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
 
 /**
  * API for dealing with SAML2 Response objects

@@ -18,8 +18,6 @@
 
 package org.picketlink.idm.jpa.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,17 +26,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
-
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
-import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.AttributedType.AttributeParameter;
 import org.picketlink.idm.model.Grant;
@@ -51,6 +46,7 @@ import org.picketlink.idm.model.Role;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.SecurityContext;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * <p>
@@ -260,12 +256,6 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      */
     protected abstract void doPopulateIdentityInstance(SecurityContext context, Object toIdentity, T fromIdentityType,
             JPAIdentityStore store);
-
-    protected abstract AbstractBaseEvent raiseCreatedEvent(T fromIdentityType);
-
-    protected abstract AbstractBaseEvent raiseUpdatedEvent(T fromIdentityType);
-
-    protected abstract AbstractBaseEvent raiseDeletedEvent(T fromIdentityType);
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private void findByAttributes(JPACriteriaQueryBuilder criteria, List<Predicate> predicates, JPAIdentityStore store) {

@@ -17,11 +17,11 @@
  */
 package org.picketlink.identity.federation.core.sts.registry;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * A base class for file based STS operations

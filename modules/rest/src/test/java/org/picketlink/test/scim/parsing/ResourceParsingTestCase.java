@@ -17,14 +17,14 @@
  */
 package org.picketlink.test.scim.parsing;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.InputStream;
-
 import org.junit.Test;
 import org.picketlink.scim.codec.SCIMParser;
 import org.picketlink.scim.model.v11.SCIMResource;
+
+import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Validate parsing of SCIM Resource representation

@@ -17,10 +17,10 @@
  */
 package org.picketlink.identity.federation.core.audit;
 
-import java.util.Map;
-
 import org.jboss.security.audit.AuditEvent;
 import org.picketlink.common.util.StringUtil;
+
+import java.util.Map;
 
 /**
  * Specialized implementation of {@link AuditEvent}

@@ -17,13 +17,12 @@
  */
 package org.picketlink.identity.federation.saml.v2.protocol;
 
-import java.net.URI;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.picketlink.identity.federation.saml.common.CommonRequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.net.URI;
 
 /**
  * <p>

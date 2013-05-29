@@ -18,12 +18,12 @@
 
 package org.picketlink.idm.credential.spi;
 
-import java.util.Date;
-
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
+
+import java.util.Date;
 
 /**
  * Performs credential validation and persists credential state to a Store.

@@ -19,18 +19,11 @@
 package org.picketlink.idm.jpa.internal;
 
 import java.util.List;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
-
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
-import org.picketlink.idm.event.AbstractBaseEvent;
-import org.picketlink.idm.event.AgentCreatedEvent;
-import org.picketlink.idm.event.AgentDeletedEvent;
-import org.picketlink.idm.event.AgentUpdatedEvent;
 import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.SimpleAgent;
 import org.picketlink.idm.spi.SecurityContext;
 
 /**
@@ -53,25 +46,10 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
     }
 
     @Override
-    protected AbstractBaseEvent raiseCreatedEvent(Agent fromIdentityType) {
-        return new AgentCreatedEvent(fromIdentityType);
-    }
-
-    @Override
-    protected AbstractBaseEvent raiseUpdatedEvent(Agent fromIdentityType) {
-        return new AgentUpdatedEvent(fromIdentityType);
-    }
-
-    @Override
-    protected AbstractBaseEvent raiseDeletedEvent(Agent fromIdentityType) {
-        return new AgentDeletedEvent(fromIdentityType);
-    }
-
-    @Override
     protected Agent doCreateIdentityType(SecurityContext context, Object identity, JPAIdentityStore store) {
         String loginName = store.getConfig().getModelProperty(PropertyType.AGENT_LOGIN_NAME).getValue(identity).toString();
 
-        Agent agent = new SimpleAgent(loginName);
+        Agent agent = new Agent(loginName);
 
         return agent;
     }

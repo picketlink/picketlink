@@ -18,11 +18,11 @@
 
 package org.picketlink.idm.spi;
 
-import java.util.List;
-
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.model.Agent;
+
+import java.util.List;
 
 /**
  * A special type of IdentityStore that supports the storage of raw credential state also

@@ -26,8 +26,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -36,10 +34,11 @@ import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.LDAPStoreConfigurationBuilder;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleRole;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.relationship.CustomRelationship;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * <p>
@@ -97,11 +96,11 @@ public class LDAPIdentityStoreConfigurationTestCase extends
 
         IdentityManager identityManager = createIdentityManager(builder.build());
 
-        User user = new SimpleUser("someUser");
+        User user = new User("someUser");
 
         identityManager.add(user);
 
-        Role role = new SimpleRole("someRole");
+        Role role = new Role("someRole");
 
         identityManager.add(role);
 

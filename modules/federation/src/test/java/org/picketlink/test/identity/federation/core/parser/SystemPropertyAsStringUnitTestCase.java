@@ -17,12 +17,12 @@
  */
 package org.picketlink.test.identity.federation.core.parser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.common.util.StringUtil;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Unit Test {@link StringUtil#getSystemPropertyAsString(String)} that parses a string that represents a system property

@@ -18,10 +18,6 @@
 
 package org.picketlink.test.idm.suites;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -63,6 +59,10 @@ import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
 import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
 /**
  * <p>

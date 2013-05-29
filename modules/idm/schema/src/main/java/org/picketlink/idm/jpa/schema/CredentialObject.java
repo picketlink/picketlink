@@ -18,8 +18,12 @@
 
 package org.picketlink.idm.jpa.schema;
 
-import java.io.Serializable;
-import java.util.Date;
+import org.picketlink.idm.jpa.annotations.CredentialType;
+import org.picketlink.idm.jpa.annotations.CredentialValue;
+import org.picketlink.idm.jpa.annotations.EffectiveDate;
+import org.picketlink.idm.jpa.annotations.ExpiryDate;
+import org.picketlink.idm.jpa.annotations.IdentityCredential;
+import org.picketlink.idm.jpa.annotations.Parent;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -27,13 +31,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-
-import org.picketlink.idm.jpa.annotations.CredentialType;
-import org.picketlink.idm.jpa.annotations.CredentialValue;
-import org.picketlink.idm.jpa.annotations.EffectiveDate;
-import org.picketlink.idm.jpa.annotations.ExpiryDate;
-import org.picketlink.idm.jpa.annotations.IdentityCredential;
-import org.picketlink.idm.jpa.annotations.Parent;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>

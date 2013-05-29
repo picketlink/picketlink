@@ -17,14 +17,13 @@
  */
 package org.picketlink.common.util;
 
-import java.io.UnsupportedEncodingException;
-import java.security.GeneralSecurityException;
-
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 
 /**
  * Utility dealing with Password Based Encryption (Code is ripped off of the PBEUtils class in JBossSecurity/PicketBox)

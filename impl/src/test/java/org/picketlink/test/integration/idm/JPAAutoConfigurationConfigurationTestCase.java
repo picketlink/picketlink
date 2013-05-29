@@ -39,7 +39,7 @@ import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.User;
 import org.picketlink.test.integration.ArchiveUtils;
 
 /**
@@ -75,7 +75,7 @@ public class JPAAutoConfigurationConfigurationTestCase extends AbstractJPADeploy
         
         assertEquals(JPAIdentityStoreConfiguration.class, identityStoreConfiguration.getClass());
         
-        this.identityManager.add(new SimpleUser("john"));
+        this.identityManager.add(new User("john"));
     }
  
     @ApplicationScoped

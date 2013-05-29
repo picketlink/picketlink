@@ -17,20 +17,14 @@
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
-import java.security.Principal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpSession;
-
 import org.jboss.security.audit.AuditLevel;
+import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.config.federation.IDPType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
-import org.picketlink.config.federation.IDPType;
-import org.picketlink.common.exceptions.ConfigurationException;
-import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.impl.EmptyRoleGenerator;
 import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
@@ -38,8 +32,13 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerCo
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
-import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
+
+import javax.servlet.http.HttpSession;
+import java.security.Principal;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Handles the generation of roles on the IDP Side

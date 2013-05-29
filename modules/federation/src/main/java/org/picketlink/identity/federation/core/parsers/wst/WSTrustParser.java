@@ -17,15 +17,15 @@
  */
 package org.picketlink.identity.federation.core.parsers.wst;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-
 import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.parsers.AbstractParser;
 import org.picketlink.common.util.StaxParserUtil;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 
 
 /**

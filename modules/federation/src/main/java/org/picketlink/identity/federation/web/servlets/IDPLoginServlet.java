@@ -17,8 +17,10 @@
  */
 package org.picketlink.identity.federation.web.servlets;
 
-import java.io.IOException;
-import java.security.Principal;
+import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.identity.federation.web.handlers.DefaultLoginHandler;
+import org.picketlink.identity.federation.web.interfaces.ILoginHandler;
 
 import javax.security.auth.login.LoginException;
 import javax.servlet.RequestDispatcher;
@@ -29,11 +31,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.picketlink.common.ErrorCodes;
-import org.picketlink.common.constants.GeneralConstants;
-import org.picketlink.identity.federation.web.handlers.DefaultLoginHandler;
-import org.picketlink.identity.federation.web.interfaces.ILoginHandler;
+import java.io.IOException;
+import java.security.Principal;
 
 /**
  * Handles login at the IDP

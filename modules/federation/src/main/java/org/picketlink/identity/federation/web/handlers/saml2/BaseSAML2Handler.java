@@ -17,9 +17,6 @@
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.GeneralConstants;
@@ -34,6 +31,9 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerCo
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.web.core.HTTPContext;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 /**
  * Base Class for SAML2 handlers

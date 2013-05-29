@@ -17,6 +17,17 @@
  */
 package org.picketlink.identity.federation.core.impl;
 
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.exceptions.TrustKeyConfigurationException;
+import org.picketlink.common.exceptions.TrustKeyProcessingException;
+import org.picketlink.config.federation.AuthPropertyType;
+import org.picketlink.config.federation.KeyValueType;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.core.util.EncryptionKeyUtil;
+import org.picketlink.identity.federation.core.util.KeyStoreUtil;
+
+import javax.crypto.SecretKey;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -35,18 +46,6 @@ import java.security.cert.Certificate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.crypto.SecretKey;
- 
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.exceptions.TrustKeyConfigurationException;
-import org.picketlink.common.exceptions.TrustKeyProcessingException;
-import org.picketlink.config.federation.AuthPropertyType;
-import org.picketlink.config.federation.KeyValueType;
-import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
-import org.picketlink.identity.federation.core.util.EncryptionKeyUtil;
-import org.picketlink.identity.federation.core.util.KeyStoreUtil;
 
 /**
  * KeyStore based Trust Key Manager

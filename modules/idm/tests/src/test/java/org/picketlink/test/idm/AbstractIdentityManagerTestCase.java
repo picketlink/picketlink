@@ -23,10 +23,6 @@ import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleAgent;
-import org.picketlink.idm.model.SimpleGroup;
-import org.picketlink.idm.model.SimpleRole;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 
 /**
@@ -72,7 +68,7 @@ public class AbstractIdentityManagerTestCase {
             getIdentityManager().remove(user);
         }
 
-        user = new SimpleUser(userName);
+        user = new User(userName);
         getIdentityManager().add(user);
 
         return user;
@@ -87,7 +83,7 @@ public class AbstractIdentityManagerTestCase {
             identityManager.remove(user);
         }
 
-        user = new SimpleUser(userName);
+        user = new User(userName);
         identityManager.add(user);
 
         return user;
@@ -105,7 +101,7 @@ public class AbstractIdentityManagerTestCase {
             agent = null;
         }
 
-        agent = new SimpleAgent(loginName);
+        agent = new Agent(loginName);
 
         getIdentityManager().add(agent);
 
@@ -122,7 +118,7 @@ public class AbstractIdentityManagerTestCase {
             agent = null;
         }
 
-        agent = new SimpleAgent(loginName);
+        agent = new Agent(loginName);
 
         identityManager.add(agent);
 
@@ -151,7 +147,7 @@ public class AbstractIdentityManagerTestCase {
             role = null;
         }
 
-        role = new SimpleRole(name);
+        role = new Role(name);
         getIdentityManager().add(role);
 
         return role;
@@ -167,7 +163,7 @@ public class AbstractIdentityManagerTestCase {
             role = null;
         }
 
-        role = new SimpleRole(name);
+        role = new Role(name);
         identityManager.add(role);
 
         return role;
@@ -193,9 +189,9 @@ public class AbstractIdentityManagerTestCase {
 
         if (group == null) {
             if (parentGroup == null) {
-                group = new SimpleGroup(name);
+                group = new Group(name);
             } else {
-                group = new SimpleGroup(name, parentGroup);
+                group = new Group(name, parentGroup);
             }
 
             getIdentityManager().add(group);
@@ -230,15 +226,15 @@ public class AbstractIdentityManagerTestCase {
         }
 
         if (parentGroup == null && parentGroupName != null) {
-            parentGroup = new SimpleGroup(parentGroupName);
+            parentGroup = new Group(parentGroupName);
             getIdentityManager().add(parentGroup);
         }
         
         if (group == null) {
             if (parentGroupName == null) {
-                group = new SimpleGroup(name);
+                group = new Group(name);
             } else {
-                group = new SimpleGroup(name, parentGroup);
+                group = new Group(name, parentGroup);
             }
 
             getIdentityManager().add(group);
@@ -261,7 +257,7 @@ public class AbstractIdentityManagerTestCase {
         }
 
         if (parentGroup == null && parentGroupName != null) {
-            parentGroup = new SimpleGroup(parentGroupName);
+            parentGroup = new Group(parentGroupName);
             identityManager.add(parentGroup);
         }
 
@@ -274,9 +270,9 @@ public class AbstractIdentityManagerTestCase {
 
         if (group == null) {
             if (parentGroupName == null) {
-                group = new SimpleGroup(name);
+                group = new Group(name);
             } else {
-                group = new SimpleGroup(name, parentGroup);
+                group = new Group(name, parentGroup);
             }
 
             identityManager.add(group);

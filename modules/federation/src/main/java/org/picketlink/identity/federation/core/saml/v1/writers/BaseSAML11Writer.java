@@ -17,10 +17,10 @@
  */
 package org.picketlink.identity.federation.core.saml.v1.writers;
 
-import javax.xml.stream.XMLStreamWriter;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
+
+import javax.xml.stream.XMLStreamWriter;
 
 /**
  * @author Anil.Saldhana@redhat.com

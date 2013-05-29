@@ -17,16 +17,16 @@
  */
 package org.picketlink.test.identity.federation.core.util;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.InputStream;
-
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
+
+import java.io.InputStream;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Read a SAML-XACML request

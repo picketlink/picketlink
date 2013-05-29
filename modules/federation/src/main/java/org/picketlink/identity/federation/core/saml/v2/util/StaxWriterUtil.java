@@ -19,12 +19,6 @@
 package org.picketlink.identity.federation.core.saml.v2.util;
 
 
-import static org.picketlink.common.util.StaxUtil.writeCharacters;
-import static org.picketlink.common.util.StaxUtil.writeStartElement;
-import static org.picketlink.common.util.StaxUtil.writeEndElement;
-
-import javax.xml.stream.XMLStreamWriter;
-
 import org.picketlink.common.ErrorCodes;
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
@@ -38,6 +32,12 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509CertificateType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Element;
+
+import javax.xml.stream.XMLStreamWriter;
+
+import static org.picketlink.common.util.StaxUtil.writeCharacters;
+import static org.picketlink.common.util.StaxUtil.writeEndElement;
+import static org.picketlink.common.util.StaxUtil.writeStartElement;
 
 /**
  * Utility methods for stax writing

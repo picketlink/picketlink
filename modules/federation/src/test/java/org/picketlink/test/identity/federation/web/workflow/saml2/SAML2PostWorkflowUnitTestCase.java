@@ -21,16 +21,7 @@
  */
 package org.picketlink.test.identity.federation.web.workflow.saml2;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.net.URL;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionEvent;
-
 import junit.framework.TestCase;
-
 import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.util.Base64;
 import org.picketlink.common.util.DocumentUtil;
@@ -55,6 +46,13 @@ import org.picketlink.test.identity.federation.web.mock.MockServletContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionEvent;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.net.URL;
 
 /**
  * Unit test the workflow for SAML2 Post Binding

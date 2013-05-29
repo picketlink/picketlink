@@ -18,21 +18,19 @@
 
 package org.picketlink.idm.ldap.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.UID;
-
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 
-import org.picketlink.idm.model.Agent;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.UID;
 
 /**
  * @author Pedro Silva
  *
  */
-public class LDAPAgent extends LDAPIdentityType implements Agent {
+public class LDAPAgent extends LDAPIdentityType {
 
     private static final long serialVersionUID = -8314904094352933682L;
 
@@ -68,7 +66,6 @@ public class LDAPAgent extends LDAPIdentityType implements Agent {
         return UID;
     }
 
-    @Override
     public String getLoginName() {
         Attribute theAttribute = getLDAPAttributes().get(UID);
 
@@ -83,7 +80,6 @@ public class LDAPAgent extends LDAPIdentityType implements Agent {
         return null;
     }
 
-    @Override
     public void setLoginName(String loginName) {
         Attribute theAttribute = getLDAPAttributes().get(UID);
 

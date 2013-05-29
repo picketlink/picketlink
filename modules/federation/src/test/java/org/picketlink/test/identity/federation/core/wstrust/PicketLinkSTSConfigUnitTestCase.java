@@ -17,16 +17,15 @@
  */
 package org.picketlink.test.identity.federation.core.wstrust;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.security.cert.Certificate;
-
-import javax.xml.crypto.dsig.CanonicalizationMethod;
-
 import org.junit.Test;
 import org.picketlink.identity.federation.core.wstrust.STSConfiguration;
 import org.picketlink.test.identity.federation.core.wstrust.PicketLinkSTSUnitTestCase.TestSTS;
+
+import javax.xml.crypto.dsig.CanonicalizationMethod;
+import java.security.cert.Certificate;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test various aspects of the sts configuration

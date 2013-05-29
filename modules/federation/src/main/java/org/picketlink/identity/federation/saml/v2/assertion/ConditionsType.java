@@ -17,12 +17,12 @@
  */
 package org.picketlink.identity.federation.saml.v2.assertion;
 
+import org.picketlink.identity.federation.saml.common.CommonConditionsType;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.picketlink.identity.federation.saml.common.CommonConditionsType;
 
 /**
  * <p>

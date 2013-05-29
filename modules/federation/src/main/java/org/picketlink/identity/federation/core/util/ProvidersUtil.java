@@ -17,13 +17,13 @@
  */
 package org.picketlink.identity.federation.core.util;
 
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.Provider;
 import java.security.Security;
-
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
 
 /**
  * Utility dealing with the Santuario (XMLSec) providers registration for PicketLink

@@ -18,17 +18,17 @@
 package org.picketlink.idm.ldap.internal;
 
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.SPACE_STRING;
+import org.picketlink.idm.model.Group;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 
-import org.picketlink.idm.model.Group;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.SPACE_STRING;
 
 /**
  * LDAP Representation of the {@link Group}
@@ -36,7 +36,7 @@ import org.picketlink.idm.model.Group;
  * @author anil saldhana
  * @since Sep 4, 2012
  */
-public class LDAPGroup extends LDAPIdentityType implements Group {
+public class LDAPGroup extends LDAPIdentityType {
 
     private static final long serialVersionUID = 1L;
 
@@ -74,7 +74,6 @@ public class LDAPGroup extends LDAPIdentityType implements Group {
         getLDAPAttributes().put(MEMBER, SPACE_STRING); // Dummy member for now
     }
 
-    @Override
     public String getName() {
         if (groupName == null) {
             Attribute cnAttribute = getLDAPAttributes().get(CN);
@@ -92,7 +91,6 @@ public class LDAPGroup extends LDAPIdentityType implements Group {
         this.parent = parent;
     }
 
-    @Override
     public Group getParentGroup() {
         return parent;
     }
@@ -108,7 +106,6 @@ public class LDAPGroup extends LDAPIdentityType implements Group {
         memberAttribute.add(childGroup.getDN());
     }
 
-    @Override
     public String getPath() {
         return this.path;
     }

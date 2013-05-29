@@ -18,12 +18,6 @@
 
 package org.picketlink.test.identity.federation.core.parser.wst;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-
 import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.picketlink.common.constants.WSTrustConstants;
@@ -35,6 +29,12 @@ import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityT
 import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
 import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
 import org.w3c.dom.Document;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Unit test the wst:SecondaryParameters

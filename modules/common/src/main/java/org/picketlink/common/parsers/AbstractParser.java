@@ -17,9 +17,12 @@
  */
 package org.picketlink.common.parsers;
 
-import java.io.InputStream;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.common.util.SystemPropertiesUtil;
 
 import javax.xml.stream.EventFilter;
 import javax.xml.stream.XMLEventReader;
@@ -27,13 +30,9 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.XMLEvent;
-
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.constants.GeneralConstants;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.util.StaxParserUtil;
-import org.picketlink.common.util.SystemPropertiesUtil;
+import java.io.InputStream;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 /**
  * Base class for parsers

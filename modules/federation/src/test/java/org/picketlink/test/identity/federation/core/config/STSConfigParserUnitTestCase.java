@@ -17,13 +17,6 @@
  */
 package org.picketlink.test.identity.federation.core.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
-import java.io.InputStream;
-import java.util.List;
-
 import org.junit.Test;
 import org.picketlink.config.federation.AuthPropertyType;
 import org.picketlink.config.federation.ClaimsProcessorType;
@@ -33,6 +26,13 @@ import org.picketlink.config.federation.STSType;
 import org.picketlink.config.federation.ServiceProviderType;
 import org.picketlink.config.federation.TokenProviderType;
 import org.picketlink.config.federation.parsers.STSConfigParser;
+
+import java.io.InputStream;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * <p>

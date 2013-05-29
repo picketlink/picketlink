@@ -17,53 +17,99 @@
  */
 package org.picketlink.idm.model;
 
-import java.io.Serializable;
-
+import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
- * Group representation
+ * <p>Default {@link IdentityType} implementation  to represent groups.</p>
+ *
+ * @author Shane Bryzak
  */
-public interface Group extends IdentityType, Serializable {
+public class Group extends AbstractIdentityType {
+
+    private static final long serialVersionUID = -3553832607918448916L;
 
     /**
      * A query parameter used to set the name value.
      */
-    QueryParameter NAME = new QueryParameter() {};
+    public static final QueryParameter NAME = new QueryParameter() {};
 
     /**
      * A query parameter used to set the path.
      */
-    QueryParameter PATH = new QueryParameter() {};
+    public static final QueryParameter PATH = new QueryParameter() {};
 
     /**
      * A query parameter used to set the parent value.
      */
-    QueryParameter PARENT = new QueryParameter() {};
+    public static final QueryParameter PARENT = new QueryParameter() {};
+
+    public static final String PATH_SEPARATOR = "/";
+
+    private String name;
+    private Group parentGroup;
+    private String path;
+
+    public Group(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Error creating Group - name cannot be null or empty");
+        }
+
+        this.name = name;
+        this.path = buildPath(this);
+    }
+
+    public Group(String name, Group parentGroup) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Error creating Group - name cannot be null or empty");
+        }
+
+        this.name = name;
+        this.parentGroup = parentGroup;
+        this.path = buildPath(this);
+    }
+
+    @AttributeProperty
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @AttributeProperty
+    public String getPath() {
+        return this.path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    @AttributeProperty
+    public Group getParentGroup() {
+        return this.parentGroup;
+    }
+
+    @AttributeProperty
+    public void setParentGroup(Group group) {
+        this.parentGroup = group;
+    }
 
     /**
-     * Group name is unique identifier in specific group tree branch. For example group with path "/acme/departments/marketing"
-     * will have name "marketing" and parent group path of "/acme/departments"
+     * <p>Builds the group's path based on an parent group.</p>
      *
-     * @return name
+     * @param parentGroup
+     * @return
      */
-    String getName();
+    private String buildPath(Group parentGroup) {
+        String name = PATH_SEPARATOR + parentGroup.getName();
 
-    /**
-     * @return parent group or null if it refers to root ("/") in a group tree.
-     */
-    Group getParentGroup();
+        if (parentGroup.getParentGroup() != null) {
+            name = buildPath(parentGroup.getParentGroup()) + name;
+        }
 
-    /**
-     * <p>Sets the parent group.</p>
-     *
-     * @param group
-     */
-    void setParentGroup(Group group);
-
-    /**
-     * @return group path (eg.: /parentGroup/childGroup.
-     */
-    String getPath();
-
+        return name;
+    }
 }

@@ -1,10 +1,8 @@
-<ns3:LogoutRequest xmlns:ns3="urn:oasis:names:tc:SAML:2.0:protocol" 
-                   xmlns="urn:oasis:names:tc:SAML:2.0:assertion" 
-                   xmlns:ns2="http://www.w3.org/2000/09/xmldsig#" 
-                   xmlns:ns4="http://www.w3.org/2001/04/xmlenc#" 
-                   ID="ID_c3b5ae86-7fea-4d8b-a438-a3f47d8e92c3" 
+<ns3:LogoutRequest xmlns:ns3="urn:oasis:names:tc:SAML:2.0:protocol"
+                   xmlns="urn:oasis:names:tc:SAML:2.0:assertion"
+                   ID="ID_c3b5ae86-7fea-4d8b-a438-a3f47d8e92c3"
                    IssueInstant="2010-07-29T13:46:20.647-05:00"
-                   Version="2.0" >
+                   Version="2.0">
     <Issuer>http://localhost:8080/sales/</Issuer>
     <saml:NameID xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" 
             NameQualifier="urn:jboss:1.0" 

@@ -17,20 +17,19 @@
  */
 package org.picketlink.test.idm.usecases;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-
-import java.util.List;
-
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Authorization;
-import org.picketlink.idm.model.SimpleAgent;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
+
+import java.util.List;
+
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * OAuth Use Case of an User X authorizing an OAuth application APP to have access 
@@ -57,7 +56,7 @@ public class ApplicationUserRelationshipTestCase extends AbstractIdentityManager
         User robert = createUser("robert");
         
         //Create an OAuth application called "My OAuth App"
-        Agent myOauthApp = new SimpleAgent("My OAuth App");
+        Agent myOauthApp = new Agent("My OAuth App");
 
         identityManager.add(myOauthApp);
         

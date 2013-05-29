@@ -18,17 +18,13 @@
 
 package org.picketlink.idm.ldap.internal;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.query.QueryParameter;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
-
-import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.QueryParameter;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -40,21 +36,21 @@ public class LDAPQueryAttributeMapper {
     private static final Map<QueryParameter, String> ldapAttributeMap = new HashMap<QueryParameter, String>();
 
     static {
-        ldapAttributeMap.put(User.ID, LDAPConstants.ENTRY_UUID);
-        ldapAttributeMap.put(User.LOGIN_NAME, LDAPConstants.UID);
-        ldapAttributeMap.put(User.EMAIL, LDAPConstants.EMAIL);
-        ldapAttributeMap.put(User.FIRST_NAME, LDAPConstants.GIVENNAME);
-        ldapAttributeMap.put(User.LAST_NAME, LDAPConstants.SN);
-        ldapAttributeMap.put(User.MEMBER_OF, LDAPConstants.MEMBER_OF);
-        ldapAttributeMap.put(Role.NAME, LDAPConstants.CN);
-        ldapAttributeMap.put(Group.NAME, LDAPConstants.CN);
-        ldapAttributeMap.put(User.CREATED_DATE, LDAPConstants.CREATE_TIMESTAMP);
-        ldapAttributeMap.put(User.CREATED_BEFORE, LDAPConstants.CREATE_TIMESTAMP);
-        ldapAttributeMap.put(User.CREATED_AFTER, LDAPConstants.CREATE_TIMESTAMP);
+        ldapAttributeMap.put(org.picketlink.idm.model.User.ID, LDAPConstants.ENTRY_UUID);
+        ldapAttributeMap.put(org.picketlink.idm.model.User.LOGIN_NAME, LDAPConstants.UID);
+        ldapAttributeMap.put(org.picketlink.idm.model.User.EMAIL, LDAPConstants.EMAIL);
+        ldapAttributeMap.put(org.picketlink.idm.model.User.FIRST_NAME, LDAPConstants.GIVENNAME);
+        ldapAttributeMap.put(org.picketlink.idm.model.User.LAST_NAME, LDAPConstants.SN);
+        ldapAttributeMap.put(org.picketlink.idm.model.User.MEMBER_OF, LDAPConstants.MEMBER_OF);
+        ldapAttributeMap.put(org.picketlink.idm.model.Role.NAME, LDAPConstants.CN);
+        ldapAttributeMap.put(org.picketlink.idm.model.Group.NAME, LDAPConstants.CN);
+        ldapAttributeMap.put(org.picketlink.idm.model.User.CREATED_DATE, LDAPConstants.CREATE_TIMESTAMP);
+        ldapAttributeMap.put(org.picketlink.idm.model.User.CREATED_BEFORE, LDAPConstants.CREATE_TIMESTAMP);
+        ldapAttributeMap.put(org.picketlink.idm.model.User.CREATED_AFTER, LDAPConstants.CREATE_TIMESTAMP);
 
-        customAttributeMap.put(User.EXPIRY_DATE, LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
-        customAttributeMap.put(User.EXPIRY_BEFORE, LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
-        customAttributeMap.put(User.EXPIRY_AFTER, LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
+        customAttributeMap.put(org.picketlink.idm.model.User.EXPIRY_DATE, LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
+        customAttributeMap.put(org.picketlink.idm.model.User.EXPIRY_BEFORE, LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
+        customAttributeMap.put(org.picketlink.idm.model.User.EXPIRY_AFTER, LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
         customAttributeMap.put(IdentityType.ENABLED, LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED);
     }
 

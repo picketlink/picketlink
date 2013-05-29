@@ -17,19 +17,6 @@
  */
 package org.picketlink.test.identity.federation.api.saml.v2;
 
-import static org.junit.Assert.assertNotNull;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.security.Key;
-import java.security.KeyPair;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.cert.Certificate;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.picketlink.common.util.DocumentUtil;
@@ -50,6 +37,19 @@ import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementTy
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.test.identity.federation.api.util.KeyUtilUnitTestCase;
 import org.w3c.dom.Document;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.security.Key;
+import java.security.KeyPair;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test the {@link SAML2Response} API

@@ -17,19 +17,19 @@
  */
 package org.picketlink.identity.federation.web.config;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.config.federation.IDPType;
 import org.picketlink.config.federation.PicketLinkType;
 import org.picketlink.config.federation.SPType;
 import org.picketlink.config.federation.TrustType;
-import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * A properties file based {@link SAMLConfigurationProvider}. For the IDP configuration, a idp_config.properties is expected.

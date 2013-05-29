@@ -17,26 +17,26 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.StartElement;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.parsers.ParserNamespaceSupport;
-import org.picketlink.identity.federation.core.parsers.util.SAML11ParserUtil;
-import org.picketlink.common.util.StaxParserUtil;
-import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.parsers.ParserNamespaceSupport;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.parsers.util.SAML11ParserUtil;
+import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11AttributeQueryType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11AuthenticationQueryType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11AuthorizationDecisionQueryType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11RequestType;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.StartElement;
 
 /**
  * Parse the SAML2 AuthnRequest

@@ -23,10 +23,10 @@
 				<saml:Attribute Name="role" FriendlyName="role"
 					NameFormat="role">
 					<saml:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-						xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">employee
+                                         xsi:type="xs:string">employee
 					</saml:AttributeValue>
                     <saml:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                                         xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">manager
+                                         xsi:type="xs:string">manager
                     </saml:AttributeValue>
 				</saml:Attribute>
 			</saml:AttributeStatement>

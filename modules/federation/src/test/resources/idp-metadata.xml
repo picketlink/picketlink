@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EntitiesDescriptor Name="urn:mace:shibboleth:testshib:two"
-	xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
-	xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+                    xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
 	<EntityDescriptor entityID="https://idp.testshib.org/idp/shibboleth">
 		<IDPSSODescriptor
 			protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol urn:mace:shibboleth:1.0 urn:oasis:names:tc:SAML:2.0:protocol">

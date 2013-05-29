@@ -18,16 +18,15 @@
 
 package org.picketlink.identity.federation.ws.policy;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-
-import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * <p>

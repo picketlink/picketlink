@@ -21,15 +21,6 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.picketlink.common.ErrorCodes;
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
@@ -57,6 +48,14 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectType.STSubTyp
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Utility to deal with assertions

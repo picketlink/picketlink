@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns3:Response xmlns="urn:oasis:names:tc:SAML:2.0:assertion"
-	xmlns:ns2="http://www.w3.org/2000/09/xmldsig#" xmlns:ns3="urn:oasis:names:tc:SAML:2.0:protocol"
-	xmlns:ns4="http://www.w3.org/2001/04/xmlenc#" IssueInstant="2009-05-26T14:06:26.362-05:00"
-	Version="2.0" ID="ID_1164e0fc-576d-4797-b11c-3d049520f566">
+              xmlns:ns3="urn:oasis:names:tc:SAML:2.0:protocol"
+              IssueInstant="2009-05-26T14:06:26.362-05:00"
+              Version="2.0" ID="ID_1164e0fc-576d-4797-b11c-3d049520f566">
 	<Issuer>testIssuer</Issuer>
 	<ns3:Status>
 		<ns3:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success" />

@@ -17,24 +17,24 @@
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
-import static org.picketlink.common.util.StringUtil.isNotNull;
+import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
+import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 
-import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
-import org.picketlink.common.exceptions.ConfigurationException;
-import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.common.util.DocumentUtil;
-import org.picketlink.common.constants.GeneralConstants;
-import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
-import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 /**
  * Handles SAML2 Signature

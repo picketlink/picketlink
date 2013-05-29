@@ -17,16 +17,6 @@
  */
 package org.picketlink.test.identity.federation.core.parser.saml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
@@ -53,6 +43,16 @@ import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACML
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Validate the parsing of SAML2 Response

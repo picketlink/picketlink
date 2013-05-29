@@ -17,28 +17,27 @@
  */
 package org.picketlink.test.identity.federation.core.saml.v2.metadata;
 
-import static org.junit.Assert.assertNotNull;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.stream.XMLStreamWriter;
-
 import org.junit.Test;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.md.providers.MetaDataBuilderDelegate;
-import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLMetadataWriter;
-import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
+
+import javax.xml.stream.XMLStreamWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test the {@code SAMLMetadataWriter}

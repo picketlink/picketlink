@@ -17,17 +17,17 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.events.StartElement;
-
 import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.parsers.ParserNamespaceSupport;
 import org.picketlink.common.util.StaxParserUtil;
-import org.picketlink.common.constants.JBossSAMLConstants;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.saml.v2.protocol.ArtifactResolveType;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.StartElement;
 
 /**
  * Parse the {@link ArtifactResolveType}

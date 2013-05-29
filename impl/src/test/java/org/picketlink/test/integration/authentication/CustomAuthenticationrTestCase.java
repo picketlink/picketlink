@@ -37,7 +37,6 @@ import org.junit.Test;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.BaseAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.integration.ArchiveUtils;
 
@@ -83,7 +82,7 @@ public class CustomAuthenticationrTestCase extends AbstractAuthenticatorTestCase
         
         @PostConstruct
         public void onInit() {
-            this.users.put(USER_NAME, new SimpleUser(USER_NAME));
+            this.users.put(USER_NAME, new User(USER_NAME));
         }
         
         @Inject

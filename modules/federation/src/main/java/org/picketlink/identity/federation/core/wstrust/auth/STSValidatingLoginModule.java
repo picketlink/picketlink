@@ -17,15 +17,14 @@
  */
 package org.picketlink.identity.federation.core.wstrust.auth;
 
-import java.io.IOException;
+import org.picketlink.common.exceptions.fed.WSTrustException;
+import org.picketlink.identity.federation.core.wstrust.STSClient;
+import org.w3c.dom.Element;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
-
-import org.picketlink.identity.federation.core.wstrust.STSClient;
-import org.picketlink.common.exceptions.fed.WSTrustException;
-import org.w3c.dom.Element;
+import java.io.IOException;
 
 /**
  * JAAS LoginModule for JBoss STS (Security Token Service) that validates security tokens. </p> This LoginModule only performs

@@ -17,23 +17,18 @@
  */
 package org.picketlink.test.identity.federation.core.saml.v2;
 
-import java.io.ByteArrayOutputStream;
-import java.util.HashMap;
-import java.util.Map;
-
 import junit.framework.TestCase;
-
-import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StaxUtil;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.constants.X500SAMLProfileConstants;
 import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnResponseFactory;
 import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
-import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
-import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
@@ -41,6 +36,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Unit test the X500 Profile of SAML2

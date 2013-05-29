@@ -17,10 +17,6 @@
  */
 package org.picketlink.identity.federation.core.parsers.wst;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.events.StartElement; 
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.WSTrustConstants;
@@ -28,6 +24,10 @@ import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.parsers.ParserNamespaceSupport;
 import org.picketlink.common.util.StaxParserUtil;
 import org.picketlink.identity.federation.ws.trust.CancelTargetType;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.StartElement;
 
 /**
  * Stax parser for the wst:CancelTarget element

@@ -18,6 +18,9 @@
 
 package org.picketlink.idm.file.internal;
 
+import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.AttributedType;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -26,9 +29,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.AttributedType;
 
 /**
  * @author Pedro Silva

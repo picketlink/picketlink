@@ -22,17 +22,6 @@
 
 package org.picketlink.test.idm.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Date;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,10 +42,19 @@ import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import java.util.Date;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * <p>Some tests for the configuration of custom {@link CredentialHandler}.</p>
@@ -114,7 +112,7 @@ public class CredentialHandlerConfigurationTestCase {
 
         IdentityManager identityManager = identityManagerFactory.createIdentityManager();
 
-        User user = new SimpleUser("user");
+        User user = new User("user");
 
         identityManager.add(user);
 
@@ -165,7 +163,7 @@ public class CredentialHandlerConfigurationTestCase {
 
         IdentityManager identityManager = identityManagerFactory.createIdentityManager();
 
-        User user = new SimpleUser("user");
+        User user = new User("user");
 
         identityManager.add(user);
 

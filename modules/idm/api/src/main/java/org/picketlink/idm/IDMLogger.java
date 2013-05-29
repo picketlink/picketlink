@@ -22,8 +22,6 @@
 
 package org.picketlink.idm;
 
-import java.util.Set;
-
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.LogMessage;
 import org.jboss.logging.Logger;
@@ -33,6 +31,8 @@ import org.jboss.logging.MessageLogger;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
+
+import java.util.Set;
 
 /**
  * @author Pedro Silva

@@ -18,12 +18,6 @@
 
 package org.picketlink.test.idm.partition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -31,6 +25,12 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.Tier;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * <p>

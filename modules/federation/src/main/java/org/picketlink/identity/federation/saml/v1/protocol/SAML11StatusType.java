@@ -17,9 +17,9 @@
  */
 package org.picketlink.identity.federation.saml.v1.protocol;
 
-import java.io.Serializable;
-
 import org.picketlink.identity.federation.saml.common.CommonStatusDetailType;
+
+import java.io.Serializable;
 
 /**
  * <complexType name="StatusType"> <sequence> <element ref="samlp:StatusCode"/> <element ref="samlp:StatusMessage"

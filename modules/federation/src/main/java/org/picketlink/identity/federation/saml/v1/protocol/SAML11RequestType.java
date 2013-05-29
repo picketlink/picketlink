@@ -17,11 +17,10 @@
  */
 package org.picketlink.identity.federation.saml.v1.protocol;
 
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
  * <complexType name="RequestType"> <complexContent> <extension base="samlp:RequestAbstractType"> <choice> <element

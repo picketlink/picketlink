@@ -17,11 +17,11 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.metadata.store;
 
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
-
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 
 /**
  * Configuration Store for the metadata

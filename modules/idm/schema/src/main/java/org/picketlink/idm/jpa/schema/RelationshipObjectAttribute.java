@@ -18,7 +18,10 @@
 
 package org.picketlink.idm.jpa.schema;
 
-import java.io.Serializable;
+import org.picketlink.idm.jpa.annotations.AttributeName;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.jpa.annotations.Parent;
+import org.picketlink.idm.jpa.annotations.RelationshipAttribute;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,11 +29,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-
-import org.picketlink.idm.jpa.annotations.AttributeName;
-import org.picketlink.idm.jpa.annotations.AttributeValue;
-import org.picketlink.idm.jpa.annotations.Parent;
-import org.picketlink.idm.jpa.annotations.RelationshipAttribute;
+import java.io.Serializable;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>

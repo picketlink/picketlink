@@ -23,7 +23,7 @@ import org.picketlink.Identity;
 import org.picketlink.authentication.web.AuthenticationFilter;
 import org.picketlink.authentication.web.HTTPAuthenticationScheme;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.User;
 
 public class AuthenticationFilterTestCase {
 
@@ -67,7 +67,7 @@ public class AuthenticationFilterTestCase {
 
     private void setupCredential(boolean loggedIn, String authType) throws IOException, ServletException {
         when(identity.isLoggedIn()).thenReturn(loggedIn);
-        when(credentials.getCredential()).thenReturn(new SimpleUser("john"));
+        when(credentials.getCredential()).thenReturn(new User("john"));
         when(identityInstance.get()).thenReturn(identity);
         when(credentialsInstance.get()).thenReturn(credentials);
         when(config.getInitParameter("authType")).thenReturn(authType);

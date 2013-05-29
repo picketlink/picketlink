@@ -18,7 +18,6 @@
 package org.picketlink.test.identity.federation.api.saml.v2;
 
 import junit.framework.TestCase;
-
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 

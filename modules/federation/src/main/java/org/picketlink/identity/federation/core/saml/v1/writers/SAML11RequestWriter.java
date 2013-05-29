@@ -17,15 +17,10 @@
  */
 package org.picketlink.identity.federation.core.saml.v1.writers;
 
-import java.net.URI;
-import java.util.List;
-
-import javax.xml.stream.XMLStreamWriter;
-
-import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.StaxUtil;
+import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11ActionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeDesignatorType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeType;
@@ -36,6 +31,10 @@ import org.picketlink.identity.federation.saml.v1.protocol.SAML11AuthenticationQ
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11AuthorizationDecisionQueryType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11QueryAbstractType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11RequestType;
+
+import javax.xml.stream.XMLStreamWriter;
+import java.net.URI;
+import java.util.List;
 
 /**
  * Write the {@link SAML11RequestType} to stream

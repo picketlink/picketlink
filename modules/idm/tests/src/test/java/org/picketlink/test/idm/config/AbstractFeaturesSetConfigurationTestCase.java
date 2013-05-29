@@ -22,14 +22,6 @@
 
 package org.picketlink.test.idm.config;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -51,11 +43,16 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleGroup;
-import org.picketlink.idm.model.SimpleRole;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.relationship.CustomRelationship;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Pedro Silva
@@ -75,15 +72,15 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         IdentityManager identityManager = createIdentityManager(builder.build());
 
-        User user = new SimpleUser("someUser");
+        User user = new User("someUser");
 
         performGetCreateRemoveIdentityType(user, identityManager);
 
-        Role role = new SimpleRole("someRole");
+        Role role = new Role("someRole");
 
         performGetCreateRemoveIdentityType(role, identityManager);
 
-        Group group = new SimpleGroup("someGroup");
+        Group group = new Group("someGroup");
 
         performGetCreateRemoveIdentityType(group, identityManager);
     }
@@ -106,7 +103,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             identityManager.remove(user);
         }
 
-        user = new SimpleUser("someUser");
+        user = new User("someUser");
 
         identityManager.add(user);
 
@@ -116,7 +113,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             identityManager.remove(role);
         }
 
-        role = new SimpleRole("someRole");
+        role = new Role("someRole");
 
         identityManager.add(role);
 
@@ -126,7 +123,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             identityManager.remove(group);
         }
 
-        group = new SimpleGroup("someGroup");
+        group = new Group("someGroup");
 
         identityManager.add(group);
 
@@ -153,7 +150,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             identityManager.remove(user);
         }
 
-        user = new SimpleUser("someUser");
+        user = new User("someUser");
 
         identityManager.add(user);
 
@@ -206,7 +203,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         try {
             IdentityManager identityManager = createIdentityManager(builder.build());
 
-            performGetCreateRemoveIdentityType(new SimpleUser("someUser"), identityManager);
+            performGetCreateRemoveIdentityType(new User("someUser"), identityManager);
 
             fail();
         } catch (IdentityManagementException ime) {
@@ -242,7 +239,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             User user = identityManager.getUser("someUser");
 
             if (user == null) {
-                user = new SimpleUser("someUser");
+                user = new User("someUser");
                 identityManager.add(user);
             }
 
@@ -306,7 +303,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         try {
             IdentityManager identityManager = createIdentityManager(builder.build());
 
-            performGetCreateRemoveIdentityType(new SimpleRole("someRole"), identityManager);
+            performGetCreateRemoveIdentityType(new Role("someRole"), identityManager);
 
             fail();
         } catch (IdentityManagementException ime) {
@@ -338,7 +335,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         try {
             IdentityManager identityManager = createIdentityManager(builder.build());
 
-            performGetCreateRemoveIdentityType(new SimpleRole("someRole"), identityManager);
+            performGetCreateRemoveIdentityType(new Role("someRole"), identityManager);
 
             fail();
         } catch (IdentityManagementException ime) {
@@ -396,7 +393,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         try {
             IdentityManager identityManager = createIdentityManager(builder.build());
 
-            performGetCreateRemoveIdentityType(new SimpleGroup("someGroup"), identityManager);
+            performGetCreateRemoveIdentityType(new Group("someGroup"), identityManager);
 
             fail();
         } catch (IdentityManagementException ime) {
@@ -429,7 +426,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         try {
             IdentityManager identityManager = createIdentityManager(builder.build());
 
-            SimpleGroup group = new SimpleGroup("someGroup");
+            Group group = new Group("someGroup");
 
             performGetCreateRemoveIdentityType(group, identityManager);
 
@@ -490,11 +487,11 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         try {
             IdentityManager identityManager = createIdentityManager(builder.build());
 
-            User user = new SimpleUser("someUser");
+            User user = new User("someUser");
 
             performGetCreateRemoveIdentityType(user, identityManager);
 
-            Role role = new SimpleRole("someRole");
+            Role role = new Role("someRole");
 
             performGetCreateRemoveIdentityType(role, identityManager);
 
@@ -526,11 +523,11 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         IdentityManager identityManager = createIdentityManager(builder.build());
 
-        User user = new SimpleUser("someUser");
+        User user = new User("someUser");
 
         identityManager.add(user);
 
-        Role role = new SimpleRole("someRole");
+        Role role = new Role("someRole");
 
         identityManager.add(role);
 
@@ -598,11 +595,11 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         try {
             IdentityManager identityManager = createIdentityManager(builder.build());
 
-            User user = new SimpleUser("someUser");
+            User user = new User("someUser");
 
             identityManager.add(user);
 
-            Role role = new SimpleRole("someRole");
+            Role role = new Role("someRole");
 
             identityManager.add(role);
 
@@ -641,7 +638,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         IdentityManager identityManager = createIdentityManager(builder.build());
 
-        User user = new SimpleUser("someUser");
+        User user = new User("someUser");
 
         performGetCreateRemoveIdentityType(user, identityManager);
 
@@ -672,7 +669,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         IdentityManager identityManager = createIdentityManager(builder.build());
 
-        User user = new SimpleUser("someUser");
+        User user = new User("someUser");
 
         User storedType = identityManager.getUser(user.getLoginName());
 

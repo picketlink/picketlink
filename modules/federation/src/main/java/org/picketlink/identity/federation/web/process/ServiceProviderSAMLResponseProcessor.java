@@ -17,26 +17,26 @@
  */
 package org.picketlink.identity.federation.web.process;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Set;
-import java.util.concurrent.locks.Lock;
-
-import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.exceptions.TrustKeyConfigurationException;
 import org.picketlink.common.exceptions.TrustKeyProcessingException;
+import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.util.PostBindingUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Set;
+import java.util.concurrent.locks.Lock;
 
 /**
  * Utility Class to handle processing of an SAML Request Message

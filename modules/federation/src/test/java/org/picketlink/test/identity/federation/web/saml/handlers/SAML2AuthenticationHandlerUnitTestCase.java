@@ -21,24 +21,6 @@
  */
 package org.picketlink.test.identity.federation.web.saml.handlers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.security.KeyPair;
-import java.security.Principal;
-import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import javax.xml.namespace.QName;
-
 import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.common.constants.GeneralConstants;
@@ -88,6 +70,23 @@ import org.picketlink.test.identity.federation.web.mock.MockHttpServletResponse;
 import org.picketlink.test.identity.federation.web.mock.MockHttpSession;
 import org.picketlink.test.identity.federation.web.mock.MockServletContext;
 import org.w3c.dom.Document;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.namespace.QName;
+import java.security.KeyPair;
+import java.security.Principal;
+import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test the {@link SAML2AuthenticationHandler}

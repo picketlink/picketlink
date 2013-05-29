@@ -17,15 +17,14 @@
  */
 package org.picketlink.identity.federation.core.factories;
 
+import org.jboss.logging.Logger;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import java.security.Principal;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
-import org.jboss.logging.Logger;
 
 /**
  * <p>

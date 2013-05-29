@@ -17,18 +17,40 @@
  */
 package org.picketlink.idm.model;
 
-import java.io.Serializable;
 
+import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
- * Role representation
+ * <p>Default {@link IdentityType} implementation  to represent roles.</p>
+ *
+ * @author Shane Bryzak
  */
-public interface Role extends IdentityType, Serializable {
+public class Role extends AbstractIdentityType {
+
+    private static final long serialVersionUID = 5641696145573437982L;
+
     /**
      * A query parameter used to set the name value.
      */
-    QueryParameter NAME = new QueryParameter() {};
+    public static final QueryParameter NAME = new QueryParameter() {};
 
-    String getName();
+    private String name;
+
+    public Role() {
+    }
+
+    public Role(String name) {
+        this.name = name;
+    }
+
+    @AttributeProperty
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 }

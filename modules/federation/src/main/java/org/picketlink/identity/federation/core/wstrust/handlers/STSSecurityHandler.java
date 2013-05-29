@@ -17,13 +17,15 @@
  */
 package org.picketlink.identity.federation.core.wstrust.handlers;
 
-import static org.picketlink.common.constants.WSTrustConstants.FAILED_AUTHENTICATION;
-import static org.picketlink.common.constants.WSTrustConstants.INVALID_SECURITY;
-import static org.picketlink.common.constants.WSTrustConstants.SECURITY_TOKEN_UNAVAILABLE;
-
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Set;
+import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.exceptions.fed.WSTrustException;
+import org.picketlink.identity.federation.core.wstrust.STSClient;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
+import org.picketlink.identity.federation.core.wstrust.STSClientFactory;
+import org.w3c.dom.Element;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -38,16 +40,13 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import javax.xml.ws.soap.SOAPFaultException;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Set;
 
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.ErrorCodes;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.wstrust.STSClient;
-import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
-import org.picketlink.identity.federation.core.wstrust.STSClientFactory;
-import org.picketlink.common.exceptions.fed.WSTrustException;
-import org.w3c.dom.Element;
+import static org.picketlink.common.constants.WSTrustConstants.FAILED_AUTHENTICATION;
+import static org.picketlink.common.constants.WSTrustConstants.INVALID_SECURITY;
+import static org.picketlink.common.constants.WSTrustConstants.SECURITY_TOKEN_UNAVAILABLE;
 
 /**
  * STSSecurityHandler is a server-side JAX-WS SOAP Protocol handler that will extract a Security Token from the SOAP Security

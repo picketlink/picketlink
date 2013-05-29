@@ -18,19 +18,19 @@
 
 package org.picketlink.test.idm.credential;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * <p>

@@ -18,9 +18,9 @@
 
 package org.picketlink.idm.credential.spi;
 
-import java.util.Date;
-
 import org.picketlink.idm.credential.spi.annotations.Stored;
+
+import java.util.Date;
 
 /**
  * A marker interface that indicates a Class is used to store credential related state

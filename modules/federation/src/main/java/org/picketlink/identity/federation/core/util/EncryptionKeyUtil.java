@@ -17,10 +17,9 @@
  */
 package org.picketlink.identity.federation.core.util;
 
-import java.security.GeneralSecurityException;
-
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import java.security.GeneralSecurityException;
 
 /**
  * Utility to generate symmetric key

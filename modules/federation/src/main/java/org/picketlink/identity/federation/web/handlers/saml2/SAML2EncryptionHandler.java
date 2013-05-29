@@ -18,24 +18,23 @@
 
 package org.picketlink.identity.federation.web.handlers.saml2;
 
-import java.security.PublicKey;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import javax.xml.namespace.QName;
-
-import org.picketlink.config.federation.IDPType;
-import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.config.federation.IDPType;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.common.constants.GeneralConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.namespace.QName;
+import java.security.PublicKey;
 
 /**
  * <p>Handles the encryption and signing of SAML Assertions.</p>

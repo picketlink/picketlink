@@ -17,13 +17,12 @@
  */
 package org.picketlink.scim.providers;
 
+import java.io.Serializable;
 import java.util.List;
-
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-
 import org.jboss.logging.Logger;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
@@ -41,8 +40,6 @@ import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
-import org.picketlink.idm.model.SimpleGroup;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.scim.DataProvider;
@@ -120,7 +117,7 @@ public class PicketLinkIDMDataProvider implements DataProvider {
     public String createUser(SCIMUser user) {
         verifyIdentityManager();
 
-        SimpleUser simpleUser = new SimpleUser();
+        User simpleUser = new User();
         simpleUser.setLoginName(user.getDisplayName());
         UserName userName = user.getName();
 
@@ -128,7 +125,7 @@ public class PicketLinkIDMDataProvider implements DataProvider {
             simpleUser.setFirstName(userName.getGivenName());
             simpleUser.setLastName(userName.getFamilyName());
 
-            simpleUser.setAttribute(new Attribute<String>("FullName", userName.getFormatted()));
+            simpleUser.setAttribute(new Attribute<Serializable>("FullName", userName.getFormatted()));
         }
         identityManager.add(simpleUser);
 
@@ -141,7 +138,7 @@ public class PicketLinkIDMDataProvider implements DataProvider {
     @Override
     public String createGroup(SCIMGroups group) {
         verifyIdentityManager();
-        SimpleGroup simpleGroup = new SimpleGroup(group.getDisplayName());
+        Group simpleGroup = new Group(group.getDisplayName());
         identityManager.add(simpleGroup);
 
         Group storedGroup = identityManager.getGroup(group.getDisplayName());

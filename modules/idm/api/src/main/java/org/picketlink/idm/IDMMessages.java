@@ -22,11 +22,6 @@
 
 package org.picketlink.idm;
 
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.AnnotatedElement;
-
-import javax.naming.NamingException;
-
 import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
@@ -47,6 +42,10 @@ import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityStore;
+
+import javax.naming.NamingException;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.AnnotatedElement;
 
 /**
  * <p>

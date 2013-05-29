@@ -17,17 +17,11 @@
  */
 package org.picketlink.test.identity.federation.core.parser.wst;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-
 import org.junit.Test;
-import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
-import org.picketlink.common.util.DocumentUtil;
-import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.common.constants.WSTrustConstants;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
+import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
 import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
@@ -35,6 +29,12 @@ import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.BinarySecretType;
 import org.picketlink.identity.federation.ws.trust.EntropyType;
 import org.w3c.dom.Document;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Validate parsing of RST with Use Key set to Symmetric Key

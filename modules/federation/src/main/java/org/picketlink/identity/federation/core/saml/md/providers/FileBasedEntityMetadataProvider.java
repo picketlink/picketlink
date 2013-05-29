@@ -17,16 +17,16 @@
  */
 package org.picketlink.identity.federation.core.saml.md.providers;
 
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
+import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntityDescriptorParser;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+
 import java.io.InputStream;
 import java.security.PublicKey;
 import java.util.Map;
-
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
-import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntityDescriptorParser;
-import org.picketlink.common.util.StaxParserUtil;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 
 /**
  * A file based metadata provider that just looks for the passed in file name

@@ -18,14 +18,6 @@
 
 package org.picketlink.test.idm.basic;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.Date;
-
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -34,9 +26,16 @@ import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.RelationshipQuery;
+
+import java.util.Date;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * <p>
@@ -71,11 +70,11 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     public void testFailCreateWithSameName() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         
-        Group group = new SimpleGroup("group");
+        Group group = new Group("group");
         
         identityManager.add(group);
         
-        Group groupWithSameName = new SimpleGroup("group");
+        Group groupWithSameName = new Group("group");
         
         identityManager.add(groupWithSameName);
     }

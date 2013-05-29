@@ -17,11 +17,11 @@
  */
 package org.picketlink.test.idm.util;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 import org.picketlink.idm.internal.util.IDMUtil;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test {@link IDMUtil}

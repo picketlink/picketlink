@@ -18,10 +18,9 @@
 
 package org.picketlink.identity.federation.core.sts.registry;
 
-import java.io.IOException;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import java.io.IOException;
 
 /**
  * <p>

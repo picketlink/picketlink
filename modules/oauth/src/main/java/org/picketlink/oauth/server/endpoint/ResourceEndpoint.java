@@ -17,7 +17,11 @@
  */
 package org.picketlink.oauth.server.endpoint;
 
-import java.net.URISyntaxException;
+import org.picketlink.oauth.messages.ErrorResponse;
+import org.picketlink.oauth.messages.ErrorResponse.ErrorResponseCode;
+import org.picketlink.oauth.messages.ResourceAccessRequest;
+import org.picketlink.oauth.server.util.OAuthServerUtil;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -26,11 +30,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-
-import org.picketlink.oauth.messages.ErrorResponse;
-import org.picketlink.oauth.messages.ErrorResponse.ErrorResponseCode;
-import org.picketlink.oauth.messages.ResourceAccessRequest;
-import org.picketlink.oauth.server.util.OAuthServerUtil;
+import java.net.URISyntaxException;
 
 /**
  * OAuth2 Resource Endpoint

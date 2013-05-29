@@ -17,11 +17,11 @@
  */
 package org.picketlink.social.standalone.fb;
 
-import java.io.Serializable;
-import java.security.Principal;
-
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.Serializable;
+import java.security.Principal;
 
 /**
  * An instance of {@link Principal} representing a facebook user

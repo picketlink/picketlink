@@ -17,16 +17,6 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.writers;
 
-import static org.picketlink.common.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Set;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamWriter;
-
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResponseType;
 import org.picketlink.common.constants.JBossSAMLConstants;
@@ -56,6 +46,15 @@ import org.picketlink.identity.federation.saml.v2.assertion.URIType;
 import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamWriter;
+import java.net.URI;
+import java.util.List;
+import java.util.Set;
+
+import static org.picketlink.common.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
 
 /**
  * Write the SAML Assertion to stream

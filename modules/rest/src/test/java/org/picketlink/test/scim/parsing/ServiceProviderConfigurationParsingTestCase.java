@@ -17,17 +17,15 @@
  */
 package org.picketlink.test.scim.parsing;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.InputStream;
-
 import org.junit.Test;
 import org.picketlink.scim.codec.SCIMParser;
 import org.picketlink.scim.model.v11.ServiceProviderConfiguration;
 import org.picketlink.scim.model.v11.ServiceProviderConfiguration.Bulk;
 import org.picketlink.scim.model.v11.ServiceProviderConfiguration.Filter;
+
+import java.io.InputStream;
+
+import static org.junit.Assert.*;
 
 /**
  * Validate parsing of SCIM Service Provider Configuration representation

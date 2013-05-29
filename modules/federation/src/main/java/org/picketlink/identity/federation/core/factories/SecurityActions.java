@@ -17,18 +17,17 @@
  */
 package org.picketlink.identity.federation.core.factories;
 
+import org.jboss.security.SecurityContext;
+import org.jboss.security.SecurityContextFactory;
+import org.picketlink.common.ErrorCodes;
+
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Iterator;
-
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-
-import org.jboss.security.SecurityContext;
-import org.jboss.security.SecurityContextFactory;
-import org.picketlink.common.ErrorCodes;
 
 /**
  * Privileged blocks

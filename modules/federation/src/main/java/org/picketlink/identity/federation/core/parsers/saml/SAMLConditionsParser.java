@@ -17,7 +17,16 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
-import java.net.URI;
+import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.parsers.ParserNamespaceSupport;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.saml.v2.assertion.OneTimeUseType;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -25,17 +34,7 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-
-import org.picketlink.common.ErrorCodes;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.parsers.ParserNamespaceSupport;
-import org.picketlink.common.util.StaxParserUtil;
-import org.picketlink.common.constants.JBossSAMLConstants;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
-import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
-import org.picketlink.identity.federation.saml.v2.assertion.OneTimeUseType;
+import java.net.URI;
 
 /**
  * Parse the <conditions> in the saml assertion

@@ -18,15 +18,6 @@
 
 package org.picketlink.idm.internal;
 
-import static org.picketlink.idm.IDMLogger.LOGGER;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
@@ -45,6 +36,15 @@ import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.StoreFactory;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Default StoreFactory implementation. This factory is pre-configured to be able to create instances of the following built-in

@@ -17,12 +17,11 @@
  */
 package org.picketlink.config.federation;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.picketlink.common.util.StringUtil;
 
 import javax.xml.crypto.dsig.CanonicalizationMethod;
-
-import org.picketlink.common.util.StringUtil;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**

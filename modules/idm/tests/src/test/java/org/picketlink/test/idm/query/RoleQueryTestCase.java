@@ -18,12 +18,6 @@
 
 package org.picketlink.test.idm.query;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-
-import java.util.List;
-
 import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
@@ -35,6 +29,12 @@ import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
+
+import java.util.List;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * <p>
@@ -78,7 +78,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
 //
 //        getIdentityManagerFactory().createTier("Some Role Tier", null);
 //
-//        Role someRoleRealm = new SimpleRole("someRoleRealm");
+//        Role someRoleRealm = new Role("someRoleRealm");
 //
 //        getIdentityManagerFactory().createIdentityManager(someTier).add(someRoleRealm);
 //
@@ -98,7 +98,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
 //
 //        getIdentityManagerFactory().createTier("Some Another Role Tier", null);
 //
-//        Role someRoleTestingTier = new SimpleRole("someRoleTestingRealm");
+//        Role someRoleTestingTier = new Role("someRoleTestingRealm");
 //
 //        getIdentityManagerFactory().createIdentityManager(someAnotherTier).add(someRoleTestingTier);
 //

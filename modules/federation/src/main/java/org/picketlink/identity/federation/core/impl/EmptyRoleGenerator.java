@@ -17,11 +17,11 @@
  */
 package org.picketlink.identity.federation.core.impl;
 
+import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
+
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
 
 /**
  * A Role Generator that generates no roles

@@ -21,16 +21,16 @@
  */
 package org.picketlink.test.identity.federation.core.parser.wst;
 
-import static org.junit.Assert.assertNotNull;
-
-import java.io.InputStream;
-
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
+
+import java.io.InputStream;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * PLINK2-36: PicketLink STS chokes on WS-Policy 1.5 tags

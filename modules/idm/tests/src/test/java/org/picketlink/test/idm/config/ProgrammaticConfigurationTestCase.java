@@ -22,15 +22,15 @@
 
 package org.picketlink.test.idm.config;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.config.IdentityConfiguration;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
 /**
  * <p>Some tests for the {@link IdentityConfiguration} using basically the built-in stores configuration.</p>
@@ -87,7 +87,7 @@ public class ProgrammaticConfigurationTestCase extends AbstractLDAPTest {
 //
 //        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
 //
-//        User user = new SimpleUser("user");
+//        User user = new User("user");
 //
 //        identityManager.add(user);
 //
@@ -123,7 +123,7 @@ public class ProgrammaticConfigurationTestCase extends AbstractLDAPTest {
 //
 //        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
 //
-//        User user = new SimpleUser("user");
+//        User user = new User("user");
 //
 //        identityManager.add(user);
 //
@@ -159,7 +159,7 @@ public class ProgrammaticConfigurationTestCase extends AbstractLDAPTest {
 //
 //        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
 //
-//        User user = new SimpleUser("user");
+//        User user = new User("user");
 //
 //        identityManager.add(user);
 //
@@ -214,11 +214,11 @@ public class ProgrammaticConfigurationTestCase extends AbstractLDAPTest {
 //
 //        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
 //
-//        User user = new SimpleUser("user");
+//        User user = new User("user");
 //
 //        identityManager.add(user);
 //        
-//        Role role = new SimpleRole("role");
+//        Role role = new Role("role");
 //        
 //        identityManager.add(role);
 //        

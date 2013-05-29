@@ -17,25 +17,21 @@
  */
 package org.picketlink.identity.federation.core.wstrust.auth;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import junit.framework.TestCase;
+import org.picketlink.identity.federation.core.wstrust.STSClient;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
+import org.picketlink.identity.federation.core.wstrust.SamlCredential;
+import org.w3c.dom.Element;
 
+import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.security.auth.Subject;
-import javax.security.auth.callback.CallbackHandler;
-
-import junit.framework.TestCase;
-
-import org.picketlink.identity.federation.core.wstrust.SamlCredential;
-import org.picketlink.identity.federation.core.wstrust.auth.AbstractSTSLoginModule;
-import org.picketlink.identity.federation.core.wstrust.auth.STSIssuingLoginModule;
-import org.picketlink.identity.federation.core.wstrust.STSClient;
-import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
-import org.w3c.dom.Element;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit test for {@link STSIssuingLoginModule}

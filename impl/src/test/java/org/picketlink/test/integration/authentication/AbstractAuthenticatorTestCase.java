@@ -22,14 +22,6 @@
 
 package org.picketlink.test.integration.authentication;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import javax.inject.Inject;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.Identity;
@@ -41,6 +33,14 @@ import org.picketlink.authentication.UserAlreadyLoggedInException;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.integration.AbstractArquillianTestCase;
+
+import javax.inject.Inject;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * <p>Base class with some test methods that must be satisfied when testing a specific {@link Authenticator}.</p>

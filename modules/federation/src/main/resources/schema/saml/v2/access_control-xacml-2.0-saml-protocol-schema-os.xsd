@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema
-    targetNamespace="urn:oasis:xacml:2.0:saml:protocol:schema:os"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    xmlns="http://www.w3.org/2001/XMLSchema"
-    xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
-    xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
-    xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os"
-    xmlns:xacml="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
-    xmlns:xacml-samlp="urn:oasis:xacml:2.0:saml:protocol:schema:os"
-    elementFormDefault="unqualified"
-    attributeFormDefault="unqualified"
-    blockDefault="substitution"
-    version="2.0">
+        targetNamespace="urn:oasis:xacml:2.0:saml:protocol:schema:os"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+        xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os"
+        xmlns:xacml="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+        xmlns:xacml-samlp="urn:oasis:xacml:2.0:saml:protocol:schema:os"
+        elementFormDefault="unqualified"
+        attributeFormDefault="unqualified"
+        blockDefault="substitution"
+        version="2.0">
   <xs:import namespace="urn:oasis:names:tc:SAML:2.0:assertion"
       schemaLocation="http://www.oasis-open.org/committees/download.php/11027/sstc-saml-schema-assertion-2.0.xsd"/>
   <xs:import namespace="urn:oasis:names:tc:SAML:2.0:protocol"

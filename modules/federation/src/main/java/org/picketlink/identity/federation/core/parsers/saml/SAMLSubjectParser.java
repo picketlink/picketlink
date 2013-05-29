@@ -17,24 +17,17 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-
+import org.picketlink.common.ErrorCodes;
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.ErrorCodes;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.parsers.ParserNamespaceSupport;
-import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
-import org.picketlink.common.util.StaxParserUtil;
 import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.common.constants.WSTrustConstants;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.parsers.ParserNamespaceSupport;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
@@ -43,6 +36,13 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType.STSubType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.w3c.dom.Element;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 
 /**
  * Parse the saml subject

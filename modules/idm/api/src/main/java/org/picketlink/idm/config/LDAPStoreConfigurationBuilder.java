@@ -22,10 +22,10 @@
 
 package org.picketlink.idm.config;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 
 /**

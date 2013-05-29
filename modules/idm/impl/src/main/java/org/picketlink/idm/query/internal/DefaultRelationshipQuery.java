@@ -18,17 +18,17 @@
 
 package org.picketlink.idm.query.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Default IdentityQuery implementation.

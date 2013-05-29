@@ -17,12 +17,12 @@
  */
 package org.picketlink.identity.federation.core.wstrust.wrappers;
 
+import org.picketlink.identity.federation.ws.trust.RequestSecurityTokenCollectionType;
+import org.picketlink.identity.federation.ws.trust.RequestSecurityTokenType;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.picketlink.identity.federation.ws.trust.RequestSecurityTokenCollectionType;
-import org.picketlink.identity.federation.ws.trust.RequestSecurityTokenType;
 
 /**
  * <p>

@@ -17,18 +17,10 @@
  */
 package org.picketlink.test.identity.federation.core.parser.wst;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.InputStream;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
 import org.junit.Test;
+import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
@@ -37,6 +29,13 @@ import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
 import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
 import org.w3c.dom.Element;
+
+import javax.xml.namespace.QName;
+import java.io.InputStream;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Anil.Saldhana@redhat.com

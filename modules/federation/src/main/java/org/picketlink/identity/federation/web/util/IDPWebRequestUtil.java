@@ -21,21 +21,6 @@
  */
 package org.picketlink.identity.federation.web.util;
 
-import static org.picketlink.common.util.StringUtil.isNotNull;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.URL;
-import java.security.GeneralSecurityException;
-import java.security.PrivateKey;
-import java.util.StringTokenizer;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.crypto.dsig.CanonicalizationMethod;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
@@ -60,6 +45,20 @@ import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.w3c.dom.Document;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.crypto.dsig.CanonicalizationMethod;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URL;
+import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
+import java.util.StringTokenizer;
+
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 /**
  * Request Util <b> Not thread safe</b>

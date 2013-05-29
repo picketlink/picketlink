@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<xs:schema 
-    targetNamespace="urn:liberty:ims:2006-08" 
-    xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" 
-    xmlns:ims="urn:liberty:ims:2006-08" 
-    xmlns:sec="urn:liberty:security:2006-08"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-    xmlns:lu="urn:liberty:util:2006-08"
-    xmlns="urn:liberty:ims:2006-08" 
-    elementFormDefault="qualified" 
-    attributeFormDefault="unqualified"
-    >
+<xs:schema
+        targetNamespace="urn:liberty:ims:2006-08"
+        xmlns:sec="urn:liberty:security:2006-08"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:lu="urn:liberty:util:2006-08"
+        xmlns="urn:liberty:ims:2006-08"
+        elementFormDefault="qualified"
+        attributeFormDefault="unqualified"
+        >
 
   <xs:import
       namespace="urn:liberty:security:2006-08"

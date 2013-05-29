@@ -17,17 +17,9 @@
  */
 package org.picketlink.identity.federation.core.sts;
 
-import java.io.File;
-import java.io.InputStream;
-import java.net.URL;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
-import javax.xml.namespace.QName;
-
+import org.picketlink.common.ErrorCodes;
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.ErrorCodes;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.config.federation.STSType;
@@ -36,6 +28,13 @@ import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTSConfiguration;
 import org.picketlink.identity.federation.core.wstrust.STSConfiguration;
+
+import javax.xml.namespace.QName;
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 /**
  * <p>

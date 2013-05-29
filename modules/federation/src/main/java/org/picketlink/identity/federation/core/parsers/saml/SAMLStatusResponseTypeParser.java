@@ -17,7 +17,18 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
-import java.net.URI;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.common.util.StringUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusCodeType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusDetailType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
+import org.w3c.dom.Element;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
@@ -26,19 +37,7 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.util.StaxParserUtil;
-import org.picketlink.common.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.common.util.StringUtil;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusCodeType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusDetailType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
-import org.w3c.dom.Element;
+import java.net.URI;
 
 /**
  * Base Class for all Response Type parsing for SAML2

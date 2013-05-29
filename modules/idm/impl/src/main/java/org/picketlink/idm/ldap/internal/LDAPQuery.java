@@ -18,9 +18,21 @@
 
 package org.picketlink.idm.ldap.internal;
 
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
+import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
+import org.picketlink.idm.internal.util.IDMUtil;
+import org.picketlink.idm.model.Grant;
+import org.picketlink.idm.model.GroupMembership;
+import org.picketlink.idm.model.GroupRole;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.idm.spi.SecurityContext;
 
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.SearchResult;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,25 +40,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.SearchResult;
-
-import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
-import org.picketlink.idm.internal.util.IDMUtil;
-import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.Grant;
-import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.GroupMembership;
-import org.picketlink.idm.model.GroupRole;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.query.QueryParameter;
-import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.idm.spi.SecurityContext;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -126,8 +120,8 @@ public class LDAPQuery {
     private String createHasMemberFilter() {
         StringBuffer parentEntriesFilter = new StringBuffer();
 
-        if (identityQuery.getParameters().containsKey(Group.HAS_MEMBER)) {
-            Object[] values = identityQuery.getParameters().get(Group.HAS_MEMBER);
+        if (identityQuery.getParameters().containsKey(org.picketlink.idm.model.Group.HAS_MEMBER)) {
+            Object[] values = identityQuery.getParameters().get(org.picketlink.idm.model.Group.HAS_MEMBER);
             IdentityType[] agents = new IdentityType[values.length];
 
             for (int j = 0; j < values.length; j++) {
@@ -138,9 +132,9 @@ public class LDAPQuery {
             for (IdentityType identityType : agents) {
                 if (identityType != null) {
 
-                    if (Group.class.isInstance(identityType)) {
+                    if (org.picketlink.idm.model.Group.class.isInstance(identityType)) {
                         parentEntriesFilter.append(createMembersFilter(identityType));
-                    } else if (Agent.class.isInstance(identityType)) {
+                    } else if (org.picketlink.idm.model.Agent.class.isInstance(identityType)) {
                         RelationshipQuery<GroupMembership> query = context.getIdentityManager()
                                 .createRelationshipQuery(GroupMembership.class);
 
@@ -149,9 +143,9 @@ public class LDAPQuery {
                         List<GroupMembership> result = query.getResultList();
 
                         for (GroupMembership groupMembership : result) {
-                            LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(context, groupMembership.getGroup());
-
-                            parentEntriesFilter.append("(").append(ldapEntry.getBidingName()).append(")");
+//                            LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(context, groupMembership.getGroup());
+//
+//                            parentEntriesFilter.append("(").append(ldapEntry.getBidingName()).append(")");
                         }
                     } else {
                         throw new IdentityManagementException(
@@ -177,7 +171,7 @@ public class LDAPQuery {
             Object[] values = identityQuery.getParameters().get(IdentityType.ROLE_OF);
 
             for (Object user : values) {
-                if (Agent.class.isInstance(user) || Group.class.isInstance(user)) {
+                if (org.picketlink.idm.model.Agent.class.isInstance(user) || org.picketlink.idm.model.Group.class.isInstance(user)) {
                     RelationshipQuery<Grant> query = context.getIdentityManager()
                             .createRelationshipQuery(Grant.class);
 
@@ -186,17 +180,17 @@ public class LDAPQuery {
                     List<Grant> result = query.getResultList();
 
                     for (Grant grant : result) {
-                        LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(context, grant.getRole());
-                        String entryName = ldapEntry.getBidingName();
-
-                        filter.append("(").append(ldapEntry.getBidingName()).append(")");
-
-                        if (!userCount.containsKey(entryName)) {
-                            userCount.put(entryName, 1);
-                        } else {
-                            Integer count = userCount.get(entryName);
-                            userCount.put(entryName, count + 1);
-                        }
+//                        LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(context, grant.getRole());
+//                        String entryName = ldapEntry.getBidingName();
+//
+//                        filter.append("(").append(ldapEntry.getBidingName()).append(")");
+//
+//                        if (!userCount.containsKey(entryName)) {
+//                            userCount.put(entryName, 1);
+//                        } else {
+//                            Integer count = userCount.get(entryName);
+//                            userCount.put(entryName, count + 1);
+//                        }
                     }
                 } else {
                     throw new IdentityManagementException(
@@ -232,7 +226,7 @@ public class LDAPQuery {
             NamingEnumeration<SearchResult> search = null;
 
             try {
-                Object[] groupRoles = identityQuery.getParameters().get(User.HAS_GROUP_ROLE);
+                Object[] groupRoles = identityQuery.getParameters().get(org.picketlink.idm.model.User.HAS_GROUP_ROLE);
 
                 for (Object group : groupRoles) {
                     GroupRole groupRole = (GroupRole) group;
@@ -247,14 +241,14 @@ public class LDAPQuery {
                     List<GroupRole> result = query.getResultList();
 
                     for (GroupRole relationship : result) {
-                        LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(context, relationship.getAssignee());
-
-                        if (ldapEntry == null) {
-                            throw new IdentityManagementException("Relationship references a inexistent IdentityType ["
-                                    + relationship.getAssignee() + "]");
-                        }
-
-                        groupRoleFilter.append("(").append(ldapEntry.getBidingName()).append(")");
+//                        LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(context, relationship.getAssignee());
+//
+//                        if (ldapEntry == null) {
+//                            throw new IdentityManagementException("Relationship references a inexistent IdentityType ["
+//                                    + relationship.getAssignee() + "]");
+//                        }
+//
+//                        groupRoleFilter.append("(").append(ldapEntry.getBidingName()).append(")");
                     }
                 }
             } catch (Exception e) {
@@ -277,12 +271,12 @@ public class LDAPQuery {
     private String createHasRoleFilter() {
         StringBuffer filter = new StringBuffer();
 
-        if (identityQuery.getParameters().containsKey(User.HAS_ROLE)) {
-            Object[] roles = identityQuery.getParameters().get(User.HAS_ROLE);
+        if (identityQuery.getParameters().containsKey(org.picketlink.idm.model.User.HAS_ROLE)) {
+            Object[] roles = identityQuery.getParameters().get(org.picketlink.idm.model.User.HAS_ROLE);
             Map<String, Integer> memberCount = new HashMap<String, Integer>();
 
             for (Object role : roles) {
-                if (Role.class.isInstance(role)) {
+                if (org.picketlink.idm.model.Role.class.isInstance(role)) {
                     RelationshipQuery<Grant> query = context.getIdentityManager()
                             .createRelationshipQuery(Grant.class);
 
@@ -291,17 +285,18 @@ public class LDAPQuery {
                     List<Grant> result = query.getResultList();
 
                     for (Grant grant : result) {
-                        LDAPEntry ldapAgent = (LDAPEntry) this.identityStore.lookupEntryById(context, grant.getAssignee());
-                        String bindDN = ldapAgent.getBidingName();
-
-                        filter.append("(").append(bindDN).append(")");
-
-                        if (!memberCount.containsKey(bindDN)) {
-                            memberCount.put(bindDN, 1);
-                        } else {
-                            Integer count = memberCount.get(bindDN);
-                            memberCount.put(bindDN, count + 1);
-                        }
+// FIXME
+//                        LDAPEntry ldapAgent = (LDAPEntry) this.identityStore.lookupEntryById(context, grant.getAssignee());
+//                        String bindDN = ldapAgent.getBidingName();
+//
+//                        filter.append("(").append(bindDN).append(")");
+//
+//                        if (!memberCount.containsKey(bindDN)) {
+//                            memberCount.put(bindDN, 1);
+//                        } else {
+//                            Integer count = memberCount.get(bindDN);
+//                            memberCount.put(bindDN, count + 1);
+//                        }
                     }
                 } else {
                     throw new IdentityManagementException(
@@ -333,13 +328,13 @@ public class LDAPQuery {
     private String createMemberOfFilter() {
         StringBuffer filter = new StringBuffer();
 
-        if (identityQuery.getParameters().containsKey(User.MEMBER_OF)) {
+        if (identityQuery.getParameters().containsKey(org.picketlink.idm.model.User.MEMBER_OF)) {
             Map<String, Integer> userCount = new HashMap<String, Integer>();
 
-            Object[] groups = identityQuery.getParameters().get(User.MEMBER_OF);
+            Object[] groups = identityQuery.getParameters().get(org.picketlink.idm.model.User.MEMBER_OF);
 
             for (Object group : groups) {
-                if (Group.class.isInstance(group)) {
+                if (org.picketlink.idm.model.Group.class.isInstance(group)) {
                     RelationshipQuery<GroupMembership> query = context.getIdentityManager()
                             .createRelationshipQuery(GroupMembership.class);
 
@@ -348,17 +343,18 @@ public class LDAPQuery {
                     List<GroupMembership> result = query.getResultList();
 
                     for (GroupMembership groupMembership : result) {
-                        LDAPEntry ldapAgent = (LDAPEntry) this.identityStore.lookupEntryById(context, groupMembership.getMember());
-                        String userId = ldapAgent.getBidingName();
-
-                        filter.append("(").append(userId).append(")");
-
-                        if (!userCount.containsKey(userId)) {
-                            userCount.put(userId, 1);
-                        } else {
-                            Integer count = userCount.get(userId);
-                            userCount.put(userId, count + 1);
-                        }
+// FIXME
+//                        LDAPEntry ldapAgent = (LDAPEntry) this.identityStore.lookupEntryById(context, groupMembership.getMember());
+//                        String userId = ldapAgent.getBidingName();
+//
+//                        filter.append("(").append(userId).append(")");
+//
+//                        if (!userCount.containsKey(userId)) {
+//                            userCount.put(userId, 1);
+//                        } else {
+//                            Integer count = userCount.get(userId);
+//                            userCount.put(userId, count + 1);
+//                        }
                     }
                 } else {
                     throw new IdentityManagementException(
@@ -401,21 +397,22 @@ public class LDAPQuery {
         boolean isGroupMember = false;
 
         if (identityType != null) {
-            LDAPEntry ldapEntry = null;
-
-            try {
-                ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(context, identityType);
-            } catch (IdentityManagementException ime) {
-                return membersFilter;
-            }
-
-            if (ldapEntry != null) {
-                membersFilter = membersFilter + "(member=" + ldapEntry.getDN() + ")";
-            }
-
-            if (Group.class.isInstance(identityType)) {
-                isGroupMember = true;
-            }
+// FIXME
+//            LDAPEntry ldapEntry = null;
+//
+//            try {
+//                ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(context, identityType);
+//            } catch (IdentityManagementException ime) {
+//                return membersFilter;
+//            }
+//
+//            if (ldapEntry != null) {
+//                membersFilter = membersFilter + "(member=" + ldapEntry.getDN() + ")";
+//            }
+//
+//            if (org.picketlink.idm.model.Group.class.isInstance(identityType)) {
+//                isGroupMember = true;
+//            }
         }
 
         StringBuffer parentEntriesFilter = new StringBuffer();
@@ -433,14 +430,15 @@ public class LDAPQuery {
                     parentEntriesFilter.append("(").append(CN).append(LDAPConstants.EQUAL).append(entryCN).append(")");
 
                     if (isGroupMember) {
-                        String id = searchResult.getAttributes().get(LDAPConstants.ENTRY_UUID).get().toString();
-                        LDAPGroup childGroup = this.identityStore.lookupEntryById(context, LDAPGroup.class, id);
-                        List<Group> parentGroups = this.identityStore.getParentGroups(context, childGroup);
-
-                        for (Group parentGroup : parentGroups) {
-                            parentEntriesFilter.append("(").append(CN).append(LDAPConstants.EQUAL)
-                                    .append(parentGroup.getName()).append(")");
-                        }
+// FIXME
+//                        String id = searchResult.getAttributes().get(LDAPConstants.ENTRY_UUID).get().toString();
+//                        LDAPGroup childGroup = this.identityStore.lookupEntryById(context, LDAPGroup.class, id);
+//                        List<org.picketlink.idm.model.Group> parentGroups = this.identityStore.getParentGroups(context, childGroup);
+//
+//                        for (org.picketlink.idm.model.Group parentGroup : parentGroups) {
+//                            parentEntriesFilter.append("(").append(CN).append(LDAPConstants.EQUAL)
+//                                    .append(parentGroup.getName()).append(")");
+//                        }
                     }
                 }
             } catch (Exception e) {
@@ -464,40 +462,41 @@ public class LDAPQuery {
     }
 
     private String createChildGroupsFilter() {
-        if (identityQuery.getParameters().containsKey(Group.PARENT)) {
-            String parentName = identityQuery.getParameters().get(Group.PARENT)[0].toString();
-            LDAPGroup parentGroup = this.identityStore.lookupGroup(parentName);
-
-            NamingEnumeration<?> members = null;
-
-            StringBuffer childGroupsFilter = new StringBuffer();
-
-            try {
-                members = parentGroup.getLDAPAttributes().get(MEMBER).getAll();
-
-                while (members.hasMoreElements()) {
-                    String groupDN = (String) members.nextElement();
-
-                    if (groupDN.toString().trim().isEmpty()) {
-                        continue;
-                    }
-
-                    String groupName = groupDN.split(",")[0];
-
-                    childGroupsFilter.append("(").append(groupName).append(")");
-                }
-            } catch (NamingException e) {
-                throw new IdentityManagementException(e);
-            } finally {
-                if (members != null) {
-                    try {
-                        members.close();
-                    } catch (NamingException e) {
-                    }
-                }
-            }
-
-            return childGroupsFilter.toString();
+        if (identityQuery.getParameters().containsKey(org.picketlink.idm.model.Group.PARENT)) {
+// FIXME
+//            String parentName = identityQuery.getParameters().get(org.picketlink.idm.model.Group.PARENT)[0].toString();
+//            LDAPGroup parentGroup = this.identityStore.lookupGroup(parentName);
+//
+//            NamingEnumeration<?> members = null;
+//
+//            StringBuffer childGroupsFilter = new StringBuffer();
+//
+//            try {
+//                members = parentGroup.getLDAPAttributes().get(MEMBER).getAll();
+//
+//                while (members.hasMoreElements()) {
+//                    String groupDN = (String) members.nextElement();
+//
+//                    if (groupDN.toString().trim().isEmpty()) {
+//                        continue;
+//                    }
+//
+//                    String groupName = groupDN.split(",")[0];
+//
+//                    childGroupsFilter.append("(").append(groupName).append(")");
+//                }
+//            } catch (NamingException e) {
+//                throw new IdentityManagementException(e);
+//            } finally {
+//                if (members != null) {
+//                    try {
+//                        members.close();
+//                    } catch (NamingException e) {
+//                    }
+//                }
+//            }
+//
+//            return childGroupsFilter.toString();
         }
 
         return "";
@@ -508,7 +507,9 @@ public class LDAPQuery {
     }
 
     private LDAPOperationManager getLDAPManager() {
-        return this.identityStore.getLDAPManager();
+        return null;
+// FIXME
+//        return this.identityStore.getLDAPManager();
     }
 
     public boolean hasRelationshipParameters() {

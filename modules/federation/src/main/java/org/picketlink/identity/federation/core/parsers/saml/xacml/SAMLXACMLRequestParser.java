@@ -17,6 +17,16 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml.xacml;
 
+import org.jboss.security.xacml.core.model.context.RequestType;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.parsers.ParserNamespaceSupport;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.parsers.saml.SAMLRequestAbstractParser;
+import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
+import org.w3c.dom.Element;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
@@ -25,16 +35,6 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-
-import org.jboss.security.xacml.core.model.context.RequestType;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.parsers.ParserNamespaceSupport;
-import org.picketlink.identity.federation.core.parsers.saml.SAMLRequestAbstractParser;
-import org.picketlink.common.util.StaxParserUtil;
-import org.picketlink.common.constants.JBossSAMLConstants;
-import org.picketlink.common.util.DocumentUtil;
-import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
-import org.w3c.dom.Element;
 
 /**
  * Parse the XACML Elements as specified by the SAML-XACML Profile.

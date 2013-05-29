@@ -28,7 +28,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.IdentityManagerFactory;
-import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.User;
 
 /**
  * @author Pedro Igor
@@ -56,7 +56,7 @@ public class ConfigurationAPITestCase {
         
         IdentityManager identityManager = identityManagerFactory.createIdentityManager();
         
-        identityManager.add(new SimpleUser("john"));
+        identityManager.add(new User("john"));
     }
     
 }

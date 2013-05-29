@@ -17,25 +17,25 @@
  */
 package org.picketlink.identity.federation.core.wstrust.plugins.saml;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.security.GeneralSecurityException;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v1.writers.SAML11AssertionWriter;
-import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
-import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.security.GeneralSecurityException;
 
 /**
  * <p>

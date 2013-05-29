@@ -22,7 +22,14 @@
 
 package org.picketlink.idm.config;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.model.Grant;
+import org.picketlink.idm.model.GroupMembership;
+import org.picketlink.idm.model.GroupRole;
+import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.spi.ContextInitializer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,14 +41,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.FeatureSet.FeatureOperation;
-import org.picketlink.idm.credential.spi.CredentialHandler;
-import org.picketlink.idm.model.Grant;
-import org.picketlink.idm.model.GroupMembership;
-import org.picketlink.idm.model.GroupRole;
-import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.spi.ContextInitializer;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * @author Pedro Igor

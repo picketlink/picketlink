@@ -17,20 +17,12 @@
  */
 package org.picketlink.test.identity.federation.core.parser.saml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.util.List;
-
 import org.junit.Test;
+import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.core.saml.v1.writers.SAML11RequestWriter;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11ActionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11AttributeQueryType;
@@ -38,6 +30,14 @@ import org.picketlink.identity.federation.saml.v1.protocol.SAML11AuthenticationQ
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11AuthorizationDecisionQueryType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11QueryAbstractType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11RequestType;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit Test SAML 1.1 Request Parsing

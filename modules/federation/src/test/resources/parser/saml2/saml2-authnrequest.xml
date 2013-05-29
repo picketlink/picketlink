@@ -1,16 +1,16 @@
 <!-- Picked up from http://wiki.eclipse.org/SAML2_IdP_Overview -->
 <samlp:AuthnRequest
-	AssertionConsumerServiceURL="http://localhost/org.eclipse.higgins.saml2idp.test/SAMLEndpoint"
-	Destination="http://localhost/org.eclipse.higgins.saml2idp.server/SAMLEndpoint"
-	ID="a2sffdlgdhgfg32fdldsdghdsgdgfdglgx"
-	IssueInstant="2007-12-17T18:40:52.203Z"
-	ProtocolBinding="urn:oasis:names.tc:SAML:2.0:bindings:HTTP-Redirect"
-	ProviderName="Test SAML2 SP" Version="2.0"
-	AssertionConsumerServiceIndex="0"
-    AttributeConsumingServiceIndex="0"
-	xmlns="urn:oasis:names:tc:SAML:2.0:assertion"
-	xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
-	xmlns:xenc="http://www.w3.org/2001/04/xmlenc#">
+        AssertionConsumerServiceURL="http://localhost/org.eclipse.higgins.saml2idp.test/SAMLEndpoint"
+        Destination="http://localhost/org.eclipse.higgins.saml2idp.server/SAMLEndpoint"
+        ID="a2sffdlgdhgfg32fdldsdghdsgdgfdglgx"
+        IssueInstant="2007-12-17T18:40:52.203Z"
+        ProtocolBinding="urn:oasis:names.tc:SAML:2.0:bindings:HTTP-Redirect"
+        ProviderName="Test SAML2 SP" Version="2.0"
+        AssertionConsumerServiceIndex="0"
+        AttributeConsumingServiceIndex="0"
+        xmlns="urn:oasis:names:tc:SAML:2.0:assertion"
+        xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+        >
 	
 	<Issuer>Test SAML2 SP</Issuer>
 	

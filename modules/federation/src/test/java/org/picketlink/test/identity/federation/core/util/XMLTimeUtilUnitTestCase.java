@@ -17,19 +17,18 @@
  */
 package org.picketlink.test.identity.federation.core.util;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
+import org.junit.Assert;
+import org.junit.Test;
+import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.common.constants.GeneralConstants;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 /**
  * Unit Test the XML Time Util

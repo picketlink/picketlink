@@ -2,7 +2,7 @@
                   xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
                   xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
                   xmlns:shibmd="urn:mace:shibboleth:metadata:1.0"
-                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        >
 
     <IDPSSODescriptor protocolSupportEnumeration="urn:mace:shibboleth:1.0 urn:oasis:names:tc:SAML:1.1:protocol urn:oasis:names:tc:SAML:2.0:protocol">
 

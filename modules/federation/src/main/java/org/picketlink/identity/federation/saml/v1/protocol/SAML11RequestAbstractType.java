@@ -17,14 +17,13 @@
  */
 package org.picketlink.identity.federation.saml.v1.protocol;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import org.picketlink.identity.federation.saml.common.CommonRequestAbstractType;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
-
-import org.picketlink.identity.federation.saml.common.CommonRequestAbstractType;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * <complexType name="RequestAbstractType" abstract="true">

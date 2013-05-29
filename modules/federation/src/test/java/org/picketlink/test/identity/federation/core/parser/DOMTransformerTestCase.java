@@ -17,10 +17,12 @@
  */
 package org.picketlink.test.identity.federation.core.parser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.ByteArrayInputStream;
+import org.junit.Test;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.common.util.TransformerUtil;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.EndElement;
@@ -29,13 +31,10 @@ import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stax.StAXSource;
+import java.io.ByteArrayInputStream;
 
-import org.junit.Test;
-import org.picketlink.common.util.StaxParserUtil;
-import org.picketlink.common.util.DocumentUtil;
-import org.picketlink.common.util.TransformerUtil;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Parse an xml file partially using StAX and then use JAXP Transformer to parse a DOM Element and resume stax

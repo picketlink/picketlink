@@ -17,14 +17,6 @@
  */
 package org.picketlink.idm.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.internal.util.IDMUtil.getFeatureGroup;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -50,6 +42,14 @@ import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.StoreFactory;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.internal.util.IDMUtil.getFeatureGroup;
 
 /**
  * Default implementation of the IdentityManager interface

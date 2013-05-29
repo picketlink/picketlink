@@ -17,30 +17,12 @@
  */
 package org.picketlink.test.identity.federation.core.wstrust;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.InputStream;
-import java.net.URI;
-import java.security.KeyStore;
-import java.security.PublicKey;
-import java.security.cert.Certificate;
-import java.util.Arrays;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-
-import javax.xml.namespace.QName;
-import javax.xml.transform.Source;
-import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.dom.DOMSource;
-
 import org.junit.Test;
-import org.picketlink.identity.federation.core.parsers.saml.SAMLAssertionParser;
-import org.picketlink.common.util.DocumentUtil;
-import org.picketlink.common.util.Base64;
-import org.picketlink.identity.federation.core.wstrust.SecurityToken;
 import org.picketlink.common.constants.WSTrustConstants;
+import org.picketlink.common.util.Base64;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.identity.federation.core.parsers.saml.SAMLAssertionParser;
+import org.picketlink.identity.federation.core.wstrust.SecurityToken;
 import org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAML20TokenProvider;
@@ -65,6 +47,23 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.X509CertificateType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
+import java.io.InputStream;
+import java.net.URI;
+import java.security.KeyStore;
+import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.util.Arrays;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * <p>

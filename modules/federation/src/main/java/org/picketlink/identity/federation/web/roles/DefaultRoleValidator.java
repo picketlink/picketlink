@@ -17,15 +17,15 @@
  */
 package org.picketlink.identity.federation.web.roles;
 
+import org.jboss.logging.Logger;
+import org.picketlink.identity.federation.web.interfaces.IRoleValidator;
+
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-
-import org.jboss.logging.Logger;
-import org.picketlink.identity.federation.web.interfaces.IRoleValidator;
 
 /**
  * @author Anil.Saldhana@redhat.com

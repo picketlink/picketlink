@@ -17,19 +17,18 @@
  */
 package org.picketlink.test.identity.federation.api.saml.v2;
 
-import java.io.ByteArrayOutputStream;
-
 import junit.framework.Assert;
-
 import org.junit.Test;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+
+import java.io.ByteArrayOutputStream;
 
 /**
  * Unit Test the SAML2 Authn Response factory

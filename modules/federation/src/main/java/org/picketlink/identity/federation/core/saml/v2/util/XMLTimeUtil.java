@@ -17,21 +17,20 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.util;
 
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.util.SystemPropertiesUtil;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.exceptions.ConfigurationException;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.constants.GeneralConstants;
-import org.picketlink.common.util.SystemPropertiesUtil;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 /**
  * Util class dealing with xml based time

@@ -17,28 +17,15 @@
  */
 package org.picketlink.identity.federation.core.wstrust.writers;
 
-import static org.picketlink.common.constants.WSTrustConstants.BASE_NAMESPACE;
-import static org.picketlink.common.constants.WSTrustConstants.PREFIX;
-import static org.picketlink.common.constants.WSTrustConstants.RST;
-import static org.picketlink.common.constants.WSTrustConstants.RST_COLLECTION;
-import static org.picketlink.common.constants.WSTrustConstants.RST_CONTEXT;
-
-import java.io.OutputStream;
-import java.net.URI;
-import java.util.List;
-
-import javax.xml.stream.XMLStreamWriter;
-import javax.xml.transform.Result;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.saml.v2.util.StaxWriterUtil;
-import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.common.util.StaxUtil;
 import org.picketlink.common.util.StringUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.StaxWriterUtil;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.identity.federation.core.wsa.WSAddressingConstants;
-import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenCollection;
@@ -58,6 +45,18 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
 import org.w3c.dom.Element;
+
+import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.Result;
+import java.io.OutputStream;
+import java.net.URI;
+import java.util.List;
+
+import static org.picketlink.common.constants.WSTrustConstants.BASE_NAMESPACE;
+import static org.picketlink.common.constants.WSTrustConstants.PREFIX;
+import static org.picketlink.common.constants.WSTrustConstants.RST;
+import static org.picketlink.common.constants.WSTrustConstants.RST_COLLECTION;
+import static org.picketlink.common.constants.WSTrustConstants.RST_CONTEXT;
 
 /**
  * Given a {@code RequestSecurityToken}, write into an {@code OutputStream}

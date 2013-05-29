@@ -18,10 +18,10 @@
 
 package org.picketlink.idm.query;
 
+import org.picketlink.idm.model.Relationship;
+
 import java.util.List;
 import java.util.Map;
-
-import org.picketlink.idm.model.Relationship;
 
 /**
  * Used to query identity relationships

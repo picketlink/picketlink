@@ -18,7 +18,7 @@
 
 package org.picketlink.idm.file.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import org.picketlink.idm.IdentityManagementException;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -26,7 +26,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.picketlink.idm.IdentityManagementException;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * @author Pedro Silva

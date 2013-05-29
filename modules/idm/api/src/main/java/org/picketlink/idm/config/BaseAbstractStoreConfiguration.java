@@ -18,10 +18,11 @@
 
 package org.picketlink.idm.config;
 
-import static java.util.Collections.unmodifiableList;
-import static java.util.Collections.unmodifiableMap;
-import static java.util.Collections.unmodifiableSet;
-import static org.picketlink.idm.IDMLogger.LOGGER;
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.spi.ContextInitializer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,11 +32,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.FeatureSet.FeatureOperation;
-import org.picketlink.idm.credential.spi.CredentialHandler;
-import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.spi.ContextInitializer;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.Collections.unmodifiableSet;
+import static org.picketlink.idm.IDMLogger.LOGGER;
 
 /**
  * The base class for store configurations

@@ -17,13 +17,6 @@
  */
 package org.picketlink.test.oauth.server.endpoint;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.Date;
-import java.util.Map;
-
 import org.junit.Test;
 import org.picketlink.oauth.OAuthUtils;
 import org.picketlink.oauth.client.ClientOAuth;
@@ -33,6 +26,13 @@ import org.picketlink.oauth.common.OAuthConstants;
 import org.picketlink.oauth.messages.AuthorizationResponse;
 import org.picketlink.oauth.messages.RegistrationResponse;
 import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
+
+import java.util.Date;
+import java.util.Map;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Unit test the {@link AuthorizationEndpoint}

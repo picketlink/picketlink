@@ -17,18 +17,17 @@
  */
 package org.picketlink.identity.federation.core.wstrust.auth;
 
-import java.util.Map;
+import org.picketlink.common.exceptions.fed.WSTrustException;
+import org.picketlink.identity.federation.core.wstrust.STSClient;
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
+import org.w3c.dom.Element;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginException;
-
-import org.picketlink.identity.federation.core.wstrust.STSClient;
-import org.picketlink.common.exceptions.fed.WSTrustException;
-import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
-import org.w3c.dom.Element;
+import java.util.Map;
 
 /**
  * JAAS LoginModule for JBoss STS (Security Token Service) that issues security tokens.

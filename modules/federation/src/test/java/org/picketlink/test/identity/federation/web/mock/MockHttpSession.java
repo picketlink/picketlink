@@ -17,16 +17,15 @@
  */
 package org.picketlink.test.identity.federation.web.mock;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionContext;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.UUID;
 import java.util.Map.Entry;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionContext;
+import java.util.UUID;
 
 /**
  * Mock HttpSession

@@ -18,10 +18,6 @@
 
 package org.picketlink.test.idm;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Ignore;
 import org.junit.internal.AssumptionViolatedException;
 import org.junit.internal.runners.model.EachTestNotifier;
@@ -35,6 +31,10 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.internal.IdentityManagerFactory;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * <p>

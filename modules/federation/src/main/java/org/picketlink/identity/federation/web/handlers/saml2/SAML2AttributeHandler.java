@@ -17,15 +17,6 @@
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpSession;
-
 import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ProcessingException;
@@ -45,6 +36,14 @@ import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractTyp
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
+
+import javax.servlet.http.HttpSession;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <p>

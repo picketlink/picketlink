@@ -20,11 +20,12 @@ package org.picketlink.test.identity.federation.web.saml.handlers;
 
 import junit.framework.TestCase;
 import org.junit.Assert;
+import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.fed.IssuerNotTrustedException;
 import org.picketlink.config.federation.IDPType;
 import org.picketlink.config.federation.TrustType;
-import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
-import org.picketlink.common.exceptions.fed.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChainConfig;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerResponse;
@@ -34,7 +35,6 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.handlers.saml2.SAML2IssuerTrustHandler;
 import org.picketlink.test.identity.federation.web.mock.MockHttpServletRequest;

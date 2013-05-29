@@ -17,17 +17,17 @@
  */
 package org.picketlink.identity.federation.web.util;
 
-import java.io.InputStream;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.config.PicketLinkConfigParser;
 import org.picketlink.config.federation.IDPType;
 import org.picketlink.config.federation.PicketLinkType;
 import org.picketlink.config.federation.SPType;
 import org.picketlink.config.federation.handler.Handlers;
 import org.picketlink.config.federation.parsers.SAMLConfigParser;
-import org.picketlink.common.exceptions.ParsingException;
+
+import java.io.InputStream;
 
 /**
  * Deals with Configuration

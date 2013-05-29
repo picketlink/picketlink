@@ -17,14 +17,13 @@
  */
 package org.picketlink.test.identity.federation.core.stax;
 
-import java.io.ByteArrayOutputStream;
-
-import javax.xml.stream.XMLStreamWriter;
-
 import org.junit.Test;
 import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.common.util.StaxUtil;
 import org.w3c.dom.Document;
+
+import javax.xml.stream.XMLStreamWriter;
+import java.io.ByteArrayOutputStream;
 
 /**
  * Test how we write a DOM Element to Stax writer

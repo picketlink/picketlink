@@ -17,13 +17,14 @@
  */
 package org.picketlink.identity.federation.core.wstrust.handlers;
 
-import static javax.xml.ws.handler.MessageContext.MESSAGE_OUTBOUND_PROPERTY;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
+import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.util.SOAPUtil;
+import org.picketlink.identity.federation.core.wstrust.STSClient;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
+import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPElement;
@@ -35,14 +36,13 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import javax.xml.ws.soap.SOAPFaultException;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.picketlink.common.ErrorCodes;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.util.SOAPUtil;
-import org.picketlink.identity.federation.core.wstrust.STSClient;
-import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
-import org.w3c.dom.Element;
+import static javax.xml.ws.handler.MessageContext.MESSAGE_OUTBOUND_PROPERTY;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit test for {@link STSSaml20Handler}. </p>

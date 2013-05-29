@@ -18,35 +18,20 @@
 
 package org.picketlink.test.identity.federation.web.saml.handlers;
 
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.fail;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.stream.StreamResult;
-
 import junit.framework.Assert;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
-import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
-import org.picketlink.config.federation.IDPType;
-import org.picketlink.config.federation.ProviderType;
-import org.picketlink.config.federation.SPType;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.TransformerUtil;
+import org.picketlink.config.federation.IDPType;
+import org.picketlink.config.federation.ProviderType;
+import org.picketlink.config.federation.SPType;
+import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
+import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.factories.SAML2HandlerChainFactory;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChainConfig;
@@ -57,12 +42,9 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler.HANDLER_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChain;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
-import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
-import org.picketlink.common.util.TransformerUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.handlers.saml2.SAML2AuthenticationHandler;
@@ -74,6 +56,22 @@ import org.picketlink.test.identity.federation.web.mock.MockHttpServletResponse;
 import org.picketlink.test.identity.federation.web.mock.MockHttpSession;
 import org.picketlink.test.identity.federation.web.mock.MockServletContext;
 import org.w3c.dom.Document;
+
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.stream.StreamResult;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>

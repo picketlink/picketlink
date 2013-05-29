@@ -18,11 +18,10 @@
 
 package org.picketlink.idm.file.internal;
 
+import org.picketlink.idm.model.Group;
+
 import java.io.Serializable;
 import java.util.Map;
-
-import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.SimpleGroup;
 
 /**
  * @author Pedro Silva
@@ -60,19 +59,19 @@ public class FileGroup extends AbstractIdentityTypeEntry<Group> {
         Group parent = null;
 
         if (properties.get("parentId") != null) {
-            parent = new SimpleGroup(properties.get("parentName").toString());
+            parent = new Group(properties.get("parentName").toString());
 
             parent.setId(properties.get("parentId").toString());
         }
 
-        SimpleGroup group = null;
+        Group group = null;
 
         String name = properties.get("name").toString();
 
         if (parent != null) {
-            group = new SimpleGroup(name, parent);
+            group = new Group(name, parent);
         } else {
-            group = new SimpleGroup(name);
+            group = new Group(name);
         }
 
         group.setPath(properties.get("path").toString());

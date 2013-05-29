@@ -17,19 +17,19 @@
  */
 package org.picketlink.identity.federation.core.parsers.wsa;
 
+import org.picketlink.common.constants.WSTrustConstants;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.parsers.AbstractParser;
+import org.picketlink.common.parsers.ParserNamespaceSupport;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.identity.federation.ws.addressing.AttributedURIType;
+import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.parsers.AbstractParser;
-import org.picketlink.common.parsers.ParserNamespaceSupport;
-import org.picketlink.common.util.StaxParserUtil;
-import org.picketlink.common.constants.WSTrustConstants;
-import org.picketlink.identity.federation.ws.addressing.AttributedURIType;
-import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
 
 /**
  * <p>

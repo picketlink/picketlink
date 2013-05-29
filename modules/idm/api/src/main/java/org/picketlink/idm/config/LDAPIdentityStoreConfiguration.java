@@ -17,18 +17,18 @@
  */
 package org.picketlink.idm.config;
 
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.spi.ContextInitializer;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.FeatureSet.FeatureOperation;
-import org.picketlink.idm.credential.spi.CredentialHandler;
-import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.spi.ContextInitializer;
 
 /**
  * A {@link BaseAbstractStoreConfiguration} for the LDAP store.

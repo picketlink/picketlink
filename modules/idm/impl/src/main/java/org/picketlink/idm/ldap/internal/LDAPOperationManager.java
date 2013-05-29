@@ -18,10 +18,7 @@
 
 package org.picketlink.idm.ldap.internal;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 
 import javax.naming.Binding;
 import javax.naming.CommunicationException;
@@ -38,8 +35,10 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-
-import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * <p>

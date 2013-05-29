@@ -17,11 +17,11 @@
  */
 package org.picketlink.identity.federation.saml.v2.metadata;
 
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 
 /**
  * <p>

@@ -17,8 +17,7 @@
  */
 package org.picketlink.identity.federation.ws.policy;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.w3c.dom.Element;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -28,8 +27,8 @@ import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementRefs;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
-
-import org.w3c.dom.Element;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>

@@ -17,10 +17,10 @@
  */
 package org.picketlink.identity.federation.web.util;
 
+import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.config.federation.IDPType;
 import org.picketlink.config.federation.PicketLinkType;
 import org.picketlink.config.federation.SPType;
-import org.picketlink.common.exceptions.ProcessingException;
 
 /**
  * Returns configuration for an IDP or SP

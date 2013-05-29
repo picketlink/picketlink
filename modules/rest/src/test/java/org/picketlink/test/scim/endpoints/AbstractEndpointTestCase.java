@@ -17,12 +17,11 @@
  */
 package org.picketlink.test.scim.endpoints;
 
+import java.io.Serializable;
 import java.net.URL;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
@@ -40,11 +39,9 @@ import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleGroup;
-import org.picketlink.idm.model.SimpleRole;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.scim.PicketLinkSCIMApplication;
 import org.picketlink.test.scim.EmbeddedWebServerBase;
@@ -97,19 +94,19 @@ public abstract class AbstractEndpointTestCase extends EmbeddedWebServerBase {
 
         // Check when tests are running in unforked JVM
         if (anil == null) {
-            SimpleUser admin = new SimpleUser("anil");
-            admin.setAttribute(new Attribute<String>("ID", "1234"));
+            User admin = new User("anil");
+            admin.setAttribute(new Attribute<Serializable>("ID", "1234"));
             admin.setEmail("admin@acme.com");
 
             identityManager.add(admin);
             identityManager.updateCredential(admin, new Password("tough"));
 
-            Role roleAdmin = new SimpleRole("administrator");
+            Role roleAdmin = new Role("administrator");
             identityManager.add(roleAdmin);
 
             identityManager.grantRole(admin, roleAdmin);
 
-            SimpleGroup group = new SimpleGroup("SomeGroup");
+            Group group = new Group("SomeGroup");
             group.setAttribute(new Attribute<String>("ID", "jboss"));
             identityManager.add(group);
         }

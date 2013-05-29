@@ -17,8 +17,8 @@
  */
 package org.picketlink.oauth.server.endpoint;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.picketlink.oauth.messages.OAuthResponse;
+import org.picketlink.oauth.server.util.OAuthServerUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -28,9 +28,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-
-import org.picketlink.oauth.messages.OAuthResponse;
-import org.picketlink.oauth.server.util.OAuthServerUtil;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Token End Point

@@ -17,16 +17,16 @@
  */
 package org.picketlink.test.identity.federation.core.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.common.util.StringUtil;
 
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
-import org.picketlink.common.util.StaxParserUtil;
-import org.picketlink.common.util.StringUtil;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test {@link StringUtil}

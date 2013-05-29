@@ -17,6 +17,24 @@
  */
 package org.picketlink.identity.federation.core.wstrust.writers;
 
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.WSTrustConstants;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.StaxUtil;
+import org.picketlink.common.util.StringUtil;
+import org.picketlink.identity.federation.ws.wss.secext.AttributedString;
+import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
+import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
+import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamWriter;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import static org.picketlink.identity.federation.core.wsse.WSSecurityConstants.ID;
 import static org.picketlink.identity.federation.core.wsse.WSSecurityConstants.USERNAME;
 import static org.picketlink.identity.federation.core.wsse.WSSecurityConstants.USERNAME_TOKEN;
@@ -24,25 +42,6 @@ import static org.picketlink.identity.federation.core.wsse.WSSecurityConstants.W
 import static org.picketlink.identity.federation.core.wsse.WSSecurityConstants.WSSE_PREFIX;
 import static org.picketlink.identity.federation.core.wsse.WSSecurityConstants.WSU_NS;
 import static org.picketlink.identity.federation.core.wsse.WSSecurityConstants.WSU_PREFIX;
-
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamWriter;
-
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.common.util.StaxUtil;
-import org.picketlink.common.util.StringUtil;
-import org.picketlink.common.constants.WSTrustConstants;
-import org.picketlink.identity.federation.ws.wss.secext.AttributedString;
-import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
-import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
-import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
 
 /**
  * Write WS-Security Elements

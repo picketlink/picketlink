@@ -17,13 +17,11 @@
  */
 package org.picketlink.idm.ldap.internal;
 
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.SN;
-
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 
-import org.picketlink.idm.model.User;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.SN;
 
 /**
  * LDAP Representation of an {@link User}
@@ -31,7 +29,7 @@ import org.picketlink.idm.model.User;
  * @author anil saldhana
  * @since Aug 30, 2012
  */
-public class LDAPUser extends LDAPAgent implements User {
+public class LDAPUser extends LDAPAgent {
 
     private static final long serialVersionUID = 1L;
 
@@ -43,7 +41,6 @@ public class LDAPUser extends LDAPAgent implements User {
         super(loginName, userDNSuffix);
     }
 
-    @Override
     public String getFirstName() {
         Attribute theAttribute = getLDAPAttributes().get(LDAPConstants.GIVENNAME);
 
@@ -74,7 +71,6 @@ public class LDAPUser extends LDAPAgent implements User {
         return null;
     }
 
-    @Override
     public void setFirstName(String firstName) {
         if (firstName == null) {
             firstName = " ";
@@ -83,14 +79,12 @@ public class LDAPUser extends LDAPAgent implements User {
         getLDAPAttributes().put(LDAPConstants.GIVENNAME, firstName);
     }
 
-    @Override
     public String getLastName() {
         Attribute theAttribute = getLDAPAttributes().get(SN);
 
         return getAttributeValue(theAttribute);
     }
 
-    @Override
     public void setLastName(String lastName) {
         if (lastName == null) {
             lastName = " ";
@@ -103,7 +97,6 @@ public class LDAPUser extends LDAPAgent implements User {
         getLDAPAttributes().put(CN, fullName);
     }
 
-    @Override
     public String getEmail() {
         try {
             Attribute theAttribute = getLDAPAttributes().get(LDAPConstants.EMAIL);
@@ -117,7 +110,6 @@ public class LDAPUser extends LDAPAgent implements User {
         return null;
     }
 
-    @Override
     public void setEmail(String email) {
         if (email == null) {
             email = " ";

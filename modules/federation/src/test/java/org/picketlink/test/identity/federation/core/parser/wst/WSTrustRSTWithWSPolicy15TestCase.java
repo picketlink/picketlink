@@ -17,13 +17,13 @@
  */
 package org.picketlink.test.identity.federation.core.parser.wst;
 
-import static junit.framework.Assert.assertNotNull;
-
-import java.io.InputStream;
-
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
+
+import java.io.InputStream;
+
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * PLINK-144 : PicketLink STS should not choke on WS-Policy 1.5 Tags

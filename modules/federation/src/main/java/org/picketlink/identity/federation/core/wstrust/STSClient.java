@@ -17,24 +17,6 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
-import java.io.InputStream;
-import java.net.URI;
-import java.security.Principal;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPBody;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPPart;
-import javax.xml.transform.Source;
-import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Dispatch;
-import javax.xml.ws.Service;
-import javax.xml.ws.Service.Mode;
-import javax.xml.ws.soap.SOAPBinding;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.WSTrustConstants;
@@ -54,6 +36,23 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPPart;
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Dispatch;
+import javax.xml.ws.Service;
+import javax.xml.ws.Service.Mode;
+import javax.xml.ws.soap.SOAPBinding;
+import java.io.InputStream;
+import java.net.URI;
+import java.security.Principal;
+import java.util.Map;
 
 /**
  * WS-Trust Client

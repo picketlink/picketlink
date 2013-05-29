@@ -17,13 +17,13 @@
  */
 package org.picketlink.identity.federation.saml.v2.metadata;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType;
 import org.w3c.dom.Element;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * <p>

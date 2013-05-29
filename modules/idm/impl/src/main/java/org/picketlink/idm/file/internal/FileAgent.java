@@ -18,11 +18,11 @@
 
 package org.picketlink.idm.file.internal;
 
-import java.io.Serializable;
-import java.util.Map;
-
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.User;
+
+import java.io.Serializable;
+import java.util.Map;
 
 /**
  * @author Pedro Silva

@@ -17,11 +17,6 @@
  */
 package org.picketlink.identity.federation.web.process;
 
-import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.concurrent.locks.Lock;
-
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
@@ -29,6 +24,11 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
+
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.concurrent.locks.Lock;
 
 /**
  * Processor for the SAML2 Handler Chain

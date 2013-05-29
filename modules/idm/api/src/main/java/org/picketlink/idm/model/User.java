@@ -17,50 +17,69 @@
  */
 package org.picketlink.idm.model;
 
-import java.io.Serializable;
-
+import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
- * This interface represents a User; a human or non-human agent that may
- * consume the services provided by an application.
+ * <p>Default {@link IdentityType} implementation  to represent users.</p>
  *
  * @author Shane Bryzak
  */
-public interface User extends Agent, Serializable {
+public class User extends Agent {
+
+    private static final long serialVersionUID = -8878182208588103681L;
 
     /**
      * A query parameter used to set the firstName value.
      */
-    QueryParameter FIRST_NAME = new QueryParameter() {};
+    public static final QueryParameter FIRST_NAME = new QueryParameter() {};
 
     /**
      * A query parameter used to set the lastName value.
      */
-    QueryParameter LAST_NAME = new QueryParameter() {};
+    public static final QueryParameter LAST_NAME = new QueryParameter() {};
 
     /**
      * A query parameter used to set the email value.
      */
-    QueryParameter EMAIL = new QueryParameter() {};
+    public static final QueryParameter EMAIL = new QueryParameter() {};
 
-    /**
-     * This String prefixes all values returned by the getKey() method.
-     */
-    String KEY_PREFIX = "USER://";
+    private String firstName;
+    private String lastName;
+    private String email;
 
-    // Built in attributes
+    public User() {
+        super(null);
+    }
 
-    String getFirstName();
+    public User(String loginName) {
+        super(loginName);
+    }
 
-    void setFirstName(String firstName);
+    @AttributeProperty
+    public String getFirstName() {
+        return this.firstName;
+    }
 
-    String getLastName();
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
-    void setLastName(String lastName);
+    @AttributeProperty
+    public String getLastName() {
+        return this.lastName;
+    }
 
-    String getEmail();
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
-    void setEmail(String email);
+    @AttributeProperty
+    public String getEmail() {
+        return this.email;
+    }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }

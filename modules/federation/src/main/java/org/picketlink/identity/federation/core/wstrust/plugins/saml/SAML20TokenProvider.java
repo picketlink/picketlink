@@ -17,29 +17,21 @@
  */
 package org.picketlink.identity.federation.core.wstrust.plugins.saml;
 
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
-import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
 import org.picketlink.identity.federation.core.sts.AbstractSecurityTokenProvider;
 import org.picketlink.identity.federation.core.wstrust.SecurityToken;
 import org.picketlink.identity.federation.core.wstrust.StandardSecurityToken;
-import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
@@ -57,6 +49,13 @@ import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
 import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
 import org.w3c.dom.Element;
+
+import javax.xml.namespace.QName;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>

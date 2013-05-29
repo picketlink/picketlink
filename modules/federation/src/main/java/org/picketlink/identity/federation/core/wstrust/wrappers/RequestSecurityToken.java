@@ -17,15 +17,6 @@
  */
 package org.picketlink.identity.federation.core.wstrust.wrappers;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
-
 import org.picketlink.common.ErrorCodes;
 import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
@@ -49,6 +40,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>

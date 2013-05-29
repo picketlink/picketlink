@@ -18,11 +18,6 @@
 
 package org.picketlink.internal;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.enterprise.inject.Typed;
-
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialStorage;
@@ -34,6 +29,10 @@ import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
+
+import javax.enterprise.inject.Typed;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Decorator for IdentityManager that provides secured identity management operations

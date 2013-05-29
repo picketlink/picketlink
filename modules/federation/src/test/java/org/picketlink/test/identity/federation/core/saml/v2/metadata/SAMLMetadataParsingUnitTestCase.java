@@ -17,30 +17,28 @@
  */
 package org.picketlink.test.identity.federation.core.saml.v2.metadata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.security.cert.X509Certificate;
-import java.util.List;
-
-import javax.xml.stream.XMLStreamWriter;
-
 import junit.framework.Assert;
-
 import org.junit.Test;
+import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.SAMLMetadataUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLMetadataWriter;
-import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.ContactType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
+
+import javax.xml.stream.XMLStreamWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.security.cert.X509Certificate;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test the SAML metadata parsing

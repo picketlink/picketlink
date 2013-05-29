@@ -21,16 +21,6 @@
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
-import java.net.URI;
-import java.security.Principal;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.jboss.security.audit.AuditLevel;
 import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
@@ -66,6 +56,15 @@ import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.w3c.dom.Document;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.xml.parsers.ParserConfigurationException;
+import java.net.URI;
+import java.security.Principal;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * SAML2 LogOut Profile

@@ -17,19 +17,6 @@
  */
 package org.picketlink.test.identity.federation.core.saml.v2;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.InputStream;
-import java.security.KeyPair;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.util.Enumeration;
-
-import javax.xml.crypto.dsig.SignatureMethod;
-import javax.xml.crypto.dsig.XMLSignatureException;
-
 import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,6 +44,18 @@ import org.picketlink.test.identity.federation.api.saml.v2.SignatureValidationUn
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import javax.xml.crypto.dsig.SignatureMethod;
+import javax.xml.crypto.dsig.XMLSignatureException;
+import java.io.InputStream;
+import java.security.KeyPair;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.Enumeration;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * <p>

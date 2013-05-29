@@ -17,14 +17,6 @@
  */
 package org.picketlink.identity.federation.core.util;
 
-import java.security.Key;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.util.HashMap;
-
-import javax.crypto.SecretKey;
-import javax.xml.namespace.QName;
-
 import org.apache.xml.security.encryption.EncryptedData;
 import org.apache.xml.security.encryption.EncryptedKey;
 import org.apache.xml.security.encryption.XMLCipher;
@@ -38,6 +30,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import javax.crypto.SecretKey;
+import javax.xml.namespace.QName;
+import java.security.Key;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.HashMap;
 
 /**
  * Utility for XML Encryption <b>Note: </b> This utility is currently using Apache XML Security library API. JSR-106 is not yet

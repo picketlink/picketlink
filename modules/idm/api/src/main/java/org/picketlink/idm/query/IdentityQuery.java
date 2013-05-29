@@ -18,10 +18,10 @@
 
 package org.picketlink.idm.query;
 
+import org.picketlink.idm.model.IdentityType;
+
 import java.util.List;
 import java.util.Map;
-
-import org.picketlink.idm.model.IdentityType;
 
 /**
  * Unified identity query API

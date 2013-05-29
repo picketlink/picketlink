@@ -18,15 +18,6 @@
 
 package org.picketlink.idm.jpa.schema;
 
-import java.io.Serializable;
-import java.util.Date;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
 import org.picketlink.idm.jpa.annotations.CreationDate;
 import org.picketlink.idm.jpa.annotations.Discriminator;
 import org.picketlink.idm.jpa.annotations.Email;
@@ -41,6 +32,14 @@ import org.picketlink.idm.jpa.annotations.IdentityType;
 import org.picketlink.idm.jpa.annotations.LastName;
 import org.picketlink.idm.jpa.annotations.LoginName;
 import org.picketlink.idm.jpa.annotations.Parent;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * <p>JPA {@link Entity} that maps IdentityType instances.</p>

@@ -18,8 +18,8 @@
 
 package org.picketlink.authentication;
 
-import org.picketlink.idm.model.Agent;
 
+import org.picketlink.idm.model.Agent;
 
 /**
  * An Authenticator implementation is responsible for managing the user authentication process. 

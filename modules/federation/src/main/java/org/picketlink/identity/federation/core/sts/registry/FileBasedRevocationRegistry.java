@@ -17,6 +17,8 @@
  */
 package org.picketlink.identity.federation.core.sts.registry;
 
+import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -25,8 +27,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 
 /**
  * <p>

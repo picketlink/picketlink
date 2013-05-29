@@ -17,20 +17,19 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.WSTrustConstants;
+import org.picketlink.common.util.StringUtil;
+import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
+
+import javax.xml.ws.soap.SOAPBinding;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
-
-import javax.xml.ws.soap.SOAPBinding;
-
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
-import org.picketlink.common.constants.WSTrustConstants;
-import org.picketlink.common.util.StringUtil;
 
 /**
  * STSClientConfig has the ability to either programatically construct the configuration needed for {@link STSClient} or parse a

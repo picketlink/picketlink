@@ -17,17 +17,8 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.writers;
 
-import static org.picketlink.common.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
-import static org.picketlink.common.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
-
-import java.net.URI;
-import java.util.List;
-
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamWriter;
-
-import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.StaxUtil;
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
@@ -42,6 +33,14 @@ import org.picketlink.identity.federation.saml.v2.protocol.StatusDetailType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 import org.w3c.dom.Element;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamWriter;
+import java.net.URI;
+import java.util.List;
+
+import static org.picketlink.common.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
+import static org.picketlink.common.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
 
 /**
  * Write a SAML Response to stream

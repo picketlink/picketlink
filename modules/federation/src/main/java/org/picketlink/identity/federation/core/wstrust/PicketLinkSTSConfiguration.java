@@ -17,25 +17,8 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.PublicKey;
-import java.security.cert.Certificate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
-import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
-import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
-import org.picketlink.identity.federation.core.sts.STSCoreConfig;
-import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.config.federation.AuthPropertyType;
 import org.picketlink.config.federation.ClaimsProcessorType;
@@ -47,6 +30,22 @@ import org.picketlink.config.federation.ServiceProviderType;
 import org.picketlink.config.federation.ServiceProvidersType;
 import org.picketlink.config.federation.TokenProviderType;
 import org.picketlink.config.federation.TokenProvidersType;
+import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
+import org.picketlink.identity.federation.core.sts.STSCoreConfig;
+import org.picketlink.identity.federation.core.util.CoreConfigUtil;
+
+import javax.xml.namespace.QName;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>

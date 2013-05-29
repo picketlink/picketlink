@@ -1,7 +1,5 @@
 package org.picketlink.authentication.internal;
 
-import javax.inject.Inject;
-
 import org.picketlink.authentication.BaseAuthenticator;
 import org.picketlink.authentication.LockedAccountException;
 import org.picketlink.credential.DefaultLoginCredentials;
@@ -12,6 +10,8 @@ import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.model.User;
+
+import javax.inject.Inject;
 
 /**
  * Authenticator that uses the Identity Management API to authenticate.  Assumes that the

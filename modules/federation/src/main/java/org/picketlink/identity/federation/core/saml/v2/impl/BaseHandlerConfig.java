@@ -17,10 +17,10 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.impl;
 
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
 
 /**
  * @author Anil.Saldhana@redhat.com

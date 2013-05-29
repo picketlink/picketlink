@@ -17,14 +17,14 @@
  */
 package org.picketlink.identity.federation.core.wstrust.auth;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLBaseFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.w3c.dom.Element;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Test util methods.

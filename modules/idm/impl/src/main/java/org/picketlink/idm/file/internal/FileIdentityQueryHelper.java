@@ -18,15 +18,6 @@
 
 package org.picketlink.idm.file.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
@@ -41,6 +32,15 @@ import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.SecurityContext;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * @author Pedro Silva

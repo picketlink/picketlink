@@ -17,11 +17,11 @@
  */
 package org.picketlink.scim;
 
-import javax.inject.Named;
-
 import org.picketlink.scim.model.v11.SCIMGroups;
 import org.picketlink.scim.model.v11.SCIMResource;
 import org.picketlink.scim.model.v11.SCIMUser;
+
+import javax.inject.Named;
 
 /**
  * Interface for implementation that provide the data for the SCIM endpoints

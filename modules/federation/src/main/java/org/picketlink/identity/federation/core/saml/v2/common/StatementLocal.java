@@ -17,9 +17,9 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.common;
 
-import java.util.Set;
-
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
+
+import java.util.Set;
 
 /**
  * Thread Local holding the statements returned by IDP

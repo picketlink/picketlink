@@ -17,22 +17,21 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.common;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.xml.namespace.QName;
-
-import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
-import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
+import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+
+import javax.xml.namespace.QName;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * <p>

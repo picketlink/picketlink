@@ -17,9 +17,8 @@
  */
 package org.picketlink.identity.federation.saml.v1.assertion;
 
-import java.net.URI;
-
 import javax.xml.namespace.QName;
+import java.net.URI;
 
 /**
  * <complexType name="AuthorityBindingType"> <attribute name="AuthorityKind" type="QName" use="required"/> <attribute

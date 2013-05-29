@@ -17,6 +17,8 @@
  */
 package org.picketlink.identity.federation.core.sts.registry;
 
+import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -26,8 +28,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 
 /**
  * A File based implementation of the {@code SecurityTokenRegistry}

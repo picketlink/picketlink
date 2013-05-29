@@ -18,15 +18,11 @@
 
 package org.picketlink.idm.config;
 
-import static org.picketlink.idm.IDMLogger.LOGGER;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
@@ -67,6 +63,8 @@ import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.ContextInitializer;
+import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * This interface defines the configuration parameters for a JPA based IdentityStore implementation.

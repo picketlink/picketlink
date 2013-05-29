@@ -22,13 +22,6 @@
 
 package org.picketlink.test.idm.config;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static junit.framework.Assert.assertEquals;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.AbstractIdentityStoreConfigurationBuilder;
@@ -50,13 +43,20 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static junit.framework.Assert.assertEquals;
 
 /**
  *
@@ -87,7 +87,7 @@ public class CustomIdentityStoreTestCase {
         
         IdentityManager identityManager = identityManagerFactory.createIdentityManager();
         
-        identityManager.add(new SimpleUser("john"));
+        identityManager.add(new User("john"));
 
         assertEquals("addAttributedType", methodInvocationContext.getMethodName());
 
