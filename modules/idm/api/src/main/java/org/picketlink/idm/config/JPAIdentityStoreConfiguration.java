@@ -33,7 +33,6 @@ import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.PropertyQuery;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
-import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
@@ -53,6 +52,7 @@ import org.picketlink.idm.jpa.annotations.GroupPath;
 import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.Identity;
+import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.IdentityName;
 import org.picketlink.idm.jpa.annotations.IdentityPartition;
 import org.picketlink.idm.jpa.annotations.LastName;
@@ -60,12 +60,9 @@ import org.picketlink.idm.jpa.annotations.LoginName;
 import org.picketlink.idm.jpa.annotations.Parent;
 import org.picketlink.idm.jpa.annotations.RelationshipClass;
 import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
-import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.spi.ContextInitializer;
 
 /**
@@ -76,20 +73,9 @@ import org.picketlink.idm.spi.ContextInitializer;
  */
 public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
 
-    // Identity discriminator constants
-    private static final String DEFAULT_USER_IDENTITY_DISCRIMINATOR = "USER";
-    private static final String DEFAULT_ROLE_IDENTITY_DISCRIMINATOR = "ROLE";
-    private static final String DEFAULT_GROUP_IDENTITY_DISCRIMINATOR = "GROUP";
-    private static final String DEFAULT_AGENT_IDENTITY_DISCRIMINATOR = "AGENT";
-
     public enum PropertyType {
-        IDENTITY_ID, IDENTITY_DISCRIMINATOR, GROUP_PATH, IDENTITY_NAME, IDENTITY_ENABLED, IDENTITY_CREATION_DATE, IDENTITY_EXPIRY_DATE, CREDENTIAL_VALUE, ATTRIBUTE_IDENTITY, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, ATTRIBUTE_VALUE, GROUP_PARENT, AGENT_LOGIN_NAME, USER_FIRST_NAME, USER_LAST_NAME, USER_EMAIL, IDENTITY_PARTITION, PARTITION_ID, PARTITION_TYPE, PARTITION_PARENT, CREDENTIAL_IDENTITY, CREDENTIAL_TYPE, CREDENTIAL_EFFECTIVE_DATE, CREDENTIAL_EXPIRY_DATE, CREDENTIAL_ATTRIBUTE_CREDENTIAL, CREDENTIAL_ATTRIBUTE_NAME, CREDENTIAL_ATTRIBUTE_VALUE, RELATIONSHIP_ID, RELATIONSHIP_CLASS, RELATIONSHIP_IDENTITY, RELATIONSHIP_IDENTITY_RELATIONSHIP, RELATIONSHIP_DESCRIPTOR, RELATIONSHIP_ATTRIBUTE_NAME, RELATIONSHIP_ATTRIBUTE_VALUE, RELATIONSHIP_ATTRIBUTE_RELATIONSHIP
+        IDENTITY_ID, IDENTITY_CLASS, GROUP_PATH, IDENTITY_NAME, IDENTITY_ENABLED, IDENTITY_CREATION_DATE, IDENTITY_EXPIRY_DATE, CREDENTIAL_VALUE, ATTRIBUTE_IDENTITY, ATTRIBUTE_NAME, ATTRIBUTE_TYPE, ATTRIBUTE_VALUE, GROUP_PARENT, AGENT_LOGIN_NAME, USER_FIRST_NAME, USER_LAST_NAME, USER_EMAIL, IDENTITY_PARTITION, PARTITION_ID, PARTITION_TYPE, PARTITION_PARENT, CREDENTIAL_IDENTITY, CREDENTIAL_TYPE, CREDENTIAL_EFFECTIVE_DATE, CREDENTIAL_EXPIRY_DATE, CREDENTIAL_ATTRIBUTE_CREDENTIAL, CREDENTIAL_ATTRIBUTE_NAME, CREDENTIAL_ATTRIBUTE_VALUE, RELATIONSHIP_ID, RELATIONSHIP_CLASS, RELATIONSHIP_IDENTITY, RELATIONSHIP_IDENTITY_RELATIONSHIP, RELATIONSHIP_DESCRIPTOR, RELATIONSHIP_ATTRIBUTE_NAME, RELATIONSHIP_ATTRIBUTE_VALUE, RELATIONSHIP_ATTRIBUTE_RELATIONSHIP
     };
-
-    private String identityTypeAgent = DEFAULT_AGENT_IDENTITY_DISCRIMINATOR;
-    private String identityTypeUser = DEFAULT_USER_IDENTITY_DISCRIMINATOR;
-    private String identityTypeRole = DEFAULT_ROLE_IDENTITY_DISCRIMINATOR;
-    private String identityTypeGroup = DEFAULT_GROUP_IDENTITY_DISCRIMINATOR;
 
     /**
      * Model properties
@@ -97,7 +83,14 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     private Map<PropertyType, Property<Object>> modelProperties = new HashMap<PropertyType, Property<Object>>();
 
     /*
-     * Attribute properties
+     * Identity Attribute Properties - this Map contains a Map of the formal attribute properties declared on
+     * an IdentityType implementation, for example the firstName property of a User
+     */
+    private Map<Class<? extends IdentityType>, Map<String,Property<Object>>> identityAttributeProperties = 
+            new HashMap<Class<? extends IdentityType>, Map<String,Property<Object>>>();
+
+    /*
+     * Ad-hoc Attribute properties
      */
     private Map<String, MappedAttribute> attributeProperties = new HashMap<String, MappedAttribute>();
 
@@ -224,63 +217,29 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     }
 
     public Map<String, MappedAttribute> getAttributeProperties() {
-        return attributeProperties;
+        return attributeProperties;    
     }
 
-    private String getIdentityTypeUser() {
-        return identityTypeUser;
-    }
+    public Map<String,Property<Object>> getIdentityAttributeProperties(Class<? extends IdentityType> identityClass) {
+        if (!identityAttributeProperties.containsKey(identityClass)) {
+            Map<String,Property<Object>> attributeProperties = new HashMap<String,Property<Object>>();
 
-    private String getIdentityTypeGroup() {
-        return identityTypeGroup;
-    }
+            // Scan for identity attribute properties in the identity class
+            List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class)).getResultList();
+            for (Property<Object> property : props) {
+                attributeProperties.put(property.getName(), property);
+            }
 
-    private String getIdentityTypeRole() {
-        return identityTypeRole;
-    }
-
-    private String getIdentityTypeAgent() {
-        return identityTypeAgent;
-    }
-
-    public String getIdentityTypeDiscriminator(Class<? extends IdentityType> identityType) {
-        String discriminator = null;
-
-        if (User.class.isAssignableFrom(identityType)) {
-            discriminator = getIdentityTypeUser();
-        } else if (Agent.class.isAssignableFrom(identityType)) {
-            discriminator = getIdentityTypeAgent();
-        } else if (Role.class.isAssignableFrom(identityType)) {
-            discriminator = getIdentityTypeRole();
-        } else if (Group.class.isAssignableFrom(identityType)) {
-            discriminator = getIdentityTypeGroup();
+            identityAttributeProperties.put(identityClass, attributeProperties);
+            return attributeProperties;
         } else {
-            throw MESSAGES.jpaConfigDiscriminatorNotFoundForIdentityType(identityType);
+            return identityAttributeProperties.get(identityClass);
         }
-
-        return discriminator;
-    }
-
-    public Class<? extends IdentityType> getIdentityTypeFromDiscriminator(String discriminator) {
-        Class<? extends IdentityType> type = null;
-
-        if (getIdentityTypeUser().equals(discriminator)) {
-            type = User.class;
-        } else if (getIdentityTypeAgent().equals(discriminator)) {
-            type = Agent.class;
-        } else if (getIdentityTypeRole().equals(discriminator)) {
-            type = Role.class;
-        } else if (getIdentityTypeGroup().equals(discriminator)) {
-            type = Group.class;
-        } else {
-            throw new IdentityManagementException("Discriminator [" + discriminator + "] does not map to an IdentityType.");
-        }
-
-        return type;
     }
 
     private void configureIdentity() throws SecurityConfigurationException {
-        configureModelProperty(PropertyType.IDENTITY_DISCRIMINATOR, Discriminator.class, identityClass, null, "discriminator",
+        configureModelProperty(PropertyType.IDENTITY_CLASS, IdentityClass.class, identityClass, null, "identityClass",
                 "identityType", "identityTypeName", "typeName", "type");
 
         // Common properties

@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -104,9 +105,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     public static final String INVOCATION_CTX_ENTITY_MANAGER = "CTX_ENTITY_MANAGER";
 
     // Event context parameters
-    public static final String EVENT_CONTEXT_USER_ENTITY = "USER_ENTITY";
-    public static final String EVENT_CONTEXT_GROUP_ENTITY = "GROUP_ENTITY";
-    public static final String EVENT_CONTEXT_ROLE_ENTITY = "ROLE_ENTITY";
+    public static final String EVENT_CONTEXT_IDENTITY = "IDENTITY_ENTITY";
 
     /**
      * The configuration for this instance
@@ -134,9 +133,19 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
                 Object entity = config.getIdentityClass().newInstance();
                 String identifier = context.getIdGenerator().generate();
                 config.setModelPropertyValue(entity, PropertyType.IDENTITY_ID, identifier, true);
+                config.setModelPropertyValue(entity, PropertyType.IDENTITY_CLASS, identityType.getClass().getName(), true);
                 identityType.setId(identifier);
 
-                // TODO populate attributes
+                // TODO this needs more work...
+                Map<String,Property<Object>> identityAttributes = config.getIdentityAttributeProperties(identityType.getClass());
+                for (String propertyName : identityAttributes.keySet()) {
+                    Property<Object> identityProperty = identityAttributes.get(propertyName);
+
+                    MappedAttribute mappedAttribute = config.getAttributeProperties().get(propertyName);
+                    if (mappedAttribute != null) {
+                        mappedAttribute.getAttributeProperty().setValue(entity, identityProperty.getValue(identityType));
+                    }
+                }
 
                 EntityManager em = getEntityManager(context);
 
@@ -145,7 +154,9 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
 
                 updateIdentityTypeAttributes(context, identityType, entity);
 
-                context.getEventBridge().raiseEvent(new IdentityCreatedEvent(identityType));
+                IdentityCreatedEvent event = new IdentityCreatedEvent(identityType);
+                event.getContext().setValue(EVENT_CONTEXT_IDENTITY, entity);
+                context.getEventBridge().raiseEvent(event);
             } catch (Exception e) {
                 throw MESSAGES.instantiationError(config.getIdentityClass().getName(), e);
             }
@@ -177,7 +188,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
             em.flush();
 
             AbstractBaseEvent event = handler.raiseUpdatedEvent(identityType);
-            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identityType);
+            event.getContext().setValue(EVENT_CONTEXT_IDENTITY, identityType);
             context.getEventBridge().raiseEvent(event);
         } else if (attributedType instanceof Relationship) {
             checkRelationshipClassProvided();

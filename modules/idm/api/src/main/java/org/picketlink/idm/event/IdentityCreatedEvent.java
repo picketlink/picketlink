@@ -8,7 +8,7 @@ import org.picketlink.idm.model.IdentityType;
  * @author Shane Bryzak
  *
  */
-public class IdentityCreatedEvent {
+public class IdentityCreatedEvent extends AbstractBaseEvent {
     private IdentityType identityType;
 
     public IdentityCreatedEvent(IdentityType identityType) {
