@@ -18,6 +18,11 @@
 
 package org.picketlink.idm.internal;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
@@ -28,6 +33,7 @@ import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
@@ -36,23 +42,15 @@ import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.StoreFactory;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Default StoreFactory implementation. This factory is pre-configured to be able to create instances of the following built-in
  * IdentityStore implementations based on the corresponding IdentityStoreConfiguration:
- *
+ * <p/>
  * JPAIdentityStore - JPAIdentityStoreConfiguration LDAPIdentityStore - LDAPConfiguration FileBasedIdentityStore -
  * FileIdentityStoreConfiguration
- *
  *
  * @author Shane Bryzak
  */
@@ -76,25 +74,51 @@ public class DefaultStoreFactory implements StoreFactory {
         this.identityConfigMap.put(FileIdentityStoreConfiguration.class, FileBasedIdentityStore.class);
 
         Map<FeatureGroup, IdentityStoreConfiguration> supportedFeatures = new HashMap<FeatureGroup, IdentityStoreConfiguration>();
+        Map<Class<? extends IdentityType>, IdentityStoreConfiguration> supportedIdentityTypes = new HashMap<Class<? extends IdentityType>, IdentityStoreConfiguration>();
+        Map<Class<? extends Relationship>, IdentityStoreConfiguration> supportedRelationships = new HashMap<Class<? extends Relationship>, IdentityStoreConfiguration>();
 
         for (IdentityStoreConfiguration config : identityConfig.getConfiguredStores()) {
             LOGGER.identityManagerInitConfigForRealms(config, config.getRealms());
 
-            Map<FeatureGroup, Set<FeatureOperation>> storeFeatures = config.getSupportedFeatures();
-
             // let's check for duplicated features
-            for (Entry<FeatureGroup, Set<FeatureOperation>> entry : storeFeatures.entrySet()) {
+            for (Entry<FeatureGroup, Set<FeatureOperation>> entry : config.getSupportedFeatures().entrySet()) {
                 FeatureGroup feature = entry.getKey();
+
+                IdentityStoreConfiguration storeConfigForFeature = supportedFeatures.get(feature);
 
                 // attributes can be stored for each store.
                 if (!FeatureGroup.attribute.equals(feature)) {
-                    IdentityStoreConfiguration storeConfigForFeature = supportedFeatures.get(feature);
-
                     if (storeConfigForFeature == null) {
                         supportedFeatures.put(feature, config);
                     } else {
                         throw MESSAGES.configurationAmbiguousFeatureForStore(feature, storeConfigForFeature, config);
                     }
+                }
+            }
+
+            // let's check for duplicated identity types
+            for (Entry<Class<? extends IdentityType>, Set<FeatureOperation>> entry : config.getSupportedIdentityTypes().entrySet()) {
+                Class<? extends IdentityType> identityType = entry.getKey();
+
+                IdentityStoreConfiguration storeConfigForFeature = supportedIdentityTypes.get(identityType);
+
+                if (storeConfigForFeature == null) {
+                    supportedIdentityTypes.put(identityType, config);
+                } else {
+                    throw MESSAGES.configurationAmbiguousIdentityTypeForStore(identityType, storeConfigForFeature, config);
+                }
+            }
+
+            // let's check for duplicated relationship types
+            for (Entry<Class<? extends Relationship>, Set<FeatureOperation>> entry : config.getSupportedRelationships().entrySet()) {
+                Class<? extends Relationship> relationship = entry.getKey();
+
+                IdentityStoreConfiguration storeConfigForFeature = supportedRelationships.get(relationship);
+
+                if (storeConfigForFeature == null) {
+                    supportedRelationships.put(relationship, config);
+                } else {
+                    throw MESSAGES.configurationAmbiguousRelationshipForStore(relationship, storeConfigForFeature, config);
                 }
             }
 
@@ -179,19 +203,16 @@ public class DefaultStoreFactory implements StoreFactory {
     }
 
     @Override
-    public boolean isFeatureSupported(Partition partition, FeatureGroup feature, FeatureOperation operation,
-            Class<? extends Relationship> relationshipClass) {
-        return lookupConfigForFeature(partition, feature, operation, relationshipClass) != null;
-    }
-
-    @Override
     public IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature, FeatureOperation operation) {
         return getStoreForFeature(context, feature, operation, null);
     }
 
     @Override
-    public IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature, FeatureOperation operation,
-            Class<? extends Relationship> relationshipClass) {
+    public IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureOperation operation, Class<?> type) {
+        return getStoreForFeature(context, null, operation, type);
+    }
+
+    private IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature, FeatureOperation operation, Class<?> identityType) {
         if (Realm.class.isInstance(context.getPartition())) {
             Realm realm = (Realm) context.getPartition();
             if (!realmStores.containsKey(realm.getId())) {
@@ -207,7 +228,7 @@ public class DefaultStoreFactory implements StoreFactory {
         }
 
         IdentityStoreConfiguration config = lookupConfigForFeature(context.getPartition(), feature, operation,
-                relationshipClass);
+                identityType);
 
         final IdentityStore<? extends IdentityStoreConfiguration> store = createIdentityStore(config, context);
 
@@ -222,7 +243,7 @@ public class DefaultStoreFactory implements StoreFactory {
     }
 
     private IdentityStoreConfiguration lookupConfigForFeature(Partition partition, FeatureGroup feature,
-            FeatureOperation operation, Class<? extends Relationship> relationshipClass) {
+                                                              FeatureOperation operation, Class<?> type) {
 
         Set<IdentityStoreConfiguration> configs = null;
 
@@ -232,35 +253,46 @@ public class DefaultStoreFactory implements StoreFactory {
             configs = tierStores.get(partition.getId());
         }
 
+        Class<? extends Relationship> relationshipClass = null;
+        Class<? extends IdentityType> identityTypeClass = null;
+
+        if (type != null) {
+            if (Relationship.class.isAssignableFrom(type)) {
+                relationshipClass = (Class<? extends Relationship>) type;
+            } else if (IdentityType.class.isAssignableFrom(type)) {
+                identityTypeClass = (Class<? extends IdentityType>) type;
+            }
+        }
+
         IdentityStoreConfiguration config = null;
 
         if (configs != null) {
-            boolean isUnsupportedRelationship = false;
-
             for (IdentityStoreConfiguration cfg : configs) {
                 if (relationshipClass != null) {
                     if (cfg.supportsRelationship(relationshipClass, null)) {
                         if (cfg.supportsRelationship(relationshipClass, operation)) {
-                            config = cfg;
-                            break;
+                            return cfg;
                         }
-                    } else {
-                        isUnsupportedRelationship = true;
+                    }
+                } else if (identityTypeClass != null) {
+                    if (cfg.supportsIdentityType(identityTypeClass, null)) {
+                        if (cfg.supportsIdentityType(identityTypeClass, operation)) {
+                            return cfg;
+                        }
                     }
                 } else if (cfg.supportsFeature(feature, operation)) {
-                    config = cfg;
-                    break;
+                    return cfg;
                 }
             }
 
-            if (config == null) {
-                LOGGER.identityManagerUnsupportedOperation(feature, operation);
+            LOGGER.identityManagerUnsupportedOperation(feature, operation);
 
-                if (isUnsupportedRelationship) {
-                    throw MESSAGES.storeConfigUnsupportedRelationshipType(relationshipClass);
-                } else {
-                    throw MESSAGES.storeConfigUnsupportedOperation(feature, operation, feature, operation);
-                }
+            if (relationshipClass != null) {
+                throw MESSAGES.storeConfigUnsupportedRelationshipType(relationshipClass, operation);
+            } else if (identityTypeClass != null) {
+                throw MESSAGES.storeConfigUnsupportedIdentityType(identityTypeClass, operation);
+            } else {
+                throw MESSAGES.storeConfigUnsupportedOperation(feature, operation, feature, operation);
             }
         }
 

@@ -1,5 +1,8 @@
 package org.picketlink.test.idm.suites;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -18,7 +21,11 @@ import org.picketlink.idm.jpa.schema.RelationshipIdentityWeakObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Authorization;
+import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -40,10 +47,6 @@ import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
 import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 /**
  * <p>
@@ -127,8 +130,8 @@ public class LDAPUsersJPARolesGroupsFileRelationshipTestSuite extends AbstractLD
                     .agentDNSuffix(AGENT_DN_SUFFIX)
                     .groupDNSuffix(GROUP_DN_SUFFIX)
                     .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
-                    .supportFeature(FeatureGroup.agent)
-                    .supportFeature(FeatureGroup.user)
+                    .supportIdentityType(Agent.class)
+                    .supportIdentityType(User.class)
                     .supportFeature(FeatureGroup.credential)
                     .supportFeature(FeatureGroup.attribute)
                 .jpa()
@@ -138,8 +141,8 @@ public class LDAPUsersJPARolesGroupsFileRelationshipTestSuite extends AbstractLD
                     .relationshipIdentityClass(RelationshipIdentityWeakObject.class)
                     .relationshipAttributeClass(RelationshipObjectAttribute.class)
                     .partitionClass(PartitionObject.class)
-                    .supportFeature(FeatureGroup.role)
-                    .supportFeature(FeatureGroup.group)
+                    .supportIdentityType(Role.class)
+                    .supportIdentityType(Group.class)
                     .supportFeature(FeatureGroup.attribute)
                     .addContextInitializer(new JPAContextInitializer(emf) {
                         @Override

@@ -17,6 +17,10 @@
  */
 package org.picketlink.idm.internal;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -42,14 +46,8 @@ import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.StoreFactory;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
+import sun.management.resources.agent;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.internal.util.IDMUtil.getFeatureGroup;
 
 /**
  * Default implementation of the IdentityManager interface
@@ -125,7 +123,7 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         try {
-            storeFactory.getStoreForFeature(context, getFeatureGroup(identityType.getClass()), FeatureOperation.create).add(
+            storeFactory.getStoreForFeature(context, FeatureOperation.create, identityType.getClass()).add(
                     context, identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeAddFailed(identityType, e);
@@ -135,7 +133,7 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void add(Relationship relationship) {
         try {
-            storeFactory.getStoreForFeature(context, FeatureGroup.relationship, FeatureOperation.create,
+            storeFactory.getStoreForFeature(context, FeatureOperation.create,
                     relationship.getClass()).add(context, relationship);
         } catch (Exception e) {
             throw MESSAGES.relationshipAddFailed(relationship, e);
@@ -151,7 +149,7 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         try {
-            storeFactory.getStoreForFeature(context, getFeatureGroup(identityType.getClass()), FeatureOperation.update).update(
+            storeFactory.getStoreForFeature(context, FeatureOperation.update, identityType.getClass()).update(
                     context, identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeUpdateFailed(identityType, e);
@@ -161,7 +159,7 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void update(Relationship relationship) {
         try {
-            storeFactory.getStoreForFeature(context, FeatureGroup.relationship, FeatureOperation.update,
+            storeFactory.getStoreForFeature(context, FeatureOperation.update,
                     relationship.getClass()).update(context, relationship);
         } catch (Exception e) {
             throw MESSAGES.relationshipUpdateFailed(relationship, e);
@@ -177,7 +175,7 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         try {
-            storeFactory.getStoreForFeature(context, getFeatureGroup(identityType.getClass()), FeatureOperation.delete).remove(
+            storeFactory.getStoreForFeature(context, FeatureOperation.delete, identityType.getClass()).remove(
                     context, identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeUpdateFailed(identityType, e);
@@ -191,8 +189,7 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         try {
-            storeFactory.getStoreForFeature(context, FeatureGroup.relationship, FeatureOperation.delete,
-                    relationship.getClass()).remove(context, relationship);
+            storeFactory.getStoreForFeature(context, FeatureOperation.delete, relationship.getClass()).remove(context, relationship);
         } catch (Exception e) {
             throw MESSAGES.relationshipRemoveFailed(relationship, e);
         }
@@ -201,14 +198,14 @@ public class DefaultIdentityManager implements IdentityManager {
     public Agent getAgent(String loginName) {
         checkCurrentPartitionForAgents();
 
-        return storeFactory.getStoreForFeature(context, FeatureGroup.agent, FeatureOperation.read).getAgent(context, loginName);
+        return storeFactory.getStoreForFeature(context, FeatureOperation.read, Agent.class).getAgent(context, loginName);
     }
 
     @Override
     public User getUser(String loginName) {
         checkCurrentPartitionForAgents();
 
-        return storeFactory.getStoreForFeature(context, FeatureGroup.user, FeatureOperation.read).getUser(context, loginName);
+        return storeFactory.getStoreForFeature(context, FeatureOperation.read, User.class).getUser(context, loginName);
     }
 
     @Override
@@ -217,7 +214,7 @@ public class DefaultIdentityManager implements IdentityManager {
             return null;
         }
 
-        return storeFactory.getStoreForFeature(context, FeatureGroup.group, FeatureOperation.read).getGroup(context, path);
+        return storeFactory.getStoreForFeature(context, FeatureOperation.read, Group.class).getGroup(context, path);
     }
 
     @Override
@@ -234,7 +231,7 @@ public class DefaultIdentityManager implements IdentityManager {
             throw MESSAGES.groupParentNotFoundWithId(parent.getId(), context.getPartition());
         }
 
-        return storeFactory.getStoreForFeature(context, FeatureGroup.group, FeatureOperation.read).getGroup(context, name,
+        return storeFactory.getStoreForFeature(context, FeatureOperation.read, Group.class).getGroup(context, name,
                 parent);
     }
 
@@ -284,13 +281,13 @@ public class DefaultIdentityManager implements IdentityManager {
         checkIfIdentityTypeExists(member);
         checkIfIdentityTypeExists(group);
 
-        storeFactory.getStoreForFeature(context, FeatureGroup.relationship, FeatureOperation.delete, GroupMembership.class)
+        storeFactory.getStoreForFeature(context, FeatureOperation.delete, GroupMembership.class)
                 .remove(context, new GroupMembership(member, group));
     }
 
     @Override
     public Role getRole(String name) {
-        return storeFactory.getStoreForFeature(context, FeatureGroup.role, FeatureOperation.read).getRole(context, name);
+        return storeFactory.getStoreForFeature(context, FeatureOperation.read, Role.class).getRole(context, name);
     }
 
     @Override
@@ -327,7 +324,7 @@ public class DefaultIdentityManager implements IdentityManager {
         checkIfIdentityTypeExists(role);
         checkIfIdentityTypeExists(group);
 
-        storeFactory.getStoreForFeature(context, FeatureGroup.relationship, FeatureOperation.delete, GroupRole.class).remove(
+        storeFactory.getStoreForFeature(context, FeatureOperation.delete, GroupRole.class).remove(
                 context, new GroupRole(assignee, group, role));
     }
 
@@ -371,7 +368,7 @@ public class DefaultIdentityManager implements IdentityManager {
         checkIfIdentityTypeExists(identityType);
         checkIfIdentityTypeExists(role);
 
-        storeFactory.getStoreForFeature(context, FeatureGroup.relationship, FeatureOperation.delete, Grant.class).remove(
+        storeFactory.getStoreForFeature(context, FeatureOperation.delete, Grant.class).remove(
                 context, new Grant(identityType, role));
     }
 
@@ -400,14 +397,13 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType) {
-        return new DefaultIdentityQuery<T>(context, identityType, storeFactory.getStoreForFeature(context,
-                getFeatureGroup(identityType), FeatureOperation.read));
+        return new DefaultIdentityQuery<T>(context, identityType, storeFactory.getStoreForFeature(context, FeatureOperation.read, identityType));
     }
 
     @Override
     public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType) {
         return new DefaultRelationshipQuery<T>(context, relationshipType, storeFactory.getStoreForFeature(context,
-                FeatureGroup.relationship, FeatureOperation.read, relationshipType));
+                FeatureOperation.read, relationshipType));
     }
 
     @Override

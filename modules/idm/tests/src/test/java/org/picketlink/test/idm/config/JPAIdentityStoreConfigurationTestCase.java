@@ -278,7 +278,8 @@ public class JPAIdentityStoreConfigurationTestCase extends
         jpaConfig.credentialAttributeClass(CredentialObjectAttribute.class);
 
         // enabled basic features
-        jpaConfig.supportFeature(FeatureGroup.user, FeatureGroup.role, FeatureGroup.group, FeatureGroup.relationship, FeatureGroup.credential);
+        jpaConfig.supportIdentityType(User.class, Role.class, Group.class);
+        jpaConfig.supportFeature(FeatureGroup.relationship, FeatureGroup.credential);
 
         // enable the custom relationship class
         jpaConfig.supportRelationshipType(CustomRelationship.class);

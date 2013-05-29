@@ -96,7 +96,9 @@ public class LDAPStoreConfigurationBuilder extends
 
     @Override
     public LDAPIdentityStoreConfiguration create() {
-        return new LDAPIdentityStoreConfiguration(this.url, this.bindDN, this.bindCredential, this.baseDN, this.agentDNSuffix, this.userDNSuffix, this.roleDNSuffix, this.groupDNSuffix, this.groupMapping, getSupportedFeatures(), getSupportedRelationships(), getRealms(), getTiers(),
+        return new LDAPIdentityStoreConfiguration(this.url, this.bindDN, this.bindCredential, this.baseDN,
+                this.agentDNSuffix, this.userDNSuffix, this.roleDNSuffix, this.groupDNSuffix, this.groupMapping,
+                getSupportedFeatures(), getSupportedRelationships(), getSupportedIdentityTypes(), getRealms(), getTiers(),
                 getContextInitializers(), getCredentialHandlerProperties(), getCredentialHandlers());
     }
 

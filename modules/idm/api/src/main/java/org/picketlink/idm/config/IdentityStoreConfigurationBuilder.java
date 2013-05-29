@@ -25,6 +25,7 @@ package org.picketlink.idm.config;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
 
@@ -42,20 +43,20 @@ public interface IdentityStoreConfigurationBuilder<T extends IdentityStoreConfig
 
     S supportRelationshipType(Class<? extends Relationship>... types);
 
+    S supportIdentityType(Class<? extends IdentityType>... types);
+
     S supportFeature(FeatureGroup... feature);
+
+    S removeFeature(FeatureGroup feature, FeatureOperation... operation);
+
+    S removeIdentityType(Class<? extends IdentityType> identityType, FeatureOperation... operation);
+
+    S removeRelationship(Class<? extends Relationship> relationshipClass, FeatureOperation... operation);
 
     S addCredentialHandler(Class<? extends CredentialHandler> credentialHandler);
 
     S setCredentialHandlerProperty(String propertyName, Object value);
 
     S addContextInitializer(ContextInitializer contextInitializer);
-
-    S removeFeature(FeatureGroup feature, FeatureOperation operation);
-
-    S removeFeature(FeatureGroup feature);
-
-    S removeRelationshipFeature(Class<? extends Relationship> relationshipClass, FeatureOperation operation);
-
-    S removeRelationship(Class<? extends Relationship>... relationshipClasses);
 
 }

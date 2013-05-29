@@ -21,6 +21,7 @@ package org.picketlink.idm.config;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
 
@@ -41,10 +42,11 @@ public class FileIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
 
     FileIdentityStoreConfiguration(String workingDir, boolean preserveState, boolean asyncWrite,
             int asyncWriteThreadPool, Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
-            Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms, Set<String> tiers,
-            List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties,
-            List<Class<? extends CredentialHandler>> credentialHandlers) {
-        super(supportedFeatures, supportedRelationships, realms, tiers, contextInitializers, credentialHandlerProperties, credentialHandlers);
+            Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships,
+            Map<Class<? extends IdentityType>, Set<FeatureOperation>> supportedIdentityTypes, Set<String> realms,
+            Set<String> tiers, List<ContextInitializer> contextInitializers,
+            Map<String, Object> credentialHandlerProperties, List<Class<? extends CredentialHandler>> credentialHandlers) {
+        super(supportedFeatures, supportedRelationships, supportedIdentityTypes,realms, tiers, contextInitializers, credentialHandlerProperties, credentialHandlers);
         this.workingDir = workingDir;
         this.alwaysCreateFiles = !preserveState;
         this.asyncWrite = asyncWrite;

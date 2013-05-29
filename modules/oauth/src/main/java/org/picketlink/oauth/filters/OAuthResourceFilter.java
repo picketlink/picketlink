@@ -17,8 +17,23 @@
  */
 package org.picketlink.oauth.filters;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Properties;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
@@ -35,23 +50,6 @@ import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.oauth.common.OAuthConstants;
 import org.picketlink.oauth.messages.ResourceAccessRequest;
 import org.picketlink.oauth.server.util.OAuthServerUtil;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Properties;
 
 /**
  * An instance of {@link Filter} that performs OAuth checks before allowing access to a resource
@@ -196,8 +194,7 @@ public class OAuthResourceFilter implements Filter {
                             .agentDNSuffix(properties.getProperty("agentDNSuffix"))
                             .groupDNSuffix(properties.getProperty("groupDNSuffix"))
                             .addRealm(Realm.DEFAULT_REALM)
-                            .supportFeature(FeatureGroup.user, FeatureGroup.agent, FeatureGroup.user, FeatureGroup.group,
-                                    FeatureGroup.role, FeatureGroup.attribute, FeatureGroup.relationship, FeatureGroup.credential);
+                            .supportAllFeatures();
 
                 // FIXME: IdentityManager is not threadsafe
                 identityManager = new IdentityManagerFactory(builder.build()).createIdentityManager();

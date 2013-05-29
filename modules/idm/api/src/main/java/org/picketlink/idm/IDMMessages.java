@@ -27,6 +27,7 @@ import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
 import org.jboss.logging.Messages;
 import org.jboss.logging.Param;
+import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
@@ -125,8 +126,8 @@ public interface IDMMessages {
     @Message(id = 15, value = "The specified realm [%s] has not been configured.")
     SecurityConfigurationException storeConfigRealmNotConfigured(String realmId);
 
-    @Message(id = 16, value = "No identity store configuration found that supports the relationship type [%s].")
-    SecurityConfigurationException storeConfigUnsupportedRelationshipType(Class<? extends Relationship> type);
+    @Message(id = 16, value = "No identity store configuration found that supports the relationship type [%s] and operation [%s].")
+    SecurityConfigurationException storeConfigUnsupportedRelationshipType(Class<? extends Relationship> type, FeatureOperation operation);
 
     @Message(id = 17, value = "The IdentityStoreConfiguration [%s] specified is not supported by this IdentityStoreFactory implementation.")
     SecurityConfigurationException storeConfigUnsupportedConfiguration(IdentityStoreConfiguration config);
@@ -290,5 +291,14 @@ public interface IDMMessages {
 
     @Message(id = 73, value = "Credentials can only be managed from a Realm. Current partition is [%s].")
     IdentityManagementException partitionInvalidTypeForCredential(Class<? extends Partition> partitionType);
+
+    @Message(id = 74, value = "The same IdentityType [%s] was configured for different IdentityStoreConfiguration [%s, %s].")
+    SecurityConfigurationException configurationAmbiguousIdentityTypeForStore(Class<? extends IdentityType> identityType, IdentityStoreConfiguration config1, IdentityStoreConfiguration config2);
+
+    @Message(id = 75, value = "The same Relationship [%s] was configured for different IdentityStoreConfiguration [%s, %s].")
+    SecurityConfigurationException configurationAmbiguousRelationshipForStore(Class<? extends Relationship> relationship, IdentityStoreConfiguration config1, IdentityStoreConfiguration config2);
+
+    @Message(id = 76, value = "No identity store configuration found that supports the identity type [%s] and operation [%s].")
+    SecurityConfigurationException storeConfigUnsupportedIdentityType(Class<? extends IdentityType> type, FeatureOperation operation);
 
 }

@@ -17,11 +17,8 @@
  */
 package org.picketlink.idm.internal.util;
 
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.QueryParameter;
-
-import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * General purpose Util
@@ -46,24 +43,6 @@ public class IDMUtil {
 
     public static boolean isAgentType(Class<? extends IdentityType> identityType) {
         return org.picketlink.idm.model.Agent.class.isAssignableFrom(identityType);
-    }
-
-    public static FeatureGroup getFeatureGroup(Class<? extends IdentityType> identityType) {
-        if (org.picketlink.idm.model.User.class.isAssignableFrom(identityType)) {
-            return FeatureGroup.user;
-        } else if (org.picketlink.idm.model.Agent.class.isAssignableFrom(identityType)) {
-            return FeatureGroup.agent;
-        } else if (org.picketlink.idm.model.Group.class.isAssignableFrom(identityType)) {
-            return FeatureGroup.group;
-        } else if (org.picketlink.idm.model.Role.class.isAssignableFrom(identityType)) {
-            return FeatureGroup.role;
-        } else if (IdentityType.class.equals(identityType)) {
-            // TODO: we need this in order to allow queries using the IdentityType. Maybe we should have a more specific feature
-            // group for this cases.
-            return FeatureGroup.user;
-        } else {
-            throw MESSAGES.identityTypeUnsupportedType(identityType);
-        }
     }
 
     /**

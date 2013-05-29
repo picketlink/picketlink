@@ -22,234 +22,138 @@
 
 package org.picketlink.test.idm.config;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.picketbox.test.ldap.AbstractLDAPTest;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.IdentityConfiguration;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.config.SecurityConfigurationException;
+import org.picketlink.idm.internal.IdentityManagerFactory;
+import org.picketlink.idm.jpa.schema.IdentityObject;
+import org.picketlink.idm.jpa.schema.PartitionObject;
+import org.picketlink.idm.model.Grant;
+import org.picketlink.idm.model.GroupRole;
+import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.User;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 /**
- * <p>Some tests for the {@link IdentityConfiguration} using basically the built-in stores configuration.</p>
+ * <p>Some tests for the {@link IdentityConfiguration}.</p>
  * 
  * @author Pedro Silva
  * 
  */
-public class ProgrammaticConfigurationTestCase extends AbstractLDAPTest {
-
-    private static final String BASE_DN = "dc=jboss,dc=org";
-    private static final String LDAP_URL = "ldap://localhost:10389";
-    private static final String ROLES_DN_SUFFIX = "ou=Roles,dc=jboss,dc=org";
-    private static final String GROUP_DN_SUFFIX = "ou=Groups,dc=jboss,dc=org";
-    private static final String USER_DN_SUFFIX = "ou=People,dc=jboss,dc=org";
-    private static final String AGENT_DN_SUFFIX = "ou=Agent,dc=jboss,dc=org";
-
-    private EntityManagerFactory emf;
-    private EntityManager entityManager;
-
-    @Before
-    public void onInit() throws Exception {
-        this.emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
-        this.entityManager = emf.createEntityManager();
-        this.entityManager.getTransaction().begin();
-
-        super.importLDIF("ldap/users.ldif");
-    }
-
-    @After
-    public void onDestroy() throws Exception {
-        this.entityManager.getTransaction().commit();
-        this.entityManager.close();
-        this.emf.close();
-
-        super.tearDown();
-    }
+public class ProgrammaticConfigurationTestCase {
 
     @Test
-    public void testFileIdentityStoreConfiguration() throws Exception {
-//        IdentityConfiguration configuration = new IdentityConfiguration();
-//
-//        configuration
-//            .fileStore()
-//                .setAlwaysCreateFiles(true)
-//                .setWorkingDir("/tmp/pl-idm")
-//                .setAsyncWrite(true)
-//                .setAsyncThreadPool(10)
-//                .addRealm(Realm.DEFAULT_REALM)
-//                .addRealm("Realm")
-//                .addTier("Tier")
-//                .supportAllFeatures(); // you can also enable features individually. eg.:supportFeature(FeatureGroup.user)
-//
-//        IdentityManagerFactory identityManagerFactory = configuration.buildIdentityManagerFactory();
-//
-//        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
-//
-//        User user = new User("user");
-//
-//        identityManager.add(user);
-//
-//        assertNotNull(identityManager.getUser(user.getLoginName()));
-    }
+    public void failDuplicatedIdentityTypeConfiguration() throws Exception {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
-    @Test
-    public void testJPAIdentityStoreConfiguration() throws Exception {
-//        IdentityConfiguration configuration = new IdentityConfiguration();
-//
-//        configuration
-//            .jpaStore()
-//                .addContextInitializer(new JPAContextInitializer(emf) {
-//                    @Override
-//                    public EntityManager getEntityManager() {
-//                        return entityManager;
-//                    }
-//                })
-//                .setIdentityClass(IdentityObject.class)
-//                .setAttributeClass(IdentityObjectAttribute.class)
-//                .setRelationshipClass(RelationshipObject.class)
-//                .setRelationshipIdentityClass(RelationshipIdentityObject.class)
-//                .setRelationshipAttributeClass(RelationshipObjectAttribute.class)
-//                .setCredentialClass(CredentialObject.class)
-//                .setCredentialAttributeClass(CredentialObjectAttribute.class)
-//                .setPartitionClass(PartitionObject.class)
-//                .addRealm(Realm.DEFAULT_REALM)
-//                .addRealm("Realm")
-//                .addTier("Tier")
-//                .supportAllFeatures(); // you can also enable features individually. eg.: supportFeature(FeatureGroup.user)
-//
-//        IdentityManagerFactory identityManagerFactory = configuration.buildIdentityManagerFactory();
-//
-//        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
-//
-//        User user = new User("user");
-//
-//        identityManager.add(user);
-//
-//        assertNotNull(identityManager.getUser(user.getLoginName()));
-    }
-    
-    @Test
-    public void testLDAPIdentityStoreConfiguration() throws Exception {
-//        IdentityConfiguration configuration = new IdentityConfiguration();
-//
-//        configuration
-//            .ldapStore()
-//                .setBaseDN(BASE_DN)
-//                .setBindDN("uid=admin,ou=system")
-//                .setBindCredential("secret")
-//                .setLdapURL(LDAP_URL)
-//                .setUserDNSuffix(USER_DN_SUFFIX)
-//                .setRoleDNSuffix(ROLES_DN_SUFFIX)
-//                .setAgentDNSuffix(AGENT_DN_SUFFIX)
-//                .setGroupDNSuffix(GROUP_DN_SUFFIX)
-//                .addRealm(Realm.DEFAULT_REALM)
-//                .supportFeature(
-//                        FeatureGroup.user, 
-//                        FeatureGroup.agent, 
-//                        FeatureGroup.user, 
-//                        FeatureGroup.group,
-//                        FeatureGroup.role, 
-//                        FeatureGroup.attribute, 
-//                        FeatureGroup.relationship, 
-//                        FeatureGroup.credential);
-//
-//        IdentityManagerFactory identityManagerFactory = configuration.buildIdentityManagerFactory();
-//
-//        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
-//
-//        User user = new User("user");
-//
-//        identityManager.add(user);
-//
-//        assertNotNull(identityManager.getUser(user.getLoginName()));
-    }
-    
-    @Test
-    @SuppressWarnings ("unchecked")
-    public void testLDAPAndJPAIdentityStoreConfiguration() throws Exception {
-//        IdentityConfiguration configuration = new IdentityConfiguration();
-//
-//        configuration
-//            .ldapStore()
-//                .setBaseDN(BASE_DN)
-//                .setBindDN("uid=admin,ou=system")
-//                .setBindCredential("secret")
-//                .setLdapURL(LDAP_URL)
-//                .setUserDNSuffix(USER_DN_SUFFIX)
-//                .setRoleDNSuffix(ROLES_DN_SUFFIX)
-//                .setAgentDNSuffix(AGENT_DN_SUFFIX)
-//                .setGroupDNSuffix(GROUP_DN_SUFFIX)
-//                .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
-//                .addRealm(Realm.DEFAULT_REALM)
-//                .supportFeature(
-//                    FeatureGroup.user, 
-//                    FeatureGroup.agent, 
-//                    FeatureGroup.user, 
-//                    FeatureGroup.group,
-//                    FeatureGroup.role, 
-//                    FeatureGroup.attribute, 
-//                    FeatureGroup.credential);
-//        
-//        configuration
-//            .jpaStore()
-//                .addRealm(Realm.DEFAULT_REALM)
-//                .setIdentityClass(IdentityObject.class)
-//                .setAttributeClass(IdentityObjectAttribute.class)
-//                .setRelationshipClass(RelationshipObject.class)
-//                .setRelationshipIdentityClass(RelationshipIdentityWeakObject.class)
-//                .setRelationshipAttributeClass(RelationshipObjectAttribute.class)
-//                .setPartitionClass(PartitionObject.class)
-//                .supportFeature(FeatureGroup.relationship)
-//                .supportRelationshipType(CustomRelationship.class, Authorization.class)
-//                .addContextInitializer(new JPAContextInitializer(emf) {
-//                    @Override
-//                    public EntityManager getEntityManager() {
-//                        return entityManager;
-//                    }
-//                });
-//
-//        IdentityManagerFactory identityManagerFactory = configuration.buildIdentityManagerFactory();
-//
-//        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
-//
-//        User user = new User("user");
-//
-//        identityManager.add(user);
-//        
-//        Role role = new Role("role");
-//        
-//        identityManager.add(role);
-//        
-//        identityManager.grantRole(user, role);
-//
-//        assertNotNull(identityManager.getUser(user.getLoginName()));
-//        assertTrue(identityManager.hasRole(user, role));
+        builder.
+            stores()
+                .file()
+                    .supportIdentityType(User.class)
+                .jpa()
+                    .identityClass(IdentityObject.class)
+                    .partitionClass(PartitionObject.class)
+                    .supportIdentityType(User.class);
+
+        try {
+            new IdentityManagerFactory(builder.build());
+            fail();
+        } catch (SecurityConfigurationException sce) {
+            assertTrue(sce.getMessage().contains("PLIDM000074"));
+        }
     }
 
     @Test
     public void failDuplicatedFeatureConfiguration() throws Exception {
-//        IdentityConfiguration configuration = new IdentityConfiguration();
-//
-//        configuration
-//            .fileStore()
-//                .supportFeature(FeatureGroup.user);
-//        configuration
-//            .jpaStore()
-//                .supportFeature(FeatureGroup.user);
-//
-//        try {
-//            configuration.buildIdentityManagerFactory();
-//            fail();
-//        } catch (SecurityConfigurationException e) {
-//            assertTrue(e.getMessage().contains("PLIDM000069"));
-//            
-//            if (!e.getCause().getMessage().contains("PLIDM000071")) {
-//                fail();
-//            }
-//        } catch (Exception e) {
-//            fail();
-//        }
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder.
+                stores()
+                .file()
+                    .supportFeature(FeatureSet.FeatureGroup.credential)
+                .jpa()
+                    .identityClass(IdentityObject.class)
+                    .partitionClass(PartitionObject.class)
+                    .supportFeature(FeatureSet.FeatureGroup.credential);
+
+        try {
+            new IdentityManagerFactory(builder.build());
+            fail();
+        } catch (SecurityConfigurationException sce) {
+            assertTrue(sce.getMessage().contains("PLIDM000071"));
+        }
     }
+
+    @Test
+    public void failDuplicatedRelationshipConfiguration() throws Exception {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder.
+                stores()
+                .file()
+                    .supportRelationshipType(Grant.class)
+                .jpa()
+                    .identityClass(IdentityObject.class)
+                    .partitionClass(PartitionObject.class)
+                    .supportRelationshipType(Grant.class);
+
+        try {
+            new IdentityManagerFactory(builder.build());
+            fail();
+        } catch (SecurityConfigurationException sce) {
+            assertTrue(sce.getMessage().contains("PLIDM000075"));
+        }
+    }
+
+    @Test
+    public void failUnsupportedIdentityType() throws Exception {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder.
+                stores()
+                    .file()
+                        .supportIdentityType(Role.class);
+
+        try {
+            IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(builder.build());
+            IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+
+            identityManager.add(new User("john"));
+        } catch (SecurityConfigurationException sce) {
+            assertTrue(sce.getMessage().contains("PLIDM000076"));
+        }
+    }
+
+    @Test
+    public void failUnsupportedRelationshipType() throws Exception {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder.
+                stores()
+                    .file()
+                        .supportFeature(FeatureSet.FeatureGroup.identity_type)
+                        .supportRelationshipType(GroupRole.class);
+
+        try {
+            IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(builder.build());
+            IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+
+            User john = new User("john");
+
+            identityManager.add(john);
+
+            Role manager = new Role("manager");
+
+            identityManager.add(manager);
+
+            identityManager.grantRole(john, manager);
+        } catch (SecurityConfigurationException sce) {
+            assertTrue(sce.getMessage().contains("PLIDM000016"));
+        }
+    }
+
 }

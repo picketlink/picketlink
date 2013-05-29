@@ -17,15 +17,15 @@
  */
 package org.picketlink.idm.config;
 
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.FeatureSet.FeatureOperation;
-import org.picketlink.idm.credential.spi.CredentialHandler;
-import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.spi.ContextInitializer;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.spi.ContextInitializer;
 
 /**
  * <p>
@@ -89,7 +89,11 @@ public interface IdentityStoreConfiguration {
 
     Map<Class<? extends Relationship>, Set<FeatureOperation>> getSupportedRelationships();
 
+    Map<Class<? extends IdentityType>, Set<FeatureOperation>> getSupportedIdentityTypes();
+
     boolean supportsRelationship(Class<? extends Relationship> relationshipClass, FeatureOperation operation);
+
+    boolean supportsIdentityType(Class<? extends IdentityType> identityType, FeatureOperation operation);
 
     boolean supportsFeature(FeatureGroup feature, FeatureOperation operation);
 }

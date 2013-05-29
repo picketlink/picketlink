@@ -33,10 +33,12 @@ import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.LDAPStoreConfigurationBuilder;
 import org.picketlink.idm.config.SecurityConfigurationException;
+import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.relationship.CustomRelationship;
-
+import sun.management.resources.agent;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -139,8 +141,8 @@ public class LDAPIdentityStoreConfigurationTestCase extends
                 .agentDNSuffix(AGENT_DN_SUFFIX)
                 .groupDNSuffix(GROUP_DN_SUFFIX)
                 .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
-                .supportFeature(FeatureGroup.user, FeatureGroup.agent, FeatureGroup.user, FeatureGroup.group,
-                        FeatureGroup.role, FeatureGroup.attribute, FeatureGroup.relationship, FeatureGroup.credential);
+                .supportIdentityType(User.class, Role.class, Group.class, Agent.class)
+                .supportFeature(FeatureGroup.attribute, FeatureGroup.relationship, FeatureGroup.credential);
 
         return storeConfig;
     }

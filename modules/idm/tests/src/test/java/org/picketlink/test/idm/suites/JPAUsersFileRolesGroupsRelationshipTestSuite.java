@@ -1,5 +1,8 @@
 package org.picketlink.test.idm.suites;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -17,8 +20,12 @@ import org.picketlink.idm.jpa.schema.IdentityObject;
 import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
 import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Authorization;
+import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -40,10 +47,6 @@ import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
 import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 /**
  * <p>
@@ -125,8 +128,8 @@ public class JPAUsersFileRolesGroupsRelationshipTestSuite extends AbstractLDAPTe
                     .attributeClass(IdentityObjectAttribute.class)
                     .partitionClass(PartitionObject.class)
                     .addRealm(Realm.DEFAULT_REALM, "Testing")
-                    .supportFeature(FeatureGroup.agent)
-                    .supportFeature(FeatureGroup.user)
+                    .supportIdentityType(Agent.class)
+                    .supportIdentityType(User.class)
                     .supportFeature(FeatureGroup.credential)
                     .supportFeature(FeatureGroup.attribute)
                     .addContextInitializer(new JPAContextInitializer(emf) {
@@ -137,8 +140,8 @@ public class JPAUsersFileRolesGroupsRelationshipTestSuite extends AbstractLDAPTe
                     })
                 .file()
                     .addRealm(Realm.DEFAULT_REALM, "Testing")
-                    .supportFeature(FeatureGroup.group)
-                    .supportFeature(FeatureGroup.role)
+                    .supportIdentityType(Group.class)
+                    .supportIdentityType(Role.class)
                     .supportFeature(FeatureGroup.attribute)
                     .supportFeature(FeatureGroup.relationship)
                     .supportRelationshipType(CustomRelationship.class, Authorization.class);

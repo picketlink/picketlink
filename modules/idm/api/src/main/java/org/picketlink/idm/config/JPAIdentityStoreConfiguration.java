@@ -114,10 +114,11 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     JPAIdentityStoreConfiguration(Class<?> identityClass, Class<?> attributeClass, Class<?> credentialClass,
             Class<?> credentialAttributeClass, Class<?> relationshipClass, Class<?> relationshipIdentityClass,
             Class<?> relationshipAttributeClass, Class<?> partitionClass, Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
-            Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms, Set<String> tiers,
+            Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships,
+            Map<Class<? extends IdentityType>, Set<FeatureOperation>> supportedIdentityTypes, Set<String> realms, Set<String> tiers,
             List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {
-        super(supportedFeatures, supportedRelationships, realms, tiers, contextInitializers, credentialHandlerProperties,
+        super(supportedFeatures, supportedRelationships, supportedIdentityTypes,realms, tiers, contextInitializers, credentialHandlerProperties,
                 credentialHandlers);
         this.identityClass = identityClass;
         this.attributeClass = attributeClass;

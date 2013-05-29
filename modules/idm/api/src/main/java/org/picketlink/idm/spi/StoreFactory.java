@@ -56,19 +56,6 @@ public interface StoreFactory {
     Tier getTier(String id);
 
     /**
-     * Returns true if the specified feature (and optional relationship class) is supported by the specified
-     * Partition's configuration
-     *
-     * @param partition
-     * @param feature
-     * @param operation
-     * @param relationshipClass
-     * @return
-     */
-    boolean isFeatureSupported(Partition partition, FeatureGroup feature, FeatureOperation operation,
-            Class<? extends Relationship> relationshipClass);
-
-    /**
      *
      * @param context
      * @param feature
@@ -83,9 +70,8 @@ public interface StoreFactory {
      * @param context
      * @param feature
      * @param operation
-     * @param relationshipClass
      * @return
      */
-    IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature,
-            FeatureOperation operation, Class<? extends Relationship> relationshipClass);
+    IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureOperation operation, Class<?> type);
+
 }

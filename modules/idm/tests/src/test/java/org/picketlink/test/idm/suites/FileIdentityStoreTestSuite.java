@@ -97,17 +97,6 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
                     .supportRelationshipType(CustomRelationship.class, Authorization.class);
         
         return new IdentityManagerFactory(builder.build());
-//        IdentityConfiguration configuration = new IdentityConfiguration();
-//        
-//        configuration
-//            .fileStore()
-//                .setAlwaysCreateFiles(true)
-//                .addRealm(Realm.DEFAULT_REALM, "Testing")
-//                .addTier("Application")
-//                .supportAllFeatures()
-//                .supportRelationshipType(CustomRelationship.class, Authorization.class);
-//        
-//        return configuration.buildIdentityManagerFactory();
     }
 
     @Override

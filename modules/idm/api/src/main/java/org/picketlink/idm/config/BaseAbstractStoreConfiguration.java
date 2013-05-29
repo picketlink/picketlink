@@ -21,6 +21,7 @@ package org.picketlink.idm.config;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
 
@@ -54,9 +55,11 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
      */
     private final Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures;
     private final Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships;
+    private final Map<Class<? extends IdentityType>, Set<FeatureOperation>> supportedIdentityTypes;
 
     protected BaseAbstractStoreConfiguration(Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
-            Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms,
+            Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Map<Class<? extends IdentityType>,
+            Set<FeatureOperation>> supportedIdentityTypes, Set<String> realms,
             Set<String> tiers, List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {
         this.realms.addAll(realms);
@@ -66,6 +69,7 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
         this.credentialHandlers.addAll(credentialHandlers);
         this.supportedFeatures = supportedFeatures;
         this.supportedRelationships = supportedRelationships;
+        this.supportedIdentityTypes = supportedIdentityTypes;
     }
 
     @Override
@@ -130,15 +134,6 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
         return this.supportedFeatures.get(feature).contains(operation);
     }
 
-    /**
-     * <p>
-     * Check if the given Relationship type is supported.
-     * </p>
-     *
-     * @param feature
-     * @param operation
-     * @return
-     */
     @Override
     public boolean supportsRelationship(Class<? extends Relationship> relationshipType, FeatureOperation operation) {
         if (!this.supportedRelationships.containsKey(relationshipType)) {
@@ -150,6 +145,19 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
         }
 
         return this.supportedRelationships.get(relationshipType).contains(operation);
+    }
+
+    @Override
+    public boolean supportsIdentityType(Class<? extends IdentityType> identityType, FeatureOperation operation) {
+        if (!this.supportedIdentityTypes.containsKey(identityType)) {
+            return false;
+        }
+
+        if (operation == null) {
+            return true;
+        }
+
+        return this.supportedIdentityTypes.get(identityType).contains(operation);
     }
 
     @Override
@@ -170,6 +178,11 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
     @Override
     public Map<Class<? extends Relationship>, Set<FeatureOperation>> getSupportedRelationships() {
         return unmodifiableMap(this.supportedRelationships);
+    }
+
+    @Override
+    public Map<Class<? extends IdentityType>, Set<FeatureOperation>> getSupportedIdentityTypes() {
+        return unmodifiableMap(this.supportedIdentityTypes);
     }
 
     /**
