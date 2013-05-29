@@ -31,7 +31,7 @@ public abstract class AbstractIdentityConfigurationChildBuilder implements Ident
 
     private IdentityConfigurationChildBuilder identityConfigurationBuilder;
 
-    public AbstractIdentityConfigurationChildBuilder(IdentityConfigurationChildBuilder builder) {
+    protected AbstractIdentityConfigurationChildBuilder(IdentityConfigurationChildBuilder builder) {
         this.identityConfigurationBuilder = builder;
     }
 

@@ -22,43 +22,25 @@
 
 package org.picketlink.test.idm.config;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.config.JPAStoreConfigurationBuilder;
-import org.picketlink.idm.config.SecurityConfigurationException;
-import org.picketlink.idm.internal.IdentityManagerFactory;
+import org.picketlink.idm.config.*;
+import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
-import org.picketlink.idm.jpa.schema.CredentialObject;
-import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
-import org.picketlink.idm.jpa.schema.IdentityObject;
-import org.picketlink.idm.jpa.schema.PartitionObject;
-import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
-import org.picketlink.idm.jpa.schema.RelationshipObject;
-import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
-import org.picketlink.idm.model.Grant;
-import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.GroupMembership;
-import org.picketlink.idm.model.GroupRole;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleGroup;
-import org.picketlink.idm.model.SimpleRole;
-import org.picketlink.idm.model.SimpleUser;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.jpa.schema.*;
+import org.picketlink.idm.model.*;
 import org.picketlink.test.idm.relationship.CustomRelationship;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * <p>
@@ -176,91 +158,90 @@ public class JPAIdentityStoreConfigurationTestCase extends
 
     @Test
     public void failFeatureNotSupportedWhenCredentialClassesNotProvided() {
-        // IdentityConfiguration config = new IdentityConfiguration();
-        //
-        // JPAIdentityStoreConfiguration jpaConfig = createMinimalConfiguration();
-        //
-        // jpaConfig.setCredentialClass(null);
-        //
-        // addContextInitializers(jpaConfig);
-        // config.addConfig(jpaConfig);
-        //
-        // IdentityManager identityManager = createIdentityManager(config);
-        //
-        // User user = new SimpleUser("someUser");
-        //
-        // identityManager.add(user);
-        //
-        // Password password = new Password("123");
-        //
-        // try {
-        // identityManager.updateCredential(user, password);
-        // fail();
-        // } catch (SecurityConfigurationException sce) {
-        // assertTrue(sce.getMessage().toLowerCase().contains("[credential.update]"));
-        // }
-        //
-        // config = new IdentityConfiguration();
-        //
-        // jpaConfig = createMinimalConfiguration();
-        //
-        // jpaConfig.setCredentialClass(CredentialObject.class);
-        // jpaConfig.setCredentialAttributeClass(null);
-        //
-        // addContextInitializers(jpaConfig);
-        // config.addConfig(jpaConfig);
-        //
-        // identityManager = createIdentityManager(config);
-        //
-        // try {
-        // identityManager.updateCredential(user, password);
-        // fail();
-        // } catch (OperationNotSupportedException one) {
-        // assertTrue(one.getFeatureGroup().equals(FeatureGroup.credential));
-        // assertTrue(one.getFeatureOperation().equals(FeatureOperation.update));
-        // } catch (Exception e) {
-        // fail();
-        // }
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        JPAStoreConfigurationBuilder jpaConfig = createMinimalConfiguration(builder);
+
+        jpaConfig.credentialClass(null);
+
+        addContextInitializers(jpaConfig);
+
+        IdentityManager identityManager = createIdentityManager(builder.build());
+
+        User user = new SimpleUser("someUser");
+
+        identityManager.add(user);
+
+        Password password = new Password("123");
+
+        try {
+        identityManager.updateCredential(user, password);
+        fail();
+        } catch (SecurityConfigurationException sce) {
+        assertTrue(sce.getMessage().toLowerCase().contains("[credential.update]"));
+        }
+
+        builder = new IdentityConfigurationBuilder();
+
+        jpaConfig = createMinimalConfiguration(builder);
+
+        jpaConfig.credentialClass(CredentialObject.class);
+        jpaConfig.credentialAttributeClass(null);
+
+        addContextInitializers(jpaConfig);
+
+        identityManager = createIdentityManager(builder.build());
+
+        try {
+        identityManager.updateCredential(user, password);
+        fail();
+        } catch (OperationNotSupportedException one) {
+        assertTrue(one.getFeatureGroup().equals(FeatureGroup.credential));
+        assertTrue(one.getFeatureOperation().equals(FeatureSet.FeatureOperation.update));
+        } catch (Exception e) {
+        fail();
+        }
     }
 
     @Test
     public void failIdentityClassNotProvided() {
-        // IdentityConfiguration config = new IdentityConfiguration();
-        //
-        // JPAIdentityStoreConfiguration jpaConfig = new JPAIdentityStoreConfiguration();
-        //
-        // addContextInitializers(jpaConfig);
-        // config.addConfig(jpaConfig);
-        //
-        // try {
-        // createIdentityManager(config);
-        // fail();
-        // } catch (SecurityConfigurationException sce) {
-        // assertTrue(sce.getMessage().toLowerCase().contains("identityclass not set"));
-        // } catch (Exception e) {
-        // fail();
-        // }
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        JPAStoreConfigurationBuilder jpaConfig = createMinimalConfiguration(builder);
+
+        jpaConfig.identityClass(null);
+
+        addContextInitializers(jpaConfig);
+
+        try {
+        createIdentityManager(builder.build());
+        fail();
+        } catch (SecurityConfigurationException sce) {
+        assertTrue(sce.getMessage().toLowerCase().contains("identityclass not set"));
+        } catch (Exception e) {
+        fail();
+        }
     }
 
     @Test
     public void failPartitionClassNotProvided() {
-        // IdentityConfiguration config = new IdentityConfiguration();
-        //
-        // JPAIdentityStoreConfiguration jpaConfig = new JPAIdentityStoreConfiguration();
-        //
-        // jpaConfig.setIdentityClass(IdentityObject.class);
-        //
-        // addContextInitializers(jpaConfig);
-        // config.addConfig(jpaConfig);
-        //
-        // try {
-        // createIdentityManager(config);
-        // fail();
-        // } catch (SecurityConfigurationException sce) {
-        // assertTrue(sce.getMessage().toLowerCase().contains("partitionclass not set"));
-        // } catch (Exception e) {
-        // fail();
-        // }
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        JPAStoreConfigurationBuilder jpaConfig = createMinimalConfiguration(builder);
+
+        jpaConfig.identityClass(IdentityObject.class);
+        jpaConfig.partitionClass(null);
+
+        addContextInitializers(jpaConfig);
+
+        try {
+        createIdentityManager(builder.build());
+        fail();
+        } catch (SecurityConfigurationException sce) {
+        assertTrue(sce.getMessage().toLowerCase().contains("partitionclass not set"));
+        } catch (Exception e) {
+        fail();
+        }
     }
 
     @Override
@@ -287,12 +268,6 @@ public class JPAIdentityStoreConfigurationTestCase extends
         jpaConfig.supportRelationshipType(CustomRelationship.class);
 
         return jpaConfig;
-    }
-
-    @Override
-    protected IdentityManager createIdentityManager(IdentityConfiguration config) {
-        IdentityManagerFactory factory = new IdentityManagerFactory(config);
-        return factory.createIdentityManager();
     }
 
     @Override

@@ -26,14 +26,20 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.picketbox.test.ldap.AbstractLDAPTest;
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPStoreConfigurationBuilder;
-import org.picketlink.idm.internal.IdentityManagerFactory;
+import org.picketlink.idm.config.SecurityConfigurationException;
+import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleRole;
+import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.User;
+import org.picketlink.test.idm.relationship.CustomRelationship;
 
 /**
  * <p>
@@ -85,44 +91,40 @@ public class LDAPIdentityStoreConfigurationTestCase extends
     @Override
     @Test
     public void failFeatureNotSupportedCustomRelationship() {
-        // IdentityConfiguration config = new IdentityConfiguration();
-        //
-        // LDAPIdentityStoreConfiguration storeConfig = createMinimalConfiguration();
-        //
-        // storeConfig.getFeatureSet().setSupportsCustomRelationships(true);
-        //
-        // config.addConfig(storeConfig);
-        //
-        // IdentityManager identityManager = createIdentityManager(config);
-        //
-        // User user = new SimpleUser("someUser");
-        //
-        // identityManager.add(user);
-        //
-        // Role role = new SimpleRole("someRole");
-        //
-        // identityManager.add(role);
-        //
-        // CustomRelationship customRelationship = new CustomRelationship();
-        //
-        // customRelationship.setIdentityTypeA(user);
-        // customRelationship.setIdentityTypeB(role);
-        //
-        // try {
-        // identityManager.add(customRelationship);
-        //
-        // fail();
-        // } catch (IdentityManagementException ime) {
-        // if (SecurityConfigurationException.class.isInstance(ime.getCause())) {
-        // SecurityConfigurationException sce = (SecurityConfigurationException) ime.getCause();
-        //
-        // assertTrue(sce.getMessage().contains(CustomRelationship.class.getName()));
-        // } else {
-        // fail();
-        // }
-        // } catch (Exception e) {
-        // fail();
-        // }
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        LDAPStoreConfigurationBuilder storeConfig = createMinimalConfiguration(builder);
+
+        IdentityManager identityManager = createIdentityManager(builder.build());
+
+        User user = new SimpleUser("someUser");
+
+        identityManager.add(user);
+
+        Role role = new SimpleRole("someRole");
+
+        identityManager.add(role);
+
+        CustomRelationship customRelationship = new CustomRelationship();
+
+        customRelationship.setIdentityTypeA(user);
+        customRelationship.setIdentityTypeB(role);
+
+        try {
+        identityManager.add(customRelationship);
+
+        fail();
+        } catch (IdentityManagementException ime) {
+        if (SecurityConfigurationException.class.isInstance(ime.getCause())) {
+        SecurityConfigurationException sce = (SecurityConfigurationException) ime.getCause();
+
+        assertTrue(sce.getMessage().contains(CustomRelationship.class.getName()));
+        } else {
+        fail();
+        }
+        } catch (Exception e) {
+        fail();
+        }
     }
 
     @Override
@@ -142,12 +144,6 @@ public class LDAPIdentityStoreConfigurationTestCase extends
                         FeatureGroup.role, FeatureGroup.attribute, FeatureGroup.relationship, FeatureGroup.credential);
 
         return storeConfig;
-    }
-
-    @Override
-    protected IdentityManager createIdentityManager(IdentityConfiguration config) {
-        IdentityManagerFactory factory = new IdentityManagerFactory(config);
-        return factory.createIdentityManager();
     }
 
 }

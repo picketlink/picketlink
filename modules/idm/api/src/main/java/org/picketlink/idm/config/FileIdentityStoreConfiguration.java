@@ -32,7 +32,7 @@ import org.picketlink.idm.spi.ContextInitializer;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class FileIdentityStoreConfiguration extends BaseAbstractStoreConfiguration<FileIdentityStoreConfiguration> {
+public class FileIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
 
     private int asyncThreadPool = 5;
     private boolean asyncWrite = false;

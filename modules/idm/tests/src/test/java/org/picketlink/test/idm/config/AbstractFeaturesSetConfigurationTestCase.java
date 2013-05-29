@@ -44,6 +44,7 @@ import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
+import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Group;
@@ -701,7 +702,9 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
     protected abstract T createMinimalConfiguration(IdentityConfigurationBuilder builder);
 
-    protected abstract IdentityManager createIdentityManager(IdentityConfiguration config);
+    protected IdentityManager createIdentityManager(IdentityConfiguration config) {
+        return new IdentityManagerFactory(config).createIdentityManager();
+    }
 
     protected void performGetCreateRemoveIdentityType(IdentityType identityType, IdentityManager identityManager) {
         IdentityType storedType = getIdentityType(identityType, identityManager);

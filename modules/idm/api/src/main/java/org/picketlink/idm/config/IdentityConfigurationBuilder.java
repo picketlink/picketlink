@@ -50,8 +50,9 @@ public class IdentityConfigurationBuilder implements IdentityConfigurationChildB
      */
     public IdentityConfigurationBuilder(IdentityConfiguration from) {
         this();
+        //TODO: must be able to read custom identity stores from the configuration.
         this.identityStoresConfigurationBuilder.readFrom(new IdentityStoresConfiguration(from.getConfiguredStores(), from
-                .getStoreFactory()));
+                .getStoreFactory(), null));
         this.securityContextFactory = from.getSecurityContextFactory();
     }
 
@@ -67,7 +68,7 @@ public class IdentityConfigurationBuilder implements IdentityConfigurationChildB
         IdentityStoresConfiguration storesConfiguration = this.identityStoresConfigurationBuilder.create();
 
         return new IdentityConfiguration(storesConfiguration.getConfigurations(), storesConfiguration.getStoreFactory(),
-                this.securityContextFactory);
+                this.securityContextFactory, storesConfiguration.getIdentityStores());
     }
 
     @Override

@@ -21,7 +21,9 @@ package org.picketlink.idm.config;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
+import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContextFactory;
 import org.picketlink.idm.spi.StoreFactory;
 
@@ -42,10 +44,13 @@ public class IdentityConfiguration {
     private List<IdentityStoreConfiguration> configuredStores = new ArrayList<IdentityStoreConfiguration>();
     private SecurityContextFactory securityContextFactory;
     private StoreFactory storeFactory;
+    private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> additionalIdentityStores;
 
     IdentityConfiguration(List<IdentityStoreConfiguration> storesConfiguration, StoreFactory storeFactory,
-            SecurityContextFactory securityContextFactory) {
+            SecurityContextFactory securityContextFactory,
+            Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> additionalIdentityStores) {
         this.configuredStores.addAll(storesConfiguration);
+        this.additionalIdentityStores = additionalIdentityStores;
         this.storeFactory = storeFactory;
         this.securityContextFactory = securityContextFactory;
     }
@@ -59,6 +64,17 @@ public class IdentityConfiguration {
      */
     public List<IdentityStoreConfiguration> getConfiguredStores() {
         return Collections.unmodifiableList(this.configuredStores);
+    }
+
+    /**
+     * <p>
+     * Returns any additional mapping for identity stores.
+     * </p>
+     *
+     * @return
+     */
+    public Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> getAdditionalIdentityStores() {
+        return Collections.unmodifiableMap(this.additionalIdentityStores);
     }
 
     public StoreFactory getStoreFactory() {
