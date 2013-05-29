@@ -17,12 +17,17 @@
  */
 package org.picketlink.test.identity.federation.api.saml.v2;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.PublicKey;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 
 import javax.xml.crypto.dsig.SignatureMethod;
 
@@ -46,6 +51,7 @@ import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Signatures related unit test cases
@@ -225,11 +231,6 @@ public class SignatureValidationUnitTestCase {
 
         // The client re-validates the signature.
         assertTrue("Signature is valid:", XMLSignatureUtil.validate(validatingDoc, kp.getPublic()));
-
-        /*
-         * JAXBElement<ResponseType> jaxbresponseType = (JAXBElement<ResponseType>) binder.unmarshal(readDoc); responseType =
-         * jaxbresponseType.getValue(); assertNotNull(responseType);
-         */
     }
 
     /**
@@ -248,5 +249,69 @@ public class SignatureValidationUnitTestCase {
 
         boolean valid = SignatureUtil.validate(arbitContent.getBytes(), sigVal, kp.getPublic());
         assertTrue(valid);
+    }
+
+    @Test
+    public void testX509DataInSignedInfo() throws Exception{
+        SAML2Request saml2Request = new SAML2Request();
+        String id = IDGenerator.create("ID_");
+        String assertionConsumerURL = "http://sp";
+        String destination = "http://idp";
+        String issuerValue = "http://sp";
+        AuthnRequestType authnRequest = saml2Request.createAuthnRequestType(id, assertionConsumerURL, destination, issuerValue);
+
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
+        KeyPair kp = kpg.genKeyPair();
+        PublicKey publicKey = kp.getPublic();
+
+        X509Certificate x509 = getCertificate();
+
+        SAML2Signature ss = new SAML2Signature();
+        ss.setSignatureMethod(SignatureMethod.DSA_SHA1);
+        ss.setX509Certificate(x509);
+        Document signedDoc = ss.sign(authnRequest, kp);
+
+        //Ensure that we have the certificate in key info
+        NodeList x509DataList = signedDoc.getElementsByTagName("dsig:X509Data");
+        assertEquals(1, x509DataList.getLength());
+
+        Element x509Data = (Element) x509DataList.item(0);
+
+        assertTrue(x509Data != null);
+
+        Logger.getLogger(SignatureValidationUnitTestCase.class).debug("Signed Doc:" + DocumentUtil.asString(signedDoc));
+
+        JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(signedDoc));
+
+        // Validate the signature
+        boolean isValid = XMLSignatureUtil.validate(signedDoc, kp.getPublic());
+        assertTrue(isValid);
+    }
+
+    private X509Certificate getCertificate() throws Exception {
+        String certificateString = "MIICQDCCAakCBEeNB0swDQYJKoZIhvcNAQEEBQAwZzELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNh\n"
+                + "bGlmb3JuaWExFDASBgNVBAcTC1NhbnRhIENsYXJhMQwwCgYDVQQKEwNTdW4xEDAOBgNVBAsTB09w\n"
+                + "ZW5TU08xDTALBgNVBAMTBHRlc3QwHhcNMDgwMTE1MTkxOTM5WhcNMTgwMTEyMTkxOTM5WjBnMQsw\n"
+                + "CQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEUMBIGA1UEBxMLU2FudGEgQ2xhcmExDDAK\n"
+                + "BgNVBAoTA1N1bjEQMA4GA1UECxMHT3BlblNTTzENMAsGA1UEAxMEdGVzdDCBnzANBgkqhkiG9w0B\n"
+                + "AQEFAAOBjQAwgYkCgYEArSQc/U75GB2AtKhbGS5piiLkmJzqEsp64rDxbMJ+xDrye0EN/q1U5Of+\n"
+                + "RkDsaN/igkAvV1cuXEgTL6RlafFPcUX7QxDhZBhsYF9pbwtMzi4A4su9hnxIhURebGEmxKW9qJNY\n"
+                + "Js0Vo5+IgjxuEWnjnnVgHTs1+mq5QYTA7E6ZyL8CAwEAATANBgkqhkiG9w0BAQQFAAOBgQB3Pw/U\n"
+                + "QzPKTPTYi9upbFXlrAKMwtFf2OW4yvGWWvlcwcNSZJmTJ8ARvVYOMEVNbsT4OFcfu2/PeYoAdiDA\n"
+                + "cGy/F2Zuj8XJJpuQRSE6PtQqBuDEHjjmOQJ0rV/r8mO1ZCtHRhpZ5zYRjhRC9eCbjx9VrFax0JDC\n" + "/FfwWigmrW0Y0Q==";
+        X509Certificate cert = null;
+        StringBuilder builder = new StringBuilder();
+        builder.append("-----BEGIN CERTIFICATE-----\n").append(certificateString).append("\n-----END CERTIFICATE-----");
+
+        String derFormattedString = builder.toString();
+
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        ByteArrayInputStream bais = new ByteArrayInputStream(derFormattedString.getBytes());
+
+        while (bais.available() > 0) {
+            cert = (X509Certificate) cf.generateCertificate(bais);
+        }
+
+        return cert;
     }
 }

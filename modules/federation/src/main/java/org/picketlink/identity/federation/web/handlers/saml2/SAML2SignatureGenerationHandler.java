@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.common.exceptions.ConfigurationException;
@@ -87,6 +88,7 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
 
         // Get the Key Pair
         KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
+        X509Certificate x509Certificate = (X509Certificate) this.handlerChainConfig.getParameter(GeneralConstants.X509CERTIFICATE);
 
         if (keypair == null) {
             logger.samlHandlerKeyPairNotFound();
@@ -95,7 +97,7 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
 
         if (response.isPostBindingForResponse()) {
             logger.trace("Going to sign response document with POST binding type");
-            signPost(samlDocument, keypair);
+            signPost(samlDocument, keypair, x509Certificate);
         } else {
             logger.trace("Going to sign response document with REDIRECT binding type");
             String destinationQueryString = signRedirect(samlDocument, response.getRelayState(), keypair,
@@ -104,14 +106,18 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
         }
     }
 
-    private void signPost(Document samlDocument, KeyPair keypair) throws ProcessingException {
+    private void signPost(Document samlDocument, KeyPair keypair, X509Certificate x509Certificate) throws ProcessingException {
         SAML2Signature samlSignature = new SAML2Signature();
         Node nextSibling = samlSignature.getNextSiblingOfIssuer(samlDocument);
         samlSignature.setNextSibling(nextSibling);
+        if(x509Certificate != null){
+            samlSignature.setX509Certificate(x509Certificate);
+        }
         samlSignature.signSAMLDocument(samlDocument, keypair);
     }
 
-    private String signRedirect(Document samlDocument, String relayState, KeyPair keypair, boolean willSendRequest)
+    private String signRedirect(Document samlDocument, String relayState, KeyPair keypair,
+                                boolean willSendRequest)
             throws ProcessingException {
         try {
             String samlMessage = DocumentUtil.getDocumentAsString(samlDocument);

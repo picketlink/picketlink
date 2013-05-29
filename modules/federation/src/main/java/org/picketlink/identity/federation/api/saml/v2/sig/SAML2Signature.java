@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
+import java.security.cert.X509Certificate;
 
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.DigestMethod;
@@ -67,6 +68,11 @@ public class SAML2Signature {
 
     private Node sibling;
 
+    /**
+     * Set the X509Certificate if X509Data is needed in signed info
+     */
+    private X509Certificate x509Certificate;
+
     public String getSignatureMethod() {
         return signatureMethod;
     }
@@ -97,6 +103,19 @@ public class SAML2Signature {
         if (!val) {
             XMLSignatureUtil.setIncludeKeyInfoInSignature(false);
         }
+    }
+
+    /**
+     * Set the {@link X509Certificate} if you desire
+     * to have the SignedInfo have X509 Data
+     *
+     * This method needs to be called before any of the sign methods.
+     *
+     * @param x509Certificate
+     * @since v2.5.0
+     */
+    public void setX509Certificate(X509Certificate x509Certificate) {
+        this.x509Certificate = x509Certificate;
     }
 
     /**
@@ -182,6 +201,10 @@ public class SAML2Signature {
             dto.setSignatureMethod(signatureMethod);
             dto.setReferenceURI(referenceURI);
             dto.setNextSibling(sibling);
+
+            if(x509Certificate != null){
+                dto.setX509Certificate(x509Certificate);
+            }
 
             return XMLSignatureUtil.sign(dto);
         }
@@ -278,6 +301,22 @@ public class SAML2Signature {
     }
 
     /**
+     * Given a {@link Document}, find the {@link Node} which is the sibling of the Issuer element
+     * @param doc
+     * @return
+     */
+    public Node getNextSiblingOfIssuer(Document doc) {
+        // Find the sibling of Issuer
+        NodeList nl = doc.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get());
+        if (nl.getLength() > 0) {
+            Node issuer = nl.item(0);
+
+            return issuer.getNextSibling();
+        }
+        return null;
+    }
+
+    /**
      * <p>
      * Sets the IDness of the ID attribute. Santuario 1.5.1 does not assumes IDness based on attribute names anymore. This
      * method should be called before signing/validating a saml document.
@@ -288,7 +327,7 @@ public class SAML2Signature {
     private void configureIdAttribute(Document document) {
         // Estabilish the IDness of the ID attribute.
         document.getDocumentElement().setIdAttribute(ID_ATTRIBUTE_NAME, true);
-        
+
         NodeList nodes = document.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(),
                 JBossSAMLConstants.ASSERTION.get());
 
@@ -298,16 +337,5 @@ public class SAML2Signature {
                 ((Element) n).setIdAttribute(ID_ATTRIBUTE_NAME, true);
             }
         }
-    }
-
-    public Node getNextSiblingOfIssuer(Document doc) {
-        // Find the sibling of Issuer
-        NodeList nl = doc.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get());
-        if (nl.getLength() > 0) {
-            Node issuer = nl.item(0);
-
-            return issuer.getNextSibling();
-        }
-        return null;
     }
 }
