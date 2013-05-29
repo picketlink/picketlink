@@ -3,18 +3,13 @@ package org.picketlink.idm.internal;
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Tier;
-import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.SecurityContextFactory;
 import org.picketlink.idm.spi.StoreFactory;
@@ -57,14 +52,6 @@ public class IdentityManagerFactory {
             this.storeFactory = new DefaultStoreFactory(identityConfig);
         } else {
             this.storeFactory = identityConfig.getStoreFactory();
-        }
-
-        if (identityConfig.getIdentityStores() != null) {
-            Set<Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>>> entrySet = identityConfig.getIdentityStores().entrySet();
-
-            for (Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> entry : entrySet) {
-                this.storeFactory.mapIdentityConfiguration(entry.getKey(), (Class<? extends IdentityStore<?>>) entry.getValue());
-            }
         }
 
         LOGGER.identityManagerBootstrapping();

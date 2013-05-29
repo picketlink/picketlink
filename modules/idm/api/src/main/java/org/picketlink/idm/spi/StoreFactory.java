@@ -42,16 +42,6 @@ public interface StoreFactory {
     <T extends IdentityStoreConfiguration> IdentityStore<T> createIdentityStore(T config, SecurityContext context);
 
     /**
-     * Maps specific implementations of IdentityStoreConfiguration to a corresponding
-     * IdentityStore implementation.
-     *
-     * @param configClass
-     * @param storeClass
-     */
-    void mapIdentityConfiguration(Class<? extends IdentityStoreConfiguration> configClass,
-            Class<? extends IdentityStore<?>> storeClass);
-
-    /**
      *
      * @param id
      * @return

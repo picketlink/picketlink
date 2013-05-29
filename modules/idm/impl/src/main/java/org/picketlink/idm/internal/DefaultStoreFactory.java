@@ -100,6 +100,7 @@ public class DefaultStoreFactory implements StoreFactory {
 
             config.init();
 
+            // let's configure the provided partitions
             for (String realm : config.getRealms()) {
                 getConfigs(realmStores, realm).add(config);
             }
@@ -112,19 +113,19 @@ public class DefaultStoreFactory implements StoreFactory {
             if (config.getRealms().isEmpty() && config.getTiers().isEmpty()) {
                 getConfigs(realmStores, Realm.DEFAULT_REALM).add(config);
             }
+
+            // let's add any additional/custom store
+            if (identityConfig.getAdditionalIdentityStores() != null) {
+                Set<Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>>> entrySet = identityConfig.getAdditionalIdentityStores().entrySet();
+
+                for (Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> entry : entrySet) {
+                    this.identityConfigMap.put(entry.getKey(), (Class<? extends IdentityStore<?>>) entry.getValue());
+                }
+            }
         }
     }
 
-    private Set<IdentityStoreConfiguration> getConfigs(Map<String, Set<IdentityStoreConfiguration>> stores, String key) {
-        if (stores.containsKey(key)) {
-            return stores.get(key);
-        } else {
-            Set<IdentityStoreConfiguration> configs = new HashSet<IdentityStoreConfiguration>();
-            stores.put(key, configs);
-            return configs;
-        }
-    }
-
+    @Override
     public Realm getRealm(String id) {
         if (configuredRealms.containsKey(id)) {
             return configuredRealms.get(id);
@@ -137,6 +138,7 @@ public class DefaultStoreFactory implements StoreFactory {
         }
     }
 
+    @Override
     public Tier getTier(String id) {
         if (configuredTiers.containsKey(id)) {
             return configuredTiers.get(id);
@@ -177,15 +179,46 @@ public class DefaultStoreFactory implements StoreFactory {
     }
 
     @Override
-    public void mapIdentityConfiguration(Class<? extends IdentityStoreConfiguration> configClass,
-            Class<? extends IdentityStore<?>> storeClass) {
-        this.identityConfigMap.put(configClass, (Class<? extends IdentityStore<?>>) storeClass);
-    }
-
-    @Override
     public boolean isFeatureSupported(Partition partition, FeatureGroup feature, FeatureOperation operation,
             Class<? extends Relationship> relationshipClass) {
         return lookupConfigForFeature(partition, feature, operation, relationshipClass) != null;
+    }
+
+    @Override
+    public IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature, FeatureOperation operation) {
+        return getStoreForFeature(context, feature, operation, null);
+    }
+
+    @Override
+    public IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature, FeatureOperation operation,
+            Class<? extends Relationship> relationshipClass) {
+        if (Realm.class.isInstance(context.getPartition())) {
+            Realm realm = (Realm) context.getPartition();
+            if (!realmStores.containsKey(realm.getId())) {
+                LOGGER.identityManagerRealmNotConfigured(realm.getId());
+                throw MESSAGES.storeConfigRealmNotConfigured(realm.getId());
+            }
+        } else if (Tier.class.isInstance(context.getPartition())) {
+            Tier tier = (Tier) context.getPartition();
+            if (!tierStores.containsKey(tier.getId())) {
+                LOGGER.identityManagerTierNotConfigured(tier.getId());
+                throw MESSAGES.storeConfigTierNotConfigured(tier.getId());
+            }
+        }
+
+        IdentityStoreConfiguration config = lookupConfigForFeature(context.getPartition(), feature, operation,
+                relationshipClass);
+
+        final IdentityStore<? extends IdentityStoreConfiguration> store = createIdentityStore(config, context);
+
+        for (ContextInitializer initializer : config.getContextInitializers()) {
+            initializer.initContextForStore(context, store);
+        }
+
+        LOGGER.debugf("Performing operation [%s.%s] on IdentityStore [%s] using Partition [%s]", feature, operation, store,
+                context.getPartition());
+
+        return store;
     }
 
     private IdentityStoreConfiguration lookupConfigForFeature(Partition partition, FeatureGroup feature,
@@ -234,40 +267,14 @@ public class DefaultStoreFactory implements StoreFactory {
         return config;
     }
 
-    @Override
-    public IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature, FeatureOperation operation) {
-        return getStoreForFeature(context, feature, operation, null);
+    private Set<IdentityStoreConfiguration> getConfigs(Map<String, Set<IdentityStoreConfiguration>> stores, String key) {
+        if (stores.containsKey(key)) {
+            return stores.get(key);
+        } else {
+            Set<IdentityStoreConfiguration> configs = new HashSet<IdentityStoreConfiguration>();
+            stores.put(key, configs);
+            return configs;
+        }
     }
 
-    @Override
-    public IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature, FeatureOperation operation,
-            Class<? extends Relationship> relationshipClass) {
-        if (Realm.class.isInstance(context.getPartition())) {
-            Realm realm = (Realm) context.getPartition();
-            if (!realmStores.containsKey(realm.getId())) {
-                LOGGER.identityManagerRealmNotConfigured(realm.getId());
-                throw MESSAGES.storeConfigRealmNotConfigured(realm.getId());
-            }
-        } else if (Tier.class.isInstance(context.getPartition())) {
-            Tier tier = (Tier) context.getPartition();
-            if (!tierStores.containsKey(tier.getId())) {
-                LOGGER.identityManagerTierNotConfigured(tier.getId());
-                throw MESSAGES.storeConfigTierNotConfigured(tier.getId());
-            }
-        }
-
-        IdentityStoreConfiguration config = lookupConfigForFeature(context.getPartition(), feature, operation,
-                relationshipClass);
-
-        final IdentityStore<? extends IdentityStoreConfiguration> store = createIdentityStore(config, context);
-
-        for (ContextInitializer initializer : config.getContextInitializers()) {
-            initializer.initContextForStore(context, store);
-        }
-
-        LOGGER.debugf("Performing operation [%s.%s] on IdentityStore [%s] using Partition [%s]", feature, operation, store,
-                context.getPartition());
-
-        return store;
-    }
 }

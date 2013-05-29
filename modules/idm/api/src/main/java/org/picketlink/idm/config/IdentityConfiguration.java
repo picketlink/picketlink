@@ -44,20 +44,15 @@ public class IdentityConfiguration {
     private List<IdentityStoreConfiguration> configuredStores = new ArrayList<IdentityStoreConfiguration>();
     private SecurityContextFactory securityContextFactory;
     private StoreFactory storeFactory;
-    private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores;
+    private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> additionalIdentityStores;
 
     IdentityConfiguration(List<IdentityStoreConfiguration> storesConfiguration, StoreFactory storeFactory,
-            SecurityContextFactory securityContextFactory) {
+            SecurityContextFactory securityContextFactory,
+            Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> additionalIdentityStores) {
         this.configuredStores.addAll(storesConfiguration);
+        this.additionalIdentityStores = additionalIdentityStores;
         this.storeFactory = storeFactory;
         this.securityContextFactory = securityContextFactory;
-    }
-
-    public IdentityConfiguration(List<IdentityStoreConfiguration> configurations, StoreFactory storeFactory,
-            SecurityContextFactory securityContextFactory,
-            Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores) {
-        this(configurations, storeFactory, securityContextFactory);
-        this.identityStores = identityStores;
     }
 
     /**
@@ -71,16 +66,23 @@ public class IdentityConfiguration {
         return Collections.unmodifiableList(this.configuredStores);
     }
 
+    /**
+     * <p>
+     * Returns any additional mapping for identity stores.
+     * </p>
+     *
+     * @return
+     */
+    public Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> getAdditionalIdentityStores() {
+        return Collections.unmodifiableMap(this.additionalIdentityStores);
+    }
+
     public StoreFactory getStoreFactory() {
         return this.storeFactory;
     }
 
     public SecurityContextFactory getSecurityContextFactory() {
         return this.securityContextFactory;
-    }
-
-    public Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> getIdentityStores() {
-        return this.identityStores;
     }
 
 }
