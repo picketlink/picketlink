@@ -40,20 +40,13 @@ import org.picketlink.idm.jpa.annotations.CredentialType;
 import org.picketlink.idm.jpa.annotations.CredentialValue;
 import org.picketlink.idm.jpa.annotations.Discriminator;
 import org.picketlink.idm.jpa.annotations.EffectiveDate;
-import org.picketlink.idm.jpa.annotations.Email;
 import org.picketlink.idm.jpa.annotations.Enabled;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
-import org.picketlink.idm.jpa.annotations.FirstName;
-import org.picketlink.idm.jpa.annotations.GroupPath;
-import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.Identity;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.IdentityName;
 import org.picketlink.idm.jpa.annotations.IdentityPartition;
-import org.picketlink.idm.jpa.annotations.LastName;
-import org.picketlink.idm.jpa.annotations.LoginName;
-import org.picketlink.idm.jpa.annotations.Parent;
 import org.picketlink.idm.jpa.annotations.RelationshipClass;
 import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
 import org.picketlink.idm.model.IdentityType;
@@ -253,16 +246,16 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
                 "partition");
 
         // Group properties
-        configureModelProperty(PropertyType.GROUP_PARENT, Parent.class, identityClass, null, "parentGroup", "parent");
-        configureModelProperty(PropertyType.GROUP_PATH, GroupPath.class, identityClass, null, "groupPath", "path");
+        //configureModelProperty(PropertyType.GROUP_PARENT, Parent.class, identityClass, null, "parentGroup", "parent");
+        //configureModelProperty(PropertyType.GROUP_PATH, GroupPath.class, identityClass, null, "groupPath", "path");
 
         // Agent properties
-        configureModelProperty(PropertyType.AGENT_LOGIN_NAME, LoginName.class, identityClass, null, "loginName", "login");
+        //configureModelProperty(PropertyType.AGENT_LOGIN_NAME, LoginName.class, identityClass, null, "loginName", "login");
 
         // User properties
-        configureModelProperty(PropertyType.USER_FIRST_NAME, FirstName.class, identityClass, null, false, "firstName");
-        configureModelProperty(PropertyType.USER_LAST_NAME, LastName.class, identityClass, null, false, "lastName");
-        configureModelProperty(PropertyType.USER_EMAIL, Email.class, identityClass, null, false, "email");
+        //configureModelProperty(PropertyType.USER_FIRST_NAME, FirstName.class, identityClass, null, false, "firstName");
+        //configureModelProperty(PropertyType.USER_LAST_NAME, LastName.class, identityClass, null, false, "lastName");
+        //configureModelProperty(PropertyType.USER_EMAIL, Email.class, identityClass, null, false, "email");
 
         configureAttributes();
     }
@@ -275,7 +268,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     private void configureAttributes() throws SecurityConfigurationException {
         // If an attribute class has been configured, scan it for attribute properties
         if (attributeClass != null) {
-            configureModelProperty(PropertyType.ATTRIBUTE_IDENTITY, Parent.class, attributeClass, identityClass);
+            //configureModelProperty(PropertyType.ATTRIBUTE_IDENTITY, Parent.class, attributeClass, identityClass);
             configureModelProperty(PropertyType.ATTRIBUTE_NAME, AttributeName.class, attributeClass, null, "attributeName",
                     "name");
             configureModelProperty(PropertyType.ATTRIBUTE_TYPE, AttributeType.class, attributeClass, null, "attributeType",
@@ -286,10 +279,10 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
         // Scan for attribute properties in the identity class
         List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
-                .addCriteria(new AnnotatedPropertyCriteria(IDMAttribute.class)).getResultList();
+                .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class)).getResultList();
 
         for (Property<Object> p : props) {
-            String attribName = p.getAnnotatedElement().getAnnotation(IDMAttribute.class).name();
+            String attribName = p.getAnnotatedElement().getAnnotation(AttributeValue.class).name();
 
             if (attributeProperties.containsKey(attribName)) {
                 Property<Object> other = attributeProperties.get(attribName).getAttributeProperty();
@@ -306,15 +299,15 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         if (this.credentialClass != null && this.credentialAttributeClass != null) {
             configureModelProperty(PropertyType.CREDENTIAL_TYPE, CredentialType.class, credentialClass, null);
             configureModelProperty(PropertyType.CREDENTIAL_VALUE, CredentialValue.class, credentialClass, null);
-            configureModelProperty(PropertyType.CREDENTIAL_IDENTITY, Parent.class, credentialClass, null);
+            //configureModelProperty(PropertyType.CREDENTIAL_IDENTITY, Parent.class, credentialClass, null);
             configureModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE, EffectiveDate.class, credentialClass, null);
             configureModelProperty(PropertyType.CREDENTIAL_EXPIRY_DATE, ExpiryDate.class, credentialClass, null);
             configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_NAME, AttributeName.class, credentialAttributeClass,
                     String.class);
             configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_VALUE, AttributeValue.class, credentialAttributeClass,
                     null);
-            configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL, Parent.class, credentialAttributeClass,
-                    credentialClass);
+            //configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL, Parent.class, credentialAttributeClass,
+              //      credentialClass);
         } else {
             LOGGER.jpaConfigDisablingCredentialFeatures();
             removeFeature(FeatureGroup.credential);
@@ -326,7 +319,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
             configureModelProperty(PropertyType.PARTITION_ID, Identifier.class, partitionClass, null, "id", "id");
             configureModelProperty(PropertyType.PARTITION_TYPE, Discriminator.class, partitionClass, null, "type",
                     "partitionType");
-            configureModelProperty(PropertyType.PARTITION_PARENT, Parent.class, partitionClass, null, "parent");
+            //configureModelProperty(PropertyType.PARTITION_PARENT, Parent.class, partitionClass, null, "parent");
         } else {
             LOGGER.jpaConfigDisablingPartitionFeatures();
             removeFeature(FeatureGroup.realm);
@@ -350,16 +343,16 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
                     "identityObject");
             configureModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR, RelationshipDescriptor.class,
                     relationshipIdentityClass, null, "descriptor");
-            configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP, Parent.class, relationshipIdentityClass,
-                    relationshipClass);
+            //configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP, Parent.class, relationshipIdentityClass,
+                 //   relationshipClass);
 
             // Relationship attributes
             configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME, AttributeName.class, relationshipAttributeClass,
                     null, "attributeName", "name");
             configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE, AttributeValue.class, relationshipAttributeClass,
                     null, "attributeValue", "value");
-            configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP, Parent.class, relationshipAttributeClass,
-                    null);
+            //configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP, Parent.class, relationshipAttributeClass,
+                 //   null);
         } else {
             LOGGER.jpaConfigDisablingRelationshipFeatures();
             removeFeature(FeatureGroup.relationship);
