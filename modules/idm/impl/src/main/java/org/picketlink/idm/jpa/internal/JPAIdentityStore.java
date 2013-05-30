@@ -139,6 +139,8 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
 
             updateIdentityTypeAttributes(context, identityType, entity);
 
+            identityType.setPartition(convertPartitionEntityToPartition(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getValue(entity)));
+
             IdentityTypeCreatedEvent event = new IdentityTypeCreatedEvent(identityType);
             event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, entity);
             context.getEventBridge().raiseEvent(event);
