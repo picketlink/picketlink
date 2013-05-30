@@ -55,7 +55,6 @@ public class ApplicationUser {
     private boolean enabled = true;
 
     @ManyToOne
-    @IdentityPartition
     private Application application;
 
     public ApplicationUser() {
