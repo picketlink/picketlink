@@ -18,23 +18,15 @@
 package org.picketlink.idm.model;
 
 import org.picketlink.idm.model.annotation.AttributeProperty;
-<<<<<<< HEAD
-
-/**
- * Represents a Group, which may be used to form collections of other identity objects
-=======
 import org.picketlink.idm.query.QueryParameter;
 
 /**
- * <p>Default {@link IdentityType} implementation  to represent groups.</p>
->>>>>>> 6f08c37545d08cfc6048373a4b2b7bd23a902c60
+ * Represents a Group, which may be used to form collections of other identity objects
  *
  * @author Shane Bryzak
  */
 public class Group extends AbstractIdentityType {
 
-<<<<<<< HEAD
-=======
     private static final long serialVersionUID = -3553832607918448916L;
 
     /**
@@ -54,23 +46,11 @@ public class Group extends AbstractIdentityType {
 
     public static final String PATH_SEPARATOR = "/";
 
->>>>>>> 6f08c37545d08cfc6048373a4b2b7bd23a902c60
     private String name;
     private Group parentGroup;
     private String path;
 
-<<<<<<< HEAD
-    public Group() {
-    }
 
-    public Group(String name) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Error creating SimpleGroup - name cannot be null or empty");
-        }
-
-        this.name = name;
-        this.path = getPath(this);
-=======
     public Group(String name) {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Error creating Group - name cannot be null or empty");
@@ -78,25 +58,17 @@ public class Group extends AbstractIdentityType {
 
         this.name = name;
         this.path = buildPath(this);
->>>>>>> 6f08c37545d08cfc6048373a4b2b7bd23a902c60
     }
 
     public Group(String name, Group parentGroup) {
         if (name == null || name.isEmpty()) {
-<<<<<<< HEAD
-            throw new IllegalArgumentException("Error creating SimpleGroup - name cannot be null or empty");
-=======
             throw new IllegalArgumentException("Error creating Group - name cannot be null or empty");
->>>>>>> 6f08c37545d08cfc6048373a4b2b7bd23a902c60
         }
 
         this.name = name;
         this.parentGroup = parentGroup;
-<<<<<<< HEAD
-        this.path = getPath(this);
-=======
+
         this.path = buildPath(this);
->>>>>>> 6f08c37545d08cfc6048373a4b2b7bd23a902c60
     }
 
     @AttributeProperty
@@ -108,10 +80,7 @@ public class Group extends AbstractIdentityType {
         this.name = name;
     }
 
-<<<<<<< HEAD
-=======
     @AttributeProperty
->>>>>>> 6f08c37545d08cfc6048373a4b2b7bd23a902c60
     public String getPath() {
         return this.path;
     }
@@ -120,7 +89,6 @@ public class Group extends AbstractIdentityType {
         this.path = path;
     }
 
-<<<<<<< HEAD
     private String getPath(Group group) {
         String name = "/" + group.getName();
 
@@ -133,43 +101,14 @@ public class Group extends AbstractIdentityType {
 
     @AttributeProperty
     public Group getParentGroup() {
-        return parentGroup;
-    }
-
-=======
-    @AttributeProperty
-    public Group getParentGroup() {
         return this.parentGroup;
     }
 
     @AttributeProperty
->>>>>>> 6f08c37545d08cfc6048373a4b2b7bd23a902c60
     public void setParentGroup(Group group) {
         this.parentGroup = group;
     }
 
-<<<<<<< HEAD
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-
-        if (!(obj instanceof Group)) {
-            return false;
-        }
-
-        Group other = (Group) obj;
-
-        // FIXME The Partition should also be taken into account
-        return other.getId() != null && this.getId() != null && other.getId().equals(this.getId());
-    }
-=======
     /**
      * <p>Builds the group's path based on an parent group.</p>
      *
@@ -182,7 +121,6 @@ public class Group extends AbstractIdentityType {
         if (parentGroup.getParentGroup() != null) {
             name = buildPath(parentGroup.getParentGroup()) + name;
         }
->>>>>>> 6f08c37545d08cfc6048373a4b2b7bd23a902c60
 
         return name;
     }
