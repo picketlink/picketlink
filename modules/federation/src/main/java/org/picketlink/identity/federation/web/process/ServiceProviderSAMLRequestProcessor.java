@@ -17,24 +17,17 @@
  */
 package org.picketlink.identity.federation.web.process;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Set;
-import java.util.concurrent.locks.Lock;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.util.HTTPRedirectUtil;
@@ -42,6 +35,12 @@ import org.picketlink.identity.federation.web.util.PostBindingUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil.RedirectBindingUtilDestHolder;
 import org.w3c.dom.Document;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Set;
+import java.util.concurrent.locks.Lock;
 
 /**
  * Utility Class to handle processing of an SAML Request Message

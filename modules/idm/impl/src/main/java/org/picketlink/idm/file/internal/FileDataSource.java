@@ -18,10 +18,13 @@
 
 package org.picketlink.idm.file.internal;
 
-import static org.picketlink.idm.IDMLogger.LOGGER;
-import static org.picketlink.idm.file.internal.FileUtils.createFileIfNotExists;
-import static org.picketlink.idm.file.internal.FileUtils.delete;
-import static org.picketlink.idm.file.internal.FileUtils.readObject;
+import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.config.FileIdentityStoreConfiguration;
+import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.Role;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -38,13 +41,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.config.FileIdentityStoreConfiguration;
-import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Realm;
-import org.picketlink.idm.model.Role;
+import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.idm.file.internal.FileUtils.createFileIfNotExists;
+import static org.picketlink.idm.file.internal.FileUtils.delete;
+import static org.picketlink.idm.file.internal.FileUtils.readObject;
 
 /**
  * @author Pedro Silva

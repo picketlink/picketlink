@@ -17,9 +17,8 @@
  */
 package org.picketlink.identity.federation.saml.common;
 
-import java.io.Serializable;
-
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.io.Serializable;
 
 /**
  * SAML AssertionType

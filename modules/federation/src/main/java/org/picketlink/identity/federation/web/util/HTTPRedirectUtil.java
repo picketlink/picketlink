@@ -17,9 +17,8 @@
  */
 package org.picketlink.identity.federation.web.util;
 
-import java.io.IOException;
-
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Utility Class for http/redirect

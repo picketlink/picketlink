@@ -10,7 +10,7 @@ package org.picketlink.idm.config;
 public final class FeatureSet {
 
     public enum FeatureGroup {
-        agent, user, group, role, relationship, attribute, credential, realm, tier
+        identity_type, relationship, attribute, credential, realm, tier
     }
 
     public enum FeatureOperation {

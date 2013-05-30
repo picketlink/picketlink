@@ -17,17 +17,17 @@
  */
 package org.picketlink.scim.client;
 
+import org.picketlink.scim.codec.SCIMParser;
+import org.picketlink.scim.codec.SCIMWriter;
+import org.picketlink.scim.model.v11.SCIMGroups;
+import org.picketlink.scim.model.v11.SCIMUser;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-
-import org.picketlink.scim.codec.SCIMParser;
-import org.picketlink.scim.codec.SCIMWriter;
-import org.picketlink.scim.model.v11.SCIMGroups;
-import org.picketlink.scim.model.v11.SCIMUser;
 
 /**
  * SCIM client class

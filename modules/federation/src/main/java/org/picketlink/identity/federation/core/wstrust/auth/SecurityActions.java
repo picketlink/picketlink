@@ -17,11 +17,11 @@
  */
 package org.picketlink.identity.federation.core.wstrust.auth;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityContextAssociation;
+
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 /**
  * Privileged Blocks

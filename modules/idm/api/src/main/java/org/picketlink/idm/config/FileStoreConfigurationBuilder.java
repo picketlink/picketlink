@@ -62,8 +62,8 @@ public class FileStoreConfigurationBuilder extends
     @Override
     public FileIdentityStoreConfiguration create() {
         return new FileIdentityStoreConfiguration(this.workingDirectory, this.preserveState, this.asyncWrite,
-                this.asyncWriteThreadPool, getSupportedFeatures(), getSupportedRelationships(), getRealms(), getTiers(),
-                getContextInitializers(), getCredentialHandlerProperties(), getCredentialHandlers());
+                this.asyncWriteThreadPool, getSupportedFeatures(), getSupportedRelationships(), getSupportedIdentityTypes(),
+                getRealms(), getTiers(), getContextInitializers(), getCredentialHandlerProperties(), getCredentialHandlers());
     }
 
     @Override

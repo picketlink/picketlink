@@ -18,16 +18,16 @@
 
 package org.picketlink.identity.xmlsec.w3.xmldsig;
 
+import org.picketlink.common.constants.WSTrustConstants;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.Base64;
+
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;
 import java.security.spec.DSAPrivateKeySpec;
 import java.security.spec.DSAPublicKeySpec;
-
-import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.common.util.Base64;
-import org.picketlink.common.constants.WSTrustConstants;
 
 /**
  * <p>

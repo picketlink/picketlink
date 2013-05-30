@@ -18,11 +18,6 @@
 
 package org.picketlink.test.idm.credential;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Calendar;
-import java.util.Date;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
@@ -37,6 +32,11 @@ import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuit
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsFileRelationshipTestSuite;
 import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsRelationshipsTestSuite;
+
+import java.util.Calendar;
+import java.util.Date;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * <p>

@@ -17,13 +17,6 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.util;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import javax.xml.stream.XMLEventReader;
-
 import org.jboss.security.xacml.core.JBossRequestContext;
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResponseType;
@@ -34,11 +27,11 @@ import org.jboss.security.xacml.interfaces.ResponseContext;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.factories.XACMLContextFactory;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.parsers.saml.xacml.SAMLXACMLRequestParser;
-import org.picketlink.common.util.DocumentUtil;
-import org.picketlink.common.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnResponseFactory;
 import org.picketlink.identity.federation.core.saml.v2.factories.SAMLAssertionFactory;
@@ -50,6 +43,12 @@ import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACML
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
 import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
 import org.w3c.dom.Node;
+
+import javax.xml.stream.XMLEventReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Utility associated with SOAP 1.1 Envelope, SAML2 and XACML2

@@ -18,9 +18,6 @@
 
 package org.picketlink.idm.spi;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityCache;
 import org.picketlink.idm.IdentityManager;
@@ -29,6 +26,9 @@ import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.Partition;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Stores security related state for one or more identity management operations

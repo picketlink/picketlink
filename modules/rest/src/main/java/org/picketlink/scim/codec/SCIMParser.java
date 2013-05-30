@@ -17,9 +17,6 @@
  */
 package org.picketlink.scim.codec;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.codehaus.jackson.JsonGenerator.Feature;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.JsonParser;
@@ -28,8 +25,11 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.picketlink.scim.model.v11.SCIMGroups;
 import org.picketlink.scim.model.v11.SCIMResource;
-import org.picketlink.scim.model.v11.ServiceProviderConfiguration;
 import org.picketlink.scim.model.v11.SCIMUser;
+import org.picketlink.scim.model.v11.ServiceProviderConfiguration;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Parser for SCIM

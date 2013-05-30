@@ -19,14 +19,18 @@
 package org.picketlink.idm.model;
 
 import org.picketlink.idm.model.annotation.AttributeProperty;
+<<<<<<< HEAD
+=======
+import org.picketlink.idm.query.QueryParameter;
+>>>>>>> 6f08c37545d08cfc6048373a4b2b7bd23a902c60
 
 /**
- * Represents an external entity that interacts with the application, such as a user
- * or a third party application
+ * <p>Default {@link IdentityType} implementation  to represent agents.</p>
  *
  * @author Shane Bryzak
  */
 public class Agent extends AbstractIdentityType {
+<<<<<<< HEAD
     private static final long serialVersionUID = 2915865002176741632L;
 
     private String loginName;
@@ -35,6 +39,22 @@ public class Agent extends AbstractIdentityType {
         this.loginName = loginName;
     }
 
+=======
+
+    private static final long serialVersionUID = -7418037050013416323L;
+
+    /**
+     *  A query parameter used to set the key value.
+     */
+    public static final QueryParameter LOGIN_NAME = new QueryParameter() {};
+
+    private String loginName;
+
+    public Agent(String loginName) {
+        this.loginName = loginName;
+    }
+
+>>>>>>> 6f08c37545d08cfc6048373a4b2b7bd23a902c60
     @AttributeProperty
     public String getLoginName() {
         return loginName;

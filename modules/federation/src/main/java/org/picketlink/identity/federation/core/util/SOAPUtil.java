@@ -17,10 +17,9 @@
  */
 package org.picketlink.identity.federation.core.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.GeneralSecurityException;
+import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.util.DocumentUtil;
+import org.w3c.dom.Document;
 
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPBody;
@@ -31,10 +30,10 @@ import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 import javax.xml.transform.Source;
-
-import org.picketlink.common.ErrorCodes;
-import org.picketlink.common.util.DocumentUtil;
-import org.w3c.dom.Document;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.GeneralSecurityException;
 
 /**
  * Utility class dealing with SAAJ

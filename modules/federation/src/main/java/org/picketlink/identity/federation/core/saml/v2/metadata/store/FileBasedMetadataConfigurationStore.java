@@ -17,6 +17,24 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.metadata.store;
 
+import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.common.util.StaxUtil;
+import org.picketlink.common.util.StringUtil;
+import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
+import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntityDescriptorParser;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLMetadataWriter;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
+import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
+
+import javax.xml.stream.XMLStreamWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -30,25 +48,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
-
-import javax.xml.stream.XMLStreamWriter;
-
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.ErrorCodes;
-import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntityDescriptorParser;
-import org.picketlink.common.util.StaxParserUtil;
-import org.picketlink.identity.federation.core.saml.v2.writers.SAMLMetadataWriter;
-import org.picketlink.common.util.StaxUtil;
-import org.picketlink.common.util.StringUtil;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
-import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 
 /**
  * File based metadata store that uses the ${user.home}/jbid-store location to persist the data

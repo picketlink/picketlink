@@ -19,14 +19,6 @@
 package org.picketlink.common;
 
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-
-import javax.security.auth.login.LoginException;
-import javax.xml.crypto.dsig.XMLSignatureException;
-import javax.xml.stream.Location;
-import javax.xml.ws.WebServiceException;
-
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
@@ -38,6 +30,13 @@ import org.picketlink.common.exceptions.fed.IssuerNotTrustedException;
 import org.picketlink.common.exceptions.fed.SignatureValidationException;
 import org.picketlink.common.exceptions.fed.WSTrustException;
 import org.w3c.dom.Element;
+
+import javax.security.auth.login.LoginException;
+import javax.xml.crypto.dsig.XMLSignatureException;
+import javax.xml.stream.Location;
+import javax.xml.ws.WebServiceException;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 /**
  * <p>This interface acts as a Logger Facade for PicketLink, from which exceptions and messages should be created or logged.</p>

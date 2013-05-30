@@ -18,11 +18,6 @@
 
 package org.picketlink.config;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.StartElement;
-
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.parsers.AbstractParser;
 import org.picketlink.common.util.StaxParserUtil;
@@ -34,6 +29,11 @@ import org.picketlink.config.federation.parsers.SAMLConfigParser;
 import org.picketlink.config.federation.parsers.STSConfigParser;
 import org.picketlink.config.idm.IDMType;
 import org.picketlink.config.idm.parsers.IDMConfigParser;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.StartElement;
 
 /**
  * Parser to parse the consolidated picketlink.xml

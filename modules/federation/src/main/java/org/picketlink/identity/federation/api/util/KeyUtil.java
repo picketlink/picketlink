@@ -17,21 +17,21 @@
  */
 package org.picketlink.identity.federation.api.util;
 
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.Base64;
+import org.picketlink.common.util.DocumentUtil;
+import org.w3c.dom.Element;
+
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.exceptions.ConfigurationException;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.common.util.DocumentUtil;
-import org.picketlink.common.util.Base64;
-import org.w3c.dom.Element;
 
 /**
  * Utility dealing with PublicKey/Certificates and xml-dsig KeyInfoType

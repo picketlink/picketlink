@@ -17,8 +17,6 @@
  */
 package org.picketlink.identity.federation.core.sts;
 
-import java.util.Map;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
@@ -29,6 +27,8 @@ import org.picketlink.identity.federation.core.sts.registry.FileBasedTokenRegist
 import org.picketlink.identity.federation.core.sts.registry.JPABasedRevocationRegistry;
 import org.picketlink.identity.federation.core.sts.registry.RevocationRegistry;
 import org.picketlink.identity.federation.core.sts.registry.SecurityTokenRegistry;
+
+import java.util.Map;
 
 /**
  * Base Class for instances of {@code SecurityTokenProvider}

@@ -25,13 +25,12 @@
 
 package org.picketlink.identity.federation.saml.v2.ac;
 
-import java.math.BigInteger;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+import java.math.BigInteger;
 
 /**
  * <p>

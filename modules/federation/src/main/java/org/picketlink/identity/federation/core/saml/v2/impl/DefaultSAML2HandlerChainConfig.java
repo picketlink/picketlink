@@ -17,9 +17,9 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.impl;
 
-import java.util.Map;
-
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
+
+import java.util.Map;
 
 /**
  * Default implementation of the handler config

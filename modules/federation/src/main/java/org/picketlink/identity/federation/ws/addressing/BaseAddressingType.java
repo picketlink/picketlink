@@ -17,11 +17,10 @@
  */
 package org.picketlink.identity.federation.ws.addressing;
 
+import javax.xml.namespace.QName;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.xml.namespace.QName;
 
 /**
  * @author Anil.Saldhana@redhat.com

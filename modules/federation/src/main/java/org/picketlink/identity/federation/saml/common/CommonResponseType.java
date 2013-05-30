@@ -17,12 +17,11 @@
  */
 package org.picketlink.identity.federation.saml.common;
 
-import java.io.Serializable;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
 import org.w3c.dom.Element;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.io.Serializable;
 
 /**
  * @author Anil.Saldhana@redhat.com

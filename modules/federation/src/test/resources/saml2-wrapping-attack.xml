@@ -14,8 +14,8 @@
 	</saml:AuthnStatement>
 	<saml:AttributeStatement>
 		<saml:Attribute Name="Role">
-			<saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema"
-				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">SUPER
+            <saml:AttributeValue
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">SUPER
 				MANAGER
 			</saml:AttributeValue>
 		</saml:Attribute>

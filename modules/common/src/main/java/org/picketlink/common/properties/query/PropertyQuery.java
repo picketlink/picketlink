@@ -18,14 +18,14 @@
 
 package org.picketlink.common.properties.query;
 
+import org.picketlink.common.properties.MethodProperty;
+import org.picketlink.common.properties.Properties;
+import org.picketlink.common.properties.Property;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.picketlink.common.properties.MethodProperty;
-import org.picketlink.common.properties.Properties;
-import org.picketlink.common.properties.Property;
 
 /**
  * <p>

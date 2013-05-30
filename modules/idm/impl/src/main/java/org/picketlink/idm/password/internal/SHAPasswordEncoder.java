@@ -18,15 +18,15 @@
 
 package org.picketlink.idm.password.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import org.picketlink.common.util.Base64;
+import org.picketlink.idm.IDMMessages;
+import org.picketlink.idm.password.PasswordEncoder;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.picketlink.common.util.Base64;
-import org.picketlink.idm.IDMMessages;
-import org.picketlink.idm.password.PasswordEncoder;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * <p>

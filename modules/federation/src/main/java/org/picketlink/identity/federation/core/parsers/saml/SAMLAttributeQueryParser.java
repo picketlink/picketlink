@@ -17,19 +17,19 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
+import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.parsers.ParserNamespaceSupport;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
+import org.picketlink.identity.federation.saml.v2.protocol.ArtifactResolveType;
+import org.picketlink.identity.federation.saml.v2.protocol.AttributeQueryType;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
-
-import org.picketlink.common.ErrorCodes;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.parsers.ParserNamespaceSupport;
-import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
-import org.picketlink.common.util.StaxParserUtil;
-import org.picketlink.common.constants.JBossSAMLConstants;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.saml.v2.protocol.ArtifactResolveType;
-import org.picketlink.identity.federation.saml.v2.protocol.AttributeQueryType;
 
 /**
  * Parse the {@link ArtifactResolveType}

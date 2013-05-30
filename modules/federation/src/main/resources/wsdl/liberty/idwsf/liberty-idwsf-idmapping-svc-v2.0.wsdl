@@ -1,15 +1,14 @@
 <?xml version="1.0"?>
 <definitions name="AuthenticationService"
-            targetNamespace="urn:liberty:ims:2006-08"
-            xmlns:tns="urn:liberty:ims:2006-08"
-            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-            xmlns:S="http://schemas.xmlsoap.org/wsdl/soap/"
-            xmlns="http://schemas.xmlsoap.org/wsdl/"
-            xmlns:ims="urn:liberty:ims:2006-08"
-            xmlns:wsaw="http://www.w3.org/2006/02/addressing/wsdl"
-            xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="http://schemas.xmlsoap.org/wsdl/
+             targetNamespace="urn:liberty:ims:2006-08"
+             xmlns:xs="http://www.w3.org/2001/XMLSchema"
+             xmlns:S="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:ims="urn:liberty:ims:2006-08"
+             xmlns:wsaw="http://www.w3.org/2006/02/addressing/wsdl"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://schemas.xmlsoap.org/wsdl/
                                 http://schemas.xmlsoap.org/wsdl/
                 http://www.w3.org/2006/02/addressing/wsdl
                 http://www.w3.org/2006/02/addressing/wsdl/ws-addr-wsdl.xsd">

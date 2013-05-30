@@ -17,20 +17,20 @@
  */
 package org.picketlink.test.identity.federation.core.saml.v2.metadata;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
+import org.picketlink.common.util.StringUtil;
+import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
+import org.picketlink.identity.federation.core.saml.v2.metadata.store.FileBasedMetadataConfigurationStore;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
-import org.picketlink.identity.federation.core.saml.v2.metadata.store.FileBasedMetadataConfigurationStore;
-import org.picketlink.common.util.StringUtil;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Unit test the FileBasedMetadataConfigurationStore

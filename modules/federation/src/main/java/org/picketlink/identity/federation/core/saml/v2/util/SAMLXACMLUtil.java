@@ -17,13 +17,6 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.util;
 
-import java.io.ByteArrayOutputStream;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.transform.stream.StreamResult;
-
 import org.jboss.security.xacml.core.model.context.ObjectFactory;
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResponseType;
@@ -33,6 +26,12 @@ import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.common.util.TransformerUtil;
 import org.w3c.dom.Document;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.transform.stream.StreamResult;
+import java.io.ByteArrayOutputStream;
 
 /**
  * Utility for SAML and XACML

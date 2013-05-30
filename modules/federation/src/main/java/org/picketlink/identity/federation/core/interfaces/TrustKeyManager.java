@@ -17,18 +17,17 @@
  */
 package org.picketlink.identity.federation.core.interfaces;
 
+import org.picketlink.common.exceptions.TrustKeyConfigurationException;
+import org.picketlink.common.exceptions.TrustKeyProcessingException;
+import org.picketlink.config.federation.AuthPropertyType;
+import org.picketlink.config.federation.KeyValueType;
+
+import javax.crypto.SecretKey;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.util.List;
-
-import javax.crypto.SecretKey;
-
-import org.picketlink.common.exceptions.TrustKeyConfigurationException;
-import org.picketlink.common.exceptions.TrustKeyProcessingException;
-import org.picketlink.config.federation.AuthPropertyType;
-import org.picketlink.config.federation.KeyValueType;
 
 /**
  * Key Manager interface used in trust decisions

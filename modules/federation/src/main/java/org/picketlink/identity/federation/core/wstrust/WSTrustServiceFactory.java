@@ -17,11 +17,11 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
-import java.util.Map;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
+
+import java.util.Map;
 
 /**
  * <p>

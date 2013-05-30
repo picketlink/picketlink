@@ -17,18 +17,19 @@
  */
 package org.picketlink.idm.config;
 
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.spi.ContextInitializer;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.FeatureSet.FeatureOperation;
-import org.picketlink.idm.credential.spi.CredentialHandler;
-import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.spi.ContextInitializer;
 
 /**
  * A {@link BaseAbstractStoreConfiguration} for the LDAP store.
@@ -59,10 +60,11 @@ public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
     LDAPIdentityStoreConfiguration(String url, String bindDN, String bindCredential, String baseDN,
             String agentDNSuffix, String userDNSuffix, String roleDNSuffix, String groupDNSuffix,
             Map<String, String> groupMapping, Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
-            Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms,
+            Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships,
+            Map<Class<? extends IdentityType>, Set<FeatureOperation>> supportedIdentityTypes, Set<String> realms,
             Set<String> tiers, List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {
-        super(supportedFeatures, supportedRelationships, realms, tiers, contextInitializers, credentialHandlerProperties,
+        super(supportedFeatures, supportedRelationships, supportedIdentityTypes,realms, tiers, contextInitializers, credentialHandlerProperties,
                 credentialHandlers);
         this.ldapURL = url;
         this.bindDN = bindDN;

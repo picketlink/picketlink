@@ -17,13 +17,6 @@
  */
 package org.picketlink.identity.federation.core.audit;
 
-import java.io.InputStream;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.servlet.ServletContext;
-
 import org.jboss.security.SecurityConstants;
 import org.jboss.security.audit.AuditEvent;
 import org.jboss.security.audit.AuditManager;
@@ -38,6 +31,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.servlet.ServletContext;
+import java.io.InputStream;
 
 /**
  * Helper class to deal with audit

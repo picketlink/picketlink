@@ -18,7 +18,6 @@
 package org.picketlink.test.identity.federation.core.wstrust;
 
 import junit.framework.TestCase;
-
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 

@@ -14,6 +14,11 @@
         <class>org.picketlink.idm.jpa.schema.IdentityObjectAttribute</class>
         <class>org.picketlink.idm.jpa.schema.CredentialObject</class>
         <class>org.picketlink.idm.jpa.schema.CredentialObjectAttribute</class>
+
+        <class>org.picketlink.idm.jpa.schema.sample.Person</class>
+        <class>org.picketlink.idm.jpa.schema.sample.Application</class>
+        <class>org.picketlink.idm.jpa.schema.sample.Address</class>
+        <class>org.picketlink.idm.jpa.schema.sample.ApplicationUser</class>
         
         <properties>
             <property name="hibernate.connection.url" value="jdbc:h2:mem:test"/>

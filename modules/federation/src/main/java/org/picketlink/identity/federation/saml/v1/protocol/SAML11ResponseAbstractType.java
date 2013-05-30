@@ -17,11 +17,10 @@
  */
 package org.picketlink.identity.federation.saml.v1.protocol;
 
-import java.net.URI;
+import org.picketlink.identity.federation.saml.common.CommonResponseType;
 
 import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.picketlink.identity.federation.saml.common.CommonResponseType;
+import java.net.URI;
 
 /**
  * <complexType name="ResponseAbstractType" abstract="true"> <sequence>

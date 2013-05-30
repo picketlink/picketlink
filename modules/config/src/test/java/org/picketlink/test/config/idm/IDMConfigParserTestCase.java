@@ -18,14 +18,6 @@
 
 package org.picketlink.test.config.idm;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
-import java.io.InputStream;
-import java.util.List;
-
 import org.junit.Test;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.config.PicketLinkConfigParser;
@@ -35,6 +27,14 @@ import org.picketlink.config.idm.IDMType;
 import org.picketlink.config.idm.IdentityStoreInvocationContextFactoryType;
 import org.picketlink.config.idm.ObjectType;
 import org.picketlink.config.idm.StoreConfigurationType;
+
+import java.io.InputStream;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * Test for parsing of IDM configuration in picketlink.xml file

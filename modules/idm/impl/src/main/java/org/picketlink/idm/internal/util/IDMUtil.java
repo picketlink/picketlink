@@ -17,14 +17,7 @@
  */
 package org.picketlink.idm.internal.util;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
@@ -37,37 +30,19 @@ import org.picketlink.idm.query.QueryParameter;
 public class IDMUtil {
 
     public static boolean isGroupType(Class<? extends IdentityType> identityType) {
-        return Group.class.isAssignableFrom(identityType);
+        return org.picketlink.idm.model.Group.class.isAssignableFrom(identityType);
     }
 
     public static boolean isRoleType(Class<? extends IdentityType> identityType) {
-        return Role.class.isAssignableFrom(identityType);
+        return org.picketlink.idm.model.Role.class.isAssignableFrom(identityType);
     }
 
     public static boolean isUserType(Class<? extends IdentityType> identityType) {
-        return User.class.isAssignableFrom(identityType);
+        return org.picketlink.idm.model.User.class.isAssignableFrom(identityType);
     }
 
     public static boolean isAgentType(Class<? extends IdentityType> identityType) {
-        return Agent.class.isAssignableFrom(identityType);
-    }
-
-    public static FeatureGroup getFeatureGroup(Class<? extends IdentityType> identityType) {
-        if (User.class.isAssignableFrom(identityType)) {
-            return FeatureGroup.user;
-        } else if (Agent.class.isAssignableFrom(identityType)) {
-            return FeatureGroup.agent;
-        } else if (Group.class.isAssignableFrom(identityType)) {
-            return FeatureGroup.group;
-        } else if (Role.class.isAssignableFrom(identityType)) {
-            return FeatureGroup.role;
-        } else if (IdentityType.class.equals(identityType)) {
-            // TODO: we need this in order to allow queries using the IdentityType. Maybe we should have a more specific feature
-            // group for this cases.
-            return FeatureGroup.user;
-        } else {
-            throw MESSAGES.identityTypeUnsupportedType(identityType);
-        }
+        return org.picketlink.idm.model.Agent.class.isAssignableFrom(identityType);
     }
 
     /**
@@ -79,11 +54,11 @@ public class IDMUtil {
      */
     public static QueryParameter[] getDefaultParamsForSorting(Class<? extends IdentityType> clazz) {
         if (isAgentType(clazz)) {
-            return new QueryParameter[] { Agent.LOGIN_NAME };
+            return new QueryParameter[] { org.picketlink.idm.model.Agent.LOGIN_NAME };
         } else if (isGroupType(clazz)) {
-            return new QueryParameter[] { Group.NAME };
+            return new QueryParameter[] { org.picketlink.idm.model.Group.NAME };
         } else if (isRoleType(clazz)) {
-            return new QueryParameter[] { Role.NAME };
+            return new QueryParameter[] { org.picketlink.idm.model.Role.NAME };
         } else {
             return new QueryParameter[] { IdentityType.ID };
         }

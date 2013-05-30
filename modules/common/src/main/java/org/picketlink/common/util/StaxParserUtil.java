@@ -17,9 +17,15 @@
  */
 package org.picketlink.common.util;
 
-import static org.picketlink.common.ErrorCodes.EXPECTED_XSI;
-
-import java.io.InputStream;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ParsingException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
@@ -35,16 +41,9 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stax.StAXSource;
 import javax.xml.validation.Validator;
+import java.io.InputStream;
 
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.constants.GeneralConstants;
-import org.picketlink.common.constants.JBossSAMLConstants;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
-import org.picketlink.common.exceptions.ConfigurationException;
-import org.picketlink.common.exceptions.ParsingException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import static org.picketlink.common.ErrorCodes.EXPECTED_XSI;
 
 /**
  * Utility for the stax based parser

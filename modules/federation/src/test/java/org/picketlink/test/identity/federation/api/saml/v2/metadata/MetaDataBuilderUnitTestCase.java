@@ -17,17 +17,11 @@
  */
 package org.picketlink.test.identity.federation.api.saml.v2.metadata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Test;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.api.saml.v2.metadata.KeyDescriptorMetaDataBuilder;
 import org.picketlink.identity.federation.api.saml.v2.metadata.MetaDataBuilder;
 import org.picketlink.identity.federation.api.w3.xmldsig.KeyInfoBuilder;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
@@ -36,6 +30,12 @@ import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 import org.w3c.dom.Element;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test the MetaDataBuilder API

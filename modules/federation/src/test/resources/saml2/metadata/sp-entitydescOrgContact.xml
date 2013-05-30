@@ -1,8 +1,6 @@
 <md:EntityDescriptor
-   xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
-   xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
-   xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
-   entityID="https://sp.example.com/SAML2">
+        xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+        entityID="https://sp.example.com/SAML2">
    <md:Organization>
      <md:OrganizationName xml:lang="en">
        SAML Service Provider 

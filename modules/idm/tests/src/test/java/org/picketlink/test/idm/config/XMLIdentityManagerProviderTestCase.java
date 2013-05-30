@@ -18,19 +18,18 @@
 
 package org.picketlink.test.idm.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.InputStream;
-
-import javax.naming.CommunicationException;
-
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.config.idm.XMLBasedIdentityManagerProvider;
 import org.picketlink.idm.IdentityManager;
+
+import javax.naming.CommunicationException;
+import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test case for configuring IDM via XML TODO: temporary. needs to be improved or deleted (in case that default tests will use XML)

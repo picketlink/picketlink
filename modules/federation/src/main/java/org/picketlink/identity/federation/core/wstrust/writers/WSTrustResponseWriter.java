@@ -17,12 +17,6 @@
  */
 package org.picketlink.identity.federation.core.wstrust.writers;
 
-import java.io.OutputStream;
-import java.util.List;
-
-import javax.xml.stream.XMLStreamWriter;
-import javax.xml.transform.Result;
-
 import org.picketlink.common.ErrorCodes;
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
@@ -42,6 +36,11 @@ import org.picketlink.identity.federation.ws.trust.RequestedProofTokenType;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
 import org.w3c.dom.Element;
+
+import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.Result;
+import java.io.OutputStream;
+import java.util.List;
 
 /**
  * <p>

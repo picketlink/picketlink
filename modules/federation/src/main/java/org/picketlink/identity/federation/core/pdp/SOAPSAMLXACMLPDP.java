@@ -17,12 +17,18 @@
  */
 package org.picketlink.identity.federation.core.pdp;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.security.PrivilegedActionException;
+import org.jboss.security.xacml.core.JBossPDP;
+import org.jboss.security.xacml.interfaces.PolicyDecisionPoint;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StaxUtil;
+import org.picketlink.common.util.SystemPropertiesUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
+import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
+import org.w3c.dom.Document;
 
 import javax.annotation.Resource;
 import javax.xml.stream.XMLStreamWriter;
@@ -31,19 +37,12 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.Provider;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceProvider;
-
-import org.jboss.security.xacml.core.JBossPDP;
-import org.jboss.security.xacml.interfaces.PolicyDecisionPoint;
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.util.DocumentUtil;
-import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
-import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
-import org.picketlink.common.util.StaxUtil;
-import org.picketlink.common.util.SystemPropertiesUtil;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
-import org.w3c.dom.Document;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.security.PrivilegedActionException;
 
 /**
  * SOAP 1.2 based XACML PDP that accepts SAML requests

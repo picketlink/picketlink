@@ -17,11 +17,10 @@
  */
 package org.picketlink.identity.federation.core.interfaces;
 
-import java.util.Map;
+import org.picketlink.common.exceptions.ProcessingException;
 
 import javax.xml.namespace.QName;
-
-import org.picketlink.common.exceptions.ProcessingException;
+import java.util.Map;
 
 
 /**

@@ -18,25 +18,18 @@
 
 package org.picketlink.test.identity.federation.web.saml.handlers;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpSession;
-
 import junit.framework.TestCase;
-
-import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.config.federation.IDPType;
 import org.picketlink.config.federation.ProviderType;
 import org.picketlink.config.federation.SPType;
-import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChainConfig;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerConfig;
@@ -47,11 +40,9 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerCh
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerConfig;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.handlers.saml2.BaseSAML2Handler;
@@ -62,6 +53,13 @@ import org.picketlink.test.identity.federation.web.mock.MockHttpServletResponse;
 import org.picketlink.test.identity.federation.web.mock.MockHttpSession;
 import org.picketlink.test.identity.federation.web.mock.MockServletContext;
 import org.w3c.dom.Document;
+
+import javax.servlet.http.HttpSession;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Unit test the {@link org.picketlink.identity.federation.web.handlers.saml2.SAML2InResponseToVerificationHandler}

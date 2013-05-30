@@ -17,10 +17,9 @@
  */
 package org.picketlink.social.standalone.login;
 
-import java.security.Principal;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import java.security.Principal;
 
 /**
  * An implementation of {@link HttpServletRequestWrapper}

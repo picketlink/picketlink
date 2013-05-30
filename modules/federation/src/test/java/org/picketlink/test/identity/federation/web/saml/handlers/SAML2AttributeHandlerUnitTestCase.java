@@ -17,19 +17,12 @@
  */
 package org.picketlink.test.identity.federation.web.saml.handlers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.security.Principal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.Test;
-import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.config.federation.IDPType;
 import org.picketlink.config.federation.ProviderType;
 import org.picketlink.config.federation.SPType;
+import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
@@ -50,13 +43,20 @@ import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.handlers.saml2.SAML2AttributeHandler;
 import org.picketlink.test.identity.federation.web.mock.MockHttpServletRequest;
 import org.picketlink.test.identity.federation.web.mock.MockHttpServletResponse;
 import org.picketlink.test.identity.federation.web.mock.MockHttpSession;
 import org.picketlink.test.identity.federation.web.mock.MockServletContext;
+
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test the {@code SAML2AttributeHandler}

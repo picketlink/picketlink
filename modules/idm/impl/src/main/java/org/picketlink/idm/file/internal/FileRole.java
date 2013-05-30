@@ -18,11 +18,10 @@
 
 package org.picketlink.idm.file.internal;
 
+import org.picketlink.idm.model.Role;
+
 import java.io.Serializable;
 import java.util.Map;
-
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleRole;
 
 /**
  * @author Pedro Silva
@@ -50,7 +49,7 @@ public class FileRole extends AbstractIdentityTypeEntry<Role> {
     @Override
     protected Role doCreateInstance(Map<String, Serializable> properties) throws Exception {
         String name = properties.get("name").toString();
-        return new SimpleRole(name);
+        return new Role(name);
     }
 
 }

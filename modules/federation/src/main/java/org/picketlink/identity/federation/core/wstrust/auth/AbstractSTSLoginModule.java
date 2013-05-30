@@ -17,25 +17,6 @@
  */
 package org.picketlink.identity.federation.core.wstrust.auth;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.security.acl.Group;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.jboss.security.SecurityConstants;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SimpleGroup;
@@ -47,14 +28,14 @@ import org.jboss.security.mapping.MappingManager;
 import org.jboss.security.mapping.MappingType;
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.constants.AttributeConstants;
-import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.fed.WSTrustException;
+import org.picketlink.common.util.StringUtil;
+import org.picketlink.identity.federation.core.constants.AttributeConstants;
+import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory.TimeCacheExpiry;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
-import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
@@ -63,6 +44,24 @@ import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.w3c.dom.Element;
+
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.io.IOException;
+import java.security.Principal;
+import java.security.acl.Group;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Abstract JAAS LoginModule for JBoss STS (Security Token Service). </p>

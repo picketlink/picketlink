@@ -17,11 +17,6 @@
  */
 package org.picketlink.identity.federation.core.parsers;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.namespace.QName;
-
 import org.picketlink.common.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.parsers.wsa.WSAddressingParser;
@@ -34,6 +29,10 @@ import org.picketlink.identity.federation.core.parsers.wst.WSTRequestSecurityTok
 import org.picketlink.identity.federation.core.parsers.wst.WSTValidateTargetParser;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustOnBehalfOfParser;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
+
+import javax.xml.namespace.QName;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>

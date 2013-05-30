@@ -17,11 +17,6 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.factories;
 
-import java.net.URI;
-import java.util.List;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.exceptions.ConfigurationException;
@@ -43,6 +38,10 @@ import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoice
 import org.picketlink.identity.federation.saml.v2.protocol.StatusCodeType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 import org.w3c.dom.Element;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.net.URI;
+import java.util.List;
 
 /**
  * Factory for the SAML v2 Authn Response

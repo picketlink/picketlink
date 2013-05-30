@@ -17,11 +17,11 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.w3c.dom.Document;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Default implementation of the SAML2 Handler response

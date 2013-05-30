@@ -17,9 +17,9 @@
  */
 package org.picketlink.identity.federation.saml.v2.protocol;
 
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+
+import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
  * <p>

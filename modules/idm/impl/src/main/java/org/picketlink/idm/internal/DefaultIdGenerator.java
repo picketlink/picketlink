@@ -18,9 +18,9 @@
 
 package org.picketlink.idm.internal;
 
-import java.util.UUID;
-
 import org.picketlink.idm.IdGenerator;
+
+import java.util.UUID;
 
 /**
  * Default IdGenerator implementation, used to generate unique identifier values for IdentityType implementations

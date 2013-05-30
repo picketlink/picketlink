@@ -27,8 +27,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static junit.framework.Assert.assertEquals;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.AbstractIdentityStoreConfigurationBuilder;
@@ -50,13 +48,13 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
+import static junit.framework.Assert.assertEquals;
 
 /**
  *
@@ -87,7 +85,7 @@ public class CustomIdentityStoreTestCase {
         
         IdentityManager identityManager = identityManagerFactory.createIdentityManager();
         
-        identityManager.add(new SimpleUser("john"));
+        identityManager.add(new User("john"));
 
         assertEquals("addAttributedType", methodInvocationContext.getMethodName());
 
@@ -107,8 +105,9 @@ public class CustomIdentityStoreTestCase {
 
         @Override
         public MyIdentityStoreConfiguration create() {
-            MyIdentityStoreConfiguration config = new MyIdentityStoreConfiguration(getSupportedFeatures(), getSupportedRelationships(), getRealms(),
-                    getTiers(), getContextInitializers(), getCredentialHandlerProperties(), getCredentialHandlers());
+            MyIdentityStoreConfiguration config = new MyIdentityStoreConfiguration(getSupportedFeatures(), getSupportedRelationships(),
+                    getSupportedIdentityTypes(), getRealms(), getTiers(), getContextInitializers(),
+                    getCredentialHandlerProperties(), getCredentialHandlers());
 
             config.setMethodInvocationContext(this.methodInvocationContext);
 
@@ -126,10 +125,11 @@ public class CustomIdentityStoreTestCase {
         private MethodInvocationContext methodInvocationContext;
 
         public MyIdentityStoreConfiguration(Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
-                Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms,
+                Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships,
+                Map<Class<? extends IdentityType>, Set<FeatureOperation>> supportedIdentityTypes, Set<String> realms,
                 Set<String> tiers, List<ContextInitializer> contextInitializers,
                 Map<String, Object> credentialHandlerProperties, List<Class<? extends CredentialHandler>> credentialHandlers) {
-            super(supportedFeatures, supportedRelationships, realms, tiers, contextInitializers, credentialHandlerProperties,
+            super(supportedFeatures, supportedRelationships, supportedIdentityTypes, realms, tiers, contextInitializers, credentialHandlerProperties,
                     credentialHandlers);
         }
 

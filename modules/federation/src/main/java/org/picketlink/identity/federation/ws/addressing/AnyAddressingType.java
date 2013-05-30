@@ -17,11 +17,11 @@
  */
 package org.picketlink.identity.federation.ws.addressing;
 
+import org.w3c.dom.Element;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.w3c.dom.Element;
 
 /**
  * @author Anil.Saldhana@redhat.com

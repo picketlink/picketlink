@@ -18,11 +18,11 @@
 
 package org.picketlink.config.idm.resolver;
 
+import org.picketlink.config.idm.ObjectType;
+
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.picketlink.config.idm.ObjectType;
 
 
 /**

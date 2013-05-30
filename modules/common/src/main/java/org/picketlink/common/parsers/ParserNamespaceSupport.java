@@ -17,10 +17,10 @@
  */
 package org.picketlink.common.parsers;
 
+import org.picketlink.common.exceptions.ParsingException;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
-
-import org.picketlink.common.exceptions.ParsingException;
 
 /**
  * <p>

@@ -17,10 +17,22 @@
  */
 package org.picketlink.identity.federation.api.saml.v2.sig;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.PublicKey;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
+import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.identity.federation.core.util.SignatureUtilTransferObject;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.DigestMethod;
@@ -30,23 +42,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathException;
-
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
-import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
-import org.picketlink.identity.federation.core.util.SignatureUtilTransferObject;
-import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
-import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.common.constants.JBossSAMLConstants;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.PublicKey;
 
 /**
  * Class that deals with SAML2 Signature

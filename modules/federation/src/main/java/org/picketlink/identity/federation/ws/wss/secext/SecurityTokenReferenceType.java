@@ -17,11 +17,11 @@
  */
 package org.picketlink.identity.federation.ws.wss.secext;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
 import org.picketlink.identity.federation.ws.trust.SimpleCollectionUsage;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This type is used reference a security token.

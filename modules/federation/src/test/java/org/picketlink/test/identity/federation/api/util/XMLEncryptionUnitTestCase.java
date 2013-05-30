@@ -17,27 +17,14 @@
  */
 package org.picketlink.test.identity.federation.api.util;
 
-import java.io.InputStream;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.xml.namespace.QName;
-
 import junit.framework.TestCase;
-
+import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
-import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
@@ -50,6 +37,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.xml.namespace.QName;
+import java.io.InputStream;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Unit Test the XML Encryption Utility

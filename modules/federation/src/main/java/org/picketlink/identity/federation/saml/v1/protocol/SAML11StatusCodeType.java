@@ -17,9 +17,8 @@
  */
 package org.picketlink.identity.federation.saml.v1.protocol;
 
-import java.io.Serializable;
-
 import javax.xml.namespace.QName;
+import java.io.Serializable;
 
 /**
  * <complexType name="StatusCodeType"> <sequence> <element ref="samlp:StatusCode" minOccurs="0"/> </sequence> <attribute

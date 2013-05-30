@@ -17,6 +17,24 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.util;
 
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.WSTrustConstants;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.Base64;
+import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
+import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.bind.JAXBException;
 import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
@@ -25,25 +43,6 @@ import java.security.Signature;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPublicKey;
-
-import javax.xml.bind.JAXBException;
-
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
-import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
-import org.picketlink.common.constants.JBossSAMLConstants;
-import org.picketlink.common.constants.WSTrustConstants;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.common.util.Base64;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 /**
  * Signature utility for signing content

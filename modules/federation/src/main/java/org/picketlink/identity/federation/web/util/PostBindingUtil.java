@@ -21,20 +21,19 @@
  */
 package org.picketlink.identity.federation.web.util;
 
-import static org.picketlink.common.util.StringUtil.isNotNull;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.util.Base64;
 import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 /**
  * Utility for the HTTP/Post binding

@@ -18,14 +18,6 @@
 
 package org.picketlink.internal;
 
-import java.io.Serializable;
-
-import javax.enterprise.context.SessionScoped;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import org.picketlink.Identity;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.AuthenticationException;
@@ -46,6 +38,13 @@ import org.picketlink.authentication.internal.IdmAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.permission.internal.PermissionMapper;
+
+import javax.enterprise.context.SessionScoped;
+import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.io.Serializable;
 
 /**
  * Default Identity implementation

@@ -17,10 +17,10 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.common;
 
-import java.util.UUID;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
+
+import java.util.UUID;
 
 /**
  * Utility class that generates unique IDs

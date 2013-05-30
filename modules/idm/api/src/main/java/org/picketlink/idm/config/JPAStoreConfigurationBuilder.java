@@ -90,7 +90,8 @@ public class JPAStoreConfigurationBuilder extends
         return new JPAIdentityStoreConfiguration(this.identityClass, this.attributeClass, this.credentialClass,
                 this.credentialAttributeClass, this.relationshipClass, this.relationshipIdentityClass,
                 this.relationshipAttributeClass, this.partitionClass, getSupportedFeatures(), getSupportedRelationships(),
-                getRealms(), getTiers(), getContextInitializers(), getCredentialHandlerProperties(), getCredentialHandlers());
+                getSupportedIdentityTypes(), getRealms(), getTiers(), getContextInitializers(), getCredentialHandlerProperties(),
+                getCredentialHandlers());
     }
 
     @Override

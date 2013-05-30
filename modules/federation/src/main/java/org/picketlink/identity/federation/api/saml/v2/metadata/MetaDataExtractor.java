@@ -17,16 +17,10 @@
  */
 package org.picketlink.identity.federation.api.saml.v2.metadata;
 
-import java.io.StringWriter;
-import java.security.cert.X509Certificate;
-import java.util.List;
-
-import javax.xml.stream.XMLStreamWriter;
-
 import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.SAMLMetadataUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLMetadataWriter;
-import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
@@ -34,6 +28,11 @@ import org.picketlink.identity.federation.saml.v2.metadata.IndexedEndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.SSODescriptorType;
+
+import javax.xml.stream.XMLStreamWriter;
+import java.io.StringWriter;
+import java.security.cert.X509Certificate;
+import java.util.List;
 
 /**
  * Extract useful information out of metadata

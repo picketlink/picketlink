@@ -17,20 +17,18 @@
  */
 package org.picketlink.identity.federation.core.wstrust.auth;
 
-import static org.mockito.Mockito.mock;
-import java.util.HashMap;
-import java.util.Map;
+import junit.framework.TestCase;
+import org.picketlink.common.exceptions.fed.WSTrustException;
+import org.picketlink.identity.federation.core.wstrust.STSClient;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
+import org.w3c.dom.Element;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.picketlink.identity.federation.core.wstrust.auth.AbstractSTSLoginModule;
-import org.picketlink.identity.federation.core.wstrust.STSClient;
-import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
-import org.picketlink.common.exceptions.fed.WSTrustException;
-import org.w3c.dom.Element;
-
-import junit.framework.TestCase;
+import static org.mockito.Mockito.mock;
 
 /***
  * Unit test for {@link AbstractSTSLoginModule}.

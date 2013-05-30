@@ -17,24 +17,23 @@
  */
 package org.picketlink.test.identity.federation.core.wstrust;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
+import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.SecurityToken;
 import org.picketlink.identity.federation.core.wstrust.StandardSecurityToken;
-import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import javax.xml.namespace.QName;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map;
 
 /**
  * <p>

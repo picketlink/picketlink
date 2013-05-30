@@ -1,14 +1,13 @@
 <xs:schema
-    targetNamespace="urn:liberty:ps:2006-08"
-    xmlns="urn:liberty:ps:2006-08"
-    xmlns:lu="urn:liberty:util:2006-08"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    xmlns:ims="urn:liberty:ims:2006-08"
-    xmlns:subs="urn:liberty:ssos:2006-08"
-    xmlns:sec="urn:liberty:security:2006-08"
-    xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
-    elementFormDefault="qualified"
-    attributeFormDefault="unqualified">
+        targetNamespace="urn:liberty:ps:2006-08"
+        xmlns="urn:liberty:ps:2006-08"
+        xmlns:lu="urn:liberty:util:2006-08"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:ims="urn:liberty:ims:2006-08"
+        xmlns:subs="urn:liberty:ssos:2006-08"
+        xmlns:sec="urn:liberty:security:2006-08"
+        elementFormDefault="qualified"
+        attributeFormDefault="unqualified">
 
     <xs:import namespace="urn:liberty:util:2006-08" 
         schemaLocation="liberty-idwsf-utility-v2.0.xsd"/>

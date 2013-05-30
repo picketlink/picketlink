@@ -20,18 +20,11 @@ package org.picketlink.idm.jpa.internal;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.criteria.Predicate;
-
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
-import org.picketlink.idm.event.AbstractBaseEvent;
-import org.picketlink.idm.event.RoleCreatedEvent;
-import org.picketlink.idm.event.RoleDeletedEvent;
-import org.picketlink.idm.event.RoleUpdatedEvent;
 import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.SecurityContext;
 
@@ -55,25 +48,10 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
     }
 
     @Override
-    protected AbstractBaseEvent raiseCreatedEvent(Role fromIdentityType) {
-        return new RoleCreatedEvent(fromIdentityType);
-    }
-
-    @Override
-    protected AbstractBaseEvent raiseUpdatedEvent(Role fromIdentityType) {
-        return new RoleUpdatedEvent(fromIdentityType);
-    }
-
-    @Override
-    protected AbstractBaseEvent raiseDeletedEvent(Role fromIdentityType) {
-        return new RoleDeletedEvent(fromIdentityType);
-    }
-
-    @Override
     protected Role doCreateIdentityType(SecurityContext context, Object identity, JPAIdentityStore store) {
         String name = store.getConfig().getModelPropertyValue(String.class, identity, PropertyType.IDENTITY_NAME);
 
-        SimpleRole role = new SimpleRole(name);
+        Role role = new Role(name);
 
         return role;
     }

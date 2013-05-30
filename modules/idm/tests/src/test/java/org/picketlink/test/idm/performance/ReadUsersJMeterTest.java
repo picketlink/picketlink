@@ -22,8 +22,6 @@
 
 package org.picketlink.test.idm.performance;
 
-import java.util.List;
-
 import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
 import org.apache.jmeter.samplers.SampleResult;
@@ -31,6 +29,8 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
+
+import java.util.List;
 
 /**
  * @author Pedro Silva

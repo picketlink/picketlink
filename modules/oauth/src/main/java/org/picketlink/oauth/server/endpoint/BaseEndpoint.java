@@ -17,17 +17,16 @@
  */
 package org.picketlink.oauth.server.endpoint;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.oauth.server.util.OAuthServerUtil;
 
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
-
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.oauth.server.util.OAuthServerUtil;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Base class for endpoints

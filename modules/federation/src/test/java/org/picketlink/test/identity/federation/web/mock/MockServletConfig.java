@@ -17,14 +17,13 @@
  */
 package org.picketlink.test.identity.federation.web.mock;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 
 /**
  * Mock Servlet Config

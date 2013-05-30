@@ -17,13 +17,6 @@
  */
 package org.picketlink.test.identity.federation.core.parser.saml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-
 import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.picketlink.common.util.DocumentUtil;
@@ -33,6 +26,13 @@ import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
 import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Validate the parsing of SLO (log out) Request

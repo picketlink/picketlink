@@ -18,11 +18,11 @@
 
 package org.picketlink.config.federation.handler;
 
+import org.picketlink.config.federation.KeyValueType;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.picketlink.config.federation.KeyValueType;
 
 /**
  * <p>

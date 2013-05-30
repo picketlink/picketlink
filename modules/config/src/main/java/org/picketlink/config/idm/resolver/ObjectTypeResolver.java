@@ -18,15 +18,15 @@
 
 package org.picketlink.config.idm.resolver;
 
-import java.util.Map;
- 
-import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.PropertyQuery;
 import org.picketlink.config.idm.ObjectType;
 import org.picketlink.config.idm.XMLBasedIdentityManagerProvider;
+import org.picketlink.idm.config.SecurityConfigurationException;
+
+import java.util.Map;
 
 /**
  * Base resolver for passed {@link ObjectType} values. This resolver will try to create it's object based on java beans of given type

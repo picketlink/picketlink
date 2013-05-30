@@ -17,15 +17,14 @@
  */
 package org.picketlink.test.identity.federation.core.parser.saml;
 
-import static org.junit.Assert.assertNotNull;
-
-import java.io.InputStream;
-import java.io.StringReader;
+import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Validator;
+import java.io.InputStream;
+import java.io.StringReader;
 
-import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Base class for the parser unit tests

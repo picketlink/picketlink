@@ -17,13 +17,13 @@
  */
 package org.picketlink.identity.federation.core.impl;
 
-import java.security.Principal;
-import java.util.List;
-import java.util.Map;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
+
+import java.security.Principal;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An attribute manager that delegates to another manager for attributes

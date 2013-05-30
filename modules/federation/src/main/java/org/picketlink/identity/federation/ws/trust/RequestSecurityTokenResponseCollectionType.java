@@ -17,11 +17,11 @@
  */
 package org.picketlink.identity.federation.ws.trust;
 
+import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
 
 /**
  *

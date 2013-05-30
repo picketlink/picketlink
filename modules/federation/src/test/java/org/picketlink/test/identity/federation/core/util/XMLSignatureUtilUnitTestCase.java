@@ -21,17 +21,6 @@
  */
 package org.picketlink.test.identity.federation.core.util;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.InputStream;
-import java.security.KeyPair;
-import java.security.interfaces.DSAPublicKey;
-import java.security.interfaces.RSAPublicKey;
-
-import javax.xml.crypto.dsig.DigestMethod;
-import javax.xml.crypto.dsig.SignatureMethod;
-
 import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.picketlink.common.constants.JBossSAMLConstants;
@@ -46,6 +35,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import javax.xml.crypto.dsig.DigestMethod;
+import javax.xml.crypto.dsig.SignatureMethod;
+import java.io.InputStream;
+import java.security.KeyPair;
+import java.security.interfaces.DSAPublicKey;
+import java.security.interfaces.RSAPublicKey;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test the {@link XMLSignatureUtil}

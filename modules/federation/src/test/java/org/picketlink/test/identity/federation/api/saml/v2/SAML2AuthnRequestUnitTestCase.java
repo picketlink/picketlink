@@ -17,14 +17,6 @@
  */
 package org.picketlink.test.identity.federation.api.saml.v2;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.ByteArrayOutputStream;
-import java.net.URI;
-import java.util.List;
-
 import org.junit.Test;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
@@ -38,6 +30,14 @@ import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestedAuthnContextType;
 import org.w3c.dom.Element;
+
+import java.io.ByteArrayOutputStream;
+import java.net.URI;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test the SAML2 Authn Request Context constructs

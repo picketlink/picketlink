@@ -17,13 +17,6 @@
  */
 package org.picketlink.oauth.client;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.PropertyNamingStrategy;
@@ -36,6 +29,13 @@ import org.picketlink.oauth.messages.OAuthRequest;
 import org.picketlink.oauth.messages.RegistrationRequest;
 import org.picketlink.oauth.messages.RegistrationResponse;
 import org.picketlink.oauth.messages.ResourceAccessRequest;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 
 /**
  * OAuth Client

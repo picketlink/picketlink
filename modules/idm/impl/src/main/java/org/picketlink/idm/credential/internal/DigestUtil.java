@@ -17,13 +17,13 @@
  */
 package org.picketlink.idm.credential.internal;
 
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestValidationException;
+
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Utility class to support Digest Credentials

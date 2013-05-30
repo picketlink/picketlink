@@ -17,19 +17,19 @@
  */
 package org.picketlink.test.identity.federation.core.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.InputStream;
-
 import org.junit.Test;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.config.federation.ProviderType;
 import org.picketlink.config.federation.SPType;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+
+import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Given an IDP metadata, construct {@link SPType}

@@ -17,12 +17,6 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.util;
 
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.exceptions.ConfigurationException;
@@ -32,6 +26,12 @@ import org.picketlink.config.federation.handler.Handlers;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerConfig;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerConfig;
+
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Deals with SAML2 Handlers

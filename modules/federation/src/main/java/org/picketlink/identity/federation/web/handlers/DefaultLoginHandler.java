@@ -17,15 +17,14 @@
  */
 package org.picketlink.identity.federation.web.handlers;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.Properties;
-
-import javax.security.auth.login.LoginException;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.web.interfaces.ILoginHandler;
+
+import javax.security.auth.login.LoginException;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Properties;
 
 /**
  * Default LoginHandler that uses a properties file in the classpath called as users.properties whose format is

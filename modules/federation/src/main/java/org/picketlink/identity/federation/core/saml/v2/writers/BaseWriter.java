@@ -17,23 +17,11 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.writers;
 
-import static org.picketlink.common.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamWriter;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.StaxUtil;
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StaxWriterUtil;
@@ -48,6 +36,17 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType.STSubType;
 import org.picketlink.identity.federation.saml.v2.metadata.LocalizedNameType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamWriter;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import static org.picketlink.common.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
 
 /**
  * Base Class for the Stax writers for SAML

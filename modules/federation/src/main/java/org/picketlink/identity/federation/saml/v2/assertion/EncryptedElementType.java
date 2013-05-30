@@ -17,9 +17,9 @@
  */
 package org.picketlink.identity.federation.saml.v2.assertion;
 
-import java.io.Serializable;
-
 import org.w3c.dom.Element;
+
+import java.io.Serializable;
 
 /**
  * Represents an element that is encrypted

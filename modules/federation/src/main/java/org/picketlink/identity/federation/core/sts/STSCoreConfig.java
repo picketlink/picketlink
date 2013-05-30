@@ -17,14 +17,13 @@
  */
 package org.picketlink.identity.federation.core.sts;
 
+import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
+
+import javax.xml.namespace.QName;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.util.List;
-
-import javax.xml.namespace.QName;
-
-import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 
 /**
  * Configuration for the STS Core

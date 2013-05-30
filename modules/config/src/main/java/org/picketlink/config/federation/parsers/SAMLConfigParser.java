@@ -21,13 +21,6 @@
  */
 package org.picketlink.config.federation.parsers;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.parsers.AbstractParser;
 import org.picketlink.common.util.StaxParserUtil;
@@ -41,6 +34,13 @@ import org.picketlink.config.federation.SPType;
 import org.picketlink.config.federation.TrustType;
 import org.picketlink.config.federation.handler.Handler;
 import org.picketlink.config.federation.handler.Handlers;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 
 /**
  * Parse the SAML IDP/SP config as well as the handlers

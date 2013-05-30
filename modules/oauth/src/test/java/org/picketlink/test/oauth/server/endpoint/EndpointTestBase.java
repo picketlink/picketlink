@@ -17,15 +17,15 @@
  */
 package org.picketlink.test.oauth.server.endpoint;
 
-import java.io.File;
-import java.net.URL;
-
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.junit.After;
 import org.picketbox.test.ldap.LDAPTestUtil;
 import org.picketlink.oauth.PicketLinkOAuthApplication;
+
+import java.io.File;
+import java.net.URL;
 
 /**
  * Base class for the endpoint test cases

@@ -18,13 +18,10 @@
 
 package org.picketlink;
 
-import java.io.Serializable;
-
 import org.picketlink.authentication.AuthenticationException;
-import org.picketlink.authentication.LockedAccountException;
-import org.picketlink.authentication.UnexpectedCredentialException;
-import org.picketlink.authentication.UserAlreadyLoggedInException;
 import org.picketlink.idm.model.Agent;
+
+import java.io.Serializable;
 
 /**
  * Represents the identity of the current user, and provides an API for authentication and authorization. 

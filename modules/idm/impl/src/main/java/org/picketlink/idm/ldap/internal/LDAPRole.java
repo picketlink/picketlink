@@ -17,16 +17,14 @@
  */
 package org.picketlink.idm.ldap.internal;
 
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.SPACE_STRING;
-
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 
-import org.picketlink.idm.model.Role;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.SPACE_STRING;
 
 /**
  * Implementation of {@link Role} for storage in ldap
@@ -34,7 +32,7 @@ import org.picketlink.idm.model.Role;
  * @author anil saldhana
  * @since Aug 31, 2012
  */ // FIXME
-public class LDAPRole extends LDAPIdentityType implements Role {
+public class LDAPRole extends LDAPIdentityType {
 
     private static final long serialVersionUID = 1L;
 

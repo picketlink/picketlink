@@ -18,18 +18,23 @@
 
 package org.picketlink.idm.model.annotation;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 /**
+<<<<<<< HEAD
  * Marks a property of an IdentityType or Relationship as being an attribute of that
  * IdentityType or Relationship.
+=======
+ * <p>Marks a property of an IdentityType or Relationship as being an attribute of that
+ * IdentityType or Relationship.</p>
+>>>>>>> 6f08c37545d08cfc6048373a4b2b7bd23a902c60
  *
  * @author Shane Bryzak
  *

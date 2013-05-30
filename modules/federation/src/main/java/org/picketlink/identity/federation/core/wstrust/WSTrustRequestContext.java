@@ -17,18 +17,17 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
-import java.security.Principal;
-import java.security.PublicKey;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+
+import javax.xml.namespace.QName;
+import java.security.Principal;
+import java.security.PublicKey;
+import java.util.Map;
 
 /**
  * <p>

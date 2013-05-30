@@ -17,29 +17,6 @@
  */
 package org.picketlink.identity.federation.web.servlets;
 
-import static org.picketlink.common.util.StringUtil.isNotNull;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.GeneralSecurityException;
-import java.security.Principal;
-import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.xml.crypto.dsig.CanonicalizationMethod;
-
 import org.jboss.logging.Logger;
 import org.picketlink.common.ErrorCodes;
 import org.picketlink.common.constants.GeneralConstants;
@@ -90,6 +67,28 @@ import org.picketlink.identity.federation.web.util.IDPWebRequestUtil.WebRequestU
 import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
 import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
 import org.w3c.dom.Document;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.xml.crypto.dsig.CanonicalizationMethod;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.GeneralSecurityException;
+import java.security.Principal;
+import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 /**
  * SAML Web Browser SSO - POST binding

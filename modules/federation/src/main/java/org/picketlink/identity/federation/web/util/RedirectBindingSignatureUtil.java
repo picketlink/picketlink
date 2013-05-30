@@ -17,7 +17,20 @@
  */
 package org.picketlink.identity.federation.web.util;
 
-import static org.picketlink.common.util.StringUtil.isNotNull;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
+import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -27,20 +40,7 @@ import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
-import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
-import org.picketlink.common.exceptions.ConfigurationException;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.common.util.DocumentUtil;
-import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.picketlink.common.constants.GeneralConstants;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 /**
  * Signature Support for the HTTP/Redirect binding

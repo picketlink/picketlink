@@ -17,8 +17,6 @@
  */
 package org.picketlink.identity.federation.api.saml.v2.metadata;
 
-import java.util.List;
-
 import org.picketlink.identity.federation.core.saml.md.providers.MetaDataBuilderDelegate;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
@@ -28,6 +26,8 @@ import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.SSODescriptorType;
+
+import java.util.List;
 
 /**
  * SAML2 Metadata Builder API

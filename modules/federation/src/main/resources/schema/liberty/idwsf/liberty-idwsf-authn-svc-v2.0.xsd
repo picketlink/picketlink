@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<xs:schema 
-    targetNamespace="urn:liberty:sa:2006-08" 
-    xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" 
-    xmlns:sa="urn:liberty:sa:2006-08" 
-    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-    xmlns:samlp2="urn:oasis:names:tc:SAML:2.0:protocol"
-    xmlns:wsa="http://www.w3.org/2005/08/addressing" 
-    xmlns:lu="urn:liberty:util:2006-08"
-    xmlns="urn:liberty:sa:2006-08" 
-    elementFormDefault="qualified" 
-    attributeFormDefault="unqualified" 
-    version="09"
-    >
+<xs:schema
+        targetNamespace="urn:liberty:sa:2006-08"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:samlp2="urn:oasis:names:tc:SAML:2.0:protocol"
+        xmlns:wsa="http://www.w3.org/2005/08/addressing"
+        xmlns:lu="urn:liberty:util:2006-08"
+        xmlns="urn:liberty:sa:2006-08"
+        elementFormDefault="qualified"
+        attributeFormDefault="unqualified"
+        version="09"
+        >
 
   <xs:import 
       namespace="http://www.w3.org/2005/08/addressing" 

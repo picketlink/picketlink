@@ -22,16 +22,16 @@
 
 package org.picketlink.idm.jpa.internal;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * @author Pedro Silva

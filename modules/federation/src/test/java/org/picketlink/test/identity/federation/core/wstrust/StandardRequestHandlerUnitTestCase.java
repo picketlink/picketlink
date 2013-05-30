@@ -17,12 +17,6 @@
  */
 package org.picketlink.test.identity.federation.core.wstrust;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.InputStream;
-import java.security.Principal;
-
 import org.junit.Test;
 import org.picketlink.config.federation.STSType;
 import org.picketlink.config.federation.parsers.STSConfigParser;
@@ -34,6 +28,12 @@ import org.picketlink.identity.federation.core.wstrust.WSTrustRequestHandler;
 import org.picketlink.identity.federation.core.wstrust.WSTrustServiceFactory;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
+
+import java.io.InputStream;
+import java.security.Principal;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test the {@link StandardRequestHandler}

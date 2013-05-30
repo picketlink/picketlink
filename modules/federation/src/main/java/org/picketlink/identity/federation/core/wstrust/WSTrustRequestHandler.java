@@ -17,12 +17,12 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
-import java.security.Principal;
-
 import org.picketlink.common.exceptions.fed.WSTrustException;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
 import org.w3c.dom.Document;
+
+import java.security.Principal;
 
 /**
  * <p>

@@ -34,7 +34,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.integration.ArchiveUtils;
 
@@ -57,7 +56,7 @@ public class LogoutTestCase extends AbstractAuthenticationTestCase {
         User john = this.identityManager.getUser(USER_NAME);
 
         if (john == null) {
-            john = new SimpleUser(USER_NAME);
+            john = new User(USER_NAME);
             this.identityManager.add(john);
         }
 

@@ -17,13 +17,6 @@
  */
 package org.picketlink.config.federation.parsers;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-
 import org.picketlink.common.ErrorCodes;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.parsers.AbstractParser;
@@ -38,6 +31,13 @@ import org.picketlink.config.federation.ServiceProviderType;
 import org.picketlink.config.federation.ServiceProvidersType;
 import org.picketlink.config.federation.TokenProviderType;
 import org.picketlink.config.federation.TokenProvidersType;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 
 /**
  * <p>

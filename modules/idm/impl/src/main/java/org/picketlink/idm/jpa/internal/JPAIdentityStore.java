@@ -18,8 +18,6 @@
 
 package org.picketlink.idm.jpa.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -32,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -42,7 +39,6 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
-
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
@@ -61,8 +57,9 @@ import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.spi.annotations.Stored;
-import org.picketlink.idm.event.AbstractBaseEvent;
-import org.picketlink.idm.event.IdentityCreatedEvent;
+import org.picketlink.idm.event.IdentityTypeCreatedEvent;
+import org.picketlink.idm.event.IdentityTypeDeletedEvent;
+import org.picketlink.idm.event.IdentityTypeUpdatedEvent;
 import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
@@ -89,6 +86,7 @@ import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Implementation of IdentityStore that stores its state in a relational database. This is a lightweight object that is
@@ -154,7 +152,10 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
 
                 updateIdentityTypeAttributes(context, identityType, entity);
 
-                IdentityCreatedEvent event = new IdentityCreatedEvent(identityType);
+                identityType.setPartition(convertPartitionEntityToPartition(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getValue(entity)));
+
+                IdentityTypeCreatedEvent event = new IdentityTypeCreatedEvent(identityType);
+
                 event.getContext().setValue(EVENT_CONTEXT_IDENTITY, entity);
                 context.getEventBridge().raiseEvent(event);
             } catch (Exception e) {
@@ -187,7 +188,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
             em.merge(entity);
             em.flush();
 
-            AbstractBaseEvent event = handler.raiseUpdatedEvent(identityType);
+            IdentityTypeUpdatedEvent event = new IdentityTypeUpdatedEvent(identityType);
             event.getContext().setValue(EVENT_CONTEXT_IDENTITY, identityType);
             context.getEventBridge().raiseEvent(event);
         } else if (attributedType instanceof Relationship) {
@@ -1370,7 +1371,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
         em.remove(entity);
         em.flush();
 
-        AbstractBaseEvent event = handler.raiseDeletedEvent(identityType);
+        IdentityTypeDeletedEvent event = new IdentityTypeDeletedEvent(identityType);
         event.getContext().setValue(EVENT_CONTEXT_IDENTITY, entity);
         context.getEventBridge().raiseEvent(event);
     }

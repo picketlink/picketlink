@@ -28,7 +28,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import org.jboss.logging.Logger;
 import org.picketlink.scim.DataProvider;
 import org.picketlink.scim.codec.SCIMParser;

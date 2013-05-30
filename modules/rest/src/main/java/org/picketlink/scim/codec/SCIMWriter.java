@@ -17,9 +17,6 @@
  */
 package org.picketlink.scim.codec;
 
-import java.io.IOException;
-import java.io.StringWriter;
-
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonGenerator;
@@ -27,6 +24,9 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.picketlink.scim.model.v11.SCIMGroups;
 import org.picketlink.scim.model.v11.SCIMUser;
+
+import java.io.IOException;
+import java.io.StringWriter;
 
 /**
  * Writing SCIM Classes into JSON

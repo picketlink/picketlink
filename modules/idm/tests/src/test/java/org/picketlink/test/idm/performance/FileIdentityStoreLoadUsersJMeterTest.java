@@ -30,7 +30,7 @@ import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.internal.IdentityManagerFactory;
-import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.User;
 
 /**
  * @author Pedro Silva
@@ -80,7 +80,7 @@ public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerCli
         vars.put("loginName", loginName);
 
         try {
-            SimpleUser user = new SimpleUser(loginName);
+            User user = new User(loginName);
 
             IdentityManager identityManager = identityManagerFactory.createIdentityManager();
             

@@ -17,14 +17,12 @@
  */
 package org.picketlink.test.scim.endpoints;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 import org.picketlink.scim.client.SCIMClient;
 import org.picketlink.scim.endpoints.UsersEndpoint;
 import org.picketlink.scim.model.v11.SCIMUser;
+
+import static org.junit.Assert.*;
 
 /**
  * Unit test the {@link UsersEndpoint}

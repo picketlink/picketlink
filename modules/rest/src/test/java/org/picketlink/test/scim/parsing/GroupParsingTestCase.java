@@ -17,16 +17,14 @@
  */
 package org.picketlink.test.scim.parsing;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.InputStream;
-
 import org.junit.Test;
 import org.picketlink.scim.codec.SCIMParser;
 import org.picketlink.scim.model.v11.SCIMGroups;
 import org.picketlink.scim.model.v11.SCIMGroups.Members;
+
+import java.io.InputStream;
+
+import static org.junit.Assert.*;
 
 /**
  * Validate parsing of SCIM Group representation

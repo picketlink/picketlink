@@ -17,16 +17,15 @@
  */
 package org.picketlink.test.identity.federation.core.util;
 
+import junit.framework.TestCase;
+import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
+import org.picketlink.identity.federation.core.util.KeyStoreUtil;
+
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Enumeration;
-
-import junit.framework.TestCase;
-
-import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
-import org.picketlink.identity.federation.core.util.KeyStoreUtil;
 
 /**
  * Test the KeyStore Util

@@ -8,11 +8,10 @@
 	<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
 		Version="2.0" ID="ID_response-id_1" IssueInstant="2008-03-19T22:17:13Z">
 		<saml:Issuer>issuer-1</saml:Issuer>
-		<saml:Statement xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
-			xsi:type="xacml-saml:XACMLAuthzDecisionStatementType" 
-			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-			xmlns:xacml-samlp="urn:oasis:xacml:2.0:saml:protocol:schema:os"
-			xmlns:xacml-saml="urn:oasis:xacml:2.0:saml:assertion:schema:os">
+        <saml:Statement xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+                        xsi:type="xacml-saml:XACMLAuthzDecisionStatementType"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                >
 			<xacml-context:Response
 				xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os">
 				<xacml-context:Result>

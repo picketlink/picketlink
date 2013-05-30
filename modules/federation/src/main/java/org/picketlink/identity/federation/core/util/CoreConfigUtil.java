@@ -17,22 +17,6 @@
  */
 package org.picketlink.identity.federation.core.util;
 
-import static org.picketlink.common.util.StringUtil.isNotNull;
-
-import java.io.UnsupportedEncodingException;
-import java.security.GeneralSecurityException;
-import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.PBEParameterSpec;
-import javax.servlet.ServletContext;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
@@ -60,6 +44,21 @@ import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.
 import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.IndexedEndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
+
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.PBEParameterSpec;
+import javax.servlet.ServletContext;
+import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
+import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 /**
  * Utility for configuration

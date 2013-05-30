@@ -17,8 +17,10 @@
  */
 package org.picketlink.idm.ldap.internal;
 
-import static org.picketlink.idm.ldap.internal.LDAPConstants.ENTRY_UUID;
+import org.picketlink.idm.IDMMessages;
+import org.picketlink.idm.model.AttributedType;
 
+import javax.naming.NamingException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,10 +28,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.naming.NamingException;
-
-import org.picketlink.idm.IDMMessages;
-import org.picketlink.idm.model.AttributedType;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.ENTRY_UUID;
 
 /**
  * <p>

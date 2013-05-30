@@ -17,10 +17,10 @@
  */
 package org.picketlink.identity.xmlsec.w3.xmldsig;
 
+import org.w3c.dom.Element;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.w3c.dom.Element;
 
 /**
  * <p>

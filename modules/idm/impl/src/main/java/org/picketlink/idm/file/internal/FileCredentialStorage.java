@@ -18,12 +18,12 @@
 
 package org.picketlink.idm.file.internal;
 
+import org.picketlink.idm.credential.spi.CredentialStorage;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.picketlink.idm.credential.spi.CredentialStorage;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>

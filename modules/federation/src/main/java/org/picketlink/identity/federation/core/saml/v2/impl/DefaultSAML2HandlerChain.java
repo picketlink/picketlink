@@ -17,13 +17,13 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.impl;
 
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChain;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChain;
 
 /**
  * Default implementation of the SAML2 handler chain

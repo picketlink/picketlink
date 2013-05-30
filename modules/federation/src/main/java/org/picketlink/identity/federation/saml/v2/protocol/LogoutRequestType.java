@@ -17,15 +17,14 @@
  */
 package org.picketlink.identity.federation.saml.v2.protocol;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.picketlink.identity.federation.saml.v2.assertion.BaseIDAbstractType;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * <p>

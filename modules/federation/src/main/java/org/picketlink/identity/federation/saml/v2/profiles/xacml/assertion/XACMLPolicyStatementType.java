@@ -17,12 +17,12 @@
  */
 package org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jboss.security.xacml.core.model.policy.PolicySetType;
 import org.jboss.security.xacml.core.model.policy.PolicyType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>

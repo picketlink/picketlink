@@ -18,11 +18,11 @@
 
 package org.picketlink.common.properties;
 
+import org.picketlink.common.reflection.Reflections;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
-
-import org.picketlink.common.reflection.Reflections;
 
 import static org.picketlink.common.reflection.Reflections.getFieldValue;
 import static org.picketlink.common.reflection.Reflections.setFieldValue;

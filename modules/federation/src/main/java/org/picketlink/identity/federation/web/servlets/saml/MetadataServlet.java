@@ -17,24 +17,6 @@
  */
 package org.picketlink.identity.federation.web.servlets.saml;
 
-import static org.picketlink.common.util.StringUtil.isNotNull;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.cert.Certificate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.stream.XMLStreamWriter;
-
 import org.jboss.logging.Logger;
 import org.picketlink.common.ErrorCodes;
 import org.picketlink.common.constants.GeneralConstants;
@@ -59,6 +41,23 @@ import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.RoleDescriptorType;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 import org.w3c.dom.Element;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.cert.Certificate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 /**
  * Metadata servlet for the IDP/SP

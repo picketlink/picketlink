@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xs:schema targetNamespace="urn:oasis:names:tc:SAML:2.0:ac:classes:InternetProtocolPassword"
-  xmlns:ac="urn:oasis:names:tc:SAML:2.0:ac" 
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-  xmlns="urn:oasis:names:tc:SAML:2.0:ac:classes:InternetProtocolPassword"
-  finalDefault="extension"
-  blockDefault="substitution"
-  version="2.0">
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="urn:oasis:names:tc:SAML:2.0:ac:classes:InternetProtocolPassword"
+           finalDefault="extension"
+           blockDefault="substitution"
+           version="2.0">
 
   <xs:redefine schemaLocation="saml-schema-authn-context-types-2.0.xsd">
 

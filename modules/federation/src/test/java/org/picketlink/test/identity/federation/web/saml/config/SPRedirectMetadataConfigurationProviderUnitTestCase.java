@@ -17,13 +17,13 @@
  */
 package org.picketlink.test.identity.federation.web.saml.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import org.junit.Test;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.config.federation.SPType;
 import org.picketlink.identity.federation.web.config.SPRedirectMetadataConfigurationProvider;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test the {@link SPRedirectMetadataConfigurationProvider}

@@ -18,11 +18,11 @@
 
 package org.picketlink.config.idm.resolver;
 
-import java.util.Map;
-import java.util.Properties;
-
 import org.picketlink.config.idm.ObjectType;
 import org.picketlink.idm.config.SecurityConfigurationException;
+
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * resolver for creating {@link java.util.Properties} from passed ObjectType

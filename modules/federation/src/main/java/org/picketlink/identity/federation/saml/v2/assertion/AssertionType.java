@@ -17,15 +17,14 @@
  */
 package org.picketlink.identity.federation.saml.v2.assertion;
 
+import org.picketlink.identity.federation.saml.common.CommonAssertionType;
+import org.w3c.dom.Element;
+
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.picketlink.identity.federation.saml.common.CommonAssertionType;
-import org.w3c.dom.Element;
 
 /**
  * <complexType name="AssertionType"> <sequence> <element ref="saml:Issuer"/> <element ref="ds:Signature" minOccurs="0"/>

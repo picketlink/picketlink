@@ -19,17 +19,10 @@
 package org.picketlink.idm.jpa.internal;
 
 import java.util.List;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
-
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.event.AbstractBaseEvent;
-import org.picketlink.idm.event.UserCreatedEvent;
-import org.picketlink.idm.event.UserDeletedEvent;
-import org.picketlink.idm.event.UserUpdatedEvent;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.SecurityContext;
 
@@ -57,21 +50,6 @@ public class UserHandler extends IdentityTypeHandler<User>{
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.USER_FIRST_NAME, fromUser.getFirstName());
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.USER_LAST_NAME, fromUser.getLastName());
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.USER_EMAIL, fromUser.getEmail());
-    }
-
-    @Override
-    protected AbstractBaseEvent raiseCreatedEvent(User fromIdentityType) {
-        return new UserCreatedEvent(fromIdentityType);
-    }
-
-    @Override
-    protected AbstractBaseEvent raiseUpdatedEvent(User fromIdentityType) {
-        return new UserUpdatedEvent(fromIdentityType);
-    }
-
-    @Override
-    protected AbstractBaseEvent raiseDeletedEvent(User fromIdentityType) {
-        return new UserDeletedEvent(fromIdentityType);
     }
 
     @Override
@@ -121,7 +99,7 @@ public class UserHandler extends IdentityTypeHandler<User>{
 
         String loginName = jpaConfig.getModelProperty(PropertyType.AGENT_LOGIN_NAME).getValue(identity).toString();
 
-        User user = new SimpleUser(loginName);
+        User user = new User(loginName);
 
         user.setFirstName(jpaConfig.getModelPropertyValue(String.class, identity, PropertyType.USER_FIRST_NAME));
         user.setLastName(jpaConfig.getModelPropertyValue(String.class, identity, PropertyType.USER_LAST_NAME));

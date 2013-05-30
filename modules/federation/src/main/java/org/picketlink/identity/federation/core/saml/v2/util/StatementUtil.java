@@ -21,16 +21,6 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.util;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
-
 import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.core.constants.AttributeConstants;
@@ -42,6 +32,15 @@ import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextClassRef
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType.AuthnContextTypeSequence;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Deals with SAML2 Statements

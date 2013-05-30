@@ -18,6 +18,14 @@
 
 package org.picketlink.idm.file.internal;
 
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.model.annotation.IdentityProperty;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -26,14 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import org.picketlink.common.properties.Property;
-import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
-import org.picketlink.common.properties.query.PropertyQueries;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.annotation.AttributeProperty;
-import org.picketlink.idm.model.annotation.IdentityProperty;
 
 /**
  * <p>

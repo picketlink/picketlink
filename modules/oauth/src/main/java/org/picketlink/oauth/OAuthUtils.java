@@ -21,6 +21,9 @@
 
 package org.picketlink.oauth;
 
+import org.picketlink.oauth.common.OAuthConstants;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -36,10 +39,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.picketlink.oauth.common.OAuthConstants;
 
 /**
  * Common OAuth Utils class.

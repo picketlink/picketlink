@@ -17,45 +17,22 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.writers;
 
-import static org.picketlink.common.constants.JBossSAMLURIConstants.METADATA_NSURI;
-
-import java.net.URI;
-import java.util.List;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.StaxUtil;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.saml.v2.metadata.*;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
+import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
+import java.net.URI;
+import java.util.List;
 
-import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.common.constants.JBossSAMLConstants;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
-import org.picketlink.common.util.StaxUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.saml.v2.metadata.AdditionalMetadataLocationType;
-import org.picketlink.identity.federation.saml.v2.metadata.AffiliationDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.AttributeAuthorityDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.AttributeConsumingServiceType;
-import org.picketlink.identity.federation.saml.v2.metadata.AuthnAuthorityDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.ContactType;
-import org.picketlink.identity.federation.saml.v2.metadata.ContactTypeType;
-import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
-import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTChoiceType;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
-import org.picketlink.identity.federation.saml.v2.metadata.ExtensionsType;
-import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.IndexedEndpointType;
-import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.KeyTypes;
-import org.picketlink.identity.federation.saml.v2.metadata.LocalizedNameType;
-import org.picketlink.identity.federation.saml.v2.metadata.LocalizedURIType;
-import org.picketlink.identity.federation.saml.v2.metadata.OrganizationType;
-import org.picketlink.identity.federation.saml.v2.metadata.PDPDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.RequestedAttributeType;
-import org.picketlink.identity.federation.saml.v2.metadata.RoleDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.SSODescriptorType;
-import org.w3c.dom.Element;
+import static org.picketlink.common.constants.JBossSAMLURIConstants.METADATA_NSURI;
 
 /**
  * Write the SAML metadata elements

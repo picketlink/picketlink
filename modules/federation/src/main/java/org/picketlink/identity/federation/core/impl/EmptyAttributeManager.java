@@ -17,12 +17,12 @@
  */
 package org.picketlink.identity.federation.core.impl;
 
+import org.picketlink.identity.federation.core.interfaces.AttributeManager;
+
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 
 /**
  * An attribute manager implementation that just returns an empty attribute map

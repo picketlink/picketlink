@@ -18,13 +18,13 @@
 
 package org.picketlink.identity.federation.core.saml.md.providers;
 
-import java.io.InputStream;
-import java.security.PublicKey;
-import java.util.Map;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
+
+import java.io.InputStream;
+import java.security.PublicKey;
+import java.util.Map;
 
 /**
  * <p>Base implementation of {@link IMetadataProvider}, which provides common functionality for other implementations.</p>

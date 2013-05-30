@@ -17,15 +17,6 @@
  */
 package org.picketlink.test.oauth.workflow;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.InputStream;
-import java.util.Date;
-import java.util.Map;
-
 import org.junit.Test;
 import org.picketlink.oauth.OAuthUtils;
 import org.picketlink.oauth.client.ClientOAuth;
@@ -38,6 +29,15 @@ import org.picketlink.oauth.messages.AccessTokenResponse;
 import org.picketlink.oauth.messages.AuthorizationResponse;
 import org.picketlink.oauth.messages.RegistrationResponse;
 import org.picketlink.test.oauth.server.endpoint.EndpointTestBase;
+
+import java.io.InputStream;
+import java.util.Date;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Unit test OAuth Workflow : Registration, Authorization Code and Access Token

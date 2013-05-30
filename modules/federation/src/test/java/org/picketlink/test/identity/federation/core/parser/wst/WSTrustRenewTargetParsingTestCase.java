@@ -17,13 +17,6 @@
  */
 package org.picketlink.test.identity.federation.core.parser.wst;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-
 import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.picketlink.common.constants.WSTrustConstants;
@@ -41,6 +34,13 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.ws.trust.RenewTargetType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Validate the parsing of wst-batch-validate.xml

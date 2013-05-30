@@ -17,8 +17,6 @@
  */
 package org.picketlink.identity.federation.api.saml.v2.metadata;
 
-import java.math.BigInteger;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.util.StringUtil;
@@ -27,6 +25,8 @@ import org.picketlink.identity.federation.saml.v2.metadata.KeyTypes;
 import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType;
 import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType.EncryptionMethod;
 import org.w3c.dom.Element;
+
+import java.math.BigInteger;
 
 /**
  * MetaDataBuilder for the KeyDescriptor

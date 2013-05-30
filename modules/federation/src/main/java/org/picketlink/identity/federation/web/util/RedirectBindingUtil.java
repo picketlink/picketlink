@@ -17,7 +17,8 @@
  */
 package org.picketlink.identity.federation.web.util;
 
-import static org.picketlink.common.util.StringUtil.isNotNull;
+import org.picketlink.common.util.Base64;
+import org.picketlink.identity.federation.api.util.DeflateUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,8 +26,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
-import org.picketlink.identity.federation.api.util.DeflateUtil;
-import org.picketlink.common.util.Base64;
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 /**
  * Utility class for SAML HTTP/Redirect binding

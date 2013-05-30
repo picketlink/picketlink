@@ -17,12 +17,12 @@
  */
 package org.picketlink.oauth.messages;
 
+import org.codehaus.jackson.map.ObjectMapper;
+
 import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * OAuth2 Error Response

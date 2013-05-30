@@ -17,10 +17,12 @@
  */
 package org.picketlink.oauth.registration;
 
-import java.util.Date;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.Attribute;
+import org.picketlink.oauth.messages.RegistrationRequest;
+import org.picketlink.oauth.messages.RegistrationResponse;
+import org.picketlink.oauth.server.endpoint.BaseEndpoint;
+import org.picketlink.oauth.server.util.OAuthServerUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,14 +32,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-
-import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.SimpleAgent;
-import org.picketlink.oauth.messages.RegistrationRequest;
-import org.picketlink.oauth.messages.RegistrationResponse;
-import org.picketlink.oauth.server.endpoint.BaseEndpoint;
-import org.picketlink.oauth.server.util.OAuthServerUtil;
+import java.util.Date;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Endpoint used in registration of OAuth Client Applications
@@ -68,7 +66,7 @@ public class RegistrationEndpoint extends BaseEndpoint {
 
             // User user = identityManager.createUser(clientName);
 
-            Agent oauthApp = new SimpleAgent(clientName);
+            Agent oauthApp = new Agent(clientName);
 
             oauthApp.setAttribute(new Attribute<String>("appURL", clientURL));
             oauthApp.setAttribute(new Attribute<String>("appDesc", clientDescription));
@@ -109,7 +107,7 @@ public class RegistrationEndpoint extends BaseEndpoint {
 
             // User user = identityManager.createUser(clientName);
 
-            Agent oauthApp = new SimpleAgent(clientName);
+            Agent oauthApp = new Agent(clientName);
 
             oauthApp.setAttribute(new Attribute<String>("appURL", clientURL));
             oauthApp.setAttribute(new Attribute<String>("appDesc", clientDescription));

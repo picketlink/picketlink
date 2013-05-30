@@ -17,24 +17,24 @@
  */
 package org.picketlink.identity.federation.core.parsers.wsse;
 
+import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.constants.WSTrustConstants;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.parsers.AbstractParser;
+import org.picketlink.common.parsers.ParserNamespaceSupport;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.identity.federation.ws.wss.secext.AttributedString;
+import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
+import org.picketlink.identity.federation.ws.wss.secext.ReferenceType;
+import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
+import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-
-import org.picketlink.common.ErrorCodes;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.parsers.AbstractParser;
-import org.picketlink.common.parsers.ParserNamespaceSupport;
-import org.picketlink.common.util.StaxParserUtil;
-import org.picketlink.common.constants.WSTrustConstants;
-import org.picketlink.identity.federation.ws.wss.secext.AttributedString;
-import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
-import org.picketlink.identity.federation.ws.wss.secext.ReferenceType;
-import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
-import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
 
 /**
  * <p>

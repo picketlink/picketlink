@@ -17,15 +17,15 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.factories;
 
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationDataType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
+
+import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
  * Base methods for the factories

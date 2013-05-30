@@ -17,27 +17,17 @@
  */
 package org.picketlink.identity.federation.core.parsers.wst;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-
+import org.picketlink.common.ErrorCodes;
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.ErrorCodes;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.parsers.ParserController;
-import org.picketlink.common.parsers.ParserNamespaceSupport;
-import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
-import org.picketlink.common.util.StaxParserUtil;
-import org.picketlink.identity.federation.core.wsa.WSAddressingConstants;
 import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.constants.WSTrustConstants.XMLDSig;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.parsers.ParserNamespaceSupport;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.parsers.ParserController;
+import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
+import org.picketlink.identity.federation.core.wsa.WSAddressingConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
@@ -55,6 +45,15 @@ import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
 import org.picketlink.identity.federation.ws.wss.utility.AttributedDateTime;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.w3c.dom.Element;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Parse the WS-Trust RequestSecurityToken

@@ -17,16 +17,16 @@
  */
 package org.picketlink.test.identity.federation.core.config;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import org.picketlink.common.util.PBEUtils;
+import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 
-import org.junit.Test;
-import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
-import org.picketlink.common.util.PBEUtils;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test the masking of the password using {@code PBEUtils}

@@ -18,13 +18,13 @@
 
 package org.picketlink.identity.federation.web.handlers.saml2;
 
-import javax.servlet.http.HttpSession;
-
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.picketlink.common.constants.GeneralConstants;
+
+import javax.servlet.http.HttpSession;
 
 /**
  * Handler is useful on SP side. It's used for verification that InResponseId from SAML Authentication Response is same as ID of

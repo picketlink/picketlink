@@ -22,40 +22,42 @@
 
 package org.picketlink.idm.config;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Grant;
+import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.GroupRole;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.ContextInitializer;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * @author Pedro Igor
- *
  */
 public abstract class AbstractIdentityStoreConfigurationBuilder<T extends IdentityStoreConfiguration, S extends IdentityStoreConfigurationBuilder<T, S>>
         extends AbstractIdentityConfigurationChildBuilder implements IdentityStoreConfigurationBuilder<T, S> {
 
     private final Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures = new HashMap<FeatureGroup, Set<FeatureOperation>>();
     private final Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships = new HashMap<Class<? extends Relationship>, Set<FeatureOperation>>();
+    private final Map<Class<? extends IdentityType>, Set<FeatureOperation>> supportedIdentityTypes = new HashMap<Class<? extends IdentityType>, Set<FeatureOperation>>();
     private Set<String> realms = new HashSet<String>();
     private Set<String> tiers = new HashSet<String>();
     private List<ContextInitializer> contextInitializers = new ArrayList<ContextInitializer>();
-    private Map<String, Object> credentialHandlerProperties = new HashMap<String,Object>();
+    private Map<String, Object> credentialHandlerProperties = new HashMap<String, Object>();
     private List<Class<? extends CredentialHandler>> credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
     private IdentityStoresConfigurationBuilder identityStoresConfigurationBuilder;
 
@@ -82,24 +84,14 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
 
         for (FeatureGroup feature : features) {
             switch (feature) {
-                case agent:
-                    addBasicOperations(feature);
-                    break;
-                case user:
-                    addBasicOperations(feature);
-                    break;
-                case group:
-                    addBasicOperations(feature);
-                    break;
-                case role:
+                case attribute:
                     addBasicOperations(feature);
                     break;
                 case relationship:
-                    supportRelationshipType(null);
-                    addBasicOperations(feature);
+                    supportRelationshipType(getDefaultRelationshipClasses());
                     break;
-                case attribute:
-                    addBasicOperations(feature);
+                case identity_type:
+                    supportIdentityType(getDefaultIdentityTypeClasses());
                     break;
                 case realm:
                     addBasicOperations(feature);
@@ -117,66 +109,42 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
         return (S) this;
     }
 
-    public S supportFeature(FeatureGroup feature, FeatureOperation operation) {
-        getFeatureOperations(feature).add(operation);
-        return (S) this;
-    }
-
     @Override
     public S supportRelationshipType(Class<? extends Relationship>... relationshipClass) {
-        List<Class<? extends Relationship>> classes;
-
         if (relationshipClass != null && relationshipClass.length > 0) {
-            classes = Arrays.<Class<? extends Relationship>> asList(relationshipClass);
-        } else {
-            classes = getDefaultRelationshipClasses();
-        }
-
-        for (Class<? extends Relationship> cls : classes) {
-            getRelationshipOperations(cls).add(FeatureOperation.create);
-            getRelationshipOperations(cls).add(FeatureOperation.read);
-            getRelationshipOperations(cls).add(FeatureOperation.update);
-            getRelationshipOperations(cls).add(FeatureOperation.delete);
-        }
-
-        return (S) this;
-    }
-
-    /**
-     * <p>
-     * Removes the given {@link Relationship} types.
-     * </p>
-     *
-     * @param featureSet
-     * @param relationshipClass
-     */
-    @Override
-    public S removeRelationship(Class<? extends Relationship>... relationshipClasses) {
-        if (relationshipClasses != null) {
-            for (Class<? extends Relationship> relationshipClass : relationshipClasses) {
-                removeRelationshipFeature(relationshipClass, FeatureOperation.create);
-                removeRelationshipFeature(relationshipClass, FeatureOperation.read);
-                removeRelationshipFeature(relationshipClass, FeatureOperation.update);
-                removeRelationshipFeature(relationshipClass, FeatureOperation.delete);
+            for (Class<? extends Relationship> cls : relationshipClass) {
+                getRelationshipOperations(cls).add(FeatureOperation.create);
+                getRelationshipOperations(cls).add(FeatureOperation.read);
+                getRelationshipOperations(cls).add(FeatureOperation.update);
+                getRelationshipOperations(cls).add(FeatureOperation.delete);
             }
         }
 
         return (S) this;
     }
 
-    /**
-     * <p>
-     * Removes the given {@link FeatureOperation} related to the provided {@link Relationship} type from the feature set.
-     * </p>
-     *
-     * @param feature
-     * @param operation
-     * @throws SecurityConfigurationException If this instance is locked and changes are no more allowed.
-     */
     @Override
-    public S removeRelationshipFeature(Class<? extends Relationship> relationshipClass, FeatureOperation operation) {
-        if (this.supportedRelationships.containsKey(relationshipClass)) {
-            this.supportedRelationships.get(relationshipClass).remove(operation);
+    public S supportIdentityType(Class<? extends IdentityType>... identityTypes) {
+        if (identityTypes != null && identityTypes.length > 0) {
+            for (Class<? extends IdentityType> cls : identityTypes) {
+                getIdentityTypeOperations(cls).add(FeatureOperation.create);
+                getIdentityTypeOperations(cls).add(FeatureOperation.read);
+                getIdentityTypeOperations(cls).add(FeatureOperation.update);
+                getIdentityTypeOperations(cls).add(FeatureOperation.delete);
+            }
+        }
+
+        return (S) this;
+    }
+
+    @Override
+    public S removeRelationship(Class<? extends Relationship> relationshipClass, FeatureOperation... operation) {
+        if (operation.length == 0) {
+            this.supportedRelationships.remove(relationshipClass);
+        } else {
+            if (this.supportedRelationships.containsKey(relationshipClass)) {
+                this.supportedRelationships.get(relationshipClass).remove(operation);
+            }
         }
 
         return (S) this;
@@ -184,15 +152,12 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
 
     @Override
     public S supportAllFeatures() {
-        supportFeature(FeatureGroup.agent);
+        supportIdentityType(getDefaultIdentityTypeClasses());
+        supportRelationshipType(getDefaultRelationshipClasses());
         supportFeature(FeatureGroup.attribute);
         supportFeature(FeatureGroup.credential);
-        supportFeature(FeatureGroup.group);
         supportFeature(FeatureGroup.realm);
-        supportFeature(FeatureGroup.relationship);
-        supportFeature(FeatureGroup.role);
         supportFeature(FeatureGroup.tier);
-        supportFeature(FeatureGroup.user);
 
         return (S) this;
     }
@@ -233,45 +198,44 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
         return (S) this;
     }
 
-    /**
-     * <p>
-     * Removes the given {@link FeatureGroup} and all supported {@link FeatureOperation} from the features set.
-     * </p>
-     *
-     * @param feature
-     * @throws SecurityConfigurationException If this instance is locked and changes are no more allowed.
-     */
     @Override
-    public S removeFeature(FeatureGroup feature) throws SecurityConfigurationException {
-        this.supportedFeatures.remove(feature);
+    public S removeFeature(FeatureGroup feature, FeatureOperation... operation) {
+        if (operation.length == 0) {
+            this.supportedFeatures.remove(feature);
 
-        if (FeatureGroup.relationship.equals(feature)) {
-            this.supportedRelationships.clear();
+            if (FeatureGroup.relationship.equals(feature)) {
+                this.supportedRelationships.clear();
+            }
+        } else {
+            getFeatureOperations(feature).remove(operation);
+
+            if (FeatureGroup.relationship.equals(feature)) {
+                Set<Entry<Class<? extends Relationship>, Set<FeatureOperation>>> relationships = this.supportedRelationships
+                        .entrySet();
+
+                for (Entry<Class<? extends Relationship>, Set<FeatureOperation>> entry : relationships) {
+                    getRelationshipOperations(entry.getKey()).remove(operation);
+                }
+            } else if (FeatureGroup.identity_type.equals(feature)) {
+                Set<Entry<Class<? extends IdentityType>, Set<FeatureOperation>>> identityTypes = this.supportedIdentityTypes
+                        .entrySet();
+
+                for (Entry<Class<? extends IdentityType>, Set<FeatureOperation>> entry : identityTypes) {
+                    getIdentityTypeOperations(entry.getKey()).remove(operation);
+                }
+            }
+
         }
 
         return (S) this;
     }
 
-    /**
-     * <p>
-     * Removes the given {@link FeatureOperation} for the provided {@link FeatureGroup} from the features set.
-     * </p>
-     *
-     * @param feature
-     * @param operation
-     * @throws SecurityConfigurationException If this instance is locked and changes are no more allowed.
-     */
     @Override
-    public S removeFeature(FeatureGroup feature, FeatureOperation operation) {
-        getFeatureOperations(feature).remove(operation);
-
-        if (FeatureGroup.relationship.equals(feature)) {
-            Set<Entry<Class<? extends Relationship>, Set<FeatureOperation>>> relationShipsEntrySet = this.supportedRelationships
-                    .entrySet();
-
-            for (Entry<Class<? extends Relationship>, Set<FeatureOperation>> entry : relationShipsEntrySet) {
-                getRelationshipOperations(entry.getKey()).remove(operation);
-            }
+    public S removeIdentityType(Class<? extends IdentityType> identityType, FeatureOperation... operation) {
+        if (operation.length == 0) {
+            this.supportedIdentityTypes.remove(identityType);
+        } else {
+            getIdentityTypeOperations(identityType).remove(operation);
         }
 
         return (S) this;
@@ -279,7 +243,7 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
 
     @Override
     public void validate() {
-        if (this.supportedFeatures.isEmpty()) {
+        if (this.supportedFeatures.isEmpty() && this.supportedIdentityTypes.isEmpty() && this.supportedRelationships.isEmpty()) {
             throw new SecurityConfigurationException(
                     "You must provide which features should be supported by the identity store.");
         }
@@ -307,6 +271,10 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
         return this.supportedRelationships;
     }
 
+    protected Map<Class<? extends IdentityType>, Set<FeatureOperation>> getSupportedIdentityTypes() {
+        return this.supportedIdentityTypes;
+    }
+
     protected Set<String> getRealms() {
         return this.realms;
     }
@@ -327,18 +295,18 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
         return this.credentialHandlers;
     }
 
-    private Set<FeatureOperation> getFeatureOperations(FeatureGroup group) {
-        if (!this.supportedFeatures.containsKey(group)) {
-            this.supportedFeatures.put(group, new HashSet<FeatureOperation>());
-        }
-        return this.supportedFeatures.get(group);
-    }
-
     private Set<FeatureOperation> getRelationshipOperations(Class<? extends Relationship> relationshipClass) {
         if (!this.supportedRelationships.containsKey(relationshipClass)) {
             this.supportedRelationships.put(relationshipClass, new HashSet<FeatureOperation>());
         }
         return this.supportedRelationships.get(relationshipClass);
+    }
+
+    private Set<FeatureOperation> getIdentityTypeOperations(Class<? extends IdentityType> identityType) {
+        if (!this.supportedIdentityTypes.containsKey(identityType)) {
+            this.supportedIdentityTypes.put(identityType, new HashSet<FeatureOperation>());
+        }
+        return this.supportedIdentityTypes.get(identityType);
     }
 
     private void addBasicOperations(FeatureGroup feature) {
@@ -348,7 +316,7 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
         supportFeature(feature, FeatureOperation.delete);
     }
 
-    protected static List<Class<? extends Relationship>> getDefaultRelationshipClasses() {
+    private static Class<? extends Relationship>[] getDefaultRelationshipClasses() {
         List<Class<? extends Relationship>> classes = new ArrayList<Class<? extends Relationship>>();
 
         classes.add(Relationship.class);
@@ -356,7 +324,30 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
         classes.add(GroupMembership.class);
         classes.add(GroupRole.class);
 
-        return Collections.unmodifiableList(classes);
+        return (Class<? extends Relationship>[]) classes.toArray(new Class<?>[classes.size()]);
+    }
+
+    private static Class<? extends IdentityType>[] getDefaultIdentityTypeClasses() {
+        List<Class<? extends IdentityType>> classes = new ArrayList<Class<? extends IdentityType>>();
+
+        classes.add(Agent.class);
+        classes.add(User.class);
+        classes.add(Role.class);
+        classes.add(Group.class);
+
+        return (Class<? extends IdentityType>[]) classes.toArray(new Class<?>[classes.size()]);
+    }
+
+    private S supportFeature(FeatureGroup feature, FeatureOperation operation) {
+        getFeatureOperations(feature).add(operation);
+        return (S) this;
+    }
+
+    private Set<FeatureOperation> getFeatureOperations(FeatureGroup group) {
+        if (!this.supportedFeatures.containsKey(group)) {
+            this.supportedFeatures.put(group, new HashSet<FeatureOperation>());
+        }
+        return this.supportedFeatures.get(group);
     }
 
 }

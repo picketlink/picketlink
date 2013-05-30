@@ -18,10 +18,6 @@
 
 package org.picketlink.idm.file.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.credential.internal.CredentialUtils.getCurrentCredential;
-import static org.picketlink.idm.file.internal.FileIdentityQueryHelper.isQueryParameterEquals;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
@@ -48,21 +43,12 @@ import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.spi.annotations.Stored;
-import org.picketlink.idm.event.AgentCreatedEvent;
-import org.picketlink.idm.event.AgentDeletedEvent;
-import org.picketlink.idm.event.AgentUpdatedEvent;
-import org.picketlink.idm.event.GroupCreatedEvent;
-import org.picketlink.idm.event.GroupDeletedEvent;
-import org.picketlink.idm.event.GroupUpdatedEvent;
+import org.picketlink.idm.event.IdentityTypeCreatedEvent;
+import org.picketlink.idm.event.IdentityTypeDeletedEvent;
+import org.picketlink.idm.event.IdentityTypeUpdatedEvent;
 import org.picketlink.idm.event.RelationshipCreatedEvent;
 import org.picketlink.idm.event.RelationshipDeletedEvent;
 import org.picketlink.idm.event.RelationshipUpdatedEvent;
-import org.picketlink.idm.event.RoleCreatedEvent;
-import org.picketlink.idm.event.RoleDeletedEvent;
-import org.picketlink.idm.event.RoleUpdatedEvent;
-import org.picketlink.idm.event.UserCreatedEvent;
-import org.picketlink.idm.event.UserDeletedEvent;
-import org.picketlink.idm.event.UserUpdatedEvent;
 import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
@@ -76,10 +62,6 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleAgent;
-import org.picketlink.idm.model.SimpleGroup;
-import org.picketlink.idm.model.SimpleRole;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.model.annotation.IdentityProperty;
@@ -91,6 +73,9 @@ import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.credential.internal.CredentialUtils.getCurrentCredential;
+import static org.picketlink.idm.file.internal.FileIdentityQueryHelper.isQueryParameterEquals;
 
 /**
  * <p>
@@ -547,12 +532,12 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      * @param role
      */
     private void addRole(SecurityContext context, Role role) {
-        Role fileRole = new SimpleRole(role.getName());
+        Role fileRole = new Role(role.getName());
 
         updateIdentityType(context, role, fileRole);
 
         storeRole(fileRole);
-        context.getEventBridge().raiseEvent(new RoleCreatedEvent(role));
+        context.getEventBridge().raiseEvent(new IdentityTypeCreatedEvent(role));
     }
 
     private void storeRole(Role role) {
@@ -576,15 +561,15 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         if (group.getParentGroup() != null) {
             Group parentGroup = (Group) lookupIdentityTypeById(context, group.getParentGroup().getId());
 
-            fileGroup = new SimpleGroup(group.getName(), parentGroup);
+            fileGroup = new Group(group.getName(), parentGroup);
         } else {
-            fileGroup = new SimpleGroup(group.getName());
+            fileGroup = new Group(group.getName());
         }
 
         updateIdentityType(context, group, fileGroup);
 
         storeGroup(fileGroup);
-        context.getEventBridge().raiseEvent(new GroupCreatedEvent(group));
+        context.getEventBridge().raiseEvent(new IdentityTypeCreatedEvent(group));
     }
 
     private void storeGroup(Group fileGroup) {
@@ -603,7 +588,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      * @param user
      */
     private void addUser(SecurityContext context, User user) {
-        User storedUser = new SimpleUser(user.getLoginName());
+        User storedUser = new User(user.getLoginName());
 
         storedUser.setFirstName(user.getFirstName());
         storedUser.setLastName(user.getLastName());
@@ -612,7 +597,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         updateIdentityType(context, user, storedUser);
 
         storeAgent(storedUser);
-        context.getEventBridge().raiseEvent(new UserCreatedEvent(storedUser));
+        context.getEventBridge().raiseEvent(new IdentityTypeCreatedEvent(storedUser));
     }
 
     /**
@@ -623,12 +608,12 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      * @param agent
      */
     private void addAgent(SecurityContext context, Agent agent) {
-        Agent storedAgent = new SimpleAgent(agent.getLoginName());
+        Agent storedAgent = new Agent(agent.getLoginName());
 
         updateIdentityType(context, agent, storedAgent);
 
         storeAgent(storedAgent);
-        context.getEventBridge().raiseEvent(new AgentCreatedEvent(storedAgent));
+        context.getEventBridge().raiseEvent(new IdentityTypeCreatedEvent(storedAgent));
     }
 
     private void storeAgent(Agent storedAgent) {
@@ -703,7 +688,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         }
 
         storeRole(storedRole);
-        context.getEventBridge().raiseEvent(new RoleUpdatedEvent(updatedRole));
+        context.getEventBridge().raiseEvent(new IdentityTypeUpdatedEvent(updatedRole));
     }
 
     /**
@@ -721,7 +706,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         }
 
         storeGroup(storedGroup);
-        context.getEventBridge().raiseEvent(new GroupUpdatedEvent(updatedGroup));
+        context.getEventBridge().raiseEvent(new IdentityTypeUpdatedEvent(updatedGroup));
     }
 
     /**
@@ -744,7 +729,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         }
 
         storeAgent(storedUser);
-        context.getEventBridge().raiseEvent(new UserUpdatedEvent(updatedUser));
+        context.getEventBridge().raiseEvent(new IdentityTypeUpdatedEvent(updatedUser));
     }
 
     /**
@@ -763,7 +748,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         }
 
         storeAgent(storedAgent);
-        context.getEventBridge().raiseEvent(new AgentUpdatedEvent(updatedAgent));
+        context.getEventBridge().raiseEvent(new IdentityTypeUpdatedEvent(updatedAgent));
     }
 
     /**
@@ -965,7 +950,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
 
         getDataSource().flushRoles(partition);
 
-        context.getEventBridge().raiseEvent(new RoleDeletedEvent(role));
+        context.getEventBridge().raiseEvent(new IdentityTypeDeletedEvent(role));
     }
 
     /**
@@ -987,7 +972,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
 
         getDataSource().flushGroups(partition);
 
-        context.getEventBridge().raiseEvent(new GroupDeletedEvent(group));
+        context.getEventBridge().raiseEvent(new IdentityTypeDeletedEvent(group));
     }
 
     /**
@@ -1011,10 +996,10 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         removeCredentials(context, storedAgent);
 
         if (IDMUtil.isUserType(agent.getClass())) {
-            context.getEventBridge().raiseEvent(new UserDeletedEvent((User) agent));
+            context.getEventBridge().raiseEvent(new IdentityTypeDeletedEvent((User) agent));
         }
 
-        context.getEventBridge().raiseEvent(new AgentDeletedEvent(agent));
+        context.getEventBridge().raiseEvent(new IdentityTypeDeletedEvent(agent));
     }
 
     private void removeRelationships(IdentityType identityType) {

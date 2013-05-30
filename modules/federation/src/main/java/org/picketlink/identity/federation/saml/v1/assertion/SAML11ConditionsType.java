@@ -17,11 +17,11 @@
  */
 package org.picketlink.identity.federation.saml.v1.assertion;
 
+import org.picketlink.identity.federation.saml.common.CommonConditionsType;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.picketlink.identity.federation.saml.common.CommonConditionsType;
 
 /**
  * <complexType name="ConditionsType"> <choice minOccurs="0" maxOccurs="unbounded"> <element

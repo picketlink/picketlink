@@ -17,16 +17,35 @@
  */
 package org.picketlink.idm.model;
 
+<<<<<<< HEAD
 import org.picketlink.idm.model.annotation.AttributeProperty;
 
 /**
  * Represents a role, which may be assigned to account objects in various ways
  * to grant specific application privileges
+=======
+
+import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.query.QueryParameter;
+
+/**
+ * <p>Default {@link IdentityType} implementation  to represent roles.</p>
+>>>>>>> 6f08c37545d08cfc6048373a4b2b7bd23a902c60
  *
  * @author Shane Bryzak
  */
 public class Role extends AbstractIdentityType {
+<<<<<<< HEAD
     private static final long serialVersionUID = -9044601754527766512L;
+=======
+
+    private static final long serialVersionUID = 5641696145573437982L;
+
+    /**
+     * A query parameter used to set the name value.
+     */
+    public static final QueryParameter NAME = new QueryParameter() {};
+>>>>>>> 6f08c37545d08cfc6048373a4b2b7bd23a902c60
 
     private String name;
 
@@ -39,12 +58,17 @@ public class Role extends AbstractIdentityType {
 
     @AttributeProperty
     public String getName() {
+<<<<<<< HEAD
         return name;
+=======
+        return this.name;
+>>>>>>> 6f08c37545d08cfc6048373a4b2b7bd23a902c60
     }
 
     public void setName(String name) {
         this.name = name;
     }
+<<<<<<< HEAD
 
     @Override
     public int hashCode() {
@@ -67,4 +91,7 @@ public class Role extends AbstractIdentityType {
         return other.getName() != null && this.getName() != null
                 && other.getName().equals(this.getName());
     }
+=======
+
+>>>>>>> 6f08c37545d08cfc6048373a4b2b7bd23a902c60
 }

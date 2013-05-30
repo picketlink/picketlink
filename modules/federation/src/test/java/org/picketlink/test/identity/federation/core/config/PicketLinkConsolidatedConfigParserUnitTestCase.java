@@ -18,13 +18,6 @@
 
 package org.picketlink.test.identity.federation.core.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.InputStream;
-
 import org.junit.Test;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.config.PicketLinkConfigParser;
@@ -33,6 +26,13 @@ import org.picketlink.config.federation.PicketLinkType;
 import org.picketlink.config.federation.SPType;
 import org.picketlink.config.federation.STSType;
 import org.picketlink.config.federation.handler.Handlers;
+
+import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test to parse the Consolidated PicketLink Configuration in picketlink.xml

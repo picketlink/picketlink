@@ -31,7 +31,6 @@ import org.picketlink.authentication.internal.IdmAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.integration.AbstractArquillianTestCase;
 
@@ -62,7 +61,7 @@ public abstract class AbstractAuthenticationTestCase extends AbstractArquillianT
         User john = this.identityManager.getUser(USER_NAME);
 
         if (john == null) {
-            john = new SimpleUser(USER_NAME);
+            john = new User(USER_NAME);
             this.identityManager.add(john);
         }
 

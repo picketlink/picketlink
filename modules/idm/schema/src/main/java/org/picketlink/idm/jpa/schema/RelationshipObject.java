@@ -18,14 +18,13 @@
 
 package org.picketlink.idm.jpa.schema;
 
-import java.io.Serializable;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.Relationship;
 import org.picketlink.idm.jpa.annotations.RelationshipClass;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import java.io.Serializable;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>

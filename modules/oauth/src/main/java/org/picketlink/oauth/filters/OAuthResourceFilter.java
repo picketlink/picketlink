@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -34,10 +33,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
@@ -49,7 +46,6 @@ import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.Realm;
-import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.oauth.common.OAuthConstants;
 import org.picketlink.oauth.messages.ResourceAccessRequest;
@@ -94,10 +90,10 @@ public class OAuthResourceFilter implements Filter {
             String passedClientID = httpRequest.getParameter(OAuthConstants.CLIENT_ID);
             String accessToken = resourceAccessRequest.getAccessToken();
 
-            IdentityQuery<User> userQuery = identityManager.createIdentityQuery(User.class);
-            userQuery.setParameter(User.ID, passedClientID);
+            IdentityQuery<org.picketlink.idm.model.User> userQuery = identityManager.createIdentityQuery(org.picketlink.idm.model.User.class);
+            userQuery.setParameter(org.picketlink.idm.model.User.ID, passedClientID);
 
-            List<User> users = userQuery.getResultList();
+            List<org.picketlink.idm.model.User> users = userQuery.getResultList();
 
             if (users.size() == 0) {
                 httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "client_id not found");
@@ -109,7 +105,7 @@ public class OAuthResourceFilter implements Filter {
                 return;
             }
 
-            User clientApp = users.get(0);
+            org.picketlink.idm.model.User clientApp = users.get(0);
 
             // Get the values from DB
             String clientID = (String) clientApp.getAttribute("clientID").getValue();
@@ -198,8 +194,7 @@ public class OAuthResourceFilter implements Filter {
                             .agentDNSuffix(properties.getProperty("agentDNSuffix"))
                             .groupDNSuffix(properties.getProperty("groupDNSuffix"))
                             .addRealm(Realm.DEFAULT_REALM)
-                            .supportFeature(FeatureGroup.user, FeatureGroup.agent, FeatureGroup.user, FeatureGroup.group,
-                                    FeatureGroup.role, FeatureGroup.attribute, FeatureGroup.relationship, FeatureGroup.credential);
+                            .supportAllFeatures();
 
                 // FIXME: IdentityManager is not threadsafe
                 identityManager = new IdentityManagerFactory(builder.build()).createIdentityManager();

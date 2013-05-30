@@ -27,12 +27,28 @@ import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.*;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.config.JPAStoreConfigurationBuilder;
+import org.picketlink.idm.config.OperationNotSupportedException;
+import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
-import org.picketlink.idm.jpa.schema.*;
-import org.picketlink.idm.model.*;
+import org.picketlink.idm.jpa.schema.CredentialObject;
+import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
+import org.picketlink.idm.jpa.schema.IdentityObject;
+import org.picketlink.idm.jpa.schema.PartitionObject;
+import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
+import org.picketlink.idm.jpa.schema.RelationshipObject;
+import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
+import org.picketlink.idm.model.Grant;
+import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.GroupMembership;
+import org.picketlink.idm.model.GroupRole;
+import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.relationship.CustomRelationship;
 
 import javax.persistence.EntityManager;
@@ -83,15 +99,15 @@ public class JPAIdentityStoreConfigurationTestCase extends
 
         IdentityManager identityManager = createIdentityManager(builder.build());
 
-        User user = new SimpleUser("someUser");
+        User user = new User("someUser");
 
         identityManager.add(user);
 
-        Role role = new SimpleRole("someRole");
+        Role role = new Role("someRole");
 
         identityManager.add(role);
 
-        Group group = new SimpleGroup("someGroup");
+        Group group = new Group("someGroup");
 
         identityManager.add(group);
 
@@ -168,7 +184,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
 
         IdentityManager identityManager = createIdentityManager(builder.build());
 
-        User user = new SimpleUser("someUser");
+        User user = new User("someUser");
 
         identityManager.add(user);
 
@@ -262,7 +278,8 @@ public class JPAIdentityStoreConfigurationTestCase extends
         jpaConfig.credentialAttributeClass(CredentialObjectAttribute.class);
 
         // enabled basic features
-        jpaConfig.supportFeature(FeatureGroup.user, FeatureGroup.role, FeatureGroup.group, FeatureGroup.relationship, FeatureGroup.credential);
+        jpaConfig.supportIdentityType(User.class, Role.class, Group.class);
+        jpaConfig.supportFeature(FeatureGroup.relationship, FeatureGroup.credential);
 
         // enable the custom relationship class
         jpaConfig.supportRelationshipType(CustomRelationship.class);

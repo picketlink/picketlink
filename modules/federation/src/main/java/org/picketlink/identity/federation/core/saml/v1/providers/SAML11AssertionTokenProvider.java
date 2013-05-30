@@ -17,24 +17,16 @@
  */
 package org.picketlink.identity.federation.core.saml.v1.providers;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
-
+import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.fed.IssueInstantMissingException;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.core.saml.v1.SAML11ProtocolContext;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLProtocolContext;
-import org.picketlink.common.constants.JBossSAMLConstants;
-import org.picketlink.common.exceptions.fed.IssueInstantMissingException;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.sts.AbstractSecurityTokenProvider;
@@ -44,6 +36,13 @@ import org.picketlink.identity.federation.saml.v1.assertion.SAML11Authentication
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11StatementAbstractType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
+import java.io.IOException;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>

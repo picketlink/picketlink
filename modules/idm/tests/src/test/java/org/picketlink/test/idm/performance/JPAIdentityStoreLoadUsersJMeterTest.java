@@ -22,10 +22,6 @@
 
 package org.picketlink.test.idm.performance;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
@@ -34,7 +30,11 @@ import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.internal.IdentityManagerFactory;
-import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.User;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
 /**
  * @author Pedro Silva
@@ -53,7 +53,7 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
 
         IdentityManager identityManager = identityManagerFactory.createIdentityManager();
         
-        identityManager.add(new SimpleUser("testingUser"));
+        identityManager.add(new User("testingUser"));
 
         closeEntityManager();
     }
@@ -108,7 +108,7 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
         try {
             initializeEntityManager();
 
-            SimpleUser user = new SimpleUser(loginName);
+            User user = new User(loginName);
 
             IdentityManager identityManager = identityManagerFactory.createIdentityManager();
             

@@ -17,18 +17,6 @@
  */
 package org.picketlink.test.identity.federation.core.parser.saml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.xml.namespace.QName;
-
 import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.picketlink.common.constants.JBossSAMLConstants;
@@ -52,6 +40,17 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationD
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType.STSubType;
+
+import javax.xml.namespace.QName;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Test the parsing of saml assertions

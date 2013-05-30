@@ -18,24 +18,21 @@
 
 package org.picketlink.test.idm.partition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleGroup;
-import org.picketlink.idm.model.SimpleRole;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * <p>Test case for the {@link Realm} management operations.</p>
@@ -58,7 +55,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
     @Test (expected=SecurityConfigurationException.class)
     public void testUseNonExistentRealm() throws Exception {
         IdentityManager identityManager = getIdentityManagerFactory().createIdentityManager(new Realm("Not Configured Realm"));
-        identityManager.add(new SimpleUser("mary"));
+        identityManager.add(new User("mary"));
     }
 
     @Test
@@ -87,13 +84,13 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
     public void testCreateSameUserDifferentRealms() throws Exception {
         IdentityManager defaultIdentityManager = getIdentityManager();
         
-        User defaultRealmUser = new SimpleUser("commonName");
+        User defaultRealmUser = new User("commonName");
         
         defaultIdentityManager.add(defaultRealmUser);
         
         try {
             // we can not add this user with the same login name
-            defaultIdentityManager.add(new SimpleUser(defaultRealmUser.getLoginName()));
+            defaultIdentityManager.add(new User(defaultRealmUser.getLoginName()));
             fail();
         } catch (Exception e) {
         }
@@ -118,13 +115,13 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
     public void testCreateSameRoleDifferentRealms() throws Exception {
         IdentityManager defaultIdentityManager = getIdentityManager();
         
-        Role defaultRealmRole = new SimpleRole("commonName");
+        Role defaultRealmRole = new Role("commonName");
         
         defaultIdentityManager.add(defaultRealmRole);
         
         try {
             // we can not add this role with the same name
-            defaultIdentityManager.add(new SimpleRole(defaultRealmRole.getName()));
+            defaultIdentityManager.add(new Role(defaultRealmRole.getName()));
             fail();
         } catch (Exception e) {
         }
@@ -150,13 +147,13 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
     public void testCreateSameGroupDifferentRealms() throws Exception {
         IdentityManager defaultIdentityManager = getIdentityManager();
         
-        Group defaultRealmGroup = new SimpleGroup("commonName");
+        Group defaultRealmGroup = new Group("commonName");
         
         defaultIdentityManager.add(defaultRealmGroup);
         
         try {
             // we can not add this user with the same name or path
-            defaultIdentityManager.add(new SimpleGroup(defaultRealmGroup.getName()));
+            defaultIdentityManager.add(new Group(defaultRealmGroup.getName()));
             fail();
         } catch (Exception e) {
         }
@@ -220,9 +217,9 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
 
     @Test
     public void testRelationships() throws Exception {
-        User defaultRealmUser = new SimpleUser("defaultRealmUser");
-        Role defaultRealmRole = new SimpleRole("defaultRealmRole");
-        Group defaultRealmGroup = new SimpleGroup("defaultRealmGroup");
+        User defaultRealmUser = new User("defaultRealmUser");
+        Role defaultRealmRole = new Role("defaultRealmRole");
+        Group defaultRealmGroup = new Group("defaultRealmGroup");
 
         IdentityManager defaultIdentityManager = getIdentityManager();
         

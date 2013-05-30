@@ -47,6 +47,7 @@ import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
 import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
+import sun.management.resources.agent;
 
 /**
  * <p>
@@ -128,14 +129,7 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
                     .agentDNSuffix(AGENT_DN_SUFFIX)
                     .groupDNSuffix(GROUP_DN_SUFFIX)
                     .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
-                    .supportFeature(FeatureGroup.user, 
-                                    FeatureGroup.agent, 
-                                    FeatureGroup.user, 
-                                    FeatureGroup.group,
-                                    FeatureGroup.role, 
-                                    FeatureGroup.attribute, 
-                                    FeatureGroup.relationship, 
-                                    FeatureGroup.credential);
+                    .supportAllFeatures();
 
         return new IdentityManagerFactory(builder.build());
     }

@@ -17,23 +17,23 @@
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
-import java.security.PublicKey;
-import java.util.Map;
-
 import org.jboss.security.audit.AuditLevel;
+import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
-import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerErrorCodes;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.common.util.DocumentUtil;
-import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
 import org.w3c.dom.Document;
+
+import java.security.PublicKey;
+import java.util.Map;
 
 /**
  * Validates Signatures inside the SAML payload

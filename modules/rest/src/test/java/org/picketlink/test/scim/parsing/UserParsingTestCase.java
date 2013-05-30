@@ -17,12 +17,6 @@
  */
 package org.picketlink.test.scim.parsing;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.InputStream;
-
 import org.junit.Test;
 import org.picketlink.scim.codec.SCIMParser;
 import org.picketlink.scim.model.v11.Meta;
@@ -30,6 +24,10 @@ import org.picketlink.scim.model.v11.SCIMUser;
 import org.picketlink.scim.model.v11.SCIMUser.Emails;
 import org.picketlink.scim.model.v11.SCIMUser.Ims;
 import org.picketlink.scim.model.v11.UserName;
+
+import java.io.InputStream;
+
+import static org.junit.Assert.*;
 
 /**
  * Validate parsing of SCIM user representation

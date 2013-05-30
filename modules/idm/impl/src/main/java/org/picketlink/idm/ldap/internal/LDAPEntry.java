@@ -18,19 +18,18 @@
 
 package org.picketlink.idm.ldap.internal;
 
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.COMMA;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.EQUAL;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.SPACE_STRING;
-
-import java.io.Serializable;
-
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+import java.io.Serializable;
+
+import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.COMMA;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.EQUAL;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.SPACE_STRING;
 
 /**
  * @author Pedro Silva

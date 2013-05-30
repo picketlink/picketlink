@@ -18,17 +18,16 @@
 
 package org.picketlink.idm.jpa.schema;
 
-import java.io.Serializable;
+import org.picketlink.idm.jpa.annotations.Identity;
+import org.picketlink.idm.jpa.annotations.Parent;
+import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
+import org.picketlink.idm.jpa.annotations.RelationshipIdentity;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-
-import org.picketlink.idm.jpa.annotations.Identity;
-import org.picketlink.idm.jpa.annotations.Parent;
-import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
-import org.picketlink.idm.jpa.annotations.RelationshipIdentity;
+import java.io.Serializable;
 
 /**
  * <p>

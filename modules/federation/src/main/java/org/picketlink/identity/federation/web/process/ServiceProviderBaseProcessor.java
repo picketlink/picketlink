@@ -17,18 +17,6 @@
  */
 package org.picketlink.identity.federation.web.process;
 
-import static org.picketlink.common.util.StringUtil.isNotNull;
-
-import java.io.IOException;
-import java.net.URL;
-import java.security.PublicKey;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.locks.Lock;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.GeneralConstants;
@@ -52,6 +40,17 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.web.core.HTTPContext;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URL;
+import java.security.PublicKey;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.locks.Lock;
+
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 /**
  * A processor util at the SP

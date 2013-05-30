@@ -17,19 +17,12 @@
  */
 package org.picketlink.identity.federation.core.saml.v1.writers;
 
-import java.net.URI;
-import java.util.List;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamWriter;
-
-import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.StaxUtil;
 import org.picketlink.common.util.StringUtil;
+import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11ActionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AdviceType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
@@ -52,6 +45,12 @@ import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType.SA
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.saml.v2.metadata.LocalizedNameType;
 import org.w3c.dom.Element;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamWriter;
+import java.net.URI;
+import java.util.List;
 
 /**
  * Write the SAML 11 Assertion to stream

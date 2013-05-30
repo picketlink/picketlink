@@ -20,16 +20,13 @@ package org.picketlink.idm.jpa.internal;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
@@ -125,19 +122,5 @@ public class JPACriteriaQueryBuilder {
 
         }
 
-        @Override
-        protected AbstractBaseEvent raiseCreatedEvent(IdentityType fromIdentityType) {
-            return null;
-        }
-
-        @Override
-        protected AbstractBaseEvent raiseUpdatedEvent(IdentityType fromIdentityType) {
-            return null;
-        }
-
-        @Override
-        protected AbstractBaseEvent raiseDeletedEvent(IdentityType fromIdentityType) {
-            return null;
-        }
     }
 }

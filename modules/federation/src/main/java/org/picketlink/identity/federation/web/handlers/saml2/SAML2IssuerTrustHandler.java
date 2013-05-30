@@ -17,24 +17,24 @@
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
+import org.jboss.security.audit.AuditLevel;
+import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.config.federation.IDPType;
+import org.picketlink.config.federation.ProviderType;
+import org.picketlink.config.federation.TrustType;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.StringTokenizer;
-
-import org.jboss.security.audit.AuditLevel;
-import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
-import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
-import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
-import org.picketlink.config.federation.IDPType;
-import org.picketlink.config.federation.ProviderType;
-import org.picketlink.config.federation.TrustType;
-import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
-import org.picketlink.common.constants.GeneralConstants;
 
 /**
  * Handles Issuer trust

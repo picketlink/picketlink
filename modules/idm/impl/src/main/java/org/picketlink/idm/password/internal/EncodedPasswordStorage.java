@@ -18,10 +18,10 @@
 
 package org.picketlink.idm.password.internal;
 
-import java.util.Date;
-
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.Stored;
+
+import java.util.Date;
 
 /**
  * Represents the encoded hash value stored by an IdentityStore

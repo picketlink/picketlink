@@ -18,30 +18,21 @@
 
 package org.picketlink.idm.jpa.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
-import org.picketlink.idm.event.AbstractBaseEvent;
-import org.picketlink.idm.event.GroupCreatedEvent;
-import org.picketlink.idm.event.GroupDeletedEvent;
-import org.picketlink.idm.event.GroupUpdatedEvent;
-import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
-import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.SecurityContext;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -80,21 +71,6 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
         disassociateChildren(context, identityType, store);
     }
 
-    @Override
-    protected AbstractBaseEvent raiseCreatedEvent(Group fromIdentityType) {
-        return new GroupCreatedEvent(fromIdentityType);
-    }
-
-    @Override
-    protected AbstractBaseEvent raiseUpdatedEvent(Group fromIdentityType) {
-        return new GroupUpdatedEvent(fromIdentityType);
-    }
-
-    @Override
-    protected AbstractBaseEvent raiseDeletedEvent(Group fromIdentityType) {
-        return new GroupDeletedEvent(fromIdentityType);
-    }
-
     /**
      * <p>
      * Disassociates the given {@link Group} from its children.
@@ -128,7 +104,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
 
     @Override
     protected Group doCreateIdentityType(SecurityContext context, Object identity, JPAIdentityStore store) {
-        SimpleGroup group = null;
+        Group group = null;
 
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
 
@@ -139,9 +115,9 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
         if (parentInstance != null) {
             String groupPath = jpaConfig.getModelPropertyValue(String.class, parentInstance, PropertyType.GROUP_PATH);
 
-            group = new SimpleGroup(name, store.getGroup(context, groupPath));
+            group = new Group(name, store.getGroup(context, groupPath));
         } else {
-            group = new SimpleGroup(name);
+            group = new Group(name);
         }
 
         return group;
@@ -183,7 +159,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
 
         if (parameterValues != null) {
             for (Object object : parameterValues) {
-                if (Agent.class.isInstance(object)) {
+                if (org.picketlink.idm.model.Agent.class.isInstance(object)) {
                     RelationshipQuery<GroupMembership> query = context.getIdentityManager().createRelationshipQuery(
                             GroupMembership.class);
 

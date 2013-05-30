@@ -18,12 +18,6 @@
 
 package org.picketlink.test.idm.query;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-
-import java.util.List;
-
 import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
@@ -31,13 +25,18 @@ import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
+
+import java.util.List;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * <p>
@@ -81,7 +80,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 //
 //        getIdentityManagerFactory().createTier("Some Group Tier", null);
 //
-//        Group someGroupTier = new SimpleGroup("someGroupTier");
+//        Group someGroupTier = new Group("someGroupTier");
 //
 //        getIdentityManagerFactory().createIdentityManager(someTier).add(someGroupTier);
 //
@@ -102,7 +101,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 //
 //        getIdentityManagerFactory().createTier("Some Another Group Tier", null);
 //
-//        Group someGroupTestingTier = new SimpleGroup("someGroupTestingRealm");
+//        Group someGroupTestingTier = new Group("someGroupTestingRealm");
 //
 //        getIdentityManagerFactory().createIdentityManager(someAnotherTier).add(someGroupTestingTier);
 //
@@ -163,19 +162,19 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
     public void testFindGroupMembers() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
-        Group groupA = new SimpleGroup("a");
+        Group groupA = new Group("a");
 
         identityManager.add(groupA);
 
-        Group groupB = new SimpleGroup("b", groupA);
+        Group groupB = new Group("b", groupA);
 
         identityManager.add(groupB);
 
-        Group groupC = new SimpleGroup("c", groupB);
+        Group groupC = new Group("c", groupB);
 
         identityManager.add(groupC);
 
-        Group groupD = new SimpleGroup("d", groupC);
+        Group groupD = new Group("d", groupC);
 
         identityManager.add(groupD);
 

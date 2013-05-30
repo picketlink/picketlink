@@ -17,19 +17,18 @@
  */
 package org.picketlink.identity.federation.core.sts.registry;
 
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Lob;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Calendar;
 import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 
 /**
  * <p>

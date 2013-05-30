@@ -17,21 +17,20 @@
  */
 package org.picketlink.idm.ldap.internal;
 
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CREATE_TIMESTAMP;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE;
+import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Realm;
 
+import javax.naming.NamingException;
+import javax.naming.directory.BasicAttribute;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import javax.naming.NamingException;
-import javax.naming.directory.BasicAttribute;
-
-import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Realm;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.CREATE_TIMESTAMP;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE;
 
 /**
  * <p>

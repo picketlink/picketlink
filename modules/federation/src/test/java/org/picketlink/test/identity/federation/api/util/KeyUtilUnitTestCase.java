@@ -17,14 +17,13 @@
  */
 package org.picketlink.test.identity.federation.api.util;
 
+import junit.framework.TestCase;
+import org.picketlink.identity.federation.api.util.KeyUtil;
+import org.w3c.dom.Element;
+
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
-
-import junit.framework.TestCase;
-
-import org.picketlink.identity.federation.api.util.KeyUtil;
-import org.w3c.dom.Element;
 
 /**
  * Unit test the Key Util

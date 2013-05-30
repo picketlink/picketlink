@@ -17,14 +17,14 @@
  */
 package org.picketlink.idm.ldap.internal;
 
-import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
+import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Role;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 
-import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Role;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
 
 /**
  * Attributes of an {@link LDAPUser} that does not map to LDAP managed attributes
@@ -73,11 +73,15 @@ public class LDAPGroupRole extends LDAPIdentityType {
     }
 
     public Group getGroup() {
-        return this.group;
+        return null;
+// FIXME
+//        return this.group;
     }
 
     public Role getRole() {
-        return this.role;
+        return null;
+// FIXME
+//        return this.role;
     }
 
 }

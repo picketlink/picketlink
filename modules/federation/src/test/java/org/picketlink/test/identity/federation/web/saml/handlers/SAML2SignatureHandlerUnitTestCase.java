@@ -17,15 +17,10 @@
  */
 package org.picketlink.test.identity.federation.web.saml.handlers;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.util.HashMap;
-import java.util.Map;
-
 import junit.framework.TestCase;
-
-import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.config.federation.SPType;
+import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
@@ -40,7 +35,6 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.handlers.saml2.SAML2AuthenticationHandler;
 import org.picketlink.identity.federation.web.handlers.saml2.SAML2SignatureGenerationHandler;
@@ -50,6 +44,11 @@ import org.picketlink.test.identity.federation.web.mock.MockHttpServletResponse;
 import org.picketlink.test.identity.federation.web.mock.MockHttpSession;
 import org.picketlink.test.identity.federation.web.mock.MockServletContext;
 import org.w3c.dom.Document;
+
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Unit test the {@code SAML2SignatureHandler}

@@ -18,11 +18,6 @@
 
 package org.picketlink.idm.credential.internal;
 
-import java.io.ByteArrayInputStream;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.Date;
-
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials.Status;
@@ -32,6 +27,11 @@ import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
+
+import java.io.ByteArrayInputStream;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.Date;
 
 /**
  * This particular implementation supports the validation of {@link X509CertificateCredentials}, and updating {@link X509Cert}

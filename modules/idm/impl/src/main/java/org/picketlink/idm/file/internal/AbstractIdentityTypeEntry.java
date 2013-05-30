@@ -18,16 +18,16 @@
 
 package org.picketlink.idm.file.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.Tier;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Realm;
-import org.picketlink.idm.model.Tier;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * @author Pedro Silva

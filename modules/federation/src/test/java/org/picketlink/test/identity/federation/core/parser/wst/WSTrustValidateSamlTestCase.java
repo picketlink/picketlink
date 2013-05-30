@@ -17,17 +17,11 @@
  */
 package org.picketlink.test.identity.federation.core.parser.wst;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-
 import org.junit.Test;
-import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
-import org.picketlink.common.util.DocumentUtil;
-import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.common.constants.WSTrustConstants;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
+import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
@@ -35,6 +29,12 @@ import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Validate the parsing of wst-validate-saml.xml

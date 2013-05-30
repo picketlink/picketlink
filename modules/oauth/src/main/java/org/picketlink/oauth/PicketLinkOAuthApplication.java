@@ -17,15 +17,14 @@
  */
 package org.picketlink.oauth;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.ws.rs.core.Application;
-
 import org.picketlink.oauth.registration.RegistrationEndpoint;
 import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
 import org.picketlink.oauth.server.endpoint.ResourceEndpoint;
 import org.picketlink.oauth.server.endpoint.TokenEndpoint;
+
+import javax.ws.rs.core.Application;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A JAXRS Application for OAuth

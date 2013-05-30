@@ -17,21 +17,28 @@
  */
 package org.picketlink.identity.federation.core.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.OutputStream;
-import java.security.GeneralSecurityException;
-import java.security.Key;
-import java.security.KeyPair;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.security.interfaces.DSAPublicKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.constants.WSTrustConstants;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.Base64;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StringUtil;
+import org.picketlink.common.util.SystemPropertiesUtil;
+import org.picketlink.common.util.TransformerUtil;
+import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.crypto.MarshalException;
@@ -57,25 +64,21 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
-
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
-import org.picketlink.common.constants.WSTrustConstants;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.common.util.*;
-import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import java.io.ByteArrayInputStream;
+import java.io.OutputStream;
+import java.security.GeneralSecurityException;
+import java.security.Key;
+import java.security.KeyPair;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.DSAPublicKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Utility for XML Signature <b>Note:</b> You can change the canonicalization method type by using the system property

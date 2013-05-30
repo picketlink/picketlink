@@ -17,9 +17,9 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.interfaces;
 
-import java.util.List;
-
 import org.w3c.dom.Document;
+
+import java.util.List;
 
 /**
  * A response object sent to the {@code SAML2Handler} as part of a chain

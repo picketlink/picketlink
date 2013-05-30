@@ -17,12 +17,12 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.interfaces;
 
-import java.util.Map;
-
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.w3c.dom.Document;
+
+import java.util.Map;
 
 /**
  * Request for {@code SAML2Handler}

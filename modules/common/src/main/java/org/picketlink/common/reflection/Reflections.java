@@ -18,6 +18,10 @@
 
 package org.picketlink.common.reflection;
 
+import javax.enterprise.inject.spi.AnnotatedField;
+import javax.enterprise.inject.spi.AnnotatedType;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.inject.Qualifier;
 import java.beans.Introspector;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -40,11 +44,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import javax.enterprise.inject.spi.AnnotatedField;
-import javax.enterprise.inject.spi.AnnotatedType;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.inject.Qualifier;
 
 /**
  * Utility class for working with JDK Reflection and also CDI's

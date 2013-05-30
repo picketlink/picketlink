@@ -17,12 +17,12 @@
  */
 package org.picketlink.oauth.messages;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.picketlink.oauth.common.OAuthConstants;
+
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.codehaus.jackson.map.ObjectMapper;
-import org.picketlink.oauth.common.OAuthConstants;
 
 /**
  * A {@link OAuthResponse} for Client Registration

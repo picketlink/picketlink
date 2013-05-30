@@ -18,7 +18,10 @@
 
 package org.picketlink.idm.credential.spi;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
+import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
+import org.picketlink.idm.spi.IdentityStore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,10 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
-import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
-import org.picketlink.idm.spi.IdentityStore;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * This factory is responsible for returning CredentialHandler instances given a specific

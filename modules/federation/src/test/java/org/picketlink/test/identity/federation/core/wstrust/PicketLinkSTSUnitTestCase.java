@@ -17,40 +17,6 @@
  */
 package org.picketlink.test.identity.federation.core.wstrust;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.net.URI;
-import java.net.URL;
-import java.security.KeyFactory;
-import java.security.KeyStore;
-import java.security.Principal;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.RSAPublicKeySpec;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.datatype.DatatypeConstants;
-import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.Source;
-import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.ws.EndpointReference;
-import javax.xml.ws.WebServiceContext;
-import javax.xml.ws.WebServiceException;
-import javax.xml.ws.handler.MessageContext;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.common.ErrorCodes;
@@ -119,6 +85,39 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.X509CertificateType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.ws.EndpointReference;
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.WebServiceException;
+import javax.xml.ws.handler.MessageContext;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.net.URI;
+import java.net.URL;
+import java.security.KeyFactory;
+import java.security.KeyStore;
+import java.security.Principal;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.RSAPublicKeySpec;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * <p>

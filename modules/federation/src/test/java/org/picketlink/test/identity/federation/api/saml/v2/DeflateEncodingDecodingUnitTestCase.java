@@ -17,18 +17,17 @@
  */
 package org.picketlink.test.identity.federation.api.saml.v2;
 
+import junit.framework.TestCase;
+import org.picketlink.common.util.Base64;
+import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
+import org.picketlink.identity.federation.api.util.DeflateUtil;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-
-import junit.framework.TestCase;
-
-import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
-import org.picketlink.identity.federation.api.util.DeflateUtil;
-import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.common.util.Base64;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 
 /**
  * Unit test the DEFLATE compression encoding/decoding cycles

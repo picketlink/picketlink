@@ -18,12 +18,12 @@
 
 package org.picketlink.idm.credential.internal;
 
-import java.util.Date;
-
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
+
+import java.util.Date;
 
 /**
  * <p>Utility class with helper methods for the Credential API.</p>

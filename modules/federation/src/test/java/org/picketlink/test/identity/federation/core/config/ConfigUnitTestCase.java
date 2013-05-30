@@ -17,15 +17,6 @@
  */
 package org.picketlink.test.identity.federation.core.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.InputStream;
-import java.util.List;
-
-import javax.xml.crypto.dsig.CanonicalizationMethod;
-
 import org.junit.Test;
 import org.picketlink.config.federation.AuthPropertyType;
 import org.picketlink.config.federation.IDPType;
@@ -42,6 +33,14 @@ import org.picketlink.config.federation.handler.Handler;
 import org.picketlink.config.federation.handler.Handlers;
 import org.picketlink.config.federation.parsers.SAMLConfigParser;
 import org.picketlink.config.federation.parsers.STSConfigParser;
+
+import javax.xml.crypto.dsig.CanonicalizationMethod;
+import java.io.InputStream;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit Test the various config

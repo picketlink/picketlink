@@ -18,15 +18,15 @@
 
 package org.picketlink.idm.credential.spi.annotations;
 
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import org.picketlink.idm.credential.spi.CredentialHandler;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.picketlink.idm.credential.spi.CredentialHandler;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * This annotation is used to declare which CredentialHandlers are supported by an IdentityStore implementation.

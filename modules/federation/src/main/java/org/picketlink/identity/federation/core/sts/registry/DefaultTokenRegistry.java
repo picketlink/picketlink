@@ -17,11 +17,11 @@
  */
 package org.picketlink.identity.federation.core.sts.registry;
 
+import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 
 /**
  * Hashmap based token registry

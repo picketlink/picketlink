@@ -17,35 +17,23 @@
  */
 package org.picketlink.identity.federation.api.soap;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.URL;
-
-import javax.xml.soap.SOAPConnection;
-import javax.xml.soap.SOAPConnectionFactory;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPMessage;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamWriter;
-
 import org.jboss.security.xacml.core.model.context.DecisionType;
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResultType;
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.parsers.saml.SAMLResponseParser;
-import org.picketlink.common.util.StaxParserUtil;
-import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.common.util.StaxUtil;
+import org.picketlink.identity.federation.core.parsers.saml.SAMLResponseParser;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
 import org.picketlink.identity.federation.core.util.SOAPUtil;
-import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
@@ -55,6 +43,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import javax.xml.soap.SOAPConnection;
+import javax.xml.soap.SOAPConnectionFactory;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URL;
 
 /**
  * Class that deals with sending XACML Request Response bundled in SAML pay load as SOAP Requests

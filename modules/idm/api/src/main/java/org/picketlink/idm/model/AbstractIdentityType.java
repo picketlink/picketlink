@@ -17,6 +17,8 @@
  */
 package org.picketlink.idm.model;
 
+import org.picketlink.idm.query.QueryParameter;
+
 import java.util.Date;
 
 /**
@@ -69,5 +71,26 @@ public abstract class AbstractIdentityType extends AbstractAttributedType implem
 
     public void setPartition(Partition partition) {
         this.partition = partition;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!getClass().isInstance(obj)) {
+            return false;
+        }
+
+        IdentityType other = (IdentityType) obj;
+
+        return (getId() != null && other.getId() != null && getPartition() != null && other.getPartition() != null)
+                && (getId().equals(other.getId()) && getPartition().equals(other.getPartition()));
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }

@@ -17,17 +17,17 @@
  */
 package org.picketlink.identity.federation.core.wstrust.writers;
 
-import static org.picketlink.identity.federation.core.wsa.WSAddressingConstants.ADDRESS;
-import static org.picketlink.identity.federation.core.wsa.WSAddressingConstants.ENDPOINT_REFERENCE;
-import static org.picketlink.identity.federation.core.wsa.WSAddressingConstants.WSA_NS;
-import static org.picketlink.identity.federation.core.wsa.WSAddressingConstants.WSA_PREFIX;
-
-import javax.xml.stream.XMLStreamWriter;
-
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.ws.addressing.AttributedURIType;
 import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
+
+import javax.xml.stream.XMLStreamWriter;
+
+import static org.picketlink.identity.federation.core.wsa.WSAddressingConstants.ADDRESS;
+import static org.picketlink.identity.federation.core.wsa.WSAddressingConstants.ENDPOINT_REFERENCE;
+import static org.picketlink.identity.federation.core.wsa.WSAddressingConstants.WSA_NS;
+import static org.picketlink.identity.federation.core.wsa.WSAddressingConstants.WSA_PREFIX;
 
 /**
  * Write WS-Addressing Elements

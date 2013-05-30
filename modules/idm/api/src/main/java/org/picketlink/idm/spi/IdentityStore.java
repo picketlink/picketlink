@@ -17,10 +17,6 @@
  */
 package org.picketlink.idm.spi;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.model.Agent;
@@ -33,6 +29,10 @@ import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  * IdentityStore representation providing minimal SPI

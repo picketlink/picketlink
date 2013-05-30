@@ -17,9 +17,9 @@
  */
 package org.picketlink.idm.model;
 
-import java.util.Date;
-
 import org.picketlink.idm.query.QueryParameter;
+
+import java.util.Date;
 
 /**
  * This interface is the base for all identity model objects.  It declares a number of

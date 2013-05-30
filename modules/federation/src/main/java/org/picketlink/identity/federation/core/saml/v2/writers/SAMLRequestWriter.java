@@ -21,19 +21,6 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.writers;
 
-import static org.picketlink.common.constants.JBossSAMLConstants.SESSION_INDEX;
-import static org.picketlink.common.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
-import static org.picketlink.common.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
-
-import java.io.StringWriter;
-import java.net.URI;
-import java.util.List;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamWriter;
-
 import org.jboss.security.xacml.core.model.context.ObjectFactory;
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.picketlink.common.constants.JBossSAMLConstants;
@@ -56,6 +43,18 @@ import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
 import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.StringWriter;
+import java.net.URI;
+import java.util.List;
+
+import static org.picketlink.common.constants.JBossSAMLConstants.SESSION_INDEX;
+import static org.picketlink.common.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
+import static org.picketlink.common.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
 
 /**
  * Writes a SAML2 Request Type to Stream

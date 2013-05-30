@@ -17,13 +17,6 @@
  */
 package org.picketlink.test.identity.federation.core.parser.saml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.util.List;
-
 import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.picketlink.common.util.StaxUtil;
@@ -35,6 +28,13 @@ import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11ResponseType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11StatusCodeType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11StatusType;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit Test the {@link SAML11ResponseParser}

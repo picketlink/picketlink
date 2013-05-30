@@ -17,21 +17,13 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.parsers.ParserNamespaceSupport;
 import org.picketlink.common.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
-import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11ResponseType;
@@ -39,6 +31,14 @@ import org.picketlink.identity.federation.saml.v1.protocol.SAML11StatusCodeType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11StatusType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusDetailType;
 import org.w3c.dom.Element;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 
 /**
  * Parse the SAML 11 Response

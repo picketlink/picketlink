@@ -17,11 +17,6 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.factories;
 
-import java.net.URI;
-import java.util.List;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionAbstractType;
@@ -32,6 +27,10 @@ import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractTyp
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.net.URI;
+import java.util.List;
 
 /**
  * Deal with {@code AssertionType}

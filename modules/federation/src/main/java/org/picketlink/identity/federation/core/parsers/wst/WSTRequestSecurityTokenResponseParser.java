@@ -17,16 +17,6 @@
  */
 package org.picketlink.identity.federation.core.parsers.wst;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.WSTrustConstants;
@@ -53,6 +43,15 @@ import org.picketlink.identity.federation.ws.trust.UseKeyType;
 import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
 import org.picketlink.identity.federation.ws.wss.utility.AttributedDateTime;
 import org.w3c.dom.Element;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Parse the WS-Trust RequestSecurityTokenResponse

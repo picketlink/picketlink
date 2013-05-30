@@ -18,14 +18,6 @@
 
 package org.picketlink.config.idm.parsers;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.Characters;
-import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.parsers.AbstractParser;
 import org.picketlink.common.util.StaxParserUtil;
@@ -35,6 +27,14 @@ import org.picketlink.config.idm.IdentityConfigurationType;
 import org.picketlink.config.idm.IdentityStoreInvocationContextFactoryType;
 import org.picketlink.config.idm.ObjectType;
 import org.picketlink.config.idm.StoreConfigurationType;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.Characters;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 
 /**
  * Stax based XML parser for Picketlink IDM configuration
