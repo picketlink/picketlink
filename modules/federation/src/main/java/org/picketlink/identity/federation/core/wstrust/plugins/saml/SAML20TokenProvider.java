@@ -71,6 +71,8 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
     
     private SAML20TokenAttributeProvider attributeProvider;
 
+    private boolean useAbsoluteKeyIdentifier = false;
+
     /*
      * (non-Javadoc)
      *
@@ -95,6 +97,11 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
             } catch (Exception pae) {
                 logger.attributeProviderInstationError(pae);
             }
+        }
+
+        String absoluteKI = this.properties.get(USE_ABSOLUTE_KEYIDENTIFIER);
+        if(absoluteKI != null && "true".equalsIgnoreCase(absoluteKI)){
+            useAbsoluteKeyIdentifier = true;
         }
     }
 
@@ -208,7 +215,11 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
         context.setSecurityToken(token);
 
         // set the SAML assertion attached reference.
-        KeyIdentifierType keyIdentifier = WSTrustUtil.createKeyIdentifier(SAMLUtil.SAML2_VALUE_TYPE, "#" + assertionID);
+        String keyIdentifierValue = assertionID;
+        if(!useAbsoluteKeyIdentifier){
+            keyIdentifierValue = "#" + keyIdentifierValue;
+        }
+        KeyIdentifierType keyIdentifier = WSTrustUtil.createKeyIdentifier(SAMLUtil.SAML2_VALUE_TYPE, keyIdentifierValue);
         Map<QName, String> attributes = new HashMap<QName, String>();
         attributes.put(new QName(WSTrustConstants.WSSE11_NS, "TokenType", WSTrustConstants.WSSE.PREFIX_11),
                 SAMLUtil.SAML2_TOKEN_TYPE);
