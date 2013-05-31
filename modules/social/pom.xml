@@ -22,37 +22,6 @@
       <url>http://www.jboss.org</url>
    </organization>
 
-   <profiles>
-
-      <profile>
-         <id>long-tests</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-         </activation>
-         <build>
-            <plugins>
-               <plugin>
-                  <artifactId>maven-surefire-plugin</artifactId>
-                  <version>2.4.3</version>
-                  <configuration>
-                     <childDelegation>true</childDelegation>
-                     <printSummary>true</printSummary>
-                     <disableXmlReport>false</disableXmlReport>
-                     <testFailureIgnore>false</testFailureIgnore>
-                     <includes>
-                        <include>**/integration/*TestCase.java</include>
-                     </includes>
-                     <forkMode>pertest</forkMode>
-                     <argLine>${surefire.jvm.args}</argLine>
-                     <useFile>false</useFile>
-                     <trimStackTrace>false</trimStackTrace>
-                  </configuration>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-   </profiles>
-
    <build>
       <plugins>
          <plugin>
@@ -78,6 +47,21 @@
    </build>
 
    <dependencies>
+      <dependency>
+           <groupId>org.picketlink</groupId>
+           <artifactId>picketlink-api</artifactId>
+           <version>${project.version}</version>
+      </dependency>
+       <dependency>
+           <groupId>javax.enterprise</groupId>
+           <artifactId>cdi-api</artifactId>
+           <scope>provided</scope>
+       </dependency>
+       <dependency>
+           <groupId>org.jboss.spec.javax.servlet</groupId>
+           <artifactId>jboss-servlet-api_3.0_spec</artifactId>
+           <scope>provided</scope>
+       </dependency>
       <dependency>
          <groupId>org.json</groupId>
          <artifactId>json</artifactId>
