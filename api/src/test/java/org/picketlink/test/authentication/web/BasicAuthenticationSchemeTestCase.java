@@ -55,6 +55,7 @@ public class BasicAuthenticationSchemeTestCase {
         when(identityInstance.get()).thenReturn(identity);
         when(credentialsInstance.get()).thenReturn(credentials);
         when(config.getInitParameter(AuthenticationFilter.AUTH_TYPE_INIT_PARAM)).thenReturn(AuthenticationFilter.AuthType.BASIC.name());
+        when(request.getMethod()).thenReturn("GET");
 
         filter.init(config);
     }

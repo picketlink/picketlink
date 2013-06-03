@@ -67,6 +67,7 @@ public class DigestAuthenticationSchemeTestCase {
         when(config.getInitParameter(AuthenticationFilter.AUTH_TYPE_INIT_PARAM)).thenReturn(AuthenticationFilter.AuthType.DIGEST.name());
         when(request.getSession()).thenReturn(session);
         when(session.getId()).thenReturn("123456");
+        when(request.getMethod()).thenReturn("GET");
 
         filter.init(config);
     }
