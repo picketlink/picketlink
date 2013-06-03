@@ -12,15 +12,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.picketlink.Identity;
 import org.picketlink.authentication.web.AuthenticationFilter;
-import org.picketlink.authentication.web.HTTPAuthenticationScheme;
 import org.picketlink.credential.DefaultLoginCredentials;
+import org.picketlink.idm.credential.Password;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.picketlink.authentication.web.AuthenticationFilter.AuthType.BASIC;
 
-public class AuthenticationFilterTestCase {
+public class BasicAuthenticationSchemeTestCase {
 
     @InjectMocks
     private AuthenticationFilter filter;
@@ -49,45 +49,35 @@ public class AuthenticationFilterTestCase {
     @Mock
     private DefaultLoginCredentials credentials;
     
-    @Mock
-    private HTTPAuthenticationScheme authenticationScheme;
-    
     @Before
     public void onSetup() throws ServletException {
         initMocks(this);
         when(identityInstance.get()).thenReturn(identity);
         when(credentialsInstance.get()).thenReturn(credentials);
+        when(config.getInitParameter(AuthenticationFilter.AUTH_TYPE_INIT_PARAM)).thenReturn(AuthenticationFilter.AuthType.BASIC.name());
+
+        filter.init(config);
     }
 
     @Test
-    public void testUnprotectedMethod() throws Exception {
-        when(config.getInitParameter(AuthenticationFilter.AUTH_TYPE_INIT_PARAM)).thenReturn(BASIC.name());
-        when(config.getInitParameter(AuthenticationFilter.UNPROTECTED_METHODS_INIT_PARAM)).thenReturn("OPTIONS, GET");
-        when(request.getMethod()).thenReturn("OPTIONS");
-
-        filter.init(config);
+    public void testChallengeClient() throws Exception {
         filter.doFilter(request, response, filterChain);
 
-        verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED);
-
-        when(request.getMethod()).thenReturn("GET");
-
-        filter.init(config);
-        filter.doFilter(request, response, filterChain);
-
-        verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED);
-    }
-
-    @Test
-    public void testProtectedMethod() throws Exception {
-        when(config.getInitParameter(AuthenticationFilter.AUTH_TYPE_INIT_PARAM)).thenReturn(BASIC.name());
-        when(config.getInitParameter(AuthenticationFilter.UNPROTECTED_METHODS_INIT_PARAM)).thenReturn("OPTIONS");
-        when(request.getMethod()).thenReturn("GET");
-
-        filter.init(config);
-        filter.doFilter(request, response, filterChain);
-
+        verify(response).setHeader(eq("WWW-Authenticate"), eq("Basic realm=\"" + AuthenticationFilter.DEFAULT_REALM_NAME + "\""));
         verify(response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        verify(identity, never()).login();
+    }
+
+    @Test
+    public void testAuthentication() throws Exception {
+        when(request.getHeader("Authorization")).thenReturn(new String("Basic " + org.picketlink.common.util.Base64.encodeBytes("john:passwd".getBytes())));
+        when(credentials.getCredential()).thenReturn(new Password("passwd"));
+
+        filter.doFilter(request, response, filterChain);
+
+        verify(credentials).setUserId("john");
+        verify(credentials).setPassword("passwd");
+        verify(identity).login();
     }
 
 }

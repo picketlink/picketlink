@@ -24,12 +24,8 @@ package org.picketlink.authentication.web;
 
 import java.io.IOException;
 import java.util.Timer;
-
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.credential.Digest;
 
@@ -46,9 +42,6 @@ public class DigestAuthenticationScheme implements HTTPAuthenticationScheme {
     private NonceCache nonceCache = new NonceCache();
 
     private String realm;
-
-    @Inject
-    Instance<DefaultLoginCredentials> credentials;
 
     public DigestAuthenticationScheme(String realm) {
         this.realm = realm;

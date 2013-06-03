@@ -23,12 +23,8 @@
 package org.picketlink.authentication.web;
 
 import java.io.IOException;
-
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.picketlink.common.util.Base64;
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.credential.DefaultLoginCredentials;
@@ -44,9 +40,6 @@ public class BasicAuthenticationScheme implements HTTPAuthenticationScheme {
 
     private String realm;
 
-    @Inject
-    Instance<DefaultLoginCredentials> credentials;
-    
     public BasicAuthenticationScheme(String realm) {
         this.realm = realm;
     }
@@ -61,15 +54,15 @@ public class BasicAuthenticationScheme implements HTTPAuthenticationScheme {
 
             if (!(StringUtil.isNullOrEmpty(username) && StringUtil.isNullOrEmpty(password))) {
                 creds.setUserId(username);
-                creds.setCredential(new Password(password.toCharArray()));
+                creds.setPassword(password);
             }
         }
     }
 
     @Override
     public void challengeClient(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.addHeader("WWW-Authenticate", "Basic realm=\"" + this.realm + "\"");
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not authorized");
+        response.setHeader("WWW-Authenticate", "Basic realm=\"" + this.realm + "\"");
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
     }
 
     private boolean isBasicAuthentication(HttpServletRequest request) {
