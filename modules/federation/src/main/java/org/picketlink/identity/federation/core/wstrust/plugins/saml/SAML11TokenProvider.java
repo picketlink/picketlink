@@ -178,7 +178,7 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
         if(!useAbsoluteKeyIdentifier){
             keyIdentifierValue = "#" + keyIdentifierValue;
         }
-        KeyIdentifierType keyIdentifier = WSTrustUtil.createKeyIdentifier(SAMLUtil.SAML2_VALUE_TYPE, keyIdentifierValue);
+        KeyIdentifierType keyIdentifier = WSTrustUtil.createKeyIdentifier(SAMLUtil.SAML11_VALUE_TYPE, keyIdentifierValue);
         Map<QName, String> attributes = new HashMap<QName, String>();
         attributes.put(new QName(WSTrustConstants.WSSE11_NS, "TokenType", WSTrustConstants.WSSE.PREFIX_11),
                 SAMLUtil.SAML11_TOKEN_TYPE);
