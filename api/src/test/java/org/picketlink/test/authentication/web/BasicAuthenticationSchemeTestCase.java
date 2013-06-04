@@ -81,4 +81,18 @@ public class BasicAuthenticationSchemeTestCase {
         verify(identity).login();
     }
 
+    @Test
+    public void testProvidedRealmName() throws Exception {
+        String realmName = "My Realm";
+
+        when(config.getInitParameter(AuthenticationFilter.REALM_NAME_INIT_PARAM)).thenReturn(realmName);
+
+        filter.init(config);
+        filter.doFilter(request, response, filterChain);
+
+        verify(response).setHeader(eq("WWW-Authenticate"), eq("Basic realm=\"" + realmName + "\""));
+        verify(response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        verify(identity, never()).login();
+    }
+
 }

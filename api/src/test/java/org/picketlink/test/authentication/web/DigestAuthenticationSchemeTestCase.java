@@ -22,6 +22,7 @@ import org.picketlink.idm.credential.Digest;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -76,7 +77,7 @@ public class DigestAuthenticationSchemeTestCase {
     public void testChallengeClient() throws Exception {
         filter.doFilter(request, response, filterChain);
 
-        verify(response).setHeader(eq("WWW-Authenticate"), contains("Digest realm=\"" + AuthenticationFilter.DEFAULT_REALM_NAME + "\""));
+        verify(response).setHeader(eq("WWW-Authenticate"), startsWith("Digest realm=\"" + AuthenticationFilter.DEFAULT_REALM_NAME + "\""));
         verify(response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
         verify(identity, never()).login();
     }
@@ -139,8 +140,22 @@ public class DigestAuthenticationSchemeTestCase {
 
         verify(credentials, never()).setCredential(any(Digest.class));
         verify(identity, never()).login();
-        verify(response).setHeader(eq("WWW-Authenticate"), contains("Digest realm=\"" + AuthenticationFilter.DEFAULT_REALM_NAME + "\""));
+        verify(response).setHeader(eq("WWW-Authenticate"), startsWith("Digest realm=\"" + AuthenticationFilter.DEFAULT_REALM_NAME + "\""));
         verify(response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
+    }
+
+    @Test
+    public void testProvidedRealmName() throws Exception {
+        String realmName = "My Realm";
+
+        when(config.getInitParameter(AuthenticationFilter.REALM_NAME_INIT_PARAM)).thenReturn(realmName);
+
+        filter.init(config);
+        filter.doFilter(request, response, filterChain);
+
+        verify(response).setHeader(eq("WWW-Authenticate"), startsWith("Digest realm=\"" + realmName + "\""));
+        verify(response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        verify(identity, never()).login();
     }
 
     private String buildAuthorizationHeader(Digest digest) {
