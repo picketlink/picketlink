@@ -15,12 +15,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.social.auth.conf;
+package org.picketlink.social.auth;
+
+import twitter4j.User;
+
+import java.io.Serializable;
+import java.security.Principal;
 
 /**
- * Configuration for Facebook Login
- * @author Anil Saldhana
- * @since May 30, 2013
+ * Represents a {@link java.security.Principal} via Twitter login
+ * @author anil saldhana
+ * @since Oct 3, 2012
  */
-public interface FacebookConfiguration extends CommonConfiguration{
+public class TwitterPrincipal implements Principal, Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private String name;
+    
+    public TwitterPrincipal(User user){
+        name = user.getName();
+    }
+    @Override
+    public String getName() {
+        return name;
+    }
 }

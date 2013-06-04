@@ -18,9 +18,32 @@
 package org.picketlink.social.auth.conf;
 
 /**
- * Configuration for Facebook Login
+ * Common Configuration for social login
  * @author Anil Saldhana
- * @since May 30, 2013
+ * @since June 03, 2013
  */
-public interface FacebookConfiguration extends CommonConfiguration{
+public interface CommonConfiguration {
+    /**
+     * Get the Client ID
+     * @return
+     */
+    public String getClientID();
+
+    /**
+     * Get the Client Secret
+     * @return
+     */
+    public String getClientSecret();
+
+    /**
+     * Get the Scope
+     * @return
+     */
+    public String getScope();
+
+    /**
+     * Get the Return URL
+     * @return
+     */
+    public String getReturnURL();
 }

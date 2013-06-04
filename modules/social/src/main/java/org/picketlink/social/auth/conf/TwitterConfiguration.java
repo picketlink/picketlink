@@ -18,9 +18,9 @@
 package org.picketlink.social.auth.conf;
 
 /**
- * Configuration for Facebook Login
+ * Configuration for Twitter based login
  * @author Anil Saldhana
- * @since May 30, 2013
+ * @since MAY 03, 2013
  */
-public interface FacebookConfiguration extends CommonConfiguration{
+public interface TwitterConfiguration extends CommonConfiguration{
 }
