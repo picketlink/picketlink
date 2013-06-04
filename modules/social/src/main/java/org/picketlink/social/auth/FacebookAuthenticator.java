@@ -33,23 +33,19 @@ import java.security.Principal;
 import java.util.Collections;
 
 /**
- * An implementation of {@link Authenticator} for Facebook login
+ * An implementation of {@link org.picketlink.authentication.Authenticator} for Facebook login
  * @author Anil Saldhana
  * @since May 30, 2013
  */
-public class FacebookAuthenticator extends BaseAuthenticator {
+public class FacebookAuthenticator extends AbstractSocialAuthenticator {
 
-    private FacebookConfiguration configuration;
-
-    private HttpServletRequest httpServletRequest;
-
-    private HttpServletResponse httpServletResponse;
+    protected FacebookConfiguration configuration;
 
     private enum STATES {
         AUTH, AUTHZ, FINISH
     };
 
-    private static final String FB_AUTH_STATE_SESSION_ATTRIBUTE = "FB_AUTH_STATE_SESSION_ATTRIBUTE";
+    protected static final String FB_AUTH_STATE_SESSION_ATTRIBUTE = "FB_AUTH_STATE_SESSION_ATTRIBUTE";
     protected String returnURL;
     protected String clientID;
     protected String clientSecret;
@@ -58,14 +54,6 @@ public class FacebookAuthenticator extends BaseAuthenticator {
     protected FacebookProcessor processor;
 
     public FacebookAuthenticator(){
-    }
-
-    public void setHttpServletRequest(HttpServletRequest request){
-        this.httpServletRequest= request;
-    }
-
-    public void setHttpServletResponse(HttpServletResponse response){
-        this.httpServletResponse = response;
     }
 
     public void setConfiguration(FacebookConfiguration configuration){
