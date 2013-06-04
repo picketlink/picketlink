@@ -45,7 +45,7 @@ public class AuthenticationFilter implements Filter {
 
     public static final String DEFAULT_REALM_NAME = "PicketLink Default Realm";
 
-    public static final String REALM_INIT_PARAM = "realm";
+    public static final String REALM_NAME_INIT_PARAM = "realmName";
     public static final String AUTH_TYPE_INIT_PARAM = "authType";
     public static final String UNPROTECTED_METHODS_INIT_PARAM = "unprotectedMethods";
 
@@ -68,7 +68,7 @@ public class AuthenticationFilter implements Filter {
 
     @Override
     public void init(FilterConfig config) throws ServletException {
-        String providedRealm = config.getInitParameter(REALM_INIT_PARAM);
+        String providedRealm = config.getInitParameter(REALM_NAME_INIT_PARAM);
 
         if (providedRealm != null) {
             this.realm = providedRealm;
