@@ -15,27 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.test.integration.authentication;
+package org.picketlink.test.integration.authentication.credential;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.internal.DigestUtil;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.test.integration.ArchiveUtils;
+import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
  * @author pedroigor
  */
-public class DigestAuthenticationTestCase extends AbstractAuthenticationTestCase {
+public class DigestCredentialTestCase extends AbstractAuthenticationTestCase {
 
     @Deployment
     public static WebArchive createDeployment() {
-        return ArchiveUtils.create(DigestAuthenticationTestCase.class);
+        return ArchiveUtils.create(DigestCredentialTestCase.class);
     }
 
     @Test
