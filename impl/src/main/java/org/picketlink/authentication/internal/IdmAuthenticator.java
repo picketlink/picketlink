@@ -39,6 +39,8 @@ public class IdmAuthenticator extends BaseAuthenticator {
                     (Password) credentials.getCredential());
         } else if (isDigestCredential()) {
             creds = new DigestCredentials((Digest) credentials.getCredential());
+        } else if (isCustomCredential()) {
+            creds = (Credentials) credentials.getCredential();
         } else {
             throw new IllegalArgumentException("Unsupported credential type [" + credentials.getCredential() + "].");
         }
@@ -51,6 +53,10 @@ public class IdmAuthenticator extends BaseAuthenticator {
         } else if (Credentials.Status.AGENT_DISABLED.equals(creds.getStatus())) {
             throw new LockedAccountException("Agent [" + this.credentials.getUserId() + "] is disabled.");
         }
+    }
+
+    private boolean isCustomCredential() {
+        return Credentials.class.isInstance(credentials.getCredential());
     }
 
     private boolean isDigestCredential() {
