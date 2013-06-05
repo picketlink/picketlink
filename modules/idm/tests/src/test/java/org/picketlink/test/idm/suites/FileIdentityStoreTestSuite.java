@@ -34,6 +34,7 @@ import org.picketlink.test.idm.basic.RoleManagementTestCase;
 import org.picketlink.test.idm.basic.UserManagementTestCase;
 import org.picketlink.test.idm.credential.CertificateCredentialTestCase;
 import org.picketlink.test.idm.credential.DigestCredentialTestCase;
+import org.picketlink.test.idm.credential.OTPCredentialTestCase;
 import org.picketlink.test.idm.credential.PasswordCredentialTestCase;
 import org.picketlink.test.idm.partition.RealmManagementTestCase;
 import org.picketlink.test.idm.partition.TierManagementTestCase;
@@ -69,7 +70,8 @@ import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
         RoleQueryTestCase.class, AgentGrantRelationshipTestCase.class, AgentGroupRoleRelationshipTestCase.class,
         AgentGroupsRelationshipTestCase.class, CustomRelationshipTestCase.class, GroupGrantRelationshipTestCase.class,
         GroupMembershipTestCase.class, UserGrantRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
-        ApplicationRegistrationTestCase.class, ApplicationUserRelationshipTestCase.class, RealmManagementTestCase.class, TierManagementTestCase.class })
+        ApplicationRegistrationTestCase.class, ApplicationUserRelationshipTestCase.class, RealmManagementTestCase.class,
+        TierManagementTestCase.class, OTPCredentialTestCase.class})
 public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     private static FileIdentityStoreTestSuite instance;
@@ -97,17 +99,6 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
                     .supportRelationshipType(CustomRelationship.class, Authorization.class);
         
         return new IdentityManagerFactory(builder.build());
-//        IdentityConfiguration configuration = new IdentityConfiguration();
-//        
-//        configuration
-//            .fileStore()
-//                .setAlwaysCreateFiles(true)
-//                .addRealm(Realm.DEFAULT_REALM, "Testing")
-//                .addTier("Application")
-//                .supportAllFeatures()
-//                .supportRelationshipType(CustomRelationship.class, Authorization.class);
-//        
-//        return configuration.buildIdentityManagerFactory();
     }
 
     @Override

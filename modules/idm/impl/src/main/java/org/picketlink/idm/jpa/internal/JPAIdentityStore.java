@@ -18,8 +18,6 @@
 
 package org.picketlink.idm.jpa.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -31,7 +29,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -41,7 +38,6 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
-
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
@@ -55,6 +51,7 @@ import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.internal.DigestCredentialHandler;
 import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
+import org.picketlink.idm.credential.internal.TOTPCredentialHandler;
 import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
@@ -87,6 +84,7 @@ import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Implementation of IdentityStore that stores its state in a relational database. This is a lightweight object that is
@@ -96,7 +94,7 @@ import org.picketlink.idm.spi.SecurityContext;
  * @author Pedro Silva
  *
  */
-@CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class })
+@CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class, TOTPCredentialHandler.class })
 public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfiguration> {
 
     // Invocation context parameters

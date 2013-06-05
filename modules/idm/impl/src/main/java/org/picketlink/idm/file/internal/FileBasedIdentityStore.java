@@ -39,6 +39,7 @@ import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.internal.DigestCredentialHandler;
 import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
+import org.picketlink.idm.credential.internal.TOTPCredentialHandler;
 import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
@@ -100,7 +101,7 @@ import static org.picketlink.idm.file.internal.FileIdentityQueryHelper.isQueryPa
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class })
+@CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class, TOTPCredentialHandler.class})
 public class FileBasedIdentityStore implements CredentialStore<FileIdentityStoreConfiguration> {
 
     private FileIdentityStoreConfiguration config;
