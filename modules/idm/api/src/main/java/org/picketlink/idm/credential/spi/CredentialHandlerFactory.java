@@ -48,6 +48,20 @@ public class CredentialHandlerFactory {
      */
     public CredentialHandler getCredentialValidator(Class<? extends Credentials> credentialsClass,
                                                     IdentityStore<?> identityStore) {
+        return getCredentialHandler(credentialsClass, identityStore);
+    }
+
+    /**
+     * @param credentialClass
+     * @param identityStore
+     * @return
+     */
+    public CredentialHandler getCredentialUpdater(Class<?> credentialClass,
+                                                  IdentityStore<?> identityStore) {
+        return getCredentialHandler(credentialClass, identityStore);
+    }
+
+    private CredentialHandler getCredentialHandler(Class<?> credentialsClass, IdentityStore<?> identityStore) {
         List<Class<? extends CredentialHandler>> handlers = getHandlersForStore(identityStore);
 
         CredentialHandler handlerInstance = null;
@@ -64,38 +78,6 @@ public class CredentialHandlerFactory {
                     handlerInstance = createHandlerInstance(handlerClass, identityStore);
 
                     if (cls.equals(credentialsClass)) {
-                        return handlerInstance;
-                    }
-                }
-            }
-        }
-
-        return handlerInstance;
-    }
-
-    /**
-     * @param credentialClass
-     * @param identityStore
-     * @return
-     */
-    public CredentialHandler getCredentialUpdater(Class<?> credentialClass,
-                                                  IdentityStore<?> identityStore) {
-        List<Class<? extends CredentialHandler>> handlers = getHandlersForStore(identityStore);
-
-        CredentialHandler handlerInstance = null;
-
-        for (Class<? extends CredentialHandler> handlerClass : handlers) {
-            SupportsCredentials sc = handlerClass.getAnnotation(SupportsCredentials.class);
-
-            if (sc == null) {
-                throw MESSAGES.credentialSupportedCredentialsNotProvided(handlerClass);
-            }
-
-            for (Class<?> cls : sc.value()) {
-                if (cls.isAssignableFrom(credentialClass)) {
-                    handlerInstance = createHandlerInstance(handlerClass, identityStore);
-
-                    if (cls.equals(credentialClass)) {
                         return handlerInstance;
                     }
                 }
