@@ -10,7 +10,7 @@
 
    <artifactId>picketlink-idm-schema</artifactId>
    <packaging>jar</packaging>
-   <name>PicketLink Identity Management - Default JPA Database Schema</name>
+   <name>PicketLink Identity Management - Sample JPA Database Schema</name>
 
    <build>
       <plugins>

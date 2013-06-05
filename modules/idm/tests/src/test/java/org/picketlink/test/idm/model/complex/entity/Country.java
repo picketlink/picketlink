@@ -15,34 +15,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.picketlink.test.idm.model.complex.entity;
 
-package org.picketlink.idm.model;
+import java.io.Serializable;
 
-import org.picketlink.idm.model.annotation.AttributeProperty;
-import org.picketlink.idm.query.QueryParameter;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 /**
- * <p>Default {@link IdentityType} implementation  to represent agents.</p>
+ * Lookup table containing countries
  *
  * @author Shane Bryzak
  */
-public class Agent extends Account {
-    private static final long serialVersionUID = 2915865002176741632L;
+@Entity
+public class Country implements Serializable {
+    private static final long serialVersionUID = -8291183691785718272L;
 
-    public static final QueryParameter LOGIN_NAME = new QueryParameter() {};
+    @Id @GeneratedValue private Long countryId;
+    private String name;
 
-    private String loginName;
-
-    public Agent(String loginName) {
-        this.loginName = loginName;
+    public Long getCountryId() {
+        return countryId;
     }
 
-    @AttributeProperty
-    public String getLoginName() {
-        return loginName;
+    public void setCountryId(Long countryId) {
+        this.countryId = countryId;
     }
 
-    public void setLoginName(String loginName) {
-        this.loginName = loginName;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

@@ -19,5 +19,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Inherited
 public @interface IdentityAttribute {
-
+    String mapToAttribute() default "";
+    Class[] supportedTypes() default {};
 }
