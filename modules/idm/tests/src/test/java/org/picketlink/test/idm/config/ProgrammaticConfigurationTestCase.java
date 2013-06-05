@@ -28,6 +28,7 @@ import javax.persistence.Persistence;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.test.idm.suites.LDAPAbstractSuite;
@@ -38,6 +39,7 @@ import org.picketlink.test.idm.suites.LDAPAbstractSuite;
  * @author Pedro Silva
  * 
  */
+@Ignore
 public class ProgrammaticConfigurationTestCase extends LDAPAbstractSuite {
 
     private EntityManagerFactory emf;
