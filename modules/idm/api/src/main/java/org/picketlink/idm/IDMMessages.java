@@ -24,9 +24,7 @@ package org.picketlink.idm;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.AnnotatedElement;
-
 import javax.naming.NamingException;
-
 import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
@@ -292,4 +290,6 @@ public interface IDMMessages {
     @Message(id = 73, value = "Credentials can only be managed from a Realm. Current partition is [%s].")
     IdentityManagementException partitionInvalidTypeForCredential(Class<? extends Partition> partitionType);
 
+    @Message(id = 74, value = "You must specify which credentials are supported by the [%s].")
+    IdentityManagementException credentialSupportedCredentialsNotProvided(Class<? extends CredentialHandler> handlerClass);
 }
