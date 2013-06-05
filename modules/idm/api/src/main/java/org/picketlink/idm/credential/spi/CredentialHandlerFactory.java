@@ -77,6 +77,7 @@ public class CredentialHandlerFactory {
                 if (cls.isAssignableFrom(credentialsClass)) {
                     handlerInstance = createHandlerInstance(handlerClass, identityStore);
 
+                    // if we found a specific handler for the credential, immediately return.
                     if (cls.equals(credentialsClass)) {
                         return handlerInstance;
                     }
