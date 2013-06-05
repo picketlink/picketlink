@@ -29,8 +29,8 @@ import javax.persistence.Persistence;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.test.idm.suites.LDAPAbstractSuite;
 
 /**
  * <p>Some tests for the {@link IdentityConfiguration} using basically the built-in stores configuration.</p>
@@ -38,14 +38,7 @@ import org.picketlink.idm.config.IdentityConfiguration;
  * @author Pedro Silva
  * 
  */
-public class ProgrammaticConfigurationTestCase extends AbstractLDAPTest {
-
-    private static final String BASE_DN = "dc=jboss,dc=org";
-    private static final String LDAP_URL = "ldap://localhost:10389";
-    private static final String ROLES_DN_SUFFIX = "ou=Roles,dc=jboss,dc=org";
-    private static final String GROUP_DN_SUFFIX = "ou=Groups,dc=jboss,dc=org";
-    private static final String USER_DN_SUFFIX = "ou=People,dc=jboss,dc=org";
-    private static final String AGENT_DN_SUFFIX = "ou=Agent,dc=jboss,dc=org";
+public class ProgrammaticConfigurationTestCase extends LDAPAbstractSuite {
 
     private EntityManagerFactory emf;
     private EntityManager entityManager;

@@ -8,7 +8,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
-import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
@@ -62,14 +61,7 @@ import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
         GroupQueryTestCase.class, AgentGroupRoleRelationshipTestCase.class, AgentGroupsRelationshipTestCase.class,
         UserGrantRelationshipTestCase.class, AgentGrantRelationshipTestCase.class, GroupGrantRelationshipTestCase.class,
         UserGroupRoleRelationshipTestCase.class, GroupMembershipTestCase.class })
-public class JPAUsersFileRolesGroupsRelationshipTestSuite extends AbstractLDAPTest implements TestLifecycle {
-
-    private static final String BASE_DN = "dc=jboss,dc=org";
-    private static final String LDAP_URL = "ldap://localhost:10389";
-    private static final String ROLES_DN_SUFFIX = "ou=Roles,dc=jboss,dc=org";
-    private static final String GROUP_DN_SUFFIX = "ou=Groups,dc=jboss,dc=org";
-    private static final String USER_DN_SUFFIX = "ou=People,dc=jboss,dc=org";
-    private static final String AGENT_DN_SUFFIX = "ou=Agent,dc=jboss,dc=org";
+public class JPAUsersFileRolesGroupsRelationshipTestSuite implements TestLifecycle {
 
     private static JPAUsersFileRolesGroupsRelationshipTestSuite instance;
 
@@ -88,8 +80,6 @@ public class JPAUsersFileRolesGroupsRelationshipTestSuite extends AbstractLDAPTe
     public static void onBeforeClass() {
         try {
             init();
-            instance.setup();
-            instance.importLDIF("ldap/users.ldif");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -97,11 +87,6 @@ public class JPAUsersFileRolesGroupsRelationshipTestSuite extends AbstractLDAPTe
 
     @AfterClass
     public static void onDestroyClass() {
-        try {
-            instance.tearDown();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
