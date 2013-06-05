@@ -18,18 +18,16 @@
 
 package org.picketlink.idm.credential.spi;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.spi.IdentityStore;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * This factory is responsible for returning CredentialHandler instances given a specific
@@ -125,6 +123,10 @@ public class CredentialHandlerFactory {
 
     private boolean handlerSupports(Class<? extends CredentialHandler> handlerClass, Class<?> credentialClass) {
         SupportsCredentials sc = handlerClass.getAnnotation(SupportsCredentials.class);
+
+        if (sc == null) {
+            throw MESSAGES.credentialSupportedCredentialsNotProvided(handlerClass);
+        }
 
         for (Class<?> cls : sc.value()) {
             if (cls.isAssignableFrom(credentialClass)) {
