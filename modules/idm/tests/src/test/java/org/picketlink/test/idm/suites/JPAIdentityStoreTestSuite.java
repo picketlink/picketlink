@@ -117,7 +117,6 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
                     .addRealm(Realm.DEFAULT_REALM, "Testing")
                     .addTier("Application")
                     .identityClass(IdentityObject.class)
-                    .identityClass(IdentityObject.class)
                     .attributeClass(IdentityObjectAttribute.class)
                     .relationshipClass(RelationshipObject.class)
                     .relationshipIdentityClass(RelationshipIdentityObject.class)
