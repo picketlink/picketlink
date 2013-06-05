@@ -18,10 +18,6 @@
 
 package org.picketlink.idm.file.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.credential.internal.CredentialUtils.getCurrentCredential;
-import static org.picketlink.idm.file.internal.FileIdentityQueryHelper.isQueryParameterEquals;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,11 +29,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
@@ -91,6 +87,10 @@ import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
+import sun.management.resources.agent;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.credential.internal.CredentialUtils.getCurrentCredential;
+import static org.picketlink.idm.file.internal.FileIdentityQueryHelper.isQueryParameterEquals;
 
 /**
  * <p>
@@ -200,6 +200,10 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
 
     @Override
     public Agent getAgent(SecurityContext context, String loginName) {
+        if (StringUtil.isNullOrEmpty(loginName)) {
+            throw MESSAGES.nullArgument("loginName");
+        }
+
         Agent agent = getAgentsForCurrentRealm(context).get(loginName);
 
         if (agent != null) {
@@ -211,6 +215,10 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
 
     @Override
     public User getUser(SecurityContext context, String loginName) {
+        if (StringUtil.isNullOrEmpty(loginName)) {
+            throw MESSAGES.nullArgument("loginName");
+        }
+
         Agent agent = getAgent(context, loginName);
 
         if (!User.class.isInstance(agent)) {
@@ -854,6 +862,10 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      * @return
      */
     private Role lookupRole(String roleName, Partition partition) {
+        if (StringUtil.isNullOrEmpty(roleName)) {
+            throw MESSAGES.nullArgument("roleName");
+        }
+
         Role role = getRolesForPartition(partition).get(roleName);
 
         if (role != null) {
@@ -873,6 +885,10 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      * @return
      */
     private Group lookupGroup(String groupPath, Partition partition) {
+        if (StringUtil.isNullOrEmpty(groupPath)) {
+            throw MESSAGES.nullArgument("groupPath");
+        }
+
         Group group = getGroupsForPartition(partition).get(groupPath);
 
         if (group != null) {
