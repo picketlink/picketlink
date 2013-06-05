@@ -18,14 +18,10 @@
 
 package org.picketlink.idm.credential.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.credential.internal.CredentialUtils.isCredentialExpired;
-
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Map;
-
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials.Status;
@@ -39,6 +35,8 @@ import org.picketlink.idm.password.internal.EncodedPasswordStorage;
 import org.picketlink.idm.password.internal.SHAPasswordEncoder;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.credential.internal.CredentialUtils.isCredentialExpired;
 
 /**
  * <p>
@@ -60,8 +58,8 @@ import org.picketlink.idm.spi.SecurityContext;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @SupportsCredentials({ UsernamePasswordCredentials.class, Password.class })
-public class PasswordCredentialHandler<S, V, U>
-    implements CredentialHandler<CredentialStore<?>, UsernamePasswordCredentials, Password> {
+public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends UsernamePasswordCredentials, U extends Password>
+    implements CredentialHandler<S, V, U> {
 
     private static final String DEFAULT_SALT_ALGORITHM = "SHA1PRNG";
 
@@ -75,7 +73,7 @@ public class PasswordCredentialHandler<S, V, U>
     private PasswordEncoder passwordEncoder = new SHAPasswordEncoder(512);
 
     @Override
-    public void setup(CredentialStore<?> store) {
+    public void setup(S store) {
         Map<String, Object> options = store.getConfig().getCredentialHandlerProperties();
 
         if (options != null) {
@@ -93,7 +91,7 @@ public class PasswordCredentialHandler<S, V, U>
     }
 
     @Override
-    public void validate(SecurityContext context, UsernamePasswordCredentials credentials, CredentialStore<?> store) {
+    public void validate(SecurityContext context, V credentials, S store) {
         if (!UsernamePasswordCredentials.class.isInstance(credentials)) {
             throw MESSAGES.credentialUnsupportedType(credentials.getClass(), this);
         }
@@ -131,7 +129,7 @@ public class PasswordCredentialHandler<S, V, U>
     }
 
     @Override
-    public void update(SecurityContext context, Agent agent, Password password, CredentialStore<?> store,
+    public void update(SecurityContext context, Agent agent, U password, S store,
             Date effectiveDate, Date expiryDate) {
 
         EncodedPasswordStorage hash = new EncodedPasswordStorage();

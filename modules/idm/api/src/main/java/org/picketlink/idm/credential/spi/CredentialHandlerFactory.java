@@ -42,53 +42,67 @@ public class CredentialHandlerFactory {
             new HashMap<Class<? extends CredentialHandler>, CredentialHandler>();
 
     /**
-     *
      * @param credentialsClass
      * @param identityStore
      * @return
      */
     public CredentialHandler getCredentialValidator(Class<? extends Credentials> credentialsClass,
-            IdentityStore<?> identityStore) {
+                                                    IdentityStore<?> identityStore) {
         List<Class<? extends CredentialHandler>> handlers = getHandlersForStore(identityStore);
 
+        CredentialHandler handlerInstance = null;
+
         for (Class<? extends CredentialHandler> handlerClass : handlers) {
-            if (handlerSupports(handlerClass, credentialsClass)) {
-                if (!handlerInstances.containsKey(handlerClass)) {
-                    return createHandlerInstance(handlerClass);
-                } else {
-                    return handlerInstances.get(handlerClass);
+            SupportsCredentials sc = handlerClass.getAnnotation(SupportsCredentials.class);
+
+            if (sc == null) {
+                throw MESSAGES.credentialSupportedCredentialsNotProvided(handlerClass);
+            }
+
+            for (Class<?> cls : sc.value()) {
+                if (cls.isAssignableFrom(credentialsClass)) {
+                    handlerInstance = createHandlerInstance(handlerClass, identityStore);
+
+                    if (cls.equals(credentialsClass)) {
+                        return handlerInstance;
+                    }
                 }
             }
         }
 
-        return null;
+        return handlerInstance;
     }
 
     /**
-     *
      * @param credentialClass
      * @param identityStore
      * @return
      */
     public CredentialHandler getCredentialUpdater(Class<?> credentialClass,
-            IdentityStore<?> identityStore) {
+                                                  IdentityStore<?> identityStore) {
         List<Class<? extends CredentialHandler>> handlers = getHandlersForStore(identityStore);
 
+        CredentialHandler handlerInstance = null;
+
         for (Class<? extends CredentialHandler> handlerClass : handlers) {
-            if (handlerSupports(handlerClass, credentialClass)) {
-                if (!handlerInstances.containsKey(handlerClass)) {
-                    CredentialHandler handlerInstance = createHandlerInstance(handlerClass);
+            SupportsCredentials sc = handlerClass.getAnnotation(SupportsCredentials.class);
 
-                    handlerInstance.setup(identityStore);
+            if (sc == null) {
+                throw MESSAGES.credentialSupportedCredentialsNotProvided(handlerClass);
+            }
 
-                    return handlerInstance;
-                } else {
-                    return handlerInstances.get(handlerClass);
+            for (Class<?> cls : sc.value()) {
+                if (cls.isAssignableFrom(credentialClass)) {
+                    handlerInstance = createHandlerInstance(handlerClass, identityStore);
+
+                    if (cls.equals(credentialClass)) {
+                        return handlerInstance;
+                    }
                 }
             }
         }
 
-        return null;
+        return handlerInstance;
     }
 
     private List<Class<? extends CredentialHandler>> getHandlersForStore(IdentityStore<?> identityStore) {
@@ -105,35 +119,21 @@ public class CredentialHandlerFactory {
         return handlers;
     }
 
-    private synchronized CredentialHandler createHandlerInstance(Class<? extends CredentialHandler> handlerClass) {
-        CredentialHandler handler = null;
+    private synchronized CredentialHandler createHandlerInstance(Class<? extends CredentialHandler> handlerClass
+            , IdentityStore<?> identityStore) {
         if (!handlerInstances.containsKey(handlerClass)) {
             try {
-                handler = handlerClass.newInstance();
+                CredentialHandler handler = handlerClass.newInstance();
+
+                handler.setup(identityStore);
+
                 handlerInstances.put(handlerClass, handler);
             } catch (Exception ex) {
                 throw MESSAGES.credentialCredentialHandlerInstantiationError(handlerClass, ex);
             }
-        } else {
-            handler = handlerInstances.get(handlerClass);
         }
 
-        return handler;
+        return handlerInstances.get(handlerClass);
     }
 
-    private boolean handlerSupports(Class<? extends CredentialHandler> handlerClass, Class<?> credentialClass) {
-        SupportsCredentials sc = handlerClass.getAnnotation(SupportsCredentials.class);
-
-        if (sc == null) {
-            throw MESSAGES.credentialSupportedCredentialsNotProvided(handlerClass);
-        }
-
-        for (Class<?> cls : sc.value()) {
-            if (cls.isAssignableFrom(credentialClass)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }
