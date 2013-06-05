@@ -43,8 +43,8 @@ public class LogoutTestCase extends AbstractAuthenticationTestCase {
     
     @Test
     public void testLogout() throws Exception {
-        populateCredentials();
-        
+        super.credentials.setUserId(USER_NAME);
+        super.credentials.setPassword(USER_PASSWORD);
         super.identity.login();
         
         assertTrue(super.identity.isLoggedIn());

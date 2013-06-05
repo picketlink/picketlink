@@ -79,9 +79,4 @@ public abstract class AbstractAuthenticationTestCase extends AbstractArquillianT
         this.identity.logout();
     }
 
-    protected void populateCredentials() {
-        this.credentials.setUserId(USER_NAME);
-        this.credentials.setPassword(USER_PASSWORD);
-    }
-
 }
