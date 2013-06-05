@@ -23,7 +23,18 @@
 package org.picketlink.test.idm.suites;
 
 import java.io.InputStream;
+import java.util.Hashtable;
 import java.util.Properties;
+
+import javax.naming.CompositeName;
+import javax.naming.Context;
+import javax.naming.ContextNotEmptyException;
+import javax.naming.Name;
+import javax.naming.NameClassPair;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
 
 import org.junit.After;
 import org.junit.Before;
@@ -104,12 +115,58 @@ public abstract class LDAPAbstractSuite extends AbstractLDAPTest {
     @Override
     @After
     public void tearDown() throws Exception {
+        
+        // clear data left in LDAP
+        DirContext ctx = getDirContext();
+        clearSubContexts(ctx, new CompositeName(baseDn));
+        
         // suppress emb. LDAP server stop
         if (isStartEmbeddedLdapLerver()) {
             super.tearDown();
         }
     }
 
+    private DirContext getDirContext() throws NamingException {
+        Hashtable<String, String> env = new Hashtable<String, String>();
+        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+        env.put(Context.PROVIDER_URL, connectionUrl);
+        env.put(Context.SECURITY_PRINCIPAL, bindDn);
+        env.put(Context.SECURITY_CREDENTIALS, bindCredential);
+        DirContext ctx = new InitialDirContext(env);
+        return ctx;
+    }
+    
+    
+    public static void clearSubContexts(DirContext ctx, Name name) throws NamingException {
+
+        NamingEnumeration<NameClassPair> enumeration = null;
+        try {
+            enumeration = ctx.list(name);
+            while (enumeration.hasMore()) {
+                NameClassPair pair = enumeration.next();
+                Name childName = ctx.composeName(new CompositeName(pair.getName()), name);
+                try {
+                    ctx.destroySubcontext(childName);
+                }
+                catch (ContextNotEmptyException e) {
+                    clearSubContexts(ctx, childName);
+                    ctx.destroySubcontext(childName);
+                }
+            }
+        }
+        catch (NamingException e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                enumeration.close();
+            }
+            catch (Exception e) {
+                // Never mind this
+            }
+        }
+    }    
+    
     public String getConnectionUrl() {
         return connectionUrl;
     }
