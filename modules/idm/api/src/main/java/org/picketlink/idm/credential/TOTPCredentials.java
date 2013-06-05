@@ -24,15 +24,15 @@ package org.picketlink.idm.credential;
  * @author anil saldhana
  * @since Dec 31, 2012
  */
-public class OTPCredentials extends UsernamePasswordCredentials {
-    private OTPCredential otpCredential;
+public class TOTPCredentials extends UsernamePasswordCredentials {
 
-    public OTPCredential getOtpCredential() {
-        return otpCredential;
+    private String token;
+
+    public String getToken() {
+        return this.token;
     }
 
-    public OTPCredentials setOtpCredential(OTPCredential otpCredential) {
-        this.otpCredential = otpCredential;
-        return this;
+    public void setToken(String token) {
+        this.token = token;
     }
 }

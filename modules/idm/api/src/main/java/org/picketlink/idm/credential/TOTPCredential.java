@@ -23,11 +23,16 @@ package org.picketlink.idm.credential;
  * @author anil saldhana
  * @since Dec 31, 2012
  */
-public class OTPCredential extends Password {
-    public OTPCredential(char[] value) {
-        super(value);
+public class TOTPCredential extends Password {
+
+    private final String secretKey;
+
+    public TOTPCredential(String password, String secretKey) {
+        super(password);
+        this.secretKey = secretKey;
     }
-    public OTPCredential(String str) {
-        super(str);
+
+    public String getSecretKey() {
+        return this.secretKey;
     }
 }
