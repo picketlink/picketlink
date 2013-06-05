@@ -44,14 +44,14 @@ import org.picketlink.test.integration.ArchiveUtils;
  * @author Pedro Igor
  * 
  */
-public class IDMAuthenticationTestCase extends AbstractAuthenticatorTestCase {
+public class IDMAuthenticatorTestCase extends AbstractAuthenticatorTestCase {
 
     @Inject
     private IdentityManager identityManager;
 
     @Deployment
     public static WebArchive createDeployment() {
-        return ArchiveUtils.create(IDMAuthenticationTestCase.class);
+        return ArchiveUtils.create(IDMAuthenticatorTestCase.class);
     }
     
     @Before

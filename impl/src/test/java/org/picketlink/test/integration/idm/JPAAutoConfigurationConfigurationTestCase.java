@@ -22,14 +22,10 @@
 
 package org.picketlink.test.integration.idm;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
@@ -39,8 +35,17 @@ import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleGroup;
+import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.SimpleUser;
-import org.picketlink.test.integration.ArchiveUtils;
+import org.picketlink.idm.model.User;
+import org.picketlink.test.integration.AbstractJPADeploymentTestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.picketlink.test.integration.ArchiveUtils.addDependency;
+import static org.picketlink.test.integration.ArchiveUtils.getCurrentProjectVersion;
 
 /**
  * @author Pedro Igor
@@ -58,7 +63,7 @@ public class JPAAutoConfigurationConfigurationTestCase extends AbstractJPADeploy
     public static WebArchive createDeployment() {
         WebArchive archive = createDeployment(JPAAutoConfigurationConfigurationTestCase.class, JPAStoreConfigurationObserver.class);
         
-        ArchiveUtils.addDependency(archive, "org.picketlink:picketlink-idm-schema");
+        addDependency(archive, "org.picketlink:picketlink-idm-schema:" + getCurrentProjectVersion());
         
         return archive;
     }
@@ -76,6 +81,29 @@ public class JPAAutoConfigurationConfigurationTestCase extends AbstractJPADeploy
         assertEquals(JPAIdentityStoreConfiguration.class, identityStoreConfiguration.getClass());
         
         this.identityManager.add(new SimpleUser("john"));
+    }
+
+    @Test
+    public void testBasicFeatures() throws Exception {
+        User john = new SimpleUser("john");
+
+        this.identityManager.add(john);
+
+        Role tester = new SimpleRole("Tester");
+
+        this.identityManager.add(tester);
+
+        Group qaGroup = new SimpleGroup("QA");
+
+        this.identityManager.add(qaGroup);
+
+        this.identityManager.grantRole(john, tester);
+        this.identityManager.addToGroup(john, qaGroup);
+        this.identityManager.grantGroupRole(john, tester, qaGroup);
+
+        assertTrue(this.identityManager.hasRole(john, tester));
+        assertTrue(this.identityManager.isMember(john, qaGroup));
+        assertTrue(this.identityManager.hasGroupRole(john, tester, qaGroup));
     }
  
     @ApplicationScoped

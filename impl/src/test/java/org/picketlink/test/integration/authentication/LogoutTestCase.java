@@ -22,21 +22,13 @@
 
 package org.picketlink.test.integration.authentication;
 
+import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.Test;
+import org.picketlink.test.integration.ArchiveUtils;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
-import javax.inject.Inject;
-
-import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.Before;
-import org.junit.Test;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.model.SimpleUser;
-import org.picketlink.idm.model.User;
-import org.picketlink.test.integration.ArchiveUtils;
 
 /**
  * @author Pedro Igor
@@ -44,30 +36,9 @@ import org.picketlink.test.integration.ArchiveUtils;
  */
 public class LogoutTestCase extends AbstractAuthenticationTestCase {
 
-    @Inject
-    private IdentityManager identityManager;
-
     @Deployment
     public static WebArchive createDeployment() {
         return ArchiveUtils.create(LogoutTestCase.class);
-    }
-    
-    @Before
-    public void onSetup() {
-        User john = this.identityManager.getUser(USER_NAME);
-
-        if (john == null) {
-            john = new SimpleUser(USER_NAME);
-            this.identityManager.add(john);
-        }
-
-        john.setEnabled(true);
-
-        this.identityManager.update(john);
-
-        Password password = new Password(USER_PASSWORD);
-
-        this.identityManager.updateCredential(john, password);
     }
     
     @Test

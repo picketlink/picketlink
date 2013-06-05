@@ -22,13 +22,9 @@
 
 package org.picketlink.test.integration.idm;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
@@ -40,6 +36,8 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.test.integration.AbstractArquillianTestCase;
 import org.picketlink.test.integration.ArchiveUtils;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Pedro Igor
@@ -48,7 +46,7 @@ import org.picketlink.test.integration.ArchiveUtils;
 public class IdentityManagerFactoryTestCase extends AbstractArquillianTestCase {
 
     private static final String TESTING_REALM_NAME = "Testing";
-    
+
     @Inject
     private IdentityManagerFactory identityManagerFactory;
     

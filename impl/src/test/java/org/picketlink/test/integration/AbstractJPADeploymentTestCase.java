@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.integration.idm;
+package org.picketlink.test.integration;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
@@ -29,15 +29,10 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.picketlink.annotations.PicketLink;
-import org.picketlink.test.integration.AbstractArquillianTestCase;
-import org.picketlink.test.integration.ArchiveUtils;
 
 /**
  * <p>
@@ -67,18 +62,9 @@ public abstract class AbstractJPADeploymentTestCase extends AbstractArquillianTe
         return archive;
     }
 
-    @BeforeClass
-    public static void onBeforeClass() throws Exception {
-        emf = Persistence.createEntityManagerFactory("jpa-store-default-schema");
-    }
-
-    @AfterClass
-    public static void onAfterClass() throws Exception {
-        emf.close();
-    }
-
     @Before
-    public void onBefore() {
+    public void onBefore() throws Exception {
+        emf = Persistence.createEntityManagerFactory("jpa-store-default-schema");
         this.entityManager.getTransaction().begin();
     }
 
@@ -86,6 +72,7 @@ public abstract class AbstractJPADeploymentTestCase extends AbstractArquillianTe
     public void onAfter() {
         this.entityManager.getTransaction().commit();
         this.entityManager.close();
+        emf.close();
     }
 
     @ApplicationScoped

@@ -22,15 +22,11 @@
 
 package org.picketlink.test.integration.authentication;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
@@ -40,6 +36,7 @@ import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.integration.ArchiveUtils;
+import static org.junit.Assert.assertTrue;
 
 /**
  * <p>
@@ -50,14 +47,14 @@ import org.picketlink.test.integration.ArchiveUtils;
  * @author Pedro Igor
  * 
  */
-public class CustomAuthenticationrTestCase extends AbstractAuthenticatorTestCase {
+public class CustomAuthenticatorTestCase extends AbstractAuthenticatorTestCase {
 
     @Inject @PicketLink
     private CustomAuthenticator authenticator;
 
     @Deployment
     public static WebArchive createDeployment() {
-        return ArchiveUtils.create(CustomAuthenticationrTestCase.class, CustomAuthenticator.class);
+        return ArchiveUtils.create(CustomAuthenticatorTestCase.class, CustomAuthenticator.class);
     }
 
     @Test

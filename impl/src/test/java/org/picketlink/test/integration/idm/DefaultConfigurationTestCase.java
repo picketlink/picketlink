@@ -22,14 +22,10 @@
 
 package org.picketlink.test.integration.idm;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.List;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
@@ -41,6 +37,7 @@ import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.test.integration.AbstractArquillianTestCase;
 import org.picketlink.test.integration.ArchiveUtils;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Pedro Igor
@@ -49,14 +46,14 @@ import org.picketlink.test.integration.ArchiveUtils;
 public class DefaultConfigurationTestCase extends AbstractArquillianTestCase {
 
     @Inject
-    private FileStoreConfigurationObserver configurationObserver;
+    private ConfigurationObserver configurationObserver;
     
     @Inject
     private IdentityManager identityManager;
     
     @Deployment
     public static WebArchive createDeployment() {
-        return ArchiveUtils.create(DefaultConfigurationTestCase.class, FileStoreConfigurationObserver.class);
+        return ArchiveUtils.create(DefaultConfigurationTestCase.class, ConfigurationObserver.class);
     }
     
     @Test
@@ -73,7 +70,7 @@ public class DefaultConfigurationTestCase extends AbstractArquillianTestCase {
     }
  
     @ApplicationScoped
-    public static class FileStoreConfigurationObserver {
+    public static class ConfigurationObserver {
         
         private IdentityConfigurationBuilder identityConfigurationBuilder;
 
