@@ -93,20 +93,23 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
             Agent agent = credentials.getValidatedAgent();
 
             OTPCredentialStorage storage = store.retrieveCurrentCredential(context, agent, OTPCredentialStorage.class);
-            String secretKey = storage.getSecretKey();
-            String token = credentials.getToken();
 
-            boolean isValidToken = false;
+            if (storage != null) {
+                String secretKey = storage.getSecretKey();
+                String token = credentials.getToken();
 
-            try {
-                isValidToken = this.totp.validate(token, secretKey.getBytes());
-            } catch (Exception e) {
-                throw new IdentityManagementException("Error validating TOTP token.", e);
-            }
+                boolean isValidToken = false;
 
-            if (!isValidToken) {
-                credentials.setStatus(Status.INVALID);
-                credentials.setValidatedAgent(null);
+                try {
+                    isValidToken = this.totp.validate(token, secretKey.getBytes());
+                } catch (Exception e) {
+                    throw new IdentityManagementException("Error validating TOTP token.", e);
+                }
+
+                if (!isValidToken) {
+                    credentials.setStatus(Status.INVALID);
+                    credentials.setValidatedAgent(null);
+                }
             }
         }
     }
