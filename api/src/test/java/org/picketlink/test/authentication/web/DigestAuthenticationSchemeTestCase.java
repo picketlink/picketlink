@@ -16,7 +16,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.picketlink.Identity;
 import org.picketlink.authentication.web.AuthenticationFilter;
-import org.picketlink.authentication.web.HTTPDigestUtil;
+import org.picketlink.authentication.web.support.HTTPDigestUtil;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.credential.Digest;
 import static org.mockito.Matchers.any;
