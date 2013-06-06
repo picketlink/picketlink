@@ -47,6 +47,9 @@ public class AuthenticationFilter implements Filter {
 
     public static final String REALM_NAME_INIT_PARAM = "realmName";
     public static final String AUTH_TYPE_INIT_PARAM = "authType";
+    public static final String FORM_LOGIN_PAGE_INIT_PARAM = "form-login-page";
+    public static final String FORM_ERROR_PAGE_INIT_PARAM = "form-error-page";
+
     public static final String UNPROTECTED_METHODS_INIT_PARAM = "unprotectedMethods";
 
     @Inject
@@ -60,7 +63,7 @@ public class AuthenticationFilter implements Filter {
     private Set<String> unprotectedMethods = new HashSet<String>();
 
     public enum AuthType {
-        BASIC, DIGEST
+        BASIC, DIGEST, FORM
     }
 
     private AuthType authType = AuthType.BASIC;
@@ -76,8 +79,12 @@ public class AuthenticationFilter implements Filter {
 
         setAuthType(config.getInitParameter(AUTH_TYPE_INIT_PARAM));
 
+        String formLoginPage = config.getInitParameter(FORM_LOGIN_PAGE_INIT_PARAM);
+        String formErrorPage = config.getInitParameter(FORM_ERROR_PAGE_INIT_PARAM);
+
         this.authenticationSchemes.put(AuthType.DIGEST, new DigestAuthenticationScheme(this.realm));
         this.authenticationSchemes.put(AuthType.BASIC, new BasicAuthenticationScheme(this.realm));
+        this.authenticationSchemes.put(AuthType.FORM, new FormAuthenticationScheme(this.realm, formLoginPage, formErrorPage));
 
         String unprotectedMethodsInitParam = config.getInitParameter(UNPROTECTED_METHODS_INIT_PARAM);
 
@@ -132,6 +139,10 @@ public class AuthenticationFilter implements Filter {
 
                 if (creds.getCredential() != null) {
                     identity.login();
+                    if(authType.equals(AuthType.FORM)){
+                        authenticationScheme.postAuthentication(request,response);
+                        return;
+                    }
                 }
             }
 
@@ -158,7 +169,7 @@ public class AuthenticationFilter implements Filter {
         try {
             this.authType = AuthType.valueOf(value);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Unsupported authentication type. Possible values are: BASIC and DIGEST.", e);
+            throw new IllegalArgumentException("Unsupported authentication type. Possible values are: BASIC, FORM and DIGEST.", e);
         }
     }
 

@@ -88,6 +88,10 @@ public class DigestAuthenticationScheme implements HTTPAuthenticationScheme {
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
     }
 
+    @Override
+    public void postAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    }
+
     private String[] extractTokens(HttpServletRequest request) {
         String authorizationHeader = getAuthorizationHeader(request).substring(7).trim();
 
