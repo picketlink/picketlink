@@ -39,5 +39,6 @@ public interface HTTPAuthenticationScheme {
     void extractCredential(HttpServletRequest request, DefaultLoginCredentials creds);
     
     void challengeClient(HttpServletRequest request, HttpServletResponse response) throws IOException;
-    
+
+    void postAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException;
 }
