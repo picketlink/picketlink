@@ -15,14 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.idm.model;
+package org.picketlink.idm.model.sample;
 
 import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
- * This class represents a User; a human or agent that may
- * consume the services provided by an application.
+ * This class represents a User; a human agent that may authenticate with the application
  *
  * @author Shane Bryzak
  */

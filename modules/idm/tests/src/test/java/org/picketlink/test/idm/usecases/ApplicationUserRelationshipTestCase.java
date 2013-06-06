@@ -19,9 +19,9 @@ package org.picketlink.test.idm.usecases;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.Authorization;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.Authorization;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 

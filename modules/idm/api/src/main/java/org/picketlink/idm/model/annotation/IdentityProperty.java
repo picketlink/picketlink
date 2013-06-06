@@ -31,7 +31,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * Marks the property of a Relationship as an identity that participates in the relationship.
  *
  * @author Shane Bryzak
- *
  */
 @Target({METHOD, FIELD})
 @Documented

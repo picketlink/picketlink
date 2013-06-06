@@ -18,7 +18,7 @@
 package org.picketlink.idm.ldap.internal;
 
 
-import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.sample.Group;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;

@@ -18,7 +18,7 @@
 
 package org.picketlink.idm.file.internal;
 
-import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.sample.Group;
 
 import java.io.Serializable;
 import java.util.Map;

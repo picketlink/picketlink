@@ -18,7 +18,7 @@
 
 package org.picketlink.idm.file.internal;
 
-import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.sample.Role;
 
 import java.io.Serializable;
 import java.util.Map;

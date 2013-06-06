@@ -34,7 +34,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.ArchiveUtils;
 
 /**

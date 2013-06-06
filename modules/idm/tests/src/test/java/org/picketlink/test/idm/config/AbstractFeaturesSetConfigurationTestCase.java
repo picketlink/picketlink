@@ -37,13 +37,13 @@ import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.internal.IdentityManagerFactory;
-import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.Grant;
-import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.Grant;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.relationship.CustomRelationship;
 
 import java.util.Arrays;

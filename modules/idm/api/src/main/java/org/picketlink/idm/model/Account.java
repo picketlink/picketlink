@@ -1,12 +1,10 @@
 package org.picketlink.idm.model;
 
 /**
- * Superclass of all identity types that have the capability to authenticate.
+ * Parent interface of all identity types that are capable of authenticating.
  *
  * @author Shane Bryzak
  */
-public class Account extends AbstractIdentityType {
-
-    private static final long serialVersionUID = 1043388972942806724L;
+public interface Account extends IdentityType {
 
 }

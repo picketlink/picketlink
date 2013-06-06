@@ -36,7 +36,7 @@ import org.picketlink.authentication.event.PreAuthenticateEvent;
 import org.picketlink.authentication.event.PreLoggedOutEvent;
 import org.picketlink.authentication.internal.IdmAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.permission.internal.PermissionMapper;
 
 import javax.enterprise.context.SessionScoped;

@@ -23,7 +23,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.spi.SecurityContext;
 
 /**

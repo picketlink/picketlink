@@ -15,36 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.idm.model;
+package org.picketlink.test.idm.model.complex;
 
-import org.picketlink.idm.model.annotation.AttributeProperty;
-import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.model.AbstractIdentityType;
 
 /**
- * Represents a role, which may be assigned to account objects in various ways
- * to grant specific application privileges
+ * Represents a role
  *
  * @author Shane Bryzak
  */
 public class Role extends AbstractIdentityType {
-
-    private static final long serialVersionUID = -9044601754527766512L;
-
-    /**
-     * A query parameter used to set the name value.
-     */
-    public static final QueryParameter NAME = new QueryParameter() {};
+    private static final long serialVersionUID = -798957736446112489L;
 
     private String name;
 
-    public Role() {
-    }
-
-    public Role(String name) {
-        this.name = name;
-    }
-
-    @AttributeProperty
     public String getName() {
         return name;
     }
@@ -52,4 +36,5 @@ public class Role extends AbstractIdentityType {
     public void setName(String name) {
         this.name = name;
     }
+
 }

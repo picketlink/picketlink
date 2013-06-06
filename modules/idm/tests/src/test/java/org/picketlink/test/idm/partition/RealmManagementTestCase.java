@@ -21,10 +21,10 @@ package org.picketlink.test.idm.partition;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.SecurityConfigurationException;
-import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Realm;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
 import static org.junit.Assert.assertEquals;

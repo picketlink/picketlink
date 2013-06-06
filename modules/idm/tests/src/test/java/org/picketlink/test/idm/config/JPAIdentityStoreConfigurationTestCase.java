@@ -43,12 +43,12 @@ import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
-import org.picketlink.idm.model.Grant;
-import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.GroupMembership;
-import org.picketlink.idm.model.GroupRole;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.Grant;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.GroupMembership;
+import org.picketlink.idm.model.sample.GroupRole;
+import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.relationship.CustomRelationship;
 
 import javax.persistence.EntityManager;

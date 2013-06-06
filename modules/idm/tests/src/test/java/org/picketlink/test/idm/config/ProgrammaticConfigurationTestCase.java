@@ -31,10 +31,11 @@ import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.schema.IdentityObject;
 import org.picketlink.idm.jpa.schema.PartitionObject;
-import org.picketlink.idm.model.Grant;
-import org.picketlink.idm.model.GroupRole;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.Grant;
+import org.picketlink.idm.model.sample.GroupRole;
+import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.User;
+
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 

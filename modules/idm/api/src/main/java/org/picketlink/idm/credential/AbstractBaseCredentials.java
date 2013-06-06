@@ -18,7 +18,7 @@
 
 package org.picketlink.idm.credential;
 
-import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.sample.Agent;
 
 /**
  * Abstract base class for Credentials

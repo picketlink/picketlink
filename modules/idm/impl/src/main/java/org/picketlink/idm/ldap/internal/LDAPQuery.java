@@ -21,10 +21,10 @@ package org.picketlink.idm.ldap.internal;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.internal.util.IDMUtil;
-import org.picketlink.idm.model.Grant;
-import org.picketlink.idm.model.GroupMembership;
-import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.sample.Grant;
+import org.picketlink.idm.model.sample.GroupMembership;
+import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
@@ -120,8 +120,8 @@ public class LDAPQuery {
     private String createHasMemberFilter() {
         StringBuffer parentEntriesFilter = new StringBuffer();
 
-        if (identityQuery.getParameters().containsKey(org.picketlink.idm.model.Group.HAS_MEMBER)) {
-            Object[] values = identityQuery.getParameters().get(org.picketlink.idm.model.Group.HAS_MEMBER);
+        if (identityQuery.getParameters().containsKey(org.picketlink.idm.model.sample.Group.HAS_MEMBER)) {
+            Object[] values = identityQuery.getParameters().get(org.picketlink.idm.model.sample.Group.HAS_MEMBER);
             IdentityType[] agents = new IdentityType[values.length];
 
             for (int j = 0; j < values.length; j++) {
@@ -132,9 +132,9 @@ public class LDAPQuery {
             for (IdentityType identityType : agents) {
                 if (identityType != null) {
 
-                    if (org.picketlink.idm.model.Group.class.isInstance(identityType)) {
+                    if (org.picketlink.idm.model.sample.Group.class.isInstance(identityType)) {
                         parentEntriesFilter.append(createMembersFilter(identityType));
-                    } else if (org.picketlink.idm.model.Agent.class.isInstance(identityType)) {
+                    } else if (org.picketlink.idm.model.sample.Agent.class.isInstance(identityType)) {
                         RelationshipQuery<GroupMembership> query = context.getIdentityManager()
                                 .createRelationshipQuery(GroupMembership.class);
 
@@ -171,7 +171,7 @@ public class LDAPQuery {
             Object[] values = identityQuery.getParameters().get(IdentityType.ROLE_OF);
 
             for (Object user : values) {
-                if (org.picketlink.idm.model.Agent.class.isInstance(user) || org.picketlink.idm.model.Group.class.isInstance(user)) {
+                if (org.picketlink.idm.model.sample.Agent.class.isInstance(user) || org.picketlink.idm.model.sample.Group.class.isInstance(user)) {
                     RelationshipQuery<Grant> query = context.getIdentityManager()
                             .createRelationshipQuery(Grant.class);
 
@@ -226,7 +226,7 @@ public class LDAPQuery {
             NamingEnumeration<SearchResult> search = null;
 
             try {
-                Object[] groupRoles = identityQuery.getParameters().get(org.picketlink.idm.model.User.HAS_GROUP_ROLE);
+                Object[] groupRoles = identityQuery.getParameters().get(org.picketlink.idm.model.sample.User.HAS_GROUP_ROLE);
 
                 for (Object group : groupRoles) {
                     GroupRole groupRole = (GroupRole) group;
@@ -271,12 +271,12 @@ public class LDAPQuery {
     private String createHasRoleFilter() {
         StringBuffer filter = new StringBuffer();
 
-        if (identityQuery.getParameters().containsKey(org.picketlink.idm.model.User.HAS_ROLE)) {
-            Object[] roles = identityQuery.getParameters().get(org.picketlink.idm.model.User.HAS_ROLE);
+        if (identityQuery.getParameters().containsKey(org.picketlink.idm.model.sample.User.HAS_ROLE)) {
+            Object[] roles = identityQuery.getParameters().get(org.picketlink.idm.model.sample.User.HAS_ROLE);
             Map<String, Integer> memberCount = new HashMap<String, Integer>();
 
             for (Object role : roles) {
-                if (org.picketlink.idm.model.Role.class.isInstance(role)) {
+                if (org.picketlink.idm.model.sample.Role.class.isInstance(role)) {
                     RelationshipQuery<Grant> query = context.getIdentityManager()
                             .createRelationshipQuery(Grant.class);
 
@@ -328,13 +328,13 @@ public class LDAPQuery {
     private String createMemberOfFilter() {
         StringBuffer filter = new StringBuffer();
 
-        if (identityQuery.getParameters().containsKey(org.picketlink.idm.model.User.MEMBER_OF)) {
+        if (identityQuery.getParameters().containsKey(org.picketlink.idm.model.sample.User.MEMBER_OF)) {
             Map<String, Integer> userCount = new HashMap<String, Integer>();
 
-            Object[] groups = identityQuery.getParameters().get(org.picketlink.idm.model.User.MEMBER_OF);
+            Object[] groups = identityQuery.getParameters().get(org.picketlink.idm.model.sample.User.MEMBER_OF);
 
             for (Object group : groups) {
-                if (org.picketlink.idm.model.Group.class.isInstance(group)) {
+                if (org.picketlink.idm.model.sample.Group.class.isInstance(group)) {
                     RelationshipQuery<GroupMembership> query = context.getIdentityManager()
                             .createRelationshipQuery(GroupMembership.class);
 
@@ -462,7 +462,7 @@ public class LDAPQuery {
     }
 
     private String createChildGroupsFilter() {
-        if (identityQuery.getParameters().containsKey(org.picketlink.idm.model.Group.PARENT)) {
+        if (identityQuery.getParameters().containsKey(org.picketlink.idm.model.sample.Group.PARENT)) {
 // FIXME
 //            String parentName = identityQuery.getParameters().get(org.picketlink.idm.model.Group.PARENT)[0].toString();
 //            LDAPGroup parentGroup = this.identityStore.lookupGroup(parentName);

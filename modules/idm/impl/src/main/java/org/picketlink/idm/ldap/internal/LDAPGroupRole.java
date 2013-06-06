@@ -17,9 +17,9 @@
  */
 package org.picketlink.idm.ldap.internal;
 
-import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.Role;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;

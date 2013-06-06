@@ -20,10 +20,10 @@ package org.picketlink.test.idm.relationship;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 

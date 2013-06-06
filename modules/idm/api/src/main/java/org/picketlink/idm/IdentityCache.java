@@ -18,13 +18,13 @@
 
 package org.picketlink.idm;
 
-import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.User;
 
 /**
  * Storage for User, Group and Role instances to enable quick resolution of identity memberships.

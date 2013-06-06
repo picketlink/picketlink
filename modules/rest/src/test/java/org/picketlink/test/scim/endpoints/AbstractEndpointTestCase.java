@@ -41,8 +41,8 @@ import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Realm;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.scim.PicketLinkSCIMApplication;
 import org.picketlink.test.scim.EmbeddedWebServerBase;
 

@@ -40,7 +40,7 @@ public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
     }
 
     @Override
-    public void update(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.model.Agent agent, org.picketlink.idm.credential.Password credential, org.picketlink.idm.ldap.internal.LDAPIdentityStore store, java.util.Date effectiveDate, java.util.Date expiryDate) {
+    public void update(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.model.sample.Agent agent, org.picketlink.idm.credential.Password credential, org.picketlink.idm.ldap.internal.LDAPIdentityStore store, java.util.Date effectiveDate, java.util.Date expiryDate) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 

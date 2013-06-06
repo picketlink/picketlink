@@ -18,15 +18,15 @@
 
 package org.picketlink.idm.file.internal;
 
-import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
-import org.picketlink.idm.model.Grant;
-import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.GroupMembership;
-import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.Grant;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.GroupMembership;
+import org.picketlink.idm.model.sample.GroupRole;
+import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;

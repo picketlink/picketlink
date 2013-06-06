@@ -30,7 +30,7 @@ import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.internal.IdentityManagerFactory;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.User;
 
 /**
  * @author Pedro Silva

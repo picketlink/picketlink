@@ -18,8 +18,8 @@
 
 package org.picketlink.test.idm.relationship;
 
-import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.sample.Group;
 
 /**
  * <p>

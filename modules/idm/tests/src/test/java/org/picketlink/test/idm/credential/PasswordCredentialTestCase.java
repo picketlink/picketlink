@@ -24,7 +24,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;

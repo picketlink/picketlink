@@ -20,12 +20,12 @@ package org.picketlink.test.idm.query;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 import org.picketlink.test.idm.ExcludeTestSuite;

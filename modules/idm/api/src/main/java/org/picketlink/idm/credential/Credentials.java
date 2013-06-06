@@ -18,7 +18,7 @@
 
 package org.picketlink.idm.credential;
 
-import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.sample.Agent;
 
 /**
  * Represents the credentials the current user will use to authenticate, in addition to providing information about the current

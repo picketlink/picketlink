@@ -19,13 +19,13 @@
 package org.picketlink.idm.internal;
 
 import org.picketlink.idm.IdentityCache;
-import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.User;
 
 import java.util.HashMap;
 import java.util.Map;

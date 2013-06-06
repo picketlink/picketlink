@@ -20,7 +20,7 @@ package org.picketlink.idm.spi;
 
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.spi.CredentialStorage;
-import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.sample.Agent;
 
 import java.util.List;
 

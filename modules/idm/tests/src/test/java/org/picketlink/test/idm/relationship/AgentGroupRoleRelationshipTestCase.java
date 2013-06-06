@@ -20,11 +20,11 @@ package org.picketlink.test.idm.relationship;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.GroupRole;
+import org.picketlink.idm.model.sample.Role;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
 import static junit.framework.Assert.assertTrue;

@@ -19,7 +19,7 @@
 package org.picketlink.test.idm.relationship;
 
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.User;
 
 /**
  * <p>

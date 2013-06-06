@@ -23,7 +23,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;

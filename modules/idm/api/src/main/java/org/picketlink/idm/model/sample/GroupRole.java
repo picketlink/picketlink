@@ -15,56 +15,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.picketlink.idm.model.sample;
 
-package org.picketlink.idm.model;
-
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.IdentityProperty;
 import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
- * A Relationship that represents an identity's membership in a Group
+ * GroupRole is a Relationship type that assigns a role within a group to an identity (either a User or Group).
  *
+ * @author Boleslaw Dawidowicz
  * @author Shane Bryzak
  */
-public class GroupMembership extends AbstractAttributedType implements Relationship {
+public class GroupRole extends Grant implements Relationship {
 
-    public static final RelationshipQueryParameter MEMBER = new RelationshipQueryParameter() {
-
-        @Override
-        public String getName() {
-            return "member";
-        }
-    };;
+    private static final long serialVersionUID = 2844617870858266637L;
 
     public static final RelationshipQueryParameter GROUP = new RelationshipQueryParameter() {
-
         @Override
         public String getName() {
             return "group";
         }
-    };;
+    };
 
-    private static final long serialVersionUID = 6851576454138812116L;
-
-    private Agent member;
     private Group group;
 
-    public GroupMembership() {
-
+    public GroupRole() {
+        super();
     }
 
-    public GroupMembership(Agent member, Group group) {
-        this.member = member;
+    public GroupRole(IdentityType assignee, Group group, Role role) {
+        super(assignee, role);
         this.group = group;
-    }
-
-    @IdentityProperty
-    public Agent getMember() {
-        return member;
-    }
-
-    public void setMember(Agent member) {
-        this.member = member;
     }
 
     @IdentityProperty

@@ -25,7 +25,7 @@ import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
-import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.password.internal.EncodedPasswordStorage;
 import org.picketlink.idm.password.internal.SHAPasswordEncoder;

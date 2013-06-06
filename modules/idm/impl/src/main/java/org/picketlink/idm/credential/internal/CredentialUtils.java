@@ -19,7 +19,7 @@
 package org.picketlink.idm.credential.internal;
 
 import org.picketlink.idm.credential.spi.CredentialStorage;
-import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
 

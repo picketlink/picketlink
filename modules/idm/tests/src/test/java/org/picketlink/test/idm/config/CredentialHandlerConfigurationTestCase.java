@@ -41,8 +41,8 @@ import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
-import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 

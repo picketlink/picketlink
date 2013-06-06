@@ -57,27 +57,27 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     @Override
-    public org.picketlink.idm.model.Agent getAgent(org.picketlink.idm.spi.SecurityContext context, String loginName) {
+    public org.picketlink.idm.model.sample.Agent getAgent(org.picketlink.idm.spi.SecurityContext context, String loginName) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public org.picketlink.idm.model.User getUser(org.picketlink.idm.spi.SecurityContext context, String loginName) {
+    public org.picketlink.idm.model.sample.User getUser(org.picketlink.idm.spi.SecurityContext context, String loginName) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public org.picketlink.idm.model.Group getGroup(org.picketlink.idm.spi.SecurityContext context, String groupPath) {
+    public org.picketlink.idm.model.sample.Group getGroup(org.picketlink.idm.spi.SecurityContext context, String groupPath) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public org.picketlink.idm.model.Group getGroup(org.picketlink.idm.spi.SecurityContext context, String name, org.picketlink.idm.model.Group parent) {
+    public org.picketlink.idm.model.sample.Group getGroup(org.picketlink.idm.spi.SecurityContext context, String name, org.picketlink.idm.model.sample.Group parent) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public org.picketlink.idm.model.Role getRole(org.picketlink.idm.spi.SecurityContext context, String name) {
+    public org.picketlink.idm.model.sample.Role getRole(org.picketlink.idm.spi.SecurityContext context, String name) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -122,7 +122,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     @Override
-    public void updateCredential(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.model.Agent agent, Object credential, java.util.Date effectiveDate, java.util.Date expiryDate) {
+    public void updateCredential(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.model.sample.Agent agent, Object credential, java.util.Date effectiveDate, java.util.Date expiryDate) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 //    private LDAPIdentityStoreConfiguration configuration;

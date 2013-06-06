@@ -30,19 +30,19 @@ import org.picketlink.idm.query.QueryParameter;
 public class IDMUtil {
 
     public static boolean isGroupType(Class<? extends IdentityType> identityType) {
-        return org.picketlink.idm.model.Group.class.isAssignableFrom(identityType);
+        return org.picketlink.idm.model.sample.Group.class.isAssignableFrom(identityType);
     }
 
     public static boolean isRoleType(Class<? extends IdentityType> identityType) {
-        return org.picketlink.idm.model.Role.class.isAssignableFrom(identityType);
+        return org.picketlink.idm.model.sample.Role.class.isAssignableFrom(identityType);
     }
 
     public static boolean isUserType(Class<? extends IdentityType> identityType) {
-        return org.picketlink.idm.model.User.class.isAssignableFrom(identityType);
+        return org.picketlink.idm.model.sample.User.class.isAssignableFrom(identityType);
     }
 
     public static boolean isAgentType(Class<? extends IdentityType> identityType) {
-        return org.picketlink.idm.model.Agent.class.isAssignableFrom(identityType);
+        return org.picketlink.idm.model.sample.Agent.class.isAssignableFrom(identityType);
     }
 
     /**
@@ -54,11 +54,11 @@ public class IDMUtil {
      */
     public static QueryParameter[] getDefaultParamsForSorting(Class<? extends IdentityType> clazz) {
         if (isAgentType(clazz)) {
-            return new QueryParameter[] { org.picketlink.idm.model.Agent.LOGIN_NAME };
+            return new QueryParameter[] { org.picketlink.idm.model.sample.Agent.LOGIN_NAME };
         } else if (isGroupType(clazz)) {
-            return new QueryParameter[] { org.picketlink.idm.model.Group.NAME };
+            return new QueryParameter[] { org.picketlink.idm.model.sample.Group.NAME };
         } else if (isRoleType(clazz)) {
-            return new QueryParameter[] { org.picketlink.idm.model.Role.NAME };
+            return new QueryParameter[] { org.picketlink.idm.model.sample.Role.NAME };
         } else {
             return new QueryParameter[] { IdentityType.ID };
         }

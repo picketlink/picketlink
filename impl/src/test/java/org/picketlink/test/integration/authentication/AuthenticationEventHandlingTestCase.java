@@ -35,7 +35,7 @@ import org.picketlink.authentication.event.PostAuthenticateEvent;
 import org.picketlink.authentication.event.PostLoggedOutEvent;
 import org.picketlink.authentication.event.PreAuthenticateEvent;
 import org.picketlink.authentication.event.PreLoggedOutEvent;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.ArchiveUtils;
 
 import javax.enterprise.context.RequestScoped;

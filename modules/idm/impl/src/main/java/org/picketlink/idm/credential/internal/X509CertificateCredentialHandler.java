@@ -24,7 +24,7 @@ import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
-import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
 

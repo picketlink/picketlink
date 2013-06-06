@@ -31,7 +31,7 @@ import org.picketlink.authentication.LockedAccountException;
 import org.picketlink.authentication.UnexpectedCredentialException;
 import org.picketlink.authentication.UserAlreadyLoggedInException;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.AbstractArquillianTestCase;
 
 import javax.inject.Inject;

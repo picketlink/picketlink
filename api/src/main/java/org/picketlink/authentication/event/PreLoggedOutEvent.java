@@ -18,7 +18,7 @@
 
 package org.picketlink.authentication.event;
 
-import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.sample.Agent;
 
 /**
  * This event is raised just before the user un-authenticates

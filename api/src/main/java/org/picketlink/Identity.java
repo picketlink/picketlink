@@ -19,7 +19,7 @@
 package org.picketlink;
 
 import org.picketlink.authentication.AuthenticationException;
-import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.sample.Agent;
 
 import java.io.Serializable;
 

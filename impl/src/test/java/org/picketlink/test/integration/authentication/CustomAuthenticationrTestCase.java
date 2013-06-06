@@ -37,7 +37,7 @@ import org.junit.Test;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.BaseAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.ArchiveUtils;
 
 /**

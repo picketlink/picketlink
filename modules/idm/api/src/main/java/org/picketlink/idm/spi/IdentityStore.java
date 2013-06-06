@@ -19,14 +19,14 @@ package org.picketlink.idm.spi;
 
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
-import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
 

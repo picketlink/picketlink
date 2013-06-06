@@ -18,7 +18,7 @@
 
 package org.picketlink.authentication;
 
-import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.sample.Agent;
 
 /**
  * Abstract base class that Authenticator implementations can extend for convenience. 

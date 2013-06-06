@@ -16,8 +16,10 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.model;
+package org.picketlink.idm.model.sample;
 
+import org.picketlink.idm.model.AbstractAttributedType;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.model.annotation.IdentityProperty;
 import org.picketlink.idm.query.RelationshipQueryParameter;

@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.X509CertificateCredentials;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
 import java.io.IOException;

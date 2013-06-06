@@ -23,8 +23,8 @@ import java.util.List;
 import javax.persistence.criteria.Predicate;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
-import org.picketlink.idm.model.Grant;
-import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.sample.Grant;
+import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.SecurityContext;
 

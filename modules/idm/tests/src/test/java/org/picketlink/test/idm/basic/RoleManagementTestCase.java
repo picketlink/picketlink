@@ -20,12 +20,12 @@ package org.picketlink.test.idm.basic;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.Grant;
-import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Realm;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.Grant;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.GroupRole;
+import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 
 import java.util.Date;

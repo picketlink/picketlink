@@ -28,8 +28,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
-import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.GroupMembership;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.SecurityContext;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
@@ -159,7 +159,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
 
         if (parameterValues != null) {
             for (Object object : parameterValues) {
-                if (org.picketlink.idm.model.Agent.class.isInstance(object)) {
+                if (org.picketlink.idm.model.sample.Agent.class.isInstance(object)) {
                     RelationshipQuery<GroupMembership> query = context.getIdentityManager().createRelationshipQuery(
                             GroupMembership.class);
 

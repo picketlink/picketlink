@@ -9,7 +9,7 @@ import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.User;
 
 import javax.inject.Inject;
 
