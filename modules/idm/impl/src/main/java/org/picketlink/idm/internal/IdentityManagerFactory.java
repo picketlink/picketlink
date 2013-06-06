@@ -40,6 +40,8 @@ public class IdentityManagerFactory implements Serializable {
      * @param identityConfig
      */
     public IdentityManagerFactory(IdentityConfiguration identityConfig) {
+        LOGGER.identityManagerBootstrapping();
+
         if (identityConfig == null) {
             throw MESSAGES.nullArgument("IdentityConfiguration");
         }
@@ -55,8 +57,6 @@ public class IdentityManagerFactory implements Serializable {
         } else {
             this.storeFactory = identityConfig.getStoreFactory();
         }
-
-        LOGGER.identityManagerBootstrapping();
     }
 
     /**
