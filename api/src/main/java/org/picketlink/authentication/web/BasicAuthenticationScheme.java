@@ -65,6 +65,10 @@ public class BasicAuthenticationScheme implements HTTPAuthenticationScheme {
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
     }
 
+    @Override
+    public void postAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    }
+
     private boolean isBasicAuthentication(HttpServletRequest request) {
         return getAuthorizationHeader(request) != null && getAuthorizationHeader(request).startsWith("Basic ");
     }
