@@ -26,6 +26,9 @@ import java.io.IOException;
 import java.util.Timer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.picketlink.authentication.web.support.HTTPDigestUtil;
+import org.picketlink.authentication.web.support.NonceCache;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.credential.Digest;
 

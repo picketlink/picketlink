@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.authentication.web;
+package org.picketlink.authentication.web.support;
 
 import java.util.ArrayList;
 import java.util.HashMap;
