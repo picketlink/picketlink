@@ -63,7 +63,7 @@ upload_docs() {
     execute_cmd mv $DOCS_DIR/picketlink-$RELEASE_VERSION/doc/api $DOCS_DIR/.
     execute_cmd mv $DOCS_DIR/picketlink-$RELEASE_VERSION/doc/reference $DOCS_DIR/.
     rm -rf $DOCS_DIR/picketlink-$RELEASE_VERSION
-    execute_cmd scp -r $DOCS_DIR/ picketlink@filemgmt.jboss.org:/docs_htdocs/picketlink/3
+    execute_cmd scp -r $DOCS_DIR/ picketlink@filemgmt.jboss.org:/docs_htdocs/picketlink/2
     echo "Done."
 }
 
