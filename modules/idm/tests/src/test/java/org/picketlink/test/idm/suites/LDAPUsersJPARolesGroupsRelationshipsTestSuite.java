@@ -128,6 +128,7 @@ public class LDAPUsersJPARolesGroupsRelationshipsTestSuite extends LDAPAbstractS
         builder
             .stores()
                 .ldap()
+                    .addRealm(Realm.DEFAULT_REALM)
                     .baseDN(getBaseDn())
                     .bindDN(getBindDn())
                     .bindCredential(getBindCredential())
@@ -143,6 +144,7 @@ public class LDAPUsersJPARolesGroupsRelationshipsTestSuite extends LDAPAbstractS
                     .supportFeature(FeatureGroup.attribute)
                 .jpa()
                     .addRealm(Realm.DEFAULT_REALM)
+                    .addTier("Application A", "Application B", "Application C")
                     .identityClass(IdentityObject.class)
                     .attributeClass(IdentityObjectAttribute.class)
                     .relationshipClass(RelationshipObject.class)

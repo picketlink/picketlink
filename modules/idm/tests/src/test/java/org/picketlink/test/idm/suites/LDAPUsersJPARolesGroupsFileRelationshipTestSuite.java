@@ -22,6 +22,7 @@ import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.Authorization;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -110,6 +111,8 @@ public class LDAPUsersJPARolesGroupsFileRelationshipTestSuite extends LDAPAbstra
         builder
             .stores()
                 .ldap()
+                    .addRealm(Realm.DEFAULT_REALM)
+                    .addTier("Application A", "Application B", "Application C")
                     .baseDN(getBaseDn())
                     .bindDN(getBindDn())
                     .bindCredential(getBindCredential())
@@ -124,6 +127,8 @@ public class LDAPUsersJPARolesGroupsFileRelationshipTestSuite extends LDAPAbstra
                     .supportFeature(FeatureGroup.credential)
                     .supportFeature(FeatureGroup.attribute)
                 .jpa()
+                    .addRealm(Realm.DEFAULT_REALM)
+                    .addTier("Application A", "Application B", "Application C")
                     .identityClass(IdentityObject.class)
                     .attributeClass(IdentityObjectAttribute.class)
                     .relationshipClass(RelationshipObject.class)
@@ -140,6 +145,8 @@ public class LDAPUsersJPARolesGroupsFileRelationshipTestSuite extends LDAPAbstra
                         }
                     })
                 .file()
+                    .addRealm(Realm.DEFAULT_REALM)
+                    .addTier("Application A", "Application B", "Application C")
                     .supportFeature(FeatureGroup.relationship)
                     .supportRelationshipType(CustomRelationship.class, Authorization.class);
 
