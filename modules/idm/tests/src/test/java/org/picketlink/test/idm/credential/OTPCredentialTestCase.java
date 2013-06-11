@@ -172,9 +172,9 @@ public class OTPCredentialTestCase extends AbstractIdentityManagerTestCase {
 
         assertEquals(Status.VALID, validatingCredential.getStatus());
 
-        credential = new TOTPCredential(DEFAULT_PASSWORD, "new_secret");
+        credential = new TOTPCredential("new_secret");
 
-        // update only the password
+        // update only the secret
         identityManager.updateCredential(user, credential);
 
         validatingCredential.setPassword(new Password(DEFAULT_PASSWORD));

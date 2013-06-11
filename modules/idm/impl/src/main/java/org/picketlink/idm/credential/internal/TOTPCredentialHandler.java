@@ -83,23 +83,27 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
 
             OTPCredentialStorage storage = store.retrieveCurrentCredential(context, agent, OTPCredentialStorage.class);
 
+            boolean isValid = false;
+
             if (storage != null) {
                 String secretKey = storage.getSecretKey();
                 String token = credentials.getToken();
 
-                if (this.totp.validate(token, secretKey.getBytes())) {
-                    credentials.setStatus(Status.INVALID);
-                    credentials.setValidatedAgent(null);
-                }
+                isValid = this.totp.validate(token, secretKey.getBytes());
+            }
+
+            if (!isValid) {
+                credentials.setStatus(Status.INVALID);
+                credentials.setValidatedAgent(null);
             }
         }
     }
 
     @Override
-    public void update(SecurityContext context, Agent agent, TOTPCredential password, CredentialStore<?> store, Date effectiveDate, Date expiryDate) {
-        // if a password was not provided, updates only the secret.
-        if (password.getValue() != null) {
-            super.update(context, agent, password, store, effectiveDate, expiryDate);
+    public void update(SecurityContext context, Agent agent, TOTPCredential credential, CredentialStore<?> store, Date effectiveDate, Date expiryDate) {
+        // if a credential was not provided, updates only the secret.
+        if (credential.getValue() != null && credential.getValue().length > 0) {
+            super.update(context, agent, credential, store, effectiveDate, expiryDate);
         }
 
         OTPCredentialStorage storage = new OTPCredentialStorage();
@@ -107,7 +111,7 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
         storage.setEffectiveDate(effectiveDate);
         storage.setExpiryDate(expiryDate);
 
-        storage.setSecretKey(password.getSecret());
+        storage.setSecretKey(credential.getSecret());
 
         store.storeCredential(context, agent, storage);
     }
