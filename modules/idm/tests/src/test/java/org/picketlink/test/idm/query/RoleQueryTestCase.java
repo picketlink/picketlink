@@ -18,23 +18,24 @@
 
 package org.picketlink.test.idm.query;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-
 import java.util.List;
-
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleRole;
+import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * <p>
@@ -70,48 +71,46 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         }
     }
 
-//    @Test
-//    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
-//            LDAPIdentityStoreWithoutAttributesTestSuite.class })
-//    public void testFindByTier() throws Exception {
-//        Tier someTier = new Tier("Some Role Tier");
-//
-//        getIdentityManagerFactory().createTier("Some Role Tier", null);
-//
-//        Role someRoleRealm = new SimpleRole("someRoleRealm");
-//
-//        getIdentityManagerFactory().createIdentityManager(someTier).add(someRoleRealm);
-//
-//        IdentityQuery<Role> query = getIdentityManagerFactory().createIdentityManager(someTier).createIdentityQuery(Role.class);
-//
-//        assertNotNull(someTier);
-//
-//        query.setParameter(Role.PARTITION, someTier);
-//
-//        List<Role> result = query.getResultList();
-//
-//        assertFalse(result.isEmpty());
-//        assertEquals(1, result.size());
-//        assertTrue(contains(result, someRoleRealm.getId()));
-//
-//        Tier someAnotherTier = new Tier("Some Another Role Tier");
-//
-//        getIdentityManagerFactory().createTier("Some Another Role Tier", null);
-//
-//        Role someRoleTestingTier = new SimpleRole("someRoleTestingRealm");
-//
-//        getIdentityManagerFactory().createIdentityManager(someAnotherTier).add(someRoleTestingTier);
-//
-//        query = getIdentityManagerFactory().createIdentityManager(someAnotherTier).createIdentityQuery(Role.class);
-//
-//        query.setParameter(Role.PARTITION, someAnotherTier);
-//
-//        result = query.getResultList();
-//
-//        assertFalse(result.isEmpty());
-//        assertEquals(1, result.size());
-//        assertTrue(contains(result, someRoleTestingTier.getId()));
-//    }
+    @Test
+    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
+            LDAPIdentityStoreWithoutAttributesTestSuite.class })
+    public void testFindByTier() throws Exception {
+        Role someRole = new SimpleRole("someRole");
+
+        Tier applicationATier = getIdentityManagerFactory().getTier("Application A");
+
+        IdentityManager applicationA = getIdentityManagerFactory().createIdentityManager(applicationATier);
+
+        applicationA.add(someRole);
+
+        IdentityQuery<Role> query = applicationA.createIdentityQuery(Role.class);
+
+        query.setParameter(Role.PARTITION, applicationATier);
+
+        List<Role> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertTrue(contains(result, someRole.getId()));
+
+        Tier applicationBTier = getIdentityManagerFactory().getTier("Application B");
+
+        IdentityManager applicationB = getIdentityManagerFactory().createIdentityManager(applicationBTier);
+
+        Role anotherRole = new SimpleRole("anotherRole");
+
+        applicationB.add(anotherRole);
+
+        query = applicationB.createIdentityQuery(Role.class);
+
+        query.setParameter(Role.PARTITION, applicationBTier);
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertTrue(contains(result, anotherRole.getId()));
+    }
 
     /**
      * <p>

@@ -94,7 +94,7 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
                 .file()
                     .preserveState(false)
                     .addRealm(Realm.DEFAULT_REALM, "Testing")
-                    .addTier("Application")
+                    .addTier("Application A", "Application B", "Application C")
                     .supportAllFeatures()
                     .supportRelationshipType(CustomRelationship.class, Authorization.class);
         

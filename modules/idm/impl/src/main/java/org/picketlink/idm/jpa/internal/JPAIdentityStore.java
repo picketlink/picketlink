@@ -92,9 +92,8 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
  *
  * @author Shane Bryzak
  * @author Pedro Silva
- *
  */
-@CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class, TOTPCredentialHandler.class })
+@CredentialHandlers({PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class, TOTPCredentialHandler.class})
 public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfiguration> {
 
     // Invocation context parameters
@@ -394,7 +393,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
                 if (value.getClass().isArray()) {
                     values = (Serializable[]) value;
                 } else {
-                    values = new Serializable[] { value };
+                    values = new Serializable[]{value};
                 }
 
                 Object entity = lookupIdentityObjectById(context, identity.getId());
@@ -432,7 +431,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
 
     @Override
     public <T extends Serializable> Attribute<T> getAttribute(SecurityContext context, IdentityType identityType,
-            String attributeName) {
+                                                              String attributeName) {
         List<?> attributes = findIdentityTypeAttributes(context, identityType, attributeName);
 
         populateAttributes(identityType, attributes);
@@ -607,17 +606,8 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<?> criteria = builder.createQuery(getConfig().getIdentityClass());
         Root<?> root = criteria.from(getConfig().getIdentityClass());
-        List<Predicate> predicates = new ArrayList<Predicate>();
-        Join<?, ?> join = root.join(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName());
 
-        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()), id));
-
-        List<String> partitionIds = getAllowedPartitionIds(context, context.getPartition());
-
-        predicates.add(builder.in(join.get(getConfig().getModelProperty(PropertyType.PARTITION_ID).getName())).value(
-                partitionIds));
-
-        criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+        criteria.where(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()), id));
 
         List<?> results = em.createQuery(criteria).getResultList();
 
@@ -752,14 +742,14 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param userAttribute
      */
     private void storeRelationshipAttribute(SecurityContext context, Object identity,
-            Attribute<? extends Serializable> userAttribute) {
+                                            Attribute<? extends Serializable> userAttribute) {
         Serializable value = userAttribute.getValue();
         Serializable[] values = null;
 
         if (value.getClass().isArray()) {
             values = (Serializable[]) value;
         } else {
-            values = new Serializable[] { value };
+            values = new Serializable[]{value};
         }
 
         Property<Object> attributeNameProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME);
@@ -870,7 +860,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @return
      */
     private List<?> findRelationshipAttributes(SecurityContext context, Relationship relationship,
-            Attribute<? extends Serializable> attribute) {
+                                               Attribute<? extends Serializable> attribute) {
         Property<Object> attributeIdentityProperty = getConfig().getModelProperty(
                 PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP);
 
@@ -1086,7 +1076,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param identity
      */
     private void updateRelationshipAttributes(SecurityContext context, Relationship relationship, Object identity) {
-        List<Property<Serializable>> attributeProperties = PropertyQueries.<Serializable> createQuery(relationship.getClass())
+        List<Property<Serializable>> attributeProperties = PropertyQueries.<Serializable>createQuery(relationship.getClass())
                 .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class)).getResultList();
 
         for (Property<Serializable> attributeProperty : attributeProperties) {
@@ -1215,7 +1205,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
                             .toString());
 
                     List<Property<Serializable>> attributeProperties = PropertyQueries
-                            .<Serializable> createQuery(relationshipType.getClass())
+                            .<Serializable>createQuery(relationshipType.getClass())
                             .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class)).getResultList();
 
                     Property<Serializable> relationshipAttributeProperty = null;
@@ -1278,7 +1268,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
         getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).setValue(entity, relationship.getId());
         getConfig().getModelProperty(PropertyType.RELATIONSHIP_CLASS).setValue(entity, relationship.getClass().getName());
 
-        List<Property<IdentityType>> props = PropertyQueries.<IdentityType> createQuery(relationship.getClass())
+        List<Property<IdentityType>> props = PropertyQueries.<IdentityType>createQuery(relationship.getClass())
                 .addCriteria(new AnnotatedPropertyCriteria(IdentityProperty.class)).getResultList();
 
         EntityManager em = getEntityManager(context);
@@ -1442,9 +1432,9 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
         return em.createQuery(criteria).getResultList();
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private <T extends Relationship> List<T> fetchQueryResults(SecurityContext context, RelationshipQuery<T> query,
-            boolean matchExactGroup) {
+                                                               boolean matchExactGroup) {
         List<T> result = new ArrayList<T>();
 
         EntityManager em = getEntityManager(context);
@@ -1495,10 +1485,28 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
                     for (Object object : values) {
                         IdentityType identityType = (IdentityType) object;
 
-                        identityType = context.getIdentityManager().lookupIdentityById(identityType.getClass(),
-                                identityType.getId());
-
                         if (identityType != null) {
+                            IdentityQuery<? extends IdentityType> identityQuery = context.getIdentityManager().createIdentityQuery(identityType.getClass());
+
+                            identityQuery.setParameter(IdentityType.ID, identityType.getId());
+                            identityQuery.setParameter(IdentityType.PARTITION, identityType.getPartition());
+
+                            List<? extends IdentityType> identityQueryResult = identityQuery.getResultList();
+
+                            if (identityQueryResult.isEmpty()) {
+                                return result;
+                            }
+
+                            identityType = identityQueryResult.get(0);
+
+                            if (Role.class.isInstance(identityType) || Group.class.isInstance(identityType)) {
+                                if (Realm.class.isInstance(context.getPartition()) && !context.getPartition().equals(identityType.getPartition())) {
+                                    if (!Tier.class.isInstance(identityType.getPartition())) {
+                                        return result;
+                                    }
+                                }
+                            }
+
                             List<String> objects = new ArrayList<String>();
 
                             objects.add(identityType.getId());
@@ -1528,11 +1536,23 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
                                 List<Object> identityObjects = new ArrayList<Object>();
 
                                 for (String id : objects) {
-                                    identityObjects.add(lookupIdentityObjectById(context, id));
+                                    Object identityObject = null;
+
+                                    try {
+                                        identityObject = lookupIdentityObjectById(context, id);
+                                    } catch (IdentityManagementException ime) {
+                                        // we ignore, the type may not exists
+                                    }
+
+                                    if (identityObject != null) {
+                                        identityObjects.add(identityObject);
+                                    }
                                 }
 
-                                conjunction.getExpressions().add(
-                                        builder.in(fromProject.get(identityProperty.getName())).value(identityObjects));
+                                if (!identityObjects.isEmpty()) {
+                                    conjunction.getExpressions().add(
+                                            builder.in(fromProject.get(identityProperty.getName())).value(identityObjects));
+                                }
                             }
 
                             subquery.where(conjunction);
@@ -1630,7 +1650,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     private <T extends CredentialStorage> T convertToCredentialStorage(SecurityContext context, Object instance,
-            Class<T> storageClass) {
+                                                                       Class<T> storageClass) {
         T storage = null;
 
         if (instance != null) {
@@ -1724,7 +1744,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
 
         Predicate conjunction = builder.conjunction();
 
-        conjunction.getExpressions().add(builder.lessThanOrEqualTo(root.<Date> get(effectiveProperty.getName()), new Date()));
+        conjunction.getExpressions().add(builder.lessThanOrEqualTo(root.<Date>get(effectiveProperty.getName()), new Date()));
 
         predicates.add(conjunction);
 

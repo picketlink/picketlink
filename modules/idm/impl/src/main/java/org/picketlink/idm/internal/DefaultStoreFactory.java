@@ -18,15 +18,11 @@
 
 package org.picketlink.idm.internal;
 
-import static org.picketlink.idm.IDMLogger.LOGGER;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
@@ -45,6 +41,8 @@ import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.StoreFactory;
+import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Default StoreFactory implementation. This factory is pre-configured to be able to create instances of the following built-in
@@ -142,7 +140,7 @@ public class DefaultStoreFactory implements StoreFactory {
     public Tier getTier(String id) {
         if (configuredTiers.containsKey(id)) {
             return configuredTiers.get(id);
-        } else if (realmStores.containsKey(id)) {
+        } else if (tierStores.containsKey(id)) {
             Tier tier = new Tier(id);
             configuredTiers.put(id, tier);
             return tier;

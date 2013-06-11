@@ -18,19 +18,23 @@
 
 package org.picketlink.test.idm.partition;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleGroup;
+import org.picketlink.idm.model.SimpleRole;
+import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.Tier;
+import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * <p>
@@ -42,42 +46,44 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
  */
 public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
-    private static final String APPLICATION_TIER_NAME = "Application";
+    private static final String APPLICATION_A_TIER_NAME = "Application A";
+    private static final String APPLICATION_B_TIER_NAME = "Application B";
+    private static final String APPLICATION_C_TIER_NAME = "Application C";
 
     @Test
-    public void testCreateRoles() throws Exception {
-        IdentityManager defaultIdentityManager = getIdentityManager();
+    public void testRolesForTier() throws Exception {
+        IdentityManager applicationTierIdentityManager = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
-        Tier applicationTier = new Tier(APPLICATION_TIER_NAME);
+        Role testingRole = new SimpleRole("Role");
 
-        IdentityManager applicationTierIdentityManager = getIdentityManagerFactory().createIdentityManager(applicationTier);
-
-        Role testingRole = createRole("testingRole", applicationTier);
+        applicationTierIdentityManager.add(testingRole);
 
         testingRole = applicationTierIdentityManager.getRole(testingRole.getName());
 
         assertNotNull(testingRole);
         assertNotNull(testingRole.getPartition());
-        assertEquals(applicationTier.getId(), testingRole.getPartition().getId());
+        assertEquals(APPLICATION_A_TIER_NAME, testingRole.getPartition().getId());
 
-        testingRole = defaultIdentityManager.getRole(testingRole.getName());
+        IdentityManager identityManager = getIdentityManager();
+
+        testingRole = identityManager.getRole(testingRole.getName());
 
         assertNull(testingRole);
     }
 
     @Test
     public void testGroupsForTier() throws Exception {
-        Tier applicationTier = new Tier(APPLICATION_TIER_NAME);
+        IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
-        IdentityManager applicationTierIdentityManager = getIdentityManagerFactory().createIdentityManager(applicationTier);
+        Group testingGroup = new SimpleGroup("testingGroupTier");
 
-        Group testingGroup = createGroup("testingGroupTier", null, applicationTier);
+        applicationA.add(testingGroup);
 
-        testingGroup = applicationTierIdentityManager.getGroup(testingGroup.getName());
+        testingGroup = applicationA.getGroup(testingGroup.getName());
 
         assertNotNull(testingGroup);
         assertNotNull(testingGroup.getPartition());
-        assertEquals(applicationTier.getId(), testingGroup.getPartition().getId());
+        assertEquals(APPLICATION_A_TIER_NAME, testingGroup.getPartition().getId());
 
         IdentityManager identityManager = getIdentityManager();
         
@@ -87,29 +93,247 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     }
 
     @Test
-    public void testRolesForTier() throws Exception {
-        Tier applicationTier = new Tier(APPLICATION_TIER_NAME);
+    public void testCreateSameRoleDifferentTiers() throws Exception {
+        IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
-        IdentityManager applicationTierIdentityManager = getIdentityManagerFactory().createIdentityManager(applicationTier);
+        Role roleA = new SimpleRole("Role");
 
-        Role testingRole = createRole("testingRoleTier", applicationTier);
+        applicationA.add(roleA);
 
-        testingRole = applicationTierIdentityManager.getRole(testingRole.getName());
+        try {
+            // we can not add this role with the same name
+            applicationA.add(new SimpleRole(roleA.getName()));
+            fail();
+        } catch (IdentityManagementException e) {
+        }
 
-        assertNotNull(testingRole);
-        assertNotNull(testingRole.getPartition());
-        assertEquals(applicationTier.getId(), testingRole.getPartition().getId());
+        roleA = applicationA.getRole(roleA.getName());
 
-        IdentityManager identityManager = getIdentityManager();
-        
-        testingRole = identityManager.getRole(testingRole.getName());
+        IdentityManager applicationB = createIdentityManagerForTier(APPLICATION_B_TIER_NAME);
 
-        assertNull(testingRole);
+        Role roleB = new SimpleRole("Role");
+
+        applicationB.add(roleB);
+
+        roleA = applicationA.getRole(roleA.getName());
+        roleB = applicationB.getRole(roleB.getName());
+
+        assertFalse(roleA.getId().equals(roleB.getId()));
+    }
+
+    @Test
+    public void testCreateSameGroupDifferentTiers() throws Exception {
+        IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
+
+        Group groupA = new SimpleGroup("Role");
+
+        applicationA.add(groupA);
+
+        try {
+            // we can not add this role with the same name
+            applicationA.add(new SimpleGroup(groupA.getName()));
+            fail();
+        } catch (IdentityManagementException e) {
+        }
+
+        groupA = applicationA.getGroup(groupA.getName());
+
+        IdentityManager applicationB = createIdentityManagerForTier(APPLICATION_B_TIER_NAME);
+
+        Group groupB = new SimpleGroup("Role");
+
+        applicationB.add(groupB);
+
+        groupA = applicationA.getGroup(groupA.getName());
+        groupB = applicationB.getGroup(groupB.getName());
+
+        assertFalse(groupA.getId().equals(groupB.getId()));
+    }
+
+    @Test
+    public void testCreateSameGroupDifferentRealms() throws Exception {
+        IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
+
+        Group groupA = new SimpleGroup("Group");
+
+        applicationA.add(groupA);
+
+        try {
+            // we can not add this role with the same name
+            applicationA.add(new SimpleGroup(groupA.getName()));
+            fail();
+        } catch (Exception e) {
+        }
+
+        groupA = applicationA.getGroup(groupA.getName());
+
+        assertNotNull(groupA);
+
+        IdentityManager applicationB = createIdentityManagerForTier(APPLICATION_B_TIER_NAME);
+
+        Group groupB = new SimpleGroup("Group");
+
+        applicationB.add(groupB);
+
+        groupA = applicationA.getGroup(groupA.getName());
+        groupB = applicationB.getGroup(groupB.getName());
+
+        assertFalse(groupA.getId().equals(groupB.getId()));
+    }
+
+    @Test
+    public void testGrantUserRoles() throws Exception {
+        IdentityManager acmeRealm = getIdentityManager();
+
+        User john = new SimpleUser("John");
+        User bill = new SimpleUser("Bill");
+        User mary = new SimpleUser("Mary");
+
+        acmeRealm.add(john);
+        acmeRealm.add(bill);
+        acmeRealm.add(mary);
+
+        IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
+
+        String roleAName = "Role A";
+        String roleCName = "Role C";
+        String roleBName = "Role B";
+
+        applicationA.add(new SimpleRole(roleAName));
+
+        IdentityManager applicationB = createIdentityManagerForTier(APPLICATION_B_TIER_NAME);
+
+        applicationB.add(new SimpleRole(roleBName));
+
+        IdentityManager applicationC = createIdentityManagerForTier(APPLICATION_C_TIER_NAME);
+
+        applicationC.add(new SimpleRole(roleCName));
+
+        assertNull(acmeRealm.getRole(roleAName));
+        assertNull(acmeRealm.getRole(roleBName));
+        assertNull(acmeRealm.getRole(roleCName));
+
+        acmeRealm.grantRole(john, applicationA.getRole(roleAName));
+        acmeRealm.grantRole(bill, applicationB.getRole(roleBName));
+        acmeRealm.grantRole(mary, applicationC.getRole(roleCName));
+
+        assertTrue(acmeRealm.hasRole(john, applicationA.getRole(roleAName)));
+        assertFalse(acmeRealm.hasRole(john, applicationB.getRole(roleBName)));
+        assertFalse(acmeRealm.hasRole(john, applicationC.getRole(roleCName)));
+
+        assertTrue(acmeRealm.hasRole(bill, applicationB.getRole(roleBName)));
+        assertFalse(acmeRealm.hasRole(bill, applicationA.getRole(roleAName)));
+        assertFalse(acmeRealm.hasRole(bill, applicationC.getRole(roleCName)));
+
+        assertTrue(acmeRealm.hasRole(mary, applicationC.getRole(roleCName)));
+        assertFalse(acmeRealm.hasRole(mary, applicationA.getRole(roleAName)));
+        assertFalse(acmeRealm.hasRole(mary, applicationB.getRole(roleBName)));
+
+        acmeRealm.grantRole(john, applicationB.getRole(roleBName));
+
+        assertTrue(acmeRealm.hasRole(john, applicationA.getRole(roleAName)));
+        assertTrue(acmeRealm.hasRole(john, applicationB.getRole(roleBName)));
+        assertFalse(acmeRealm.hasRole(john, applicationC.getRole(roleCName)));
+
+        applicationA.remove(applicationA.getRole(roleAName));
+
+        assertNull(applicationA.getRole(roleAName));
+        assertTrue(acmeRealm.hasRole(bill, applicationB.getRole(roleBName)));
+        assertTrue(acmeRealm.hasRole(mary, applicationC.getRole(roleCName)));
+
+        acmeRealm.revokeRole(bill, applicationB.getRole(roleBName));
+
+        assertFalse(acmeRealm.hasRole(bill, applicationB.getRole(roleBName)));
+        assertTrue(acmeRealm.hasRole(mary, applicationC.getRole(roleCName)));
+
+        acmeRealm.remove(john);
+        acmeRealm.remove(bill);
+        acmeRealm.remove(mary);
+
+        assertFalse(acmeRealm.hasRole(bill, applicationB.getRole(roleBName)));
+        assertFalse(acmeRealm.hasRole(mary, applicationC.getRole(roleCName)));
+    }
+
+    @Test
+    public void testGrantUserGroups() throws Exception {
+        IdentityManager acmeRealm = getIdentityManager();
+
+        User john = new SimpleUser("John");
+        User bill = new SimpleUser("Bill");
+        User mary = new SimpleUser("Mary");
+
+        acmeRealm.add(john);
+        acmeRealm.add(bill);
+        acmeRealm.add(mary);
+
+        IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
+
+        applicationA.add(new SimpleGroup("Group A"));
+
+        IdentityManager applicationB = createIdentityManagerForTier(APPLICATION_B_TIER_NAME);
+
+        applicationB.add(new SimpleGroup("Group B"));
+
+        IdentityManager applicationC = createIdentityManagerForTier(APPLICATION_C_TIER_NAME);
+
+        applicationC.add(new SimpleGroup("Group C"));
+
+        acmeRealm.addToGroup(john, applicationA.getGroup("Group A"));
+
+        acmeRealm.addToGroup(bill, applicationB.getGroup("Group B"));
+
+        acmeRealm.addToGroup(mary, applicationC.getGroup("Group C"));
+
+        assertTrue(acmeRealm.isMember(john, applicationA.getGroup("Group A")));
+        assertFalse(acmeRealm.isMember(john, applicationB.getGroup("Group B")));
+        assertFalse(acmeRealm.isMember(john, applicationC.getGroup("Group C")));
+
+        assertTrue(acmeRealm.isMember(bill, applicationB.getGroup("Group B")));
+        assertFalse(acmeRealm.isMember(bill, applicationA.getGroup("Group A")));
+        assertFalse(acmeRealm.isMember(bill, applicationC.getGroup("Group C")));
+
+        assertTrue(acmeRealm.isMember(mary, applicationC.getGroup("Group C")));
+        assertFalse(acmeRealm.isMember(mary, applicationA.getGroup("Group A")));
+        assertFalse(acmeRealm.isMember(mary, applicationB.getGroup("Group B")));
+    }
+
+    @Test
+    public void testGrantSameRoleToTierAndRealm() throws Exception {
+        IdentityManager acmeRealm = getIdentityManager();
+
+        Role realmRole = new SimpleRole("Role");
+
+        acmeRealm.add(realmRole);
+
+        IdentityManager application = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
+
+        Role applicationRole = new SimpleRole("Role");
+
+        application.add(applicationRole);
+
+        realmRole = acmeRealm.getRole("Role");
+        applicationRole = application.getRole("Role");
+
+        assertFalse(realmRole.getId().equals(applicationRole.getId()));
+
+        applicationRole = new SimpleRole("Another Role");
+
+        application.add(applicationRole);
+
+        assertNull(acmeRealm.getRole("Another Role"));
+
+        realmRole = new SimpleRole("Another Role");
+
+        acmeRealm.add(realmRole);
+
+        assertNotNull(application.getRole("Another Role"));
+
+        assertFalse(realmRole.getId().equals(applicationRole.getId()));
     }
     
     @Test
     public void failAddUserToTier() throws Exception {
-        Tier applicationTier = new Tier(APPLICATION_TIER_NAME);
+        Tier applicationTier = new Tier(APPLICATION_A_TIER_NAME);
         
         try {
             createUser("testingUserTier", applicationTier);               
@@ -118,6 +342,10 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
         } catch (Exception e) {
             fail();
         }
+    }
+
+    private IdentityManager createIdentityManagerForTier(String tierName) {
+        return getIdentityManagerFactory().createIdentityManager(getIdentityManagerFactory().getTier(tierName));
     }
 
 }

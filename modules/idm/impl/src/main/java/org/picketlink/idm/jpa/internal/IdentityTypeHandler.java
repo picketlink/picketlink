@@ -18,8 +18,6 @@
 
 package org.picketlink.idm.jpa.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,13 +26,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
-
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
@@ -51,6 +47,7 @@ import org.picketlink.idm.model.Role;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.SecurityContext;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * <p>
@@ -58,7 +55,6 @@ import org.picketlink.idm.spi.SecurityContext;
  * </p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
  */
 public abstract class IdentityTypeHandler<T extends IdentityType> {
 
@@ -154,6 +150,8 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_CREATION_DATE, fromIdentityType.getCreatedDate(),
                 true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_EXPIRY_DATE, fromIdentityType.getExpirationDate());
+
+        fromIdentityType.setPartition(context.getPartition());
 
         doPopulateIdentityInstance(context, toIdentity, fromIdentityType, store);
     }
@@ -259,7 +257,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * @param fromIdentityType
      */
     protected abstract void doPopulateIdentityInstance(SecurityContext context, Object toIdentity, T fromIdentityType,
-            JPAIdentityStore store);
+                                                       JPAIdentityStore store);
 
     protected abstract AbstractBaseEvent raiseCreatedEvent(T fromIdentityType);
 
@@ -267,7 +265,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
     protected abstract AbstractBaseEvent raiseDeletedEvent(T fromIdentityType);
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private void findByAttributes(JPACriteriaQueryBuilder criteria, List<Predicate> predicates, JPAIdentityStore store) {
         Map<QueryParameter, Object[]> parameters = criteria.getIdentityQuery().getParameters(
                 IdentityType.AttributeParameter.class);
@@ -309,9 +307,9 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private void findByHasRole(SecurityContext context, JPACriteriaQueryBuilder criteria, List<Predicate> predicates,
-            JPAIdentityStore store) {
+                               JPAIdentityStore store) {
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.HAS_ROLE);
 
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
@@ -344,9 +342,9 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private void findByMemberOf(SecurityContext context, JPACriteriaQueryBuilder criteria, List<Predicate> predicates,
-            JPAIdentityStore store) {
+                                JPAIdentityStore store) {
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.MEMBER_OF);
 
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
@@ -380,9 +378,9 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private void findByGroupRole(SecurityContext context, JPACriteriaQueryBuilder criteria, List<Predicate> predicates,
-            JPAIdentityStore store) {
+                                 JPAIdentityStore store) {
         Object[] parameterValues;
         parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.HAS_GROUP_ROLE);
 
@@ -425,7 +423,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         if (parameterValues != null) {
             predicates.add(criteria.getBuilder().lessThanOrEqualTo(
-                    criteria.getRoot().<Date> get(
+                    criteria.getRoot().<Date>get(
                             store.getConfig().getModelProperty(PropertyType.IDENTITY_EXPIRY_DATE).getName()),
                     (Date) parameterValues[0]));
         }
@@ -436,7 +434,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         if (parameterValues != null) {
             predicates.add(criteria.getBuilder().lessThanOrEqualTo(
-                    criteria.getRoot().<Date> get(
+                    criteria.getRoot().<Date>get(
                             store.getConfig().getModelProperty(PropertyType.IDENTITY_CREATION_DATE).getName()),
                     (Date) parameterValues[0]));
         }
@@ -447,7 +445,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         if (parameterValues != null) {
             predicates.add(criteria.getBuilder().greaterThanOrEqualTo(
-                    criteria.getRoot().<Date> get(
+                    criteria.getRoot().<Date>get(
                             store.getConfig().getModelProperty(PropertyType.IDENTITY_EXPIRY_DATE).getName()),
                     (Date) parameterValues[0]));
         }
@@ -458,7 +456,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         if (parameterValues != null) {
             predicates.add(criteria.getBuilder().greaterThanOrEqualTo(
-                    criteria.getRoot().<Date> get(
+                    criteria.getRoot().<Date>get(
                             store.getConfig().getModelProperty(PropertyType.IDENTITY_CREATION_DATE).getName()),
                     (Date) parameterValues[0]));
         }
@@ -495,31 +493,35 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     }
 
     private void findByPartition(SecurityContext context, JPACriteriaQueryBuilder criteria, List<Predicate> predicates,
-            JPAIdentityStore store) {
+                                 JPAIdentityStore store) {
         JPAIdentityStoreConfiguration config = store.getConfig();
 
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.PARTITION);
 
+        Join<Object, Object> joinPartition = criteria.getRoot().join(
+                config.getModelProperty(PropertyType.IDENTITY_PARTITION).getName());
+
+        List<String> ids = new ArrayList<String>();
+
         if (parameterValues != null) {
-            Partition partition = (Partition) parameterValues[0];
+                for (Object partition : parameterValues) {
+                    if (String.class.isInstance(partition)) {
+                        ids.add(partition.toString());
+                    } else if (Partition.class.isInstance(partition)) {
+                        Partition partitionType = (Partition) partition;
 
-            predicates.add(criteria.getBuilder().equal(
-                    criteria.getRoot().get(config.getModelProperty(PropertyType.IDENTITY_PARTITION).getName()),
-                    store.lookupAndCreatePartitionObject(context, partition)));
-        } else {
-            Join<Object, Object> joinPartition = criteria.getRoot().join(
-                    config.getModelProperty(PropertyType.IDENTITY_PARTITION).getName());
-
-            if (criteria.getIdentityQuery().getParameter(IdentityType.PARTITION) == null) {
-                List<String> partitionIds = store.getAllowedPartitionIds(context, context.getPartition());
-
-                partitionIds.add(context.getPartition().getId());
-
-                predicates.add(criteria.getBuilder()
-                        .in(joinPartition.get(config.getModelProperty(PropertyType.PARTITION_ID).getName()))
-                        .value(partitionIds));
-            }
+                        ids.add(partitionType.getId());
+                    }
+                }
         }
+
+        if (ids.isEmpty()) {
+            ids.add(context.getPartition().getId());
+        }
+
+        predicates.add(criteria.getBuilder()
+                .in(joinPartition.get(config.getModelProperty(PropertyType.PARTITION_ID).getName()))
+                .value(ids));
     }
 
     private void findById(JPACriteriaQueryBuilder criteria, List<Predicate> predicates, JPAIdentityStore store) {

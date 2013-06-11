@@ -97,9 +97,8 @@ import static org.picketlink.idm.file.internal.FileIdentityQueryHelper.isQueryPa
  * </p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
  */
-@CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class, TOTPCredentialHandler.class})
+@CredentialHandlers({PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class, TOTPCredentialHandler.class})
 public class FileBasedIdentityStore implements CredentialStore<FileIdentityStoreConfiguration> {
 
     private FileIdentityStoreConfiguration config;
@@ -286,7 +285,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
 
     @Override
     public <T extends Serializable> Attribute<T> getAttribute(SecurityContext context, IdentityType identityType,
-            String attributeName) {
+                                                              String attributeName) {
         throw MESSAGES.notImplentedYet();
     }
 
@@ -321,47 +320,37 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         Object[] partitionParameters = identityQuery.getParameter(IdentityType.PARTITION);
         Partition partition = null;
 
-        if (partitionParameters != null && partitionParameters.length > 0) {
-            partition = (Partition) partitionParameters[0];
+        if (partitionParameters == null) {
+            partitionParameters = new Object[]{context.getPartition()};
         }
 
-        if (IdentityType.class.equals(identityTypeClass)) {
-            if (partition == null) {
-                entries.addAll(getAgentsForCurrentRealm(context).values());
-                entries.addAll(getRolesForCurrentPartition(context).values());
-                entries.addAll(getGroupsForCurrentPartition(context).values());
-            } else {
+        for (Object parameter : partitionParameters) {
+            if (String.class.isInstance(parameter)) {
+                partition = new Realm(parameter.toString());
+            } else if (Partition.class.isInstance(parameter)) {
+                partition = (Partition) parameter;
+            }
+
+            if (IdentityType.class.equals(identityTypeClass)) {
                 entries.addAll(getAgentsForPartition(partition).values());
                 entries.addAll(getRolesForPartition(partition).values());
                 entries.addAll(getGroupsForPartition(partition).values());
-            }
-        } else if (IDMUtil.isAgentType(identityTypeClass)) {
-            if (partition == null) {
-                entries = getAgentsForCurrentRealm(context).values();
+            } else if (IDMUtil.isAgentType(identityTypeClass)) {
+                entries.addAll(getAgentsForPartition(partition).values());
+            } else if (IDMUtil.isRoleType(identityTypeClass)) {
+                entries.addAll(getRolesForPartition(partition).values());
+            } else if (IDMUtil.isGroupType(identityTypeClass)) {
+                entries.addAll(getGroupsForPartition(partition).values());
             } else {
-                entries = getAgentsForPartition(partition).values();
+                throw MESSAGES.identityTypeUnsupportedType(identityTypeClass);
             }
-        } else if (IDMUtil.isRoleType(identityTypeClass)) {
-            if (partition == null) {
-                entries = getRolesForCurrentPartition(context).values();
-            } else {
-                entries = getRolesForPartition(partition).values();
-            }
-        } else if (IDMUtil.isGroupType(identityTypeClass)) {
-            if (partition == null) {
-                entries = getGroupsForCurrentPartition(context).values();
-            } else {
-                entries = getGroupsForPartition(partition).values();
-            }
-        } else {
-            throw MESSAGES.identityTypeUnsupportedType(identityTypeClass);
         }
 
         List<T> result = new ArrayList<T>();
 
         FileIdentityQueryHelper queryHelper = new FileIdentityQueryHelper(identityQuery, this);
 
-        for (Iterator<?> iterator = entries.iterator(); iterator.hasNext();) {
+        for (Iterator<?> iterator = entries.iterator(); iterator.hasNext(); ) {
             IdentityType storedEntry = (IdentityType) iterator.next();
 
             if (!identityTypeClass.isAssignableFrom(storedEntry.getClass())) {
@@ -513,7 +502,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
 
     @SuppressWarnings("unchecked")
     private <T extends Relationship> T cloneRelationship(SecurityContext context, FileRelationship fileRelationship,
-            Class<? extends Relationship> relationshipType) {
+                                                         Class<? extends Relationship> relationshipType) {
         T clonedRelationship = null;
 
         try {
@@ -527,7 +516,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         clonedRelationship.setId(storedRelationship.getId());
 
         List<Property<IdentityType>> relationshipIdentityTypes = PropertyQueries
-                .<IdentityType> createQuery(clonedRelationship.getClass())
+                .<IdentityType>createQuery(clonedRelationship.getClass())
                 .addCriteria(new AnnotatedPropertyCriteria(IdentityProperty.class)).getResultList();
 
         for (Property<IdentityType> annotatedProperty : relationshipIdentityTypes) {
@@ -669,7 +658,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         newRelationship.setId(relationship.getId());
 
         List<Property<IdentityType>> relationshipIdentityTypes = PropertyQueries
-                .<IdentityType> createQuery(newRelationship.getClass())
+                .<IdentityType>createQuery(newRelationship.getClass())
                 .addCriteria(new AnnotatedPropertyCriteria(IdentityProperty.class)).getResultList();
 
         for (Property<IdentityType> annotatedProperty : relationshipIdentityTypes) {
@@ -806,8 +795,8 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      * <p>
      * Update the common properties for a specific {@link IdentityType} instance from another instance.
      * </p>
-     * @param context
      *
+     * @param context
      * @param fromIdentityType
      * @param toIdentityType
      */
@@ -839,7 +828,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         }
 
         List<Property<Serializable>> attributeProperties = PropertyQueries
-                .<Serializable> createQuery(fromIdentityType.getClass())
+                .<Serializable>createQuery(fromIdentityType.getClass())
                 .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class)).getResultList();
 
         for (Property<Serializable> attributeProperty : attributeProperties) {
@@ -1129,7 +1118,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
 
     @SuppressWarnings("unchecked")
     private <T extends Relationship> List<T> fetchQueryResults(SecurityContext context, RelationshipQuery<T> query,
-            boolean matchExactGroup) {
+                                                               boolean matchExactGroup) {
         List<T> result = new ArrayList<T>();
         Class<T> relationshipType = query.getRelationshipType();
         List<FileRelationship> relationships = new ArrayList<FileRelationship>();
@@ -1235,7 +1224,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
     }
 
     private boolean matchIdentityType(SecurityContext context, FileRelationship storedRelationship, RelationshipQuery<?> query,
-            RelationshipQueryParameter identityTypeParameter, boolean matchExactGroup) {
+                                      RelationshipQueryParameter identityTypeParameter, boolean matchExactGroup) {
         Object[] values = query.getParameter(identityTypeParameter);
         int valuesMathCount = values.length;
         boolean match = false;
@@ -1304,7 +1293,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
     }
 
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public void validateCredentials(SecurityContext context, Credentials credentials) {
         CredentialHandler handler = context.getCredentialValidator(credentials.getClass(), this);
 
@@ -1315,7 +1304,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         handler.validate(context, credentials, this);
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public void updateCredential(SecurityContext context, Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
         CredentialHandler handler = context.getCredentialUpdater(credential.getClass(), this);
 
@@ -1388,7 +1377,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      * @return
      */
     private <T extends CredentialStorage> T convertToCredentialStorage(Class<T> storageClass,
-            FileCredentialStorage fileCredentialStorage) {
+                                                                       FileCredentialStorage fileCredentialStorage) {
         T storage = null;
 
         try {
@@ -1427,7 +1416,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      * @return
      */
     private List<FileCredentialStorage> getCredentials(SecurityContext context, Agent agent,
-            Class<? extends CredentialStorage> storageType) {
+                                                       Class<? extends CredentialStorage> storageType) {
         Map<String, List<FileCredentialStorage>> agentCredentials = getCredentialsForCurrentPartition(context).get(
                 agent.getLoginName());
 
