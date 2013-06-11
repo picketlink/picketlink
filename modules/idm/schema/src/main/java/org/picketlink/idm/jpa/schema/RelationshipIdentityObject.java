@@ -18,7 +18,7 @@
 
 package org.picketlink.idm.jpa.schema;
 
-import org.picketlink.idm.jpa.annotations.Identity;
+import org.picketlink.idm.jpa.annotations.IdentityReference;
 import org.picketlink.idm.jpa.annotations.Parent;
 import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
 import org.picketlink.idm.jpa.annotations.RelationshipIdentity;
@@ -52,7 +52,7 @@ public class RelationshipIdentityObject implements Serializable {
     @RelationshipDescriptor
     private String descriptor;
 
-    @Identity
+    @IdentityReference
     @ManyToOne
     private IdentityObject identityObject;
 

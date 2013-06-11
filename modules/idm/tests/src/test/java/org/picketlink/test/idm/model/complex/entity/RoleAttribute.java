@@ -25,6 +25,7 @@ import javax.persistence.OneToOne;
 
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.IdentityAttribute;
+import org.picketlink.test.idm.model.complex.Role;
 
 /**
  * Contains role-specific attribute values

@@ -43,7 +43,7 @@ import org.picketlink.idm.jpa.annotations.EffectiveDate;
 import org.picketlink.idm.jpa.annotations.Enabled;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.Identifier;
-import org.picketlink.idm.jpa.annotations.Identity;
+import org.picketlink.idm.jpa.annotations.IdentityReference;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.IdentityName;
 import org.picketlink.idm.jpa.annotations.IdentityPartition;
@@ -339,7 +339,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
                     "relationshipClass");
 
             // Relationship identities
-            configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY, Identity.class, relationshipIdentityClass, null,
+            configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY, IdentityReference.class, relationshipIdentityClass, null,
                     "identityObject");
             configureModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR, RelationshipDescriptor.class,
                     relationshipIdentityClass, null, "descriptor");

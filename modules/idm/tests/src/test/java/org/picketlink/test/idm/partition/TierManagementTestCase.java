@@ -21,9 +21,9 @@ package org.picketlink.test.idm.partition;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
 import static org.junit.Assert.assertNotNull;

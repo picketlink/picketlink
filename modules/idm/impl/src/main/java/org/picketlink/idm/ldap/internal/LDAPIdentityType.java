@@ -20,7 +20,7 @@ package org.picketlink.idm.ldap.internal;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.sample.Realm;
 
 import javax.naming.NamingException;
 import javax.naming.directory.BasicAttribute;

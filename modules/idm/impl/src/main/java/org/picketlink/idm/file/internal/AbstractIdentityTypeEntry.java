@@ -20,8 +20,8 @@ package org.picketlink.idm.file.internal;
 
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Realm;
-import org.picketlink.idm.model.Tier;
+import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.model.sample.Tier;
 
 import java.io.Serializable;
 import java.util.Date;

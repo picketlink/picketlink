@@ -20,6 +20,7 @@ package org.picketlink.test.idm.model.complex;
 import java.util.Collection;
 import java.util.Date;
 
+import org.picketlink.idm.model.AbstractIdentityType;
 import org.picketlink.idm.model.Account;
 import org.picketlink.test.idm.model.complex.entity.UserAddress;
 import org.picketlink.test.idm.model.complex.entity.UserContact;
@@ -31,7 +32,7 @@ import org.picketlink.test.idm.model.complex.entity.UserEmail;
  * @author Shane Bryzak
  *
  */
-public class User extends Account {
+public class User extends AbstractIdentityType implements Account {
 
     private static final long serialVersionUID = -8870176959974538663L;
 

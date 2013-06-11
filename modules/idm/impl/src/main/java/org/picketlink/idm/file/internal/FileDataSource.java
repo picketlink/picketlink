@@ -21,9 +21,9 @@ package org.picketlink.idm.file.internal;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 
 import java.io.ByteArrayOutputStream;

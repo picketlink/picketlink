@@ -18,6 +18,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 @Retention(RUNTIME)
 @Inherited
-public @interface Identity {
+public @interface IdentityReference {
 
 }

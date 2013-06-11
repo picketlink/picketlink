@@ -16,20 +16,25 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.model;
+package org.picketlink.idm.model.sample;
+
+import org.picketlink.idm.model.AbstractPartition;
+import org.picketlink.idm.model.Account;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.annotation.IdentityRestriction;
 
 /**
- * A Realm defines a boundary for certain identity state. Users, Groups and standard Roles are unique within a Realm.
+ * A hierarchical abstraction representing a partitioned set or subset of services, for which
+ * specialized Roles and Groups may be created.
  *
  * @author Shane Bryzak
  */
-public class Realm extends AbstractPartition {
+@IdentityRestriction(supportedTypes = {IdentityType.class}, unsupportedTypes = {Account.class})
+public class Tier extends AbstractPartition {
 
-    private static final long serialVersionUID = -2667438382506066497L;
+    private static final long serialVersionUID = 7797059334915537276L;
 
-    public static final String DEFAULT_REALM = "default";
-
-    public Realm(String id) {
+    public Tier(String id) {
         super(id);
     }
 
