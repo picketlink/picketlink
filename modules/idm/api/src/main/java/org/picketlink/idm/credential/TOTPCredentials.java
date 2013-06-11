@@ -27,6 +27,7 @@ package org.picketlink.idm.credential;
 public class TOTPCredentials extends UsernamePasswordCredentials {
 
     private String token;
+    private String device;
 
     public String getToken() {
         return this.token;
@@ -34,5 +35,13 @@ public class TOTPCredentials extends UsernamePasswordCredentials {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getDevice() {
+        return this.device;
+    }
+
+    public void setDevice(String device) {
+        this.device = device;
     }
 }
