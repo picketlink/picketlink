@@ -33,6 +33,7 @@ import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 public class TOTPCredential extends Password {
 
     private final String secret;
+    private String device;
 
     public TOTPCredential(String secret) {
         this((String) null, secret);
@@ -52,4 +53,11 @@ public class TOTPCredential extends Password {
         return this.secret;
     }
 
+    public String getDevice() {
+        return this.device;
+    }
+
+    public void setDevice(String device) {
+        this.device = device;
+    }
 }

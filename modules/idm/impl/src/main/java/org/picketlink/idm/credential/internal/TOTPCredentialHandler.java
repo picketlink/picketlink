@@ -19,6 +19,7 @@
 package org.picketlink.idm.credential.internal;
 
 import java.util.Date;
+import java.util.List;
 import org.picketlink.idm.credential.TOTPCredential;
 import org.picketlink.idm.credential.TOTPCredentials;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
@@ -26,6 +27,7 @@ import org.picketlink.idm.credential.totp.TimeBasedOTP;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.credential.Credentials.Status;
 import static org.picketlink.idm.credential.totp.TimeBasedOTP.DEFAULT_ALGORITHM;
 import static org.picketlink.idm.credential.totp.TimeBasedOTP.DEFAULT_DELAY_WINDOW;
@@ -58,6 +60,7 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
     public static final String INTERVAL_SECONDS = "INTERVAL_SECONDS";
     public static final String NUMBER_DIGITS = "NUMBER_DIGITS";
     public static final String DELAY_WINDOW = "DELAY_WINDOW";
+    public static final String DEFAULT_DEVICE = "DEFAULT_DEVICE";
 
     private TimeBasedOTP totp;
 
@@ -79,9 +82,20 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
 
         // password is valid, let's validate the token now
         if (Status.VALID.equals(credentials.getStatus())) {
-            Agent agent = credentials.getValidatedAgent();
+            OTPCredentialStorage storage = null;
 
-            OTPCredentialStorage storage = store.retrieveCurrentCredential(context, agent, OTPCredentialStorage.class);
+            String device = getDevice(credentials.getDevice());
+
+            List<OTPCredentialStorage> storedCredentials = store.retrieveCredentials(context, credentials.getValidatedAgent(), OTPCredentialStorage.class);
+
+            for (OTPCredentialStorage storedCredential : storedCredentials) {
+                if (storedCredential.getDevice().equals(device)
+                        && CredentialUtils.isCurrentCredential(storedCredential)) {
+                    if (storage == null || storage.getEffectiveDate().compareTo(storedCredential.getEffectiveDate()) <= 0) {
+                        storage = storedCredential;
+                    }
+                }
+            }
 
             boolean isValid = false;
 
@@ -112,8 +126,17 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
         storage.setExpiryDate(expiryDate);
 
         storage.setSecretKey(credential.getSecret());
+        storage.setDevice(getDevice(credential.getDevice()));
 
         store.storeCredential(context, agent, storage);
+    }
+
+    private String getDevice(String device) {
+        if (isNullOrEmpty(device)) {
+            device = DEFAULT_DEVICE;
+        }
+
+        return device;
     }
 
     private String getConfigurationProperty(CredentialStore<?> store, String key, String defaultValue) {
