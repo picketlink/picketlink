@@ -19,7 +19,6 @@
 package org.picketlink.idm.credential.internal;
 
 import java.util.Date;
-import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.TOTPCredential;
 import org.picketlink.idm.credential.TOTPCredentials;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
@@ -74,16 +73,6 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
         this.totp = new TimeBasedOTP(algorithm, Integer.parseInt(numberDigits), Integer.valueOf(intervalSeconds), Integer.valueOf(delayWindow));
     }
 
-    private String getConfigurationProperty(CredentialStore<?> store, String key, String defaultValue) {
-        Object algorithm = store.getConfig().getCredentialHandlerProperties().get(key);
-
-        if (algorithm != null) {
-            return String.valueOf(algorithm);
-        }
-
-        return defaultValue;
-    }
-
     @Override
     public void validate(SecurityContext context, TOTPCredentials credentials, CredentialStore<?> store) {
         super.validate(context, credentials, store);
@@ -98,15 +87,7 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
                 String secretKey = storage.getSecretKey();
                 String token = credentials.getToken();
 
-                boolean isValidToken = false;
-
-                try {
-                    isValidToken = this.totp.validate(token, secretKey.getBytes());
-                } catch (Exception e) {
-                    throw new IdentityManagementException("Error validating TOTP token.", e);
-                }
-
-                if (!isValidToken) {
+                if (this.totp.validate(token, secretKey.getBytes())) {
                     credentials.setStatus(Status.INVALID);
                     credentials.setValidatedAgent(null);
                 }
@@ -116,16 +97,29 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
 
     @Override
     public void update(SecurityContext context, Agent agent, TOTPCredential password, CredentialStore<?> store, Date effectiveDate, Date expiryDate) {
-        super.update(context, agent, password, store, effectiveDate, expiryDate);
+        // if a password was not provided, updates only the secret.
+        if (password.getValue() != null) {
+            super.update(context, agent, password, store, effectiveDate, expiryDate);
+        }
 
         OTPCredentialStorage storage = new OTPCredentialStorage();
 
         storage.setEffectiveDate(effectiveDate);
         storage.setExpiryDate(expiryDate);
 
-        storage.setSecretKey(password.getSecretKey());
+        storage.setSecretKey(password.getSecret());
 
         store.storeCredential(context, agent, storage);
+    }
+
+    private String getConfigurationProperty(CredentialStore<?> store, String key, String defaultValue) {
+        Object algorithm = store.getConfig().getCredentialHandlerProperties().get(key);
+
+        if (algorithm != null) {
+            return String.valueOf(algorithm);
+        }
+
+        return defaultValue;
     }
 
 }
