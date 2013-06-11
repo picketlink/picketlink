@@ -30,6 +30,7 @@ public class OTPCredentialStorage implements CredentialStorage {
     private Date expiryDate;
 
     private String secretKey;
+    private String device;
 
     public OTPCredentialStorage() {
 
@@ -62,5 +63,14 @@ public class OTPCredentialStorage implements CredentialStorage {
 
     public void setSecretKey(String secretKey) {
         this.secretKey = secretKey;
+    }
+
+    @Stored
+    public String getDevice() {
+        return this.device;
+    }
+
+    public void setDevice(String device) {
+        this.device = device;
     }
 }
