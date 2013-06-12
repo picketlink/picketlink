@@ -39,6 +39,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.picketlink.social.standalone.oauth.OAuthConstants;
 
 /**
  * Processor to perform Facebook interaction
