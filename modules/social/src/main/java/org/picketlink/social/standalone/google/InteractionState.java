@@ -15,26 +15,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.social.standalone.fb;
+
+package org.picketlink.social.standalone.google;
 
 /**
- * Constants defined by the OAuth spec
+ * State of OAuth workflow
  *
- * @author Marcel Kolsteren
- * @since Sep 26, 2010
+ * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class OAuthConstants {
-    public static final String CODE_PARAMETER = "code";
+public class InteractionState {
 
-    public static final String CLIENT_ID_PARAMETER = "client_id";
+    private final State state;
+    private final GoogleAccessTokenContext accessTokenContext;
 
-    public static final String CLIENT_SECRET_PARAMETER = "client_secret";
+    public enum State {
+        AUTH, FINISH
+    }
 
-    public static final String SCOPE_PARAMETER = "scope";
+    public InteractionState(State state, GoogleAccessTokenContext accessTokenContext) {
+        this.state = state;
+        this.accessTokenContext = accessTokenContext;
+    }
 
-    public static final String REDIRECT_URI_PARAMETER = "redirect_uri";
+    public State getState() {
+        return state;
+    }
 
-    public static final String ACCESS_TOKEN_PARAMETER = "access_token";
-
-    public static final String ERROR_PARAMETER = "error";
+    public GoogleAccessTokenContext getAccessTokenContext() {
+        return accessTokenContext;
+    }
 }
