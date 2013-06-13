@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
@@ -86,7 +87,9 @@ import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
+import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.SecurityContext;
+
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.credential.internal.CredentialUtils.getCurrentCredential;
 import static org.picketlink.idm.file.internal.FileIdentityQueryHelper.isQueryParameterEquals;
@@ -99,10 +102,22 @@ import static org.picketlink.idm.file.internal.FileIdentityQueryHelper.isQueryPa
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @CredentialHandlers({PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class, TOTPCredentialHandler.class})
-public class FileBasedIdentityStore implements CredentialStore<FileIdentityStoreConfiguration> {
+public class FileBasedIdentityStore implements CredentialStore<FileIdentityStoreConfiguration>, PartitionStore {
 
     private FileIdentityStoreConfiguration config;
     private FileDataSource fileDataSource;
+
+    @Override
+    public void createPartition(SecurityContext context,Partition partition) {
+        fileDataSource.addPartition(partition);
+    }
+
+    @Override
+    public Partition findPartition(SecurityContext context, String id) {
+        FilePartition fp = fileDataSource.getPartitions().get(id);
+        if (fp != null) return fp.getPartition();
+        return null;
+    }
 
     @Override
     public void setup(FileIdentityStoreConfiguration config) {
@@ -891,7 +906,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      * Removes the given {@link Relationship}.
      * </p>
      *
-     * @param attributedTypeClass
+     * @param context
      * @param relationship
      */
     private void removeRelationship(SecurityContext context, Relationship relationship) {

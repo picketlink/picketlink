@@ -390,6 +390,10 @@ public class FileDataSource {
         return groups;
     }
 
+   public void addPartition(Partition partition) {
+      getPartition(partition);
+   }
+
     public Map<String, FilePartition> getPartitions() {
         return this.partitions;
     }

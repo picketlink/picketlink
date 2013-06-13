@@ -121,4 +121,45 @@ public class IdentityManagerFactory implements Serializable {
         return this.storeFactory.getTier(name);
     }
 
+    /**
+     *
+     *
+     * @param name
+     * @return null if Realm exists
+     */
+    public Realm createRealm(String name) {
+        SecurityContext context = contextFactory.createContext(null);
+        return this.storeFactory.createRealm(context, name);
+    }
+
+    /**
+     *
+     *
+     * @param name
+     * @return null if Realm exists
+     */
+    public Tier createTier(String name) {
+        SecurityContext context = contextFactory.createContext(null);
+        return this.storeFactory.createTier(context, name);
+    }
+
+    /**
+     *
+     * @param name
+     * @return null if realm does not exist
+     */
+    public Realm findRealm(String name) {
+        SecurityContext context = contextFactory.createContext(null);
+        return this.storeFactory.findRealm(context, name);
+    }
+
+    /**
+     *
+     * @param name
+     * @return null if realm does not exist
+     */
+    public Tier findTier(String name) {
+        SecurityContext context = contextFactory.createContext(null);
+        return this.storeFactory.findTier(context, name);
+    }
 }

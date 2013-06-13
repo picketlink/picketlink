@@ -83,6 +83,7 @@ import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
+import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.SecurityContext;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
@@ -94,7 +95,7 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
  * @author Pedro Silva
  */
 @CredentialHandlers({PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class, TOTPCredentialHandler.class})
-public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfiguration> {
+public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfiguration>, PartitionStore {
 
     // Invocation context parameters
     public static final String INVOCATION_CTX_ENTITY_MANAGER = "CTX_ENTITY_MANAGER";
@@ -558,6 +559,23 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
         }
 
         handler.validate(context, credentials, this);
+    }
+
+    @Override
+    public void createPartition(SecurityContext context, Partition partition) {
+       lookupAndCreatePartitionObject(context, partition);
+    }
+
+    @Override
+    public Partition findPartition(SecurityContext context, String id) {
+        EntityManager entityManager = getEntityManager(context);
+
+        Object partitionObject = entityManager.find(getConfig().getPartitionClass(), id);
+        if (partitionObject == null) return null;
+        String type = (String)getConfig().getModelProperty(PropertyType.PARTITION_TYPE).getValue(partitionObject);
+        if (type.equals(Tier.class.getName())) return new Tier(id);
+        else if (type.equals(Realm.class.getName())) return new Realm(id);
+        return null;
     }
 
     protected Partition convertPartitionEntityToPartition(Object partitionObject) {

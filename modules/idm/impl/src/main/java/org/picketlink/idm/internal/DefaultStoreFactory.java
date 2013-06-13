@@ -18,11 +18,14 @@
 
 package org.picketlink.idm.internal;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
@@ -39,18 +42,19 @@ import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.StoreFactory;
+
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Default StoreFactory implementation. This factory is pre-configured to be able to create instances of the following built-in
  * IdentityStore implementations based on the corresponding IdentityStoreConfiguration:
- *
+ * <p/>
  * JPAIdentityStore - JPAIdentityStoreConfiguration LDAPIdentityStore - LDAPConfiguration FileBasedIdentityStore -
  * FileIdentityStoreConfiguration
- *
  *
  * @author Shane Bryzak
  */
@@ -68,6 +72,8 @@ public class DefaultStoreFactory implements StoreFactory {
 
     private Map<String, Tier> configuredTiers = new HashMap<String, Tier>();
 
+    private List<IdentityStoreConfiguration> configs = new ArrayList<IdentityStoreConfiguration>();
+
     public DefaultStoreFactory(IdentityConfiguration identityConfig) {
         this.identityConfigMap.put(JPAIdentityStoreConfiguration.class, JPAIdentityStore.class);
         this.identityConfigMap.put(LDAPIdentityStoreConfiguration.class, LDAPIdentityStore.class);
@@ -77,6 +83,7 @@ public class DefaultStoreFactory implements StoreFactory {
 
         for (IdentityStoreConfiguration config : identityConfig.getConfiguredStores()) {
             LOGGER.identityManagerInitConfigForRealms(config, config.getRealms());
+            configs.add(config);
 
             Map<FeatureGroup, Set<FeatureOperation>> storeFeatures = config.getSupportedFeatures();
 
@@ -137,6 +144,42 @@ public class DefaultStoreFactory implements StoreFactory {
     }
 
     @Override
+    public Realm createRealm(SecurityContext context,String id) {
+        Realm realm = getRealm(id);
+        if (realm != null) return realm;
+        IdentityStoreConfiguration config = getPartitionStoreConfig();
+        if (config == null) return null;
+        PartitionStore store = getPartitionStore(context, config);
+        if (store == null) return null;
+        realm = new Realm(id);
+        store.createPartition(context, realm);
+        configuredRealms.put(id, realm);
+        getConfigs(realmStores, id).add(config);
+        return realm;
+    }
+
+    @Override
+    public Realm findRealm(SecurityContext context,String id) {
+        Realm realm = getRealm(id);
+        if (realm != null) return realm;
+        for (IdentityStoreConfiguration config : configs) {
+            for (Map.Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> entry : this.identityConfigMap.entrySet()) {
+                if (entry.getKey().isInstance(config) && PartitionStore.class.isAssignableFrom(entry.getValue())) {
+                    PartitionStore store = getPartitionStore(context, config);
+                    Partition partition = store.findPartition(context, id);
+                    if (partition instanceof Realm) {
+                        realm = (Realm)partition;
+                        configuredRealms.put(id, realm);
+                        getConfigs(realmStores, id).add(config);
+                        return realm;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
     public Tier getTier(String id) {
         if (configuredTiers.containsKey(id)) {
             return configuredTiers.get(id);
@@ -148,6 +191,63 @@ public class DefaultStoreFactory implements StoreFactory {
             return null;
         }
     }
+
+    @Override
+    public Tier findTier(SecurityContext context,String id) {
+        Tier tier = getTier(id);
+        if (tier != null) return null;
+        for (IdentityStoreConfiguration config : configs) {
+            for (Map.Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> entry : this.identityConfigMap.entrySet()) {
+                if (entry.getKey().isInstance(config) && PartitionStore.class.isAssignableFrom(entry.getValue())) {
+                    PartitionStore store = getPartitionStore(context, config);
+                    Partition partition = store.findPartition(context, id);
+                    if (partition instanceof Tier) {
+                        tier = (Tier)partition;
+                        configuredTiers.put(id, tier);
+                        getConfigs(tierStores, id).add(config);
+                        return tier;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private PartitionStore getPartitionStore(SecurityContext context, IdentityStoreConfiguration config) {
+        IdentityStore identityStore = createIdentityStore(config,  null);
+        PartitionStore store = (PartitionStore)identityStore;
+        for (ContextInitializer initializer : config.getContextInitializers()) {
+            initializer.initContextForStore(context, identityStore);
+        }
+        return store;
+    }
+
+    @Override
+    public Tier createTier(SecurityContext context,String id) {
+        Tier tier = getTier(id);
+        if (tier != null) return null;
+        IdentityStoreConfiguration config = getPartitionStoreConfig();
+        // todo jboss logging-ise this
+        if (config == null) throw new RuntimeException("failed to find a store that can handle creation of partitions");
+        PartitionStore store = getPartitionStore(context, config);
+        tier = new Tier(id);
+        store.createPartition(context, tier);
+        configuredTiers.put(id, tier);
+        getConfigs(tierStores, id).add(config);
+        return tier;
+    }
+
+    protected IdentityStoreConfiguration getPartitionStoreConfig() {
+        for (IdentityStoreConfiguration config : configs) {
+            for (Map.Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> entry : this.identityConfigMap.entrySet()) {
+                if (entry.getKey().isInstance(config) && PartitionStore.class.isAssignableFrom(entry.getValue())) {
+                    return config;
+                }
+            }
+        }
+        return null;
+    }
+
 
     @SuppressWarnings("unchecked")
     @Override
@@ -178,7 +278,7 @@ public class DefaultStoreFactory implements StoreFactory {
 
     @Override
     public boolean isFeatureSupported(Partition partition, FeatureGroup feature, FeatureOperation operation,
-            Class<? extends Relationship> relationshipClass) {
+                                      Class<? extends Relationship> relationshipClass) {
         return lookupConfigForFeature(partition, feature, operation, relationshipClass) != null;
     }
 
@@ -189,7 +289,7 @@ public class DefaultStoreFactory implements StoreFactory {
 
     @Override
     public IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature, FeatureOperation operation,
-            Class<? extends Relationship> relationshipClass) {
+                                               Class<? extends Relationship> relationshipClass) {
         if (Realm.class.isInstance(context.getPartition())) {
             Realm realm = (Realm) context.getPartition();
             if (!realmStores.containsKey(realm.getId())) {
@@ -220,7 +320,7 @@ public class DefaultStoreFactory implements StoreFactory {
     }
 
     private IdentityStoreConfiguration lookupConfigForFeature(Partition partition, FeatureGroup feature,
-            FeatureOperation operation, Class<? extends Relationship> relationshipClass) {
+                                                              FeatureOperation operation, Class<? extends Relationship> relationshipClass) {
 
         Set<IdentityStoreConfiguration> configs = null;
 
