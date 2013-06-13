@@ -29,6 +29,8 @@ import org.picketlink.idm.credential.totp.TimeBasedOTP;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.picketlink.idm.credential.Credentials.Status;
 
 /**
@@ -66,6 +68,7 @@ public class OTPCredentialTestCase extends AbstractIdentityManagerTestCase {
         identityManager.validateCredentials(credentials);
 
         assertEquals(Status.VALID, credentials.getStatus());
+        assertNotNull(credentials.getValidatedAgent());
     }
 
     @Test
@@ -123,6 +126,7 @@ public class OTPCredentialTestCase extends AbstractIdentityManagerTestCase {
         identityManager.validateCredentials(credentials);
 
         assertEquals(Status.INVALID, credentials.getStatus());
+        assertNull(credentials.getValidatedAgent());
 
         // should fail, trying to use a android token in a iphone device
         credentials.setToken(totp.generate(androidSecret));
@@ -130,6 +134,7 @@ public class OTPCredentialTestCase extends AbstractIdentityManagerTestCase {
         identityManager.validateCredentials(credentials);
 
         assertEquals(Status.INVALID, credentials.getStatus());
+        assertNull(credentials.getValidatedAgent());
     }
 
     @Test
@@ -213,6 +218,7 @@ public class OTPCredentialTestCase extends AbstractIdentityManagerTestCase {
         identityManager.validateCredentials(validatingCredential);
 
         assertEquals(Status.INVALID, validatingCredential.getStatus());
+        assertNull(validatingCredential.getValidatedAgent());
     }
 
     @Test
@@ -277,6 +283,7 @@ public class OTPCredentialTestCase extends AbstractIdentityManagerTestCase {
         identityManager.validateCredentials(credentials);
 
         assertEquals(Status.INVALID, credentials.getStatus());
+        assertNull(credentials.getValidatedAgent());
     }
 
 }

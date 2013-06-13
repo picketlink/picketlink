@@ -55,6 +55,7 @@ public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
     public void validate(SecurityContext context, UsernamePasswordCredentials usernamePassword,
             LDAPIdentityStore identityStore) {
         usernamePassword.setStatus(Status.INVALID);
+        usernamePassword.setValidatedAgent(null);
 
         Agent agent = identityStore.getAgent(context, usernamePassword.getUsername());
 
@@ -68,6 +69,7 @@ public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
                 boolean isValid = ldapIdentityStore.getLDAPManager().authenticate(ldapUser.getDN(), new String(password));
 
                 if (isValid) {
+                    usernamePassword.setValidatedAgent(agent);
                     usernamePassword.setStatus(Status.VALID);
                 }
             } else {

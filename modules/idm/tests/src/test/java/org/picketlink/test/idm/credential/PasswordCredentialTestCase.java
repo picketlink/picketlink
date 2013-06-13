@@ -18,11 +18,8 @@
 
 package org.picketlink.test.idm.credential;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.Calendar;
 import java.util.Date;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
@@ -37,6 +34,9 @@ import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuit
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsFileRelationshipTestSuite;
 import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsRelationshipsTestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * <p>
@@ -64,6 +64,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         identityManager.validateCredentials(credential);
 
         assertEquals(Status.VALID, credential.getStatus());
+        assertNotNull(credential.getValidatedAgent());
     }
 
     @Test
@@ -81,6 +82,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         identityManager.validateCredentials(badUserName);
 
         assertEquals(Status.INVALID, badUserName.getStatus());
+        assertNull(badUserName.getValidatedAgent());
 
         UsernamePasswordCredentials badPassword = new UsernamePasswordCredentials();
 
@@ -92,6 +94,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         identityManager.validateCredentials(badPassword);
 
         assertEquals(Status.INVALID, badPassword.getStatus());
+        assertNull(badPassword.getValidatedAgent());
 
     }
 

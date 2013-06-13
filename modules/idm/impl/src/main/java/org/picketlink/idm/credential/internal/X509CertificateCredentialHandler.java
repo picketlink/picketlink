@@ -54,6 +54,7 @@ public class X509CertificateCredentialHandler<S,V,U>
         Agent agent = store.getAgent(context, credentials.getUsername());
 
         credentials.setStatus(Status.INVALID);
+        credentials.setValidatedAgent(null);
 
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
