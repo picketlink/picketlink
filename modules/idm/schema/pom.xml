@@ -8,7 +8,7 @@
       <relativePath>../pom.xml</relativePath>
    </parent>
 
-   <artifactId>picketlink-idm-schema</artifactId>
+   <artifactId>picketlink-idm-sample-schema</artifactId>
    <packaging>jar</packaging>
    <name>PicketLink Identity Management - Sample JPA Database Schema</name>
 

@@ -11,8 +11,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Marks the member property of a relationship identity entity.  The property should return a reference
- * to the identity that is participating in the relationship, such as a reference to an entity bean, or 
- * an identifier value.
+ * to an identity that is participating in the relationship, such as a reference to an entity bean, or
+ * the identity's unique identifier.
  *
  * @author Shane Bryzak
  */

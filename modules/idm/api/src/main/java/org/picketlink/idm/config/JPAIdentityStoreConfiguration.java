@@ -38,15 +38,12 @@ import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.CreationDate;
 import org.picketlink.idm.jpa.annotations.CredentialClass;
 import org.picketlink.idm.jpa.annotations.CredentialValue;
-import org.picketlink.idm.jpa.annotations.Discriminator;
 import org.picketlink.idm.jpa.annotations.EffectiveDate;
 import org.picketlink.idm.jpa.annotations.Enabled;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
-import org.picketlink.idm.jpa.annotations.IdentityName;
-import org.picketlink.idm.jpa.annotations.IdentityPartition;
 import org.picketlink.idm.jpa.annotations.RelationshipClass;
 import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
 import org.picketlink.idm.model.IdentityType;
@@ -236,14 +233,11 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
         // Common properties
         configureModelProperty(PropertyType.IDENTITY_ID, Identifier.class, identityClass, null, "id", "identifier");
-        configureModelProperty(PropertyType.IDENTITY_NAME, IdentityName.class, identityClass, null, "name");
         configureModelProperty(PropertyType.IDENTITY_ENABLED, Enabled.class, identityClass, null, "enabled", "active");
         configureModelProperty(PropertyType.IDENTITY_CREATION_DATE, CreationDate.class, identityClass, null, false, "created",
                 "creationDate");
         configureModelProperty(PropertyType.IDENTITY_EXPIRY_DATE, ExpiryDate.class, identityClass, null, false, "expires",
                 "expiryDate");
-        configureModelProperty(PropertyType.IDENTITY_PARTITION, IdentityPartition.class, identityClass, null, false,
-                "partition");
 
         // Group properties
         //configureModelProperty(PropertyType.GROUP_PARENT, Parent.class, identityClass, null, "parentGroup", "parent");
@@ -317,8 +311,6 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     private void configurePartitions() {
         if (this.partitionClass != null) {
             configureModelProperty(PropertyType.PARTITION_ID, Identifier.class, partitionClass, null, "id", "id");
-            configureModelProperty(PropertyType.PARTITION_TYPE, Discriminator.class, partitionClass, null, "type",
-                    "partitionType");
             //configureModelProperty(PropertyType.PARTITION_PARENT, Parent.class, partitionClass, null, "parent");
         } else {
             LOGGER.jpaConfigDisablingPartitionFeatures();
