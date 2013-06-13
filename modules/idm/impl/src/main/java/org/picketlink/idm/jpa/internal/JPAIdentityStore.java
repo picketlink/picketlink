@@ -60,7 +60,7 @@ import org.picketlink.idm.credential.spi.annotations.Stored;
 import org.picketlink.idm.event.IdentityTypeCreatedEvent;
 import org.picketlink.idm.event.IdentityTypeDeletedEvent;
 import org.picketlink.idm.event.IdentityTypeUpdatedEvent;
-import org.picketlink.idm.jpa.annotations.IDMAttribute;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.AttributedType.AttributeParameter;
@@ -744,23 +744,27 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
 
     /**
      * <p>
-     * Converts the given object to an instance of its corresponding {@link IdentityType}.
+     * Converts the given identity object to an instance of its corresponding {@link IdentityType}.
      * </p>
      *
      * @param entity
      * @return
      */
     private <T extends IdentityType> T convertToIdentityType(SecurityContext context, Object entity) {
-        String discriminator = getConfig().getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getValue(entity).toString();
-        IdentityTypeHandler<? extends IdentityType> identityTypeManager = IdentityTypeHandlerFactory.getHandler(getConfig()
-                .getIdentityTypeFromDiscriminator(discriminator));
+        String identityClassName = getConfig().getModelProperty(PropertyType.IDENTITY_CLASS).getValue(entity).toString();
 
-        @SuppressWarnings("unchecked")
-        T identityType = (T) identityTypeManager.createIdentityType(context, entity, this);
+        try {
+            Class<?> identityClass = Class.forName(identityClassName);
 
-        populateIdentityTypeAttributes(context, identityType, entity);
+            @SuppressWarnings("unchecked")
+            T identity = (T) identityClass.newInstance();
 
-        return identityType;
+            populateIdentityTypeAttributes(context, identity, entity);
+
+            return identity;
+        } catch (Exception ex) {
+            throw MESSAGES.instantiationError(identityClassName, ex);
+        }
     }
 
     /**
@@ -1150,7 +1154,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
 
             if (member instanceof Field) {
                 Field field = (Field) member;
-                IDMAttribute annotation = field.getAnnotation(IDMAttribute.class);
+                AttributeValue annotation = field.getAnnotation(AttributeValue.class);
 
                 field.setAccessible(true);
 
