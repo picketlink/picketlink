@@ -18,21 +18,46 @@
 package org.picketlink.idm.credential;
 
 
+import org.picketlink.idm.IDMMessages;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+
 /**
- * Represents OTP token
+ * <p>This class can be used to update TOTP credentials. Credentials can be updated providing a password/secret combination
+ * or only a secret.</p>
+ * <p>If using a password/secret combination, indicates that both password and secret should be updated. If only a secret
+ * is provided, the password will not be updated.</p>
+ *
  * @author anil saldhana
  * @since Dec 31, 2012
  */
 public class TOTPCredential extends Password {
 
-    private final String secretKey;
+    private final String secret;
+    private String device;
 
-    public TOTPCredential(String password, String secretKey) {
-        super(password);
-        this.secretKey = secretKey;
+    public TOTPCredential(String secret) {
+        this((String) null, secret);
     }
 
-    public String getSecretKey() {
-        return this.secretKey;
+    public TOTPCredential(String password, String secret) {
+        super(password);
+
+        if (isNullOrEmpty(secret)) {
+            throw IDMMessages.MESSAGES.nullArgument("TOTP secret.");
+        }
+
+        this.secret = secret;
+    }
+
+    public String getSecret() {
+        return this.secret;
+    }
+
+    public String getDevice() {
+        return this.device;
+    }
+
+    public void setDevice(String device) {
+        this.device = device;
     }
 }

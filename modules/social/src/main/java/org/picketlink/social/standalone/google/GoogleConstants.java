@@ -15,33 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.idm.credential;
 
+package org.picketlink.social.standalone.google;
 
 /**
- * An extension of the {@link UsernamePasswordCredentials} that
- * includes an OTP token
- * @author anil saldhana
- * @since Dec 31, 2012
+ * Constants related to Google OAuth Processing
+ *
+ * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class TOTPCredentials extends UsernamePasswordCredentials {
+public class GoogleConstants {
 
-    private String token;
-    private String device;
+    public static final String ATTRIBUTE_AUTH_STATE = "_authState";
 
-    public String getToken() {
-        return this.token;
-    }
+    public static final String ATTRIBUTE_VERIFICATION_STATE = "_verificationState";
 
-    public void setToken(String token) {
-        this.token = token;
-    }
 
-    public String getDevice() {
-        return this.device;
-    }
-
-    public void setDevice(String device) {
-        this.device = device;
-    }
 }

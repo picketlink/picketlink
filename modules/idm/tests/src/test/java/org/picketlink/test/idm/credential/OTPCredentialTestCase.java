@@ -28,6 +28,9 @@ import org.picketlink.idm.credential.TOTPCredentials;
 import org.picketlink.idm.credential.totp.TimeBasedOTP;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.picketlink.idm.credential.Credentials.Status;
 
 /**
@@ -40,42 +43,112 @@ import static org.picketlink.idm.credential.Credentials.Status;
  */
 public class OTPCredentialTestCase extends AbstractIdentityManagerTestCase {
 
+    public static final String DEFAULT_TOTP_SECRET = "my_secret";
+    public static final String DEFAULT_PASSWORD = "passwd";
+
     @Test
     public void testSuccessfulValidation() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
-        TOTPCredential credential = new TOTPCredential("passwd", "my_secret");
+        TOTPCredential credential = new TOTPCredential(DEFAULT_PASSWORD, DEFAULT_TOTP_SECRET);
 
         identityManager.updateCredential(user, credential);
 
         TOTPCredentials credentials = new TOTPCredentials();
 
         credentials.setUsername(user.getLoginName());
-        credentials.setPassword(new Password("passwd"));
+        credentials.setPassword(new Password(DEFAULT_PASSWORD));
 
         TimeBasedOTP totp = new TimeBasedOTP();
 
-        String token = totp.generate("my_secret");
+        String token = totp.generate(DEFAULT_TOTP_SECRET);
 
         credentials.setToken(token);
 
         identityManager.validateCredentials(credentials);
 
-        Assert.assertEquals(Status.VALID, credentials.getStatus());
+        assertEquals(Status.VALID, credentials.getStatus());
+        assertNotNull(credentials.getValidatedAgent());
+    }
+
+    @Test
+    public void testMultipleDevices() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = createUser("someUser");
+        TOTPCredential defaultDevice = new TOTPCredential(DEFAULT_PASSWORD, DEFAULT_TOTP_SECRET);
+
+        identityManager.updateCredential(user, defaultDevice);
+
+        String iphoneSecret = "iphone_secret";
+        TOTPCredential iphoneDevice = new TOTPCredential(DEFAULT_PASSWORD, iphoneSecret);
+
+        String iphoneDeviceName = "My IPhone #SN-121212121";
+        iphoneDevice.setDevice(iphoneDeviceName);
+        identityManager.updateCredential(user, iphoneDevice);
+
+        String androidSecret = "android_secret";
+        TOTPCredential androidDevice = new TOTPCredential(DEFAULT_PASSWORD, androidSecret);
+
+        String androidDeviceName = "My Android #SN-56757554";
+        androidDevice.setDevice(androidDeviceName);
+        identityManager.updateCredential(user, androidDevice);
+
+        TOTPCredentials credentials = new TOTPCredentials();
+
+        credentials.setUsername(user.getLoginName());
+        credentials.setPassword(new Password(DEFAULT_PASSWORD));
+
+        TimeBasedOTP totp = new TimeBasedOTP();
+
+        // validate default device credentials
+        credentials.setToken(totp.generate(DEFAULT_TOTP_SECRET));
+        identityManager.validateCredentials(credentials);
+
+        assertEquals(Status.VALID, credentials.getStatus());
+
+        // validate iphone device credentials
+        credentials.setToken(totp.generate(iphoneSecret));
+        credentials.setDevice(iphoneDeviceName);
+        identityManager.validateCredentials(credentials);
+
+        assertEquals(Status.VALID, credentials.getStatus());
+
+        // validate android device credentials
+        credentials.setToken(totp.generate(androidSecret));
+        credentials.setDevice(androidDeviceName);
+        identityManager.validateCredentials(credentials);
+
+        assertEquals(Status.VALID, credentials.getStatus());
+
+        // should fail, trying to use a iphone token in a android device
+        credentials.setToken(totp.generate(iphoneSecret));
+        credentials.setDevice(androidDeviceName);
+        identityManager.validateCredentials(credentials);
+
+        assertEquals(Status.INVALID, credentials.getStatus());
+        assertNull(credentials.getValidatedAgent());
+
+        // should fail, trying to use a android token in a iphone device
+        credentials.setToken(totp.generate(androidSecret));
+        credentials.setDevice(iphoneDeviceName);
+        identityManager.validateCredentials(credentials);
+
+        assertEquals(Status.INVALID, credentials.getStatus());
+        assertNull(credentials.getValidatedAgent());
     }
 
     @Test
     public void testDelayWindow() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
-        TOTPCredential credential = new TOTPCredential("passwd", "my_secret");
+        TOTPCredential credential = new TOTPCredential(DEFAULT_PASSWORD, DEFAULT_TOTP_SECRET);
 
         identityManager.updateCredential(user, credential);
 
         TOTPCredentials credentials = new TOTPCredentials();
 
         credentials.setUsername(user.getLoginName());
-        credentials.setPassword(new Password("passwd"));
+        credentials.setPassword(new Password(DEFAULT_PASSWORD));
 
         TimeBasedOTP totp = new TimeBasedOTP();
 
@@ -91,21 +164,109 @@ public class OTPCredentialTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.validateCredentials(credentials);
 
-        Assert.assertEquals(Status.VALID, credentials.getStatus());
+        assertEquals(Status.VALID, credentials.getStatus());
+    }
+
+    @Test
+    public void testUpdatePasswordAndSecret() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = createUser("someUser");
+        TOTPCredential credential = new TOTPCredential(DEFAULT_PASSWORD, DEFAULT_TOTP_SECRET);
+
+        identityManager.updateCredential(user, credential);
+
+        TOTPCredentials validatingCredential = new TOTPCredentials();
+
+        validatingCredential.setUsername(user.getLoginName());
+        validatingCredential.setPassword(new Password(DEFAULT_PASSWORD));
+
+        TimeBasedOTP totp = new TimeBasedOTP();
+
+        validatingCredential.setToken(totp.generate(DEFAULT_TOTP_SECRET));
+
+        identityManager.validateCredentials(validatingCredential);
+
+        assertEquals(Status.VALID, validatingCredential.getStatus());
+
+        credential = new TOTPCredential("new_password", DEFAULT_TOTP_SECRET);
+
+        // update only the password
+        identityManager.updateCredential(user, credential);
+
+        validatingCredential.setPassword(new Password("new_password"));
+        validatingCredential.setToken(totp.generate(DEFAULT_TOTP_SECRET));
+
+        identityManager.validateCredentials(validatingCredential);
+
+        assertEquals(Status.VALID, validatingCredential.getStatus());
+
+        credential = new TOTPCredential("new_password", "new_secret");
+
+        // now we update only the secret
+        identityManager.updateCredential(user, credential);
+
+        validatingCredential.setPassword(new Password("new_password"));
+        validatingCredential.setToken(totp.generate("new_secret"));
+
+        identityManager.validateCredentials(validatingCredential);
+
+        assertEquals(Status.VALID, validatingCredential.getStatus());
+
+        validatingCredential.setPassword(new Password(DEFAULT_PASSWORD));
+        validatingCredential.setToken(totp.generate(DEFAULT_TOTP_SECRET));
+
+        identityManager.validateCredentials(validatingCredential);
+
+        assertEquals(Status.INVALID, validatingCredential.getStatus());
+        assertNull(validatingCredential.getValidatedAgent());
+    }
+
+    @Test
+    public void testUpdateSecret() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = createUser("someUser");
+        TOTPCredential credential = new TOTPCredential(DEFAULT_PASSWORD, DEFAULT_TOTP_SECRET);
+
+        identityManager.updateCredential(user, credential);
+
+        TOTPCredentials validatingCredential = new TOTPCredentials();
+
+        validatingCredential.setUsername(user.getLoginName());
+        validatingCredential.setPassword(new Password(DEFAULT_PASSWORD));
+
+        TimeBasedOTP totp = new TimeBasedOTP();
+
+        validatingCredential.setToken(totp.generate(DEFAULT_TOTP_SECRET));
+
+        identityManager.validateCredentials(validatingCredential);
+
+        assertEquals(Status.VALID, validatingCredential.getStatus());
+
+        credential = new TOTPCredential("new_secret");
+
+        // update only the secret
+        identityManager.updateCredential(user, credential);
+
+        validatingCredential.setPassword(new Password(DEFAULT_PASSWORD));
+        validatingCredential.setToken(totp.generate("new_secret"));
+
+        identityManager.validateCredentials(validatingCredential);
+
+        assertEquals(Status.VALID, validatingCredential.getStatus());
     }
 
     @Test
     public void testInvalidToken() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
-        TOTPCredential credential = new TOTPCredential("passwd", "my_secret");
+        TOTPCredential credential = new TOTPCredential(DEFAULT_PASSWORD, DEFAULT_TOTP_SECRET);
 
         identityManager.updateCredential(user, credential);
 
         TOTPCredentials credentials = new TOTPCredentials();
 
         credentials.setUsername(user.getLoginName());
-        credentials.setPassword(new Password("passwd"));
+        credentials.setPassword(new Password(DEFAULT_PASSWORD));
 
         TimeBasedOTP totp = new TimeBasedOTP();
 
@@ -121,7 +282,8 @@ public class OTPCredentialTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.validateCredentials(credentials);
 
-        Assert.assertEquals(Status.INVALID, credentials.getStatus());
+        assertEquals(Status.INVALID, credentials.getStatus());
+        assertNull(credentials.getValidatedAgent());
     }
 
 }

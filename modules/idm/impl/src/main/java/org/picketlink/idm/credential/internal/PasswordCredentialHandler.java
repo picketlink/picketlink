@@ -44,12 +44,12 @@ import static org.picketlink.idm.credential.internal.CredentialUtils.isCredentia
  * credentials.
  * </p>
  * <p>
- *
+ * <p/>
  * <p>
  * How passwords are encoded can be changed by specifying a configuration option using the <code>PASSWORD_ENCODER</code>. By
  * default a SHA-512 encoding is performed.
  * </p>
- *
+ * <p/>
  * <p>
  * Password are always salted before encoding.
  * </p>
@@ -57,9 +57,9 @@ import static org.picketlink.idm.credential.internal.CredentialUtils.isCredentia
  * @author Shane Bryzak
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-@SupportsCredentials({ UsernamePasswordCredentials.class, Password.class })
+@SupportsCredentials({UsernamePasswordCredentials.class, Password.class})
 public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends UsernamePasswordCredentials, U extends Password>
-    implements CredentialHandler<S, V, U> {
+        implements CredentialHandler<S, V, U> {
 
     private static final String DEFAULT_SALT_ALGORITHM = "SHA1PRNG";
 
@@ -99,6 +99,7 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
         UsernamePasswordCredentials usernamePassword = (UsernamePasswordCredentials) credentials;
 
         usernamePassword.setStatus(Status.INVALID);
+        usernamePassword.setValidatedAgent(null);
 
         Agent agent = store.getAgent(context, usernamePassword.getUsername());
 
@@ -130,7 +131,7 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
 
     @Override
     public void update(SecurityContext context, Agent agent, U password, S store,
-            Date effectiveDate, Date expiryDate) {
+                       Date effectiveDate, Date expiryDate) {
 
         EncodedPasswordStorage hash = new EncodedPasswordStorage();
 
@@ -141,10 +142,7 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
         hash.setSalt(passwordSalt);
         hash.setEncodedHash(this.passwordEncoder.encode(saltPassword(rawPassword, passwordSalt)));
         hash.setEffectiveDate(effectiveDate);
-
-        if (expiryDate != null) {
-            hash.setExpiryDate(expiryDate);
-        }
+        hash.setExpiryDate(expiryDate);
 
         store.storeCredential(context, agent, hash);
     }

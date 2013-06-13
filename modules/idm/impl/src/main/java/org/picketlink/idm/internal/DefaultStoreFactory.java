@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
@@ -60,17 +61,17 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
  */
 public class DefaultStoreFactory implements StoreFactory {
 
-    private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> identityConfigMap = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>>();
+    private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> identityConfigMap = new ConcurrentHashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>>();
 
-    private Map<Class<? extends IdentityStoreConfiguration>, IdentityStore<?>> storesCache = new HashMap<Class<? extends IdentityStoreConfiguration>, IdentityStore<?>>();
+    private Map<Class<? extends IdentityStoreConfiguration>, IdentityStore<?>> storesCache = new ConcurrentHashMap<Class<? extends IdentityStoreConfiguration>, IdentityStore<?>>();
 
-    private Map<String, Set<IdentityStoreConfiguration>> realmStores = new HashMap<String, Set<IdentityStoreConfiguration>>();
+    private Map<String, Set<IdentityStoreConfiguration>> realmStores = new ConcurrentHashMap<String, Set<IdentityStoreConfiguration>>();
 
     private Map<String, Realm> configuredRealms = new HashMap<String, Realm>();
 
-    private Map<String, Set<IdentityStoreConfiguration>> tierStores = new HashMap<String, Set<IdentityStoreConfiguration>>();
+    private Map<String, Set<IdentityStoreConfiguration>> tierStores = new ConcurrentHashMap<String, Set<IdentityStoreConfiguration>>();
 
-    private Map<String, Tier> configuredTiers = new HashMap<String, Tier>();
+    private Map<String, Tier> configuredTiers = new ConcurrentHashMap<String, Tier>();
 
     private List<IdentityStoreConfiguration> configs = new ArrayList<IdentityStoreConfiguration>();
 
@@ -127,8 +128,33 @@ public class DefaultStoreFactory implements StoreFactory {
                     this.identityConfigMap.put(entry.getKey(), (Class<? extends IdentityStore<?>>) entry.getValue());
                 }
             }
+            initializeIdentityStores();
         }
     }
+
+    protected void initializeIdentityStores() {
+        for (IdentityStoreConfiguration config : configs) {
+            for (Class<? extends IdentityStoreConfiguration> cc : this.identityConfigMap.keySet()) {
+                if (cc.isInstance(config)) {
+                    IdentityStore identityStore = this.storesCache.get(cc);
+
+                    if (identityStore == null) {
+                        Class<? extends IdentityStore<?>> identityStoreClass = this.identityConfigMap.get(cc);
+
+                        try {
+                            identityStore = identityStoreClass.newInstance();
+                            identityStore.setup(config);
+                        } catch (Exception e) {
+                            throw MESSAGES.instantiationError(identityStoreClass.getName(), e);
+                        }
+
+                        this.storesCache.put(cc, identityStore);
+                    }
+                }
+            }
+        }
+    }
+
 
     @Override
     public Realm getRealm(String id) {
@@ -144,7 +170,7 @@ public class DefaultStoreFactory implements StoreFactory {
     }
 
     @Override
-    public Realm createRealm(SecurityContext context,String id) {
+    public Realm createRealm(SecurityContext context, String id) {
         Realm realm = getRealm(id);
         if (realm != null) return realm;
         IdentityStoreConfiguration config = getPartitionStoreConfig();
@@ -159,7 +185,7 @@ public class DefaultStoreFactory implements StoreFactory {
     }
 
     @Override
-    public Realm findRealm(SecurityContext context,String id) {
+    public Realm findRealm(SecurityContext context, String id) {
         Realm realm = getRealm(id);
         if (realm != null) return realm;
         for (IdentityStoreConfiguration config : configs) {
@@ -168,7 +194,7 @@ public class DefaultStoreFactory implements StoreFactory {
                     PartitionStore store = getPartitionStore(context, config);
                     Partition partition = store.findPartition(context, id);
                     if (partition instanceof Realm) {
-                        realm = (Realm)partition;
+                        realm = (Realm) partition;
                         configuredRealms.put(id, realm);
                         getConfigs(realmStores, id).add(config);
                         return realm;
@@ -193,7 +219,7 @@ public class DefaultStoreFactory implements StoreFactory {
     }
 
     @Override
-    public Tier findTier(SecurityContext context,String id) {
+    public Tier findTier(SecurityContext context, String id) {
         Tier tier = getTier(id);
         if (tier != null) return null;
         for (IdentityStoreConfiguration config : configs) {
@@ -202,7 +228,7 @@ public class DefaultStoreFactory implements StoreFactory {
                     PartitionStore store = getPartitionStore(context, config);
                     Partition partition = store.findPartition(context, id);
                     if (partition instanceof Tier) {
-                        tier = (Tier)partition;
+                        tier = (Tier) partition;
                         configuredTiers.put(id, tier);
                         getConfigs(tierStores, id).add(config);
                         return tier;
@@ -214,8 +240,8 @@ public class DefaultStoreFactory implements StoreFactory {
     }
 
     private PartitionStore getPartitionStore(SecurityContext context, IdentityStoreConfiguration config) {
-        IdentityStore identityStore = createIdentityStore(config,  null);
-        PartitionStore store = (PartitionStore)identityStore;
+        IdentityStore identityStore = createIdentityStore(config, null);
+        PartitionStore store = (PartitionStore) identityStore;
         for (ContextInitializer initializer : config.getContextInitializers()) {
             initializer.initContextForStore(context, identityStore);
         }
@@ -223,7 +249,7 @@ public class DefaultStoreFactory implements StoreFactory {
     }
 
     @Override
-    public Tier createTier(SecurityContext context,String id) {
+    public Tier createTier(SecurityContext context, String id) {
         Tier tier = getTier(id);
         if (tier != null) return null;
         IdentityStoreConfiguration config = getPartitionStoreConfig();
@@ -255,24 +281,9 @@ public class DefaultStoreFactory implements StoreFactory {
         for (Class<? extends IdentityStoreConfiguration> cc : this.identityConfigMap.keySet()) {
             if (cc.isInstance(config)) {
                 IdentityStore<T> identityStore = (IdentityStore<T>) this.storesCache.get(cc);
-
-                if (identityStore == null) {
-                    Class<? extends IdentityStore<?>> identityStoreClass = this.identityConfigMap.get(cc);
-
-                    try {
-                        identityStore = (IdentityStore<T>) identityStoreClass.newInstance();
-                        identityStore.setup(config);
-                    } catch (Exception e) {
-                        throw MESSAGES.instantiationError(identityStoreClass.getName(), e);
-                    }
-
-                    this.storesCache.put(cc, identityStore);
-                }
-
                 return identityStore;
             }
         }
-
         throw MESSAGES.storeConfigUnsupportedConfiguration(config);
     }
 

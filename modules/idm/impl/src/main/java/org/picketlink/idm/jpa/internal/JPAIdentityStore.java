@@ -446,6 +446,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
 
         Property<Object> identityTypeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_IDENTITY);
         Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_TYPE);
+        Property<Object> effectiveProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE);
 
         EntityManager em = getEntityManager(context);
 
@@ -460,6 +461,8 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
         predicates.add(builder.equal(root.get(typeProperty.getName()), storageClass.getName()));
 
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+
+        criteria.orderBy(builder.desc(root.get(effectiveProperty.getName())));
 
         List<?> result = em.createQuery(criteria).getResultList();
 
