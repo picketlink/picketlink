@@ -80,6 +80,8 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
     public void validate(SecurityContext context, TOTPCredentials credentials, CredentialStore<?> store) {
         super.validate(context, credentials, store);
 
+        boolean isValid = false;
+
         // password is valid, let's validate the token now
         if (Status.VALID.equals(credentials.getStatus())) {
             OTPCredentialStorage storage = null;
@@ -97,19 +99,17 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
                 }
             }
 
-            boolean isValid = false;
-
             if (storage != null) {
                 String secretKey = storage.getSecretKey();
                 String token = credentials.getToken();
 
                 isValid = this.totp.validate(token, secretKey.getBytes());
             }
+        }
 
-            if (!isValid) {
-                credentials.setStatus(Status.INVALID);
-                credentials.setValidatedAgent(null);
-            }
+        if (!isValid) {
+            credentials.setStatus(Status.INVALID);
+            credentials.setValidatedAgent(null);
         }
     }
 

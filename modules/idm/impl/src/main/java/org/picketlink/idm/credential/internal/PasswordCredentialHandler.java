@@ -99,6 +99,7 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
         UsernamePasswordCredentials usernamePassword = (UsernamePasswordCredentials) credentials;
 
         usernamePassword.setStatus(Status.INVALID);
+        usernamePassword.setValidatedAgent(null);
 
         Agent agent = store.getAgent(context, usernamePassword.getUsername());
 
