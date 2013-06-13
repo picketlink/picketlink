@@ -21,7 +21,7 @@ package org.picketlink.idm.model.sample;
 import org.picketlink.idm.model.AbstractPartition;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.annotation.IdentityRestriction;
+import org.picketlink.idm.model.annotation.IdentityPartition;
 
 /**
  * A hierarchical abstraction representing a partitioned set or subset of services, for which
@@ -29,7 +29,7 @@ import org.picketlink.idm.model.annotation.IdentityRestriction;
  *
  * @author Shane Bryzak
  */
-@IdentityRestriction(supportedTypes = {IdentityType.class}, unsupportedTypes = {Account.class})
+@IdentityPartition(supportedTypes = {IdentityType.class}, unsupportedTypes = {Account.class})
 public class Tier extends AbstractPartition {
 
     private static final long serialVersionUID = 7797059334915537276L;

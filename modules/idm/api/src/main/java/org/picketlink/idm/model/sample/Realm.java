@@ -20,14 +20,14 @@ package org.picketlink.idm.model.sample;
 
 import org.picketlink.idm.model.AbstractPartition;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.annotation.IdentityRestriction;
+import org.picketlink.idm.model.annotation.IdentityPartition;
 
 /**
  * A Realm defines a boundary for certain identity state. Users, Groups and standard Roles are unique within a Realm.
  *
  * @author Shane Bryzak
  */
-@IdentityRestriction(supportedTypes = {IdentityType.class})
+@IdentityPartition(supportedTypes = {IdentityType.class})
 public class Realm extends AbstractPartition {
 
     private static final long serialVersionUID = -2667438382506066497L;
