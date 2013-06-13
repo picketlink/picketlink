@@ -33,17 +33,17 @@ import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.jpa.annotations.AttributeName;
-import org.picketlink.idm.jpa.annotations.AttributeType;
+import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.CreationDate;
-import org.picketlink.idm.jpa.annotations.CredentialType;
+import org.picketlink.idm.jpa.annotations.CredentialClass;
 import org.picketlink.idm.jpa.annotations.CredentialValue;
 import org.picketlink.idm.jpa.annotations.Discriminator;
 import org.picketlink.idm.jpa.annotations.EffectiveDate;
 import org.picketlink.idm.jpa.annotations.Enabled;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.Identifier;
-import org.picketlink.idm.jpa.annotations.IdentityReference;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.IdentityName;
 import org.picketlink.idm.jpa.annotations.IdentityPartition;
@@ -271,7 +271,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
             //configureModelProperty(PropertyType.ATTRIBUTE_IDENTITY, Parent.class, attributeClass, identityClass);
             configureModelProperty(PropertyType.ATTRIBUTE_NAME, AttributeName.class, attributeClass, null, "attributeName",
                     "name");
-            configureModelProperty(PropertyType.ATTRIBUTE_TYPE, AttributeType.class, attributeClass, null, "attributeType",
+            configureModelProperty(PropertyType.ATTRIBUTE_TYPE, AttributeClass.class, attributeClass, null, "attributeType",
                     "type");
             configureModelProperty(PropertyType.ATTRIBUTE_VALUE, AttributeValue.class, attributeClass, null, "attributeValue",
                     "value");
@@ -297,7 +297,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
     private void configureCredentials() {
         if (this.credentialClass != null && this.credentialAttributeClass != null) {
-            configureModelProperty(PropertyType.CREDENTIAL_TYPE, CredentialType.class, credentialClass, null);
+            configureModelProperty(PropertyType.CREDENTIAL_TYPE, CredentialClass.class, credentialClass, null);
             configureModelProperty(PropertyType.CREDENTIAL_VALUE, CredentialValue.class, credentialClass, null);
             //configureModelProperty(PropertyType.CREDENTIAL_IDENTITY, Parent.class, credentialClass, null);
             configureModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE, EffectiveDate.class, credentialClass, null);
@@ -339,7 +339,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
                     "relationshipClass");
 
             // Relationship identities
-            configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY, IdentityReference.class, relationshipIdentityClass, null,
+            configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY, OwnerReference.class, relationshipIdentityClass, null,
                     "identityObject");
             configureModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR, RelationshipDescriptor.class,
                     relationshipIdentityClass, null, "descriptor");

@@ -18,7 +18,7 @@
 
 package org.picketlink.idm.jpa.schema;
 
-import org.picketlink.idm.jpa.annotations.CredentialType;
+import org.picketlink.idm.jpa.annotations.CredentialClass;
 import org.picketlink.idm.jpa.annotations.CredentialValue;
 import org.picketlink.idm.jpa.annotations.EffectiveDate;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
@@ -48,7 +48,7 @@ public class CredentialObject implements Serializable {
     @GeneratedValue
     private Long id;
 
-    @CredentialType
+    @CredentialClass
     private String type;
 
     @CredentialValue

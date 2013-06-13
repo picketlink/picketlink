@@ -26,7 +26,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.picketlink.idm.jpa.annotations.IdentityAttribute;
+import org.picketlink.idm.jpa.annotations.AttributeOf;
 import org.picketlink.idm.model.Account;
 
 /**
@@ -34,7 +34,7 @@ import org.picketlink.idm.model.Account;
  *
  * @author Shane Bryzak
  */
-@IdentityAttribute(supportedTypes = {Account.class})
+@AttributeOf(supportedTypes = {Account.class})
 @Entity
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = "loginName")})
 public class AccountLogin implements Serializable {

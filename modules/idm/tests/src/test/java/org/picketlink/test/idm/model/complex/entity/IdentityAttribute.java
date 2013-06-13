@@ -25,9 +25,9 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 import org.picketlink.idm.jpa.annotations.AttributeName;
-import org.picketlink.idm.jpa.annotations.AttributeType;
+import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
-import org.picketlink.idm.jpa.annotations.IdentityReference;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
 
 /**
  * This entity holds ad-hoc attribute values for all identity types
@@ -39,8 +39,8 @@ public class IdentityAttribute implements Serializable {
     private static final long serialVersionUID = 5375379361556212335L;
 
     @Id @GeneratedValue private Long attributeId;
-    @IdentityReference @ManyToOne private IdentityObject identity;
-    @AttributeType private String attributeType;
+    @OwnerReference @ManyToOne private IdentityObject identity;
+    @AttributeClass private String attributeType;
     @AttributeName private String attributeName;
     @AttributeValue private String attributeValue;
 

@@ -5,19 +5,20 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * This annotation should be applied to a single entity bean of an application to mark it as
- * holding credential attribute state.
+ * Marks the partition class property of a partition entity.  This property should return
+ * the fully qualified class name of the partition.
  *
  * @author Shane Bryzak
  */
-@Target({TYPE})
+@Target({METHOD, FIELD})
 @Documented
 @Retention(RUNTIME)
 @Inherited
-public @interface CredentialAttribute {
+public @interface PartitionClass {
 
 }

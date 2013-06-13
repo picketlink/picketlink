@@ -10,8 +10,8 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Marks the name property of an identity type entity.  For group identities this value is the
- * group name, and for role identities this value is the role name
+ * Marks the credential class property of a credential entity.  The property should return the
+ * fully qualified class name of the credential.
  *
  * @author Shane Bryzak
  */
@@ -19,6 +19,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 @Retention(RUNTIME)
 @Inherited
-public @interface IdentityName {
+public @interface CredentialClass {
 
 }

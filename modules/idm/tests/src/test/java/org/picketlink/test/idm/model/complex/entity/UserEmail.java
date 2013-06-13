@@ -24,7 +24,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-import org.picketlink.idm.jpa.annotations.IdentityAttribute;
+import org.picketlink.idm.jpa.annotations.AttributeOf;
 import org.picketlink.test.idm.model.complex.User;
 
 /**
@@ -32,7 +32,7 @@ import org.picketlink.test.idm.model.complex.User;
  *
  * @author Shane Bryzak
  */
-@IdentityAttribute(mapToAttribute = "emails", supportedTypes = {User.class})
+@AttributeOf(mapToAttribute = "emails", supportedTypes = {User.class})
 @Entity
 public class UserEmail implements Serializable {
     private static final long serialVersionUID = 4044401260242743000L;

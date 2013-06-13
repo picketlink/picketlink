@@ -10,7 +10,8 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Marks the relationship class property of a relationship entity
+ * Marks the relationship class property of a relationship entity.  This property should return
+ * the fully qualified class name of the relationship.
  *
  * @author Shane Bryzak
  */

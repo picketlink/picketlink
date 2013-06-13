@@ -10,8 +10,9 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Marks the attribute type property of an identity attribute entity, a credential attribute entity
- * or a relationship attribute entity.
+ * Marks the member property of a relationship identity entity.  The property should return a reference
+ * to the identity that is participating in the relationship, such as a reference to an entity bean, or 
+ * an identifier value.
  *
  * @author Shane Bryzak
  */
@@ -19,6 +20,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 @Retention(RUNTIME)
 @Inherited
-public @interface AttributeType {
+public @interface RelationshipMember {
 
 }

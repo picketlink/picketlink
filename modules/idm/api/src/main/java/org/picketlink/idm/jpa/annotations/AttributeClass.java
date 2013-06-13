@@ -10,7 +10,9 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Marks the credential type property of a credential entity
+ * Marks the attribute class property of an identity attribute entity, a credential attribute entity
+ * or a relationship attribute entity.  The property should return the fully qualified class name of
+ * the attribute value.
  *
  * @author Shane Bryzak
  */
@@ -18,6 +20,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 @Retention(RUNTIME)
 @Inherited
-public @interface CredentialType {
+public @interface AttributeClass {
 
 }

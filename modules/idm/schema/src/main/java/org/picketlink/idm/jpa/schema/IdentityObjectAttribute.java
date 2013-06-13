@@ -19,9 +19,9 @@
 package org.picketlink.idm.jpa.schema;
 
 import org.picketlink.idm.jpa.annotations.AttributeName;
-import org.picketlink.idm.jpa.annotations.AttributeType;
+import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
-import org.picketlink.idm.jpa.annotations.IdentityAttribute;
+import org.picketlink.idm.jpa.annotations.AttributeOf;
 import org.picketlink.idm.jpa.annotations.Parent;
 
 import javax.persistence.Column;
@@ -36,7 +36,7 @@ import java.io.Serializable;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@IdentityAttribute
+@AttributeOf
 @Entity
 public class IdentityObjectAttribute implements Serializable {
 
@@ -58,7 +58,7 @@ public class IdentityObjectAttribute implements Serializable {
     @Column (length=1024)
     private String value;
 
-    @AttributeType
+    @AttributeClass
     private String type;
 
     public Long getId() {

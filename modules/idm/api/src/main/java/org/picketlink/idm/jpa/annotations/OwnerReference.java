@@ -5,20 +5,19 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * This annotation should be applied to a single entity bean of an application to mark
- * it as holding identity objects, such as users, groups and roles.
+ * Marks the identity property of a relationship identity entity
  *
  * @author Shane Bryzak
- *
  */
-@Target({TYPE})
+@Target({METHOD, FIELD})
 @Documented
 @Retention(RUNTIME)
 @Inherited
-public @interface IdentityType {
+public @interface OwnerReference {
 
 }
