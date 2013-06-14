@@ -112,6 +112,48 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         fileDataSource.addPartition(partition);
     }
 
+    public void removePartition(SecurityContext context, Partition partition) {
+        {
+            List<AttributedType> toRemove = new ArrayList<AttributedType>();
+            IdentityQuery<IdentityType> query = new DefaultIdentityQuery(context, Agent.class, this);
+            List<IdentityType> resultSet = fetchQueryResults(context, query);
+            toRemove.addAll(resultSet);
+            for (AttributedType agent : toRemove) {
+                remove(context, agent);
+            }
+        }
+        {
+            List<AttributedType> toRemove = new ArrayList<AttributedType>();
+            IdentityQuery<IdentityType> query = new DefaultIdentityQuery(context, User.class, this);
+            List<IdentityType> resultSet = fetchQueryResults(context, query);
+            toRemove.addAll(resultSet);
+            for (AttributedType agent : toRemove) {
+                remove(context, agent);
+            }
+        }
+        {
+            List<AttributedType> toRemove = new ArrayList<AttributedType>();
+            IdentityQuery<IdentityType> query = new DefaultIdentityQuery(context, Group.class, this);
+            List<IdentityType> resultSet = fetchQueryResults(context, query);
+            toRemove.addAll(resultSet);
+            for (AttributedType agent : toRemove) {
+                remove(context, agent);
+            }
+        }
+        {
+            List<AttributedType> toRemove = new ArrayList<AttributedType>();
+            IdentityQuery<IdentityType> query = new DefaultIdentityQuery(context, Role.class, this);
+            List<IdentityType> resultSet = fetchQueryResults(context, query);
+            toRemove.addAll(resultSet);
+            for (AttributedType agent : toRemove) {
+                remove(context, agent);
+            }
+        }
+
+
+        fileDataSource.removePartition(partition);
+    }
+
     @Override
     public Partition findPartition(SecurityContext context, String id) {
         FilePartition fp = fileDataSource.getPartitions().get(id);

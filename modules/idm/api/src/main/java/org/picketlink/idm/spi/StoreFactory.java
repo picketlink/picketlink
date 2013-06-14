@@ -96,4 +96,6 @@ public interface StoreFactory {
     Realm findRealm(SecurityContext context,String id);
 
     Tier findTier(SecurityContext context,String id);
+
+    void deleteRealm(SecurityContext context, Realm realm);
 }

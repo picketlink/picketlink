@@ -152,6 +152,32 @@ public class JPARealmCreateTestCase extends AbstractIdentityManagerTestCase {
     }
 
     @Test
+    public void testCreateUserInNewRealm() throws Exception {
+        Realm realm = getIdentityManagerFactory().createRealm("Delete-Testing");
+
+        User realmUser = createUser("newUser", realm);
+
+        IdentityManager testingRealmManager = getIdentityManagerFactory().createIdentityManager(realm);
+
+        realmUser = testingRealmManager.getUser(realmUser.getLoginName());
+
+        assertNotNull(realmUser);
+        assertNotNull(realmUser.getPartition());
+        assertEquals(realm.getId(), realmUser.getPartition().getId());
+
+        IdentityManager defaultIdentityManager = getIdentityManager();
+
+        // the identitytype should not be associated with the DEFAULT realm
+        realmUser = defaultIdentityManager.getUser(realmUser.getLoginName());
+
+        assertNull(realmUser);
+
+        getIdentityManagerFactory().deleteRealm(realm);
+        assertNull(getIdentityManagerFactory().findRealm(realm.getId()));
+    }
+
+
+    @Test
     public void testCreateUsers() throws Exception {
         Realm realm = getIdentityManagerFactory().getRealm(TESTING_REALM_NAME);
 

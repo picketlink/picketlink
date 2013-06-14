@@ -162,4 +162,10 @@ public class IdentityManagerFactory implements Serializable {
         SecurityContext context = contextFactory.createContext(null);
         return this.storeFactory.findTier(context, name);
     }
+
+    public void deleteRealm(Realm realm) {
+        if (findRealm(realm.getId()) == null) return;
+        this.storeFactory.deleteRealm(contextFactory.createContext(realm), realm);
+
+    }
 }

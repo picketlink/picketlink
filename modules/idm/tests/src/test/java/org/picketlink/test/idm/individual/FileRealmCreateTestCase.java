@@ -124,7 +124,33 @@ public class FileRealmCreateTestCase extends AbstractIdentityManagerTestCase {
         
         assertNull(realmUser);
     }
-    
+
+    @Test
+    public void testCreateUserInNewRealm() throws Exception {
+        Realm realm = getIdentityManagerFactory().createRealm("Delete-Testing");
+
+        User realmUser = createUser("newUser", realm);
+
+        IdentityManager testingRealmManager = getIdentityManagerFactory().createIdentityManager(realm);
+
+        realmUser = testingRealmManager.getUser(realmUser.getLoginName());
+
+        assertNotNull(realmUser);
+        assertNotNull(realmUser.getPartition());
+        assertEquals(realm.getId(), realmUser.getPartition().getId());
+
+        IdentityManager defaultIdentityManager = getIdentityManager();
+
+        // the identitytype should not be associated with the DEFAULT realm
+        realmUser = defaultIdentityManager.getUser(realmUser.getLoginName());
+
+        assertNull(realmUser);
+
+        getIdentityManagerFactory().deleteRealm(realm);
+        assertNull(getIdentityManagerFactory().findRealm(realm.getId()));
+    }
+
+
     @Test
     public void testCreateSameUserDifferentRealms() throws Exception {
         IdentityManager defaultIdentityManager = getIdentityManager();

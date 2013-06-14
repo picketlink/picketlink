@@ -9,4 +9,6 @@ import org.picketlink.idm.model.Partition;
 public interface PartitionStore {
     void createPartition(SecurityContext context, Partition partition);
     Partition findPartition(SecurityContext context, String id);
+
+    void removePartition(SecurityContext context, Partition partition);
 }

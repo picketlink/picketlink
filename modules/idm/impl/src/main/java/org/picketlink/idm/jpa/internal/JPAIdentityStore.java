@@ -18,26 +18,6 @@
 
 package org.picketlink.idm.jpa.internal;
 
-import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
@@ -85,6 +65,28 @@ import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.SecurityContext;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
@@ -566,7 +568,57 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
 
     @Override
     public void createPartition(SecurityContext context, Partition partition) {
-       lookupAndCreatePartitionObject(context, partition);
+        lookupAndCreatePartitionObject(context, partition);
+    }
+
+    @Override
+    public void removePartition(SecurityContext context, Partition partition) {
+        EntityManager entityManager = getEntityManager(context);
+        Object partitionObject = entityManager.find(getConfig().getPartitionClass(), partition.getId());
+
+        if (partitionObject == null) return;
+
+        {
+            List<AttributedType> toRemove = new ArrayList<AttributedType>();
+            IdentityQuery<IdentityType> query = new DefaultIdentityQuery(context, Agent.class, this);
+            List<IdentityType> resultSet = fetchQueryResults(context, query);
+            toRemove.addAll(resultSet);
+            for (AttributedType agent : toRemove) {
+                remove(context, agent);
+            }
+        }
+        {
+            List<AttributedType> toRemove = new ArrayList<AttributedType>();
+            IdentityQuery<IdentityType> query = new DefaultIdentityQuery(context, User.class, this);
+            List<IdentityType> resultSet = fetchQueryResults(context, query);
+            toRemove.addAll(resultSet);
+            for (AttributedType agent : toRemove) {
+                remove(context, agent);
+            }
+        }
+        {
+            List<AttributedType> toRemove = new ArrayList<AttributedType>();
+            IdentityQuery<IdentityType> query = new DefaultIdentityQuery(context, Group.class, this);
+            List<IdentityType> resultSet = fetchQueryResults(context, query);
+            toRemove.addAll(resultSet);
+            for (AttributedType agent : toRemove) {
+                remove(context, agent);
+            }
+        }
+        {
+            List<AttributedType> toRemove = new ArrayList<AttributedType>();
+            IdentityQuery<IdentityType> query = new DefaultIdentityQuery(context, Role.class, this);
+            List<IdentityType> resultSet = fetchQueryResults(context, query);
+            toRemove.addAll(resultSet);
+            for (AttributedType agent : toRemove) {
+                remove(context, agent);
+            }
+        }
+
+        entityManager.remove(partitionObject);
+        entityManager.flush();
+
+
     }
 
     @Override
@@ -575,7 +627,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
 
         Object partitionObject = entityManager.find(getConfig().getPartitionClass(), id);
         if (partitionObject == null) return null;
-        String type = (String)getConfig().getModelProperty(PropertyType.PARTITION_TYPE).getValue(partitionObject);
+        String type = (String) getConfig().getModelProperty(PropertyType.PARTITION_TYPE).getValue(partitionObject);
         if (type.equals(Tier.class.getName())) return new Tier(id);
         else if (type.equals(Realm.class.getName())) return new Realm(id);
         return null;

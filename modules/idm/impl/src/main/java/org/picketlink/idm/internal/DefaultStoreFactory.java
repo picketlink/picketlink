@@ -185,6 +185,20 @@ public class DefaultStoreFactory implements StoreFactory {
     }
 
     @Override
+    public void deleteRealm(SecurityContext context, Realm realm) {
+        realmStores.remove(realm.getId());
+        configuredRealms.remove(realm.getId());
+        for (IdentityStoreConfiguration config : configs) {
+            for (Map.Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> entry : this.identityConfigMap.entrySet()) {
+                if (entry.getKey().isInstance(config) && PartitionStore.class.isAssignableFrom(entry.getValue())) {
+                    PartitionStore store = getPartitionStore(context, config);
+                    store.removePartition(context, realm);
+               }
+            }
+        }
+    }
+
+    @Override
     public Realm findRealm(SecurityContext context, String id) {
         Realm realm = getRealm(id);
         if (realm != null) return realm;
