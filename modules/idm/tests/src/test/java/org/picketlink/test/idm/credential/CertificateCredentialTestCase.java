@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
@@ -52,6 +51,22 @@ public class CertificateCredentialTestCase extends AbstractIdentityManagerTestCa
         User user = createUser(credential.getUsername());
 
         identityManager.updateCredential(user, clientCert);
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.VALID, credential.getStatus());
+        assertNotNull(credential.getValidatedAgent());
+    }
+
+    @Test
+    public void testTrustedCertSuccessfulValidation() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        X509Certificate clientCert = getTestingCertificate("servercert.txt");
+        X509CertificateCredentials credential = new X509CertificateCredentials(clientCert);
+
+        User user = createUser(credential.getUsername());
+
+        credential.setTrusted(true);
+
         identityManager.validateCredentials(credential);
 
         assertEquals(Status.VALID, credential.getStatus());
