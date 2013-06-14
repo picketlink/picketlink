@@ -32,8 +32,10 @@ import java.util.Properties;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 public class X509CertificateCredentials extends AbstractBaseCredentials implements Credentials {
+
     private X509Certificate certificate;
     private String userName;
+    private boolean trusted;
 
     public X509CertificateCredentials(X509Certificate certificate) {
         this.certificate = certificate;
@@ -61,9 +63,8 @@ public class X509CertificateCredentials extends AbstractBaseCredentials implemen
         return this.userName;
     }
 
-    public X509CertificateCredentials setUserName(String userName) {
+    public void setUserName(String userName) {
         this.userName = userName;
-        return this;
     }
 
     @Override
@@ -81,4 +82,17 @@ public class X509CertificateCredentials extends AbstractBaseCredentials implemen
         return certprincipal;
     }
 
+    /**
+     * <p>Indicates if the provided certificate should be trusted and perform the validation against the existence of
+     * the principal.</p>
+     *
+     * @param trusted
+     */
+    public void setTrusted(boolean trusted) {
+        this.trusted = trusted;
+    }
+
+    public boolean isTrusted() {
+        return this.trusted;
+    }
 }

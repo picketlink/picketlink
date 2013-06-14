@@ -78,9 +78,10 @@ public class FormAuthenticationScheme implements HTTPAuthenticationScheme{
     }
 
     @Override
-    public void postAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public boolean postAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession();
         String state = (String) session.getAttribute(STATE);
+
         if(state != null && STATES.SHOW_LOGIN_PAGE.toString().equals(state)){
             requestCache.removeAndStoreSavedRequestInSession(request);
             SavedRequest savedRequest = (SavedRequest) session.getAttribute(FormAuthenticationScheme.SAVED_REQUEST);
@@ -89,6 +90,8 @@ public class FormAuthenticationScheme implements HTTPAuthenticationScheme{
 
             response.sendRedirect(requestedURI);
         }
+
+        return false;
     }
 
     private void forwardToLoginPage(HttpServletRequest request, HttpServletResponse response){
