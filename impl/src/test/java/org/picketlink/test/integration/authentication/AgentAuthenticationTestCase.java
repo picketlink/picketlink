@@ -15,63 +15,74 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.test.integration.authentication.credential;
+package org.picketlink.test.integration.authentication;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.SimpleAgent;
 import org.picketlink.test.integration.ArchiveUtils;
-import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author pedroigor
  */
-public class UsernamePasswordCredentialTestCase extends AbstractAuthenticationTestCase {
+public class AgentAuthenticationTestCase extends AbstractAuthenticationTestCase {
+
+    public static final String AGENT_NAME = "Some Agent";
 
     @Deployment
     public static WebArchive createDeployment() {
-        return ArchiveUtils.create(UsernamePasswordCredentialTestCase.class);
+        return ArchiveUtils.create(AgentAuthenticationTestCase.class);
+    }
+
+    @Override
+    @Before
+    public void onSetup() {
+        Agent agent = this.identityManager.getAgent(AGENT_NAME);
+
+        if (agent == null) {
+            agent = new SimpleAgent(AGENT_NAME);
+            this.identityManager.add(agent);
+        }
+
+        agent.setEnabled(true);
+
+        this.identityManager.update(agent);
+
+        Password password = new Password(USER_PASSWORD);
+
+        this.identityManager.updateCredential(agent, password);
     }
 
     @Test
-    public void testSuccessfullAuthentication() {
-        updateUsernamePasswordCredential();
-
-        super.credentials.setUserId(USER_NAME);
+    public void testSuccessfulAuthentication() {
+        super.credentials.setUserId(AGENT_NAME);
         super.credentials.setPassword(USER_PASSWORD);
+
         super.identity.login();
 
         assertTrue(super.identity.isLoggedIn());
         assertNotNull(super.identity.getAgent());
-        assertEquals(USER_NAME, super.identity.getAgent().getLoginName());
+        assertEquals(AGENT_NAME, super.identity.getAgent().getLoginName());
     }
 
     @Test
-    public void testUnsuccessfullAuthentication() {
-        updateUsernamePasswordCredential();
+    public void testUnSuccessfulAuthentication() {
+        super.credentials.setUserId(AGENT_NAME);
+        super.credentials.setPassword("bad_passwd");
 
-        super.credentials.setUserId("bad_user");
-        super.credentials.setPassword(USER_PASSWORD);
-        super.identity.login();
-
-        assertFalse(super.identity.isLoggedIn());
-
-        super.credentials.setUserId(USER_NAME);
-        super.credentials.setPassword("bad_password");
         super.identity.login();
 
         assertFalse(super.identity.isLoggedIn());
         assertNull(super.identity.getAgent());
     }
-
-    private void updateUsernamePasswordCredential() {
-        super.identityManager.updateCredential(super.identityManager.getUser(USER_NAME), new Password(USER_PASSWORD));
-    }
-
 }
