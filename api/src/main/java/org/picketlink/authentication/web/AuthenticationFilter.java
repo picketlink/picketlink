@@ -63,7 +63,7 @@ public class AuthenticationFilter implements Filter {
     private Set<String> unprotectedMethods = new HashSet<String>();
 
     public enum AuthType {
-        BASIC, DIGEST, FORM
+        BASIC, DIGEST, FORM, CLIENT_CERT
     }
 
     private AuthType authType = AuthType.BASIC;
@@ -85,6 +85,7 @@ public class AuthenticationFilter implements Filter {
         this.authenticationSchemes.put(AuthType.DIGEST, new DigestAuthenticationScheme(this.realm));
         this.authenticationSchemes.put(AuthType.BASIC, new BasicAuthenticationScheme(this.realm));
         this.authenticationSchemes.put(AuthType.FORM, new FormAuthenticationScheme(this.realm, formLoginPage, formErrorPage));
+        this.authenticationSchemes.put(AuthType.CLIENT_CERT, new ClientCertAuthenticationScheme());
 
         String unprotectedMethodsInitParam = config.getInitParameter(UNPROTECTED_METHODS_INIT_PARAM);
 
@@ -139,15 +140,13 @@ public class AuthenticationFilter implements Filter {
 
                 if (creds.getCredential() != null) {
                     identity.login();
-                    if(authType.equals(AuthType.FORM)){
-                        authenticationScheme.postAuthentication(request,response);
-                        return;
-                    }
                 }
             }
 
             if (identity.isLoggedIn()) {
-                chain.doFilter(servletRequest, servletResponse);
+                if(authenticationScheme.postAuthentication(request,response)) {
+                    chain.doFilter(servletRequest, servletResponse);
+                }
             } else {
                 authenticationScheme.challengeClient(request, response);
             }

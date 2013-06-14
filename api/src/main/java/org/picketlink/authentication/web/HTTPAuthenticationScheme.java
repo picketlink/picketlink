@@ -31,14 +31,38 @@ import org.picketlink.credential.DefaultLoginCredentials;
 
 
 /**
+ * <p>Defines the methods that should be implemented by classes that provide implementations for the HTTP Authentication Schemes
+ * such as BASIC, FORM, DIGEST and CLIENT-CERT.</p>
+ *
  * @author Pedro Silva
  *
  */
 public interface HTTPAuthenticationScheme {
 
+    /**
+     * <p>Extracts the credentials from the given {@link HttpServletRequest} and populate the {@link DefaultLoginCredentials} with them.</p>
+     *
+     * @param request
+     * @param creds
+     */
     void extractCredential(HttpServletRequest request, DefaultLoginCredentials creds);
-    
+
+    /**
+     * <p>Challenges the client if no credentials were supplied or the credentials were not extracted in order to continue with the authentication.</p>
+     *
+     * @param request
+     * @param response
+     * @throws IOException
+     */
     void challengeClient(HttpServletRequest request, HttpServletResponse response) throws IOException;
 
-    void postAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException;
+    /**
+     * <p>Performs any post-authentication logic regarding of the authentication result.</p>
+     *
+     * @param request
+     * @param response
+     * @return true if the processing should continue, false if the processing should stop.
+     * @throws IOException
+     */
+    boolean postAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException;
 }
