@@ -53,6 +53,7 @@ import org.picketlink.test.idm.partition.RealmManagementTestCase;
 import org.picketlink.test.idm.partition.TierManagementTestCase;
 import org.picketlink.test.idm.query.AgentQueryTestCase;
 import org.picketlink.test.idm.query.GroupQueryTestCase;
+import org.picketlink.test.idm.query.IdentityTypeQueryTestCase;
 import org.picketlink.test.idm.query.RoleQueryTestCase;
 import org.picketlink.test.idm.query.UserQueryTestCase;
 import org.picketlink.test.idm.relationship.AgentGrantRelationshipTestCase;
@@ -77,7 +78,7 @@ import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ UserManagementTestCase.class, AgentManagementTestCase.class, RoleManagementTestCase.class,
+@SuiteClasses({IdentityTypeQueryTestCase.class, UserManagementTestCase.class, AgentManagementTestCase.class, RoleManagementTestCase.class,
     GroupManagementTestCase.class, CertificateCredentialTestCase.class, DigestCredentialTestCase.class,
     PasswordCredentialTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class, AgentQueryTestCase.class,
     RoleQueryTestCase.class, AgentGrantRelationshipTestCase.class, AgentGroupRoleRelationshipTestCase.class,

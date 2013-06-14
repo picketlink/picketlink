@@ -40,6 +40,7 @@ import org.picketlink.test.idm.partition.RealmManagementTestCase;
 import org.picketlink.test.idm.partition.TierManagementTestCase;
 import org.picketlink.test.idm.query.AgentQueryTestCase;
 import org.picketlink.test.idm.query.GroupQueryTestCase;
+import org.picketlink.test.idm.query.IdentityTypeQueryTestCase;
 import org.picketlink.test.idm.query.RoleQueryTestCase;
 import org.picketlink.test.idm.query.UserQueryTestCase;
 import org.picketlink.test.idm.relationship.AgentGrantRelationshipTestCase;
@@ -68,10 +69,11 @@ import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
         GroupManagementTestCase.class, CertificateCredentialTestCase.class, DigestCredentialTestCase.class,
         PasswordCredentialTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class, AgentQueryTestCase.class,
         RoleQueryTestCase.class, AgentGrantRelationshipTestCase.class, AgentGroupRoleRelationshipTestCase.class,
-        AgentGroupsRelationshipTestCase.class, CustomRelationshipTestCase.class, GroupGrantRelationshipTestCase.class,
-        GroupMembershipTestCase.class, UserGrantRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
-        ApplicationRegistrationTestCase.class, ApplicationUserRelationshipTestCase.class, RealmManagementTestCase.class,
-        TierManagementTestCase.class, OTPCredentialTestCase.class})
+        IdentityTypeQueryTestCase.class, AgentGroupsRelationshipTestCase.class, CustomRelationshipTestCase.class,
+        GroupGrantRelationshipTestCase.class, GroupMembershipTestCase.class, UserGrantRelationshipTestCase.class,
+        UserGroupRoleRelationshipTestCase.class, ApplicationRegistrationTestCase.class,
+        ApplicationUserRelationshipTestCase.class, RealmManagementTestCase.class, TierManagementTestCase.class,
+        OTPCredentialTestCase.class})
 public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     private static FileIdentityStoreTestSuite instance;
