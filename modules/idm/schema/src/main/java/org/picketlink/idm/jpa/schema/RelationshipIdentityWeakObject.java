@@ -18,20 +18,20 @@
 
 package org.picketlink.idm.jpa.schema;
 
-import org.picketlink.idm.jpa.annotations.OwnerReference;
-import org.picketlink.idm.jpa.annotations.Parent;
-import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
-import org.picketlink.idm.jpa.annotations.RelationshipIdentity;
+import java.io.Serializable;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import java.io.Serializable;
+
+import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
+import org.picketlink.idm.jpa.annotations.RelationshipMember;
 
 /**
  * <p>
- * JPA {@link Entity} to store the IdentityType instances associated with a specific {@link RelationshipObject}. This
+ * JPA {@link Entity} to store the IdentityType instances associated with a specific {@link Relationship}. This
  * class should be used when the JPA store is NOT being used to store IdentityType instances, where only the id is
  * stored.
  * </p>
@@ -42,7 +42,6 @@ import java.io.Serializable;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@RelationshipIdentity
 @Entity
 public class RelationshipIdentityWeakObject implements Serializable {
 
@@ -55,12 +54,12 @@ public class RelationshipIdentityWeakObject implements Serializable {
     @RelationshipDescriptor
     private String descriptor;
 
-    @OwnerReference
-    private String identityObjectId;
+    @RelationshipMember
+    private String identityId;
 
-    @Parent
+    @OwnerReference
     @ManyToOne
-    private RelationshipObject relationshipObject;
+    private Relationship relationshipObject;
 
     public Long getId() {
         return id;
@@ -70,19 +69,19 @@ public class RelationshipIdentityWeakObject implements Serializable {
         this.id = id;
     }
 
-    public String getIdentityObjectId() {
-        return identityObjectId;
+    public String getIdentityId() {
+        return identityId;
     }
 
-    public void setIdentityObjectId(String identityObjectId) {
-        this.identityObjectId = identityObjectId;
+    public void setIdentityId(String identityId) {
+        this.identityId = identityId;
     }
 
-    public RelationshipObject getRelationshipObject() {
+    public Relationship getRelationshipObject() {
         return relationshipObject;
     }
 
-    public void setRelationshipObject(RelationshipObject relationshipObject) {
+    public void setRelationshipObject(Relationship relationshipObject) {
         this.relationshipObject = relationshipObject;
     }
 

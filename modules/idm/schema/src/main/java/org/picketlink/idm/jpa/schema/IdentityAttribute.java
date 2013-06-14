@@ -22,7 +22,7 @@ import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.AttributeOf;
-import org.picketlink.idm.jpa.annotations.Parent;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -38,7 +38,7 @@ import java.io.Serializable;
  */
 @AttributeOf
 @Entity
-public class IdentityObjectAttribute implements Serializable {
+public class IdentityAttribute implements Serializable {
 
     private static final long serialVersionUID = 3072864795743589609L;
 
@@ -48,7 +48,7 @@ public class IdentityObjectAttribute implements Serializable {
 
     @ManyToOne
     @JoinColumn
-    @Parent
+    @OwnerReference
     private IdentityObject identityObject;
 
     @AttributeName
@@ -111,7 +111,7 @@ public class IdentityObjectAttribute implements Serializable {
             return false;
         }
 
-        IdentityObjectAttribute other = (IdentityObjectAttribute) obj;
+        IdentityAttribute other = (IdentityAttribute) obj;
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }

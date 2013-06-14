@@ -18,10 +18,7 @@
 
 package org.picketlink.idm.jpa.schema;
 
-import org.picketlink.idm.jpa.annotations.AttributeName;
-import org.picketlink.idm.jpa.annotations.AttributeValue;
-import org.picketlink.idm.jpa.annotations.CredentialAttribute;
-import org.picketlink.idm.jpa.annotations.Parent;
+import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -29,15 +26,17 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import java.io.Serializable;
+
+import org.picketlink.idm.jpa.annotations.AttributeName;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@CredentialAttribute
 @Entity
-public class CredentialObjectAttribute implements Serializable {
+public class CredentialAttribute implements Serializable {
 
     private static final long serialVersionUID = 1500299957446203938L;
 
@@ -47,8 +46,8 @@ public class CredentialObjectAttribute implements Serializable {
 
     @ManyToOne
     @JoinColumn
-    @Parent
-    private CredentialObject credentialObject;
+    @OwnerReference
+    private Credential credentialObject;
 
     @AttributeName
     private String name;
@@ -65,11 +64,11 @@ public class CredentialObjectAttribute implements Serializable {
         this.id = id;
     }
 
-    public CredentialObject getCredentialObject() {
+    public Credential getCredentialObject() {
         return this.credentialObject;
     }
 
-    public void setCredentialObject(CredentialObject credentialObject) {
+    public void setCredentialObject(Credential credentialObject) {
         this.credentialObject = credentialObject;
     }
 
@@ -99,7 +98,7 @@ public class CredentialObjectAttribute implements Serializable {
             return false;
         }
 
-        CredentialObjectAttribute other = (CredentialObjectAttribute) obj;
+        CredentialAttribute other = (CredentialAttribute) obj;
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }

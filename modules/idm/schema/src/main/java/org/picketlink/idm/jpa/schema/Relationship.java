@@ -15,78 +15,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.idm.jpa.schema.sample;
+
+package org.picketlink.idm.jpa.schema;
+
+import java.io.Serializable;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+
+import org.picketlink.idm.jpa.annotations.Identifier;
+import org.picketlink.idm.jpa.annotations.RelationshipClass;
 
 /**
- * @author pedroigor
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
+ *
  */
 @Entity
-public class Address {
+public class Relationship implements Serializable {
+
+    private static final long serialVersionUID = -7482143409681874546L;
 
     @Id
-    private Long id;
+    @Identifier
+    private String id;
 
-    @ManyToOne
-    private Person person;
+    @RelationshipClass
+    private String relationshipClass;
 
-    private String state;
-
-    private String city;
-
-    private String country;
-
-    private String postalCode;
-
-    public Long getId() {
-        return this.id;
+    public String getId() {
+        return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Person getPerson() {
-        return this.person;
+    public String getRelationshipClass() {
+        return relationshipClass;
     }
 
-    public void setPerson(Person person) {
-        this.person = person;
-    }
-
-    public String getState() {
-        return this.state;
-    }
-
-    public void setState(String street) {
-        this.state = street;
-    }
-
-    public String getCity() {
-        return this.city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getPostalCode() {
-        return this.postalCode;
-    }
-
-    public void setPostalCode(String postalCode) {
-        this.postalCode = postalCode;
-    }
-
-    public String getCountry() {
-        return this.country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
+    public void setRelationshipClass(String relationshipClass) {
+        this.relationshipClass = relationshipClass;
     }
 
     @Override
@@ -99,7 +68,7 @@ public class Address {
             return false;
         }
 
-        Address other = (Address) obj;
+        Relationship other = (Relationship) obj;
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }

@@ -18,12 +18,8 @@
 
 package org.picketlink.idm.jpa.schema;
 
-import org.picketlink.idm.jpa.annotations.CredentialClass;
-import org.picketlink.idm.jpa.annotations.CredentialValue;
-import org.picketlink.idm.jpa.annotations.EffectiveDate;
-import org.picketlink.idm.jpa.annotations.ExpiryDate;
-import org.picketlink.idm.jpa.annotations.IdentityCredential;
-import org.picketlink.idm.jpa.annotations.Parent;
+import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -31,16 +27,19 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import java.io.Serializable;
-import java.util.Date;
+
+import org.picketlink.idm.jpa.annotations.CredentialClass;
+import org.picketlink.idm.jpa.annotations.CredentialValue;
+import org.picketlink.idm.jpa.annotations.EffectiveDate;
+import org.picketlink.idm.jpa.annotations.ExpiryDate;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@IdentityCredential
 @Entity
-public class CredentialObject implements Serializable {
+public class Credential implements Serializable {
 
     private static final long serialVersionUID = -5133066075760567565L;
 
@@ -62,7 +61,7 @@ public class CredentialObject implements Serializable {
     @Temporal (TemporalType.TIMESTAMP)
     private Date expiryDate;
 
-    @Parent
+    @OwnerReference
     @ManyToOne
     private IdentityObject identityType;
 
@@ -124,7 +123,7 @@ public class CredentialObject implements Serializable {
             return false;
         }
 
-        CredentialObject other = (CredentialObject) obj;
+        Credential other = (Credential) obj;
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }

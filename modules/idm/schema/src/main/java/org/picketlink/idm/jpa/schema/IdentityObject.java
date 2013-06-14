@@ -18,28 +18,21 @@
 
 package org.picketlink.idm.jpa.schema;
 
-import org.picketlink.idm.jpa.annotations.CreationDate;
-import org.picketlink.idm.jpa.annotations.Discriminator;
-import org.picketlink.idm.jpa.annotations.Email;
-import org.picketlink.idm.jpa.annotations.Enabled;
-import org.picketlink.idm.jpa.annotations.ExpiryDate;
-import org.picketlink.idm.jpa.annotations.FirstName;
-import org.picketlink.idm.jpa.annotations.GroupPath;
-import org.picketlink.idm.jpa.annotations.Identifier;
-import org.picketlink.idm.jpa.annotations.IdentityName;
-import org.picketlink.idm.jpa.annotations.IdentityPartition;
-import org.picketlink.idm.jpa.annotations.IdentityType;
-import org.picketlink.idm.jpa.annotations.LastName;
-import org.picketlink.idm.jpa.annotations.LoginName;
-import org.picketlink.idm.jpa.annotations.Parent;
+import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import java.io.Serializable;
-import java.util.Date;
+
+import org.picketlink.idm.jpa.annotations.CreationDate;
+import org.picketlink.idm.jpa.annotations.Enabled;
+import org.picketlink.idm.jpa.annotations.ExpiryDate;
+import org.picketlink.idm.jpa.annotations.Identifier;
+import org.picketlink.idm.jpa.annotations.IdentityClass;
+import org.picketlink.idm.model.annotation.IdentityPartition;
 
 /**
  * <p>JPA {@link Entity} that maps IdentityType instances.</p>
@@ -47,37 +40,21 @@ import java.util.Date;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@IdentityType
 @Entity
 public class IdentityObject implements Serializable {
 
     private static final long serialVersionUID = -9155861474157098664L;
 
-    @Discriminator
-    private String discriminator;
+    @IdentityClass
+    private String identityClass;
 
     @IdentityPartition
     @ManyToOne
-    private PartitionObject partition;
+    private Partition partition;
 
     @Identifier
     @Id
     private String id;
-
-    @LoginName
-    private String loginName;
-
-    @IdentityName
-    private String name;
-
-    @FirstName
-    private String firstName;
-
-    @LastName
-    private String lastName;
-
-    @Email
-    private String email;
 
     @Enabled
     private boolean enabled;
@@ -90,21 +67,6 @@ public class IdentityObject implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date expiryDate;
 
-    @Parent
-    @ManyToOne
-    private IdentityObject parent;
-
-    @GroupPath
-    private String groupPath;
-
-    public String getDiscriminator() {
-        return this.discriminator;
-    }
-
-    public void setDiscriminator(String discriminator) {
-        this.discriminator = discriminator;
-    }
-
     public String getId() {
         return this.id;
     }
@@ -113,52 +75,12 @@ public class IdentityObject implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public PartitionObject getPartition() {
+    public Partition getPartition() {
         return partition;
     }
 
-    public void setPartition(PartitionObject partition) {
+    public void setPartition(Partition partition) {
         this.partition = partition;
-    }
-
-    public String getLoginName() {
-        return loginName;
-    }
-
-    public void setLoginName(String loginName) {
-        this.loginName = loginName;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public boolean isEnabled() {
@@ -183,14 +105,6 @@ public class IdentityObject implements Serializable {
 
     public void setExpiryDate(Date expiryDate) {
         this.expiryDate = expiryDate;
-    }
-
-    public IdentityObject getParent() {
-        return this.parent;
-    }
-
-    public void setParent(IdentityObject parent) {
-        this.parent = parent;
     }
 
     @Override

@@ -15,28 +15,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.idm.jpa.schema.sample;
+
+package org.picketlink.idm.jpa.schema;
+
+import java.io.Serializable;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import org.picketlink.idm.jpa.annotations.Partition;
+
+import org.picketlink.idm.jpa.annotations.Identifier;
+import org.picketlink.idm.jpa.annotations.PartitionClass;
+import org.picketlink.idm.jpa.annotations.PartitionName;
 
 /**
- * @author pedroigor
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
+ *
  */
 @Entity
-@Partition
-public class Application {
+public class Partition implements Serializable {
 
+    private static final long serialVersionUID = 3488600508986507443L;
+
+    @Identifier
     @Id
     private String id;
 
+    @PartitionClass
+    private String partitionClass;
+
+    @PartitionName
+    private String name;
+
     public String getId() {
-        return this.id;
+        return id;
     }
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPartitionClass() {
+        return partitionClass;
+    }
+
+    public void setPartitionClass(String partitionClass) {
+        this.partitionClass = partitionClass;
     }
 
     @Override
@@ -49,7 +80,7 @@ public class Application {
             return false;
         }
 
-        Application other = (Application) obj;
+        Partition other = (Partition) obj;
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }

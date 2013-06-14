@@ -23,7 +23,7 @@ import org.picketlink.Identity;
 import org.picketlink.authentication.web.AuthenticationFilter;
 import org.picketlink.authentication.web.HTTPAuthenticationScheme;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.User;
 
 public class AuthenticationFilterTestCase {
 

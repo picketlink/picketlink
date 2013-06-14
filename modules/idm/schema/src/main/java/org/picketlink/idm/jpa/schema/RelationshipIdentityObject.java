@@ -18,20 +18,20 @@
 
 package org.picketlink.idm.jpa.schema;
 
-import org.picketlink.idm.jpa.annotations.OwnerReference;
-import org.picketlink.idm.jpa.annotations.Parent;
-import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
-import org.picketlink.idm.jpa.annotations.RelationshipIdentity;
+import java.io.Serializable;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import java.io.Serializable;
+
+import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
+import org.picketlink.idm.jpa.annotations.RelationshipMember;
 
 /**
  * <p>
- * JPA {@link Entity} to store the IdentityType instances associated with a specific {@link RelationshipObject}. This
+ * JPA {@link Entity} to store the IdentityType instances associated with a specific {@link Relationship}. This
  * class should be used when the JPA store is being used to store IdentityType instances, forcing the their existence on
  * the database.
  * </p>
@@ -39,7 +39,6 @@ import java.io.Serializable;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@RelationshipIdentity
 @Entity
 public class RelationshipIdentityObject implements Serializable {
 
@@ -52,13 +51,13 @@ public class RelationshipIdentityObject implements Serializable {
     @RelationshipDescriptor
     private String descriptor;
 
-    @OwnerReference
+    @RelationshipMember
     @ManyToOne
     private IdentityObject identityObject;
 
-    @Parent
+    @OwnerReference
     @ManyToOne
-    private RelationshipObject relationshipObject;
+    private Relationship relationshipObject;
 
     public Long getId() {
         return id;
@@ -76,11 +75,11 @@ public class RelationshipIdentityObject implements Serializable {
         this.identityObject = identityObject;
     }
 
-    public RelationshipObject getRelationshipObject() {
+    public Relationship getRelationshipObject() {
         return relationshipObject;
     }
 
-    public void setRelationshipObject(RelationshipObject relationshipObject) {
+    public void setRelationshipObject(Relationship relationshipObject) {
         this.relationshipObject = relationshipObject;
     }
 
