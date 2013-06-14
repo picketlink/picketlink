@@ -48,7 +48,10 @@ import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.test.integration.AbstractJPADeploymentTestCase;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.credential.Credentials.Status.INVALID;
@@ -108,6 +111,8 @@ public class CustomIDMCredentialTestCase extends AbstractJPADeploymentTestCase {
         this.identity.login();
 
         assertTrue(this.identity.isLoggedIn());
+        assertNotNull(this.identity.getAgent());
+        assertEquals(USER_NAME, this.identity.getAgent().getLoginName());
     }
 
     @Test
@@ -118,6 +123,7 @@ public class CustomIDMCredentialTestCase extends AbstractJPADeploymentTestCase {
         this.identity.login();
 
         assertFalse(this.identity.isLoggedIn());
+        assertNull(this.identity.getAgent());
     }
 
     @ApplicationScoped
