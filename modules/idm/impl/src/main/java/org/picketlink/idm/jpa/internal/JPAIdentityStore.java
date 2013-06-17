@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -84,7 +83,6 @@ import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
-import static javax.persistence.criteria.CriteriaBuilder.In;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
