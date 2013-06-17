@@ -21,8 +21,8 @@ package org.picketlink.idm.jpa.internal;
 import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
+import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
+import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld.PropertyType;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.spi.SecurityContext;
 
@@ -38,7 +38,7 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
 
     @Override
     protected void doPopulateIdentityInstance(SecurityContext context, Object toIdentity, Agent fromUser, JPAIdentityStore store) {
-        JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
+        JPAIdentityStoreConfigurationOld jpaConfig = store.getConfig();
 
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupAndCreatePartitionObject(

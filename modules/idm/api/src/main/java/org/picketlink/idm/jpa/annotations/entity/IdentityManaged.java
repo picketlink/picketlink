@@ -15,25 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.picketlink.idm.jpa.annotations.entity;
 
-package org.picketlink.idm.model.annotation;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import org.picketlink.idm.model.AttributedType;
 
 /**
- * Marks the property of a Relationship as an identity that participates in the relationship.
+ * This annotation is applied to an entity bean to indicate that it is used to store identity-related
+ * state. The value member may be used to specify the exact classes for which state is stored.
  *
  * @author Shane Bryzak
  */
-@Target({METHOD, FIELD})
-@Documented
-@Retention(RUNTIME)
-@Inherited
-public @interface IdentityProperty { }
+public @interface IdentityManaged {
+    Class<? extends AttributedType>[] value() default {};
+}

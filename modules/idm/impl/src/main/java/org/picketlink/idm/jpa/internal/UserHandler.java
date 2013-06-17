@@ -21,8 +21,8 @@ package org.picketlink.idm.jpa.internal;
 import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
+import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
+import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld.PropertyType;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.spi.SecurityContext;
 
@@ -41,7 +41,7 @@ public class UserHandler extends IdentityTypeHandler<User>{
 
     @Override
     protected void doPopulateIdentityInstance(SecurityContext context, Object toIdentity, User fromUser, JPAIdentityStore store) {
-        JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
+        JPAIdentityStoreConfigurationOld jpaConfig = store.getConfig();
 
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupAndCreatePartitionObject(
                 context, context.getPartition()), true);
@@ -56,7 +56,7 @@ public class UserHandler extends IdentityTypeHandler<User>{
     public List<Predicate> getPredicate(SecurityContext context, JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
         List<Predicate> predicates = super.getPredicate(context, criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
-        JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
+        JPAIdentityStoreConfigurationOld jpaConfig = store.getConfig();
 
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(User.LOGIN_NAME);
 
@@ -95,7 +95,7 @@ public class UserHandler extends IdentityTypeHandler<User>{
 
     @Override
     protected User doCreateIdentityType(SecurityContext context, Object identity, JPAIdentityStore store) {
-        JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
+        JPAIdentityStoreConfigurationOld jpaConfig = store.getConfig();
 
         String loginName = jpaConfig.getModelProperty(PropertyType.AGENT_LOGIN_NAME).getValue(identity).toString();
 

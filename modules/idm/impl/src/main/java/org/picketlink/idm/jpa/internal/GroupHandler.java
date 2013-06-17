@@ -26,8 +26,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
+import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
+import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld.PropertyType;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.query.RelationshipQuery;
@@ -48,7 +48,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
     @Override
     protected void doPopulateIdentityInstance(SecurityContext context, Object toIdentity, Group fromGroup,
             JPAIdentityStore store) {
-        JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
+        JPAIdentityStoreConfigurationOld jpaConfig = store.getConfig();
 
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
                 store.lookupAndCreatePartitionObject(context, context.getPartition()), true);
@@ -80,7 +80,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
      */
     private void disassociateChildren(SecurityContext context, Group group, JPAIdentityStore store) {
         EntityManager em = store.getEntityManager(context);
-        JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
+        JPAIdentityStoreConfigurationOld jpaConfig = store.getConfig();
 
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<?> criteria = builder.createQuery(jpaConfig.getIdentityClass());
@@ -106,7 +106,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
     protected Group doCreateIdentityType(SecurityContext context, Object identity, JPAIdentityStore store) {
         Group group = null;
 
-        JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
+        JPAIdentityStoreConfigurationOld jpaConfig = store.getConfig();
 
         Object parentInstance = jpaConfig.getModelPropertyValue(Object.class, identity, PropertyType.GROUP_PARENT);
 
@@ -128,7 +128,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
     public List<Predicate> getPredicate(SecurityContext context, JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
         List<Predicate> predicates = super.getPredicate(context, criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
-        JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
+        JPAIdentityStoreConfigurationOld jpaConfig = store.getConfig();
 
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(Group.NAME);
 

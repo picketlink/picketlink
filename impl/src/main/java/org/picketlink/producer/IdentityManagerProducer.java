@@ -30,7 +30,7 @@ import org.picketlink.annotations.PicketLink;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.model.sample.Realm;
@@ -86,7 +86,7 @@ public class IdentityManagerProducer {
             loadAutoConfig(builder);
         }
         
-        if (builder.stores().isConfigured(JPAIdentityStoreConfiguration.class)) {
+        if (builder.stores().isConfigured(JPAIdentityStoreConfigurationOld.class)) {
             builder.stores().jpa().addContextInitializer(this.jpaContextInitializer);
         }
 

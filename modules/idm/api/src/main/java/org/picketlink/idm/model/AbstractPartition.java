@@ -28,7 +28,7 @@ package org.picketlink.idm.model;
  * @author Pedro Silva
  *
  */
-public abstract class AbstractPartition implements Partition {
+public abstract class AbstractPartition extends AbstractAttributedType implements Partition {
 
     private static final long serialVersionUID = -6899014824481928333L;
 

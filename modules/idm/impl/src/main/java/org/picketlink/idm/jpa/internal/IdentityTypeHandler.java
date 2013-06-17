@@ -32,8 +32,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 import org.picketlink.common.util.Base64;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
+import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
+import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld.PropertyType;
 import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.AttributedType.AttributeParameter;
 import org.picketlink.idm.model.sample.Grant;
@@ -81,7 +81,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     public T createIdentityType(SecurityContext context, Object identity, JPAIdentityStore store) {
         T identityType = doCreateIdentityType(context, identity, store);
 
-        JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
+        JPAIdentityStoreConfigurationOld jpaConfig = store.getConfig();
 
         identityType.setId(jpaConfig.getModelPropertyValue(String.class, identity, PropertyType.IDENTITY_ID));
         identityType.setEnabled(jpaConfig.getModelPropertyValue(Boolean.class, identity, PropertyType.IDENTITY_ENABLED));
@@ -111,7 +111,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     public Object createEntity(SecurityContext context, T fromIdentityType, JPAIdentityStore store) {
         Object identity = null;
 
-        JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
+        JPAIdentityStoreConfigurationOld jpaConfig = store.getConfig();
 
         try {
             identity = jpaConfig.getIdentityClass().newInstance();
@@ -140,7 +140,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * @param fromIdentityType
      */
     protected void populateEntity(SecurityContext context, Object toIdentity, T fromIdentityType, JPAIdentityStore store) {
-        JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
+        JPAIdentityStoreConfigurationOld jpaConfig = store.getConfig();
 
         // populate the common properties from IdentityType
         String identityDiscriminator = jpaConfig.getIdentityTypeDiscriminator(fromIdentityType.getClass());
@@ -262,7 +262,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         Map<QueryParameter, Object[]> parameters = criteria.getIdentityQuery().getParameters(
                 IdentityType.AttributeParameter.class);
 
-        JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
+        JPAIdentityStoreConfigurationOld jpaConfig = store.getConfig();
 
         Set<Entry<QueryParameter, Object[]>> entrySet = parameters.entrySet();
 
@@ -304,7 +304,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
             JPAIdentityStore store) {
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.HAS_ROLE);
 
-        JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
+        JPAIdentityStoreConfigurationOld jpaConfig = store.getConfig();
 
         if (parameterValues != null) {
             for (Object role : parameterValues) {
@@ -339,7 +339,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
             JPAIdentityStore store) {
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.MEMBER_OF);
 
-        JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
+        JPAIdentityStoreConfigurationOld jpaConfig = store.getConfig();
 
         if (parameterValues != null) {
             for (Object group : parameterValues) {
@@ -392,7 +392,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
                 List<GroupRole> resultList = query.getResultList();
 
-                JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
+                JPAIdentityStoreConfigurationOld jpaConfig = store.getConfig();
 
                 if (!resultList.isEmpty()) {
                     List<String> relIds = new ArrayList<String>();
@@ -486,7 +486,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
     private void findByPartition(SecurityContext context, JPACriteriaQueryBuilder criteria, List<Predicate> predicates,
             JPAIdentityStore store) {
-        JPAIdentityStoreConfiguration config = store.getConfig();
+        JPAIdentityStoreConfigurationOld config = store.getConfig();
 
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.PARTITION);
 

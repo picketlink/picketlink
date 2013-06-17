@@ -30,7 +30,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
 import org.picketlink.idm.config.JPAStoreConfigurationBuilder;
 import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.config.SecurityConfigurationException;
@@ -60,7 +60,7 @@ import static org.junit.Assert.fail;
 
 /**
  * <p>
- * Test case for the {@link JPAIdentityStoreConfiguration}.
+ * Test case for the {@link JPAIdentityStoreConfigurationOld}.
  * </p>
  * * @author Pedro Silva
  * 

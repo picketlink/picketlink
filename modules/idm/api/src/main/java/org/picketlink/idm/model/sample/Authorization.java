@@ -21,7 +21,6 @@ package org.picketlink.idm.model.sample;
 import org.picketlink.idm.model.AbstractAttributedType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.AttributeProperty;
-import org.picketlink.idm.model.annotation.IdentityProperty;
 import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
@@ -66,7 +65,6 @@ public class Authorization extends AbstractAttributedType implements Relationshi
         this.application = application;
     }
 
-    @IdentityProperty
     public User getUser() {
         return user;
     }
@@ -75,7 +73,6 @@ public class Authorization extends AbstractAttributedType implements Relationshi
         this.user = user;
     }
 
-    @IdentityProperty
     public Agent getApplication() {
         return application;
     }

@@ -15,26 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.idm.jpa.annotations;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+package org.picketlink.idm.jpa.annotations.entity;
 
 /**
- * Marks the effective date property of a credential entity
+ * This annotation is applied to an entity class to indicate that it contains managed
+ * credential-related state.  The supportedClasses member may be used to specify exactly
+ * which credential classes are stored in the entity, allowing multiple entities to be used
+ * to store a variety of credential types.
  *
  * @author Shane Bryzak
  */
-@Target({METHOD, FIELD})
-@Documented
-@Retention(RUNTIME)
-@Inherited
-public @interface EffectiveDate {
-
+public @interface ManagedCredential {
+    Class[] supportedClasses() default {};
 }

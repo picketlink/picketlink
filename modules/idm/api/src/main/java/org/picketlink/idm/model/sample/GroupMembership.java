@@ -20,7 +20,6 @@ package org.picketlink.idm.model.sample;
 
 import org.picketlink.idm.model.AbstractAttributedType;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.annotation.IdentityProperty;
 import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
@@ -60,7 +59,6 @@ public class GroupMembership extends AbstractAttributedType implements Relations
         this.group = group;
     }
 
-    @IdentityProperty
     public Agent getMember() {
         return member;
     }
@@ -69,7 +67,6 @@ public class GroupMembership extends AbstractAttributedType implements Relations
         this.member = member;
     }
 
-    @IdentityProperty
     public Group getGroup() {
         return group;
     }

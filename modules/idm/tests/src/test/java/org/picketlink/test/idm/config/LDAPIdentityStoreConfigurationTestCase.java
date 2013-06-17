@@ -44,7 +44,7 @@ import static org.junit.Assert.fail;
 
 /**
  * <p>
- * Test case for the {@link JPAIdentityStoreConfiguration}.
+ * Test case for the {@link JPAIdentityStoreConfigurationOld}.
  * </p>
  * 
  * @author Pedro Silva

@@ -46,9 +46,9 @@ import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration.MappedAttribute;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
+import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
+import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld.MappedAttribute;
+import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld.PropertyType;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.internal.DigestCredentialHandler;
 import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
@@ -97,7 +97,7 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
  *
  */
 @CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class })
-public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfiguration> {
+public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigurationOld> {
 
     // Invocation context parameters
     public static final String INVOCATION_CTX_ENTITY_MANAGER = "CTX_ENTITY_MANAGER";
@@ -108,15 +108,15 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     /**
      * The configuration for this instance
      */
-    private JPAIdentityStoreConfiguration config;
+    private JPAIdentityStoreConfigurationOld config;
 
     @Override
-    public void setup(JPAIdentityStoreConfiguration config) {
+    public void setup(JPAIdentityStoreConfigurationOld config) {
         this.config = config;
     }
 
     @Override
-    public JPAIdentityStoreConfiguration getConfig() {
+    public JPAIdentityStoreConfigurationOld getConfig() {
         return config;
     }
 

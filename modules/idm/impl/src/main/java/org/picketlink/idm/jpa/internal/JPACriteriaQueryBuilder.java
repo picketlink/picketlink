@@ -26,8 +26,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
+import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
+import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld.PropertyType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.spi.SecurityContext;
@@ -101,7 +101,7 @@ public class JPACriteriaQueryBuilder {
         return this.identityQuery;
     }
 
-    private JPAIdentityStoreConfiguration getConfig() {
+    private JPAIdentityStoreConfigurationOld getConfig() {
         return this.identityStore.getConfig();
     }
 

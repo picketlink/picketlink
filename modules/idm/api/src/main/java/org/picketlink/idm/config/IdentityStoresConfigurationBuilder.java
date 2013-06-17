@@ -47,7 +47,7 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
         super(builder);
 
         this.supportedStoreBuilders.put(FileIdentityStoreConfiguration.class, FileStoreConfigurationBuilder.class);
-        this.supportedStoreBuilders.put(JPAIdentityStoreConfiguration.class, JPAStoreConfigurationBuilder.class);
+        this.supportedStoreBuilders.put(JPAIdentityStoreConfigurationOld.class, JPAStoreConfigurationBuilder.class);
         this.supportedStoreBuilders.put(LDAPIdentityStoreConfiguration.class, LDAPStoreConfigurationBuilder.class);
     }
 
@@ -61,7 +61,7 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
     }
 
     public JPAStoreConfigurationBuilder jpa() {
-        return forIdentityStoreConfig(JPAIdentityStoreConfiguration.class, true);
+        return forIdentityStoreConfig(JPAIdentityStoreConfigurationOld.class, true);
     }
 
     public LDAPStoreConfigurationBuilder ldap() {

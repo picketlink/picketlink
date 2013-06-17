@@ -28,7 +28,7 @@ import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
@@ -69,7 +69,7 @@ public class DefaultStoreFactory implements StoreFactory {
     private Map<String, Tier> configuredTiers = new HashMap<String, Tier>();
 
     public DefaultStoreFactory(IdentityConfiguration identityConfig) {
-        this.identityConfigMap.put(JPAIdentityStoreConfiguration.class, JPAIdentityStore.class);
+        this.identityConfigMap.put(JPAIdentityStoreConfigurationOld.class, JPAIdentityStore.class);
         this.identityConfigMap.put(LDAPIdentityStoreConfiguration.class, LDAPIdentityStore.class);
         this.identityConfigMap.put(FileIdentityStoreConfiguration.class, FileBasedIdentityStore.class);
 
