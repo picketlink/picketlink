@@ -213,7 +213,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
 
                             List<Object> parents = getParentGroups(criteria, store, builder, childObject);
 
-                            predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(parents));
+                            predicates.add(criteria.getRoot().in(parents));
                         } catch (IdentityManagementException ime) {
                             // the type may not exists
                         }

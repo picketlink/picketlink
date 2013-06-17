@@ -84,6 +84,7 @@ import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
+import static javax.persistence.criteria.CriteriaBuilder.In;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
@@ -1476,13 +1477,11 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
             Property<Object> relationshipProperty = getConfig().getModelProperty(
                     PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP);
 
-            Set<Entry<QueryParameter, Object[]>> parameters = query.getParameters().entrySet();
-
-            for (Entry<QueryParameter, Object[]> entry : parameters) {
+            for (Entry<QueryParameter, Object[]> entry : query.getParameters().entrySet()) {
                 QueryParameter queryParameter = entry.getKey();
                 Object[] values = entry.getValue();
 
-                if (entry.getKey() instanceof RelationshipQueryParameter) {
+                if (queryParameter instanceof RelationshipQueryParameter) {
                     RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) entry.getKey();
 
                     for (Object object : values) {
@@ -1510,52 +1509,33 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
                                 }
                             }
 
-                            List<String> objects = new ArrayList<String>();
+                            List<String> identityTypeIdentifiers = new ArrayList<String>();
 
-                            objects.add(identityType.getId());
+                            identityTypeIdentifiers.add(identityType.getId());
 
                             if (Group.class.isInstance(identityType) && !matchExactGroup) {
                                 List<Group> groupParents = getParentGroups(context, (Group) identityType);
 
                                 for (Group group : groupParents) {
-                                    objects.add(group.getId());
+                                    identityTypeIdentifiers.add(group.getId());
                                 }
                             }
 
                             Subquery<?> subquery = criteria.subquery(getConfig().getRelationshipIdentityClass());
-                            Root fromProject = subquery.from(getConfig().getRelationshipIdentityClass());
-                            subquery.select(fromProject.get(relationshipProperty.getName()));
+                            Root fromRelationshipIdentityType = subquery.from(getConfig().getRelationshipIdentityClass());
+                            subquery.select(fromRelationshipIdentityType.get(relationshipProperty.getName()));
 
                             Predicate conjunction = builder.conjunction();
 
                             conjunction.getExpressions().add(
-                                    builder.equal(fromProject.get(descriptorProperty.getName()),
+                                    builder.equal(fromRelationshipIdentityType.get(descriptorProperty.getName()),
                                             identityTypeParameter.getName()));
 
                             if (identityProperty.getJavaClass().equals(String.class)) {
-                                conjunction.getExpressions().add(
-                                        builder.in(fromProject.get(identityProperty.getName())).value(objects));
+                                conjunction.getExpressions().add(fromRelationshipIdentityType.get(identityProperty.getName()).in(identityTypeIdentifiers));
                             } else {
-                                List<Object> identityObjects = new ArrayList<Object>();
-
-                                for (String id : objects) {
-                                    Object identityObject = null;
-
-                                    try {
-                                        identityObject = lookupIdentityObjectById(context, id);
-                                    } catch (IdentityManagementException ime) {
-                                        // we ignore, the type may not exists
-                                    }
-
-                                    if (identityObject != null) {
-                                        identityObjects.add(identityObject);
-                                    }
-                                }
-
-                                if (!identityObjects.isEmpty()) {
-                                    conjunction.getExpressions().add(
-                                            builder.in(fromProject.get(identityProperty.getName())).value(identityObjects));
-                                }
+                                Join join = fromRelationshipIdentityType.join(identityProperty.getName());
+                                conjunction.getExpressions().add(join.get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()).in(identityTypeIdentifiers));
                             }
 
                             subquery.where(conjunction);
@@ -1565,9 +1545,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
                             return result;
                         }
                     }
-                }
-
-                if (queryParameter instanceof AttributeParameter) {
+                } else if (queryParameter instanceof AttributeParameter) {
                     AttributeParameter customParameter = (AttributeParameter) queryParameter;
 
                     Subquery<?> subquery = criteria.subquery(getConfig().getRelationshipAttributeClass());
@@ -1590,7 +1568,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
                                     .getName()));
                     conjunction.getExpressions().add(
                             (fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE).getName())
-                                    .in((Object[]) valuesToSearch)));
+                                    .in(valuesToSearch)));
 
                     subquery.where(conjunction);
 
@@ -1601,9 +1579,10 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
                 }
             }
 
-            criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-
-            queryResult = em.createQuery(criteria).getResultList();
+            if (!predicates.isEmpty()) {
+                criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+                queryResult = em.createQuery(criteria).getResultList();
+            }
         }
 
         for (Object relationshipObject : queryResult) {
