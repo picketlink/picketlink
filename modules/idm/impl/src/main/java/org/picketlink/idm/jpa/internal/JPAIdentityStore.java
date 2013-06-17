@@ -1577,10 +1577,9 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
                 }
             }
 
-            if (!predicates.isEmpty()) {
-                criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-                queryResult = em.createQuery(criteria).getResultList();
-            }
+            criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+
+            queryResult = em.createQuery(criteria).getResultList();
         }
 
         for (Object relationshipObject : queryResult) {
