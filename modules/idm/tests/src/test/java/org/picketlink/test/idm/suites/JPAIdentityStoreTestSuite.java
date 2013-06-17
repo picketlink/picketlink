@@ -21,6 +21,7 @@ package org.picketlink.test.idm.suites;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
@@ -33,7 +34,7 @@ import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
 import org.picketlink.idm.jpa.schema.IdentityObject;
 import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
 import org.picketlink.idm.jpa.schema.PartitionObject;
-import org.picketlink.idm.jpa.schema.RelationshipIdentityWeakObject;
+import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.Authorization;
@@ -121,7 +122,7 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
                     .identityClass(IdentityObject.class)
                     .attributeClass(IdentityObjectAttribute.class)
                     .relationshipClass(RelationshipObject.class)
-                    .relationshipIdentityClass(RelationshipIdentityWeakObject.class)
+                    .relationshipIdentityClass(RelationshipIdentityObject.class)
                     .relationshipAttributeClass(RelationshipObjectAttribute.class)
                     .credentialClass(CredentialObject.class)
                     .credentialAttributeClass(CredentialObjectAttribute.class)
