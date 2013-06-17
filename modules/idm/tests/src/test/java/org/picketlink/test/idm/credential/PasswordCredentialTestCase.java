@@ -127,7 +127,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
 
         Calendar expirationDate = Calendar.getInstance();
 
-        expirationDate.add(Calendar.MINUTE, -1);
+        expirationDate.add(Calendar.MINUTE, -5);
 
         identityManager.updateCredential(user, plainTextPassword, new Date(), expirationDate.getTime());
         UsernamePasswordCredentials credential = new UsernamePasswordCredentials();
