@@ -18,16 +18,10 @@
 
 package org.picketlink.test.idm.query;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
@@ -44,6 +38,10 @@ import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuit
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsFileRelationshipTestSuite;
 import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsRelationshipsTestSuite;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Pedro Silva
@@ -534,7 +532,6 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
-        query.setParameter(IdentityType.ENABLED, identityType.isEnabled());
 
         result = query.getResultList();
 

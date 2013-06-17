@@ -296,7 +296,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
                             customParameter.getName()));
             conjunction.getExpressions().add(
                     (fromProject.get(jpaConfig.getModelProperty(PropertyType.ATTRIBUTE_VALUE).getName())
-                            .in(valuesToSearch)));
+                            .in((Object[]) valuesToSearch)));
 
             subquery.where(conjunction);
 
@@ -519,7 +519,9 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
             ids.add(context.getPartition().getId());
         }
 
-        predicates.add(joinPartition.get(config.getModelProperty(PropertyType.PARTITION_ID).getName()).in(ids));
+        predicates.add(criteria.getBuilder()
+                .in(joinPartition.get(config.getModelProperty(PropertyType.PARTITION_ID).getName()))
+                .value(ids));
     }
 
     private void findById(JPACriteriaQueryBuilder criteria, List<Predicate> predicates, JPAIdentityStore store) {
@@ -531,6 +533,16 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
                     parameterValues[0]));
         }
     }
+
+    // protected void setModelPropertyValue(Object identity, PropertyType propertyType, Object value, boolean notNull,
+    // JPAIdentityStoreConfiguration config) {
+    // config.setModelPropertyValue(identity, propertyType, value, notNull);
+    // }
+    //
+    // protected void setModelPropertyValue(Object identity, PropertyType propertyType, Object value,
+    // JPAIdentityStoreConfiguration config) {
+    // config.setModelPropertyValue(identity, propertyType, value);
+    // }
 
     protected Map<QueryParameter, PropertyType> getSortParametersMapping() {
         return sortParametersMapping;
