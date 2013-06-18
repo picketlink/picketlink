@@ -113,9 +113,9 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
                     if (!isCredentialExpired(hash)) {
                         String rawPassword = new String(usernamePassword.getPassword().getValue());
 
-                        String encoded = this.passwordEncoder.encode(saltPassword(rawPassword, hash.getSalt()));
+                        boolean matches = this.passwordEncoder.verify(saltPassword(rawPassword, hash.getSalt()), hash.getEncodedHash());
 
-                        if (hash.getEncodedHash().equals(encoded)) {
+                        if (matches) {
                             usernamePassword.setStatus(Status.VALID);
                             usernamePassword.setValidatedAgent(agent);
                         }
@@ -140,7 +140,9 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
         String passwordSalt = generateSalt();
 
         hash.setSalt(passwordSalt);
-        hash.setEncodedHash(this.passwordEncoder.encode(saltPassword(rawPassword, passwordSalt)));
+        String encode = this.passwordEncoder.encode(saltPassword(rawPassword, passwordSalt));
+        String encode1 = this.passwordEncoder.encode(saltPassword(rawPassword, passwordSalt));
+        hash.setEncodedHash(encode);
         hash.setEffectiveDate(effectiveDate);
         hash.setExpiryDate(expiryDate);
 

@@ -38,4 +38,9 @@ public class BCryptPasswordEncoder implements PasswordEncoder{
     public String encode(String rawPassword) {
         return BCrypt.hashpw(rawPassword, BCrypt.gensalt(logRounds));
     }
+
+    @Override
+    public boolean verify(String rawPassword, String encodedPassword) {
+        return BCrypt.checkpw(rawPassword, encodedPassword);
+    }
 }

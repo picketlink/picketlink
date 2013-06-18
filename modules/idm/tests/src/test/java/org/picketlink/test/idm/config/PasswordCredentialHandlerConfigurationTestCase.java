@@ -22,20 +22,16 @@
 
 package org.picketlink.test.idm.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.picketlink.idm.credential.internal.PasswordCredentialHandler.PASSWORD_ENCODER;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
@@ -59,6 +55,11 @@ import org.picketlink.idm.model.User;
 import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.password.internal.BCryptPasswordEncoder;
 import org.picketlink.idm.password.internal.SHAPasswordEncoder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.picketlink.idm.credential.internal.PasswordCredentialHandler.PASSWORD_ENCODER;
 
 /**
  * <p>Some tests for the configuration of the encoding when using the {@link PasswordCredentialHandler}.</p>
@@ -203,6 +204,11 @@ public class PasswordCredentialHandlerConfigurationTestCase {
                         public String encode(String rawPassword) {
                             assertionCheck.put("WAS_INVOKED", "true");
                             return rawPassword;
+                        }
+
+                        @Override
+                        public boolean verify(String rawPassword, String encodedPassword) {
+                            return false;
                         }
                     })
                     .addContextInitializer(new JPAContextInitializer(emf) {
