@@ -86,7 +86,6 @@ public class PasswordCredentialHandlerConfigurationTestCase {
         this.emf.close();
     }
 
-    @Ignore
     @Test
     public void testBCryptPasswordEncoder() throws Exception {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
