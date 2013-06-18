@@ -218,8 +218,8 @@ public interface IDMMessages {
     @Message(id = 41, value = "Error initializing JpaIdentityStore - identityClass not set.")
     SecurityConfigurationException jpaConfigIdentityClassNotProvided();
 
-    @Message(id = 42, value = "Error initializing JpaIdentityStore - partitionClass not set.")
-    SecurityConfigurationException jpaConfigPartitionClassNotProvided();
+    @Message(id = 42, value = "Error initializing JpaIdentityStore - no entity classes configured.")
+    SecurityConfigurationException jpaConfigNoEntityClassesProvided();
 
     @Message(id = 43, value = "Multiple properties defined for attribute [%s] - Property: %s.%s, Property: %s.%s")
     SecurityConfigurationException jpaConfigMultiplePropertiesForAttribute(String attribName, Class<?> property,

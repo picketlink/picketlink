@@ -17,6 +17,8 @@
  */
 package org.picketlink.idm.config;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,10 +26,19 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.common.properties.query.PropertyQuery;
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.jpa.annotations.IdentityClass;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.PartitionClass;
+import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
@@ -37,9 +48,10 @@ import org.picketlink.idm.spi.ContextInitializer;
  * Defines the configuration for a JPA based IdentityStore implementation.
  *
  * @author Shane Bryzak
- *
  */
 public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
+
+    private List<Class<?>> entityClasses;
 
     /**
      * The identity model definition, which maps between specific identity types
@@ -87,7 +99,6 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     }
 
     private class PropertyMapping {
-
         private Property entityProperty;
 
     }
@@ -99,19 +110,155 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         private Property<Object> attributeValue;
     }
 
-    protected JPAIdentityStoreConfiguration(Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
+    protected JPAIdentityStoreConfiguration(List<Class<?>> entityClasses, Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
             Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships,
             Map<Class<? extends IdentityType>, Set<FeatureOperation>> supportedIdentityTypes, Set<String> realms,
             Set<String> tiers, List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties, List<Class<? extends CredentialHandler>> credentialHandlers) {
         super(supportedFeatures, supportedRelationships, supportedIdentityTypes, realms, tiers, contextInitializers,
                 credentialHandlerProperties, credentialHandlers);
-        // TODO Auto-generated constructor stub
+
+        if (entityClasses == null) {
+            throw IDMMessages.MESSAGES.jpaConfigNoEntityClassesProvided();
+        }
+
+        this.entityClasses = entityClasses;
     }
 
     @Override
     protected void initConfig() {
-        // TODO Auto-generated method stub
+        // We configure the entity classes in order, so the first step is to sort them
+        sortEntityClasses(entityClasses);
+
+        // Then for each one, we determine what kind of state it holds and configure accordingly
+        for (Class<?> entityClass : entityClasses) {
+            if (isIdentityClass(entityClass)) {
+                configureIdentityClass(entityClass);
+            }
+        }
+    }
+
+    /**
+     * The entity classes are sorted in the following order:
+     *
+     * 1. Primary partition entities
+     * 2. Partition attribute entities
+     * 3. Primary identity entities
+     * 4. Identity attribute entities
+     * 5. Primary credential entities
+     * 6. Credential attribute entities
+     * 7. Primary relationship entity
+     * 8. Relationship identity entity
+     * 9. Relationship attribute entities
+     *
+     * @param entityClasses
+     */
+    private void sortEntityClasses(List<Class<?>> entityClasses) {
+        Collections.sort(entityClasses, new Comparator<Class<?>>() {
+            @Override
+            public int compare(Class<?> arg0, Class<?> arg1) {
+                int arg0weight = isPartitionClass(arg0) ? 9 :
+                    (isPartitionAttributeClass(arg0) ? 8 :
+                    (isIdentityClass(arg0) ? 7 :
+                    (isIdentityAttributeClass(arg0) ? 6 :
+                    (isCredentialClass(arg0) ? 5 :
+                    (isCredentialAttributeClass(arg0) ? 4 :
+                    (isRelationshipClass(arg0) ? 3 :
+                    (isRelationshipIdentityClass(arg0) ? 2 :
+                    (isRelationshipAttributeClass(arg0) ? 1 : 0))))))));
+
+                int arg1weight = isPartitionClass(arg1) ? 9 :
+                    (isPartitionAttributeClass(arg1) ? 8 :
+                    (isIdentityClass(arg1) ? 7 :
+                    (isIdentityAttributeClass(arg1) ? 6 :
+                    (isCredentialClass(arg1) ? 5 :
+                    (isCredentialAttributeClass(arg1) ? 4 :
+                    (isRelationshipClass(arg1) ? 3 :
+                    (isRelationshipIdentityClass(arg1) ? 2 :
+                    (isRelationshipAttributeClass(arg1) ? 1 : 0))))))));
+
+                return arg0weight > arg1weight ? 1 : (arg0weight < arg1weight ? -1 : 0);
+            }
+        });
+    }
+
+    private boolean isPartitionClass(Class<?> entityClass) {
+        PropertyQuery<Object> query = PropertyQueries.createQuery(entityClass);
+        query.addCriteria(new AnnotatedPropertyCriteria(PartitionClass.class));
+        return (query.getFirstResult() != null);
+    }
+
+    private boolean isPartitionAttributeClass(Class<?> entityClass) {
+        PropertyQuery<Object> query = PropertyQueries.createQuery(entityClass);
+        query.addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class));
+        Property<?> attributeValueProperty = query.getFirstResult();
+
+        // If there is no attribute value property(s), this is not an attribute class
+        if (attributeValueProperty == null) {
+            return false;
+        }
+
+        query = PropertyQueries.createQuery(entityClass);
+        query.addCriteria(new AnnotatedPropertyCriteria(OwnerReference.class));
+        Property<?> ownerReferenceProperty = query.getFirstResult();
+
+        // If there is no owner reference, this is not an attribute class
+        if (ownerReferenceProperty == null) {
+            return false;
+        }
+
+        // return true if the owner reference is a reference to a partition class
+        if (isPartitionClass(ownerReferenceProperty.getJavaClass())) {
+            return true;
+        }
+
+        // If there is a MappedAttribute annotation and it specifies a Partition class in its
+        // supportedClasses property, then return true
+        if (entityClass.isAnnotationPresent(MappedAttribute.class)) {
+            MappedAttribute mappedAttribute = entityClass.getAnnotation(MappedAttribute.class);
+
+            for (Class<?> cls : mappedAttribute.supportedClasses()) {
+                if (Partition.class.isAssignableFrom(cls)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isIdentityClass(Class<?> entityClass) {
+        PropertyQuery<Object> query = PropertyQueries.createQuery(entityClass);
+        query.addCriteria(new AnnotatedPropertyCriteria(IdentityClass.class));
+        return (query.getFirstResult() != null);
+    }
+
+    private boolean isIdentityAttributeClass(Class<?> entityClass) {
+        return false;
+    }
+
+    private boolean isCredentialClass(Class<?> entityClass) {
+        return false;
+    }
+
+    private boolean isCredentialAttributeClass(Class<?> entityClass) {
+        return false;
+    }
+
+    private boolean isRelationshipClass(Class<?> entityClass) {
+        return false;
+    }
+
+    private boolean isRelationshipIdentityClass(Class<?> entityClass) {
+        return false;
+    }
+
+    private boolean isRelationshipAttributeClass(Class<?> entityClass) {
+        return false;
+    }
+
+    private void configureIdentityClass(Class<?> entityClass) {
 
     }
+
 }
