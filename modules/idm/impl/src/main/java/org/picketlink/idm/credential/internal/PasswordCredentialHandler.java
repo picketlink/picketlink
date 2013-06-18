@@ -140,9 +140,7 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
         String passwordSalt = generateSalt();
 
         hash.setSalt(passwordSalt);
-        String encode = this.passwordEncoder.encode(saltPassword(rawPassword, passwordSalt));
-        String encode1 = this.passwordEncoder.encode(saltPassword(rawPassword, passwordSalt));
-        hash.setEncodedHash(encode);
+        hash.setEncodedHash(this.passwordEncoder.encode(saltPassword(rawPassword, passwordSalt)));
         hash.setEffectiveDate(effectiveDate);
         hash.setExpiryDate(expiryDate);
 
