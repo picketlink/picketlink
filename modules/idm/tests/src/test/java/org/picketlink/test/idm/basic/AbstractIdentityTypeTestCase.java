@@ -18,17 +18,10 @@
 
 package org.picketlink.test.idm.basic;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -37,6 +30,11 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * <p>
@@ -200,8 +198,8 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         IdentityManager identityManager = getIdentityManager();
 
         // Create a large array of values
-        Integer[] val = new Integer[1000];
-        for (int i = 0; i < 999; i++) {
+        Integer[] val = new Integer[100];
+        for (int i = 0; i < 100; i++) {
             val[i] = i;
         }
 
@@ -215,7 +213,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         
         Integer[] retrievedVal = updatedIdentityType.<Integer[]>getAttribute("Values").getValue();
 
-        for (int i = 0; i < 999; i++) {
+        for (int i = 0; i < 100; i++) {
             assert retrievedVal[i] == i;
         }
     }
