@@ -17,6 +17,8 @@
  */
 package org.picketlink.idm.jpa.annotations.entity;
 
+import org.picketlink.idm.credential.spi.CredentialStorage;
+
 /**
  * This annotation is applied to an entity class to indicate that it contains managed
  * credential-related state.  The supportedClasses member may be used to specify exactly
@@ -26,5 +28,5 @@ package org.picketlink.idm.jpa.annotations.entity;
  * @author Shane Bryzak
  */
 public @interface ManagedCredential {
-    Class[] supportedClasses() default {};
+    Class<? extends CredentialStorage>[] supportedClasses() default {};
 }

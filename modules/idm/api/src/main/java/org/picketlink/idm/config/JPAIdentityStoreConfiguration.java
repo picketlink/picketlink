@@ -27,6 +27,7 @@ import org.picketlink.common.properties.Property;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
@@ -46,14 +47,39 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     private Map<Class<? extends AttributedType>, IdentityMapping> identityModel =
             new ConcurrentHashMap<Class<? extends AttributedType>, IdentityMapping>();
 
+    /**
+     * Credential model definition
+     */
+    private Map<Class<? extends CredentialStorage>, CredentialMapping> credentialModel;
+
+    /**
+     *
+     */
+    private Map relationshipModel;
+
+    /**
+     *
+     */
+    private Map partitionModel;
+
     private class IdentityMapping {
         private Map<Property, PropertyMapping> properties = new HashMap<Property, PropertyMapping>();
+        private Map<Class<?>, AttributeMapping> attributes = new HashMap<Class<?>, AttributeMapping>();
+    }
+
+    private class CredentialMapping {
+        private Map<Property, PropertyMapping> properties = new HashMap<Property, PropertyMapping>();
+        private Map<Class<?>, AttributeMapping> attributes = new HashMap<Class<?>, AttributeMapping>();
 
     }
 
     private class PropertyMapping {
 
         private Property entityProperty;
+
+    }
+
+    private class AttributeMapping {
 
     }
 
