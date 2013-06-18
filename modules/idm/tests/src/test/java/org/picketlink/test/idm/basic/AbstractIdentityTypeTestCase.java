@@ -22,6 +22,8 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -213,8 +215,8 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         
         Integer[] retrievedVal = updatedIdentityType.<Integer[]>getAttribute("Values").getValue();
 
-        for (int i = 0; i < 100; i++) {
-            assert retrievedVal[i] == i;
+        for (Integer value: retrievedVal) {
+            assertTrue(contains(retrievedVal, value));
         }
     }
 
@@ -344,4 +346,13 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         getIdentityManager().add(storedIdentityType);
     }
 
+    private boolean contains(Integer[] result, Integer value) {
+        for (Integer resultValue : result) {
+            if (resultValue.equals(value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
