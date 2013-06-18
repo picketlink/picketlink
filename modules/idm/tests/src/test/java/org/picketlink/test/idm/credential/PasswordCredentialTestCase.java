@@ -169,6 +169,8 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
 
         Password secondPassword = new Password("password2".toCharArray());
 
+        IDMUtil.sleep(1000);
+
         identityManager.updateCredential(user, secondPassword);
 
         UsernamePasswordCredentials secondCredential = new UsernamePasswordCredentials(user.getLoginName(), secondPassword);
