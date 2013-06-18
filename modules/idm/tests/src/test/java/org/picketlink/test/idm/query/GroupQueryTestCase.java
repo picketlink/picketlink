@@ -286,9 +286,9 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
     public void testFindWithSorting() throws Exception {
         createGroup("someGroup", null);
         // Sleep is needed to avoid same createdDate
-        IDMUtil.sleep(1);
+        IDMUtil.sleep(1000);
         createGroup("someAnotherGroup", null);
-        IDMUtil.sleep(1);
+        IDMUtil.sleep(1000);
         createGroup("someImportantGroup", null);
 
         // Default sorting by group name

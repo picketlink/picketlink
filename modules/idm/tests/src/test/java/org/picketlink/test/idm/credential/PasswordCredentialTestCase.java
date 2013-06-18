@@ -26,6 +26,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
+import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 import org.picketlink.test.idm.ExcludeTestSuite;
@@ -140,6 +141,8 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         assertEquals(Status.EXPIRED, credential.getStatus());
 
         Password newPassword = new Password("new_password".toCharArray());
+
+        IDMUtil.sleep(1000);
 
         identityManager.updateCredential(user, newPassword);
 

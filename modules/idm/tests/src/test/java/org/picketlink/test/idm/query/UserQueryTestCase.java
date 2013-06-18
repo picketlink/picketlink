@@ -18,13 +18,7 @@
 
 package org.picketlink.test.idm.query;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
-
 import java.util.List;
-
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.internal.util.IDMUtil;
@@ -38,6 +32,10 @@ import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuit
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsFileRelationshipTestSuite;
 import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsRelationshipsTestSuite;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * <p>
@@ -170,15 +168,15 @@ public class UserQueryTestCase extends AgentQueryTestCase<User> {
     public void testFindWithPaginationAndSorting() throws Exception {
         createPopulatedUser("john", "John", "Anthony");
         // Sleep is needed to avoid same createdDate
-        IDMUtil.sleep(1);
+        IDMUtil.sleep(1000);
         createPopulatedUser("root", "Root", "Root");
-        IDMUtil.sleep(1);
+        IDMUtil.sleep(1000);
         createPopulatedUser("mary", "Mary", "Kelly");
-        IDMUtil.sleep(1);
+        IDMUtil.sleep(1000);
         createPopulatedUser("demo", "Demo", "Demo");
-        IDMUtil.sleep(1);
+        IDMUtil.sleep(1000);
         createPopulatedUser("mary2", "Mary", "Anthony");
-        IDMUtil.sleep(1);
+        IDMUtil.sleep(1000);
         createPopulatedUser("john2", "John", "Kelly");
 
         // Page1 with default sorting (loginName)
