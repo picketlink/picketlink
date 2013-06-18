@@ -148,7 +148,13 @@ public class PasswordCredentialHandlerConfigurationTestCase {
                             public String encode(String rawPassword) {
                                 Assert.assertEquals(1, this.getStrength());
                                 return super.encode(rawPassword);
-                            }})
+                            }
+
+                            @Override
+                            public boolean verify(String rawPassword, String encodedPassword) {
+                                return super.verify(rawPassword, encodedPassword);
+                            }
+                        })
                     .addContextInitializer(new JPAContextInitializer(emf) {
                         @Override
                         public EntityManager getEntityManager() {
@@ -207,7 +213,7 @@ public class PasswordCredentialHandlerConfigurationTestCase {
 
                         @Override
                         public boolean verify(String rawPassword, String encodedPassword) {
-                            return false;
+                            return true;
                         }
                     })
                     .addContextInitializer(new JPAContextInitializer(emf) {
