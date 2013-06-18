@@ -28,8 +28,8 @@ import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
-import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
 
@@ -42,35 +42,48 @@ import org.picketlink.idm.spi.ContextInitializer;
 public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
 
     /**
-     * The identity model definition
+     * The identity model definition, which maps between specific identity types
+     * and their identity mapping metadata
      */
-    private Map<Class<? extends AttributedType>, IdentityMapping> identityModel =
-            new ConcurrentHashMap<Class<? extends AttributedType>, IdentityMapping>();
+    private Map<Class<? extends IdentityType>, ModelDefinition> identityModel =
+            new ConcurrentHashMap<Class<? extends IdentityType>, ModelDefinition>();
 
     /**
      * Credential model definition
      */
-    private Map<Class<? extends CredentialStorage>, CredentialMapping> credentialModel;
+    private Map<Class<? extends CredentialStorage>, ModelDefinition> credentialModel;
 
     /**
      *
      */
-    private Map relationshipModel;
+    private RelationshipModel relationshipModel;
 
     /**
      *
      */
-    private Map partitionModel;
+    private Map<Class<? extends Partition>, ModelDefinition> partitionModel = 
+            new HashMap<Class<? extends Partition>, ModelDefinition>();
 
-    private class IdentityMapping {
+    /**
+     * Each model definition maps between a Property of the identity model and its corresponding
+     * entity bean property, and also maps ad-hoc attribute schemas to the identity type.
+     */
+    private class ModelDefinition {
+        /**
+         * Maps between a property of an identity model class and its corresponding entity bean property
+         */
         private Map<Property, PropertyMapping> properties = new HashMap<Property, PropertyMapping>();
+
+        /**
+         * Ad-hoc attribute values
+         */
         private Map<Class<?>, AttributeMapping> attributes = new HashMap<Class<?>, AttributeMapping>();
     }
 
-    private class CredentialMapping {
-        private Map<Property, PropertyMapping> properties = new HashMap<Property, PropertyMapping>();
+    private class RelationshipModel {
+        private Class<?> relationshipClass;
+        private Class<?> relationshipIdentityClass;
         private Map<Class<?>, AttributeMapping> attributes = new HashMap<Class<?>, AttributeMapping>();
-
     }
 
     private class PropertyMapping {
@@ -80,7 +93,10 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     }
 
     private class AttributeMapping {
-
+        private PropertyMapping ownerReference;
+        private Property<String> attributeName;
+        private Property<String> attributeClass;
+        private Property<Object> attributeValue;
     }
 
     protected JPAIdentityStoreConfiguration(Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
