@@ -35,6 +35,7 @@ import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.jpa.annotations.CredentialClass;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
@@ -132,8 +133,24 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
         // Then for each one, we determine what kind of state it holds and configure accordingly
         for (Class<?> entityClass : entityClasses) {
-            if (isIdentityClass(entityClass)) {
+            if (isPartitionClass(entityClass)) {
+                configurePartitionClass(entityClass);
+            } else if (isPartitionAttributeClass(entityClass)) {
+                configurePartitionAttributeClass(entityClass);
+            } else if (isIdentityClass(entityClass)) {
                 configureIdentityClass(entityClass);
+            } else if (isIdentityAttributeClass(entityClass)) {
+                configureIdentityAttributeClass(entityClass);
+            } else if (isCredentialClass(entityClass)) {
+                configureCredentialClass(entityClass);
+            } else if (isCredentialAttributeClass(entityClass)) {
+                configureCredentialAttributeClass(entityClass);
+            } else if (isRelationshipClass(entityClass)) {
+                configureRelationshipClass(entityClass);
+            } else if (isRelationshipIdentityClass(entityClass)) {
+                configureRelationshipIdentityClass(entityClass);
+            } else if (isRelationshipAttributeClass(entityClass)) {
+                configureRelationshipAttributeClass(entityClass);
             }
         }
     }
@@ -189,6 +206,64 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     }
 
     private boolean isPartitionAttributeClass(Class<?> entityClass) {
+        // If there is a MappedAttribute annotation and it specifies a Partition class in its
+        // supportedClasses property, then return true
+        if (entityClass.isAnnotationPresent(MappedAttribute.class)) {
+            MappedAttribute mappedAttribute = entityClass.getAnnotation(MappedAttribute.class);
+
+            for (Class<?> cls : mappedAttribute.supportedClasses()) {
+                if (Partition.class.isAssignableFrom(cls)) {
+                    return true;
+                }
+            }
+        }
+
+        PropertyQuery<Object> query = PropertyQueries.createQuery(entityClass);
+        query.addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class));
+        Property<?> attributeValueProperty = query.getFirstResult();
+
+        // Otherwise, if there is no attribute value property(s), this is not an attribute class
+        if (attributeValueProperty == null) {
+            return false;
+        }
+
+        query = PropertyQueries.createQuery(entityClass);
+        query.addCriteria(new AnnotatedPropertyCriteria(OwnerReference.class));
+        Property<?> ownerReferenceProperty = query.getFirstResult();
+
+        // If there is no owner reference, this is not an attribute class
+        if (ownerReferenceProperty == null) {
+            return false;
+        }
+
+        // return true if the owner reference is a reference to a partition class
+        if (isPartitionClass(ownerReferenceProperty.getJavaClass())) {
+            return true;
+        }
+
+
+        return false;
+    }
+
+    private boolean isIdentityClass(Class<?> entityClass) {
+        PropertyQuery<Object> query = PropertyQueries.createQuery(entityClass);
+        query.addCriteria(new AnnotatedPropertyCriteria(IdentityClass.class));
+        return (query.getFirstResult() != null);
+    }
+
+    private boolean isIdentityAttributeClass(Class<?> entityClass) {
+        // If there is a MappedAttribute annotation and it specifies an identity class in its
+        // supportedClasses property, then return true
+        if (entityClass.isAnnotationPresent(MappedAttribute.class)) {
+            MappedAttribute mappedAttribute = entityClass.getAnnotation(MappedAttribute.class);
+
+            for (Class<?> cls : mappedAttribute.supportedClasses()) {
+                if (IdentityType.class.isAssignableFrom(cls)) {
+                    return true;
+                }
+            }
+        }
+
         PropertyQuery<Object> query = PropertyQueries.createQuery(entityClass);
         query.addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class));
         Property<?> attributeValueProperty = query.getFirstResult();
@@ -208,37 +283,17 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         }
 
         // return true if the owner reference is a reference to a partition class
-        if (isPartitionClass(ownerReferenceProperty.getJavaClass())) {
+        if (isIdentityClass(ownerReferenceProperty.getJavaClass())) {
             return true;
         }
 
-        // If there is a MappedAttribute annotation and it specifies a Partition class in its
-        // supportedClasses property, then return true
-        if (entityClass.isAnnotationPresent(MappedAttribute.class)) {
-            MappedAttribute mappedAttribute = entityClass.getAnnotation(MappedAttribute.class);
-
-            for (Class<?> cls : mappedAttribute.supportedClasses()) {
-                if (Partition.class.isAssignableFrom(cls)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private boolean isIdentityClass(Class<?> entityClass) {
-        PropertyQuery<Object> query = PropertyQueries.createQuery(entityClass);
-        query.addCriteria(new AnnotatedPropertyCriteria(IdentityClass.class));
-        return (query.getFirstResult() != null);
-    }
-
-    private boolean isIdentityAttributeClass(Class<?> entityClass) {
         return false;
     }
 
     private boolean isCredentialClass(Class<?> entityClass) {
-        return false;
+        PropertyQuery<Object> query = PropertyQueries.createQuery(entityClass);
+        query.addCriteria(new AnnotatedPropertyCriteria(CredentialClass.class));
+        return (query.getFirstResult() != null);
     }
 
     private boolean isCredentialAttributeClass(Class<?> entityClass) {
@@ -257,8 +312,39 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         return false;
     }
 
+    private void configurePartitionClass(Class<?> entityClass) {
+
+    }
+
+    private void configurePartitionAttributeClass(Class<?> entityClass) {
+
+    }
+
     private void configureIdentityClass(Class<?> entityClass) {
 
     }
 
+    private void configureIdentityAttributeClass(Class<?> entityClass) {
+
+    }
+
+    private void configureCredentialClass(Class<?> entityClass) {
+
+    }
+
+    private void configureCredentialAttributeClass(Class<?> entityClass) {
+
+    }
+
+    private void configureRelationshipClass(Class<?> entityClass) {
+
+    }
+
+    private void configureRelationshipIdentityClass(Class<?> entityClass) {
+
+    }
+
+    private void configureRelationshipAttributeClass(Class<?> entityClass) {
+
+    }
 }
