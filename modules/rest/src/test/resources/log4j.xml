@@ -47,7 +47,7 @@
   <!-- ============================== -->
 
   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
-    <param name="Threshold" value="TRACE"/>
+    <param name="Threshold" value="INFO"/>
     <param name="Target" value="System.out"/>
 
     <layout class="org.apache.log4j.PatternLayout">
@@ -64,15 +64,20 @@
     <priority value="INFO" class="org.jboss.logging.XLevel"/>
   </category>
   -->
-<category name="org.eclipse.jetty">
-    <priority value="TRACE"/>
+  <category name="org.eclipse.jetty">
+    <priority value="INFO"/>
   </category>
   
   <category name="org.jboss">
-    <priority value="TRACE"/>
+    <priority value="INFO"/>
   </category>
+
   <category name="org.picketlink">
-    <priority value="TRACE"/>
+    <priority value="INFO"/>
+  </category>
+
+  <category name="org.hibernate">
+    <priority value="OFF"/>
   </category>
 
   <!-- ======================= -->
