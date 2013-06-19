@@ -402,7 +402,7 @@ public class JPAIdentityStoreConfigurationOld extends BaseAbstractStoreConfigura
         if (props.size() == 1) {
             modelProperties.put(propertyType, props.get(0));
         } else if (props.size() > 1) {
-            throw MESSAGES.jpaConfigAmbiguosPropertyForClass(annotationClass.getName(), targetClass);
+            throw MESSAGES.jpaConfigAmbiguousPropertyForClass(annotationClass.getName(), targetClass);
         } else {
             if (possibleNames != null && possibleNames.length > 0) {
                 Property<Object> p = findNamedProperty(targetClass, possibleNames);

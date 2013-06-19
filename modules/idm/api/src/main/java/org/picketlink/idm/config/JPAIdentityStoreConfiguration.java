@@ -62,7 +62,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     /**
      *
      */
-    private Map<Class<? extends Partition>, ModelDefinition> partitionModel = 
+    private Map<Class<? extends Partition>, ModelDefinition> partitionModel =
             new HashMap<Class<? extends Partition>, ModelDefinition>();
 
     /**

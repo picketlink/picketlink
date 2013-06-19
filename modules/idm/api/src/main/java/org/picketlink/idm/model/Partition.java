@@ -28,7 +28,7 @@ public interface Partition extends AttributedType {
 
     /**
      * Returns the unique identifier for the partition
-     * 
+     *
      * @return String value representing the unique identifier
      */
     String getId();

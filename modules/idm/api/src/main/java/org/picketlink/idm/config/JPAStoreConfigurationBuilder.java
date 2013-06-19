@@ -102,9 +102,9 @@ public class JPAStoreConfigurationBuilder extends
             throw MESSAGES.jpaConfigIdentityClassNotProvided();
         }
 
-        if (this.partitionClass == null) {
-            throw MESSAGES.jpaConfigPartitionClassNotProvided();
-        }
+//        if (this.partitionClass == null) {
+//            throw MESSAGES.jpaConfigPartitionClassNotProvided();
+//        }
     }
 
     @Override
