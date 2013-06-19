@@ -121,7 +121,7 @@ public class LDAPUsersJPARolesGroupsFileRelationshipTestSuite extends LDAPAbstra
                     .roleDNSuffix(getRolesDnSuffix())
                     .agentDNSuffix(getAgentDnSuffix())
                     .groupDNSuffix(getGroupDnSuffix())
-                    .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
+                    .addGroupMapping("/QA Group", "ou=QA," + getBaseDn())
                     .supportFeature(FeatureGroup.agent)
                     .supportFeature(FeatureGroup.user)
                     .supportFeature(FeatureGroup.credential)
