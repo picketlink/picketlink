@@ -16,12 +16,31 @@
 
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
 
+  <!-- A time/date based rolling appender -->
+  <appender name="FILE" class="org.apache.log4j.DailyRollingFileAppender">
+    <param name="Threshold" value="DEBUG"/>
+    <param name="File" value="${basedir}/target/test.log"/>
+    <param name="Append" value="true"/>
+
+    <!-- Rollover at midnight each day -->
+    <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+
+    <!-- Rollover at the top of each hour
+             <param name="DatePattern" value="'.'yyyy-MM-dd-HH"/>
+    -->
+
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c] %m%n"/>
+    </layout>
+  </appender>
+
+
   <!-- ============================== -->
   <!-- Append messages to the console -->
   <!-- ============================== -->
 
   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
-    <param name="Threshold" value="INFO"/>
+    <param name="Threshold" value="ERROR"/>
     <param name="Target" value="System.out"/>
 
     <layout class="org.apache.log4j.PatternLayout">
@@ -33,11 +52,11 @@
   <!-- Limit categories -->
   <!-- ================ -->
 
-  <category name="org.picketlink">
-    <priority value="INFO"/>
+  <category name="org.apache">
+    <priority value="OFF"/>
   </category>
 
-  <category name="org.apache.directory">
+  <category name="JdbmTable">
     <priority value="OFF"/>
   </category>
 
@@ -51,6 +70,7 @@
 
   <root>
     <appender-ref ref="CONSOLE"/>
+    <!--appender-ref ref="FILE"/-->
   </root>
   
 </log4j:configuration>
