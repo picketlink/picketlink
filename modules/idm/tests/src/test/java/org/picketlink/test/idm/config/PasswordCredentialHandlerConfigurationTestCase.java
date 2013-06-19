@@ -54,6 +54,7 @@ import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.password.internal.BCryptPasswordEncoder;
+import org.picketlink.idm.password.internal.PBKDF2PasswordEncoder;
 import org.picketlink.idm.password.internal.SHAPasswordEncoder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -95,6 +96,55 @@ public class PasswordCredentialHandlerConfigurationTestCase {
                 .jpa()
                 .setCredentialHandlerProperty(PASSWORD_ENCODER,
                         new BCryptPasswordEncoder(4) )
+                .addContextInitializer(new JPAContextInitializer(emf) {
+                    @Override
+                    public EntityManager getEntityManager() {
+                        return entityManager;
+                    }
+                })
+                .addRealm(Realm.DEFAULT_REALM)
+                .supportAllFeatures()
+                .identityClass(IdentityObject.class)
+                .attributeClass(IdentityObjectAttribute.class)
+                .relationshipClass(RelationshipObject.class)
+                .relationshipIdentityClass(RelationshipIdentityObject.class)
+                .relationshipAttributeClass(RelationshipObjectAttribute.class)
+                .credentialClass(CredentialObject.class)
+                .credentialAttributeClass(CredentialObjectAttribute.class)
+                .partitionClass(PartitionObject.class);
+
+        IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(builder.build());
+
+        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+
+        User user = new SimpleUser("user");
+
+        identityManager.add(user);
+
+        user = identityManager.getUser(user.getLoginName());
+
+        assertNotNull(user);
+
+        Password password = new Password("123");
+
+        identityManager.updateCredential(user, password);
+
+        UsernamePasswordCredentials credential = new UsernamePasswordCredentials(user.getLoginName(), password);
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.VALID, credential.getStatus());
+    }
+
+    @Test
+    public void testPBKDF2PasswordEncoder() throws Exception {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+                .stores()
+                .jpa()
+                .setCredentialHandlerProperty(PASSWORD_ENCODER,
+                        new PBKDF2PasswordEncoder("salty".getBytes(),1000,128))
                 .addContextInitializer(new JPAContextInitializer(emf) {
                     @Override
                     public EntityManager getEntityManager() {
