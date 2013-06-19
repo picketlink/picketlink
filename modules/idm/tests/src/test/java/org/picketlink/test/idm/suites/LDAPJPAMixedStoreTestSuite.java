@@ -136,7 +136,7 @@ public class LDAPJPAMixedStoreTestSuite extends LDAPAbstractSuite implements Tes
                     .roleDNSuffix(getRolesDnSuffix())
                     .agentDNSuffix(getAgentDnSuffix())
                     .groupDNSuffix(getGroupDnSuffix())
-                    .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
+                    .addGroupMapping("/QA Group", "ou=QA," + getBaseDn())
                     .supportAllFeatures()
                     .removeFeature(FeatureGroup.relationship)
                 .jpa()

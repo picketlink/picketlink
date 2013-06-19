@@ -205,7 +205,10 @@ public abstract class LDAPAbstractSuite extends AbstractLDAPTest {
 
     @Override
     public void importLDIF(String fileName) throws Exception {
-        super.importLDIF(fileName);
+        // import LDIF only in case we are running against embedded LDAP server 
+        if (isStartEmbeddedLdapLerver()) {
+            super.importLDIF(fileName);
+        }
     }
 
 }
