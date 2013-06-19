@@ -39,6 +39,8 @@ import org.picketlink.idm.jpa.annotations.CredentialClass;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
+import org.picketlink.idm.jpa.annotations.RelationshipClass;
+import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
 import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
@@ -151,6 +153,8 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
                 configureRelationshipIdentityClass(entityClass);
             } else if (isRelationshipAttributeClass(entityClass)) {
                 configureRelationshipAttributeClass(entityClass);
+            } else {
+                throw IDMMessages.MESSAGES.jpaConfigAmbiguousEntityBean(entityClass);
             }
         }
     }
@@ -241,7 +245,6 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
             return true;
         }
 
-
         return false;
     }
 
@@ -297,18 +300,92 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     }
 
     private boolean isCredentialAttributeClass(Class<?> entityClass) {
+        // If there is a MappedAttribute annotation and it specifies a CredentialStorage class in its
+        // supportedClasses property, then return true
+        if (entityClass.isAnnotationPresent(MappedAttribute.class)) {
+            MappedAttribute mappedAttribute = entityClass.getAnnotation(MappedAttribute.class);
+
+            for (Class<?> cls : mappedAttribute.supportedClasses()) {
+                if (CredentialStorage.class.isAssignableFrom(cls)) {
+                    return true;
+                }
+            }
+        }
+
+        PropertyQuery<Object> query = PropertyQueries.createQuery(entityClass);
+        query.addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class));
+        Property<?> attributeValueProperty = query.getFirstResult();
+
+        // If there is no attribute value property(s), this is not an attribute class
+        if (attributeValueProperty == null) {
+            return false;
+        }
+
+        query = PropertyQueries.createQuery(entityClass);
+        query.addCriteria(new AnnotatedPropertyCriteria(OwnerReference.class));
+        Property<?> ownerReferenceProperty = query.getFirstResult();
+
+        // If there is no owner reference, this is not an attribute class
+        if (ownerReferenceProperty == null) {
+            return false;
+        }
+
+        // return true if the owner reference is a reference to a partition class
+        if (isCredentialClass(ownerReferenceProperty.getJavaClass())) {
+            return true;
+        }
+
         return false;
     }
 
     private boolean isRelationshipClass(Class<?> entityClass) {
-        return false;
+        PropertyQuery<Object> query = PropertyQueries.createQuery(entityClass);
+        query.addCriteria(new AnnotatedPropertyCriteria(RelationshipClass.class));
+        return (query.getFirstResult() != null);
     }
 
     private boolean isRelationshipIdentityClass(Class<?> entityClass) {
-        return false;
+        PropertyQuery<Object> query = PropertyQueries.createQuery(entityClass);
+        query.addCriteria(new AnnotatedPropertyCriteria(RelationshipDescriptor.class));
+        return (query.getFirstResult() != null);
     }
 
     private boolean isRelationshipAttributeClass(Class<?> entityClass) {
+        // If there is a MappedAttribute annotation and it specifies a Relationship class in its
+        // supportedClasses property, then return true
+        if (entityClass.isAnnotationPresent(MappedAttribute.class)) {
+            MappedAttribute mappedAttribute = entityClass.getAnnotation(MappedAttribute.class);
+
+            for (Class<?> cls : mappedAttribute.supportedClasses()) {
+                if (Relationship.class.isAssignableFrom(cls)) {
+                    return true;
+                }
+            }
+        }
+
+        PropertyQuery<Object> query = PropertyQueries.createQuery(entityClass);
+        query.addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class));
+        Property<?> attributeValueProperty = query.getFirstResult();
+
+        // If there is no attribute value property(s), this is not an attribute class
+        if (attributeValueProperty == null) {
+            return false;
+        }
+
+        query = PropertyQueries.createQuery(entityClass);
+        query.addCriteria(new AnnotatedPropertyCriteria(OwnerReference.class));
+        Property<?> ownerReferenceProperty = query.getFirstResult();
+
+        // If there is no owner reference, this is not an attribute class
+        if (ownerReferenceProperty == null) {
+            return false;
+        }
+
+        // return true if the owner reference is a reference to a partition class
+        if (isRelationshipClass(ownerReferenceProperty.getJavaClass())) {
+            return true;
+        }
+
         return false;
     }
 

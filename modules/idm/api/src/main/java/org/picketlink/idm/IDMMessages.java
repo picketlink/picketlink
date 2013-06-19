@@ -210,7 +210,7 @@ public interface IDMMessages {
     IdentityManagementException jpaStoreCouldNotGetEntityManagerFromStoreContext();
 
     @Message(id = 39, value = "Ambiguous property [%s] property in class [%s]")
-    SecurityConfigurationException jpaConfigAmbiguosPropertyForClass(String name, Class<?> targetClass);
+    SecurityConfigurationException jpaConfigAmbiguousPropertyForClass(String name, Class<?> targetClass);
 
     @Message(id = 40, value = "Model property [%s] has not been configured.")
     SecurityConfigurationException jpaConfigModelPropertyNotConfigured(String name);
@@ -225,28 +225,31 @@ public interface IDMMessages {
     SecurityConfigurationException jpaConfigMultiplePropertiesForAttribute(String attribName, Class<?> property,
             AnnotatedElement annotatedElement, Class<?> anotherProperty, AnnotatedElement anotherAnnotatedElement);
 
-    @Message(id = 44, value = "Could not retrieve LDAP attribute [%s]")
+    @Message(id = 44, value = "Ambiguous entity bean class [%s] configured")
+    SecurityConfigurationException jpaConfigAmbiguousEntityBean(Class<?> entityBean);
+
+    @Message(id = 50, value = "Could not retrieve LDAP attribute [%s]")
     IdentityManagementException ldapStoreFailToRetrieveAttribute(String entryUuid, @Cause Throwable t);
 
-    @Message(id = 45, value = "Unknown Base DN [%s] for IdentityType.")
+    @Message(id = 51, value = "Unknown Base DN [%s] for IdentityType.")
     IdentityManagementException ldapStoreUnknownBaseDNForIdentityType(String nameInNamespace);
 
-    @Message(id = 46, value = "Could not execute search on server.")
+    @Message(id = 52, value = "Could not execute search on server.")
     IdentityManagementException ldapStoreSearchFailed(@Cause NamingException nme);
 
-    @Message(id = 47, value = "Could not create GroupRole entry.")
+    @Message(id = 53, value = "Could not create GroupRole entry.")
     IdentityManagementException ldapStoreCouldNotCreateGroupRoleEntry(@Cause NamingException e);
 
-    @Message(id = 48, value = "Could not remove GroupRole entry.")
+    @Message(id = 54, value = "Could not remove GroupRole entry.")
     IdentityManagementException ldapStoreCouldNotRemoveGroupRoleEntry(@Cause NamingException e);
 
-    @Message(id = 49, value = "User baseDN not provided.")
+    @Message(id = 55, value = "User baseDN not provided.")
     SecurityConfigurationException ldapConfigUserDNNotProvided();
 
-    @Message(id = 50, value = "Role baseDN not provided.")
+    @Message(id = 56, value = "Role baseDN not provided.")
     SecurityConfigurationException ldapConfigRoleDNNotProvided();
 
-    @Message(id = 51, value = "Group baseDN not provided.")
+    @Message(id = 57, value = "Group baseDN not provided.")
     SecurityConfigurationException ldapConfigGroupDNNotProvided();
 
     @Message(id = 60, value = "Could not initialize filesystem.")
