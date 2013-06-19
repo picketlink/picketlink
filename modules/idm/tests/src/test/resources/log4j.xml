@@ -25,7 +25,6 @@
     <param name="Target" value="System.out"/>
 
     <layout class="org.apache.log4j.PatternLayout">
-      <!-- The default pattern: Date Priority [Category] Message\n -->
       <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c] %m%n"/>
     </layout>
   </appender>
@@ -35,19 +34,17 @@
   <!-- ================ -->
 
   <category name="org.picketlink">
-    <priority value="WARN"/>
+    <priority value="INFO"/>
   </category>
-  
+
+  <category name="org.apache.directory">
+    <priority value="OFF"/>
+  </category>
+
   <category name="org.hibernate">
-    <priority value="FATAL"/>
+    <priority value="OFF"/>
   </category>
   
-  <category name="org.apache.directory.shared.ldap">
-    <priority value="WARN" />
-  </category>
-  
-
-
   <!-- ======================= -->
   <!-- Setup the Root category -->
   <!-- ======================= -->
