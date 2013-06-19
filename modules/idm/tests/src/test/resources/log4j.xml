@@ -21,7 +21,7 @@
   <!-- ============================== -->
 
   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
-    <param name="Threshold" value="DEBUG"/>
+    <param name="Threshold" value="INFO"/>
     <param name="Target" value="System.out"/>
 
     <layout class="org.apache.log4j.PatternLayout">
@@ -35,8 +35,18 @@
   <!-- ================ -->
 
   <category name="org.picketlink">
-    <priority value="DEBUG"/>
+    <priority value="WARN"/>
   </category>
+  
+  <category name="org.hibernate">
+    <priority value="FATAL"/>
+  </category>
+  
+  <category name="org.apache.directory.shared.ldap">
+    <priority value="WARN" />
+  </category>
+  
+
 
   <!-- ======================= -->
   <!-- Setup the Root category -->
