@@ -33,14 +33,21 @@ public abstract class AbstractPartition extends AbstractAttributedType implement
     private static final long serialVersionUID = -6899014824481928333L;
 
     private String id;
+    private String name;
 
-    public AbstractPartition(String id) {
+    public AbstractPartition(String id, String name) {
         this.id = id;
+        this.name = name;
     }
 
     @Override
     public String getId() {
-        return this.id;
+        return id;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override
