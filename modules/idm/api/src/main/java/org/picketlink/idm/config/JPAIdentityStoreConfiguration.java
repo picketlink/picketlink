@@ -27,8 +27,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.PropertyQuery;
+import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
@@ -36,15 +38,18 @@ import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.CredentialClass;
+import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
 import org.picketlink.idm.jpa.annotations.RelationshipClass;
 import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.spi.ContextInitializer;
 
 /**
@@ -54,7 +59,11 @@ import org.picketlink.idm.spi.ContextInitializer;
  */
 public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
 
-    private List<Class<?>> entityClasses;
+    /**
+     *
+     */
+    private Map<Class<? extends Partition>, ModelDefinition> partitionModel = 
+            new HashMap<Class<? extends Partition>, ModelDefinition>();
 
     /**
      * The identity model definition, which maps between specific identity types
@@ -74,12 +83,6 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     private RelationshipModel relationshipModel;
 
     /**
-     *
-     */
-    private Map<Class<? extends Partition>, ModelDefinition> partitionModel = 
-            new HashMap<Class<? extends Partition>, ModelDefinition>();
-
-    /**
      * Each model definition maps between a Property of the identity model and its corresponding
      * entity bean property, and also maps ad-hoc attribute schemas to the identity type.
      */
@@ -93,6 +96,14 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
          * Ad-hoc attribute values
          */
         private Map<Class<?>, AttributeMapping> attributes = new HashMap<Class<?>, AttributeMapping>();
+
+        public void addProperty(Property property, PropertyMapping mapping) {
+            properties.put(property, mapping);
+        }
+
+        public void addAttribute(Class<?> cls, AttributeMapping mapping) {
+            attributes.put(cls, mapping);
+        }
     }
 
     private class RelationshipModel {
@@ -102,8 +113,11 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     }
 
     private class PropertyMapping {
-        private Property entityProperty;
+        private Property<?> entityProperty;
 
+        public PropertyMapping(Property<?> entityProperty) {
+            this.entityProperty = entityProperty;
+        }
     }
 
     private class AttributeMapping {
@@ -125,11 +139,6 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
             throw IDMMessages.MESSAGES.jpaConfigNoEntityClassesProvided();
         }
 
-        this.entityClasses = entityClasses;
-    }
-
-    @Override
-    protected void initConfig() {
         // We configure the entity classes in order, so the first step is to sort them
         sortEntityClasses(entityClasses);
 
@@ -158,6 +167,9 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
             }
         }
     }
+
+    @Override
+    protected void initConfig() {  }
 
     /**
      * The entity classes are sorted in the following order:
@@ -203,10 +215,26 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         });
     }
 
+    /**
+     * Check if the specified entity class holds master partition state - if the entity
+     * class has a String property annotated with @PartitionClass, and a property
+     * annotated with @Identifier, then it meets the required criteria.
+     *
+     * @param entityClass
+     * @return
+     */
     private boolean isPartitionClass(Class<?> entityClass) {
         PropertyQuery<Object> query = PropertyQueries.createQuery(entityClass);
         query.addCriteria(new AnnotatedPropertyCriteria(PartitionClass.class));
-        return (query.getFirstResult() != null);
+        query.addCriteria(new TypedPropertyCriteria(String.class));
+
+        if (query.getFirstResult() == null) {
+            return false;
+        }
+
+        query = PropertyQueries.createQuery(entityClass);
+        query.addCriteria(new AnnotatedPropertyCriteria(Identifier.class));
+        return query.getFirstResult() != null;
     }
 
     private boolean isPartitionAttributeClass(Class<?> entityClass) {
@@ -390,7 +418,43 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     }
 
     private void configurePartitionClass(Class<?> entityClass) {
+        @SuppressWarnings("unchecked")
+        Class<? extends Partition>[] types = (entityClass.isAnnotationPresent(IdentityManaged.class)) ?
+            entityClass.getAnnotation(IdentityManaged.class).value() :
+            new Class[] {Partition.class};
 
+        Property<String> idProperty = PropertyQueries.<String>createQuery(Partition.class)
+                .addCriteria(new NamedPropertyCriteria("id"))
+                .getSingleResult();
+
+        for (Class<? extends Partition> type : types) {
+            ModelDefinition definition = new ModelDefinition();
+
+            // First query the identifier property on the entity
+            Property<?> identifier = PropertyQueries.createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(Identifier.class))
+                    .getSingleResult();
+
+            definition.addProperty(idProperty, new PropertyMapping(identifier));
+            partitionModel.put(type, definition);
+
+            // Next query for any @AttributeProperty properties, and map them to their
+            // corresponding entity property
+            List<Property<Object>> partitionProperties = PropertyQueries.createQuery(type)
+                .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class))
+                .getResultList();
+
+            for (Property<Object> property : partitionProperties) {
+                Property<?> entityProperty = PropertyQueries.createQuery(entityClass)
+                        .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
+                        .addCriteria(new NamedPropertyCriteria(property.getName()))
+                        .getFirstResult();
+
+                if (entityProperty != null) {
+                    definition.addProperty(property, new PropertyMapping(entityProperty));
+                }
+            }
+        }
     }
 
     private void configurePartitionAttributeClass(Class<?> entityClass) {

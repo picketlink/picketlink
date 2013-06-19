@@ -26,6 +26,18 @@ package org.picketlink.idm.model;
  */
 public interface Partition extends AttributedType {
 
+    /**
+     * Returns the unique identifier for the partition
+     * 
+     * @return String value representing the unique identifier
+     */
     String getId();
 
+    /**
+     * Returns the name of the partition.  The partition name is unique for the
+     * type of partition.
+     *
+     * @return String value representing the partition name
+     */
+    String getName();
 }

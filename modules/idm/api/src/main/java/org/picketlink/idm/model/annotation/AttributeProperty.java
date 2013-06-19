@@ -28,8 +28,8 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Marks a property of an IdentityType or Relationship as being an attribute of that
- * IdentityType or Relationship.
+ * Marks a property of an IdentityType, Partition or Relationship as being an attribute of that
+ * IdentityType, Partition or Relationship.
  *
  * @author Shane Bryzak
  */
