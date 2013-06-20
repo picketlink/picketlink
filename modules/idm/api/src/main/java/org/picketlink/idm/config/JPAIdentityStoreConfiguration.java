@@ -761,7 +761,92 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     }
 
     private void configureIdentityAttributeClass(Class<?> entityClass) {
+        @SuppressWarnings("unchecked")
+        Class<? extends IdentityType>[] types = (entityClass.isAnnotationPresent(IdentityManaged.class)) ?
+            entityClass.getAnnotation(IdentityManaged.class).value() :
+            new Class[] {IdentityType.class};
 
+        // First determine the @OwnerReference property, and store it for this entity
+        Property<?> ownerReference = PropertyQueries.createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(OwnerReference.class))
+                .getSingleResult();
+        identityModel.setOwnerReference(entityClass, ownerReference);
+
+        // If the @MappedAttribute annotation is present, then either 
+        // A) the entity class contains ad-hoc attribute values, or 
+        // B) the entity class itself is mapped to a property of the partition, either as a 
+        // many-to-one or one-to-one relationship
+        if (entityClass.isAnnotationPresent(MappedAttribute.class)) {
+            Property<String> attributeClass = PropertyQueries.<String>createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(AttributeClass.class))
+                    .getFirstResult();
+
+            MappedAttribute mappedAttribute = entityClass.getAnnotation(MappedAttribute.class);
+
+            // If there is a property annotated with @AttributeClass, then the entity contains
+            // ad-hoc attribute values
+            if (attributeClass != null) {
+                // Create an AttributeMapping
+                Property<String> attributeName = PropertyQueries.<String>createQuery(entityClass)
+                        .addCriteria(new AnnotatedPropertyCriteria(AttributeName.class))
+                        .getFirstResult();
+
+                Property<Object> attributeValue = PropertyQueries.<Object>createQuery(entityClass)
+                        .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
+                        .getFirstResult();
+
+                AttributeMapping mapping = new AttributeMapping(attributeName, attributeClass, attributeValue);
+
+                for (Class<? extends IdentityType> identityClass : types) {
+                    ModelDefinition definition = identityModel.getDefinition(identityClass);
+
+                    if (mappedAttribute.supportedClasses().length == 0) {
+                        definition.addAttribute(Object.class, mapping);
+                    } else {
+                        for (Class<?> cls : mappedAttribute.supportedClasses()) {
+                            definition.addAttribute(cls, mapping);
+                        }
+                    }
+                }
+            } else {
+                // Otherwise the the entity class must be mapped to a property of the identity -
+                // iterate through the supported types and create a PropertyMapping for each of them
+                for (Class<? extends IdentityType> identityClass : types) {
+                    ModelDefinition definition = identityModel.getDefinition(identityClass);
+
+                    Property<Object> attributeProperty = PropertyQueries.<Object>createQuery(identityClass)
+                            .addCriteria(new NamedPropertyCriteria(mappedAttribute.name()))
+                            .getFirstResult();
+
+                    if (attributeProperty != null) {
+                        definition.addProperty(attributeProperty, new PropertyMapping(entityClass));
+                    }
+                }
+            }
+        } else {
+            // Otherwise the entity should have a one-to-one relationship with the
+            // master identity entity
+            for (Class<? extends IdentityType> identityClass : types) {
+                ModelDefinition definition = identityModel.getDefinition(identityClass);
+
+                // Query for any @AttributeValue properties on the entity, and map them to their
+                // corresponding partition property
+                List<Property<Object>> attributeValues = PropertyQueries.createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
+                    .getResultList();
+
+                for (Property<Object> value : attributeValues) {
+                    Property<?> identityProperty = PropertyQueries.createQuery(identityClass)
+                            .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class))
+                            .addCriteria(new NamedPropertyCriteria(value.getName()))
+                            .getFirstResult();
+
+                    if (identityProperty != null) {
+                        definition.addProperty(identityProperty, new PropertyMapping(value));
+                    }
+                }
+            }
+        }
     }
 
     private void configureCredentialClass(Class<?> entityClass) {
