@@ -36,6 +36,8 @@ import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
+import org.picketlink.idm.jpa.annotations.AttributeClass;
+import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.CredentialClass;
 import org.picketlink.idm.jpa.annotations.Identifier;
@@ -88,6 +90,11 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
         private Property<?> partitionClassProperty;
 
+        /**
+         * Map between entity classes and their @OwnerReference property
+         */
+        private final Map<Class<?>, Property<?>> ownerReferences = new HashMap<Class<?>, Property<?>>();
+
         public ModelDefinition getDefinition(Class<? extends Partition> partitionClass) {
             if (!definitions.containsKey(partitionClass)) {
                 definitions.put(partitionClass, new ModelDefinition());
@@ -101,6 +108,10 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
         public Property<?> getPartitionClassProperty() {
             return partitionClassProperty;
+        }
+
+        public void setOwnerReference(Class<?> entityClass, Property<?> ownerReference) {
+            ownerReferences.put(entityClass, ownerReference);
         }
     }
 
@@ -135,18 +146,51 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     }
 
     private class PropertyMapping {
-        private Property<?> entityProperty;
+        private final Property<?> entityProperty;
+        private final Class<?> entityClass;
 
         public PropertyMapping(Property<?> entityProperty) {
             this.entityProperty = entityProperty;
+            this.entityClass = null;
+        }
+
+        public PropertyMapping(Class<?> entityClass) {
+            this.entityProperty = null;
+            this.entityClass = entityClass;
+        }
+
+        public Property<?> getEntityProperty() {
+            return entityProperty;
+        }
+
+        public Class<?> getEntityClass() {
+            return entityClass;
         }
     }
 
     private class AttributeMapping {
-        private PropertyMapping ownerReference;
-        private Property<String> attributeName;
-        private Property<String> attributeClass;
-        private Property<Object> attributeValue;
+        private final Property<String> attributeName;
+        private final Property<String> attributeClass;
+        private final Property<Object> attributeValue;
+
+        public AttributeMapping(Property<String> attributeName,
+                Property<String> attributeClass, Property<Object> attributeValue) {
+            this.attributeName = attributeName;
+            this.attributeClass = attributeClass;
+            this.attributeValue = attributeValue;
+        }
+
+        public Property<String> getAttributeName() {
+            return attributeName;
+        }
+
+        public Property<String> getAttributeClass() {
+            return attributeClass;
+        }
+
+        public Property<Object> getAttributeValue() {
+            return attributeValue;
+        }
     }
 
     protected JPAIdentityStoreConfiguration(List<Class<?>> entityClasses, Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
@@ -477,27 +521,112 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
             definition.addProperty(nameProperty, new PropertyMapping(prop));
 
-            // Finally query for any @AttributeProperty properties, and map them to their
-            // corresponding entity property
-            List<Property<Object>> partitionProperties = PropertyQueries.createQuery(partitionClass)
-                .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class))
+            // Finally query for any @AttributeValue properties on the entity, and map them to their
+            // corresponding identity property
+            List<Property<Object>> attributeValues = PropertyQueries.createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
                 .getResultList();
 
-            for (Property<Object> property : partitionProperties) {
-                Property<?> entityProperty = PropertyQueries.createQuery(entityClass)
-                        .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
-                        .addCriteria(new NamedPropertyCriteria(property.getName()))
+            for (Property<Object> value : attributeValues) {
+                Property<?> identityProperty = PropertyQueries.createQuery(partitionClass)
+                        .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class))
+                        .addCriteria(new NamedPropertyCriteria(value.getName()))
                         .getFirstResult();
 
-                if (entityProperty != null) {
-                    definition.addProperty(property, new PropertyMapping(entityProperty));
+                if (identityProperty != null) {
+                    definition.addProperty(identityProperty, new PropertyMapping(value));
                 }
             }
         }
     }
 
     private void configurePartitionAttributeClass(Class<?> entityClass) {
+        @SuppressWarnings("unchecked")
+        Class<? extends Partition>[] types = (entityClass.isAnnotationPresent(IdentityManaged.class)) ?
+            entityClass.getAnnotation(IdentityManaged.class).value() :
+            new Class[] {Partition.class};
 
+        // First determine the @OwnerReference property, and store it for this entity
+        Property<?> ownerReference = PropertyQueries.createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(OwnerReference.class))
+                .getSingleResult();
+        partitionModel.setOwnerReference(entityClass, ownerReference);
+
+        // If the @MappedAttribute annotation is present, then either 
+        // A) the entity class contains ad-hoc attribute values, or 
+        // B) the entity class itself is mapped to a property of the partition, either as a 
+        // many-to-one or one-to-one relationship
+        if (entityClass.isAnnotationPresent(MappedAttribute.class)) {
+            Property<String> attributeClass = PropertyQueries.<String>createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(AttributeClass.class))
+                    .getFirstResult();
+
+            MappedAttribute mappedAttribute = entityClass.getAnnotation(MappedAttribute.class);
+
+            // If there is a property annotated with @AttributeClass, then the entity contains
+            // ad-hoc attribute values
+            if (attributeClass != null) {
+                // Create an AttributeMapping
+                Property<String> attributeName = PropertyQueries.<String>createQuery(entityClass)
+                        .addCriteria(new AnnotatedPropertyCriteria(AttributeName.class))
+                        .getFirstResult();
+
+                Property<Object> attributeValue = PropertyQueries.<Object>createQuery(entityClass)
+                        .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
+                        .getFirstResult();
+
+                AttributeMapping mapping = new AttributeMapping(attributeName, attributeClass, attributeValue);
+
+                for (Class<? extends Partition> partitionClass : types) {
+                    ModelDefinition definition = partitionModel.getDefinition(partitionClass);
+
+                    if (mappedAttribute.supportedClasses().length == 0) {
+                        definition.addAttribute(Object.class, mapping);
+                    } else {
+                        for (Class<?> cls : mappedAttribute.supportedClasses()) {
+                            definition.addAttribute(cls, mapping);
+                        }
+                    }
+                }
+            } else {
+                // Otherwise the the entity class must be mapped to a property of the partition -
+                // iterate through the supported types and create a PropertyMapping for each of them
+                for (Class<? extends Partition> partitionClass : types) {
+                    ModelDefinition definition = partitionModel.getDefinition(partitionClass);
+
+                    Property<Object> attributeProperty = PropertyQueries.<Object>createQuery(partitionClass)
+                            .addCriteria(new NamedPropertyCriteria(mappedAttribute.name()))
+                            .getFirstResult();
+
+                    if (attributeProperty != null) {
+                        definition.addProperty(attributeProperty, new PropertyMapping(entityClass));
+                    }
+                }
+            }
+        } else {
+            // Otherwise the entity should have a one-to-one relationship with the
+            // master partition entity
+            for (Class<? extends Partition> partitionClass : types) {
+                ModelDefinition definition = partitionModel.getDefinition(partitionClass);
+
+                // Query for any @AttributeValue properties on the entity, and map them to their
+                // corresponding partition property
+                List<Property<Object>> attributeValues = PropertyQueries.createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
+                    .getResultList();
+
+                for (Property<Object> value : attributeValues) {
+                    Property<?> partitionProperty = PropertyQueries.createQuery(partitionClass)
+                            .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class))
+                            .addCriteria(new NamedPropertyCriteria(value.getName()))
+                            .getFirstResult();
+
+                    if (partitionProperty != null) {
+                        definition.addProperty(partitionProperty, new PropertyMapping(value));
+                    }
+                }
+            }
+        }
     }
 
     private void configureIdentityClass(Class<?> entityClass) {
