@@ -72,6 +72,11 @@
            <version>${project.version}</version>
       </dependency>
        <dependency>
+           <groupId>org.picketlink</groupId>
+           <artifactId>picketlink-federation</artifactId>
+           <version>${project.version}</version>
+       </dependency>
+       <dependency>
            <groupId>javax.enterprise</groupId>
            <artifactId>cdi-api</artifactId>
            <scope>provided</scope>
