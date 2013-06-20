@@ -19,6 +19,7 @@ package org.picketlink.idm.config;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,10 @@ import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.jpa.annotations.CreationDate;
 import org.picketlink.idm.jpa.annotations.CredentialClass;
+import org.picketlink.idm.jpa.annotations.Enabled;
+import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
@@ -68,11 +72,9 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     private final PartitionModel partitionModel = new PartitionModel();
 
     /**
-     * The identity model definition, which maps between specific identity types
-     * and their identity mapping metadata
+     * The identity model definition
      */
-    private final Map<Class<? extends IdentityType>, ModelDefinition> identityModel =
-            new ConcurrentHashMap<Class<? extends IdentityType>, ModelDefinition>();
+    private final IdentityModel identityModel = new IdentityModel();
 
     /**
      * Credential model definition
@@ -88,7 +90,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         private Map<Class<? extends Partition>, ModelDefinition> definitions =
                 new HashMap<Class<? extends Partition>, ModelDefinition>();
 
-        private Property<?> partitionClassProperty;
+        private Property<String> partitionClassProperty;
 
         /**
          * Map between entity classes and their @OwnerReference property
@@ -102,12 +104,42 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
             return definitions.get(partitionClass);
         }
 
-        public void setPartitionClassProperty(Property<?> partitionClassProperty) {
+        public void setPartitionClassProperty(Property<String> partitionClassProperty) {
             this.partitionClassProperty = partitionClassProperty;
         }
 
-        public Property<?> getPartitionClassProperty() {
+        public Property<String> getPartitionClassProperty() {
             return partitionClassProperty;
+        }
+
+        public void setOwnerReference(Class<?> entityClass, Property<?> ownerReference) {
+            ownerReferences.put(entityClass, ownerReference);
+        }
+    }
+
+    private class IdentityModel {
+        /**
+         * Maps between specific identity types and their identity mapping metadata
+         */
+        private final Map<Class<? extends IdentityType>, ModelDefinition> definitions =
+                new HashMap<Class<? extends IdentityType>, ModelDefinition>();
+
+        /**
+         * Map between entity classes and their @OwnerReference property
+         */
+        private final Map<Class<?>, Property<?>> ownerReferences = new HashMap<Class<?>, Property<?>>();
+
+        private Property<String> identityClassProperty;
+
+        public ModelDefinition getDefinition(Class<? extends IdentityType> identityClass) {
+            if (!definitions.containsKey(identityClass)) {
+                definitions.put(identityClass, new ModelDefinition());
+            }
+            return definitions.get(identityClass);
+        }
+
+        public void setIdentityClassProperty(Property<String> identityClassProperty) {
+            this.identityClassProperty = identityClassProperty;
         }
 
         public void setOwnerReference(Class<?> entityClass, Property<?> ownerReference) {
@@ -498,17 +530,17 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
                 .getSingleResult(); 
 
         // Query the partition class property on the entity
-        Property<?> prop = PropertyQueries.createQuery(entityClass)
+        Property<String> classProperty = PropertyQueries.<String>createQuery(entityClass)
                 .addCriteria(new AnnotatedPropertyCriteria(PartitionClass.class))
                 .getSingleResult();
 
-        partitionModel.setPartitionClassProperty(prop);
+        partitionModel.setPartitionClassProperty(classProperty);
 
         for (Class<? extends Partition> partitionClass : types) {
             ModelDefinition definition = partitionModel.getDefinition(partitionClass);
 
             // First query the identifier property on the entity
-            prop = PropertyQueries.createQuery(entityClass)
+            Property<?> prop = PropertyQueries.createQuery(entityClass)
                     .addCriteria(new AnnotatedPropertyCriteria(Identifier.class))
                     .getSingleResult();
 
@@ -630,7 +662,102 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     }
 
     private void configureIdentityClass(Class<?> entityClass) {
+        @SuppressWarnings("unchecked")
+        Class<? extends IdentityType>[] types = (entityClass.isAnnotationPresent(IdentityManaged.class)) ?
+            entityClass.getAnnotation(IdentityManaged.class).value() :
+            new Class[] {IdentityType.class};
 
+        Property<String> idProperty = PropertyQueries.<String>createQuery(IdentityType.class)
+                .addCriteria(new NamedPropertyCriteria("id"))
+                .getSingleResult();
+
+        Property<?> enabledProperty = PropertyQueries.createQuery(IdentityType.class)
+                .addCriteria(new NamedPropertyCriteria("enabled"))
+                .getSingleResult();
+
+        Property<Date> createdProperty = PropertyQueries.<Date>createQuery(IdentityType.class)
+                .addCriteria(new NamedPropertyCriteria("createdDate"))
+                .getSingleResult();
+
+        Property<Date> expirationProperty = PropertyQueries.<Date>createQuery(IdentityType.class)
+                .addCriteria(new NamedPropertyCriteria("expirationDate"))
+                .getSingleResult();
+
+        Property<Partition> partitionProperty = PropertyQueries.<Partition>createQuery(IdentityType.class)
+                .addCriteria(new NamedPropertyCriteria("partition"))
+                .getSingleResult();
+
+        // Query the identity class property on the entity
+        Property<String> classProperty = PropertyQueries.<String>createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(IdentityClass.class))
+                .getSingleResult();
+
+        identityModel.setIdentityClassProperty(classProperty);
+
+        for (Class<? extends IdentityType> identityClass : types) {
+            ModelDefinition definition = identityModel.getDefinition(identityClass);
+
+            // First query the identifier property on the entity
+            Property<String> idProp = PropertyQueries.<String>createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(Identifier.class))
+                    .getSingleResult();
+
+            definition.addProperty(idProperty, new PropertyMapping(idProp));
+
+            // next query the enabled property on the entity
+            Property<?> prop = PropertyQueries.createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(Enabled.class))
+                    .getFirstResult();
+
+            // We don't *really* need an enabled property - if it's absent, we assume everything is enabled
+            if (prop != null) {
+                definition.addProperty(enabledProperty, new PropertyMapping(prop));
+            }
+
+            Property<Date> dateProp = PropertyQueries.<Date>createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(CreationDate.class))
+                    .getFirstResult();
+
+            // Likewise we don't really need the created date property
+            if (dateProp != null) {
+                definition.addProperty(createdProperty,  new PropertyMapping(prop));
+            }
+
+            dateProp = PropertyQueries.<Date>createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(ExpiryDate.class))
+                    .getFirstResult();
+
+            // Or the expiry date property
+            if (dateProp != null) {
+                definition.addProperty(expirationProperty,  new PropertyMapping(prop));
+            }
+
+            // The @OwnerReference annotation is used to link the identity to the owning partition
+            prop = PropertyQueries.createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(OwnerReference.class))
+                    .getFirstResult();
+
+            if (prop != null) {
+                definition.addProperty(partitionProperty, new PropertyMapping(prop));
+            }
+
+            // Finally query for any @AttributeValue properties on the entity, and map them to their
+            // corresponding identity property
+            List<Property<Object>> attributeValues = PropertyQueries.createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
+                .getResultList();
+
+            for (Property<Object> value : attributeValues) {
+                Property<?> identityProperty = PropertyQueries.createQuery(identityClass)
+                        .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class))
+                        .addCriteria(new NamedPropertyCriteria(value.getName()))
+                        .getFirstResult();
+
+                if (identityProperty != null) {
+                    definition.addProperty(identityProperty, new PropertyMapping(value));
+                }
+            }
+        }
     }
 
     private void configureIdentityAttributeClass(Class<?> entityClass) {
