@@ -41,10 +41,10 @@ import java.util.Map;
  */
 public class IdentityConfiguration {
 
-    private List<IdentityStoreConfiguration> configuredStores = new ArrayList<IdentityStoreConfiguration>();
-    private SecurityContextFactory securityContextFactory;
-    private StoreFactory storeFactory;
-    private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> additionalIdentityStores;
+    private final List<IdentityStoreConfiguration> configuredStores = new ArrayList<IdentityStoreConfiguration>();
+    private final SecurityContextFactory securityContextFactory;
+    private final StoreFactory storeFactory;
+    private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> additionalIdentityStores;
 
     IdentityConfiguration(List<IdentityStoreConfiguration> storesConfiguration, StoreFactory storeFactory,
             SecurityContextFactory securityContextFactory,

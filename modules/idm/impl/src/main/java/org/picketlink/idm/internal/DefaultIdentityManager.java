@@ -46,7 +46,6 @@ import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.StoreFactory;
-import sun.management.resources.agent;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
@@ -59,8 +58,8 @@ public class DefaultIdentityManager implements IdentityManager {
 
     private static final long serialVersionUID = -2835518073812662628L;
 
-    private SecurityContext context;
-    private StoreFactory storeFactory;
+    private final SecurityContext context;
+    private final StoreFactory storeFactory;
 
     public DefaultIdentityManager(SecurityContext context, StoreFactory storeFactory) {
         this.context = context;

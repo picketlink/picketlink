@@ -42,6 +42,7 @@ import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
+import org.picketlink.idm.jpa.annotations.PartitionName;
 import org.picketlink.idm.jpa.annotations.RelationshipClass;
 import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
@@ -62,14 +63,13 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     /**
      *
      */
-    private Map<Class<? extends Partition>, ModelDefinition> partitionModel =
-            new HashMap<Class<? extends Partition>, ModelDefinition>();
+    private final PartitionModel partitionModel = new PartitionModel();
 
     /**
      * The identity model definition, which maps between specific identity types
      * and their identity mapping metadata
      */
-    private Map<Class<? extends IdentityType>, ModelDefinition> identityModel =
+    private final Map<Class<? extends IdentityType>, ModelDefinition> identityModel =
             new ConcurrentHashMap<Class<? extends IdentityType>, ModelDefinition>();
 
     /**
@@ -81,6 +81,28 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
      *
      */
     private RelationshipModel relationshipModel;
+
+    private class PartitionModel {
+        private Map<Class<? extends Partition>, ModelDefinition> definitions =
+                new HashMap<Class<? extends Partition>, ModelDefinition>();
+
+        private Property<?> partitionClassProperty;
+
+        public ModelDefinition getDefinition(Class<? extends Partition> partitionClass) {
+            if (!definitions.containsKey(partitionClass)) {
+                definitions.put(partitionClass, new ModelDefinition());
+            }
+            return definitions.get(partitionClass);
+        }
+
+        public void setPartitionClassProperty(Property<?> partitionClassProperty) {
+            this.partitionClassProperty = partitionClassProperty;
+        }
+
+        public Property<?> getPartitionClassProperty() {
+            return partitionClassProperty;
+        }
+    }
 
     /**
      * Each model definition maps between a Property of the identity model and its corresponding
@@ -427,20 +449,37 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
                 .addCriteria(new NamedPropertyCriteria("id"))
                 .getSingleResult();
 
-        for (Class<? extends Partition> type : types) {
-            ModelDefinition definition = new ModelDefinition();
+        Property<String> nameProperty = PropertyQueries.<String>createQuery(Partition.class)
+                .addCriteria(new NamedPropertyCriteria("name"))
+                .getSingleResult(); 
+
+        // Query the partition class property on the entity
+        Property<?> prop = PropertyQueries.createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(PartitionClass.class))
+                .getSingleResult();
+
+        partitionModel.setPartitionClassProperty(prop);
+
+        for (Class<? extends Partition> partitionClass : types) {
+            ModelDefinition definition = partitionModel.getDefinition(partitionClass);
 
             // First query the identifier property on the entity
-            Property<?> identifier = PropertyQueries.createQuery(entityClass)
+            prop = PropertyQueries.createQuery(entityClass)
                     .addCriteria(new AnnotatedPropertyCriteria(Identifier.class))
                     .getSingleResult();
 
-            definition.addProperty(idProperty, new PropertyMapping(identifier));
-            partitionModel.put(type, definition);
+            definition.addProperty(idProperty, new PropertyMapping(prop));
 
-            // Next query for any @AttributeProperty properties, and map them to their
+            // next query the name property on the entity
+            prop = PropertyQueries.createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(PartitionName.class))
+                    .getSingleResult();
+
+            definition.addProperty(nameProperty, new PropertyMapping(prop));
+
+            // Finally query for any @AttributeProperty properties, and map them to their
             // corresponding entity property
-            List<Property<Object>> partitionProperties = PropertyQueries.createQuery(type)
+            List<Property<Object>> partitionProperties = PropertyQueries.createQuery(partitionClass)
                 .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class))
                 .getResultList();
 
