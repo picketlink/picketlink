@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
@@ -37,11 +36,14 @@ import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
+import org.picketlink.idm.credential.spi.annotations.Stored;
 import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.CreationDate;
 import org.picketlink.idm.jpa.annotations.CredentialClass;
+import org.picketlink.idm.jpa.annotations.CredentialValue;
+import org.picketlink.idm.jpa.annotations.EffectiveDate;
 import org.picketlink.idm.jpa.annotations.Enabled;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.Identifier;
@@ -52,6 +54,7 @@ import org.picketlink.idm.jpa.annotations.PartitionName;
 import org.picketlink.idm.jpa.annotations.RelationshipClass;
 import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
 import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
@@ -79,7 +82,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     /**
      * Credential model definition
      */
-    private Map<Class<? extends CredentialStorage>, ModelDefinition> credentialModel;
+    private CredentialModel credentialModel = new CredentialModel();
 
     /**
      *
@@ -140,6 +143,38 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
         public void setIdentityClassProperty(Property<String> identityClassProperty) {
             this.identityClassProperty = identityClassProperty;
+        }
+
+        public void setOwnerReference(Class<?> entityClass, Property<?> ownerReference) {
+            ownerReferences.put(entityClass, ownerReference);
+        }
+    }
+
+    private class CredentialModel {
+        private final Map<Class<? extends CredentialStorage>, ModelDefinition> definitions =
+                new HashMap<Class<? extends CredentialStorage>, ModelDefinition>();
+
+        /**
+         * Map between entity classes and their @OwnerReference property
+         */
+        private final Map<Class<?>, Property<?>> ownerReferences = new HashMap<Class<?>, Property<?>>();
+
+        private Property<String> credentialClassProperty;
+        private Property<?> credentialValueProperty;
+
+        public ModelDefinition getDefinition(Class<? extends CredentialStorage> credentialClass) {
+            if (!definitions.containsKey(credentialClass)) {
+                definitions.put(credentialClass, new ModelDefinition());
+            }
+            return definitions.get(credentialClass);
+        }
+
+        public void setCredentialClassProperty(Property<String> credentialClassProperty) {
+            this.credentialClassProperty = credentialClassProperty;
+        }
+
+        public void setCredentialValueProperty(Property<?> credentialValueProperty) {
+            this.credentialValueProperty = credentialValueProperty;
         }
 
         public void setOwnerReference(Class<?> entityClass, Property<?> ownerReference) {
@@ -850,11 +885,182 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     }
 
     private void configureCredentialClass(Class<?> entityClass) {
+        @SuppressWarnings("unchecked")
+        Class<? extends CredentialStorage>[] types = (entityClass.isAnnotationPresent(ManagedCredential.class)) ?
+            entityClass.getAnnotation(ManagedCredential.class).supportedClasses() :
+            new Class[] {CredentialStorage.class};
 
+        Property<Date> effectiveDateProperty = PropertyQueries.<Date>createQuery(CredentialStorage.class)
+                .addCriteria(new NamedPropertyCriteria("effectiveDate"))
+                .getSingleResult();
+
+        Property<Date> expiryDateProperty = PropertyQueries.<Date>createQuery(CredentialStorage.class)
+                .addCriteria(new NamedPropertyCriteria("expiryDate"))
+                .getSingleResult();
+
+        // Query the credential class property on the entity
+        Property<String> classProperty = PropertyQueries.<String>createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(CredentialClass.class))
+                .getSingleResult();
+
+        credentialModel.setCredentialClassProperty(classProperty);
+
+        // Query the credential value property on the entity
+        Property<?> valueProperty = PropertyQueries.createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(CredentialValue.class))
+                .getSingleResult();
+
+        credentialModel.setCredentialValueProperty(valueProperty);
+
+        for (Class<? extends CredentialStorage> credentialClass : types) {
+            ModelDefinition definition = credentialModel.getDefinition(credentialClass);
+
+            // First query the effectiveDate property on the entity
+            Property<Date> dateProp = PropertyQueries.<Date>createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(EffectiveDate.class))
+                    .getSingleResult();
+
+            definition.addProperty(effectiveDateProperty, new PropertyMapping(dateProp));
+
+            // next query the expiry date property on the entity
+            dateProp = PropertyQueries.<Date>createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(ExpiryDate.class))
+                    .getSingleResult();
+
+            definition.addProperty(expiryDateProperty, new PropertyMapping(dateProp));
+
+            // The @OwnerReference annotation is used to link the credential to the owning identity
+            Property<?> prop = PropertyQueries.createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(OwnerReference.class))
+                    .getSingleResult();
+
+            credentialModel.setOwnerReference(entityClass, prop);
+
+            List<Property<Object>> storedValues = PropertyQueries.createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(CredentialValue.class))
+                    .getResultList();
+            for (Property<Object> value : storedValues) {
+                Property<?> credentialProperty = PropertyQueries.createQuery(credentialClass)
+                        .addCriteria(new AnnotatedPropertyCriteria(Stored.class))
+                        .getFirstResult();
+
+                if (credentialProperty != null) {
+                    definition.addProperty(credentialProperty, new PropertyMapping(value));
+                } else {
+                    // If we can't find the property on the superclass, we still need to store it for when we
+                    // encounter a subclass with that property
+
+                    // TODO
+                }
+            }
+
+
+            // Finally query for any @AttributeValue properties on the entity, and map them to their
+            // corresponding identity property
+            List<Property<Object>> attributeValues = PropertyQueries.createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
+                .getResultList();
+
+            for (Property<Object> value : attributeValues) {
+                Property<?> credentialProperty = PropertyQueries.createQuery(credentialClass)
+                        .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class))
+                        .addCriteria(new NamedPropertyCriteria(value.getName()))
+                        .getFirstResult();
+
+                if (credentialProperty != null) {
+                    definition.addProperty(credentialProperty, new PropertyMapping(value));
+                }
+            }
+        }
     }
 
     private void configureCredentialAttributeClass(Class<?> entityClass) {
+        @SuppressWarnings("unchecked")
+        Class<? extends CredentialStorage>[] types = (entityClass.isAnnotationPresent(ManagedCredential.class)) ?
+            entityClass.getAnnotation(ManagedCredential.class).supportedClasses() :
+            new Class[] {CredentialStorage.class};
 
+        // First determine the @OwnerReference property, and store it for this entity
+        Property<?> ownerReference = PropertyQueries.createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(OwnerReference.class))
+                .getSingleResult();
+        credentialModel.setOwnerReference(entityClass, ownerReference);
+
+        // If the @MappedAttribute annotation is present, then either 
+        // A) the entity class contains ad-hoc attribute values, or 
+        // B) the entity class itself is mapped to a property of the credential, either as a 
+        // many-to-one or one-to-one relationship
+        if (entityClass.isAnnotationPresent(MappedAttribute.class)) {
+            Property<String> attributeClass = PropertyQueries.<String>createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(AttributeClass.class))
+                    .getFirstResult();
+
+            MappedAttribute mappedAttribute = entityClass.getAnnotation(MappedAttribute.class);
+
+            // If there is a property annotated with @AttributeClass, then the entity contains
+            // ad-hoc attribute values
+            if (attributeClass != null) {
+                // Create an AttributeMapping
+                Property<String> attributeName = PropertyQueries.<String>createQuery(entityClass)
+                        .addCriteria(new AnnotatedPropertyCriteria(AttributeName.class))
+                        .getFirstResult();
+
+                Property<Object> attributeValue = PropertyQueries.<Object>createQuery(entityClass)
+                        .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
+                        .getFirstResult();
+
+                AttributeMapping mapping = new AttributeMapping(attributeName, attributeClass, attributeValue);
+
+                for (Class<? extends CredentialStorage> credentialClass : types) {
+                    ModelDefinition definition = credentialModel.getDefinition(credentialClass);
+
+                    if (mappedAttribute.supportedClasses().length == 0) {
+                        definition.addAttribute(Object.class, mapping);
+                    } else {
+                        for (Class<?> cls : mappedAttribute.supportedClasses()) {
+                            definition.addAttribute(cls, mapping);
+                        }
+                    }
+                }
+            } else {
+                // Otherwise the the entity class must be mapped to a property of the credential -
+                // iterate through the supported types and create a PropertyMapping for each of them
+                for (Class<? extends CredentialStorage> credentialClass : types) {
+                    ModelDefinition definition = credentialModel.getDefinition(credentialClass);
+
+                    Property<Object> attributeProperty = PropertyQueries.<Object>createQuery(credentialClass)
+                            .addCriteria(new NamedPropertyCriteria(mappedAttribute.name()))
+                            .getFirstResult();
+
+                    if (attributeProperty != null) {
+                        definition.addProperty(attributeProperty, new PropertyMapping(entityClass));
+                    }
+                }
+            }
+        } else {
+            // Otherwise the entity should have a one-to-one relationship with the
+            // master credential entity
+            for (Class<? extends CredentialStorage> credentialClass : types) {
+                ModelDefinition definition = credentialModel.getDefinition(credentialClass);
+
+                // Query for any @AttributeValue properties on the entity, and map them to their
+                // corresponding partition property
+                List<Property<Object>> attributeValues = PropertyQueries.createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
+                    .getResultList();
+
+                for (Property<Object> value : attributeValues) {
+                    Property<?> credentialProperty = PropertyQueries.createQuery(credentialClass)
+                            .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class))
+                            .addCriteria(new NamedPropertyCriteria(value.getName()))
+                            .getFirstResult();
+
+                    if (credentialProperty != null) {
+                        definition.addProperty(credentialProperty, new PropertyMapping(value));
+                    }
+                }
+            }
+        }
     }
 
     private void configureRelationshipClass(Class<?> entityClass) {
