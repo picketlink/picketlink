@@ -18,27 +18,17 @@
 
 package org.picketlink.idm.credential.spi;
 
-<<<<<<< HEAD
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.spi.IdentityStore;
 
-=======
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-<<<<<<< HEAD
 
-=======
-import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
-import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
-import org.picketlink.idm.spi.IdentityStore;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
