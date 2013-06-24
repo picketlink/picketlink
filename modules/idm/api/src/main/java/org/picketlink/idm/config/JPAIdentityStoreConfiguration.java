@@ -53,6 +53,7 @@ import org.picketlink.idm.jpa.annotations.PartitionClass;
 import org.picketlink.idm.jpa.annotations.PartitionName;
 import org.picketlink.idm.jpa.annotations.RelationshipClass;
 import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
+import org.picketlink.idm.jpa.annotations.RelationshipMember;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
 import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
@@ -182,6 +183,44 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         }
     }
 
+    private class RelationshipModel {
+        private final Map<Class<? extends Relationship>, ModelDefinition> definitions =
+                new HashMap<Class<? extends Relationship>, ModelDefinition>();
+
+        /**
+         * Map between entity classes and their @OwnerReference property
+         */
+        private final Map<Class<?>, Property<?>> ownerReferences = new HashMap<Class<?>, Property<?>>();
+
+        private Property<String> relationshipClassProperty;
+        private Property<?> relationshipMember;
+        private Property<?> relationshipDescriptor;
+
+        public ModelDefinition getDefinition(Class<? extends Relationship> relationshipClass) {
+            if (!definitions.containsKey(relationshipClass)) {
+                definitions.put(relationshipClass, new ModelDefinition());
+            }
+            return definitions.get(relationshipClass);
+        }
+
+        public void setRelationshipMember(Property<?> relationshipMember) {
+            this.relationshipMember = relationshipMember;
+        }
+
+        public void setRelationshipDescriptor(Property<?> relationshipDescriptor) {
+            this.relationshipDescriptor = relationshipDescriptor;
+        }
+
+        public void setRelationshipClassProperty(Property<String> relationshipClassProperty) {
+            this.relationshipClassProperty = relationshipClassProperty;
+        }
+
+        public void setOwnerReference(Class<?> entityClass, Property<?> ownerReference) {
+            ownerReferences.put(entityClass, ownerReference);
+        }
+
+    }
+
     /**
      * Each model definition maps between a Property of the identity model and its corresponding
      * entity bean property, and also maps ad-hoc attribute schemas to the identity type.
@@ -204,12 +243,6 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         public void addAttribute(Class<?> cls, AttributeMapping mapping) {
             attributes.put(cls, mapping);
         }
-    }
-
-    private class RelationshipModel {
-        private Class<?> relationshipClass;
-        private Class<?> relationshipIdentityClass;
-        private Map<Class<?>, AttributeMapping> attributes = new HashMap<Class<?>, AttributeMapping>();
     }
 
     private class PropertyMapping {
@@ -562,7 +595,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
         Property<String> nameProperty = PropertyQueries.<String>createQuery(Partition.class)
                 .addCriteria(new NamedPropertyCriteria("name"))
-                .getSingleResult(); 
+                .getSingleResult();
 
         // Query the partition class property on the entity
         Property<String> classProperty = PropertyQueries.<String>createQuery(entityClass)
@@ -619,9 +652,9 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
                 .getSingleResult();
         partitionModel.setOwnerReference(entityClass, ownerReference);
 
-        // If the @MappedAttribute annotation is present, then either 
-        // A) the entity class contains ad-hoc attribute values, or 
-        // B) the entity class itself is mapped to a property of the partition, either as a 
+        // If the @MappedAttribute annotation is present, then either
+        // A) the entity class contains ad-hoc attribute values, or
+        // B) the entity class itself is mapped to a property of the partition, either as a
         // many-to-one or one-to-one relationship
         if (entityClass.isAnnotationPresent(MappedAttribute.class)) {
             Property<String> attributeClass = PropertyQueries.<String>createQuery(entityClass)
@@ -807,9 +840,9 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
                 .getSingleResult();
         identityModel.setOwnerReference(entityClass, ownerReference);
 
-        // If the @MappedAttribute annotation is present, then either 
-        // A) the entity class contains ad-hoc attribute values, or 
-        // B) the entity class itself is mapped to a property of the partition, either as a 
+        // If the @MappedAttribute annotation is present, then either
+        // A) the entity class contains ad-hoc attribute values, or
+        // B) the entity class itself is mapped to a property of the partition, either as a
         // many-to-one or one-to-one relationship
         if (entityClass.isAnnotationPresent(MappedAttribute.class)) {
             Property<String> attributeClass = PropertyQueries.<String>createQuery(entityClass)
@@ -956,7 +989,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
 
             // Finally query for any @AttributeValue properties on the entity, and map them to their
-            // corresponding identity property
+            // corresponding credential property
             List<Property<Object>> attributeValues = PropertyQueries.createQuery(entityClass)
                 .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
                 .getResultList();
@@ -986,9 +1019,9 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
                 .getSingleResult();
         credentialModel.setOwnerReference(entityClass, ownerReference);
 
-        // If the @MappedAttribute annotation is present, then either 
-        // A) the entity class contains ad-hoc attribute values, or 
-        // B) the entity class itself is mapped to a property of the credential, either as a 
+        // If the @MappedAttribute annotation is present, then either
+        // A) the entity class contains ad-hoc attribute values, or
+        // B) the entity class itself is mapped to a property of the credential, either as a
         // many-to-one or one-to-one relationship
         if (entityClass.isAnnotationPresent(MappedAttribute.class)) {
             Property<String> attributeClass = PropertyQueries.<String>createQuery(entityClass)
@@ -1064,14 +1097,157 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     }
 
     private void configureRelationshipClass(Class<?> entityClass) {
+        @SuppressWarnings("unchecked")
+        Class<? extends Relationship>[] types = (entityClass.isAnnotationPresent(IdentityManaged.class)) ?
+            entityClass.getAnnotation(IdentityManaged.class).value() :
+            new Class[] {Relationship.class};
 
+        Property<String> idProperty = PropertyQueries.<String>createQuery(Relationship.class)
+                .addCriteria(new NamedPropertyCriteria("id"))
+                .getSingleResult();
+
+        // Query the relationship class property on the entity
+        Property<String> classProperty = PropertyQueries.<String>createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(RelationshipClass.class))
+                .getSingleResult();
+
+        relationshipModel.setRelationshipClassProperty(classProperty);
+
+        for (Class<? extends Relationship> relationshipClass : types) {
+            ModelDefinition definition = relationshipModel.getDefinition(relationshipClass);
+
+            // First query the identifier property on the entity
+            Property<?> prop = PropertyQueries.createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(Identifier.class))
+                    .getSingleResult();
+
+            definition.addProperty(idProperty, new PropertyMapping(prop));
+
+            // Finally query for any @AttributeValue properties on the entity, and map them to their
+            // corresponding relationship property
+            List<Property<Object>> attributeValues = PropertyQueries.createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
+                .getResultList();
+
+            for (Property<Object> value : attributeValues) {
+                Property<?> relationshipProperty = PropertyQueries.createQuery(relationshipClass)
+                        .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class))
+                        .addCriteria(new NamedPropertyCriteria(value.getName()))
+                        .getFirstResult();
+
+                if (relationshipProperty != null) {
+                    definition.addProperty(relationshipProperty, new PropertyMapping(value));
+                }
+            }
+        }
     }
 
     private void configureRelationshipIdentityClass(Class<?> entityClass) {
+        // First determine the @OwnerReference property, and store it for this entity
+        Property<?> ownerReference = PropertyQueries.createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(OwnerReference.class))
+                .getSingleResult();
+        relationshipModel.setOwnerReference(entityClass, ownerReference);
 
+        // then store the relationship member property
+        Property<?> relationshipMember = PropertyQueries.createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(RelationshipMember.class))
+                .getSingleResult();
+        relationshipModel.setRelationshipMember(relationshipMember);
+
+        // finally store the relationship descriptor property
+        Property<?> relationshipDescriptor = PropertyQueries.createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(RelationshipDescriptor.class))
+                .getSingleResult();
+        relationshipModel.setRelationshipDescriptor(relationshipDescriptor);
     }
 
     private void configureRelationshipAttributeClass(Class<?> entityClass) {
+        @SuppressWarnings("unchecked")
+        Class<? extends Relationship>[] types = (entityClass.isAnnotationPresent(IdentityManaged.class)) ?
+            entityClass.getAnnotation(IdentityManaged.class).value() :
+            new Class[] {Relationship.class};
 
+        // First determine the @OwnerReference property, and store it for this entity
+        Property<?> ownerReference = PropertyQueries.createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(OwnerReference.class))
+                .getSingleResult();
+        relationshipModel.setOwnerReference(entityClass, ownerReference);
+
+        // If the @MappedAttribute annotation is present, then either
+        // A) the entity class contains ad-hoc attribute values, or
+        // B) the entity class itself is mapped to a property of the relationship, either as a
+        // many-to-one or one-to-one relationship
+        if (entityClass.isAnnotationPresent(MappedAttribute.class)) {
+            Property<String> attributeClass = PropertyQueries.<String>createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(AttributeClass.class))
+                    .getFirstResult();
+
+            MappedAttribute mappedAttribute = entityClass.getAnnotation(MappedAttribute.class);
+
+            // If there is a property annotated with @AttributeClass, then the entity contains
+            // ad-hoc attribute values
+            if (attributeClass != null) {
+                // Create an AttributeMapping
+                Property<String> attributeName = PropertyQueries.<String>createQuery(entityClass)
+                        .addCriteria(new AnnotatedPropertyCriteria(AttributeName.class))
+                        .getFirstResult();
+
+                Property<Object> attributeValue = PropertyQueries.<Object>createQuery(entityClass)
+                        .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
+                        .getFirstResult();
+
+                AttributeMapping mapping = new AttributeMapping(attributeName, attributeClass, attributeValue);
+
+                for (Class<? extends Relationship> relationshipClass : types) {
+                    ModelDefinition definition = relationshipModel.getDefinition(relationshipClass);
+
+                    if (mappedAttribute.supportedClasses().length == 0) {
+                        definition.addAttribute(Object.class, mapping);
+                    } else {
+                        for (Class<?> cls : mappedAttribute.supportedClasses()) {
+                            definition.addAttribute(cls, mapping);
+                        }
+                    }
+                }
+            } else {
+                // Otherwise the the entity class must be mapped to a property of the relationship -
+                // iterate through the supported types and create a PropertyMapping for each of them
+                for (Class<? extends Relationship> relationshipClass : types) {
+                    ModelDefinition definition = relationshipModel.getDefinition(relationshipClass);
+
+                    Property<Object> attributeProperty = PropertyQueries.<Object>createQuery(relationshipClass)
+                            .addCriteria(new NamedPropertyCriteria(mappedAttribute.name()))
+                            .getFirstResult();
+
+                    if (attributeProperty != null) {
+                        definition.addProperty(attributeProperty, new PropertyMapping(entityClass));
+                    }
+                }
+            }
+        } else {
+            // Otherwise the entity should have a one-to-one relationship with the
+            // master relationship entity
+            for (Class<? extends Relationship> relationshipClass : types) {
+                ModelDefinition definition = relationshipModel.getDefinition(relationshipClass);
+
+                // Query for any @AttributeValue properties on the entity, and map them to their
+                // corresponding partition property
+                List<Property<Object>> attributeValues = PropertyQueries.createQuery(entityClass)
+                    .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
+                    .getResultList();
+
+                for (Property<Object> value : attributeValues) {
+                    Property<?> relationshipProperty = PropertyQueries.createQuery(relationshipClass)
+                            .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class))
+                            .addCriteria(new NamedPropertyCriteria(value.getName()))
+                            .getFirstResult();
+
+                    if (relationshipProperty != null) {
+                        definition.addProperty(relationshipProperty, new PropertyMapping(value));
+                    }
+                }
+            }
+        }
     }
 }
