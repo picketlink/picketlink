@@ -88,7 +88,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     /**
      *
      */
-    private RelationshipModel relationshipModel;
+    private RelationshipModel relationshipModel = new RelationshipModel();
 
     private class PartitionModel {
         private Map<Class<? extends Partition>, ModelDefinition> definitions =
