@@ -18,6 +18,11 @@
 
 package org.picketlink.test.idm.relationship;
 
+<<<<<<< HEAD
+=======
+import java.io.Serializable;
+import java.util.List;
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
@@ -32,6 +37,9 @@ import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
 import java.util.List;
@@ -317,8 +325,8 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         identityManager.add(groupMembership);
 
         // Create a large array of values
-        Integer[] val = new Integer[1000];
-        for (int i = 0; i < 999; i++) {
+        Integer[] val = new Integer[100];
+        for (int i = 0; i < 100; i++) {
             val[i] = i;
         }
         
@@ -339,8 +347,8 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         Integer[] retrievedVal = updatedIdentityType.<Integer[]>getAttribute("Values").getValue();
 
-        for (int i = 0; i < 999; i++) {
-            assert retrievedVal[i] == i;
+        for (Integer value: retrievedVal) {
+            assertTrue(contains(retrievedVal, value));
         }
     }
 
@@ -432,4 +440,15 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         return false;
     }
+
+    private boolean contains(Integer[] result, Integer value) {
+        for (Integer resultValue : result) {
+            if (resultValue.equals(value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }

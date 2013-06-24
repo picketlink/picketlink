@@ -22,9 +22,18 @@
 
 package org.picketlink.test.idm.config;
 
+<<<<<<< HEAD
+=======
+import java.util.HashMap;
+import java.util.Map;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -46,7 +55,14 @@ import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.password.PasswordEncoder;
+import org.picketlink.idm.password.internal.BCryptPasswordEncoder;
+import org.picketlink.idm.password.internal.PBKDF2PasswordEncoder;
 import org.picketlink.idm.password.internal.SHAPasswordEncoder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.picketlink.idm.credential.internal.PasswordCredentialHandler.PASSWORD_ENCODER;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -64,7 +80,7 @@ import static org.picketlink.idm.credential.internal.PasswordCredentialHandler.P
  * <p>Some tests for the configuration of the encoding when using the {@link PasswordCredentialHandler}.</p>
  * 
  * @author Pedro Silva
- * 
+ * @author Anil Saldhana
  */
 public class PasswordCredentialHandlerConfigurationTestCase {
     
@@ -84,7 +100,105 @@ public class PasswordCredentialHandlerConfigurationTestCase {
         this.entityManager.close();
         this.emf.close();
     }
-    
+
+    @Test
+    public void testBCryptPasswordEncoder() throws Exception {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+                .stores()
+                .jpa()
+                .setCredentialHandlerProperty(PASSWORD_ENCODER,
+                        new BCryptPasswordEncoder(4) )
+                .addContextInitializer(new JPAContextInitializer(emf) {
+                    @Override
+                    public EntityManager getEntityManager() {
+                        return entityManager;
+                    }
+                })
+                .addRealm(Realm.DEFAULT_REALM)
+                .supportAllFeatures()
+                .identityClass(IdentityObject.class)
+                .attributeClass(IdentityObjectAttribute.class)
+                .relationshipClass(RelationshipObject.class)
+                .relationshipIdentityClass(RelationshipIdentityObject.class)
+                .relationshipAttributeClass(RelationshipObjectAttribute.class)
+                .credentialClass(CredentialObject.class)
+                .credentialAttributeClass(CredentialObjectAttribute.class)
+                .partitionClass(PartitionObject.class);
+
+        IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(builder.build());
+
+        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+
+        User user = new SimpleUser("user");
+
+        identityManager.add(user);
+
+        user = identityManager.getUser(user.getLoginName());
+
+        assertNotNull(user);
+
+        Password password = new Password("123");
+
+        identityManager.updateCredential(user, password);
+
+        UsernamePasswordCredentials credential = new UsernamePasswordCredentials(user.getLoginName(), password);
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.VALID, credential.getStatus());
+    }
+
+    @Test
+    public void testPBKDF2PasswordEncoder() throws Exception {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+                .stores()
+                .jpa()
+                .setCredentialHandlerProperty(PASSWORD_ENCODER,
+                        new PBKDF2PasswordEncoder("salty".getBytes(),1000,128))
+                .addContextInitializer(new JPAContextInitializer(emf) {
+                    @Override
+                    public EntityManager getEntityManager() {
+                        return entityManager;
+                    }
+                })
+                .addRealm(Realm.DEFAULT_REALM)
+                .supportAllFeatures()
+                .identityClass(IdentityObject.class)
+                .attributeClass(IdentityObjectAttribute.class)
+                .relationshipClass(RelationshipObject.class)
+                .relationshipIdentityClass(RelationshipIdentityObject.class)
+                .relationshipAttributeClass(RelationshipObjectAttribute.class)
+                .credentialClass(CredentialObject.class)
+                .credentialAttributeClass(CredentialObjectAttribute.class)
+                .partitionClass(PartitionObject.class);
+
+        IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(builder.build());
+
+        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+
+        User user = new SimpleUser("user");
+
+        identityManager.add(user);
+
+        user = identityManager.getUser(user.getLoginName());
+
+        assertNotNull(user);
+
+        Password password = new Password("123");
+
+        identityManager.updateCredential(user, password);
+
+        UsernamePasswordCredentials credential = new UsernamePasswordCredentials(user.getLoginName(), password);
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.VALID, credential.getStatus());
+    }
+
     @Test
     public void testCustomSHAPasswordEncoder() throws Exception {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
@@ -98,7 +212,13 @@ public class PasswordCredentialHandlerConfigurationTestCase {
                             public String encode(String rawPassword) {
                                 Assert.assertEquals(1, this.getStrength());
                                 return super.encode(rawPassword);
-                            }})
+                            }
+
+                            @Override
+                            public boolean verify(String rawPassword, String encodedPassword) {
+                                return super.verify(rawPassword, encodedPassword);
+                            }
+                        })
                     .addContextInitializer(new JPAContextInitializer(emf) {
                         @Override
                         public EntityManager getEntityManager() {
@@ -153,6 +273,11 @@ public class PasswordCredentialHandlerConfigurationTestCase {
                         public String encode(String rawPassword) {
                             assertionCheck.put("WAS_INVOKED", "true");
                             return rawPassword;
+                        }
+
+                        @Override
+                        public boolean verify(String rawPassword, String encodedPassword) {
+                            return true;
                         }
                     })
                     .addContextInitializer(new JPAContextInitializer(emf) {

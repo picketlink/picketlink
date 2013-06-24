@@ -168,8 +168,6 @@
 					<skip>true</skip>
 					<systemPropertyVariables>
 						<project.version>${project.version}</project.version>
-						<arquillian.launch>${arquillian}</arquillian.launch>
-						<arquillian>${arquillian}</arquillian>
 					</systemPropertyVariables>
 				</configuration>
 				<executions>

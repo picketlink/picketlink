@@ -33,6 +33,12 @@ import java.util.List;
  * @since Dec 27, 2010
  */
 public interface STSCoreConfig {
+    /**
+     * @return the certificate alias name
+     * @since v2.5.0
+     */
+    public String getSigningCertificateAlias();
+
     public void copy(STSCoreConfig thatConfig);
 
     /**

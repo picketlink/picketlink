@@ -57,12 +57,14 @@ import java.util.Map;
 
 public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
 
+    private boolean useAbsoluteKeyIdentifier;
+
     /*
-     * (non-Javadoc)
-     *
-     * @seeorg.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#cancelToken(org.picketlink.identity.
-     * federation.core.interfaces.ProtocolContext)
-     */
+         * (non-Javadoc)
+         *
+         * @seeorg.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#cancelToken(org.picketlink.identity.
+         * federation.core.interfaces.ProtocolContext)
+         */
     public void cancelToken(ProtocolContext context) throws ProcessingException {
         if (!(context instanceof WSTrustRequestContext))
             return;
@@ -80,6 +82,11 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
         // get the assertion ID and add it to the canceled assertions set.
         String assertionId = assertionElement.getAttribute("AssertionID");
         this.revocationRegistry.revokeToken(SAMLUtil.SAML11_TOKEN_TYPE, assertionId);
+
+        String absoluteKI = this.properties.get(USE_ABSOLUTE_KEYIDENTIFIER);
+        if(absoluteKI != null && "true".equalsIgnoreCase(absoluteKI)){
+            useAbsoluteKeyIdentifier = true;
+        }
     }
 
     /*
@@ -166,7 +173,11 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
         wstContext.setSecurityToken(token);
 
         // set the SAML assertion attached reference.
-        KeyIdentifierType keyIdentifier = WSTrustUtil.createKeyIdentifier(SAMLUtil.SAML11_VALUE_TYPE, "#" + assertionID);
+        String keyIdentifierValue = assertionID;
+        if(!useAbsoluteKeyIdentifier){
+            keyIdentifierValue = "#" + keyIdentifierValue;
+        }
+        KeyIdentifierType keyIdentifier = WSTrustUtil.createKeyIdentifier(SAMLUtil.SAML11_VALUE_TYPE, keyIdentifierValue);
         Map<QName, String> attributes = new HashMap<QName, String>();
         attributes.put(new QName(WSTrustConstants.WSSE11_NS, "TokenType", WSTrustConstants.WSSE.PREFIX_11),
                 SAMLUtil.SAML11_TOKEN_TYPE);

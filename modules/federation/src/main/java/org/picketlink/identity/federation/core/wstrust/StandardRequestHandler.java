@@ -17,6 +17,23 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
+<<<<<<< HEAD
+=======
+import java.net.URI;
+import java.security.KeyPair;
+import java.security.Principal;
+import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.List;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.crypto.dsig.DigestMethod;
+import javax.xml.crypto.dsig.SignatureMethod;
+import javax.xml.namespace.QName;
+
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.WSTrustConstants;
@@ -559,11 +576,17 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
 
                     logger.trace("NamespaceURI of element to be signed: " + tokenElement.getNamespaceURI());
 
+                    //Is there a certificate?
+                    X509Certificate x509Certificate = null;
+                    String signingCertificateAlias = this.configuration.getSigningCertificateAlias();
+                    if(signingCertificateAlias != null){
+                        x509Certificate = (X509Certificate) this.configuration.getCertificate(signingCertificateAlias);
+                    }
                     // Set the CanonicalizationMethod if any
                     XMLSignatureUtil.setCanonicalizationMethodType(configuration.getXMLDSigCanonicalizationMethod());
 
                     rstrDocument = XMLSignatureUtil.sign(rstrDocument, tokenElement, keyPair, DigestMethod.SHA1,
-                            signatureMethod, setupIDAttribute(tokenElement));
+                            signatureMethod, setupIDAttribute(tokenElement),x509Certificate);
                     if (logger.isTraceEnabled()) {
                         try {
                             Document tokenDocument = DocumentUtil.createDocument();

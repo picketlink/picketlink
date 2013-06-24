@@ -1,29 +1,28 @@
 package org.picketlink.test.authentication.web;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.UUID;
-
 import javax.enterprise.inject.Instance;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.picketlink.Identity;
 import org.picketlink.authentication.web.AuthenticationFilter;
 import org.picketlink.authentication.web.HTTPAuthenticationScheme;
 import org.picketlink.credential.DefaultLoginCredentials;
+<<<<<<< HEAD
 import org.picketlink.idm.model.sample.User;
+=======
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+import static org.picketlink.authentication.web.AuthenticationFilter.AuthType.BASIC;
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 
 public class AuthenticationFilterTestCase {
 
@@ -57,10 +56,8 @@ public class AuthenticationFilterTestCase {
     @Mock
     private HTTPAuthenticationScheme authenticationScheme;
     
-    @Mock
-    private HttpSession session;
-
     @Before
+<<<<<<< HEAD
     public void setUp() throws ServletException {
         MockitoAnnotations.initMocks(this);
     }
@@ -68,52 +65,43 @@ public class AuthenticationFilterTestCase {
     private void setupCredential(boolean loggedIn, String authType) throws IOException, ServletException {
         when(identity.isLoggedIn()).thenReturn(loggedIn);
         when(credentials.getCredential()).thenReturn(new User("john"));
+=======
+    public void onSetup() throws ServletException {
+        initMocks(this);
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
         when(identityInstance.get()).thenReturn(identity);
         when(credentialsInstance.get()).thenReturn(credentials);
-        when(config.getInitParameter("authType")).thenReturn(authType);
+    }
+
+    @Test
+    public void testUnprotectedMethod() throws Exception {
+        when(config.getInitParameter(AuthenticationFilter.AUTH_TYPE_INIT_PARAM)).thenReturn(BASIC.name());
+        when(config.getInitParameter(AuthenticationFilter.UNPROTECTED_METHODS_INIT_PARAM)).thenReturn("OPTIONS, GET");
+        when(request.getMethod()).thenReturn("OPTIONS");
+
         filter.init(config);
         filter.doFilter(request, response, filterChain);
+
+        verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED);
+
+        when(request.getMethod()).thenReturn("GET");
+
+        filter.init(config);
+        filter.doFilter(request, response, filterChain);
+
+        verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED);
     }
 
     @Test
-    public void testBasicAuthentication() throws Exception {
-        setupCredential(false, "BASIC");
-        verify(identity).login();
+    public void testProtectedMethod() throws Exception {
+        when(config.getInitParameter(AuthenticationFilter.AUTH_TYPE_INIT_PARAM)).thenReturn(BASIC.name());
+        when(config.getInitParameter(AuthenticationFilter.UNPROTECTED_METHODS_INIT_PARAM)).thenReturn("OPTIONS");
+        when(request.getMethod()).thenReturn("GET");
+
+        filter.init(config);
+        filter.doFilter(request, response, filterChain);
+
+        verify(response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
     }
 
-    @Test
-    public void testBasicAuthenticationRealmProvided() throws Exception {
-        when(config.getInitParameter("realm")).thenReturn("myrealm");
-        setupCredential(false, "BASIC");
-        verify(identity).login();
-    }
-
-    @Test
-    public void testBasicAuthenticationUserLoggedIn() throws Exception {
-        setupCredential(true, "BASIC");
-        verify(filterChain).doFilter(request, response);
-    }
-
-    @Test
-    public void testDigestAuthentication() throws Exception {
-        when(session.getId()).thenReturn(UUID.randomUUID().toString());
-        when(request.getSession()).thenReturn(session);
-        setupCredential(false, "DIGEST");
-        verify(identity).login();
-    }
-
-    @Test
-    public void testDigestAuthenticationRealmProvided() throws Exception {
-        when(config.getInitParameter("realm")).thenReturn("myrealm");
-        when(session.getId()).thenReturn(UUID.randomUUID().toString());
-        when(request.getSession()).thenReturn(session);
-        setupCredential(false, "DIGEST");
-        verify(identity).login();
-    }
-
-    @Test
-    public void testDigestAuthenticationUserLoggedIn() throws Exception {
-        setupCredential(true, "DIGEST");
-        verify(filterChain).doFilter(request, response);
-    }
 }

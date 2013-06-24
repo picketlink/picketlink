@@ -18,6 +18,7 @@
 
 package org.picketlink.test.idm.credential;
 
+<<<<<<< HEAD
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
@@ -25,12 +26,26 @@ import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
+=======
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+<<<<<<< HEAD
 
 import static org.junit.Assert.assertEquals;
+=======
+import org.junit.Test;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.credential.Credentials.Status;
+import org.picketlink.idm.credential.X509CertificateCredentials;
+import org.picketlink.idm.model.User;
+import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 
 /**
  * <p>
@@ -54,6 +69,23 @@ public class CertificateCredentialTestCase extends AbstractIdentityManagerTestCa
         identityManager.validateCredentials(credential);
 
         assertEquals(Status.VALID, credential.getStatus());
+        assertNotNull(credential.getValidatedAgent());
+    }
+
+    @Test
+    public void testTrustedCertSuccessfulValidation() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        X509Certificate clientCert = getTestingCertificate("servercert.txt");
+        X509CertificateCredentials credential = new X509CertificateCredentials(clientCert);
+
+        User user = createUser(credential.getUsername());
+
+        credential.setTrusted(true);
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.VALID, credential.getStatus());
+        assertNotNull(credential.getValidatedAgent());
     }
 
     @Test
@@ -74,6 +106,7 @@ public class CertificateCredentialTestCase extends AbstractIdentityManagerTestCa
         identityManager.validateCredentials(badCredential);
 
         assertEquals(Status.INVALID, badCredential.getStatus());
+        assertNull(badCredential.getValidatedAgent());
     }
     
     @Test

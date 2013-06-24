@@ -39,6 +39,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+<<<<<<< HEAD
+=======
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+ 
+import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.picketlink.social.standalone.oauth.OAuthConstants;
+
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 /**
  * Processor to perform Facebook interaction
  *
@@ -211,18 +223,33 @@ public class FacebookProcessor {
             facebookPrincipal = new FacebookPrincipal();
             facebookPrincipal.setAccessToken(accessToken);
             facebookPrincipal.setId(jsonObject.getString("id"));
-            facebookPrincipal.setName(jsonObject.getString("name"));
-            facebookPrincipal.setUsername(jsonObject.getString("username"));
-            facebookPrincipal.setFirstName(jsonObject.getString("first_name"));
-            facebookPrincipal.setLastName(jsonObject.getString("last_name"));
-            facebookPrincipal.setGender(jsonObject.getString("gender"));
-            facebookPrincipal.setTimezone(jsonObject.getString("timezone"));
-            facebookPrincipal.setLocale(jsonObject.getString("locale"));
-            facebookPrincipal.setJsonObject(jsonObject);
-            if (jsonObject.getString("email") != null) {
-                facebookPrincipal.setName(jsonObject.getString("email"));
-                facebookPrincipal.setEmail(jsonObject.getString("email"));
+            if (jsonObject.has("name")) {
+                facebookPrincipal.setName(jsonObject.getString("name"));
             }
+            if (jsonObject.has("username")) {
+                facebookPrincipal.setUsername(jsonObject.getString("username"));
+            }
+            if (jsonObject.has("first_name")) {
+                facebookPrincipal.setFirstName(jsonObject.getString("first_name"));
+            }
+            if (jsonObject.has("last_name")) {
+                facebookPrincipal.setLastName(jsonObject.getString("last_name"));
+            }
+            if (jsonObject.has("gender")) {
+                facebookPrincipal.setGender(jsonObject.getString("gender"));
+            }
+            if (jsonObject.has("timezone")) {
+                facebookPrincipal.setTimezone(jsonObject.getString("timezone"));
+            }
+            if (jsonObject.has("locale")) {
+                facebookPrincipal.setLocale(jsonObject.getString("locale"));
+            }
+            if (jsonObject.has("email")) {
+                String emailString = jsonObject.getString("email");
+                facebookPrincipal.setName(emailString);
+                facebookPrincipal.setEmail(emailString);
+            }
+            facebookPrincipal.setJsonObject(jsonObject);
         } catch (JSONException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {

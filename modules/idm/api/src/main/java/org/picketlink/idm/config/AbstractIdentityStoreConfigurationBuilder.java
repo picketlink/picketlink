@@ -259,6 +259,7 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
         this.tiers.addAll(configuration.getTiers());
         this.supportedFeatures.putAll(configuration.getSupportedFeatures());
         this.supportedRelationships.putAll(configuration.getSupportedRelationships());
+        this.credentialHandlers.addAll(configuration.getCredentialHandlers());
 
         return this;
     }

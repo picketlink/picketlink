@@ -166,7 +166,7 @@ public class DefaultStoreFactory implements StoreFactory {
     public Tier getTier(String id) {
         if (configuredTiers.containsKey(id)) {
             return configuredTiers.get(id);
-        } else if (realmStores.containsKey(id)) {
+        } else if (tierStores.containsKey(id)) {
             Tier tier = new Tier(id);
             configuredTiers.put(id, tier);
             return tier;

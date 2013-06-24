@@ -47,6 +47,10 @@ import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.StoreFactory;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
+<<<<<<< HEAD
+=======
+import static org.picketlink.idm.internal.util.IDMUtil.getFeatureGroup;
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 
 /**
  * Default implementation of the IdentityManager interface
@@ -100,7 +104,9 @@ public class DefaultIdentityManager implements IdentityManager {
                 throw MESSAGES.nullArgument("Group name");
             }
 
-            if (getGroup(newGroup.getPath()) != null) {
+            Group storedGroup = getGroup(newGroup.getPath());
+
+            if (storedGroup != null && storedGroup.getPartition().equals(context.getPartition())) {
                 throw MESSAGES.identityTypeAlreadyExists(newGroup.getClass(), newGroup.getName(), context.getPartition());
             }
 
@@ -116,7 +122,9 @@ public class DefaultIdentityManager implements IdentityManager {
                 throw MESSAGES.nullArgument("Role name");
             }
 
-            if (getRole(newRole.getName()) != null) {
+            Role storedRole = getRole(newRole.getName());
+
+            if (storedRole != null && storedRole.getPartition().equals(context.getPartition())) {
                 throw MESSAGES.identityTypeAlreadyExists(newRole.getClass(), newRole.getName(), context.getPartition());
             }
         }
@@ -330,11 +338,11 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public boolean hasRole(IdentityType identityType, Role role) {
         if (identityType == null) {
-            MESSAGES.nullArgument("IdentityType");
+            throw MESSAGES.nullArgument("IdentityType");
         }
 
         if (role == null) {
-            MESSAGES.nullArgument("Role");
+            throw MESSAGES.nullArgument("Role");
         }
 
         if (Role.class.isInstance(identityType)) {
@@ -416,32 +424,47 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         List<T> result = Collections.emptyList();
+        List<Class<? extends IdentityType>> typesToSearch = new ArrayList<Class<? extends IdentityType>>();
 
         if (IdentityType.class.equals(identityType)) {
-            List<Class<? extends IdentityType>> types = new ArrayList<Class<? extends IdentityType>>();
-
-            types.add(User.class);
-            types.add(Agent.class);
-            types.add(Group.class);
-            types.add(Role.class);
-
-            for (Class<? extends IdentityType> childType : types) {
-                IdentityQuery<T> query = (IdentityQuery<T>) createIdentityQuery(childType);
-
-                query.setParameter(IdentityType.ID, id);
-
-                result = query.getResultList();
-
-                if (!result.isEmpty()) {
-                    break;
-                }
-            }
+            typesToSearch.add(User.class);
+            typesToSearch.add(Agent.class);
+            typesToSearch.add(Group.class);
+            typesToSearch.add(Role.class);
         } else {
-            IdentityQuery<T> query = (IdentityQuery<T>) createIdentityQuery(identityType);
+            typesToSearch.add(identityType);
+        }
+
+        for (Class<? extends IdentityType> childType : typesToSearch) {
+            IdentityQuery<T> query = (IdentityQuery<T>) createIdentityQuery(childType);
 
             query.setParameter(IdentityType.ID, id);
 
+            List<String> partitionIds = new ArrayList<String>();
+
+            partitionIds.add(context.getPartition().getId());
+
+            if (Role.class.isAssignableFrom(childType) || Group.class.isAssignableFrom(childType)) {
+                IdentityStore<?> store = null;
+
+                if (Role.class.isAssignableFrom(childType)) {
+                    store = storeFactory.getStoreForFeature(context, FeatureGroup.role, FeatureOperation.read);
+                } else {
+                    store = storeFactory.getStoreForFeature(context, FeatureGroup.group, FeatureOperation.read);
+                }
+
+                if (Realm.class.isInstance(context.getPartition())) {
+                    partitionIds.addAll(store.getConfig().getTiers());
+                }
+            }
+
+            query.setParameter(IdentityType.PARTITION, partitionIds.toArray());
+
             result = query.getResultList();
+
+            if (!result.isEmpty()) {
+                break;
+            }
         }
 
         T identity = null;
@@ -466,8 +489,8 @@ public class DefaultIdentityManager implements IdentityManager {
         RelationshipQuery<GroupRole> query = createRelationshipQuery(GroupRole.class);
 
         query.setParameter(GroupRole.ASSIGNEE, identityType);
-        query.setParameter(GroupRole.ROLE, role);
-        query.setParameter(GroupRole.GROUP, group);
+        query.setParameter(GroupRole.ROLE, lookupIdentityById(role.getClass(), role.getId()));
+        query.setParameter(GroupRole.GROUP, lookupIdentityById(group.getClass(), group.getId()));
 
         List<GroupRole> result = query.getResultList();
 
@@ -483,7 +506,7 @@ public class DefaultIdentityManager implements IdentityManager {
         RelationshipQuery<GroupMembership> query = createRelationshipQuery(GroupMembership.class);
 
         query.setParameter(GroupMembership.MEMBER, identityType);
-        query.setParameter(GroupMembership.GROUP, group);
+        query.setParameter(GroupMembership.GROUP, lookupIdentityById(group.getClass(), group.getId()));
 
         List<GroupMembership> result = query.getResultList();
 
@@ -519,7 +542,7 @@ public class DefaultIdentityManager implements IdentityManager {
         RelationshipQuery<Grant> query = createRelationshipQuery(Grant.class);
 
         query.setParameter(Grant.ASSIGNEE, identityType);
-        query.setParameter(Grant.ROLE, role);
+        query.setParameter(Grant.ROLE, lookupIdentityById(role.getClass(), role.getId()));
 
         List<Grant> result = query.getResultList();
 

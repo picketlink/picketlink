@@ -26,10 +26,24 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+<<<<<<< HEAD
 import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
 import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld.PropertyType;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
+=======
+import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
+import org.picketlink.idm.event.AbstractBaseEvent;
+import org.picketlink.idm.event.GroupCreatedEvent;
+import org.picketlink.idm.event.GroupDeletedEvent;
+import org.picketlink.idm.event.GroupUpdatedEvent;
+import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.GroupMembership;
+import org.picketlink.idm.model.SimpleGroup;
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.SecurityContext;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
@@ -184,11 +198,17 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
                     Group childGroup = (Group) object;
 
                     if (childGroup != null && childGroup.getParentGroup() != null) {
-                        Object childObject = store.lookupIdentityObjectById(context, childGroup.getId());
+                        Object childObject = null;
 
-                        List<Object> parents = getParentGroups(criteria, store, builder, childObject);
+                        try {
+                            childObject = store.lookupIdentityObjectById(context, childGroup.getId());
 
-                        predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(parents));
+                            List<Object> parents = getParentGroups(criteria, store, builder, childObject);
+
+                            predicates.add(criteria.getRoot().in(parents));
+                        } catch (IdentityManagementException ime) {
+                            // the type may not exists
+                        }
                     } else {
                         predicates.add(criteria.getBuilder().equal(
                                 criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.IDENTITY_ID).getName()), "-1"));

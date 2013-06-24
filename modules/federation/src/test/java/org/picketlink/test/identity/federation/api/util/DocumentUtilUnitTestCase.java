@@ -18,7 +18,7 @@
 package org.picketlink.test.identity.federation.api.util;
 
 import org.junit.Test;
-import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;

@@ -23,7 +23,6 @@
 package org.picketlink.test.integration.authentication;
 
 import javax.inject.Inject;
-
 import org.junit.After;
 import org.junit.Before;
 import org.picketlink.Identity;
@@ -36,7 +35,7 @@ import org.picketlink.test.integration.AbstractArquillianTestCase;
 
 /**
  * <p>
- * Base class for test cases that requires authentication. By default, the {@link IdmAuthenticator} is used by default.
+ * Base class for test cases that requires authentication. By default, the {@link IdmAuthenticator} is used.
  * </p>
  * 
  * @author Pedro Igor
@@ -77,11 +76,6 @@ public abstract class AbstractAuthenticationTestCase extends AbstractArquillianT
     @After
     public void onFinish() {
         this.identity.logout();
-    }
-
-    protected void populateCredentials() {
-        this.credentials.setUserId(USER_NAME);
-        this.credentials.setPassword(USER_PASSWORD);
     }
 
 }

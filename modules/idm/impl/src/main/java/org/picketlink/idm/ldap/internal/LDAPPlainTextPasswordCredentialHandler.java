@@ -40,8 +40,35 @@ public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
     }
 
     @Override
+<<<<<<< HEAD
     public void update(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.model.sample.Agent agent, org.picketlink.idm.credential.Password credential, org.picketlink.idm.ldap.internal.LDAPIdentityStore store, java.util.Date effectiveDate, java.util.Date expiryDate) {
         //To change body of implemented methods use File | Settings | File Templates.
+=======
+    public void validate(SecurityContext context, UsernamePasswordCredentials usernamePassword,
+            LDAPIdentityStore identityStore) {
+        usernamePassword.setStatus(Status.INVALID);
+        usernamePassword.setValidatedAgent(null);
+
+        Agent agent = identityStore.getAgent(context, usernamePassword.getUsername());
+
+        // If the user for the provided username cannot be found we fail validation
+        if (agent != null) {
+            if (agent.isEnabled()) {
+                LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) identityStore;
+                LDAPUser ldapUser = ldapIdentityStore.lookupEntryById(context, LDAPUser.class, agent.getId());
+                char[] password = usernamePassword.getPassword().getValue();
+
+                boolean isValid = ldapIdentityStore.getLDAPManager().authenticate(ldapUser.getDN(), new String(password));
+
+                if (isValid) {
+                    usernamePassword.setValidatedAgent(agent);
+                    usernamePassword.setStatus(Status.VALID);
+                }
+            } else {
+                usernamePassword.setStatus(Status.AGENT_DISABLED);
+            }
+        }
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
     }
 
     @Override

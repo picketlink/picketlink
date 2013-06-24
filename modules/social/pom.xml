@@ -22,36 +22,12 @@
       <url>http://www.jboss.org</url>
    </organization>
 
-   <profiles>
-
-      <profile>
-         <id>long-tests</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-         </activation>
-         <build>
-            <plugins>
-               <plugin>
-                  <artifactId>maven-surefire-plugin</artifactId>
-                  <version>2.4.3</version>
-                  <configuration>
-                     <childDelegation>true</childDelegation>
-                     <printSummary>true</printSummary>
-                     <disableXmlReport>false</disableXmlReport>
-                     <testFailureIgnore>false</testFailureIgnore>
-                     <includes>
-                        <include>**/integration/*TestCase.java</include>
-                     </includes>
-                     <forkMode>pertest</forkMode>
-                     <argLine>${surefire.jvm.args}</argLine>
-                     <useFile>false</useFile>
-                     <trimStackTrace>false</trimStackTrace>
-                  </configuration>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-   </profiles>
+   <properties>
+       <version.google.api.client>1.14.1-beta</version.google.api.client>
+       <version.google.apis.plus>v1-rev69-1.14.2-beta</version.google.apis.plus>
+       <version.google.apis.oauth>v2-rev36-1.14.2-beta</version.google.apis.oauth>
+       <version.jackson.core>1.9.9</version.jackson.core>
+   </properties>
 
    <build>
       <plugins>
@@ -74,10 +50,47 @@
                <trimStackTrace>false</trimStackTrace>
             </configuration>
          </plugin>
+           <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-source-plugin</artifactId>
+              <executions>
+                 <execution>
+                   <id>attach-sources</id>
+                   <goals>
+                     <goal>jar-no-fork</goal>
+                   </goals>
+                 </execution>
+              </executions>
+           </plugin>
       </plugins>
    </build>
 
    <dependencies>
+      <dependency>
+           <groupId>org.picketlink</groupId>
+           <artifactId>picketlink-api</artifactId>
+           <version>${project.version}</version>
+      </dependency>
+       <dependency>
+           <groupId>org.picketlink</groupId>
+           <artifactId>picketlink-federation</artifactId>
+           <version>${project.version}</version>
+       </dependency>
+       <dependency>
+           <groupId>javax.enterprise</groupId>
+           <artifactId>cdi-api</artifactId>
+           <scope>provided</scope>
+       </dependency>
+       <dependency>
+           <groupId>org.jboss.spec.javax.servlet</groupId>
+           <artifactId>jboss-servlet-api_3.0_spec</artifactId>
+           <scope>provided</scope>
+       </dependency>
+       <dependency>
+           <groupId>org.twitter4j</groupId>
+           <artifactId>twitter4j-core</artifactId>
+           <version>3.0.3</version>
+       </dependency>
       <dependency>
          <groupId>org.json</groupId>
          <artifactId>json</artifactId>
@@ -88,6 +101,39 @@
          <artifactId>openid4java-nodeps</artifactId>
          <version>0.9.6</version>
       </dependency>
+
+      <!-- OAuth integration with Google -->
+      <dependency>
+          <groupId>com.google.oauth-client</groupId>
+          <artifactId>google-oauth-client</artifactId>
+          <version>${version.google.api.client}</version>
+      </dependency>
+      <dependency>
+          <groupId>com.google.api-client</groupId>
+          <artifactId>google-api-client</artifactId>
+          <version>${version.google.api.client}</version>
+      </dependency>
+      <dependency>
+          <groupId>com.google.http-client</groupId>
+          <artifactId>google-http-client</artifactId>
+          <version>${version.google.api.client}</version>
+      </dependency>
+      <dependency>
+          <groupId>com.google.http-client</groupId>
+          <artifactId>google-http-client-jackson</artifactId>
+          <version>${version.google.api.client}</version>
+      </dependency>
+      <dependency>
+          <groupId>com.google.apis</groupId>
+          <artifactId>google-api-services-oauth2</artifactId>
+          <version>${version.google.apis.oauth}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.codehaus.jackson</groupId>
+          <artifactId>jackson-core-asl</artifactId>
+          <version>${version.jackson.core}</version>
+      </dependency>
+
       <dependency>
          <groupId>log4j</groupId>
          <artifactId>log4j</artifactId>

@@ -24,12 +24,11 @@ package org.picketlink.authentication.web;
 
 import java.io.IOException;
 import java.util.Timer;
-
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.picketlink.authentication.web.support.HTTPDigestUtil;
+import org.picketlink.authentication.web.support.NonceCache;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.credential.Digest;
 
@@ -46,9 +45,6 @@ public class DigestAuthenticationScheme implements HTTPAuthenticationScheme {
     private NonceCache nonceCache = new NonceCache();
 
     private String realm;
-
-    @Inject
-    Instance<DefaultLoginCredentials> credentials;
 
     public DigestAuthenticationScheme(String realm) {
         this.realm = realm;
@@ -93,6 +89,11 @@ public class DigestAuthenticationScheme implements HTTPAuthenticationScheme {
 
         response.setHeader("WWW-Authenticate", str.toString());
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+    }
+
+    @Override
+    public boolean postAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        return true;
     }
 
     private String[] extractTokens(HttpServletRequest request) {

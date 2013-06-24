@@ -1,5 +1,9 @@
 package org.picketlink.idm.internal;
 
+<<<<<<< HEAD
+=======
+import java.io.Serializable;
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
@@ -10,6 +14,8 @@ import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.SecurityContextFactory;
 import org.picketlink.idm.spi.StoreFactory;
+import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
@@ -25,7 +31,9 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
  *
  * @author Shane Bryzak
  */
-public class IdentityManagerFactory {
+public class IdentityManagerFactory implements Serializable {
+
+    private static final long serialVersionUID = 666601082732493295L;
 
     private SecurityContextFactory contextFactory;
     private StoreFactory storeFactory;
@@ -38,6 +46,8 @@ public class IdentityManagerFactory {
      * @param identityConfig
      */
     public IdentityManagerFactory(IdentityConfiguration identityConfig) {
+        LOGGER.identityManagerBootstrapping();
+
         if (identityConfig == null) {
             throw MESSAGES.nullArgument("IdentityConfiguration");
         }
@@ -53,8 +63,6 @@ public class IdentityManagerFactory {
         } else {
             this.storeFactory = identityConfig.getStoreFactory();
         }
-
-        LOGGER.identityManagerBootstrapping();
     }
 
     /**

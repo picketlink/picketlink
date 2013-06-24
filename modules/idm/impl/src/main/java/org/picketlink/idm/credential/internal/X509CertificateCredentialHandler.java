@@ -18,6 +18,13 @@
 
 package org.picketlink.idm.credential.internal;
 
+<<<<<<< HEAD
+=======
+import java.io.ByteArrayInputStream;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials.Status;
@@ -54,31 +61,39 @@ public class X509CertificateCredentialHandler<S,V,U>
         Agent agent = store.getAgent(context, credentials.getUsername());
 
         credentials.setStatus(Status.INVALID);
+        credentials.setValidatedAgent(null);
 
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
             if (agent.isEnabled()) {
-                X509CertificateStorage storage = store.retrieveCurrentCredential(context, agent, X509CertificateStorage.class);
+                boolean isValid = credentials.isTrusted();
 
-                if (storage != null) {
-                    String base64Cert = storage.getBase64Cert();
+                if (!credentials.isTrusted()) {
+                    X509CertificateStorage storage = store.retrieveCurrentCredential(context, agent, X509CertificateStorage.class);
 
-                    byte[] certBytes = Base64.decode(base64Cert);
+                    if (storage != null) {
+                        String base64Cert = storage.getBase64Cert();
 
-                    try {
-                        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-                        X509Certificate storedCert = (X509Certificate) certFactory
-                                .generateCertificate(new ByteArrayInputStream(certBytes));
-                        X509Certificate providedCert = credentials.getCertificate();
+                        byte[] certBytes = Base64.decode(base64Cert);
 
-                        if (storedCert.equals(providedCert)) {
-                            credentials.setStatus(Status.VALID);
-                            credentials.setValidatedAgent(agent);
+                        try {
+                            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+                            X509Certificate storedCert = (X509Certificate) certFactory
+                                    .generateCertificate(new ByteArrayInputStream(certBytes));
+                            X509Certificate providedCert = credentials.getCertificate();
+
+                            isValid = storedCert.equals(providedCert);
+                        } catch (Exception e) {
+                            throw new IdentityManagementException("Error while checking user's certificate.", e);
                         }
-                    } catch (Exception e) {
-                        throw new IdentityManagementException("Error while checking user's certificate.", e);
                     }
                 }
+
+                if (isValid) {
+                    credentials.setStatus(Status.VALID);
+                    credentials.setValidatedAgent(agent);
+                }
+
             } else {
                 credentials.setStatus(Status.AGENT_DISABLED);
             }

@@ -53,6 +53,8 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
 
     protected static final String ATTRIBUTE_PROVIDER = "AttributeProvider";
 
+    protected static final String USE_ABSOLUTE_KEYIDENTIFIER = "USE_ABSOLUTE_KEYIDENTIFIER";
+
     protected SecurityTokenRegistry tokenRegistry = new DefaultTokenRegistry();
 
     protected RevocationRegistry revocationRegistry = new DefaultRevocationRegistry();

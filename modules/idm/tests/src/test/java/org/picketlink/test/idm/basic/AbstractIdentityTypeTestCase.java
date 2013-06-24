@@ -18,6 +18,15 @@
 
 package org.picketlink.test.idm.basic;
 
+<<<<<<< HEAD
+=======
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import org.junit.Assert;
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -26,6 +35,11 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -200,8 +214,8 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         IdentityManager identityManager = getIdentityManager();
 
         // Create a large array of values
-        Integer[] val = new Integer[1000];
-        for (int i = 0; i < 999; i++) {
+        Integer[] val = new Integer[100];
+        for (int i = 0; i < 100; i++) {
             val[i] = i;
         }
 
@@ -215,8 +229,8 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         
         Integer[] retrievedVal = updatedIdentityType.<Integer[]>getAttribute("Values").getValue();
 
-        for (int i = 0; i < 999; i++) {
-            assert retrievedVal[i] == i;
+        for (Integer value: retrievedVal) {
+            assertTrue(contains(retrievedVal, value));
         }
     }
 
@@ -346,4 +360,13 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         getIdentityManager().add(storedIdentityType);
     }
 
+    private boolean contains(Integer[] result, Integer value) {
+        for (Integer resultValue : result) {
+            if (resultValue.equals(value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

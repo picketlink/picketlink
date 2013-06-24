@@ -138,4 +138,6 @@ public interface GeneralConstants {
      * <p>{@link SAML2AuthenticationHandler} configuration option to set the assertion into the {@link HttpSession}.</p>
      */
     String ASSERTION_SESSION_ATTRIBUTE_NAME = "ASSERTION_SESSION_ATTRIBUTE_NAME";
+
+    String X509CERTIFICATE = "X509CERTIFICATE";
 }

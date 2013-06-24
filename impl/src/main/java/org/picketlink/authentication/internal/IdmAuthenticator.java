@@ -1,5 +1,9 @@
 package org.picketlink.authentication.internal;
 
+<<<<<<< HEAD
+=======
+import javax.inject.Inject;
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.picketlink.authentication.BaseAuthenticator;
 import org.picketlink.authentication.LockedAccountException;
 import org.picketlink.credential.DefaultLoginCredentials;
@@ -9,37 +13,42 @@ import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
+<<<<<<< HEAD
 import org.picketlink.idm.model.sample.User;
 
 import javax.inject.Inject;
+=======
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 
 /**
  * Authenticator that uses the Identity Management API to authenticate.  Assumes that the
  * user has provided a username and password via the DefaultLoginCredentials bean.
- * 
- * @author Shane Bryzak
  *
+ * @author Shane Bryzak
  */
 public class IdmAuthenticator extends BaseAuthenticator {
 
-    @Inject IdentityManager identityManager;
+    @Inject
+    IdentityManager identityManager;
 
-    @Inject DefaultLoginCredentials credentials;
+    @Inject
+    DefaultLoginCredentials credentials;
 
     @Override
     public void authenticate() {
-        if (credentials.getCredential() == null || credentials.getUserId() == null) {
-            setStatus(AuthenticationStatus.FAILURE);
+        if (credentials.getCredential() == null) {
             return;
         }
 
         Credentials creds = null;
 
-        if (Password.class.equals(credentials.getCredential().getClass())) {
+        if (isUsernamePasswordCredential()) {
             creds = new UsernamePasswordCredentials(credentials.getUserId(),
                     (Password) credentials.getCredential());
-        } else if (Digest.class.equals(credentials.getCredential().getClass())) {
+        } else if (isDigestCredential()) {
             creds = new DigestCredentials((Digest) credentials.getCredential());
+        } else if (isCustomCredential()) {
+            creds = (Credentials) credentials.getCredential();
         } else {
             throw new IllegalArgumentException("Unsupported credential type [" + credentials.getCredential() + "].");
         }
@@ -48,12 +57,22 @@ public class IdmAuthenticator extends BaseAuthenticator {
 
         if (Credentials.Status.VALID.equals(creds.getStatus())) {
             setStatus(AuthenticationStatus.SUCCESS);
-            setAgent((User) creds.getValidatedAgent());
-        } else if (Credentials.Status.AGENT_DISABLED.equals(creds.getStatus())) { 
+            setAgent(creds.getValidatedAgent());
+        } else if (Credentials.Status.AGENT_DISABLED.equals(creds.getStatus())) {
             throw new LockedAccountException("Agent [" + this.credentials.getUserId() + "] is disabled.");
-        } else {
-            setStatus(AuthenticationStatus.FAILURE);
         }
+    }
+
+    private boolean isCustomCredential() {
+        return Credentials.class.isInstance(credentials.getCredential());
+    }
+
+    private boolean isDigestCredential() {
+        return Digest.class.equals(credentials.getCredential().getClass());
+    }
+
+    private boolean isUsernamePasswordCredential() {
+        return Password.class.equals(credentials.getCredential().getClass()) && credentials.getUserId() != null;
     }
 
 }

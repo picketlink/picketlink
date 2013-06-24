@@ -35,7 +35,7 @@ import org.openid4java.message.ax.FetchResponse;
 import org.picketlink.social.standalone.fb.FacebookConstants;
 import org.picketlink.social.standalone.fb.FacebookPrincipal;
 import org.picketlink.social.standalone.fb.FacebookProcessor;
-import org.picketlink.social.standalone.fb.OAuthConstants;
+import org.picketlink.social.standalone.oauth.OAuthConstants;
 import org.picketlink.social.standalone.oauth.OpenIDProcessor;
 import org.picketlink.social.standalone.oauth.OpenIdPrincipal;
 import org.picketlink.social.standalone.oauth.StringUtil;

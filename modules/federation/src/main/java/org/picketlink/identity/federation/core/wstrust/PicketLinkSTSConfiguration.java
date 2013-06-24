@@ -71,6 +71,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration {
     private TrustKeyManager trustManager;
 
     private WSTrustRequestHandler handler;
+    private String certificateAlias;
 
     /**
      * <p>
@@ -173,6 +174,18 @@ public class PicketLinkSTSConfiguration implements STSConfiguration {
                 this.trustManager = (TrustKeyManager) clazz.newInstance();
                 this.trustManager.setAuthProperties(authProperties);
                 this.trustManager.setValidatingAlias(keyProviderType.getValidatingAlias());
+
+                //Special case when you need X509Data in SignedInfo
+                if(authProperties != null){
+                    for(AuthPropertyType authPropertyType: authProperties){
+                        String key = authPropertyType.getKey();
+                        if(GeneralConstants.X509CERTIFICATE.equals(key)){
+                            //we need X509Certificate in SignedInfo. The value is the alias name
+                            trustManager.addAdditionalOption(GeneralConstants.X509CERTIFICATE, authPropertyType.getValue());
+                            break;
+                        }
+                    }
+                }
             } catch (Exception e) {
                 throw logger.stsUnableToConstructKeyManagerError(e);
             }
@@ -397,6 +410,19 @@ public class PicketLinkSTSConfiguration implements STSConfiguration {
                 result.add(provider);
         }
         return result;
+    }
+
+    @Override
+    public String getSigningCertificateAlias() {
+        //Check keymanager
+        if(certificateAlias == null){
+            certificateAlias = (String)trustManager.getAdditionalOption(GeneralConstants.X509CERTIFICATE);
+        }
+        return certificateAlias;
+    }
+
+    public void setSigningCertificateAlias(String alias){
+        this.certificateAlias = alias;
     }
 
     /**

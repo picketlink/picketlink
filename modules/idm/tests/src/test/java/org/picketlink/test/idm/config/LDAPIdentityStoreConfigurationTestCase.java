@@ -26,7 +26,12 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+<<<<<<< HEAD
 import org.picketbox.test.ldap.AbstractLDAPTest;
+=======
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
@@ -38,9 +43,13 @@ import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.relationship.CustomRelationship;
+<<<<<<< HEAD
 import sun.management.resources.agent;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+=======
+import org.picketlink.test.idm.suites.LDAPAbstractSuite;
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 
 /**
  * <p>
@@ -53,19 +62,12 @@ import static org.junit.Assert.fail;
 public class LDAPIdentityStoreConfigurationTestCase extends
         AbstractFeaturesSetConfigurationTestCase<LDAPStoreConfigurationBuilder> {
 
-    private static final String BASE_DN = "dc=jboss,dc=org";
-    private static final String LDAP_URL = "ldap://localhost:10389";
-    private static final String ROLES_DN_SUFFIX = "ou=Roles,dc=jboss,dc=org";
-    private static final String GROUP_DN_SUFFIX = "ou=Groups,dc=jboss,dc=org";
-    private static final String USER_DN_SUFFIX = "ou=People,dc=jboss,dc=org";
-    private static final String AGENT_DN_SUFFIX = "ou=Agent,dc=jboss,dc=org";
-
-    private static AbstractLDAPTest instance;
+    private static LDAPAbstractSuite instance;
 
     @BeforeClass
     public static void onBeforeClass() {
         try {
-            instance = new AbstractLDAPTest() {
+            instance = new LDAPAbstractSuite() {
 
                 @Override
                 @Before
@@ -132,14 +134,14 @@ public class LDAPIdentityStoreConfigurationTestCase extends
     protected LDAPStoreConfigurationBuilder createMinimalConfiguration(IdentityConfigurationBuilder builder) {
         LDAPStoreConfigurationBuilder storeConfig = builder.stores()
                 .ldap()
-                .baseDN(BASE_DN)
-                .bindDN("uid=admin,ou=system")
-                .bindCredential("secret")
-                .url(LDAP_URL)
-                .userDNSuffix(USER_DN_SUFFIX)
-                .roleDNSuffix(ROLES_DN_SUFFIX)
-                .agentDNSuffix(AGENT_DN_SUFFIX)
-                .groupDNSuffix(GROUP_DN_SUFFIX)
+                .baseDN(instance.getBaseDn())
+                .bindDN(instance.getBindDn())
+                .bindCredential(instance.getBindCredential())
+                .url(instance.getConnectionUrl())
+                .userDNSuffix(instance.getUserDnSuffix())
+                .roleDNSuffix(instance.getRolesDnSuffix())
+                .agentDNSuffix(instance.getAgentDnSuffix())
+                .groupDNSuffix(instance.getGroupDnSuffix())
                 .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
                 .supportIdentityType(User.class, Role.class, Group.class, Agent.class)
                 .supportFeature(FeatureGroup.attribute, FeatureGroup.relationship, FeatureGroup.credential);

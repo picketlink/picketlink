@@ -18,19 +18,32 @@
 
 package org.picketlink.test.idm.query;
 
+<<<<<<< HEAD
+=======
+import java.util.List;
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
+<<<<<<< HEAD
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.User;
+=======
+import org.picketlink.idm.model.SimpleGroup;
+import org.picketlink.idm.model.Tier;
+import org.picketlink.idm.model.User;
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 import java.util.List;
 
@@ -39,11 +52,10 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 /**
- * <p>
+ * <p/>
  * Test case for the Query API when retrieving {@link Group} instances.
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
  */
 public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 
@@ -72,6 +84,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         }
     }
 
+<<<<<<< HEAD
 //    @Test
 //    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
 //            LDAPIdentityStoreWithoutAttributesTestSuite.class })
@@ -115,6 +128,48 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 //        assertEquals(1, result.size());
 //        assertTrue(contains(result, someGroupTestingTier.getId()));
 //    }
+=======
+    @Test
+    @ExcludeTestSuite({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
+            LDAPIdentityStoreWithoutAttributesTestSuite.class})
+    public void testFindByTier() throws Exception {
+        Group someGroup = new SimpleGroup("someGroup");
+
+        Tier applicationATier = getIdentityManagerFactory().getTier("Application A");
+
+        IdentityManager applicationA = getIdentityManagerFactory().createIdentityManager(applicationATier);
+
+        applicationA.add(someGroup);
+
+        IdentityQuery<Group> query = applicationA.createIdentityQuery(Group.class);
+
+        query.setParameter(Group.PARTITION, applicationATier);
+
+        List<Group> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertTrue(contains(result, someGroup.getId()));
+
+        Tier applicationBTier = getIdentityManagerFactory().getTier("Application B");
+
+        IdentityManager applicationB = getIdentityManagerFactory().createIdentityManager(applicationBTier);
+
+        Group anotherRole = new SimpleGroup("anotherRole");
+
+        applicationB.add(anotherRole);
+
+        query = applicationB.createIdentityQuery(Group.class);
+
+        query.setParameter(Group.PARTITION, applicationBTier);
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertTrue(contains(result, anotherRole.getId()));
+    }
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 
     @Test
     public void testFindByName() throws Exception {
@@ -122,7 +177,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<Group> query = identityManager.<Group> createIdentityQuery(Group.class);
+        IdentityQuery<Group> query = identityManager.<Group>createIdentityQuery(Group.class);
 
         query.setParameter(Group.NAME, group.getName());
 
@@ -137,7 +192,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
      * <p>
      * Finds groups by the creation date.
      * </p>
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -146,7 +201,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<Group> query = identityManager.<Group> createIdentityQuery(Group.class);
+        IdentityQuery<Group> query = identityManager.<Group>createIdentityQuery(Group.class);
 
         query.setParameter(Group.PARENT, group.getParentGroup().getName());
 
@@ -221,7 +276,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
      * <p>
      * Finds all groups for a specific user.
      * </p>
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -236,7 +291,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 
         IdentityQuery<Group> query = identityManager.createIdentityQuery(Group.class);
 
-        query.setParameter(Group.HAS_MEMBER, new Object[] { user });
+        query.setParameter(Group.HAS_MEMBER, new Object[]{user});
 
         List<Group> result = query.getResultList();
 
@@ -248,7 +303,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 
         query = identityManager.createIdentityQuery(Group.class);
 
-        query.setParameter(Group.HAS_MEMBER, new Object[] { user });
+        query.setParameter(Group.HAS_MEMBER, new Object[]{user});
 
         result = query.getResultList();
 
@@ -261,7 +316,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 
         query = identityManager.createIdentityQuery(Group.class);
 
-        query.setParameter(Group.HAS_MEMBER, new Object[] { user });
+        query.setParameter(Group.HAS_MEMBER, new Object[]{user});
 
         result = query.getResultList();
 
@@ -274,7 +329,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 
         query = identityManager.createIdentityQuery(Group.class);
 
-        query.setParameter(Group.HAS_MEMBER, new Object[] { user });
+        query.setParameter(Group.HAS_MEMBER, new Object[]{user});
 
         result = query.getResultList();
 
@@ -285,14 +340,14 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
     }
 
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
-            LDAPIdentityStoreWithoutAttributesTestSuite.class })
+    @ExcludeTestSuite({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
+            LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindWithSorting() throws Exception {
         createGroup("someGroup", null);
         // Sleep is needed to avoid same createdDate
-        IDMUtil.sleep(1);
+        IDMUtil.sleep(1000);
         createGroup("someAnotherGroup", null);
-        IDMUtil.sleep(1);
+        IDMUtil.sleep(1000);
         createGroup("someImportantGroup", null);
 
         // Default sorting by group name

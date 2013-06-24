@@ -22,6 +22,12 @@
 
 package org.picketlink.idm;
 
+<<<<<<< HEAD
+=======
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.AnnotatedElement;
+import javax.naming.NamingException;
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
@@ -294,6 +300,7 @@ public interface IDMMessages {
     @Message(id = 73, value = "Credentials can only be managed from a Realm. Current partition is [%s].")
     IdentityManagementException partitionInvalidTypeForCredential(Class<? extends Partition> partitionType);
 
+<<<<<<< HEAD
     @Message(id = 74, value = "The same IdentityType [%s] was configured for different IdentityStoreConfiguration [%s, %s].")
     SecurityConfigurationException configurationAmbiguousIdentityTypeForStore(Class<? extends IdentityType> identityType, IdentityStoreConfiguration config1, IdentityStoreConfiguration config2);
 
@@ -303,4 +310,11 @@ public interface IDMMessages {
     @Message(id = 76, value = "No identity store configuration found that supports the identity type [%s] and operation [%s].")
     SecurityConfigurationException storeConfigUnsupportedIdentityType(Class<? extends IdentityType> type, FeatureOperation operation);
 
+=======
+    @Message(id = 74, value = "You must specify which credentials are supported by the [%s].")
+    IdentityManagementException credentialSupportedCredentialsNotProvided(Class<? extends CredentialHandler> handlerClass);
+
+    @Message(id = 75, value = "Illegal Operation.")
+    IdentityManagementException illegalOperation();
+>>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 }
