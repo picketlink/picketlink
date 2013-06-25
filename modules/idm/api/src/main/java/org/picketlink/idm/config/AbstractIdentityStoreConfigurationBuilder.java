@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
@@ -51,11 +49,7 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
 public abstract class AbstractIdentityStoreConfigurationBuilder<T extends IdentityStoreConfiguration, S extends IdentityStoreConfigurationBuilder<T, S>>
         extends AbstractIdentityConfigurationChildBuilder implements IdentityStoreConfigurationBuilder<T, S> {
 
-    private final Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures = new HashMap<FeatureGroup, Set<FeatureOperation>>();
-    private final Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships = new HashMap<Class<? extends Relationship>, Set<FeatureOperation>>();
-    private final Map<Class<? extends IdentityType>, Set<FeatureOperation>> supportedIdentityTypes = new HashMap<Class<? extends IdentityType>, Set<FeatureOperation>>();
-    private Set<String> realms = new HashSet<String>();
-    private Set<String> tiers = new HashSet<String>();
+    private final FeatureSet featureSet = new FeatureSet();
     private List<ContextInitializer> contextInitializers = new ArrayList<ContextInitializer>();
     private Map<String, Object> credentialHandlerProperties = new HashMap<String, Object>();
     private List<Class<? extends CredentialHandler>> credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
@@ -79,7 +73,7 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
     }
 
     @Override
-    public S supportFeature(FeatureGroup... groups) {
+    public S supportType(FeatureGroup... groups) {
         FeatureGroup[] features = (groups != null && groups.length > 0) ? groups : FeatureGroup.values();
 
         for (FeatureGroup feature : features) {

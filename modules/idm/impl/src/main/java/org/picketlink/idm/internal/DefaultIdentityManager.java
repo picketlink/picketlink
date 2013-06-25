@@ -24,8 +24,8 @@ import java.util.List;
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.config.FeatureSet.CredentialOperation;
+import org.picketlink.idm.config.FeatureSet.TypeOperation;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.model.IdentityType;
@@ -126,7 +126,7 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         try {
-            storeFactory.getStoreForFeature(context, FeatureOperation.create, identityType.getClass()).add(
+            storeFactory.getStoreForType(context, identityType.getClass(), TypeOperation.create).add(
                     context, identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeAddFailed(identityType, e);
@@ -136,8 +136,8 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void add(Relationship relationship) {
         try {
-            storeFactory.getStoreForFeature(context, FeatureOperation.create,
-                    relationship.getClass()).add(context, relationship);
+            storeFactory.getStoreForType(context, relationship.getClass(), TypeOperation.create).add(
+                    context, relationship);
         } catch (Exception e) {
             throw MESSAGES.relationshipAddFailed(relationship, e);
         }
@@ -152,7 +152,7 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         try {
-            storeFactory.getStoreForFeature(context, FeatureOperation.update, identityType.getClass()).update(
+            storeFactory.getStoreForType(context, identityType.getClass(), TypeOperation.update).update(
                     context, identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeUpdateFailed(identityType, e);
@@ -162,8 +162,8 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void update(Relationship relationship) {
         try {
-            storeFactory.getStoreForFeature(context, FeatureOperation.update,
-                    relationship.getClass()).update(context, relationship);
+            storeFactory.getStoreForType(context, relationship.getClass(), TypeOperation.update).update(
+                    context, relationship);
         } catch (Exception e) {
             throw MESSAGES.relationshipUpdateFailed(relationship, e);
         }
@@ -178,7 +178,7 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         try {
-            storeFactory.getStoreForFeature(context, FeatureOperation.delete, identityType.getClass()).remove(
+            storeFactory.getStoreForType(context, identityType.getClass(), TypeOperation.delete).remove(
                     context, identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeUpdateFailed(identityType, e);
@@ -192,7 +192,8 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         try {
-            storeFactory.getStoreForFeature(context, FeatureOperation.delete, relationship.getClass()).remove(context, relationship);
+            storeFactory.getStoreForType(context, relationship.getClass(), TypeOperation.delete).remove(
+                    context, relationship);
         } catch (Exception e) {
             throw MESSAGES.relationshipRemoveFailed(relationship, e);
         }
@@ -201,14 +202,15 @@ public class DefaultIdentityManager implements IdentityManager {
     public Agent getAgent(String loginName) {
         checkCurrentPartitionForAgents();
 
-        return storeFactory.getStoreForFeature(context, FeatureOperation.read, Agent.class).getAgent(context, loginName);
+        return storeFactory.getStoreForType(context, Agent.class, TypeOperation.read).getAgent(
+                context, loginName);
     }
 
     @Override
     public User getUser(String loginName) {
         checkCurrentPartitionForAgents();
 
-        return storeFactory.getStoreForFeature(context, FeatureOperation.read, User.class).getUser(context, loginName);
+        return storeFactory.getStoreForType(context, User.class, TypeOperation.read).getUser(context, loginName);
     }
 
     @Override
@@ -217,7 +219,7 @@ public class DefaultIdentityManager implements IdentityManager {
             return null;
         }
 
-        return storeFactory.getStoreForFeature(context, FeatureOperation.read, Group.class).getGroup(context, path);
+        return storeFactory.getStoreForType(context, Group.class, TypeOperation.read).getGroup(context, path);
     }
 
     @Override
@@ -234,7 +236,7 @@ public class DefaultIdentityManager implements IdentityManager {
             throw MESSAGES.groupParentNotFoundWithId(parent.getId(), context.getPartition());
         }
 
-        return storeFactory.getStoreForFeature(context, FeatureOperation.read, Group.class).getGroup(context, name,
+        return storeFactory.getStoreForType(context, Group.class, TypeOperation.read).getGroup(context, name,
                 parent);
     }
 
@@ -284,13 +286,13 @@ public class DefaultIdentityManager implements IdentityManager {
         checkIfIdentityTypeExists(member);
         checkIfIdentityTypeExists(group);
 
-        storeFactory.getStoreForFeature(context, FeatureOperation.delete, GroupMembership.class)
+        storeFactory.getStoreForType(context, GroupMembership.class, TypeOperation.delete)
                 .remove(context, new GroupMembership(member, group));
     }
 
     @Override
     public Role getRole(String name) {
-        return storeFactory.getStoreForFeature(context, FeatureOperation.read, Role.class).getRole(context, name);
+        return storeFactory.getStoreForType(context, Role.class, TypeOperation.read).getRole(context, name);
     }
 
     @Override
@@ -327,7 +329,7 @@ public class DefaultIdentityManager implements IdentityManager {
         checkIfIdentityTypeExists(role);
         checkIfIdentityTypeExists(group);
 
-        storeFactory.getStoreForFeature(context, FeatureOperation.delete, GroupRole.class).remove(
+        storeFactory.getStoreForType(context, GroupRole.class, TypeOperation.delete).remove(
                 context, new GroupRole(assignee, group, role));
     }
 
@@ -371,7 +373,7 @@ public class DefaultIdentityManager implements IdentityManager {
         checkIfIdentityTypeExists(identityType);
         checkIfIdentityTypeExists(role);
 
-        storeFactory.getStoreForFeature(context, FeatureOperation.delete, Grant.class).remove(
+        storeFactory.getStoreForType(context, Grant.class, TypeOperation.delete).remove(
                 context, new Grant(identityType, role));
     }
 
@@ -379,7 +381,7 @@ public class DefaultIdentityManager implements IdentityManager {
     public void validateCredentials(Credentials credentials) {
         checkCurrentPartitionForCredential();
 
-        IdentityStore<?> store = storeFactory.getStoreForFeature(context, FeatureGroup.credential, FeatureOperation.validate);
+        IdentityStore<?> store = storeFactory.getStoreForCredentialOperation(context, CredentialOperation.validate);
 
         store.validateCredentials(context, credentials);
     }
@@ -393,20 +395,20 @@ public class DefaultIdentityManager implements IdentityManager {
     public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
         checkCurrentPartitionForCredential();
 
-        IdentityStore<?> store = storeFactory.getStoreForFeature(context, FeatureGroup.credential, FeatureOperation.update);
+        IdentityStore<?> store = storeFactory.getStoreForCredentialOperation(context, CredentialOperation.update);
 
         store.updateCredential(context, agent, credential, effectiveDate, expiryDate);
     }
 
     @Override
     public <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType) {
-        return new DefaultIdentityQuery<T>(context, identityType, storeFactory.getStoreForFeature(context, FeatureOperation.read, identityType));
+        return new DefaultIdentityQuery<T>(context, identityType, storeFactory.getStoreForType(context, identityType, TypeOperation.read));
     }
 
     @Override
     public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType) {
-        return new DefaultRelationshipQuery<T>(context, relationshipType, storeFactory.getStoreForFeature(context,
-                FeatureOperation.read, relationshipType));
+        return new DefaultRelationshipQuery<T>(context, relationshipType, storeFactory.getStoreForType(context,
+                relationshipType, TypeOperation.read));
     }
 
     @Override
@@ -419,61 +421,7 @@ public class DefaultIdentityManager implements IdentityManager {
             throw MESSAGES.nullArgument("Identifier for [" + identityType + "]");
         }
 
-        List<T> result = Collections.emptyList();
-        List<Class<? extends IdentityType>> typesToSearch = new ArrayList<Class<? extends IdentityType>>();
-
-        if (IdentityType.class.equals(identityType)) {
-            typesToSearch.add(User.class);
-            typesToSearch.add(Agent.class);
-            typesToSearch.add(Group.class);
-            typesToSearch.add(Role.class);
-        } else {
-            typesToSearch.add(identityType);
-        }
-
-        for (Class<? extends IdentityType> childType : typesToSearch) {
-            IdentityQuery<T> query = (IdentityQuery<T>) createIdentityQuery(childType);
-
-            query.setParameter(IdentityType.ID, id);
-
-            List<String> partitionIds = new ArrayList<String>();
-
-            partitionIds.add(context.getPartition().getId());
-
-            if (Role.class.isAssignableFrom(childType) || Group.class.isAssignableFrom(childType)) {
-                IdentityStore<?> store = null;
-
-                if (Role.class.isAssignableFrom(childType)) {
-                    store = storeFactory.getStoreForFeature(context, FeatureGroup.role, FeatureOperation.read);
-                } else {
-                    store = storeFactory.getStoreForFeature(context, FeatureGroup.group, FeatureOperation.read);
-                }
-
-                if (Realm.class.isInstance(context.getPartition())) {
-                    partitionIds.addAll(store.getConfig().getTiers());
-                }
-            }
-
-            query.setParameter(IdentityType.PARTITION, partitionIds.toArray());
-
-            result = query.getResultList();
-
-            if (!result.isEmpty()) {
-                break;
-            }
-        }
-
-        T identity = null;
-
-        if (!result.isEmpty()) {
-            if (result.size() > 1) {
-                throw MESSAGES.identityTypeAmbiguosFoundWithId(id);
-            } else {
-                identity = result.get(0);
-            }
-        }
-
-        return identity;
+        return storeFactory.getStoreForType(context, identityType, TypeOperation.read).getIdentity(identityType, id);
     }
 
     @Override
@@ -584,7 +532,7 @@ public class DefaultIdentityManager implements IdentityManager {
     public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
         checkCurrentPartitionForCredential();
 
-        IdentityStore<?> store = storeFactory.getStoreForFeature(context, FeatureGroup.credential, FeatureOperation.read);
+        IdentityStore<?> store = storeFactory.getStoreForCredentialOperation(context, CredentialOperation.read);
         if (!CredentialStore.class.isInstance(store)) {
             throw MESSAGES.credentialInvalidCredentialStoreType(store.getClass());
         } else {
@@ -597,7 +545,7 @@ public class DefaultIdentityManager implements IdentityManager {
     public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
         checkCurrentPartitionForCredential();
 
-        IdentityStore<?> store = storeFactory.getStoreForFeature(context, FeatureGroup.credential, FeatureOperation.read);
+        IdentityStore<?> store = storeFactory.getStoreForCredentialOperation(context, CredentialOperation.read);
         if (!CredentialStore.class.isInstance(store)) {
             throw MESSAGES.credentialInvalidCredentialStoreType(store.getClass());
         } else {

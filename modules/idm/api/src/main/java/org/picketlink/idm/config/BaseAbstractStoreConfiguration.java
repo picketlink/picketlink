@@ -18,25 +18,21 @@
 
 package org.picketlink.idm.config;
 
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.FeatureSet.FeatureOperation;
-import org.picketlink.idm.credential.spi.CredentialHandler;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.spi.ContextInitializer;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+import static org.picketlink.idm.IDMLogger.LOGGER;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
-import static java.util.Collections.unmodifiableList;
-import static java.util.Collections.unmodifiableMap;
-import static java.util.Collections.unmodifiableSet;
-import static org.picketlink.idm.IDMLogger.LOGGER;
+import org.picketlink.idm.config.FeatureSet.TypeOperation;
+import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.spi.ContextInitializer;
 
 /**
  * The base class for store configurations
@@ -50,26 +46,20 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
     private List<ContextInitializer> contextInitializers = new ArrayList<ContextInitializer>();
     private Map<String, Object> credentialHandlerProperties = new HashMap<String, Object>();
     private List<Class<? extends CredentialHandler>> credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
+
     /**
      * Metadata reflecting which features are supported by this identity store
      */
-    private final Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures;
-    private final Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships;
-    private final Map<Class<? extends IdentityType>, Set<FeatureOperation>> supportedIdentityTypes;
+    private final FeatureSet featureSet;
 
-    protected BaseAbstractStoreConfiguration(Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
-            Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Map<Class<? extends IdentityType>,
-            Set<FeatureOperation>> supportedIdentityTypes, Set<String> realms,
-            Set<String> tiers, List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties,
-            List<Class<? extends CredentialHandler>> credentialHandlers) {
+    protected BaseAbstractStoreConfiguration(FeatureSet featureSet, List<ContextInitializer> contextInitializers,
+            Map<String, Object> credentialHandlerProperties, List<Class<? extends CredentialHandler>> credentialHandlers) {
         this.realms.addAll(realms);
         this.tiers.addAll(tiers);
         this.contextInitializers.addAll(contextInitializers);
         this.credentialHandlerProperties.putAll(credentialHandlerProperties);
         this.credentialHandlers.addAll(credentialHandlers);
-        this.supportedFeatures = supportedFeatures;
-        this.supportedRelationships = supportedRelationships;
-        this.supportedIdentityTypes = supportedIdentityTypes;
+        this.featureSet = featureSet;
     }
 
     @Override
@@ -79,17 +69,19 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
             LOGGER.debugf("FeatureSet for %s", this);
             LOGGER.debug("Features [");
 
-            for (Entry<FeatureGroup, Set<FeatureOperation>> entry : getSupportedFeatures().entrySet()) {
-                LOGGER.debugf("%s.%s", entry.getKey(), entry.getValue());
-            }
+            // FIXME
+            //for (Entry<FeatureGroup, Set<FeatureOperation>> entry : getSupportedFeatures().entrySet()) {
+            //    LOGGER.debugf("%s.%s", entry.getKey(), entry.getValue());
+           // }
 
             LOGGER.debug("]");
 
             LOGGER.debug("Relationships [");
 
-            for (Entry<Class<? extends Relationship>, Set<FeatureOperation>> entry : getSupportedRelationships().entrySet()) {
-                LOGGER.debugf("%s.%s", entry.getKey(), entry.getValue());
-            }
+            // FIXME
+            //for (Entry<Class<? extends Relationship>, Set<FeatureOperation>> entry : getSupportedRelationships().entrySet()) {
+            //    LOGGER.debugf("%s.%s", entry.getKey(), entry.getValue());
+            //}
 
             LOGGER.debug("]");
         }
@@ -122,83 +114,12 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
      * @return
      */
     @Override
-    public boolean supportsFeature(FeatureGroup feature, FeatureOperation operation) {
-        if (!this.supportedFeatures.containsKey(feature)) {
-            return false;
-        }
-
+    public boolean supportsFeature(Class<? extends AttributedType> type, TypeOperation operation) {
         if (operation == null) {
-            return true;
+            throw new IllegalArgumentException("operation may not be null");
         }
 
-        return this.supportedFeatures.get(feature).contains(operation);
-    }
-
-    @Override
-    public boolean supportsRelationship(Class<? extends Relationship> relationshipType, FeatureOperation operation) {
-        if (!this.supportedRelationships.containsKey(relationshipType)) {
-            return false;
-        }
-
-        if (operation == null) {
-            return true;
-        }
-
-        return this.supportedRelationships.get(relationshipType).contains(operation);
-    }
-
-    @Override
-    public boolean supportsIdentityType(Class<? extends IdentityType> identityType, FeatureOperation operation) {
-        if (!this.supportedIdentityTypes.containsKey(identityType)) {
-            return false;
-        }
-
-        if (operation == null) {
-            return true;
-        }
-
-        return this.supportedIdentityTypes.get(identityType).contains(operation);
-    }
-
-    @Override
-    public Set<String> getRealms() {
-        return unmodifiableSet(this.realms);
-    }
-
-    @Override
-    public Set<String> getTiers() {
-        return unmodifiableSet(this.tiers);
-    }
-
-    @Override
-    public Map<FeatureGroup, Set<FeatureOperation>> getSupportedFeatures() {
-        return unmodifiableMap(this.supportedFeatures);
-    }
-
-    @Override
-    public Map<Class<? extends Relationship>, Set<FeatureOperation>> getSupportedRelationships() {
-        return unmodifiableMap(this.supportedRelationships);
-    }
-
-    @Override
-    public Map<Class<? extends IdentityType>, Set<FeatureOperation>> getSupportedIdentityTypes() {
-        return unmodifiableMap(this.supportedIdentityTypes);
-    }
-
-    /**
-     * <p>
-     * Removes the given {@link FeatureGroup} and all supported {@link FeatureOperation} from the features set.
-     * </p>
-     *
-     * @param feature
-     * @throws SecurityConfigurationException If this instance is locked and changes are no more allowed.
-     */
-    protected void removeFeature(FeatureGroup feature) throws SecurityConfigurationException {
-        this.supportedFeatures.remove(feature);
-
-        if (FeatureGroup.relationship.equals(feature)) {
-            this.supportedRelationships.clear();
-        }
+        return featureSet.isTypeOperationSupported(type, operation) != -1;
     }
 
 }

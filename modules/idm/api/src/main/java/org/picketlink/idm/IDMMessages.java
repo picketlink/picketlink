@@ -27,8 +27,7 @@ import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
 import org.jboss.logging.Messages;
 import org.jboss.logging.Param;
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.config.FeatureSet.TypeOperation;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.config.SecurityConfigurationException;
@@ -126,14 +125,15 @@ public interface IDMMessages {
     SecurityConfigurationException storeConfigRealmNotConfigured(String realmId);
 
     @Message(id = 16, value = "No identity store configuration found that supports the relationship type [%s] and operation [%s].")
-    SecurityConfigurationException storeConfigUnsupportedRelationshipType(Class<? extends Relationship> type, FeatureOperation operation);
+    SecurityConfigurationException storeConfigUnsupportedRelationshipType(Class<? extends Relationship> type, TypeOperation operation);
 
     @Message(id = 17, value = "The IdentityStoreConfiguration [%s] specified is not supported by this IdentityStoreFactory implementation.")
     SecurityConfigurationException storeConfigUnsupportedConfiguration(IdentityStoreConfiguration config);
 
-    @Message(id = 18, value = "No identity store configuration found for requested operation [%s.%s].")
-    OperationNotSupportedException storeConfigUnsupportedOperation(@Param FeatureGroup feature,
-            @Param FeatureOperation operation, FeatureGroup featureToDisplay, FeatureOperation operationToDisplay);
+    @Message(id = 18, value = "No identity store configuration found for requested type operation [%s.%s].")
+    OperationNotSupportedException storeConfigUnsupportedOperation(@Param Class<? extends AttributedType> type,
+            @Param TypeOperation operation, Class<? extends AttributedType> typeToDisplay,
+            TypeOperation operationToDisplay);
 
     @Message(id = 19, value = "Error creating instance for CredentialHandler [%s].")
     IdentityManagementException credentialCredentialHandlerInstantiationError(Class<? extends CredentialHandler> type,
@@ -285,8 +285,8 @@ public interface IDMMessages {
     @Message(id = 70, value = "The default Realm was not configured for any identity store. Check your configuration.")
     SecurityConfigurationException configurationDefaultRealmNotDefined();
 
-    @Message(id = 71, value = "The same feature [%s] was configured for different IdentityStoreConfiguration [%s, %s].")
-    SecurityConfigurationException configurationAmbiguousFeatureForStore(FeatureGroup feature, IdentityStoreConfiguration config1, IdentityStoreConfiguration config2);
+    @Message(id = 71, value = "The same type feature [%s] was configured for different IdentityStoreConfiguration [%s, %s].")
+    SecurityConfigurationException configurationAmbiguousFeatureForStore(Class<? extends AttributedType> type, IdentityStoreConfiguration config1, IdentityStoreConfiguration config2);
 
     @Message(id = 72, value = "No such algorithm [%s] for encoding passwords. Using PasswordEncoder [%s].")
     IdentityManagementException credentialInvalidEncodingAlgorithm(String algorithm, PasswordEncoder encoder, @Cause Throwable t);
@@ -301,7 +301,7 @@ public interface IDMMessages {
     SecurityConfigurationException configurationAmbiguousRelationshipForStore(Class<? extends Relationship> relationship, IdentityStoreConfiguration config1, IdentityStoreConfiguration config2);
 
     @Message(id = 76, value = "No identity store configuration found that supports the identity type [%s] and operation [%s].")
-    SecurityConfigurationException storeConfigUnsupportedIdentityType(Class<? extends IdentityType> type, FeatureOperation operation);
+    SecurityConfigurationException storeConfigUnsupportedIdentityType(Class<? extends IdentityType> type, TypeOperation operation);
 
     @Message(id = 74, value = "You must specify which credentials are supported by the [%s].")
     IdentityManagementException credentialSupportedCredentialsNotProvided(Class<? extends CredentialHandler> handlerClass);

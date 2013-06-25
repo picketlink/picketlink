@@ -22,9 +22,6 @@
 
 package org.picketlink.idm.config;
 
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.FeatureSet.FeatureOperation;
-
 /**
  * <p>
  * An <code>OperationNotSupportedException</code> is thrown to indicate that a {@link FeatureGroup} or {@link FeatureOperation}

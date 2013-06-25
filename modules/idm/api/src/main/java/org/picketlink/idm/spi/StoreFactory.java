@@ -18,9 +18,10 @@
 
 package org.picketlink.idm.spi;
 
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.config.FeatureSet.CredentialOperation;
+import org.picketlink.idm.config.FeatureSet.TypeOperation;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.model.AttributedType;
 
 /**
  * Creates IdentityStore instances based on a provided configuration
@@ -44,15 +45,8 @@ public interface StoreFactory {
      * @param operation
      * @return
      */
-    IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature,
-            FeatureOperation operation);
+    IdentityStore<?> getStoreForType(SecurityContext context, Class<? extends AttributedType> type,
+            TypeOperation operation);
 
-    /**
-     *
-     * @param context
-     * @param feature
-     * @param operation
-     * @return
-     */
-    IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureOperation operation, Class<?> type);
+    IdentityStore<?> getStoreForCredentialOperation(SecurityContext context, CredentialOperation operation);
 }

@@ -22,17 +22,17 @@
 
 package org.picketlink.idm;
 
+import java.util.Set;
+
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.LogMessage;
 import org.jboss.logging.Logger;
 import org.jboss.logging.Logger.Level;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.config.FeatureSet.TypeOperation;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
-
-import java.util.Set;
+import org.picketlink.idm.model.AttributedType;
 
 /**
  * @author Pedro Silva
@@ -60,8 +60,8 @@ public interface IDMLogger extends BasicLogger {
     void fileConfigAlwaysCreateWorkingDir(String path);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 104, value = "No suitable configuration found for Feature [%s.%s]. Could find an IdentityStore to perform the requested operation.")
-    void identityManagerUnsupportedOperation(FeatureGroup feature, FeatureOperation operation);
+    @Message(id = 104, value = "No suitable configuration found for type operation [%s.%s]. Could find an IdentityStore to perform the requested operation.")
+    void identityManagerUnsupportedOperation(Class<? extends AttributedType> type, TypeOperation operation);
 
     @LogMessage(level = Level.ERROR)
     @Message(id = 105, value = "No configuration found for the given Realm [%s].")

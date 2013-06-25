@@ -80,6 +80,14 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      */
     void remove(SecurityContext context, AttributedType value);
 
+    /**
+     *
+     * @param identityType
+     * @param id
+     * @return
+     */
+    <I extends IdentityType> I getIdentity(Class<I> identityType, String id);
+
     // Agent
 
     /**
@@ -154,7 +162,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param identityType
      * @param attribute
      */
-    void setAttribute(SecurityContext context, IdentityType identityType,
+    void setAttribute(SecurityContext context, AttributedType type,
             Attribute<? extends Serializable> attribute);
 
     /**
@@ -164,7 +172,8 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param attributeName
      * @return
      */
-    <V extends Serializable> Attribute<V> getAttribute(SecurityContext context, IdentityType identityType, String attributeName);
+    <V extends Serializable> Attribute<V> getAttribute(SecurityContext context, AttributedType type,
+            String attributeName);
 
     /**
      * Removes the specified Attribute value, for the specified IdentityType
@@ -173,7 +182,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param identityType
      * @param attributeName
      */
-    void removeAttribute(SecurityContext context, IdentityType identityType, String attributeName);
+    void removeAttribute(SecurityContext context, AttributedType type, String attributeName);
 
     // Credentials
 

@@ -32,8 +32,6 @@ import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.PropertyQuery;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.IDMMessages;
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.Stored;
