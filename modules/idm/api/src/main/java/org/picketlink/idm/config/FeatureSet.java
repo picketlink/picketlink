@@ -17,66 +17,70 @@ import org.picketlink.idm.model.AttributedType;
  */
 public final class FeatureSet {
 
-    public enum FeatureOperation {
+    public enum TypeOperation {
+        create, read, update, delete
+    }
+
+    public enum CredentialOperation {
         create, read, update, delete, validate
     }
 
     boolean finalized = false;
 
-    private Map<Class<? extends AttributedType>, Set<FeatureOperation>> supportedTypes;
-    private Map<Class<? extends AttributedType>, Set<FeatureOperation>> unsupportedTypes;
+    private Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes;
+    private Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes;
 
-    private Map<Class<? extends CredentialStorage>, Set<FeatureOperation>> supportedCredentials;
-    private Map<Class<? extends CredentialStorage>, Set<FeatureOperation>> unsupportedCredentials;
+    private Map<Class<? extends CredentialStorage>, Set<CredentialOperation>> supportedCredentials;
+    private Map<Class<? extends CredentialStorage>, Set<CredentialOperation>> unsupportedCredentials;
 
-    public void supportType(Class<? extends AttributedType> type, FeatureOperation... operations) {
+    public void supportType(Class<? extends AttributedType> type, TypeOperation... operations) {
         if (finalized) {
             throw new IllegalStateException("FeatureSet is finalized and can no longer be updated");
         }
 
         if (!supportedTypes.containsKey(type)) {
-            supportedTypes.put(type, new HashSet<FeatureOperation>());
+            supportedTypes.put(type, new HashSet<TypeOperation>());
         }
-        for (FeatureOperation op : operations) {
+        for (TypeOperation op : operations) {
             supportedTypes.get(type).add(op);
         }
     }
 
-    public void unsupportType(Class<? extends AttributedType> type, FeatureOperation... operations) {
+    public void unsupportType(Class<? extends AttributedType> type, TypeOperation... operations) {
         if (finalized) {
             throw new IllegalStateException("FeatureSet is finalized and can no longer be updated");
         }
 
         if (!unsupportedTypes.containsKey(type)) {
-            unsupportedTypes.put(type, new HashSet<FeatureOperation>());
+            unsupportedTypes.put(type, new HashSet<TypeOperation>());
         }
-        for (FeatureOperation op : operations) {
+        for (TypeOperation op : operations) {
             unsupportedTypes.get(type).add(op);
         }
     }
 
-    public void supportCredential(Class<? extends CredentialStorage> credential, FeatureOperation... operations) {
+    public void supportCredential(Class<? extends CredentialStorage> credential, CredentialOperation... operations) {
         if (finalized) {
             throw new IllegalStateException("FeatureSet is finalized and can no longer be updated");
         }
 
         if (!supportedCredentials.containsKey(credential)) {
-            supportedCredentials.put(credential, new HashSet<FeatureOperation>());
+            supportedCredentials.put(credential, new HashSet<CredentialOperation>());
         }
-        for (FeatureOperation op : operations) {
+        for (CredentialOperation op : operations) {
             supportedCredentials.get(credential).add(op);
         }
     }
 
-    public void unsupportCredential(Class<? extends CredentialStorage> credential, FeatureOperation... operations) {
+    public void unsupportCredential(Class<? extends CredentialStorage> credential, CredentialOperation... operations) {
         if (finalized) {
             throw new IllegalStateException("FeatureSet is finalized and can no longer be updated");
         }
 
         if (!unsupportedCredentials.containsKey(credential)) {
-            unsupportedCredentials.put(credential, new HashSet<FeatureOperation>());
+            unsupportedCredentials.put(credential, new HashSet<CredentialOperation>());
         }
-        for (FeatureOperation op : operations) {
+        for (CredentialOperation op : operations) {
             unsupportedCredentials.get(credential).add(op);
         }
     }
@@ -88,6 +92,45 @@ public final class FeatureSet {
         unsupportedCredentials = Collections.unmodifiableMap(unsupportedCredentials);
 
         finalized = true;
+    }
+
+    public boolean isTypeOperationSupported(Class<? extends AttributedType> type, TypeOperation operation) {
+        boolean supported = false;
+
+        for (Class<? extends AttributedType> cls : supportedTypes.keySet()) {
+            if (cls.isAssignableFrom(type) && supportedTypes.get(cls).contains(operation)) {
+                supported = true;
+                break;
+            }
+        }
+
+        for (Class<? extends AttributedType> cls : unsupportedTypes.keySet()) {
+            if (cls.isAssignableFrom(type) && unsupportedTypes.get(cls).contains(operation)) {
+                supported = false;
+                break;
+            }
+        }
+        return supported;
+    }
+
+    public boolean isCredentialOperationSupported(Class<? extends AttributedType> credentialType, 
+            CredentialOperation operation) {
+        boolean supported = false;
+
+        for (Class<? extends CredentialStorage> cls : supportedCredentials.keySet()) {
+            if (cls.isAssignableFrom(credentialType) && supportedCredentials.get(cls).contains(operation)) {
+                supported = true;
+                break;
+            }
+        }
+
+        for (Class<? extends CredentialStorage> cls : unsupportedCredentials.keySet()) {
+            if (cls.isAssignableFrom(credentialType) && unsupportedCredentials.get(cls).contains(operation)) {
+                supported = false;
+                break;
+            }
+        }
+        return supported;
     }
 
 }
