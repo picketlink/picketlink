@@ -21,7 +21,6 @@ package org.picketlink.idm.spi;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.model.Partition;
 
 /**
  * Creates IdentityStore instances based on a provided configuration
