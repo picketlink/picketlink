@@ -25,6 +25,7 @@ package org.picketlink.test.idm.config;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.IdentityConfiguration;
@@ -36,7 +37,6 @@ import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
-import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.sample.Agent;
@@ -705,7 +705,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     protected abstract T createMinimalConfiguration(IdentityConfigurationBuilder builder);
 
     protected IdentityManager createIdentityManager(IdentityConfiguration config) {
-        return new IdentityManagerFactory(config).createIdentityManager();
+        return new PartitionManager(config).createIdentityManager();
     }
 
     protected void performGetCreateRemoveIdentityType(IdentityType identityType, IdentityManager identityManager) {

@@ -23,9 +23,9 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
@@ -105,7 +105,7 @@ public class LDAPIdentityStoreWithoutAttributesTestSuite extends LDAPAbstractSui
     }
 
     @Override
-    public IdentityManagerFactory createIdentityManagerFactory() {
+    public PartitionManager createIdentityManagerFactory() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
@@ -123,7 +123,7 @@ public class LDAPIdentityStoreWithoutAttributesTestSuite extends LDAPAbstractSui
                     .supportAllFeatures()
                     .removeFeature(FeatureGroup.attribute);
 
-        return new IdentityManagerFactory(builder.build());
+        return new PartitionManager(builder.build());
     }
 
 }

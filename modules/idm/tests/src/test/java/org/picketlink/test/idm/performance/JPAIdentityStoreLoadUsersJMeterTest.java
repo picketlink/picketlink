@@ -29,7 +29,7 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.internal.IdentityManagerFactory;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.sample.User;
 
 import javax.persistence.EntityManager;
@@ -43,7 +43,7 @@ import javax.persistence.Persistence;
 public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClient {
 
     private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
-    private static IdentityManagerFactory identityManagerFactory = null;
+    private static PartitionManager identityManagerFactory = null;
     private static final ThreadLocal<EntityManager> entityManager = new ThreadLocal<EntityManager>();
 
     static {
@@ -126,7 +126,7 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
         return result;
     }
 
-    private static IdentityManagerFactory createIdentityManagerFactory() {
+    private static PartitionManager createIdentityManagerFactory() {
         return identityManagerFactory;
 //        IdentityConfiguration configuration = new IdentityConfiguration();
 //        

@@ -18,7 +18,7 @@
 
 package org.picketlink.test.idm;
 
-import org.picketlink.idm.internal.IdentityManagerFactory;
+import org.picketlink.idm.PartitionManager;
 
 /**
  * <p>
@@ -32,7 +32,7 @@ public interface TestLifecycle {
 
     void onInit();
 
-    IdentityManagerFactory createIdentityManagerFactory();
+    PartitionManager createIdentityManagerFactory();
 
     void onDestroy();
 

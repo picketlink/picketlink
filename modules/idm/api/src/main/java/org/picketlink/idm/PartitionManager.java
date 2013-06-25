@@ -1,10 +1,11 @@
-package org.picketlink.idm.internal;
+package org.picketlink.idm;
 
 import java.io.Serializable;
-import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.SecurityConfigurationException;
+//import org.picketlink.idm.internal.DefaultIdentityManager;
+//import org.picketlink.idm.internal.DefaultSecurityContextFactory;
+//import org.picketlink.idm.internal.DefaultStoreFactory;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.spi.SecurityContext;
@@ -24,7 +25,7 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
  *
  * @author Shane Bryzak
  */
-public class IdentityManagerFactory implements Serializable {
+public class PartitionManager implements Serializable {
 
     private static final long serialVersionUID = 666601082732493295L;
 
@@ -38,7 +39,7 @@ public class IdentityManagerFactory implements Serializable {
      *
      * @param identityConfig
      */
-    public IdentityManagerFactory(IdentityConfiguration identityConfig) {
+    public PartitionManager(IdentityConfiguration identityConfig) {
         LOGGER.identityManagerBootstrapping();
 
         if (identityConfig == null) {

@@ -23,9 +23,9 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.schema.IdentityObject;
@@ -122,7 +122,7 @@ public class LDAPJPAMixedStoreTestSuite extends LDAPAbstractSuite implements Tes
 
     @SuppressWarnings("unchecked")
     @Override
-    public IdentityManagerFactory createIdentityManagerFactory() {
+    public PartitionManager createIdentityManagerFactory() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
@@ -156,7 +156,7 @@ public class LDAPJPAMixedStoreTestSuite extends LDAPAbstractSuite implements Tes
                         }
                     });
 
-        return new IdentityManagerFactory(builder.build());
+        return new PartitionManager(builder.build());
     }
 
     @Override

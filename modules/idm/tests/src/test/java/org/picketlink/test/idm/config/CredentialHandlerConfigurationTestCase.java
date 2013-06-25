@@ -26,12 +26,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.AbstractBaseCredentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
-import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -108,7 +108,7 @@ public class CredentialHandlerConfigurationTestCase {
                     .credentialAttributeClass(CredentialObjectAttribute.class)
                     .partitionClass(PartitionObject.class);
 
-        IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(builder.build());
+        PartitionManager identityManagerFactory = new PartitionManager(builder.build());
 
         IdentityManager identityManager = identityManagerFactory.createIdentityManager();
 
@@ -159,7 +159,7 @@ public class CredentialHandlerConfigurationTestCase {
                     .credentialAttributeClass(CredentialObjectAttribute.class)
                     .partitionClass(PartitionObject.class);
 
-        IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(builder.build());
+        PartitionManager identityManagerFactory = new PartitionManager(builder.build());
 
         IdentityManager identityManager = identityManagerFactory.createIdentityManager();
 

@@ -29,7 +29,7 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.internal.IdentityManagerFactory;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.sample.User;
 
 /**
@@ -38,7 +38,7 @@ import org.picketlink.idm.model.sample.User;
  */
 public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClient {
 
-    private static IdentityManagerFactory identityManagerFactory = null;
+    private static PartitionManager identityManagerFactory = null;
 
     static {
         identityManagerFactory = createIdentityManagerFactory();
@@ -97,7 +97,7 @@ public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerCli
         return result;
     }
 
-    private static IdentityManagerFactory createIdentityManagerFactory() {
+    private static PartitionManager createIdentityManagerFactory() {
         return identityManagerFactory;
 //        IdentityConfiguration configuration = new IdentityConfiguration();
 //

@@ -18,7 +18,7 @@
 package org.picketlink.test.idm;
 
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.internal.IdentityManagerFactory;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
@@ -35,11 +35,11 @@ import org.picketlink.idm.model.sample.User;
  */
 public class AbstractIdentityManagerTestCase {
 
-    private IdentityManagerFactory identityManagerFactory;
+    private PartitionManager identityManagerFactory;
 
     private IdentityManager identityManager;
 
-    public IdentityManagerFactory getIdentityManagerFactory() {
+    public PartitionManager getIdentityManagerFactory() {
         if (identityManagerFactory == null) {
             throw new RuntimeException("Identity Manager Factory is not set.");
         }
@@ -53,7 +53,7 @@ public class AbstractIdentityManagerTestCase {
         return this.identityManager;
     }
 
-    public void setIdentityManagerFactory(IdentityManagerFactory factory) {
+    public void setIdentityManagerFactory(PartitionManager factory) {
         this.identityManagerFactory = factory;
     }
 
@@ -126,7 +126,7 @@ public class AbstractIdentityManagerTestCase {
     }
 
     private IdentityManager getIdentityManagerForPartition(Partition partition) {
-        IdentityManagerFactory factory = getIdentityManagerFactory();
+        PartitionManager factory = getIdentityManagerFactory();
         
         if (partition == null) {
             return factory.createIdentityManager();

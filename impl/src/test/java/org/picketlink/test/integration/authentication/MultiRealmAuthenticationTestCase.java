@@ -41,10 +41,10 @@ import org.picketlink.Identity;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.AbstractArquillianTestCase;
@@ -75,7 +75,7 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
     private Instance<IdentityManager> identityManagerInstance;
     
     @Inject
-    private IdentityManagerFactory identityManagerFactory;
+    private PartitionManager identityManagerFactory;
 
     @Inject
     private DefaultLoginCredentials credentials;
@@ -194,7 +194,7 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
     public static class RealmSelector {
 
         @Inject
-        private IdentityManagerFactory identityManagerFactory;
+        private PartitionManager identityManagerFactory;
 
         private String realmName;
 

@@ -21,9 +21,9 @@ package org.picketlink.test.idm.suites;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
-import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.model.sample.Authorization;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.test.idm.IdentityManagerRunner;
@@ -88,7 +88,7 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     @SuppressWarnings("unchecked")
     @Override
-    public IdentityManagerFactory createIdentityManagerFactory() {
+    public PartitionManager createIdentityManagerFactory() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
         
         builder
@@ -100,7 +100,7 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
                     .supportAllFeatures()
                     .supportRelationshipType(CustomRelationship.class, Authorization.class);
         
-        return new IdentityManagerFactory(builder.build());
+        return new PartitionManager(builder.build());
     }
 
     @Override
