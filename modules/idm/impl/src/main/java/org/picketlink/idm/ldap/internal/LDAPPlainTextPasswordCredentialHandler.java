@@ -18,10 +18,13 @@
 
 package org.picketlink.idm.ldap.internal;
 
+import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * This particular implementation supports the validation of UsernamePasswordCredentials, and updating PlainTextPassword
@@ -34,16 +37,11 @@ import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
     implements CredentialHandler<LDAPIdentityStore, UsernamePasswordCredentials, Password> {
 
-    @Override
-    public void validate(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.credential.UsernamePasswordCredentials credentials, org.picketlink.idm.ldap.internal.LDAPIdentityStore store) {
+
+    public void update(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.model.sample.Agent agent, org.picketlink.idm.credential.Password credential, org.picketlink.idm.ldap.internal.LDAPIdentityStore store, java.util.Date effectiveDate, java.util.Date expiryDate) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    @Override
-<<<<<<< HEAD
-    public void update(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.model.sample.Agent agent, org.picketlink.idm.credential.Password credential, org.picketlink.idm.ldap.internal.LDAPIdentityStore store, java.util.Date effectiveDate, java.util.Date expiryDate) {
-        //To change body of implemented methods use File | Settings | File Templates.
-=======
     public void validate(SecurityContext context, UsernamePasswordCredentials usernamePassword,
             LDAPIdentityStore identityStore) {
         usernamePassword.setStatus(Status.INVALID);
@@ -68,7 +66,6 @@ public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
                 usernamePassword.setStatus(Status.AGENT_DISABLED);
             }
         }
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
     }
 
     @Override

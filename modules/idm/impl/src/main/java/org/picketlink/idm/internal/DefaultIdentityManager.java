@@ -47,10 +47,6 @@ import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.StoreFactory;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
-<<<<<<< HEAD
-=======
-import static org.picketlink.idm.internal.util.IDMUtil.getFeatureGroup;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 
 /**
  * Default implementation of the IdentityManager interface

@@ -24,7 +24,7 @@ import org.picketlink.idm.credential.TOTPCredential;
 import org.picketlink.idm.credential.TOTPCredentials;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.credential.totp.TimeBasedOTP;
-import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
@@ -114,10 +114,10 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
     }
 
     @Override
-    public void update(SecurityContext context, Agent agent, TOTPCredential credential, CredentialStore<?> store, Date effectiveDate, Date expiryDate) {
+    public void update(SecurityContext context, Account account, TOTPCredential credential, CredentialStore<?> store, Date effectiveDate, Date expiryDate) {
         // if a credential was not provided, updates only the secret.
         if (credential.getValue() != null && credential.getValue().length > 0) {
-            super.update(context, agent, credential, store, effectiveDate, expiryDate);
+            super.update(context, account, credential, store, effectiveDate, expiryDate);
         }
 
         OTPCredentialStorage storage = new OTPCredentialStorage();
@@ -128,7 +128,7 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
         storage.setSecretKey(credential.getSecret());
         storage.setDevice(getDevice(credential.getDevice()));
 
-        store.storeCredential(context, agent, storage);
+        store.storeCredential(context, account, storage);
     }
 
     private String getDevice(String device) {

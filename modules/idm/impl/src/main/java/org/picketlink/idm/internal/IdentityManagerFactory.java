@@ -1,22 +1,15 @@
 package org.picketlink.idm.internal;
 
-<<<<<<< HEAD
-=======
 import java.io.Serializable;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.SecurityContextFactory;
 import org.picketlink.idm.spi.StoreFactory;
-import static org.picketlink.idm.IDMLogger.LOGGER;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
@@ -74,7 +67,7 @@ public class IdentityManagerFactory implements Serializable {
      * @throws SecurityConfigurationException if the default realm was not configured.
      */
     public IdentityManager createIdentityManager() throws SecurityConfigurationException{
-        Realm defaultRealm = getRealm(Realm.DEFAULT_REALM);
+        Realm defaultRealm = getPartition(Realm.class, Realm.DEFAULT_REALM);
 
         if (defaultRealm == null) {
             throw MESSAGES.configurationDefaultRealmNotDefined();
@@ -108,23 +101,14 @@ public class IdentityManagerFactory implements Serializable {
     }
 
     /**
-     * <p>Returns a {@link Realm} configured with the given name.</p>
+     * <p>Returns the {@link Partition} with the given name.</p>
      *
      * @param name
      * @return
      */
-    public Realm getRealm(String name) {
-        return this.storeFactory.getRealm(name);
-    }
-
-    /**
-     * <p>Returns a {@link Tier} configured with the given name.</p>
-     *
-     * @param name
-     * @return
-     */
-    public Tier getTier(String name) {
-        return this.storeFactory.getTier(name);
+    public <T extends Partition> T getPartition(Class<T> partitionClass, String name) {
+        // FIXME
+        return null;
     }
 
 }

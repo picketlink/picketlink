@@ -18,7 +18,6 @@
 
 package org.picketlink.idm.password.internal;
 
-<<<<<<< HEAD
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.password.PasswordEncoder;
@@ -27,14 +26,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-=======
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import org.picketlink.common.util.Base64;
-import org.picketlink.idm.IDMMessages;
-import org.picketlink.idm.password.PasswordEncoder;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**

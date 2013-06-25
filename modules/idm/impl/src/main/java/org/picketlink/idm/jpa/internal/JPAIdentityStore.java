@@ -29,10 +29,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-<<<<<<< HEAD
 import java.util.Set;
-=======
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -49,6 +46,7 @@ import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
 import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld.MappedAttribute;
 import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld.PropertyType;
@@ -72,7 +70,6 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.AttributeProperty;
-import org.picketlink.idm.model.annotation.IdentityProperty;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Grant;
 import org.picketlink.idm.model.sample.Group;
@@ -99,13 +96,8 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
  * @author Shane Bryzak
  * @author Pedro Silva
  */
-<<<<<<< HEAD
-@CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class })
-public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigurationOld> {
-=======
 @CredentialHandlers({PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class, TOTPCredentialHandler.class})
 public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfiguration> {
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 
     // Invocation context parameters
     public static final String INVOCATION_CTX_ENTITY_MANAGER = "CTX_ENTITY_MANAGER";
@@ -116,15 +108,15 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     /**
      * The configuration for this instance
      */
-    private JPAIdentityStoreConfigurationOld config;
+    private JPAIdentityStoreConfiguration config;
 
     @Override
-    public void setup(JPAIdentityStoreConfigurationOld config) {
+    public void setup(JPAIdentityStoreConfiguration config) {
         this.config = config;
     }
 
     @Override
-    public JPAIdentityStoreConfigurationOld getConfig() {
+    public JPAIdentityStoreConfiguration getConfig() {
         return config;
     }
 

@@ -18,12 +18,12 @@
 
 package org.picketlink.idm.credential.spi;
 
+import java.util.Date;
+
 import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
-
-import java.util.Date;
 
 /**
  * Performs credential validation and persists credential state to a Store.
@@ -44,7 +44,7 @@ public interface CredentialHandler<S extends IdentityStore<?>,V extends Credenti
      * @param credential
      * @param store
      */
-    void update(SecurityContext context, Agent agent, U credential, S store, Date effectiveDate, Date expiryDate);
+    void update(SecurityContext context, Account account, U credential, S store, Date effectiveDate, Date expiryDate);
 
     /**
      * @param identityStore

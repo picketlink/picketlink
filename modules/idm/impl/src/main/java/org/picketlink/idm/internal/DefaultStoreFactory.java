@@ -149,32 +149,6 @@ public class DefaultStoreFactory implements StoreFactory {
         }
     }
 
-    @Override
-    public Realm getRealm(String id) {
-        if (configuredRealms.containsKey(id)) {
-            return configuredRealms.get(id);
-        } else if (realmStores.containsKey(id)) {
-            Realm realm = new Realm(id);
-            configuredRealms.put(id, realm);
-            return realm;
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public Tier getTier(String id) {
-        if (configuredTiers.containsKey(id)) {
-            return configuredTiers.get(id);
-        } else if (tierStores.containsKey(id)) {
-            Tier tier = new Tier(id);
-            configuredTiers.put(id, tier);
-            return tier;
-        } else {
-            return null;
-        }
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public <T extends IdentityStoreConfiguration> IdentityStore<T> createIdentityStore(T config, SecurityContext context) {

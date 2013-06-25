@@ -18,27 +18,21 @@
 
 package org.picketlink.idm.credential.internal;
 
-<<<<<<< HEAD
-=======
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
+
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
-
-import java.io.ByteArrayInputStream;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.Date;
 
 /**
  * This particular implementation supports the validation of {@link X509CertificateCredentials}, and updating {@link X509Cert}
@@ -101,9 +95,9 @@ public class X509CertificateCredentialHandler<S,V,U>
     }
 
     @Override
-    public void update(SecurityContext context, Agent agent, X509Certificate cert, CredentialStore<?> store,
+    public void update(SecurityContext context, Account account, X509Certificate cert, CredentialStore<?> store,
             Date effectiveDate, Date expiryDate) {
         X509CertificateStorage storage = new X509CertificateStorage(cert);
-        store.storeCredential(context, agent, storage);
+        store.storeCredential(context, account, storage);
     }
 }

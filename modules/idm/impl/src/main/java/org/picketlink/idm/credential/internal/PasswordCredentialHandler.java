@@ -18,13 +18,14 @@
 
 package org.picketlink.idm.credential.internal;
 
-<<<<<<< HEAD
-=======
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.credential.internal.CredentialUtils.isCredentialExpired;
+
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Map;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
+
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials.Status;
@@ -32,22 +33,13 @@ import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.password.internal.EncodedPasswordStorage;
 import org.picketlink.idm.password.internal.SHAPasswordEncoder;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.credential.internal.CredentialUtils.isCredentialExpired;
-
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Date;
-import java.util.Map;
-
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.credential.internal.CredentialUtils.isCredentialExpired;
 
 /**
  * <p>
@@ -141,7 +133,7 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
     }
 
     @Override
-    public void update(SecurityContext context, Agent agent, U password, S store,
+    public void update(SecurityContext context, Account account, U password, S store,
                        Date effectiveDate, Date expiryDate) {
 
         EncodedPasswordStorage hash = new EncodedPasswordStorage();
@@ -155,7 +147,7 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
         hash.setEffectiveDate(effectiveDate);
         hash.setExpiryDate(expiryDate);
 
-        store.storeCredential(context, agent, hash);
+        store.storeCredential(context, account, hash);
     }
 
     /**

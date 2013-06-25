@@ -18,11 +18,16 @@
 
 package org.picketlink.idm.credential.internal;
 
-<<<<<<< HEAD
-=======
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.credential.internal.CredentialUtils.isCurrentCredential;
+import static org.picketlink.idm.credential.internal.CredentialUtils.isLastCredentialExpired;
+import static org.picketlink.idm.credential.internal.DigestUtil.calculateA2;
+import static org.picketlink.idm.credential.internal.DigestUtil.calculateDigest;
+
 import java.util.Date;
 import java.util.List;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
+
 import org.picketlink.common.util.Base64;
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.credential.Credentials.Status;
@@ -30,25 +35,10 @@ import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.credential.internal.CredentialUtils.isCurrentCredential;
-import static org.picketlink.idm.credential.internal.CredentialUtils.isLastCredentialExpired;
-import static org.picketlink.idm.credential.internal.DigestUtil.calculateA2;
-import static org.picketlink.idm.credential.internal.DigestUtil.calculateDigest;
-
-import java.util.Date;
-import java.util.List;
-
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.credential.internal.CredentialUtils.isCurrentCredential;
-import static org.picketlink.idm.credential.internal.CredentialUtils.isLastCredentialExpired;
-import static org.picketlink.idm.credential.internal.DigestUtil.calculateA2;
-import static org.picketlink.idm.credential.internal.DigestUtil.calculateDigest;
 
 /**
  * <p>
@@ -132,7 +122,7 @@ public class DigestCredentialHandler<S,V,U>
     }
 
     @Override
-    public void update(SecurityContext context, Agent agent, Digest digest, CredentialStore<?> store,
+    public void update(SecurityContext context, Account account, Digest digest, CredentialStore<?> store,
             Date effectiveDate, Date expiryDate) {
         if (isNullOrEmpty(digest.getRealm())) {
             throw MESSAGES.credentialDigestInvalidRealm();
@@ -142,6 +132,8 @@ public class DigestCredentialHandler<S,V,U>
             throw MESSAGES.credentialInvalidPassword();
         }
 
+        Agent agent = (Agent) account;
+
         byte[] ha1 = DigestUtil.calculateA1(agent.getLoginName(), digest.getRealm(), digest.getPassword()
                 .toCharArray());
 
@@ -150,7 +142,7 @@ public class DigestCredentialHandler<S,V,U>
         storage.setEffectiveDate(effectiveDate);
         storage.setExpiryDate(expiryDate);
 
-        store.storeCredential(context, agent, storage);
+        store.storeCredential(context, account, storage);
     }
 
 }

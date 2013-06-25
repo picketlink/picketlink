@@ -21,8 +21,7 @@ package org.picketlink.idm.spi;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.idm.model.sample.Tier;
+import org.picketlink.idm.model.Partition;
 
 /**
  * Creates IdentityStore instances based on a provided configuration
@@ -38,20 +37,6 @@ public interface StoreFactory {
      * @return
      */
     <T extends IdentityStoreConfiguration> IdentityStore<T> createIdentityStore(T config, SecurityContext context);
-
-    /**
-     *
-     * @param id
-     * @return
-     */
-    Realm getRealm(String id);
-
-    /**
-     *
-     * @param id
-     * @return
-     */
-    Tier getTier(String id);
 
     /**
      *
@@ -71,5 +56,4 @@ public interface StoreFactory {
      * @return
      */
     IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureOperation operation, Class<?> type);
-
 }

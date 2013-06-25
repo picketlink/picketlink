@@ -34,8 +34,8 @@ public class Realm extends AbstractPartition {
 
     public static final String DEFAULT_REALM = "default";
 
-    public Realm(String id, String name) {
-        super(id, name);
+    public Realm(String name) {
+        super(name);
     }
 
 }

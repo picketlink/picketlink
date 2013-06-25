@@ -35,14 +35,17 @@ public abstract class AbstractPartition extends AbstractAttributedType implement
     private String id;
     private String name;
 
-    public AbstractPartition(String id, String name) {
-        this.id = id;
+    public AbstractPartition(String name) {
         this.name = name;
     }
 
     @Override
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
