@@ -40,7 +40,7 @@ import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.StoreFactory;
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
@@ -151,7 +151,7 @@ public class DefaultStoreFactory implements StoreFactory {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends IdentityStoreConfiguration> IdentityStore<T> createIdentityStore(T config, SecurityContext context) {
+    public <T extends IdentityStoreConfiguration> IdentityStore<T> createIdentityStore(T config, IdentityContext context) {
         for (Class<? extends IdentityStoreConfiguration> cc : this.identityConfigMap.keySet()) {
             if (cc.isInstance(config)) {
                 IdentityStore<T> identityStore = (IdentityStore<T>) this.storesCache.get(cc);
@@ -177,16 +177,16 @@ public class DefaultStoreFactory implements StoreFactory {
     }
 
     @Override
-    public IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature, FeatureOperation operation) {
+    public IdentityStore<?> getStoreForFeature(IdentityContext context, FeatureGroup feature, FeatureOperation operation) {
         return getStoreForFeature(context, feature, operation, null);
     }
 
     @Override
-    public IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureOperation operation, Class<?> type) {
+    public IdentityStore<?> getStoreForFeature(IdentityContext context, FeatureOperation operation, Class<?> type) {
         return getStoreForFeature(context, null, operation, type);
     }
 
-    private IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature, FeatureOperation operation, Class<?> identityType) {
+    private IdentityStore<?> getStoreForFeature(IdentityContext context, FeatureGroup feature, FeatureOperation operation, Class<?> identityType) {
         if (Realm.class.isInstance(context.getPartition())) {
             Realm realm = (Realm) context.getPartition();
             if (!realmStores.containsKey(realm.getId())) {

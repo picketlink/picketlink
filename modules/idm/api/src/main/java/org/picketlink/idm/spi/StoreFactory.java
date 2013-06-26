@@ -36,7 +36,7 @@ public interface StoreFactory {
      * @param config
      * @return
      */
-    <T extends IdentityStoreConfiguration> IdentityStore<T> createIdentityStore(T config, SecurityContext context);
+    <T extends IdentityStoreConfiguration> IdentityStore<T> createIdentityStore(T config, IdentityContext context);
 
     /**
      *
@@ -45,8 +45,8 @@ public interface StoreFactory {
      * @param operation
      * @return
      */
-    IdentityStore<?> getStoreForType(SecurityContext context, Class<? extends AttributedType> type,
+    IdentityStore<?> getStoreForType(IdentityContext context, Class<? extends AttributedType> type,
             TypeOperation operation);
 
-    IdentityStore<?> getStoreForCredentialOperation(SecurityContext context, CredentialOperation operation);
+    IdentityStore<?> getStoreForCredentialOperation(IdentityContext context, CredentialOperation operation);
 }

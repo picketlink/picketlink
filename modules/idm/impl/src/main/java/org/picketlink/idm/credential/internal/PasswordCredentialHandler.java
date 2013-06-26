@@ -39,7 +39,7 @@ import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.password.internal.EncodedPasswordStorage;
 import org.picketlink.idm.password.internal.SHAPasswordEncoder;
 import org.picketlink.idm.spi.CredentialStore;
-import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.IdentityContext;
 
 /**
  * <p>
@@ -94,7 +94,7 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
     }
 
     @Override
-    public void validate(SecurityContext context, V credentials, S store) {
+    public void validate(IdentityContext context, V credentials, S store) {
         if (!UsernamePasswordCredentials.class.isInstance(credentials)) {
             throw MESSAGES.credentialUnsupportedType(credentials.getClass(), this);
         }
@@ -133,7 +133,7 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
     }
 
     @Override
-    public void update(SecurityContext context, Account account, U password, S store,
+    public void update(IdentityContext context, Account account, U password, S store,
                        Date effectiveDate, Date expiryDate) {
 
         EncodedPasswordStorage hash = new EncodedPasswordStorage();

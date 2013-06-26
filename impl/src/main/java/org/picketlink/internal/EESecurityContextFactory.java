@@ -28,7 +28,7 @@ import org.picketlink.idm.internal.DefaultIdGenerator;
 import org.picketlink.idm.internal.DefaultIdentityCache;
 import org.picketlink.idm.internal.DefaultSecurityContextFactory;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.SecurityContextFactory;
 
 /**
@@ -52,8 +52,8 @@ public class EESecurityContextFactory extends DefaultSecurityContextFactory impl
     }
 
     @Override
-    public SecurityContext createContext(Partition partition) {
-        return new SecurityContext(this.identityCache, cdiEventBridge, credentialHandlerFactory, idGenerator, partition);
+    public IdentityContext createContext(Partition partition) {
+        return new IdentityContext(this.identityCache, cdiEventBridge, credentialHandlerFactory, idGenerator, partition);
     }
 
 }

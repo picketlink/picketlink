@@ -22,7 +22,7 @@ import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.IdentityContext;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,13 +40,13 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
 public class DefaultRelationshipQuery<T extends Relationship> implements RelationshipQuery<T> {
 
     private Map<QueryParameter, Object[]> parameters = new LinkedHashMap<QueryParameter, Object[]>();
-    private SecurityContext context;
+    private IdentityContext context;
     private IdentityStore<?> identityStore;
     private Class<T> relationshipType;
     private int offset;
     private int limit;
 
-    public DefaultRelationshipQuery(SecurityContext context, Class<T> relationshipType, IdentityStore<?> identityStore) {
+    public DefaultRelationshipQuery(IdentityContext context, Class<T> relationshipType, IdentityStore<?> identityStore) {
         this.context = context;
         this.identityStore = identityStore;
         this.relationshipType = relationshipType;

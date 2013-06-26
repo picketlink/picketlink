@@ -20,15 +20,22 @@ package org.picketlink.idm.internal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.picketlink.common.util.StringUtil;
+import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.FeatureSet.CredentialOperation;
 import org.picketlink.idm.config.FeatureSet.TypeOperation;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.credential.spi.CredentialStorage;
+import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Grant;
@@ -44,7 +51,7 @@ import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.StoreFactory;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
@@ -54,17 +61,38 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
  * @author Shane Bryzak
  * @author anil saldhana
  */
-public class DefaultIdentityManager implements IdentityManager {
+public class ContextualIdentityManager implements IdentityManager, IdentityContext {
 
     private static final long serialVersionUID = -2835518073812662628L;
 
-    private final SecurityContext context;
+     /**
+     *
+     */
+    private final EventBridge eventBridge;
+
+    /**
+     *
+     */
+    private final Partition partition;
+
+    /**
+     *
+     */
+    private final IdGenerator idGenerator;
+
+    /**
+     *
+     */
+    private Map<String, Object> parameters = new HashMap<String, Object>();
+
     private final StoreFactory storeFactory;
 
-    public DefaultIdentityManager(SecurityContext context, StoreFactory storeFactory) {
-        this.context = context;
+    public ContextualIdentityManager(EventBridge eventBridge, IdGenerator idGenerator, 
+            Partition partition, StoreFactory storeFactory) {
+        this.eventBridge = eventBridge;
+        this.idGenerator = idGenerator;
+        this.partition = partition;
         this.storeFactory = storeFactory;
-        context.setIdentityManager(this);
     }
 
     @Override
@@ -85,12 +113,12 @@ public class DefaultIdentityManager implements IdentityManager {
             if (User.class.isInstance(newAgent)) {
                 if (getUser(newAgent.getLoginName()) != null) {
                     throw MESSAGES.identityTypeAlreadyExists(newAgent.getClass(), newAgent.getLoginName(),
-                            context.getPartition());
+                            getPartition());
                 }
             } else {
                 if (getAgent(newAgent.getLoginName()) != null) {
                     throw MESSAGES.identityTypeAlreadyExists(newAgent.getClass(), newAgent.getLoginName(),
-                            context.getPartition());
+                            getPartition());
                 }
             }
         } else if (Group.class.isInstance(identityType)) {
@@ -102,13 +130,13 @@ public class DefaultIdentityManager implements IdentityManager {
 
             Group storedGroup = getGroup(newGroup.getPath());
 
-            if (storedGroup != null && storedGroup.getPartition().equals(context.getPartition())) {
-                throw MESSAGES.identityTypeAlreadyExists(newGroup.getClass(), newGroup.getName(), context.getPartition());
+            if (storedGroup != null && storedGroup.getPartition().equals(getPartition())) {
+                throw MESSAGES.identityTypeAlreadyExists(newGroup.getClass(), newGroup.getName(), getPartition());
             }
 
             if (newGroup.getParentGroup() != null) {
                 if (lookupIdentityById(Group.class, newGroup.getParentGroup().getId()) == null) {
-                    throw MESSAGES.groupParentNotFoundWithId(newGroup.getParentGroup().getId(), context.getPartition());
+                    throw MESSAGES.groupParentNotFoundWithId(newGroup.getParentGroup().getId(), getPartition());
                 }
             }
         } else if (Role.class.isInstance(identityType)) {
@@ -120,14 +148,14 @@ public class DefaultIdentityManager implements IdentityManager {
 
             Role storedRole = getRole(newRole.getName());
 
-            if (storedRole != null && storedRole.getPartition().equals(context.getPartition())) {
-                throw MESSAGES.identityTypeAlreadyExists(newRole.getClass(), newRole.getName(), context.getPartition());
+            if (storedRole != null && storedRole.getPartition().equals(getPartition())) {
+                throw MESSAGES.identityTypeAlreadyExists(newRole.getClass(), newRole.getName(), getPartition());
             }
         }
 
         try {
-            storeFactory.getStoreForType(context, identityType.getClass(), TypeOperation.create).add(
-                    context, identityType);
+            storeFactory.getStoreForType(this, identityType.getClass(), TypeOperation.create).add(
+                    this, identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeAddFailed(identityType, e);
         }
@@ -136,8 +164,8 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void add(Relationship relationship) {
         try {
-            storeFactory.getStoreForType(context, relationship.getClass(), TypeOperation.create).add(
-                    context, relationship);
+            storeFactory.getStoreForType(this, relationship.getClass(), TypeOperation.create).add(
+                    this, relationship);
         } catch (Exception e) {
             throw MESSAGES.relationshipAddFailed(relationship, e);
         }
@@ -152,8 +180,8 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         try {
-            storeFactory.getStoreForType(context, identityType.getClass(), TypeOperation.update).update(
-                    context, identityType);
+            storeFactory.getStoreForType(this, identityType.getClass(), TypeOperation.update).update(
+                    this, identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeUpdateFailed(identityType, e);
         }
@@ -162,8 +190,8 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void update(Relationship relationship) {
         try {
-            storeFactory.getStoreForType(context, relationship.getClass(), TypeOperation.update).update(
-                    context, relationship);
+            storeFactory.getStoreForType(this, relationship.getClass(), TypeOperation.update).update(
+                    this, relationship);
         } catch (Exception e) {
             throw MESSAGES.relationshipUpdateFailed(relationship, e);
         }
@@ -178,8 +206,8 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         try {
-            storeFactory.getStoreForType(context, identityType.getClass(), TypeOperation.delete).remove(
-                    context, identityType);
+            storeFactory.getStoreForType(this, identityType.getClass(), TypeOperation.delete).remove(
+                    this, identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeUpdateFailed(identityType, e);
         }
@@ -192,8 +220,8 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         try {
-            storeFactory.getStoreForType(context, relationship.getClass(), TypeOperation.delete).remove(
-                    context, relationship);
+            storeFactory.getStoreForType(this, relationship.getClass(), TypeOperation.delete).remove(
+                    this, relationship);
         } catch (Exception e) {
             throw MESSAGES.relationshipRemoveFailed(relationship, e);
         }
@@ -202,15 +230,15 @@ public class DefaultIdentityManager implements IdentityManager {
     public Agent getAgent(String loginName) {
         checkCurrentPartitionForAgents();
 
-        return storeFactory.getStoreForType(context, Agent.class, TypeOperation.read).getAgent(
-                context, loginName);
+        return storeFactory.getStoreForType(this, Agent.class, TypeOperation.read).getAgent(
+                this, loginName);
     }
 
     @Override
     public User getUser(String loginName) {
         checkCurrentPartitionForAgents();
 
-        return storeFactory.getStoreForType(context, User.class, TypeOperation.read).getUser(context, loginName);
+        return storeFactory.getStoreForType(this, User.class, TypeOperation.read).getUser(context, loginName);
     }
 
     @Override
@@ -219,7 +247,7 @@ public class DefaultIdentityManager implements IdentityManager {
             return null;
         }
 
-        return storeFactory.getStoreForType(context, Group.class, TypeOperation.read).getGroup(context, path);
+        return storeFactory.getStoreForType(this, Group.class, TypeOperation.read).getGroup(context, path);
     }
 
     @Override
@@ -233,10 +261,10 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         if (lookupIdentityById(Group.class, parent.getId()) == null) {
-            throw MESSAGES.groupParentNotFoundWithId(parent.getId(), context.getPartition());
+            throw MESSAGES.groupParentNotFoundWithId(parent.getId(), this.getPartition());
         }
 
-        return storeFactory.getStoreForType(context, Group.class, TypeOperation.read).getGroup(context, name,
+        return storeFactory.getStoreForType(this, Group.class, TypeOperation.read).getGroup(this, name,
                 parent);
     }
 
@@ -286,13 +314,13 @@ public class DefaultIdentityManager implements IdentityManager {
         checkIfIdentityTypeExists(member);
         checkIfIdentityTypeExists(group);
 
-        storeFactory.getStoreForType(context, GroupMembership.class, TypeOperation.delete)
-                .remove(context, new GroupMembership(member, group));
+        storeFactory.getStoreForType(this, GroupMembership.class, TypeOperation.delete)
+                .remove(this, new GroupMembership(member, group));
     }
 
     @Override
     public Role getRole(String name) {
-        return storeFactory.getStoreForType(context, Role.class, TypeOperation.read).getRole(context, name);
+        return storeFactory.getStoreForType(this, Role.class, TypeOperation.read).getRole(this, name);
     }
 
     @Override
@@ -329,8 +357,8 @@ public class DefaultIdentityManager implements IdentityManager {
         checkIfIdentityTypeExists(role);
         checkIfIdentityTypeExists(group);
 
-        storeFactory.getStoreForType(context, GroupRole.class, TypeOperation.delete).remove(
-                context, new GroupRole(assignee, group, role));
+        storeFactory.getStoreForType(this, GroupRole.class, TypeOperation.delete).remove(
+                this, new GroupRole(assignee, group, role));
     }
 
     @Override
@@ -373,17 +401,17 @@ public class DefaultIdentityManager implements IdentityManager {
         checkIfIdentityTypeExists(identityType);
         checkIfIdentityTypeExists(role);
 
-        storeFactory.getStoreForType(context, Grant.class, TypeOperation.delete).remove(
-                context, new Grant(identityType, role));
+        storeFactory.getStoreForType(this, Grant.class, TypeOperation.delete).remove(
+                this, new Grant(identityType, role));
     }
 
     @Override
     public void validateCredentials(Credentials credentials) {
         checkCurrentPartitionForCredential();
 
-        IdentityStore<?> store = storeFactory.getStoreForCredentialOperation(context, CredentialOperation.validate);
+        IdentityStore<?> store = storeFactory.getStoreForCredentialOperation(this, CredentialOperation.validate);
 
-        store.validateCredentials(context, credentials);
+        store.validateCredentials(this, credentials);
     }
 
     @Override
@@ -395,19 +423,19 @@ public class DefaultIdentityManager implements IdentityManager {
     public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
         checkCurrentPartitionForCredential();
 
-        IdentityStore<?> store = storeFactory.getStoreForCredentialOperation(context, CredentialOperation.update);
+        IdentityStore<?> store = storeFactory.getStoreForCredentialOperation(this, CredentialOperation.update);
 
-        store.updateCredential(context, agent, credential, effectiveDate, expiryDate);
+        store.updateCredential(this, agent, credential, effectiveDate, expiryDate);
     }
 
     @Override
     public <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType) {
-        return new DefaultIdentityQuery<T>(context, identityType, storeFactory.getStoreForType(context, identityType, TypeOperation.read));
+        return new DefaultIdentityQuery<T>(this, identityType, storeFactory.getStoreForType(this, identityType, TypeOperation.read));
     }
 
     @Override
     public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType) {
-        return new DefaultRelationshipQuery<T>(context, relationshipType, storeFactory.getStoreForType(context,
+        return new DefaultRelationshipQuery<T>(this, relationshipType, storeFactory.getStoreForType(this,
                 relationshipType, TypeOperation.read));
     }
 
@@ -421,7 +449,7 @@ public class DefaultIdentityManager implements IdentityManager {
             throw MESSAGES.nullArgument("Identifier for [" + identityType + "]");
         }
 
-        return storeFactory.getStoreForType(context, identityType, TypeOperation.read).getIdentity(identityType, id);
+        return storeFactory.getStoreForType(this, identityType, TypeOperation.read).getIdentity(identityType, id);
     }
 
     @Override
@@ -478,7 +506,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
         if (lookupIdentityById(identityType.getClass(), identityType.getId()) == null) {
             throw MESSAGES.attributedTypeNotFoundWithId(identityType.getClass(), identityType.getId(),
-                    this.context.getPartition());
+                    getPartition());
         }
     }
 
@@ -508,8 +536,8 @@ public class DefaultIdentityManager implements IdentityManager {
      * @throws IdentityManagementException if the current partition is not a {@link Realm}.
      */
     private void checkCurrentPartitionForAgents() throws IdentityManagementException {
-        if (!Realm.class.isInstance(this.context.getPartition())) {
-            throw MESSAGES.partitionInvalidTypeForAgents(this.context.getPartition().getClass());
+        if (!Realm.class.isInstance(getPartition())) {
+            throw MESSAGES.partitionInvalidTypeForAgents(getPartition().getClass());
         }
     }
 
@@ -522,8 +550,8 @@ public class DefaultIdentityManager implements IdentityManager {
      * @throws IdentityManagementException if the current partition is not a {@link Realm}.
      */
     private void checkCurrentPartitionForCredential() throws IdentityManagementException {
-        if (!Realm.class.isInstance(this.context.getPartition())) {
-            throw MESSAGES.partitionInvalidTypeForCredential(this.context.getPartition().getClass());
+        if (!Realm.class.isInstance(getPartition())) {
+            throw MESSAGES.partitionInvalidTypeForCredential(getPartition().getClass());
         }
 
     }
@@ -532,12 +560,12 @@ public class DefaultIdentityManager implements IdentityManager {
     public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
         checkCurrentPartitionForCredential();
 
-        IdentityStore<?> store = storeFactory.getStoreForCredentialOperation(context, CredentialOperation.read);
+        IdentityStore<?> store = storeFactory.getStoreForCredentialOperation(this, CredentialOperation.read);
         if (!CredentialStore.class.isInstance(store)) {
             throw MESSAGES.credentialInvalidCredentialStoreType(store.getClass());
         } else {
             CredentialStore<?> credStore = (CredentialStore<?>) store;
-            return credStore.retrieveCurrentCredential(this.context, agent, storageClass);
+            return credStore.retrieveCurrentCredential(this, agent, storageClass);
         }
     }
 
@@ -545,13 +573,42 @@ public class DefaultIdentityManager implements IdentityManager {
     public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
         checkCurrentPartitionForCredential();
 
-        IdentityStore<?> store = storeFactory.getStoreForCredentialOperation(context, CredentialOperation.read);
+        IdentityStore<?> store = storeFactory.getStoreForCredentialOperation(this, CredentialOperation.read);
         if (!CredentialStore.class.isInstance(store)) {
             throw MESSAGES.credentialInvalidCredentialStoreType(store.getClass());
         } else {
             CredentialStore<?> credStore = (CredentialStore<?>) store;
-            return credStore.retrieveCredentials(this.context, agent, storageClass);
+            return credStore.retrieveCredentials(this, agent, storageClass);
         }
     }
 
+    @Override
+    public Object getParameter(String paramName) {
+        return this.parameters.get(paramName);
+    }
+
+    @Override
+    public boolean isParameterSet(String paramName) {
+        return this.parameters.containsKey(paramName);
+    }
+
+    @Override
+    public void setParameter(String paramName, Object value) {
+        this.parameters.put(paramName, value);
+    }
+
+    @Override
+    public EventBridge getEventBridge() {
+        return eventBridge;
+    }
+
+    @Override
+    public IdGenerator getIdGenerator() {
+        return idGenerator;
+    }
+
+    @Override
+    public Partition getPartition() {
+        return partition;
+    }
 }

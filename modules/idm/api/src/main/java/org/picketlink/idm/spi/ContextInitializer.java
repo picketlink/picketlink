@@ -12,5 +12,5 @@ public interface ContextInitializer {
      * @param ctx
      * @param store
      */
-    void initContextForStore(SecurityContext context, IdentityStore<?> store);
+    void initContextForStore(IdentityContext context, IdentityStore<?> store);
 }

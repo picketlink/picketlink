@@ -38,7 +38,7 @@ import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.spi.CredentialStore;
-import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.IdentityContext;
 
 /**
  * <p>
@@ -63,7 +63,7 @@ public class DigestCredentialHandler<S,V,U>
     }
 
     @Override
-    public void validate(SecurityContext context, DigestCredentials credentials, CredentialStore<?> store) {
+    public void validate(IdentityContext context, DigestCredentials credentials, CredentialStore<?> store) {
 
         if (!DigestCredentials.class.isInstance(credentials)) {
             throw MESSAGES.credentialUnsupportedType(credentials.getClass(), this);
@@ -122,7 +122,7 @@ public class DigestCredentialHandler<S,V,U>
     }
 
     @Override
-    public void update(SecurityContext context, Account account, Digest digest, CredentialStore<?> store,
+    public void update(IdentityContext context, Account account, Digest digest, CredentialStore<?> store,
             Date effectiveDate, Date expiryDate) {
         if (isNullOrEmpty(digest.getRealm())) {
             throw MESSAGES.credentialDigestInvalidRealm();

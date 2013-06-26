@@ -31,7 +31,7 @@ import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
-import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.IdentityContext;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -80,7 +80,7 @@ public class FileIdentityQueryHelper {
         return true;
     }
 
-    public boolean matchRolesOf(SecurityContext context, IdentityType identityType) {
+    public boolean matchRolesOf(IdentityContext context, IdentityType identityType) {
         Object[] values = identityQuery.getParameter(IdentityType.ROLE_OF);
 
         if (values != null) {
@@ -123,7 +123,7 @@ public class FileIdentityQueryHelper {
         return true;
     }
 
-    public boolean matchHasMember(SecurityContext context, IdentityType identityType) {
+    public boolean matchHasMember(IdentityContext context, IdentityType identityType) {
         Object[] values = identityQuery.getParameter(IdentityType.HAS_MEMBER);
 
         if (values != null) {
@@ -183,7 +183,7 @@ public class FileIdentityQueryHelper {
         return true;
     }
 
-    public boolean matchHasGroupRole(SecurityContext context, IdentityType identityType) {
+    public boolean matchHasGroupRole(IdentityContext context, IdentityType identityType) {
         Object[] values = identityQuery.getParameter(IdentityType.HAS_GROUP_ROLE);
 
         if (values != null) {
@@ -216,7 +216,7 @@ public class FileIdentityQueryHelper {
         return true;
     }
 
-    public boolean matchMemberOf(SecurityContext context, IdentityType identityType) {
+    public boolean matchMemberOf(IdentityContext context, IdentityType identityType) {
         Object[] values = identityQuery.getParameter(IdentityType.MEMBER_OF);
 
         if (values != null) {
@@ -250,7 +250,7 @@ public class FileIdentityQueryHelper {
         return true;
     }
 
-    public boolean matchHasRole(SecurityContext context, IdentityType identityType) {
+    public boolean matchHasRole(IdentityContext context, IdentityType identityType) {
         Object[] values = identityQuery.getParameter(IdentityType.HAS_ROLE);
 
         if (values != null) {

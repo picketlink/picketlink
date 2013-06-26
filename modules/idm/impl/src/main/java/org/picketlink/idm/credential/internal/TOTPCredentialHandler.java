@@ -26,7 +26,7 @@ import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.credential.totp.TimeBasedOTP;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.spi.CredentialStore;
-import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.IdentityContext;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.credential.Credentials.Status;
 import static org.picketlink.idm.credential.totp.TimeBasedOTP.DEFAULT_ALGORITHM;
@@ -77,7 +77,7 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
     }
 
     @Override
-    public void validate(SecurityContext context, TOTPCredentials credentials, CredentialStore<?> store) {
+    public void validate(IdentityContext context, TOTPCredentials credentials, CredentialStore<?> store) {
         super.validate(context, credentials, store);
 
         boolean isValid = false;
@@ -114,7 +114,7 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
     }
 
     @Override
-    public void update(SecurityContext context, Account account, TOTPCredential credential, CredentialStore<?> store, Date effectiveDate, Date expiryDate) {
+    public void update(IdentityContext context, Account account, TOTPCredential credential, CredentialStore<?> store, Date effectiveDate, Date expiryDate) {
         // if a credential was not provided, updates only the secret.
         if (credential.getValue() != null && credential.getValue().length > 0) {
             super.update(context, account, credential, store, effectiveDate, expiryDate);

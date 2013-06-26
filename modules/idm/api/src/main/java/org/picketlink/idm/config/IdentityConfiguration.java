@@ -19,7 +19,6 @@
 package org.picketlink.idm.config;
 
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.SecurityContextFactory;
 import org.picketlink.idm.spi.StoreFactory;
 
 import java.util.ArrayList;
@@ -42,17 +41,14 @@ import java.util.Map;
 public class IdentityConfiguration {
 
     private final List<IdentityStoreConfiguration> configuredStores = new ArrayList<IdentityStoreConfiguration>();
-    private final SecurityContextFactory securityContextFactory;
     private final StoreFactory storeFactory;
     private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> additionalIdentityStores;
 
     IdentityConfiguration(List<IdentityStoreConfiguration> storesConfiguration, StoreFactory storeFactory,
-            SecurityContextFactory securityContextFactory,
             Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> additionalIdentityStores) {
         this.configuredStores.addAll(storesConfiguration);
         this.additionalIdentityStores = additionalIdentityStores;
         this.storeFactory = storeFactory;
-        this.securityContextFactory = securityContextFactory;
     }
 
     /**
@@ -79,10 +75,6 @@ public class IdentityConfiguration {
 
     public StoreFactory getStoreFactory() {
         return this.storeFactory;
-    }
-
-    public SecurityContextFactory getSecurityContextFactory() {
-        return this.securityContextFactory;
     }
 
 }

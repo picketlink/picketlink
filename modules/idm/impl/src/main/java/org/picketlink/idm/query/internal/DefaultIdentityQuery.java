@@ -23,7 +23,7 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.IdentityContext;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -42,7 +42,7 @@ import java.util.Set;
 public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQuery<T> {
 
     private Map<QueryParameter, Object[]> parameters = new LinkedHashMap<QueryParameter, Object[]>();
-    private SecurityContext context;
+    private IdentityContext context;
     private IdentityStore<?> identityStore;
     private Class<T> identityType;
     private int offset;
@@ -50,7 +50,7 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     private QueryParameter[] sortParameters;
     private boolean sortAscending = true;
 
-    public DefaultIdentityQuery(SecurityContext context, Class<T> identityType, IdentityStore<?> identityStore) {
+    public DefaultIdentityQuery(IdentityContext context, Class<T> identityType, IdentityStore<?> identityStore) {
         this.context = context;
         this.identityStore = identityStore;
         this.identityType = identityType;

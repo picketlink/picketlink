@@ -30,7 +30,7 @@ import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
 import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld.PropertyType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.IdentityContext;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -44,7 +44,7 @@ public class JPACriteriaQueryBuilder {
     private CriteriaQuery<?> criteria;
     private JPAIdentityStore identityStore;
 
-    public JPACriteriaQueryBuilder(SecurityContext context, JPAIdentityStore identityStore, IdentityQuery<?> identityQuery) {
+    public JPACriteriaQueryBuilder(IdentityContext context, JPAIdentityStore identityStore, IdentityQuery<?> identityQuery) {
         this.identityStore = identityStore;
         this.identityQuery = identityQuery;
 
@@ -53,7 +53,7 @@ public class JPACriteriaQueryBuilder {
         this.root = criteria.from(getConfig().getIdentityClass());
     }
 
-    public List<Predicate> getPredicates(SecurityContext context) {
+    public List<Predicate> getPredicates(IdentityContext context) {
         List<Predicate> predicates = new ArrayList<Predicate>();
 
         if (!IdentityType.class.equals(getIdentityQuery().getIdentityType())) {
@@ -105,19 +105,19 @@ public class JPACriteriaQueryBuilder {
         return this.identityStore.getConfig();
     }
 
-    private EntityManager getEntityManager(SecurityContext context) {
+    private EntityManager getEntityManager(IdentityContext context) {
         return this.identityStore.getEntityManager(context);
     }
 
     private class DefaultIdentityTypeHandler extends IdentityTypeHandler<IdentityType> {
 
         @Override
-        protected IdentityType doCreateIdentityType(SecurityContext context, Object identity, JPAIdentityStore store) {
+        protected IdentityType doCreateIdentityType(IdentityContext context, Object identity, JPAIdentityStore store) {
             return null;
         }
 
         @Override
-        protected void doPopulateIdentityInstance(SecurityContext context, Object toIdentity, IdentityType fromIdentityType,
+        protected void doPopulateIdentityInstance(IdentityContext context, Object toIdentity, IdentityType fromIdentityType,
                                                   JPAIdentityStore store) {
 
         }

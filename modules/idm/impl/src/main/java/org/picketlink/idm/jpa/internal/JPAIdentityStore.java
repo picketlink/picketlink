@@ -86,7 +86,7 @@ import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
-import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.IdentityContext;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
@@ -121,7 +121,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public void add(SecurityContext context, AttributedType value) {
+    public void add(IdentityContext context, AttributedType value) {
         if (value instanceof IdentityType) {
             checkIdentityTypeClassProvided();
 
@@ -169,7 +169,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public void update(SecurityContext context, AttributedType attributedType) {
+    public void update(IdentityContext context, AttributedType attributedType) {
         if (attributedType instanceof IdentityType) {
             checkIdentityTypeClassProvided();
 
@@ -209,7 +209,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public void remove(SecurityContext context, AttributedType attributedType) {
+    public void remove(IdentityContext context, AttributedType attributedType) {
         if (attributedType instanceof IdentityType) {
             checkIdentityTypeClassProvided();
 
@@ -224,7 +224,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public User getUser(SecurityContext context, String loginName) {
+    public User getUser(IdentityContext context, String loginName) {
         if (loginName == null) {
             return null;
         }
@@ -245,7 +245,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public Group getGroup(SecurityContext context, String groupPath) {
+    public Group getGroup(IdentityContext context, String groupPath) {
         if (groupPath == null) {
             return null;
         }
@@ -270,7 +270,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public Group getGroup(SecurityContext context, String name, Group parent) {
+    public Group getGroup(IdentityContext context, String name, Group parent) {
         if (name == null || parent == null) {
             return null;
         }
@@ -287,7 +287,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public Role getRole(SecurityContext context, String name) {
+    public Role getRole(IdentityContext context, String name) {
         if (name == null) {
             return null;
         }
@@ -309,7 +309,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public Agent getAgent(SecurityContext context, String loginName) {
+    public Agent getAgent(IdentityContext context, String loginName) {
         if (loginName == null) {
             return null;
         }
@@ -332,13 +332,13 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public <T extends Relationship> List<T> fetchQueryResults(SecurityContext context, RelationshipQuery<T> query) {
+    public <T extends Relationship> List<T> fetchQueryResults(IdentityContext context, RelationshipQuery<T> query) {
         return fetchQueryResults(context, query, false);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends IdentityType> List<T> fetchQueryResults(SecurityContext context, IdentityQuery<T> identityQuery) {
+    public <T extends IdentityType> List<T> fetchQueryResults(IdentityContext context, IdentityQuery<T> identityQuery) {
         List<T> result = new ArrayList<T>();
 
         EntityManager em = getEntityManager(context);
@@ -376,7 +376,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public <T extends IdentityType> int countQueryResults(SecurityContext context, IdentityQuery<T> identityQuery) {
+    public <T extends IdentityType> int countQueryResults(IdentityContext context, IdentityQuery<T> identityQuery) {
         int limit = identityQuery.getLimit();
         int offset = identityQuery.getOffset();
 
@@ -392,12 +392,12 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public <T extends Relationship> int countQueryResults(SecurityContext context, RelationshipQuery<T> query) {
+    public <T extends Relationship> int countQueryResults(IdentityContext context, RelationshipQuery<T> query) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void setAttribute(SecurityContext context, IdentityType identity, Attribute<? extends Serializable> attribute) {
+    public void setAttribute(IdentityContext context, IdentityType identity, Attribute<? extends Serializable> attribute) {
         Serializable value = attribute.getValue();
 
         if (value != null) {
@@ -442,7 +442,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public void removeAttribute(SecurityContext context, IdentityType identity, String name) {
+    public void removeAttribute(IdentityContext context, IdentityType identity, String name) {
         List<?> storedAttributes = findIdentityTypeAttributes(context, identity, name);
 
         for (Object storedAttribute : storedAttributes) {
@@ -451,7 +451,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public <T extends Serializable> Attribute<T> getAttribute(SecurityContext context, IdentityType identityType,
+    public <T extends Serializable> Attribute<T> getAttribute(IdentityContext context, IdentityType identityType,
                                                               String attributeName) {
         List<?> attributes = findIdentityTypeAttributes(context, identityType, attributeName);
 
@@ -461,7 +461,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public <T extends CredentialStorage> List<T> retrieveCredentials(SecurityContext context, Agent agent, Class<T> storageClass) {
+    public <T extends CredentialStorage> List<T> retrieveCredentials(IdentityContext context, Agent agent, Class<T> storageClass) {
         checkCredentialClassProvided();
 
         Property<Object> identityTypeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_IDENTITY);
@@ -496,13 +496,13 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public <T extends CredentialStorage> T retrieveCurrentCredential(SecurityContext context, Agent agent, Class<T> storageClass) {
+    public <T extends CredentialStorage> T retrieveCurrentCredential(IdentityContext context, Agent agent, Class<T> storageClass) {
         checkCredentialClassProvided();
         return convertToCredentialStorage(context, retrieveLastCredentialEntity(context, agent, storageClass), storageClass);
     }
 
     @Override
-    public void storeCredential(SecurityContext context, Agent agent, CredentialStorage storage) {
+    public void storeCredential(IdentityContext context, Agent agent, CredentialStorage storage) {
         checkCredentialClassProvided();
 
         Property<Object> expiryProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EXPIRY_DATE);
@@ -563,7 +563,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public void updateCredential(SecurityContext context, Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
+    public void updateCredential(IdentityContext context, Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
         CredentialHandler handler = context.getCredentialUpdater(credential.getClass(), this);
 
         if (handler == null) {
@@ -574,7 +574,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public void validateCredentials(SecurityContext context, Credentials credentials) {
+    public void validateCredentials(IdentityContext context, Credentials credentials) {
         CredentialHandler handler = context.getCredentialValidator(credentials.getClass(), this);
 
         if (handler == null) {
@@ -604,7 +604,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
         return partition;
     }
 
-    protected EntityManager getEntityManager(SecurityContext context) {
+    protected EntityManager getEntityManager(IdentityContext context) {
         if (!context.isParameterSet(INVOCATION_CTX_ENTITY_MANAGER)) {
             throw MESSAGES.jpaStoreCouldNotGetEntityManagerFromStoreContext();
         }
@@ -620,7 +620,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param id
      * @return
      */
-    protected Object lookupIdentityObjectById(SecurityContext context, String id) {
+    protected Object lookupIdentityObjectById(IdentityContext context, String id) {
         if (id == null) {
             return null;
         }
@@ -642,7 +642,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
         }
     }
 
-    protected Object lookupAndCreatePartitionObject(SecurityContext context, Partition partition) {
+    protected Object lookupAndCreatePartitionObject(IdentityContext context, Partition partition) {
         checkPartitionClassProvided();
 
         EntityManager entityManager = getEntityManager(context);
@@ -667,7 +667,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
         return partitionObject;
     }
 
-    protected List<String> getAllowedPartitionIds(SecurityContext context, Partition currentPartition) {
+    protected List<String> getAllowedPartitionIds(IdentityContext context, Partition currentPartition) {
         List<String> partitionIds = new ArrayList<String>();
 
         partitionIds.add(context.getPartition().getId());
@@ -688,7 +688,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @return
      */
     @SuppressWarnings("unchecked")
-    private <T extends Relationship> T convertToRelationshipType(SecurityContext context, Object relationshipObject) {
+    private <T extends Relationship> T convertToRelationshipType(IdentityContext context, Object relationshipObject) {
         Property<Object> identityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY);
         Property<Object> idProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID);
         Property<Object> descriptorProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR);
@@ -744,7 +744,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param entity
      * @return
      */
-    private <T extends IdentityType> T convertToIdentityType(SecurityContext context, Object entity) {
+    private <T extends IdentityType> T convertToIdentityType(IdentityContext context, Object entity) {
         String identityClassName = getConfig().getModelProperty(PropertyType.IDENTITY_CLASS).getValue(entity).toString();
 
         try {
@@ -769,7 +769,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param identity
      * @param userAttribute
      */
-    private void storeRelationshipAttribute(SecurityContext context, Object identity,
+    private void storeRelationshipAttribute(IdentityContext context, Object identity,
                                             Attribute<? extends Serializable> userAttribute) {
         Serializable value = userAttribute.getValue();
         Serializable[] values = null;
@@ -810,7 +810,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param relationship
      * @param identity
      */
-    private void removeAttributes(SecurityContext context, Relationship relationship, Object identity) {
+    private void removeAttributes(IdentityContext context, Relationship relationship, Object identity) {
         List<?> storedAttributes = findRelationshipAttributes(context, identity);
 
         for (Object attribute : storedAttributes) {
@@ -831,7 +831,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param identityType
      * @param identity
      */
-    private void removeAttributes(SecurityContext context, IdentityType identityType, Object identity) {
+    private void removeAttributes(IdentityContext context, IdentityType identityType, Object identity) {
         List<?> storedAttributes = findAllIdentityTypeAttributes(context, identity);
 
         for (Object attribute : storedAttributes) {
@@ -852,7 +852,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param name
      * @return
      */
-    private List<?> findIdentityTypeAttributes(SecurityContext context, IdentityType identityType, String name) {
+    private List<?> findIdentityTypeAttributes(IdentityContext context, IdentityType identityType, String name) {
         if (identityType.getId() == null) {
             throw MESSAGES.nullArgument("IdentityType identifier");
         }
@@ -887,7 +887,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param attribute
      * @return
      */
-    private List<?> findRelationshipAttributes(SecurityContext context, Relationship relationship,
+    private List<?> findRelationshipAttributes(IdentityContext context, Relationship relationship,
                                                Attribute<? extends Serializable> attribute) {
         Property<Object> attributeIdentityProperty = getConfig().getModelProperty(
                 PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP);
@@ -921,7 +921,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param object
      * @return
      */
-    private List<?> findAllIdentityTypeAttributes(SecurityContext context, Object object) {
+    private List<?> findAllIdentityTypeAttributes(IdentityContext context, Object object) {
         Class<?> attributeClass = getConfig().getAttributeClass();
         String identityProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_IDENTITY).getName();
 
@@ -947,7 +947,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param object
      * @return
      */
-    private List<?> findRelationshipAttributes(SecurityContext context, Object object) {
+    private List<?> findRelationshipAttributes(IdentityContext context, Object object) {
         Class<?> attributeClass = getConfig().getRelationshipAttributeClass();
         String identityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP).getName();
 
@@ -973,7 +973,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param id
      * @return
      */
-    private Object lookupRelationshipObjectById(SecurityContext context, String id) {
+    private Object lookupRelationshipObjectById(IdentityContext context, String id) {
         if (id == null) {
             return null;
         }
@@ -1005,7 +1005,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      *
      * @param entity
      */
-    private void removeIdentityTypeRelationships(SecurityContext context, Object entity) {
+    private void removeIdentityTypeRelationships(IdentityContext context, Object entity) {
         // First we build a list of all the relationships that the specified identity
         // is participating in
         if (getConfig().getRelationshipClass() != null) {
@@ -1027,7 +1027,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param identityTypeEntity
      * @return
      */
-    private List<?> findIdentityTypeRelationships(SecurityContext context, String identityTypeId) {
+    private List<?> findIdentityTypeRelationships(IdentityContext context, String identityTypeId) {
         EntityManager em = getEntityManager(context);
 
         CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -1062,7 +1062,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      *
      * @param object
      */
-    private void removeIdentityTypeAttributes(SecurityContext context, Object object) {
+    private void removeIdentityTypeAttributes(IdentityContext context, Object object) {
         EntityManager em = getEntityManager(context);
 
         if (getConfig().getAttributeClass() != null) {
@@ -1081,7 +1081,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param identityType
      * @param entity
      */
-    private void updateIdentityTypeAttributes(SecurityContext context, IdentityType identityType, Object entity) {
+    private void updateIdentityTypeAttributes(IdentityContext context, IdentityType identityType, Object entity) {
         if (getConfig().supportsFeature(FeatureGroup.attribute, null)) {
             Collection<Attribute<? extends Serializable>> attributes = identityType.getAttributes();
 
@@ -1103,7 +1103,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param relationship
      * @param identity
      */
-    private void updateRelationshipAttributes(SecurityContext context, Relationship relationship, Object identity) {
+    private void updateRelationshipAttributes(IdentityContext context, Relationship relationship, Object identity) {
         List<Property<Serializable>> attributeProperties = PropertyQueries.<Serializable>createQuery(relationship.getClass())
                 .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class)).getResultList();
 
@@ -1140,7 +1140,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param identityType
      * @param entity
      */
-    private void populateIdentityTypeAttributes(SecurityContext context, IdentityType identityType, Object entity) {
+    private void populateIdentityTypeAttributes(IdentityContext context, IdentityType identityType, Object entity) {
         for (MappedAttribute attrib : getConfig().getAttributeProperties().values()) {
             Member member = attrib.getAttributeProperty().getMember();
             String mappedName = null;
@@ -1217,7 +1217,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param relationshipType
      * @param relationship
      */
-    private void populateRelationshipAttributes(SecurityContext context, Relationship relationshipType, Object relationship) {
+    private void populateRelationshipAttributes(IdentityContext context, Relationship relationshipType, Object relationship) {
         if (getConfig().getRelationshipAttributeClass() != null) {
             List<?> results = findRelationshipAttributes(context, relationship);
 
@@ -1282,7 +1282,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
         }
     }
 
-    private void addRelationship(SecurityContext context, Relationship relationship) {
+    private void addRelationship(IdentityContext context, Relationship relationship) {
         relationship.setId(context.getIdGenerator().generate());
 
         Object entity = null;
@@ -1347,7 +1347,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
         em.flush();
     }
 
-    private void removeIdentityType(SecurityContext context, AttributedType value) {
+    private void removeIdentityType(IdentityContext context, AttributedType value) {
         IdentityType identityType = (IdentityType) value;
 
         Object entity = lookupIdentityObjectById(context, identityType.getId());
@@ -1374,7 +1374,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
         context.getEventBridge().raiseEvent(event);
     }
 
-    private void removeRelationship(SecurityContext context, Relationship relationship) {
+    private void removeRelationship(IdentityContext context, Relationship relationship) {
         if (relationship.getId() == null) {
             DefaultRelationshipQuery<?> query = null;
 
@@ -1443,7 +1443,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param relationship
      * @return
      */
-    private List<?> findChildRelationships(SecurityContext context, Relationship relationship) {
+    private List<?> findChildRelationships(IdentityContext context, Relationship relationship) {
         EntityManager em = getEntityManager(context);
 
         CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -1461,7 +1461,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private <T extends Relationship> List<T> fetchQueryResults(SecurityContext context, RelationshipQuery<T> query,
+    private <T extends Relationship> List<T> fetchQueryResults(IdentityContext context, RelationshipQuery<T> query,
                                                                boolean matchExactGroup) {
         List<T> result = new ArrayList<T>();
 
@@ -1615,7 +1615,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
         return result;
     }
 
-    private List<Group> getParentGroups(SecurityContext context, Group identityType) {
+    private List<Group> getParentGroups(IdentityContext context, Group identityType) {
         IdentityQuery<Group> query = context.getIdentityManager().createIdentityQuery(Group.class);
 
         query.setParameter(Group.HAS_MEMBER, identityType);
@@ -1654,7 +1654,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
         return tier;
     }
 
-    private <T extends CredentialStorage> T convertToCredentialStorage(SecurityContext context, Object instance,
+    private <T extends CredentialStorage> T convertToCredentialStorage(IdentityContext context, Object instance,
                                                                        Class<T> storageClass) {
         T storage = null;
 
@@ -1730,7 +1730,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
      * @param storageClass
      * @return
      */
-    private <T> Object retrieveLastCredentialEntity(SecurityContext context, Agent agent, Class<T> storageClass) {
+    private <T> Object retrieveLastCredentialEntity(IdentityContext context, Agent agent, Class<T> storageClass) {
         Property<Object> identityTypeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_IDENTITY);
         Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_TYPE);
         Property<Object> effectiveProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE);
@@ -1800,7 +1800,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
         }
     }
 
-    private void removeCredentials(SecurityContext context, Object object) {
+    private void removeCredentials(IdentityContext context, Object object) {
         if (getConfig().getCredentialClass() != null) {
             EntityManager em = getEntityManager(context);
             CriteriaBuilder builder = em.getCriteriaBuilder();

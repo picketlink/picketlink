@@ -44,7 +44,7 @@ import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.IdentityContext;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -197,7 +197,7 @@ public class CredentialHandlerConfigurationTestCase {
         public static boolean wasSetupCalled;
         
         @Override
-        public void validate(SecurityContext context, CustomCredentialHandler.TokenCredential credentials, 
+        public void validate(IdentityContext context, CustomCredentialHandler.TokenCredential credentials, 
                 IdentityStore<?> identityStore) {
             credentials.setStatus(Status.INVALID);
             
@@ -209,7 +209,7 @@ public class CredentialHandlerConfigurationTestCase {
         }
 
         @Override
-        public void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore,
+        public void update(IdentityContext context, Agent agent, Object credential, IdentityStore<?> identityStore,
                 Date effectiveDate, Date expiryDate) {
             wasUpdateCalled = true;   
         }

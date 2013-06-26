@@ -73,7 +73,7 @@ import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
-import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.IdentityContext;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.credential.internal.CredentialUtils.getCurrentCredential;
 import static org.picketlink.idm.file.internal.FileIdentityQueryHelper.isQueryParameterEquals;
@@ -106,7 +106,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
     }
 
     @Override
-    public void add(SecurityContext context, AttributedType attributedType) {
+    public void add(IdentityContext context, AttributedType attributedType) {
         attributedType.setId(context.getIdGenerator().generate());
 
         if (IdentityType.class.isInstance(attributedType)) {
@@ -138,7 +138,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
     }
 
     @Override
-    public void update(SecurityContext context, AttributedType attributedType) {
+    public void update(IdentityContext context, AttributedType attributedType) {
         if (IdentityType.class.isInstance(attributedType)) {
             @SuppressWarnings("unchecked")
             Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) attributedType.getClass();
@@ -162,7 +162,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
     }
 
     @Override
-    public void remove(SecurityContext context, AttributedType attributedType) {
+    public void remove(IdentityContext context, AttributedType attributedType) {
         @SuppressWarnings("unchecked")
         Class<? extends IdentityType> attributedTypeClass = (Class<? extends IdentityType>) attributedType.getClass();
 
@@ -184,7 +184,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
     }
 
     @Override
-    public Agent getAgent(SecurityContext context, String loginName) {
+    public Agent getAgent(IdentityContext context, String loginName) {
         if (loginName == null) {
             return null;
         }
@@ -199,7 +199,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
     }
 
     @Override
-    public User getUser(SecurityContext context, String loginName) {
+    public User getUser(IdentityContext context, String loginName) {
         if (loginName == null) {
             return null;
         }
@@ -214,12 +214,12 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
     }
 
     @Override
-    public Role getRole(SecurityContext context, String roleName) {
+    public Role getRole(IdentityContext context, String roleName) {
         return lookupRole(roleName, context.getPartition());
     }
 
     @Override
-    public Group getGroup(SecurityContext context, String groupPath) {
+    public Group getGroup(IdentityContext context, String groupPath) {
         Group group = null;
 
         if (groupPath != null) {
@@ -242,7 +242,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
     }
 
     @Override
-    public Group getGroup(SecurityContext context, String name, Group parent) {
+    public Group getGroup(IdentityContext context, String name, Group parent) {
         String path = "/" + name;
 
         if (parent != null) {
@@ -255,7 +255,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
     }
 
     @Override
-    public <T extends IdentityType> int countQueryResults(SecurityContext context, IdentityQuery<T> identityQuery) {
+    public <T extends IdentityType> int countQueryResults(IdentityContext context, IdentityQuery<T> identityQuery) {
         int limit = identityQuery.getLimit();
         int offset = identityQuery.getOffset();
 
@@ -271,34 +271,34 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
     }
 
     @Override
-    public <T extends Serializable> Attribute<T> getAttribute(SecurityContext context, IdentityType identityType,
+    public <T extends Serializable> Attribute<T> getAttribute(IdentityContext context, IdentityType identityType,
                                                               String attributeName) {
         throw MESSAGES.notImplentedYet();
     }
 
     @Override
-    public void setAttribute(SecurityContext context, IdentityType identityType, Attribute<? extends Serializable> attribute) {
+    public void setAttribute(IdentityContext context, IdentityType identityType, Attribute<? extends Serializable> attribute) {
         throw MESSAGES.notImplentedYet();
     }
 
     @Override
-    public void removeAttribute(SecurityContext context, IdentityType identityType, String attributeName) {
+    public void removeAttribute(IdentityContext context, IdentityType identityType, String attributeName) {
         throw MESSAGES.notImplentedYet();
     }
 
     @Override
-    public <T extends Relationship> int countQueryResults(SecurityContext context, RelationshipQuery<T> query) {
+    public <T extends Relationship> int countQueryResults(IdentityContext context, RelationshipQuery<T> query) {
         throw MESSAGES.notImplentedYet();
     }
 
     @Override
-    public <T extends Relationship> List<T> fetchQueryResults(SecurityContext context, RelationshipQuery<T> query) {
+    public <T extends Relationship> List<T> fetchQueryResults(IdentityContext context, RelationshipQuery<T> query) {
         return fetchQueryResults(context, query, false);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends IdentityType> List<T> fetchQueryResults(SecurityContext context, IdentityQuery<T> identityQuery) {
+    public <T extends IdentityType> List<T> fetchQueryResults(IdentityContext context, IdentityQuery<T> identityQuery) {
         Class<T> identityTypeClass = identityQuery.getIdentityType();
 
         @SuppressWarnings("rawtypes")
@@ -452,7 +452,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
     }
 
     @SuppressWarnings("unchecked")
-    protected <T extends Relationship> T convertToRelationship(SecurityContext context, FileRelationship fileRelationship) {
+    protected <T extends Relationship> T convertToRelationship(IdentityContext context, FileRelationship fileRelationship) {
         Class<T> relationshipType = null;
 
         try {
@@ -488,7 +488,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Relationship> T cloneRelationship(SecurityContext context, FileRelationship fileRelationship,
+    private <T extends Relationship> T cloneRelationship(IdentityContext context, FileRelationship fileRelationship,
                                                          Class<? extends Relationship> relationshipType) {
         T clonedRelationship = null;
 
@@ -529,7 +529,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      *
      * @param role
      */
-    private void addRole(SecurityContext context, Role role) {
+    private void addRole(IdentityContext context, Role role) {
         Role fileRole = new Role(role.getName());
 
         updateIdentityType(context, role, fileRole);
@@ -553,7 +553,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      *
      * @param group
      */
-    private void addGroup(SecurityContext context, Group group) {
+    private void addGroup(IdentityContext context, Group group) {
         Group fileGroup = null;
 
         if (group.getParentGroup() != null) {
@@ -585,7 +585,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      *
      * @param user
      */
-    private void addUser(SecurityContext context, User user) {
+    private void addUser(IdentityContext context, User user) {
         User storedUser = new User(user.getLoginName());
 
         storedUser.setFirstName(user.getFirstName());
@@ -605,7 +605,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      *
      * @param agent
      */
-    private void addAgent(SecurityContext context, Agent agent) {
+    private void addAgent(IdentityContext context, Agent agent) {
         Agent storedAgent = new Agent(agent.getLoginName());
 
         updateIdentityType(context, agent, storedAgent);
@@ -629,7 +629,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      *
      * @param relationship
      */
-    private void addRelationship(SecurityContext context, Relationship relationship) {
+    private void addRelationship(IdentityContext context, Relationship relationship) {
         if (relationship.getId() == null) {
             relationship.setId(context.getIdGenerator().generate());
         }
@@ -678,7 +678,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      * @param updatedRole
      * @return
      */
-    private void updateRole(SecurityContext context, Role updatedRole) {
+    private void updateRole(IdentityContext context, Role updatedRole) {
         Role storedRole = (Role) lookupIdentityTypeById(context, updatedRole.getId());
 
         if (storedRole != updatedRole) {
@@ -696,7 +696,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      *
      * @param updatedGroup
      */
-    private void updateGroup(SecurityContext context, Group updatedGroup) {
+    private void updateGroup(IdentityContext context, Group updatedGroup) {
         Group storedGroup = (Group) lookupIdentityTypeById(context, updatedGroup.getId());
 
         if (storedGroup != updatedGroup) {
@@ -715,7 +715,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      * @param updatedUser
      * @return
      */
-    private void updateUser(SecurityContext context, User updatedUser) {
+    private void updateUser(IdentityContext context, User updatedUser) {
         User storedUser = (User) lookupIdentityTypeById(context, updatedUser.getId());
 
         if (storedUser != updatedUser) {
@@ -738,7 +738,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      * @param updatedAgent
      * @return
      */
-    private void updateAgent(SecurityContext context, Agent updatedAgent) {
+    private void updateAgent(IdentityContext context, Agent updatedAgent) {
         Agent storedAgent = (Agent) lookupIdentityTypeById(context, updatedAgent.getId());
 
         if (storedAgent != updatedAgent) {
@@ -756,7 +756,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      *
      * @param relationship
      */
-    private void updateRelationship(SecurityContext context, Relationship relationship) {
+    private void updateRelationship(IdentityContext context, Relationship relationship) {
         List<FileRelationship> relationships = getDataSource().getRelationships().get(relationship.getClass().getName());
 
         for (FileRelationship fileRelationship : new ArrayList<FileRelationship>(relationships)) {
@@ -787,7 +787,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      * @param fromIdentityType
      * @param toIdentityType
      */
-    private void updateIdentityType(SecurityContext context, IdentityType fromIdentityType, IdentityType toIdentityType) {
+    private void updateIdentityType(IdentityContext context, IdentityType fromIdentityType, IdentityType toIdentityType) {
         toIdentityType.setEnabled(fromIdentityType.isEnabled());
         toIdentityType.setCreatedDate(fromIdentityType.getCreatedDate());
         toIdentityType.setExpirationDate(fromIdentityType.getExpirationDate());
@@ -881,7 +881,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      * @param attributedTypeClass
      * @param relationship
      */
-    private void removeRelationship(SecurityContext context, Relationship relationship) {
+    private void removeRelationship(IdentityContext context, Relationship relationship) {
         if (relationship.getId() == null) {
             DefaultRelationshipQuery<?> query = null;
 
@@ -945,7 +945,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      * @param role
      * @return
      */
-    private void removeRole(SecurityContext context, Role role) {
+    private void removeRole(IdentityContext context, Role role) {
         Role storedRole = (Role) lookupIdentityTypeById(context, role.getId());
 
         FilePartition partition = getDataSource().getPartition(storedRole.getPartition());
@@ -967,7 +967,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      * @param group
      * @return
      */
-    private void removeGroup(SecurityContext context, Group group) {
+    private void removeGroup(IdentityContext context, Group group) {
         Group storedGroup = (Group) lookupIdentityTypeById(context, group.getId());
 
         FilePartition partition = getDataSource().getPartition(storedGroup.getPartition());
@@ -988,7 +988,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      *
      * @param agent
      */
-    private void removeAgent(SecurityContext context, Agent agent) {
+    private void removeAgent(IdentityContext context, Agent agent) {
         Agent storedAgent = (Agent) lookupIdentityTypeById(context, agent.getId());
 
         FilePartition partition = getDataSource().getPartition(storedAgent.getPartition());
@@ -1067,7 +1067,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      *
      * @return
      */
-    private Map<String, Role> getRolesForCurrentPartition(SecurityContext context) {
+    private Map<String, Role> getRolesForCurrentPartition(IdentityContext context) {
         return getDataSource().getRoles(context.getPartition());
     }
 
@@ -1078,11 +1078,11 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      *
      * @return
      */
-    private Map<String, Group> getGroupsForCurrentPartition(SecurityContext context) {
+    private Map<String, Group> getGroupsForCurrentPartition(IdentityContext context) {
         return getDataSource().getGroups(context.getPartition());
     }
 
-    private Map<String, Agent> getAgentsForCurrentRealm(SecurityContext context) {
+    private Map<String, Agent> getAgentsForCurrentRealm(IdentityContext context) {
         Realm realm = (Realm) context.getPartition();
         return getDataSource().getAgents(realm);
     }
@@ -1104,7 +1104,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Relationship> List<T> fetchQueryResults(SecurityContext context, RelationshipQuery<T> query,
+    private <T extends Relationship> List<T> fetchQueryResults(IdentityContext context, RelationshipQuery<T> query,
                                                                boolean matchExactGroup) {
         List<T> result = new ArrayList<T>();
         Class<T> relationshipType = query.getRelationshipType();
@@ -1210,7 +1210,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         return result;
     }
 
-    private boolean matchIdentityType(SecurityContext context, FileRelationship storedRelationship, RelationshipQuery<?> query,
+    private boolean matchIdentityType(IdentityContext context, FileRelationship storedRelationship, RelationshipQuery<?> query,
                                       RelationshipQueryParameter identityTypeParameter, boolean matchExactGroup) {
         Object[] values = query.getParameter(identityTypeParameter);
         int valuesMathCount = values.length;
@@ -1253,7 +1253,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         return match;
     }
 
-    private IdentityType lookupIdentityTypeById(SecurityContext context, String identityTypeId) {
+    private IdentityType lookupIdentityTypeById(IdentityContext context, String identityTypeId) {
         if (identityTypeId == null) {
             throw MESSAGES.nullArgument("AttributedType identifier");
         }
@@ -1281,7 +1281,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
 
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public void validateCredentials(SecurityContext context, Credentials credentials) {
+    public void validateCredentials(IdentityContext context, Credentials credentials) {
         CredentialHandler handler = context.getCredentialValidator(credentials.getClass(), this);
 
         if (handler == null) {
@@ -1292,7 +1292,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public void updateCredential(SecurityContext context, Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
+    public void updateCredential(IdentityContext context, Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
         CredentialHandler handler = context.getCredentialUpdater(credential.getClass(), this);
 
         if (handler == null) {
@@ -1303,7 +1303,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
     }
 
     @Override
-    public void storeCredential(SecurityContext context, Agent agent, CredentialStorage storage) {
+    public void storeCredential(IdentityContext context, Agent agent, CredentialStorage storage) {
         List<FileCredentialStorage> credentials = getCredentials(context, agent, storage.getClass());
 
         FileCredentialStorage credential = new FileCredentialStorage();
@@ -1325,12 +1325,12 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
     }
 
     @Override
-    public <T extends CredentialStorage> T retrieveCurrentCredential(SecurityContext context, Agent agent, Class<T> storageClass) {
+    public <T extends CredentialStorage> T retrieveCurrentCredential(IdentityContext context, Agent agent, Class<T> storageClass) {
         return getCurrentCredential(context, agent, this, storageClass);
     }
 
     @Override
-    public <T extends CredentialStorage> List<T> retrieveCredentials(SecurityContext context, Agent agent, Class<T> storageTyper) {
+    public <T extends CredentialStorage> List<T> retrieveCredentials(IdentityContext context, Agent agent, Class<T> storageTyper) {
         ArrayList<T> storedCredentials = new ArrayList<T>();
 
         List<FileCredentialStorage> credentials = getCredentials(context, agent, storageTyper);
@@ -1349,7 +1349,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      *
      * @param agent
      */
-    public void removeCredentials(SecurityContext context, Agent agent) {
+    public void removeCredentials(IdentityContext context, Agent agent) {
         getCredentialsForCurrentPartition(context).remove(agent.getLoginName());
         flushCredentials(context);
     }
@@ -1402,7 +1402,7 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
      * @param storageType
      * @return
      */
-    private List<FileCredentialStorage> getCredentials(SecurityContext context, Agent agent,
+    private List<FileCredentialStorage> getCredentials(IdentityContext context, Agent agent,
                                                        Class<? extends CredentialStorage> storageType) {
         Map<String, List<FileCredentialStorage>> agentCredentials = getCredentialsForCurrentPartition(context).get(
                 agent.getLoginName());
@@ -1423,13 +1423,13 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         return credentials;
     }
 
-    private Map<String, Map<String, List<FileCredentialStorage>>> getCredentialsForCurrentPartition(SecurityContext context) {
+    private Map<String, Map<String, List<FileCredentialStorage>>> getCredentialsForCurrentPartition(IdentityContext context) {
         Realm realm = (Realm) context.getPartition();
 
         return getDataSource().getCredentials(realm);
     }
 
-    private void flushCredentials(SecurityContext context) {
+    private void flushCredentials(IdentityContext context) {
         Realm realm = (Realm) context.getPartition();
 
         getDataSource().flushCredentials(realm);

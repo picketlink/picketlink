@@ -28,7 +28,7 @@ import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.IdentityContext;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -48,14 +48,14 @@ import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
  */
 public class LDAPQuery {
 
-    private SecurityContext context;
+    private IdentityContext context;
     private List<LDAPQueryParameter> managedParameters = new ArrayList<LDAPQueryParameter>();
     private Boolean hasCustomAttributes = null;
     private IdentityQuery<?> identityQuery;
     private LDAPIdentityStore identityStore;
     private boolean hasRelationshipParameters;
 
-    public LDAPQuery(SecurityContext context, IdentityQuery<?> identityQuery, LDAPIdentityStore identityStore) {
+    public LDAPQuery(IdentityContext context, IdentityQuery<?> identityQuery, LDAPIdentityStore identityStore) {
         this.context = context;
         this.identityQuery = identityQuery;
         this.identityStore = identityStore;

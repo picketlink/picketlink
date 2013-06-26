@@ -1,18 +1,20 @@
 package org.picketlink.idm;
 
-import java.io.Serializable;
-import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.config.SecurityConfigurationException;
-//import org.picketlink.idm.internal.DefaultIdentityManager;
-//import org.picketlink.idm.internal.DefaultSecurityContextFactory;
-//import org.picketlink.idm.internal.DefaultStoreFactory;
-import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.idm.spi.SecurityContext;
-import org.picketlink.idm.spi.SecurityContextFactory;
-import org.picketlink.idm.spi.StoreFactory;
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
+
+import java.io.Serializable;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.SecurityConfigurationException;
+import org.picketlink.idm.event.EventBridge;
+import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.spi.StoreFactory;
+//import org.picketlink.idm.internal.ContextualIdentityManager;
+//import org.picketlink.idm.internal.DefaultStoreFactory;
 
 /**
  * <p>
@@ -29,8 +31,25 @@ public class PartitionManager implements Serializable {
 
     private static final long serialVersionUID = 666601082732493295L;
 
-    private SecurityContextFactory contextFactory;
-    private StoreFactory storeFactory;
+    /**
+     *
+     */
+    private final EventBridge eventBridge;
+
+    /**
+     *
+     */
+    private final IdGenerator idGenerator;
+
+    /**
+     *
+     */
+    private final StoreFactory storeFactory;
+
+    /**
+     *
+     */
+    private Map<String,IdentityConfiguration> configurations = new ConcurrentHashMap<String,IdentityConfiguration>();
 
     /**
      * <p>
@@ -39,24 +58,27 @@ public class PartitionManager implements Serializable {
      *
      * @param identityConfig
      */
-    public PartitionManager(IdentityConfiguration identityConfig) {
+    public PartitionManager(EventBridge eventBridge, IdGenerator idGenerator, StoreFactory storeFactory) {
         LOGGER.identityManagerBootstrapping();
-
-        if (identityConfig == null) {
-            throw MESSAGES.nullArgument("IdentityConfiguration");
-        }
-
-        if (contextFactory == null) {
-            this.contextFactory = new DefaultSecurityContextFactory();
-        } else {
-            this.contextFactory = identityConfig.getSecurityContextFactory();
-        }
 
         if (storeFactory == null) {
             this.storeFactory = new DefaultStoreFactory(identityConfig);
         } else {
             this.storeFactory = identityConfig.getStoreFactory();
         }
+    }
+
+    public synchronized void addConfiguration(String name, IdentityConfiguration configuration) {
+        if (configurations.containsKey(name)) {
+            // TODO improve this exception
+            throw new RuntimeException("Cannot add configuration " + name +
+                    " - a configuration with this name already exists.");
+        }
+        configurations.put(name, configuration);
+    }
+
+    public synchronized void removeConfiguration(String name) {
+        configurations.remove(name);
     }
 
     /**
@@ -93,9 +115,7 @@ public class PartitionManager implements Serializable {
         }
 
         try {
-            SecurityContext context = contextFactory.createContext(partition);
-
-            return new DefaultIdentityManager(context, storeFactory);
+            return new ContextualIdentityManager(eventBridge, idGenerator, partition, storeFactory);
         } catch (Exception e) {
             throw MESSAGES.couldNotCreateContextualIdentityManager(partition);
         }
@@ -108,8 +128,20 @@ public class PartitionManager implements Serializable {
      * @return
      */
     public <T extends Partition> T getPartition(Class<T> partitionClass, String name) {
-        // FIXME
+        // TODO implement
         return null;
+    }
+
+    public void addPartition(Partition partition, String configurationName) {
+        // TODO implement
+    }
+
+    public void updatePartition(Partition partition) {
+
+    }
+
+    public void deletePartition(Partition partition) {
+
     }
 
 }

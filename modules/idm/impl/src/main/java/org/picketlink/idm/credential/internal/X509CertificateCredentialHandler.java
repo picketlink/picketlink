@@ -32,7 +32,7 @@ import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.spi.CredentialStore;
-import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.IdentityContext;
 
 /**
  * This particular implementation supports the validation of {@link X509CertificateCredentials}, and updating {@link X509Cert}
@@ -50,7 +50,7 @@ public class X509CertificateCredentialHandler<S,V,U>
     }
 
     @Override
-    public void validate(SecurityContext context, X509CertificateCredentials credentials,
+    public void validate(IdentityContext context, X509CertificateCredentials credentials,
             CredentialStore<?> store) {
         Agent agent = store.getAgent(context, credentials.getUsername());
 
@@ -95,7 +95,7 @@ public class X509CertificateCredentialHandler<S,V,U>
     }
 
     @Override
-    public void update(SecurityContext context, Account account, X509Certificate cert, CredentialStore<?> store,
+    public void update(IdentityContext context, Account account, X509Certificate cert, CredentialStore<?> store,
             Date effectiveDate, Date expiryDate) {
         X509CertificateStorage storage = new X509CertificateStorage(cert);
         store.storeCredential(context, account, storage);

@@ -42,87 +42,87 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     @Override
-    public void add(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.model.AttributedType value) {
+    public void add(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.model.AttributedType value) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public void update(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.model.AttributedType value) {
+    public void update(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.model.AttributedType value) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public void remove(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.model.AttributedType value) {
+    public void remove(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.model.AttributedType value) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public org.picketlink.idm.model.sample.Agent getAgent(org.picketlink.idm.spi.SecurityContext context, String loginName) {
+    public org.picketlink.idm.model.sample.Agent getAgent(org.picketlink.idm.spi.IdentityContext context, String loginName) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public org.picketlink.idm.model.sample.User getUser(org.picketlink.idm.spi.SecurityContext context, String loginName) {
+    public org.picketlink.idm.model.sample.User getUser(org.picketlink.idm.spi.IdentityContext context, String loginName) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public org.picketlink.idm.model.sample.Group getGroup(org.picketlink.idm.spi.SecurityContext context, String groupPath) {
+    public org.picketlink.idm.model.sample.Group getGroup(org.picketlink.idm.spi.IdentityContext context, String groupPath) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public org.picketlink.idm.model.sample.Group getGroup(org.picketlink.idm.spi.SecurityContext context, String name, org.picketlink.idm.model.sample.Group parent) {
+    public org.picketlink.idm.model.sample.Group getGroup(org.picketlink.idm.spi.IdentityContext context, String name, org.picketlink.idm.model.sample.Group parent) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public org.picketlink.idm.model.sample.Role getRole(org.picketlink.idm.spi.SecurityContext context, String name) {
+    public org.picketlink.idm.model.sample.Role getRole(org.picketlink.idm.spi.IdentityContext context, String name) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public <V extends org.picketlink.idm.model.IdentityType> java.util.List<V> fetchQueryResults(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.query.IdentityQuery<V> identityQuery) {
+    public <V extends org.picketlink.idm.model.IdentityType> java.util.List<V> fetchQueryResults(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.query.IdentityQuery<V> identityQuery) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public <V extends org.picketlink.idm.model.IdentityType> int countQueryResults(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.query.IdentityQuery<V> identityQuery) {
+    public <V extends org.picketlink.idm.model.IdentityType> int countQueryResults(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.query.IdentityQuery<V> identityQuery) {
         return 0;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public <V extends org.picketlink.idm.model.Relationship> java.util.List<V> fetchQueryResults(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.query.RelationshipQuery<V> query) {
+    public <V extends org.picketlink.idm.model.Relationship> java.util.List<V> fetchQueryResults(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.query.RelationshipQuery<V> query) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public <V extends org.picketlink.idm.model.Relationship> int countQueryResults(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.query.RelationshipQuery<V> query) {
+    public <V extends org.picketlink.idm.model.Relationship> int countQueryResults(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.query.RelationshipQuery<V> query) {
         return 0;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public void setAttribute(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.model.IdentityType identityType, org.picketlink.idm.model.Attribute<? extends java.io.Serializable> attribute) {
+    public void setAttribute(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.model.IdentityType identityType, org.picketlink.idm.model.Attribute<? extends java.io.Serializable> attribute) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public <V extends java.io.Serializable> org.picketlink.idm.model.Attribute<V> getAttribute(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.model.IdentityType identityType, String attributeName) {
+    public <V extends java.io.Serializable> org.picketlink.idm.model.Attribute<V> getAttribute(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.model.IdentityType identityType, String attributeName) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public void removeAttribute(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.model.IdentityType identityType, String attributeName) {
+    public void removeAttribute(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.model.IdentityType identityType, String attributeName) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public void validateCredentials(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.credential.Credentials credentials) {
+    public void validateCredentials(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.credential.Credentials credentials) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public void updateCredential(org.picketlink.idm.spi.SecurityContext context, org.picketlink.idm.model.sample.Agent agent, Object credential, java.util.Date effectiveDate, java.util.Date expiryDate) {
+    public void updateCredential(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.model.sample.Agent agent, Object credential, java.util.Date effectiveDate, java.util.Date expiryDate) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 //    private LDAPIdentityStoreConfiguration configuration;

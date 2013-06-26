@@ -64,21 +64,21 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      *
      * @param identityType
      */
-    void add(SecurityContext context, AttributedType value);
+    void add(IdentityContext context, AttributedType value);
 
     /**
      * Updates the specified IdentityType
      *
      * @param identityType
      */
-    void update(SecurityContext context, AttributedType value);
+    void update(IdentityContext context, AttributedType value);
 
     /**
      * Removes the specified IdentityType
      *
      * @param identityType
      */
-    void remove(SecurityContext context, AttributedType value);
+    void remove(IdentityContext context, AttributedType value);
 
     /**
      *
@@ -97,7 +97,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param loginName
      * @return
      */
-    Agent getAgent(SecurityContext context, String loginName);
+    Agent getAgent(IdentityContext context, String loginName);
 
     // User
 
@@ -108,7 +108,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param loginName
      * @return
      */
-    User getUser(SecurityContext context, String loginName);
+    User getUser(IdentityContext context, String loginName);
 
     // Group
 
@@ -119,7 +119,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param groupPath
      * @return
      */
-    Group getGroup(SecurityContext context, String groupPath);
+    Group getGroup(IdentityContext context, String groupPath);
 
     /**
      * Returns the Group with the specified name and parent group
@@ -128,7 +128,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param name The name of the Group to return
      * @return
      */
-    Group getGroup(SecurityContext context, String name, Group parent);
+    Group getGroup(IdentityContext context, String name, Group parent);
 
     // Role
 
@@ -139,19 +139,19 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param name The name of the Role to return
      * @return A Role instance, or null if the Role with the specified name wasn't found
      */
-    Role getRole(SecurityContext context, String name);
+    Role getRole(IdentityContext context, String name);
 
     // Identity query
 
-    <V extends IdentityType> List<V> fetchQueryResults(SecurityContext context, IdentityQuery<V> identityQuery);
+    <V extends IdentityType> List<V> fetchQueryResults(IdentityContext context, IdentityQuery<V> identityQuery);
 
-    <V extends IdentityType> int countQueryResults(SecurityContext context, IdentityQuery<V> identityQuery);
+    <V extends IdentityType> int countQueryResults(IdentityContext context, IdentityQuery<V> identityQuery);
 
     // Relationship query
 
-    <V extends Relationship> List<V> fetchQueryResults(SecurityContext context, RelationshipQuery<V> query);
+    <V extends Relationship> List<V> fetchQueryResults(IdentityContext context, RelationshipQuery<V> query);
 
-    <V extends Relationship> int countQueryResults(SecurityContext context, RelationshipQuery<V> query);
+    <V extends Relationship> int countQueryResults(IdentityContext context, RelationshipQuery<V> query);
 
     // Attributes
 
@@ -162,7 +162,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param identityType
      * @param attribute
      */
-    void setAttribute(SecurityContext context, AttributedType type,
+    void setAttribute(IdentityContext context, AttributedType type,
             Attribute<? extends Serializable> attribute);
 
     /**
@@ -172,7 +172,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param attributeName
      * @return
      */
-    <V extends Serializable> Attribute<V> getAttribute(SecurityContext context, AttributedType type,
+    <V extends Serializable> Attribute<V> getAttribute(IdentityContext context, AttributedType type,
             String attributeName);
 
     /**
@@ -182,7 +182,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param identityType
      * @param attributeName
      */
-    void removeAttribute(SecurityContext context, AttributedType type, String attributeName);
+    void removeAttribute(IdentityContext context, AttributedType type, String attributeName);
 
     // Credentials
 
@@ -193,7 +193,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      *
      * @param credentials
      */
-    void validateCredentials(SecurityContext context, Credentials credentials);
+    void validateCredentials(IdentityContext context, Credentials credentials);
 
     /**
      * Updates the specified credential value for the specified Agent.
@@ -201,6 +201,6 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param agent
      * @param credential
      */
-    void updateCredential(SecurityContext context, Agent agent, Object credential, Date effectiveDate, Date expiryDate);
+    void updateCredential(IdentityContext context, Agent agent, Object credential, Date effectiveDate, Date expiryDate);
 
 }

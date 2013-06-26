@@ -9,7 +9,7 @@ import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.IdentityContext;
 
 /**
  *
@@ -20,7 +20,7 @@ public class EEJPAContextInitializer implements ContextInitializer {
     @Inject @PicketLink Instance<EntityManager> entityManagerInstance;
 
     @Override
-    public void initContextForStore(SecurityContext context, IdentityStore<?> store) {
+    public void initContextForStore(IdentityContext context, IdentityStore<?> store) {
         if (store instanceof JPAIdentityStore) {
             if (entityManagerInstance.isUnsatisfied()) {
                 throw new SecurityConfigurationException("To use JPAIdentityStore you must provide an EntityManager producer method " +
