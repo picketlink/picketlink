@@ -61,7 +61,7 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
     }
 
     public JPAStoreConfigurationBuilder jpa() {
-        return forIdentityStoreConfig(JPAIdentityStoreConfigurationOld.class, true);
+        return forIdentityStoreConfig(JPAIdentityStoreConfiguration.class, true);
     }
 
     public LDAPStoreConfigurationBuilder ldap() {

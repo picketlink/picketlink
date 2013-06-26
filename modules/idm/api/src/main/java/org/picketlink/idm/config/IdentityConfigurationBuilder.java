@@ -22,8 +22,6 @@
 
 package org.picketlink.idm.config;
 
-import org.picketlink.idm.spi.SecurityContextFactory;
-
 /**
  * <p>
  * This class should be used as the start point to build an {@link IdentityConfiguration} instance.
@@ -34,7 +32,6 @@ import org.picketlink.idm.spi.SecurityContextFactory;
 public class IdentityConfigurationBuilder implements IdentityConfigurationChildBuilder {
 
     private IdentityStoresConfigurationBuilder identityStoresConfigurationBuilder;
-    private SecurityContextFactory securityContextFactory;
 
     public IdentityConfigurationBuilder() {
         this.identityStoresConfigurationBuilder = new IdentityStoresConfigurationBuilder(this);
@@ -53,7 +50,6 @@ public class IdentityConfigurationBuilder implements IdentityConfigurationChildB
         //TODO: must be able to read custom identity stores from the configuration.
         this.identityStoresConfigurationBuilder.readFrom(new IdentityStoresConfiguration(from.getConfiguredStores(), from
                 .getStoreFactory(), null));
-        this.securityContextFactory = from.getSecurityContextFactory();
     }
 
     @Override
@@ -67,14 +63,10 @@ public class IdentityConfigurationBuilder implements IdentityConfigurationChildB
 
         IdentityStoresConfiguration storesConfiguration = this.identityStoresConfigurationBuilder.create();
 
-        return new IdentityConfiguration(storesConfiguration.getConfigurations(), storesConfiguration.getStoreFactory(),
-                this.securityContextFactory, storesConfiguration.getIdentityStores());
-    }
-
-    @Override
-    public IdentityConfigurationBuilder contextFactory(SecurityContextFactory securityContextFactory) {
-        this.securityContextFactory = securityContextFactory;
-        return this;
+        return new IdentityConfiguration(
+            storesConfiguration.getConfigurations(),
+            storesConfiguration.getStoreFactory(),
+            storesConfiguration.getIdentityStores());
     }
 
     private void validate() {

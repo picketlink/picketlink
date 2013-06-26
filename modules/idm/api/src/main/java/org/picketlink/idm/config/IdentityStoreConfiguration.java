@@ -20,7 +20,7 @@ package org.picketlink.idm.config;
 import java.util.List;
 import java.util.Map;
 
-import org.picketlink.idm.config.FeatureSet.TypeOperation;
+import org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.spi.ContextInitializer;
@@ -35,6 +35,10 @@ import org.picketlink.idm.spi.ContextInitializer;
  * @since Sep 6, 2012
  */
 public interface IdentityStoreConfiguration {
+
+    public enum TypeOperation {
+        create, read, update, delete
+    }
 
     /**
      * <p>
@@ -68,5 +72,5 @@ public interface IdentityStoreConfiguration {
      */
     Map<String, Object> getCredentialHandlerProperties();
 
-    boolean supportsFeature(Class<? extends AttributedType> type, TypeOperation operation);
+    boolean supportsType(Class<? extends AttributedType> type, TypeOperation operation);
 }

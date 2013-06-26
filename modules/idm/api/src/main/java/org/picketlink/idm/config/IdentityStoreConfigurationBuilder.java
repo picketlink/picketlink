@@ -22,31 +22,27 @@
 
 package org.picketlink.idm.config;
 
-import org.picketlink.idm.config.FeatureSet.TypeOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.spi.ContextInitializer;
 
 /**
+ * <p>{@link Builder} interface defining all configuration methods for identity stores.</p>
+ *
  * @author Pedro Igor
  *
  */
 public interface IdentityStoreConfigurationBuilder<T extends IdentityStoreConfiguration, S extends IdentityStoreConfigurationBuilder<T, S>> extends Builder<T> {
 
-    S addTier(String... tierNames);
-
-    S addRealm(String... realmNames);
-
     S supportAllFeatures();
 
     S supportType(Class<? extends AttributedType>... types);
 
-    S unsupportType(Class<? extends AttributedType> type, TypeOperation... operations);
+    S unsupportType(Class<? extends AttributedType> type);
 
     S addCredentialHandler(Class<? extends CredentialHandler> credentialHandler);
 
     S setCredentialHandlerProperty(String propertyName, Object value);
 
     S addContextInitializer(ContextInitializer contextInitializer);
-
 }

@@ -22,6 +22,9 @@
 
 package org.picketlink.idm.config;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 
@@ -87,10 +90,23 @@ public class JPAStoreConfigurationBuilder extends
 
     @Override
     public JPAIdentityStoreConfiguration create() {
-        return new JPAIdentityStoreConfiguration(this.identityClass, this.attributeClass, this.credentialClass,
-                this.credentialAttributeClass, this.relationshipClass, this.relationshipIdentityClass,
-                this.relationshipAttributeClass, this.partitionClass, getSupportedFeatures(), getSupportedRelationships(),
-                getSupportedIdentityTypes(), getRealms(), getTiers(), getContextInitializers(), getCredentialHandlerProperties(),
+        List<Class<?>> entityClasses = new ArrayList<Class<?>>();
+
+        entityClasses.add(this.identityClass);
+        entityClasses.add(this.attributeClass);
+        entityClasses.add(this.credentialClass);
+        entityClasses.add(this.credentialAttributeClass);
+        entityClasses.add(this.relationshipClass);
+        entityClasses.add(this.relationshipIdentityClass);
+        entityClasses.add(this.relationshipAttributeClass);
+        entityClasses.add(this.partitionClass);
+
+        return new JPAIdentityStoreConfiguration(
+                entityClasses,
+                getSupportedTypes(),
+                getUnsupportedTypes(),
+                getContextInitializers(),
+                getCredentialHandlerProperties(),
                 getCredentialHandlers());
     }
 
@@ -110,16 +126,6 @@ public class JPAStoreConfigurationBuilder extends
     @Override
     public JPAStoreConfigurationBuilder readFrom(JPAIdentityStoreConfiguration configuration) {
         super.readFrom(configuration);
-
-        this.attributeClass = configuration.getAttributeClass();
-        this.credentialAttributeClass = configuration.getCredentialAttributeClass();
-        this.credentialClass = configuration.getCredentialClass();
-        this.identityClass = configuration.getIdentityClass();
-        this.partitionClass = configuration.getPartitionClass();
-        this.relationshipAttributeClass = configuration.getRelationshipAttributeClass();
-        this.relationshipClass = configuration.getRelationshipClass();
-        this.relationshipIdentityClass = configuration.getRelationshipIdentityClass();
-
         return this;
     }
 }

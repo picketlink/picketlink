@@ -18,21 +18,17 @@
 
 package org.picketlink.idm.config;
 
-import static java.util.Collections.unmodifiableList;
-import static java.util.Collections.unmodifiableMap;
-import static org.picketlink.idm.IDMLogger.LOGGER;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.picketlink.idm.config.FeatureSet.TypeOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.spi.ContextInitializer;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+import static org.picketlink.idm.IDMLogger.LOGGER;
 
 /**
  * The base class for store configurations
@@ -41,25 +37,24 @@ import org.picketlink.idm.spi.ContextInitializer;
  */
 public abstract class BaseAbstractStoreConfiguration implements IdentityStoreConfiguration {
 
-    private final Set<String> realms = new HashSet<String>();
-    private final Set<String> tiers = new HashSet<String>();
+    private Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes = new HashMap<Class<? extends AttributedType>, Set<TypeOperation>>();
+    private Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes = new HashMap<Class<? extends AttributedType>, Set<TypeOperation>>();
+
     private List<ContextInitializer> contextInitializers = new ArrayList<ContextInitializer>();
     private Map<String, Object> credentialHandlerProperties = new HashMap<String, Object>();
     private List<Class<? extends CredentialHandler>> credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
 
-    /**
-     * Metadata reflecting which features are supported by this identity store
-     */
-    private final FeatureSet featureSet;
-
-    protected BaseAbstractStoreConfiguration(FeatureSet featureSet, List<ContextInitializer> contextInitializers,
-            Map<String, Object> credentialHandlerProperties, List<Class<? extends CredentialHandler>> credentialHandlers) {
-        this.realms.addAll(realms);
-        this.tiers.addAll(tiers);
+    protected BaseAbstractStoreConfiguration(
+            Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes,
+            Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes,
+            List<ContextInitializer> contextInitializers,
+            Map<String, Object> credentialHandlerProperties,
+            List<Class<? extends CredentialHandler>> credentialHandlers) {
+        this.supportedTypes = supportedTypes;
+        this.unsupportedTypes = unsupportedTypes;
         this.contextInitializers.addAll(contextInitializers);
         this.credentialHandlerProperties.putAll(credentialHandlerProperties);
         this.credentialHandlers.addAll(credentialHandlers);
-        this.featureSet = featureSet;
     }
 
     @Override
@@ -114,12 +109,50 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
      * @return
      */
     @Override
-    public boolean supportsFeature(Class<? extends AttributedType> type, TypeOperation operation) {
+    public boolean supportsType(Class<? extends AttributedType> type, TypeOperation operation) {
         if (operation == null) {
             throw new IllegalArgumentException("operation may not be null");
         }
 
-        return featureSet.isTypeOperationSupported(type, operation) != -1;
+        return isTypeOperationSupported(type, operation) != -1;
     }
 
+    private int isTypeOperationSupported(Class<? extends AttributedType> type, TypeOperation operation) {
+        int score = -1;
+
+        for (Class<? extends AttributedType> cls : supportedTypes.keySet()) {
+            int clsScore = calcScore(type, cls);
+            if (clsScore > score && supportedTypes.get(cls).contains(operation)) {
+                score = clsScore;
+            }
+        }
+
+        for (Class<? extends AttributedType> cls : unsupportedTypes.keySet()) {
+            if (cls.isAssignableFrom(type) && unsupportedTypes.get(cls).contains(operation)) {
+                score = -1;
+                break;
+            }
+        }
+        return score;
+    }
+
+    private int calcScore(Class<?> type, Class<?> targetClass) {
+        if (type.equals(targetClass)) {
+            return 0;
+        } else if (targetClass.isAssignableFrom(type)) {
+            int score = 0;
+
+            Class<?> cls = type.getSuperclass();
+            while (!cls.equals(Object.class)) {
+                if (targetClass.isAssignableFrom(cls)) {
+                    score++;
+                } else {
+                    break;
+                }
+            }
+            return score;
+        } else {
+            return -1;
+        }
+    }
 }

@@ -21,8 +21,6 @@
  */
 package org.picketlink.idm.config;
 
-import org.picketlink.idm.spi.SecurityContextFactory;
-
 /**
  * @author Pedro Igor
  *
@@ -43,11 +41,6 @@ public abstract class AbstractIdentityConfigurationChildBuilder implements Ident
     @Override
     public IdentityConfiguration build() {
         return this.identityConfigurationBuilder.build();
-    }
-
-    @Override
-    public IdentityConfigurationBuilder contextFactory(SecurityContextFactory securityContextFactory) {
-        return this.identityConfigurationBuilder.contextFactory(securityContextFactory);
     }
 
 }

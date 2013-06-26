@@ -23,16 +23,15 @@
 package org.picketlink.idm;
 
 import java.util.Set;
-
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.LogMessage;
 import org.jboss.logging.Logger;
 import org.jboss.logging.Logger.Level;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
-import org.picketlink.idm.config.FeatureSet.TypeOperation;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.model.AttributedType;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
 
 /**
  * @author Pedro Silva

@@ -17,17 +17,15 @@
  */
 package org.picketlink.idm.config;
 
-import org.picketlink.idm.credential.spi.CredentialHandler;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.spi.ContextInitializer;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.spi.ContextInitializer;
 
 /**
  * A {@link BaseAbstractStoreConfiguration} for the LDAP store.
@@ -55,15 +53,22 @@ public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
     private String baseDN;
     private Map<String, String> groupMapping = new HashMap<String, String>();
 
-    LDAPIdentityStoreConfiguration(String url, String bindDN, String bindCredential, String baseDN,
-            String agentDNSuffix, String userDNSuffix, String roleDNSuffix, String groupDNSuffix,
-            Map<String, String> groupMapping, Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
-            Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships,
-            Map<Class<? extends IdentityType>, Set<FeatureOperation>> supportedIdentityTypes, Set<String> realms,
-            Set<String> tiers, List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties,
+    LDAPIdentityStoreConfiguration(
+            String url,
+            String bindDN,
+            String bindCredential,
+            String baseDN,
+            String agentDNSuffix,
+            String userDNSuffix,
+            String roleDNSuffix,
+            String groupDNSuffix,
+            Map<String, String> groupMapping,
+            Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes,
+            Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes,
+            List<ContextInitializer> contextInitializers,
+            Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {
-        super(supportedFeatures, supportedRelationships, supportedIdentityTypes,realms, tiers, contextInitializers, credentialHandlerProperties,
-                credentialHandlers);
+        super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers);
         this.ldapURL = url;
         this.bindDN = bindDN;
         this.bindCredential = bindCredential;
@@ -77,8 +82,6 @@ public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
 
     @Override
     protected void initConfig() throws SecurityConfigurationException {
-        removeFeature(FeatureGroup.realm);
-        removeFeature(FeatureGroup.tier);
     }
 
     public String getStandardAttributesFileName() {

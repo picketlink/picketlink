@@ -24,7 +24,7 @@ package org.picketlink.idm.config;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import org.picketlink.idm.model.Partition;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 
@@ -96,10 +96,21 @@ public class LDAPStoreConfigurationBuilder extends
 
     @Override
     public LDAPIdentityStoreConfiguration create() {
-        return new LDAPIdentityStoreConfiguration(this.url, this.bindDN, this.bindCredential, this.baseDN,
-                this.agentDNSuffix, this.userDNSuffix, this.roleDNSuffix, this.groupDNSuffix, this.groupMapping,
-                getSupportedFeatures(), getSupportedRelationships(), getSupportedIdentityTypes(), getRealms(), getTiers(),
-                getContextInitializers(), getCredentialHandlerProperties(), getCredentialHandlers());
+        return new LDAPIdentityStoreConfiguration(
+                this.url,
+                this.bindDN,
+                this.bindCredential,
+                this.baseDN,
+                this.agentDNSuffix,
+                this.userDNSuffix,
+                this.roleDNSuffix,
+                this.groupDNSuffix,
+                this.groupMapping,
+                getSupportedTypes(),
+                getUnsupportedTypes(),
+                getContextInitializers(),
+                getCredentialHandlerProperties(),
+                getCredentialHandlers());
     }
 
     @Override
@@ -122,6 +133,7 @@ public class LDAPStoreConfigurationBuilder extends
             this.agentDNSuffix = this.userDNSuffix;
         }
 
+        unsupportType(Partition.class);
     }
 
     @Override

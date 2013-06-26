@@ -213,7 +213,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
         fail();
         } catch (OperationNotSupportedException one) {
         assertTrue(one.getFeatureGroup().equals(FeatureGroup.credential));
-        assertTrue(one.getFeatureOperation().equals(FeatureSet.FeatureOperation.update));
+        assertTrue(one.getOperation().equals(FeatureSet.FeatureOperation.update));
         } catch (Exception e) {
         fail();
         }

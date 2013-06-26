@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
@@ -55,6 +54,7 @@ import org.picketlink.idm.jpa.annotations.RelationshipMember;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
 import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
@@ -291,13 +291,14 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         }
     }
 
-    protected JPAIdentityStoreConfiguration(List<Class<?>> entityClasses, Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
-            Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships,
-            Map<Class<? extends IdentityType>, Set<FeatureOperation>> supportedIdentityTypes, Set<String> realms,
-            Set<String> tiers, List<ContextInitializer> contextInitializers,
-            Map<String, Object> credentialHandlerProperties, List<Class<? extends CredentialHandler>> credentialHandlers) {
-        super(supportedFeatures, supportedRelationships, supportedIdentityTypes, realms, tiers, contextInitializers,
-                credentialHandlerProperties, credentialHandlers);
+    protected JPAIdentityStoreConfiguration(
+            List<Class<?>> entityClasses,
+            Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes,
+            Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes,
+            List<ContextInitializer> contextInitializers,
+            Map<String, Object> credentialHandlerProperties,
+            List<Class<? extends CredentialHandler>> credentialHandlers) {
+        super(supportedTypes, unsupportedTypes, contextInitializers,credentialHandlerProperties, credentialHandlers);
 
         if (entityClasses == null) {
             throw IDMMessages.MESSAGES.jpaConfigNoEntityClassesProvided();

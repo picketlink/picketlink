@@ -19,6 +19,7 @@
 package org.picketlink.idm.config;
 
 import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
@@ -26,6 +27,7 @@ import org.picketlink.idm.spi.ContextInitializer;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -38,13 +40,17 @@ public class FileIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
     private boolean alwaysCreateFiles = true;
     private String workingDir;
 
-    FileIdentityStoreConfiguration(String workingDir, boolean preserveState, boolean asyncWrite,
-            int asyncWriteThreadPool, Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
-            Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships,
-            Map<Class<? extends IdentityType>, Set<FeatureOperation>> supportedIdentityTypes, Set<String> realms,
-            Set<String> tiers, List<ContextInitializer> contextInitializers,
-            Map<String, Object> credentialHandlerProperties, List<Class<? extends CredentialHandler>> credentialHandlers) {
-        super(supportedFeatures, supportedRelationships, supportedIdentityTypes,realms, tiers, contextInitializers, credentialHandlerProperties, credentialHandlers);
+    FileIdentityStoreConfiguration(
+            String workingDir,
+            boolean preserveState,
+            boolean asyncWrite,
+            int asyncWriteThreadPool,
+            Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes,
+            Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes,
+            List<ContextInitializer> contextInitializers,
+            Map<String, Object> credentialHandlerProperties,
+            List<Class<? extends CredentialHandler>> credentialHandlers) {
+        super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers);
         this.workingDir = workingDir;
         this.alwaysCreateFiles = !preserveState;
         this.asyncWrite = asyncWrite;

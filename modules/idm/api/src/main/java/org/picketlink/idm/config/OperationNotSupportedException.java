@@ -22,10 +22,14 @@
 
 package org.picketlink.idm.config;
 
+import org.picketlink.idm.model.AttributedType;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
+
 /**
  * <p>
- * An <code>OperationNotSupportedException</code> is thrown to indicate that a {@link FeatureGroup} or {@link FeatureOperation}
- * is not supported by the underlying IdentityStore configured for a specific IdentityManager instance.
+ * An <code>OperationNotSupportedException</code> is thrown to indicate that a {@link AttributedType} or
+ * {@link TypeOperation} is not supported by the underlying IdentityStore configured for a specific
+ * IdentityManager instance.
  * </p>
  * <p>
  * You should check the {@link IdentityStoreConfiguration} for individual features supported by a IdentityStore.
@@ -38,21 +42,21 @@ public class OperationNotSupportedException extends SecurityConfigurationExcepti
 
     private static final long serialVersionUID = -669582364091679894L;
 
-    private FeatureGroup featureGroup;
-    private FeatureOperation featureOperation;
+    private Class<? extends AttributedType> attributedType;
+    private TypeOperation operation;
 
-    public OperationNotSupportedException(String message, FeatureGroup feature, FeatureOperation operation) {
+    public OperationNotSupportedException(String message, Class<? extends AttributedType> attributedType, TypeOperation operation) {
         super(message);
-        this.featureGroup = feature;
-        this.featureOperation = operation;
+        this.attributedType = attributedType;
+        this.operation = operation;
     }
 
-    public FeatureGroup getFeatureGroup() {
-        return this.featureGroup;
+    public Class<? extends AttributedType> getAttributedType() {
+        return this.attributedType;
     }
 
-    public FeatureOperation getFeatureOperation() {
-        return this.featureOperation;
+    public TypeOperation getOperation() {
+        return this.operation;
     }
 
 

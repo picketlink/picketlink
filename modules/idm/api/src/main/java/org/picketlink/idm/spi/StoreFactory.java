@@ -18,8 +18,7 @@
 
 package org.picketlink.idm.spi;
 
-import org.picketlink.idm.config.FeatureSet.CredentialOperation;
-import org.picketlink.idm.config.FeatureSet.TypeOperation;
+import org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.model.AttributedType;
 
@@ -48,5 +47,5 @@ public interface StoreFactory {
     IdentityStore<?> getStoreForType(IdentityContext context, Class<? extends AttributedType> type,
             TypeOperation operation);
 
-    IdentityStore<?> getStoreForCredentialOperation(IdentityContext context, CredentialOperation operation);
+    IdentityStore<?> getStoreForCredential(IdentityContext context);
 }

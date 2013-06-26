@@ -182,7 +182,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         } catch (OperationNotSupportedException one) {
 //FIXME
 //            assertTrue(one.getFeatureGroup().equals(FeatureGroup.user));
-            assertTrue(one.getFeatureOperation().equals(FeatureOperation.read));
+            assertTrue(one.getOperation().equals(FeatureOperation.read));
         } catch (Exception e) {
             fail();
         }
@@ -212,7 +212,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
                 OperationNotSupportedException one = (OperationNotSupportedException) ime.getCause();
 //FIXME
 //                assertTrue(one.getFeatureGroup().equals(FeatureGroup.user));
-                assertTrue(one.getFeatureOperation().equals(FeatureOperation.create));
+                assertTrue(one.getOperation().equals(FeatureOperation.create));
             } else {
                 fail();
             }
@@ -252,7 +252,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
                 OperationNotSupportedException one = (OperationNotSupportedException) ime.getCause();
 //FIXME
 //                assertTrue(one.getFeatureGroup().equals(FeatureGroup.user));
-                assertTrue(one.getFeatureOperation().equals(FeatureOperation.delete));
+                assertTrue(one.getOperation().equals(FeatureOperation.delete));
             } else {
                 fail();
             }
@@ -284,7 +284,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         } catch (OperationNotSupportedException one) {
 //FIXME
 //            assertTrue(one.getFeatureGroup().equals(FeatureGroup.role));
-            assertTrue(one.getFeatureOperation().equals(FeatureOperation.read));
+            assertTrue(one.getOperation().equals(FeatureOperation.read));
         } catch (Exception e) {
             fail();
         }
@@ -313,7 +313,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
                 OperationNotSupportedException one = (OperationNotSupportedException) ime.getCause();
 //FIXME
 //                assertTrue(one.getFeatureGroup().equals(FeatureGroup.role));
-                assertTrue(one.getFeatureOperation().equals(FeatureOperation.create));
+                assertTrue(one.getOperation().equals(FeatureOperation.create));
             } else {
                 fail();
             }
@@ -345,7 +345,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
                 OperationNotSupportedException one = (OperationNotSupportedException) ime.getCause();
 //FIXME
 //                assertTrue(one.getFeatureGroup().equals(FeatureGroup.role));
-                assertTrue(one.getFeatureOperation().equals(FeatureOperation.delete));
+                assertTrue(one.getOperation().equals(FeatureOperation.delete));
             } else {
                 fail();
             }
@@ -375,7 +375,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         } catch (OperationNotSupportedException one) {
 //FIXME
 //            assertTrue(one.getFeatureGroup().equals(FeatureGroup.group));
-            assertTrue(one.getFeatureOperation().equals(FeatureOperation.read));
+            assertTrue(one.getOperation().equals(FeatureOperation.read));
         } catch (Exception e) {
             fail();
         }
@@ -405,7 +405,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
 //FIXME
 //                assertTrue(one.getFeatureGroup().equals(FeatureGroup.group));
-                assertTrue(one.getFeatureOperation().equals(FeatureOperation.create));
+                assertTrue(one.getOperation().equals(FeatureOperation.create));
             } else {
                 fail();
             }
@@ -441,7 +441,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
 //FIXME
 //                assertTrue(one.getFeatureGroup().equals(FeatureGroup.group));
-                assertTrue(one.getFeatureOperation().equals(FeatureOperation.delete));
+                assertTrue(one.getOperation().equals(FeatureOperation.delete));
             } else {
                 fail();
             }
@@ -471,7 +471,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             fail();
         } catch (OperationNotSupportedException one) {
             assertTrue(one.getFeatureGroup().equals(FeatureGroup.relationship));
-            assertTrue(one.getFeatureOperation().equals(FeatureOperation.read));
+            assertTrue(one.getOperation().equals(FeatureOperation.read));
         } catch (Exception e) {
             fail();
         }
@@ -508,7 +508,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
                 OperationNotSupportedException one = (OperationNotSupportedException) ime.getCause();
 
                 assertTrue(one.getFeatureGroup().equals(FeatureGroup.relationship));
-                assertTrue(one.getFeatureOperation().equals(FeatureOperation.create));
+                assertTrue(one.getOperation().equals(FeatureOperation.create));
             } else {
                 fail();
             }
@@ -576,7 +576,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
                 OperationNotSupportedException one = (OperationNotSupportedException) ime.getCause();
 
                 assertTrue(one.getFeatureGroup().equals(FeatureGroup.relationship));
-                assertTrue(one.getFeatureOperation().equals(FeatureOperation.create));
+                assertTrue(one.getOperation().equals(FeatureOperation.create));
             } else {
                 fail();
             }
@@ -620,7 +620,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
                 OperationNotSupportedException one = (OperationNotSupportedException) ime.getCause();
 
                 assertTrue(one.getFeatureGroup().equals(FeatureGroup.relationship));
-                assertTrue(one.getFeatureOperation().equals(FeatureOperation.delete));
+                assertTrue(one.getOperation().equals(FeatureOperation.delete));
             } else {
                 fail();
             }
@@ -654,7 +654,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             fail();
         } catch (OperationNotSupportedException one) {
             assertTrue(one.getFeatureGroup().equals(FeatureGroup.credential));
-            assertTrue(one.getFeatureOperation().equals(FeatureOperation.update));
+            assertTrue(one.getOperation().equals(FeatureOperation.update));
         } catch (Exception e) {
             fail();
         }
@@ -693,7 +693,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             fail();
         } catch (OperationNotSupportedException one) {
             assertTrue(one.getFeatureGroup().equals(FeatureGroup.credential));
-            assertTrue(one.getFeatureOperation().equals(FeatureOperation.validate));
+            assertTrue(one.getOperation().equals(FeatureOperation.validate));
         } catch (Exception e) {
             fail();
         }

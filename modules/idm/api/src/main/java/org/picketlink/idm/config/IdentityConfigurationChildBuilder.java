@@ -21,8 +21,6 @@
  */
 package org.picketlink.idm.config;
 
-import org.picketlink.idm.spi.SecurityContextFactory;
-
 /**
  * @author Pedro Igor
  *
@@ -30,8 +28,6 @@ import org.picketlink.idm.spi.SecurityContextFactory;
 public interface IdentityConfigurationChildBuilder {
 
     IdentityStoresConfigurationBuilder stores();
-
-    IdentityConfigurationBuilder contextFactory(SecurityContextFactory securityContextFactory);
 
     IdentityConfiguration build();
 
