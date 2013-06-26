@@ -22,13 +22,26 @@
 package org.picketlink.idm.config;
 
 /**
+ * <p>Defines the top-level configuration methods for @{link Builder} implementations.</p>
+ *
  * @author Pedro Igor
  *
  */
 public interface IdentityConfigurationChildBuilder {
 
+    /**
+     * <p>Provides access to the configuration for all available identity stores.</p>
+     *
+     * @return
+     */
     IdentityStoresConfigurationBuilder stores();
 
+    /**
+     * <p>Builds a {@link IdentityConfiguration} instance considering all configuration previously provided.
+     * Once the configuration is built, it is immutable.</p>
+     *
+     * @return
+     */
     IdentityConfiguration build();
 
 }

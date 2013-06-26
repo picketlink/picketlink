@@ -22,6 +22,8 @@
 package org.picketlink.idm.config;
 
 /**
+ * <p>Base class for {@link IdentityConfigurationChildBuilder}.</p>
+ *
  * @author Pedro Igor
  *
  */

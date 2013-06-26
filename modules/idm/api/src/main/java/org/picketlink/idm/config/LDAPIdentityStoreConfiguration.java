@@ -28,13 +28,13 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.spi.ContextInitializer;
 
 /**
- * A {@link BaseAbstractStoreConfiguration} for the LDAP store.
+ * A {@link AbstractIdentityStoreConfiguration} for the LDAP store.
  *
  * @author anil saldhana
  * @since Sep 6, 2012
  */
 
-public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
+public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfiguration {
 
     private String ldapURL;
     private String userDNSuffix;

@@ -66,7 +66,7 @@ import org.picketlink.idm.spi.ContextInitializer;
  *
  * @author Shane Bryzak
  */
-public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
+public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfiguration {
 
     /**
      *

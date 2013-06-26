@@ -35,7 +35,7 @@ import static org.picketlink.idm.IDMLogger.LOGGER;
  *
  * @author Shane Bryzak
  */
-public abstract class BaseAbstractStoreConfiguration implements IdentityStoreConfiguration {
+public abstract class AbstractIdentityStoreConfiguration implements IdentityStoreConfiguration {
 
     private Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes = new HashMap<Class<? extends AttributedType>, Set<TypeOperation>>();
     private Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes = new HashMap<Class<? extends AttributedType>, Set<TypeOperation>>();
@@ -44,7 +44,7 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
     private Map<String, Object> credentialHandlerProperties = new HashMap<String, Object>();
     private List<Class<? extends CredentialHandler>> credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
 
-    protected BaseAbstractStoreConfiguration(
+    protected AbstractIdentityStoreConfiguration(
             Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes,
             Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes,
             List<ContextInitializer> contextInitializers,

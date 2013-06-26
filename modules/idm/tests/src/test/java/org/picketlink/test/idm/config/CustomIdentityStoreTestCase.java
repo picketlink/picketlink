@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.AbstractIdentityStoreConfiguration;
 import org.picketlink.idm.config.AbstractIdentityStoreConfigurationBuilder;
-import org.picketlink.idm.config.BaseAbstractStoreConfiguration;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.IdentityConfiguration;
@@ -120,7 +120,7 @@ public class CustomIdentityStoreTestCase {
         }
     }
 
-    public static class MyIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
+    public static class MyIdentityStoreConfiguration extends AbstractIdentityStoreConfiguration {
 
         private MethodInvocationContext methodInvocationContext;
 

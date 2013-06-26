@@ -20,20 +20,17 @@ package org.picketlink.idm.config;
 
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class FileIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
+public class FileIdentityStoreConfiguration extends AbstractIdentityStoreConfiguration {
 
     private int asyncThreadPool = 5;
     private boolean asyncWrite = false;
