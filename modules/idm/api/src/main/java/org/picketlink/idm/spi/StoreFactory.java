@@ -44,8 +44,13 @@ public interface StoreFactory {
      * @param operation
      * @return
      */
-    IdentityStore<?> getStoreForType(IdentityContext context, Class<? extends AttributedType> type,
+    <T extends IdentityStore<?>> T getStoreForType(T storeType, IdentityContext context, Class<? extends AttributedType> type,
             TypeOperation operation);
 
+    /**
+     *
+     * @param context
+     * @return
+     */
     IdentityStore<?> getStoreForCredential(IdentityContext context);
 }

@@ -15,30 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.picketlink.idm.spi;
 
-package org.picketlink.idm.model;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.model.Partition;
 
 /**
- * An abstract container representing a grouping of identity objects.  Realm and Tier are examples
- * of Partitions.
+ * A special type of IdentityStore that is also capable of providing partition management functionality
  *
  * @author Shane Bryzak
+ *
  */
-public interface Partition extends AttributedType {
-
-    /**
-     * Returns the unique identifier for the partition
-     *
-     * @return String value representing the unique identifier
-     */
-    String getId();
-
-    /**
-     * Returns the name of the partition.  The partition name is unique for the
-     * type of partition.
-     *
-     * @return String value representing the partition name
-     */
-    String getName();
-
+public interface PartitionStore<T extends IdentityStoreConfiguration> extends IdentityStore<T> {
+    String getConfigurationName(Partition partition);
 }

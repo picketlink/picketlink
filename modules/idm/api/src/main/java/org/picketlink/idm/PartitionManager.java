@@ -4,14 +4,18 @@ import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.StoreFactory;
 //import org.picketlink.idm.internal.ContextualIdentityManager;
 //import org.picketlink.idm.internal.DefaultStoreFactory;
@@ -44,41 +48,67 @@ public class PartitionManager implements Serializable {
     /**
      *
      */
-    private final StoreFactory storeFactory;
+    private final Map<String,IdentityConfiguration> configurations;
 
     /**
      *
      */
-    private Map<String,IdentityConfiguration> configurations = new ConcurrentHashMap<String,IdentityConfiguration>();
+    private final Map<Partition,IdentityConfiguration> partitionConfigurations = new ConcurrentHashMap<Partition,IdentityConfiguration>();
 
     /**
-     * <p>
-     * Creates an instance considering all configuration provided by the given {@link IdentityConfiguration}.
-     * </p>
      *
-     * @param identityConfig
      */
-    public PartitionManager(EventBridge eventBridge, IdGenerator idGenerator, StoreFactory storeFactory) {
+    private final IdentityConfiguration partitionManagementConfig;
+
+    /**
+     *
+     * @param eventBridge
+     * @param idGenerator
+     * @param storeFactory
+     * @param configurations
+     */
+    public PartitionManager(EventBridge eventBridge, IdGenerator idGenerator, StoreFactory storeFactory,
+            Map<String,IdentityConfiguration> configurations) {
+        this(eventBridge, idGenerator, storeFactory, configurations, null);
+    }
+
+    /**
+     *
+     * @param eventBridge
+     * @param idGenerator
+     * @param storeFactory
+     * @param configurations
+     * @param partitionManagementConfigName
+     */
+    public PartitionManager(EventBridge eventBridge, IdGenerator idGenerator, StoreFactory storeFactory,
+            Map<String,IdentityConfiguration> configurations, String partitionManagementConfigName) {
         LOGGER.identityManagerBootstrapping();
 
-        if (storeFactory == null) {
-            this.storeFactory = new DefaultStoreFactory(identityConfig);
+        this.eventBridge = eventBridge;
+        this.idGenerator = idGenerator;
+        this.configurations = Collections.unmodifiableMap(configurations);
+
+        if (!StringUtil.isNullOrEmpty(partitionManagementConfigName)) {
+            this.partitionManagementConfig = configurations.get(partitionManagementConfigName);
+        } else if (configurations.size() == 1) {
+            this.partitionManagementConfig = configurations.get(configurations.keySet().iterator().next());
         } else {
-            this.storeFactory = identityConfig.getStoreFactory();
+            throw new IllegalArgumentException("The partitionManagementConfigName parameter must be specified " +
+                    "when more than one configuration has been provided");
         }
     }
 
-    public synchronized void addConfiguration(String name, IdentityConfiguration configuration) {
-        if (configurations.containsKey(name)) {
-            // TODO improve this exception
-            throw new RuntimeException("Cannot add configuration " + name +
-                    " - a configuration with this name already exists.");
+    private IdentityConfiguration getConfigurationForPartition(Partition partition) {
+        if (partitionConfigurations.containsKey(partition)) {
+            return partitionConfigurations.get(partition);
+        } else {
+            return lookupPartitionConfiguration(partition);
         }
-        configurations.put(name, configuration);
     }
 
-    public synchronized void removeConfiguration(String name) {
-        configurations.remove(name);
+    private synchronized void lookupPartitionConfiguration(Partition partition) {
+        PartitionStore store = partitionManagementConfig.getStoreFactory().<PartitionStore<?>>getStoreForType(Partition.class, TypeOperation.read);
+
     }
 
     /**
