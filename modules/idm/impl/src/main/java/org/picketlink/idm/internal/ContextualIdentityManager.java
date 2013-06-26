@@ -17,19 +17,15 @@
  */
 package org.picketlink.idm.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.FeatureSet.CredentialOperation;
-import org.picketlink.idm.config.FeatureSet.TypeOperation;
+import org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.event.EventBridge;
@@ -52,6 +48,7 @@ import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreFactory;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Default implementation of the IdentityManager interface
@@ -407,7 +404,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
     public void validateCredentials(Credentials credentials) {
         checkCurrentPartitionForCredential();
 
-        IdentityStore<?> store = storeFactory.getStoreForCredentialOperation(this, CredentialOperation.validate);
+        IdentityStore<?> store = storeFactory.getStoreForCredential(this);
 
         store.validateCredentials(this, credentials);
     }
@@ -421,7 +418,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
     public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
         checkCurrentPartitionForCredential();
 
-        IdentityStore<?> store = storeFactory.getStoreForCredentialOperation(this, CredentialOperation.update);
+        IdentityStore<?> store = storeFactory.getStoreForCredential(this);
 
         store.updateCredential(this, agent, credential, effectiveDate, expiryDate);
     }
@@ -558,7 +555,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
     public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
         checkCurrentPartitionForCredential();
 
-        IdentityStore<?> store = storeFactory.getStoreForCredentialOperation(this, CredentialOperation.read);
+        IdentityStore<?> store = storeFactory.getStoreForCredential(this);
         if (!CredentialStore.class.isInstance(store)) {
             throw MESSAGES.credentialInvalidCredentialStoreType(store.getClass());
         } else {
@@ -571,7 +568,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
     public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
         checkCurrentPartitionForCredential();
 
-        IdentityStore<?> store = storeFactory.getStoreForCredentialOperation(this, CredentialOperation.read);
+        IdentityStore<?> store = storeFactory.getStoreForCredential(this);
         if (!CredentialStore.class.isInstance(store)) {
             throw MESSAGES.credentialInvalidCredentialStoreType(store.getClass());
         } else {
