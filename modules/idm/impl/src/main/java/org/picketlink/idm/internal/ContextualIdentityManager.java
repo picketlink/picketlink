@@ -17,8 +17,8 @@
  */
 package org.picketlink.idm.internal;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +31,6 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.FeatureSet.CredentialOperation;
 import org.picketlink.idm.config.FeatureSet.TypeOperation;
 import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.IdentityType;
@@ -50,10 +49,9 @@ import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
-import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityContext;
+import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreFactory;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Default implementation of the IdentityManager interface
@@ -87,7 +85,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
 
     private final StoreFactory storeFactory;
 
-    public ContextualIdentityManager(EventBridge eventBridge, IdGenerator idGenerator, 
+    public ContextualIdentityManager(EventBridge eventBridge, IdGenerator idGenerator,
             Partition partition, StoreFactory storeFactory) {
         this.eventBridge = eventBridge;
         this.idGenerator = idGenerator;
@@ -238,7 +236,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
     public User getUser(String loginName) {
         checkCurrentPartitionForAgents();
 
-        return storeFactory.getStoreForType(this, User.class, TypeOperation.read).getUser(context, loginName);
+        return storeFactory.getStoreForType(this, User.class, TypeOperation.read).getUser(this, loginName);
     }
 
     @Override
@@ -247,7 +245,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
             return null;
         }
 
-        return storeFactory.getStoreForType(this, Group.class, TypeOperation.read).getGroup(context, path);
+        return storeFactory.getStoreForType(this, Group.class, TypeOperation.read).getGroup(this, path);
     }
 
     @Override
