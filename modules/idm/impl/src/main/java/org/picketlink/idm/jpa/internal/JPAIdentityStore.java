@@ -47,9 +47,9 @@ import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
-import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld.MappedAttribute;
-import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld.PropertyType;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration.MappedAttribute;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyType;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.internal.DigestCredentialHandler;
 import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
@@ -63,6 +63,7 @@ import org.picketlink.idm.event.IdentityTypeCreatedEvent;
 import org.picketlink.idm.event.IdentityTypeDeletedEvent;
 import org.picketlink.idm.event.IdentityTypeUpdatedEvent;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.AttributedType.AttributeParameter;
@@ -1834,6 +1835,44 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
                 em.remove(credential);
             }
         }
+    }
+
+    @Override
+    public <I extends IdentityType> I getIdentity(Class<I> identityType, String id) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setAttribute(IdentityContext context, AttributedType type, Attribute<? extends Serializable> attribute) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public <V extends Serializable> Attribute<V> getAttribute(IdentityContext context, AttributedType type,
+            String attributeName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void removeAttribute(IdentityContext context, AttributedType type, String attributeName) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void storeCredential(IdentityContext context, Account account, CredentialStorage storage) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public <T extends CredentialStorage> T retrieveCurrentCredential(IdentityContext context, Account account,
+            Class<T> storageClass) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

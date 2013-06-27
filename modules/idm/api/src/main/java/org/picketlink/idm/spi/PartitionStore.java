@@ -28,4 +28,12 @@ import org.picketlink.idm.model.Partition;
  */
 public interface PartitionStore<T extends IdentityStoreConfiguration> extends IdentityStore<T> {
     String getConfigurationName(Partition partition);
+
+    <P extends Partition> P getPartition(Class<P> partitionClass, String name);
+
+    void addPartition(Partition partition, String configurationName);
+
+    void updatePartition(Partition partition);
+
+    void removePartition(Partition partition);
 }

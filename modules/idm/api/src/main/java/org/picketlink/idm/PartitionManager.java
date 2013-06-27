@@ -171,20 +171,43 @@ public class PartitionManager implements Serializable {
      * @return
      */
     public <T extends Partition> T getPartition(Class<T> partitionClass, String name) {
-        // TODO implement
-        return null;
+        PartitionStore<?> store = partitionManagementConfig.getStoreFactory().<PartitionStore>getStoreForType(PartitionStore.class,
+                createIdentityContext(), Partition.class, TypeOperation.read);
+        return store.<T>getPartition(partitionClass, name);
     }
 
+    /**
+     * Persists the specified partition, using the provided configuration name
+     *
+     * @param partition
+     * @param configurationName
+     */
     public void addPartition(Partition partition, String configurationName) {
-        // TODO implement
+        PartitionStore<?> store = partitionManagementConfig.getStoreFactory().<PartitionStore>getStoreForType(PartitionStore.class,
+                createIdentityContext(), Partition.class, TypeOperation.create);
+        store.addPartition(partition, configurationName);
     }
 
+    /**
+     * Updates the state of the specified partition.  The partition ID cannot be changed.
+     *
+     * @param partition
+     */
     public void updatePartition(Partition partition) {
-
+        PartitionStore<?> store = partitionManagementConfig.getStoreFactory().<PartitionStore>getStoreForType(PartitionStore.class,
+                createIdentityContext(), Partition.class, TypeOperation.update);
+        store.updatePartition(partition);
     }
 
-    public void deletePartition(Partition partition) {
-
+    /**
+     * Removes the specified partition
+     *
+     * @param partition
+     */
+    public void removePartition(Partition partition) {
+        PartitionStore<?> store = partitionManagementConfig.getStoreFactory().<PartitionStore>getStoreForType(PartitionStore.class,
+                createIdentityContext(), Partition.class, TypeOperation.delete);
+        store.removePartition(partition);
     }
 
 }
