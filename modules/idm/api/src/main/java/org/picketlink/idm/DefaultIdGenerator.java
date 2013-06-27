@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.internal;
+package org.picketlink.idm;
 
-import org.picketlink.idm.IdGenerator;
 
 import java.util.UUID;
 

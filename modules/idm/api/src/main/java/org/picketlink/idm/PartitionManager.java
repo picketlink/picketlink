@@ -15,16 +15,12 @@ import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.PartitionStore;
-import org.picketlink.idm.spi.StoreFactory;
-//import org.picketlink.idm.internal.ContextualIdentityManager;
-//import org.picketlink.idm.internal.DefaultStoreFactory;
 
 /**
- * <p>
- * Factory class for {@link IdentityManager} instances.
- * </p>
- * <p>
+ * Provides partition management functionality, and partition-specific {@link IdentityManager} instances.
+ *
  * Before using this factory you need a valid {@link IdentityConfiguration}, usually created using the
  * {@link org.picketlink.idm.config.IdentityConfigurationBuilder}.
  * </p>
@@ -60,6 +56,12 @@ public class PartitionManager implements Serializable {
      */
     private final IdentityConfiguration partitionManagementConfig;
 
+    public PartitionManager(Map<String,IdentityConfiguration> configurations) {
+        this(configurations,
+             new EventBridge() { public void raiseEvent(Object event) { /* no-op */}},
+             new DefaultIdGenerator());
+    }
+
     /**
      *
      * @param eventBridge
@@ -67,9 +69,8 @@ public class PartitionManager implements Serializable {
      * @param storeFactory
      * @param configurations
      */
-    public PartitionManager(EventBridge eventBridge, IdGenerator idGenerator, StoreFactory storeFactory,
-            Map<String,IdentityConfiguration> configurations) {
-        this(eventBridge, idGenerator, storeFactory, configurations, null);
+    public PartitionManager(Map<String,IdentityConfiguration> configurations, EventBridge eventBridge, IdGenerator idGenerator) {
+        this(configurations, eventBridge, idGenerator, null);
     }
 
     /**
@@ -80,8 +81,8 @@ public class PartitionManager implements Serializable {
      * @param configurations
      * @param partitionManagementConfigName
      */
-    public PartitionManager(EventBridge eventBridge, IdGenerator idGenerator, StoreFactory storeFactory,
-            Map<String,IdentityConfiguration> configurations, String partitionManagementConfigName) {
+    public PartitionManager(Map<String,IdentityConfiguration> configurations, EventBridge eventBridge, IdGenerator idGenerator,
+            String partitionManagementConfigName) {
         LOGGER.identityManagerBootstrapping();
 
         this.eventBridge = eventBridge;
@@ -106,9 +107,21 @@ public class PartitionManager implements Serializable {
         }
     }
 
-    private synchronized void lookupPartitionConfiguration(Partition partition) {
-        PartitionStore store = partitionManagementConfig.getStoreFactory().<PartitionStore<?>>getStoreForType(Partition.class, TypeOperation.read);
+    private synchronized IdentityConfiguration lookupPartitionConfiguration(Partition partition) {
+        if (!partitionConfigurations.containsKey(partition)) {
 
+            @SuppressWarnings("rawtypes")
+            PartitionStore<?> store = partitionManagementConfig.getStoreFactory().<PartitionStore>getStoreForType(PartitionStore.class,
+                    createIdentityContext(), Partition.class, TypeOperation.read);
+
+            partitionConfigurations.put(partition, configurations.get(store.getConfigurationName(partition)));
+        }
+        return partitionConfigurations.get(partition);
+    }
+
+    private IdentityContext createIdentityContext() {
+        // TODO implement this
+        return null;
     }
 
     /**
@@ -145,7 +158,7 @@ public class PartitionManager implements Serializable {
         }
 
         try {
-            return new ContextualIdentityManager(eventBridge, idGenerator, partition, storeFactory);
+            return new ContextualIdentityManager(eventBridge, idGenerator, partition);
         } catch (Exception e) {
             throw MESSAGES.couldNotCreateContextualIdentityManager(partition);
         }

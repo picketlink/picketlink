@@ -44,7 +44,7 @@ public interface StoreFactory {
      * @param operation
      * @return
      */
-    <T extends IdentityStore<?>> T getStoreForType(T storeType, IdentityContext context, Class<? extends AttributedType> type,
+    <T extends IdentityStore<?>> T getStoreForType(Class<T> storeType, IdentityContext context, Class<? extends AttributedType> type,
             TypeOperation operation);
 
     /**

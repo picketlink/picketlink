@@ -21,10 +21,10 @@ package org.picketlink.internal;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.picketlink.idm.DefaultIdGenerator;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityCache;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
-import org.picketlink.idm.internal.DefaultIdGenerator;
 import org.picketlink.idm.internal.DefaultIdentityCache;
 import org.picketlink.idm.internal.DefaultSecurityContextFactory;
 import org.picketlink.idm.model.Partition;
