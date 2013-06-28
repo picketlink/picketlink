@@ -43,7 +43,7 @@ import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.StoreFactory;
+import org.picketlink.idm.spi.StoreSelector;
 
 /**
  * Default StoreFactory implementation. This factory is pre-configured to be able to create instances of the following built-in
@@ -55,7 +55,7 @@ import org.picketlink.idm.spi.StoreFactory;
  *
  * @author Shane Bryzak
  */
-public class DefaultStoreFactory implements StoreFactory {
+public class DefaultStoreFactory implements StoreSelector {
 
     private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> identityConfigMap = 
             new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>>();

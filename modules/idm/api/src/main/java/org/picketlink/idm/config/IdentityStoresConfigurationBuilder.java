@@ -24,7 +24,7 @@ package org.picketlink.idm.config;
 
 import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.StoreFactory;
+import org.picketlink.idm.spi.StoreSelector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +38,7 @@ import java.util.Map;
 public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigurationChildBuilder implements
         Builder<IdentityStoresConfiguration> {
 
-    private StoreFactory storeFactory;
+    private StoreSelector storeFactory;
     private List<IdentityStoreConfigurationBuilder<?, ?>> identityStoresConfiguration = new ArrayList<IdentityStoreConfigurationBuilder<?, ?>>();
     private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>> supportedStoreBuilders = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>>();
     private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>>();
@@ -51,7 +51,7 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
         this.supportedStoreBuilders.put(LDAPIdentityStoreConfiguration.class, LDAPStoreConfigurationBuilder.class);
     }
 
-    public IdentityStoresConfigurationBuilder storeFactory(StoreFactory storeFactory) {
+    public IdentityStoresConfigurationBuilder storeFactory(StoreSelector storeFactory) {
         this.storeFactory = storeFactory;
         return this;
     }

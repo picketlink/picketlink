@@ -28,7 +28,6 @@ import javax.inject.Inject;
 import org.picketlink.IdentityConfigurationEvent;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
@@ -37,6 +36,7 @@ import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.internal.EEJPAContextInitializer;
 import org.picketlink.internal.EESecurityContextFactory;
 import org.picketlink.internal.IdentityStoreAutoConfiguration;
+import org.picketlink.internal.DefaultPartitionManager;
 import org.picketlink.internal.SecuredIdentityManager;
 import org.picketlink.internal.util.Strings;
 
@@ -64,7 +64,7 @@ public class IdentityManagerProducer {
 
     @Inject @PicketLink Instance<Realm> defaultRealm;
 
-    private PartitionManager factory;
+    private DefaultPartitionManager factory;
 
     @Inject
     public void init() {
@@ -92,7 +92,7 @@ public class IdentityManagerProducer {
 
         builder.contextFactory(this.icf);
 
-        this.factory = new PartitionManager(builder.build());
+        this.factory = new DefaultPartitionManager(builder.build());
     }
 
     private void loadAutoConfig(IdentityConfigurationBuilder builder) {
@@ -111,7 +111,7 @@ public class IdentityManagerProducer {
     }
 
     @Produces
-    public PartitionManager createIdentityManagerFactory() {
+    public DefaultPartitionManager createIdentityManagerFactory() {
         return factory;
     }
 

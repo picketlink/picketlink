@@ -26,7 +26,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.AbstractBaseCredentials;
 import org.picketlink.idm.credential.Credentials.Status;
@@ -45,6 +44,7 @@ import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityContext;
+import org.picketlink.internal.PartitionManager;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;

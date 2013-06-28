@@ -18,12 +18,12 @@
 package org.picketlink.test.idm;
 
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
+import org.picketlink.internal.PartitionManager;
 
 /**
  * <p>
