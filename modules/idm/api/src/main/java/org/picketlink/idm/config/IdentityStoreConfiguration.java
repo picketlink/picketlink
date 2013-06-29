@@ -19,14 +19,13 @@ package org.picketlink.idm.config;
 
 import java.util.List;
 import java.util.Map;
-
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.spi.ContextInitializer;
 
 /**
  * <p>
- * Represents a configuration for a specific IdentityStore.
+ * Represents a configuration for a specific {@link org.picketlink.idm.spi.IdentityStore}.
  * </p>
  *
  * @author Anil Saldhana
@@ -35,6 +34,9 @@ import org.picketlink.idm.spi.ContextInitializer;
  */
 public interface IdentityStoreConfiguration {
 
+    /**
+     * <p>Supported operations for @{AttributedType} types.</p>
+     */
     public enum TypeOperation {
         create, read, update, delete
     }
@@ -71,5 +73,12 @@ public interface IdentityStoreConfiguration {
      */
     Map<String, Object> getCredentialHandlerProperties();
 
+    /**
+     * <p>Checks if the configuration supports the given {@link AttributedType} and {@link TypeOperation}.</p>
+     *
+     * @param type
+     * @param operation
+     * @return
+     */
     boolean supportsType(Class<? extends AttributedType> type, TypeOperation operation);
 }

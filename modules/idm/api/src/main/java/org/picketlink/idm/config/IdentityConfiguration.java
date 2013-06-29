@@ -18,36 +18,29 @@
 
 package org.picketlink.idm.config;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreFactory;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
 
 /**
- * <p>
- * Defines the runtime configuration for Identity Management.
- * </p>
- * <p>
- * You should use this class to provide all necessary configuration for the identity stores that should be supported by the
- * IdentityManager.
- * </p>
+ * <p>Consolidates all the configuration that should be used to initialize and start the IDM subsystem.</p>
  *
  * @author Shane Bryzak
  *
  */
 public class IdentityConfiguration {
 
-    private final List<IdentityStoreConfiguration> configuredStores = new ArrayList<IdentityStoreConfiguration>();
-    private final StoreFactory storeFactory;
+    private final List<IdentityStoreConfiguration> configuredStores;
     private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> additionalIdentityStores;
+    private final StoreFactory storeFactory;
 
     IdentityConfiguration(List<IdentityStoreConfiguration> storesConfiguration, StoreFactory storeFactory,
             Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> additionalIdentityStores) {
-        this.configuredStores.addAll(storesConfiguration);
-        this.additionalIdentityStores = additionalIdentityStores;
+        this.configuredStores = unmodifiableList(storesConfiguration);
+        this.additionalIdentityStores = unmodifiableMap(additionalIdentityStores);
         this.storeFactory = storeFactory;
     }
 
@@ -59,7 +52,7 @@ public class IdentityConfiguration {
      * @return
      */
     public List<IdentityStoreConfiguration> getConfiguredStores() {
-        return Collections.unmodifiableList(this.configuredStores);
+        return this.configuredStores;
     }
 
     /**
@@ -70,7 +63,7 @@ public class IdentityConfiguration {
      * @return
      */
     public Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> getAdditionalIdentityStores() {
-        return Collections.unmodifiableMap(this.additionalIdentityStores);
+        return this.additionalIdentityStores;
     }
 
     public StoreFactory getStoreFactory() {

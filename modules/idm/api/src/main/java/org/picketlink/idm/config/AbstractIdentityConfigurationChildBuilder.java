@@ -29,7 +29,7 @@ package org.picketlink.idm.config;
  */
 public abstract class AbstractIdentityConfigurationChildBuilder implements IdentityConfigurationChildBuilder {
 
-    private IdentityConfigurationChildBuilder identityConfigurationBuilder;
+    private final IdentityConfigurationChildBuilder identityConfigurationBuilder;
 
     protected AbstractIdentityConfigurationChildBuilder(IdentityConfigurationChildBuilder builder) {
         this.identityConfigurationBuilder = builder;

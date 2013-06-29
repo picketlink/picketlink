@@ -24,6 +24,8 @@ package org.picketlink.idm.config;
 
 
 /**
+ * <p>{@link IdentityStoreConfigurationBuilder} implementation which knows how to build a {@FileIdentityStoreConfiguration}.</p>
+ *
  * @author Pedro Igor
  *
  */
@@ -39,21 +41,45 @@ public class FileStoreConfigurationBuilder extends
         super(builder);
     }
 
+    /**
+     * <p>Defines the working directory that should be used to store data.</p>
+     *
+     * @param workingDirectory
+     * @return
+     */
     public FileStoreConfigurationBuilder workingDirectory(String workingDirectory) {
         this.workingDirectory = workingDirectory;
         return this;
     }
 
+    /**
+     * <p>Tells the store to preserve state between initializations. If true, previously stored data will be preserved.</p>
+     *
+     * @param preserveState
+     * @return
+     */
     public FileStoreConfigurationBuilder preserveState(boolean preserveState) {
         this.preserveState = preserveState;
         return this;
     }
 
+    /**
+     * <p>Indicates that write operations should be done asynchronously.</p>
+     *
+     * @param asyncWrite
+     * @return
+     */
     public FileStoreConfigurationBuilder asyncWrite(boolean asyncWrite) {
         this.asyncWrite = asyncWrite;
         return this;
     }
 
+    /**
+     * <p>If asyncWrite is enabled, defines the size of the thread pool.</p>
+     *
+     * @param poolSize
+     * @return
+     */
     public FileStoreConfigurationBuilder asyncWriteThreadPool(int poolSize) {
         this.asyncWriteThreadPool = poolSize;
         return this;

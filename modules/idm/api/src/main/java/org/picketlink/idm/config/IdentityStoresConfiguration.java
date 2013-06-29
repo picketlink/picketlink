@@ -22,31 +22,36 @@
 
 package org.picketlink.idm.config;
 
+import java.util.Collections;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreFactory;
 
 import java.util.List;
 import java.util.Map;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
 
 /**
+ * <p>Holds all the configuration for identity stores.</p>
+ *
  * @author Pedro Igor
  *
  */
 public class IdentityStoresConfiguration {
 
-    private List<IdentityStoreConfiguration> configurations;
-    private StoreFactory storeFactory;
+    private final List<IdentityStoreConfiguration> configurations;
+    private final StoreFactory storeFactory;
     private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores;
 
     public IdentityStoresConfiguration(List<IdentityStoreConfiguration> configurations, StoreFactory storeFactory) {
-        this.configurations = configurations;
+        this.configurations = unmodifiableList(configurations);
         this.storeFactory = storeFactory;
     }
 
     public IdentityStoresConfiguration(List<IdentityStoreConfiguration> configurations, StoreFactory storeFactory,
             Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores) {
         this(configurations, storeFactory);
-        this.identityStores = identityStores;
+        this.identityStores = unmodifiableMap(identityStores);
     }
 
     public List<IdentityStoreConfiguration> getConfigurations() {

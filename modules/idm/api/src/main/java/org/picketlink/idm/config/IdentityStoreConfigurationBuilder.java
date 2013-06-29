@@ -34,15 +34,51 @@ import org.picketlink.idm.spi.ContextInitializer;
  */
 public interface IdentityStoreConfigurationBuilder<T extends IdentityStoreConfiguration, S extends IdentityStoreConfigurationBuilder<T, S>> extends Builder<T> {
 
+    /**
+     * <p>Enables the default feature set for this configuration.</p>
+     *
+     * @return
+     */
     S supportAllFeatures();
 
+    /**
+     * <p>Defines which types should be supported by this configuration.</p>
+     *
+     * @param types
+     * @return
+     */
     S supportType(Class<? extends AttributedType>... types);
 
+    /**
+     * <p>Defines which types should not be supported by this configuration.</p>
+     *
+     * @param type
+     * @return
+     */
     S unsupportType(Class<? extends AttributedType> type);
 
+    /**
+     * <p>Adds a custom {@CredentialHandler}.</p>
+     *
+     * @param credentialHandler
+     * @return
+     */
     S addCredentialHandler(Class<? extends CredentialHandler> credentialHandler);
 
+    /**
+     * <p>Sets a configuration property for a {@link CredentialHandler}.</p>
+     *
+     * @param propertyName
+     * @param value
+     * @return
+     */
     S setCredentialHandlerProperty(String propertyName, Object value);
 
+    /**
+     * <p>Adds a {@link ContextInitializer}.</p>
+     *
+     * @param contextInitializer
+     * @return
+     */
     S addContextInitializer(ContextInitializer contextInitializer);
 }
