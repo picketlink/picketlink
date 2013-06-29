@@ -21,7 +21,7 @@ package org.picketlink.idm.config;
 import java.util.List;
 import java.util.Map;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.StoreFactory;
+import org.picketlink.idm.spi.StoreSelector;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 
@@ -34,10 +34,10 @@ import static java.util.Collections.unmodifiableMap;
 public class IdentityConfiguration {
 
     private final List<IdentityStoreConfiguration> configuredStores;
+    private final StoreSelector storeFactory;
     private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> additionalIdentityStores;
-    private final StoreFactory storeFactory;
 
-    IdentityConfiguration(List<IdentityStoreConfiguration> storesConfiguration, StoreFactory storeFactory,
+    IdentityConfiguration(List<IdentityStoreConfiguration> storesConfiguration, StoreSelector storeFactory,
             Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> additionalIdentityStores) {
         this.configuredStores = unmodifiableList(storesConfiguration);
         this.additionalIdentityStores = unmodifiableMap(additionalIdentityStores);
@@ -66,7 +66,7 @@ public class IdentityConfiguration {
         return this.additionalIdentityStores;
     }
 
-    public StoreFactory getStoreFactory() {
+    public StoreSelector getStoreFactory() {
         return this.storeFactory;
     }
 

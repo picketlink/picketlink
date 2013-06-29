@@ -22,13 +22,10 @@
 
 package org.picketlink.idm.config;
 
-import java.util.Collections;
-import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.StoreFactory;
-
 import java.util.List;
 import java.util.Map;
-import static java.util.Collections.unmodifiableList;
+import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.StoreSelector;
 import static java.util.Collections.unmodifiableMap;
 
 /**
@@ -40,15 +37,15 @@ import static java.util.Collections.unmodifiableMap;
 public class IdentityStoresConfiguration {
 
     private final List<IdentityStoreConfiguration> configurations;
-    private final StoreFactory storeFactory;
     private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores;
+    private StoreSelector storeFactory;
 
-    public IdentityStoresConfiguration(List<IdentityStoreConfiguration> configurations, StoreFactory storeFactory) {
-        this.configurations = unmodifiableList(configurations);
+    public IdentityStoresConfiguration(List<IdentityStoreConfiguration> configurations, StoreSelector storeFactory) {
+        this.configurations = configurations;
         this.storeFactory = storeFactory;
     }
 
-    public IdentityStoresConfiguration(List<IdentityStoreConfiguration> configurations, StoreFactory storeFactory,
+    public IdentityStoresConfiguration(List<IdentityStoreConfiguration> configurations, StoreSelector storeFactory,
             Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores) {
         this(configurations, storeFactory);
         this.identityStores = unmodifiableMap(identityStores);
@@ -58,7 +55,7 @@ public class IdentityStoresConfiguration {
         return this.configurations;
     }
 
-    public StoreFactory getStoreFactory() {
+    public StoreSelector getStoreFactory() {
         return this.storeFactory;
     }
 

@@ -47,7 +47,7 @@ import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.StoreFactory;
+import org.picketlink.idm.spi.StoreSelector;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
@@ -80,10 +80,10 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
      */
     private Map<String, Object> parameters = new HashMap<String, Object>();
 
-    private final StoreFactory storeFactory;
+    private final StoreSelector storeFactory;
 
     public ContextualIdentityManager(EventBridge eventBridge, IdGenerator idGenerator,
-            Partition partition, StoreFactory storeFactory) {
+            Partition partition, StoreSelector storeFactory) {
         this.eventBridge = eventBridge;
         this.idGenerator = idGenerator;
         this.partition = partition;

@@ -25,7 +25,6 @@ package org.picketlink.test.idm.config;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.IdentityConfiguration;
@@ -44,6 +43,7 @@ import org.picketlink.idm.model.sample.Grant;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
+import org.picketlink.internal.PartitionManager;
 import org.picketlink.test.idm.relationship.CustomRelationship;
 
 import java.util.Arrays;

@@ -23,7 +23,6 @@
 package org.picketlink.idm.config;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 

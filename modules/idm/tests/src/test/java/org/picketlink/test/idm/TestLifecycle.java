@@ -18,7 +18,7 @@
 
 package org.picketlink.test.idm;
 
-import org.picketlink.idm.PartitionManager;
+import org.picketlink.internal.PartitionManager;
 
 /**
  * <p>

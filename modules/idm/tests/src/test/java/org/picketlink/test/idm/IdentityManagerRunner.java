@@ -30,7 +30,7 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.PartitionManager;
+import org.picketlink.internal.PartitionManager;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;

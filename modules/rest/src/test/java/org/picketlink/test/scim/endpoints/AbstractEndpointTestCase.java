@@ -26,7 +26,6 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
@@ -43,6 +42,7 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
+import org.picketlink.internal.PartitionManager;
 import org.picketlink.scim.PicketLinkSCIMApplication;
 import org.picketlink.test.scim.EmbeddedWebServerBase;
 

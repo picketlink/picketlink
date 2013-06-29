@@ -29,8 +29,8 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.sample.User;
+import org.picketlink.internal.PartitionManager;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;

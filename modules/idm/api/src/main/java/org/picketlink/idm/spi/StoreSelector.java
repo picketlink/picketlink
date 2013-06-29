@@ -19,7 +19,6 @@
 package org.picketlink.idm.spi;
 
 import org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
-import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.model.AttributedType;
 
 /**
@@ -28,15 +27,7 @@ import org.picketlink.idm.model.AttributedType;
  * @author Shane Bryzak
  *
  */
-public interface StoreFactory {
-    /**
-     * Creates an instance of an IdentityStore using the provided configuration
-     *
-     * @param config
-     * @return
-     */
-    <T extends IdentityStoreConfiguration> IdentityStore<T> createIdentityStore(T config, IdentityContext context);
-
+public interface StoreSelector {
     /**
      *
      * @param context
