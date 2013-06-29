@@ -23,9 +23,8 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
@@ -46,7 +45,6 @@ import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
 import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
-import sun.management.resources.agent;
 
 /**
  * <p>
@@ -106,13 +104,12 @@ public class LDAPIdentityStoreTestSuite extends LDAPAbstractSuite implements Tes
     }
 
     @Override
-    public IdentityManagerFactory createIdentityManagerFactory() {
+    public PartitionManager createPartitionManager() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
             .stores()
                 .ldap()
-<<<<<<< HEAD
                     .baseDN(BASE_DN)
                     .bindDN("uid=admin,ou=system")
                     .bindCredential("secret")
@@ -123,27 +120,9 @@ public class LDAPIdentityStoreTestSuite extends LDAPAbstractSuite implements Tes
                     .groupDNSuffix(GROUP_DN_SUFFIX)
                     .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
                     .supportAllFeatures();
-=======
-                    .baseDN(getBaseDn())
-                    .bindDN(getBindDn())
-                    .bindCredential(getBindCredential())
-                    .url(getConnectionUrl())
-                    .userDNSuffix(getUserDnSuffix())
-                    .roleDNSuffix(getRolesDnSuffix())
-                    .agentDNSuffix(getAgentDnSuffix())
-                    .groupDNSuffix(getGroupDnSuffix())
-                    .addGroupMapping("/QA Group", "ou=QA," + getBaseDn())
-                    .supportFeature(FeatureGroup.user, 
-                                    FeatureGroup.agent, 
-                                    FeatureGroup.user, 
-                                    FeatureGroup.group,
-                                    FeatureGroup.role, 
-                                    FeatureGroup.attribute, 
-                                    FeatureGroup.relationship, 
-                                    FeatureGroup.credential);
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 
-        return new IdentityManagerFactory(builder.build());
+        return null;
+//        return new IdentityManagerFactory(builder.build());
     }
 
 }

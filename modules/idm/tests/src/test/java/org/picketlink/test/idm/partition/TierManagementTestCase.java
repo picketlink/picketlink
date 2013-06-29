@@ -21,29 +21,14 @@ package org.picketlink.test.idm.partition;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
-<<<<<<< HEAD
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.Tier;
-=======
-import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleGroup;
-import org.picketlink.idm.model.SimpleRole;
-import org.picketlink.idm.model.SimpleUser;
-import org.picketlink.idm.model.Tier;
-import org.picketlink.idm.model.User;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -66,7 +51,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     public void testRolesForTier() throws Exception {
         IdentityManager applicationTierIdentityManager = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
-        Role testingRole = new SimpleRole("Role");
+        Role testingRole = new Role("Role");
 
         applicationTierIdentityManager.add(testingRole);
 
@@ -87,7 +72,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     public void testGroupsForTier() throws Exception {
         IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
-        Group testingGroup = new SimpleGroup("testingGroupTier");
+        Group testingGroup = new Group("testingGroupTier");
 
         applicationA.add(testingGroup);
 
@@ -108,13 +93,13 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     public void testCreateSameRoleDifferentTiers() throws Exception {
         IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
-        Role roleA = new SimpleRole("Role");
+        Role roleA = new Role("Role");
 
         applicationA.add(roleA);
 
         try {
             // we can not add this role with the same name
-            applicationA.add(new SimpleRole(roleA.getName()));
+            applicationA.add(new Role(roleA.getName()));
             fail();
         } catch (IdentityManagementException e) {
         }
@@ -123,7 +108,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager applicationB = createIdentityManagerForTier(APPLICATION_B_TIER_NAME);
 
-        Role roleB = new SimpleRole("Role");
+        Role roleB = new Role("Role");
 
         applicationB.add(roleB);
 
@@ -137,13 +122,13 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     public void testCreateSameGroupDifferentTiers() throws Exception {
         IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
-        Group groupA = new SimpleGroup("Role");
+        Group groupA = new Group("Group");
 
         applicationA.add(groupA);
 
         try {
             // we can not add this role with the same name
-            applicationA.add(new SimpleGroup(groupA.getName()));
+            applicationA.add(new Group(groupA.getName()));
             fail();
         } catch (IdentityManagementException e) {
         }
@@ -152,7 +137,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager applicationB = createIdentityManagerForTier(APPLICATION_B_TIER_NAME);
 
-        Group groupB = new SimpleGroup("Role");
+        Group groupB = new Group("Group");
 
         applicationB.add(groupB);
 
@@ -166,13 +151,13 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     public void testCreateSameGroupDifferentRealms() throws Exception {
         IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
-        Group groupA = new SimpleGroup("Group");
+        Group groupA = new Group("Group");
 
         applicationA.add(groupA);
 
         try {
             // we can not add this role with the same name
-            applicationA.add(new SimpleGroup(groupA.getName()));
+            applicationA.add(new Group(groupA.getName()));
             fail();
         } catch (Exception e) {
         }
@@ -183,7 +168,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager applicationB = createIdentityManagerForTier(APPLICATION_B_TIER_NAME);
 
-        Group groupB = new SimpleGroup("Group");
+        Group groupB = new Group("Group");
 
         applicationB.add(groupB);
 
@@ -197,9 +182,9 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     public void testGrantUserRoles() throws Exception {
         IdentityManager acmeRealm = getIdentityManager();
 
-        User john = new SimpleUser("John");
-        User bill = new SimpleUser("Bill");
-        User mary = new SimpleUser("Mary");
+        User john = new User("John");
+        User bill = new User("Bill");
+        User mary = new User("Mary");
 
         acmeRealm.add(john);
         acmeRealm.add(bill);
@@ -211,15 +196,15 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
         String roleCName = "Role C";
         String roleBName = "Role B";
 
-        applicationA.add(new SimpleRole(roleAName));
+        applicationA.add(new Role(roleAName));
 
         IdentityManager applicationB = createIdentityManagerForTier(APPLICATION_B_TIER_NAME);
 
-        applicationB.add(new SimpleRole(roleBName));
+        applicationB.add(new Role(roleBName));
 
         IdentityManager applicationC = createIdentityManagerForTier(APPLICATION_C_TIER_NAME);
 
-        applicationC.add(new SimpleRole(roleCName));
+        applicationC.add(new Role(roleCName));
 
         assertNull(acmeRealm.getRole(roleAName));
         assertNull(acmeRealm.getRole(roleBName));
@@ -270,9 +255,9 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     public void testGrantUserGroups() throws Exception {
         IdentityManager acmeRealm = getIdentityManager();
 
-        User john = new SimpleUser("John");
-        User bill = new SimpleUser("Bill");
-        User mary = new SimpleUser("Mary");
+        User john = new User("John");
+        User bill = new User("Bill");
+        User mary = new User("Mary");
 
         acmeRealm.add(john);
         acmeRealm.add(bill);
@@ -280,15 +265,15 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
-        applicationA.add(new SimpleGroup("Group A"));
+        applicationA.add(new Group("Group A"));
 
         IdentityManager applicationB = createIdentityManagerForTier(APPLICATION_B_TIER_NAME);
 
-        applicationB.add(new SimpleGroup("Group B"));
+        applicationB.add(new Group("Group B"));
 
         IdentityManager applicationC = createIdentityManagerForTier(APPLICATION_C_TIER_NAME);
 
-        applicationC.add(new SimpleGroup("Group C"));
+        applicationC.add(new Group("Group C"));
 
         acmeRealm.addToGroup(john, applicationA.getGroup("Group A"));
 
@@ -313,13 +298,13 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     public void testGrantSameRoleToTierAndRealm() throws Exception {
         IdentityManager acmeRealm = getIdentityManager();
 
-        Role realmRole = new SimpleRole("Role");
+        Role realmRole = new Role("Role");
 
         acmeRealm.add(realmRole);
 
         IdentityManager application = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
-        Role applicationRole = new SimpleRole("Role");
+        Role applicationRole = new Role("Role");
 
         application.add(applicationRole);
 
@@ -328,13 +313,13 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(realmRole.getId().equals(applicationRole.getId()));
 
-        applicationRole = new SimpleRole("Another Role");
+        applicationRole = new Role("Another Role");
 
         application.add(applicationRole);
 
         assertNull(acmeRealm.getRole("Another Role"));
 
-        realmRole = new SimpleRole("Another Role");
+        realmRole = new Role("Another Role");
 
         acmeRealm.add(realmRole);
 
@@ -357,7 +342,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     }
 
     private IdentityManager createIdentityManagerForTier(String tierName) {
-        return getIdentityManagerFactory().createIdentityManager(getIdentityManagerFactory().getTier(tierName));
+        return getPartitionManager().createIdentityManager(getPartitionManager().getPartition(Tier.class, tierName));
     }
 
 }

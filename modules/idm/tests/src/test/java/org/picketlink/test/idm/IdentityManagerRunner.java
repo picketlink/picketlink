@@ -18,6 +18,9 @@
 
 package org.picketlink.test.idm;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Ignore;
 import org.junit.internal.AssumptionViolatedException;
 import org.junit.internal.runners.model.EachTestNotifier;
@@ -30,11 +33,7 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.internal.PartitionManager;
-
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
+import org.picketlink.idm.PartitionManager;
 
 /**
  * <p>
@@ -136,10 +135,10 @@ public class IdentityManagerRunner extends Suite {
                     Object createTest = super.createTest();
 
                     try {
-                        Method identityManagerFactorySetter = createTest.getClass().getMethod("setIdentityManagerFactory", 
+                        Method identityManagerFactorySetter = createTest.getClass().getMethod("setPartitionManager",
                                 new Class[] { PartitionManager.class });
 
-                        identityManagerFactorySetter.invoke(createTest, lifecycle.createIdentityManagerFactory());
+                        identityManagerFactorySetter.invoke(createTest, lifecycle.createPartitionManager());
                     } catch (Exception e) {
                         throw e;
                     }

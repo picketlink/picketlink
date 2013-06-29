@@ -37,7 +37,7 @@ public interface IdentityStoreConfiguration {
     /**
      * <p>Supported operations for @{AttributedType} types.</p>
      */
-    public enum TypeOperation {
+    enum TypeOperation {
         create, read, update, delete
     }
 

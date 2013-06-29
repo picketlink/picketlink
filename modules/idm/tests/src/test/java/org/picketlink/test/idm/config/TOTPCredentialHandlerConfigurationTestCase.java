@@ -30,13 +30,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.TOTPCredential;
 import org.picketlink.idm.credential.TOTPCredentials;
 import org.picketlink.idm.credential.totp.TimeBasedOTP;
-import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -46,11 +46,10 @@ import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
-import org.picketlink.idm.model.Realm;
-import org.picketlink.idm.model.SimpleUser;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.User;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import static org.picketlink.idm.credential.internal.TOTPCredentialHandler.DELAY_WINDOW;
 import static org.picketlink.idm.credential.internal.TOTPCredentialHandler.INTERVAL_SECONDS;
 import static org.picketlink.idm.credential.internal.TOTPCredentialHandler.NUMBER_DIGITS;
@@ -197,7 +196,6 @@ public class TOTPCredentialHandlerConfigurationTestCase {
                             return entityManager;
                         }
                     })
-                    .addRealm(Realm.DEFAULT_REALM)
                     .supportAllFeatures()
                     .identityClass(IdentityObject.class)
                     .attributeClass(IdentityObjectAttribute.class)
@@ -208,9 +206,10 @@ public class TOTPCredentialHandlerConfigurationTestCase {
                     .credentialAttributeClass(CredentialObjectAttribute.class)
                     .partitionClass(PartitionObject.class);
 
-        IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(builder.build());
+        PartitionManager partitionManager = null;
+        fail("Create PartitionManager");
 
-        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+        IdentityManager identityManager = partitionManager.createIdentityManager();
 
         createUser(identityManager);
 
@@ -218,7 +217,7 @@ public class TOTPCredentialHandlerConfigurationTestCase {
     }
 
     private void createUser(IdentityManager identityManager) {
-        User user = new SimpleUser(USER_NAME);
+        User user = new User(USER_NAME);
 
         identityManager.add(user);
 

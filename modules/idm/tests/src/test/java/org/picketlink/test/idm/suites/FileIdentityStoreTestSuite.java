@@ -21,11 +21,10 @@ package org.picketlink.test.idm.suites;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.model.sample.Authorization;
-import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.internal.PartitionManager;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -34,8 +33,8 @@ import org.picketlink.test.idm.basic.RoleManagementTestCase;
 import org.picketlink.test.idm.basic.UserManagementTestCase;
 import org.picketlink.test.idm.credential.CertificateCredentialTestCase;
 import org.picketlink.test.idm.credential.DigestCredentialTestCase;
-import org.picketlink.test.idm.credential.TOTPCredentialTestCase;
 import org.picketlink.test.idm.credential.PasswordCredentialTestCase;
+import org.picketlink.test.idm.credential.TOTPCredentialTestCase;
 import org.picketlink.test.idm.partition.RealmManagementTestCase;
 import org.picketlink.test.idm.partition.TierManagementTestCase;
 import org.picketlink.test.idm.query.AgentQueryTestCase;
@@ -88,19 +87,18 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     @SuppressWarnings("unchecked")
     @Override
-    public PartitionManager createIdentityManagerFactory() {
+    public PartitionManager createPartitionManager() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
         
         builder
             .stores()
                 .file()
                     .preserveState(false)
-                    .addRealm(Realm.DEFAULT_REALM, "Testing")
-                    .addTier("Application A", "Application B", "Application C")
                     .supportAllFeatures()
-                    .supportRelationshipType(CustomRelationship.class, Authorization.class);
-        
-        return new PartitionManager(builder.build());
+                    .supportType(CustomRelationship.class, Authorization.class);
+
+        return null;
+//        return new PartitionManager(builder.build());
     }
 
     @Override

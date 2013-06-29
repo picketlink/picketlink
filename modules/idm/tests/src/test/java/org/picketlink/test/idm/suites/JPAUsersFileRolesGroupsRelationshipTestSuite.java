@@ -6,25 +6,19 @@ import javax.persistence.Persistence;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
-import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
 import org.picketlink.idm.jpa.schema.IdentityObject;
 import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
 import org.picketlink.idm.jpa.schema.PartitionObject;
-import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
-import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.Authorization;
-import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.Realm;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.Authorization;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -46,6 +40,7 @@ import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
 import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
+import static org.junit.runners.Suite.SuiteClasses;
 
 /**
  * <p>
@@ -101,7 +96,7 @@ public class JPAUsersFileRolesGroupsRelationshipTestSuite implements TestLifecyc
 
     @SuppressWarnings("unchecked")
     @Override
-    public IdentityManagerFactory createIdentityManagerFactory() {
+    public PartitionManager createPartitionManager() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
@@ -112,17 +107,10 @@ public class JPAUsersFileRolesGroupsRelationshipTestSuite implements TestLifecyc
                     .credentialAttributeClass(CredentialObjectAttribute.class)
                     .attributeClass(IdentityObjectAttribute.class)
                     .partitionClass(PartitionObject.class)
-                    .addRealm(Realm.DEFAULT_REALM, "Testing")
-<<<<<<< HEAD
-                    .supportIdentityType(Agent.class)
-                    .supportIdentityType(User.class)
-=======
-                    .addTier("Application A", "Application B", "Application C")
-                    .supportFeature(FeatureGroup.agent)
-                    .supportFeature(FeatureGroup.user)
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
-                    .supportFeature(FeatureGroup.credential)
-                    .supportFeature(FeatureGroup.attribute)
+                    .supportType(Agent.class)
+                    .supportType(User.class)
+                    .supportCredentials(true)
+//                    .supportFeature(FeatureGroup.attribute)
                     .addContextInitializer(new JPAContextInitializer(emf) {
                         @Override
                         public EntityManager getEntityManager() {
@@ -130,20 +118,14 @@ public class JPAUsersFileRolesGroupsRelationshipTestSuite implements TestLifecyc
                         }
                     })
                 .file()
-                    .addRealm(Realm.DEFAULT_REALM, "Testing")
-<<<<<<< HEAD
-                    .supportIdentityType(Group.class)
-                    .supportIdentityType(Role.class)
-=======
-                    .addTier("Application A", "Application B", "Application C")
-                    .supportFeature(FeatureGroup.group)
-                    .supportFeature(FeatureGroup.role)
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
-                    .supportFeature(FeatureGroup.attribute)
-                    .supportFeature(FeatureGroup.relationship)
-                    .supportRelationshipType(CustomRelationship.class, Authorization.class);
+                    .supportType(Group.class)
+                    .supportType(Role.class)
+//                    .supportFeature(FeatureGroup.attribute)
+//                    .supportFeature(FeatureGroup.relationship)
+                    .supportType(CustomRelationship.class, Authorization.class);
 
-        return new IdentityManagerFactory(builder.build());
+        return null;
+//        return new IdentityManagerFactory(builder.build());
     }
 
     @Override

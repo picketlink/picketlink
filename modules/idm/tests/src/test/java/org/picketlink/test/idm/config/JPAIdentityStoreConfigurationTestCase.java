@@ -22,15 +22,15 @@
 
 package org.picketlink.test.idm.config;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.FeatureSet;
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
 import org.picketlink.idm.config.JPAStoreConfigurationBuilder;
 import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.config.SecurityConfigurationException;
@@ -50,11 +50,6 @@ import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.relationship.CustomRelationship;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -209,13 +204,12 @@ public class JPAIdentityStoreConfigurationTestCase extends
         identityManager = createIdentityManager(builder.build());
 
         try {
-        identityManager.updateCredential(user, password);
-        fail();
+            identityManager.updateCredential(user, password);
+            fail();
         } catch (OperationNotSupportedException one) {
-        assertTrue(one.getFeatureGroup().equals(FeatureGroup.credential));
-        assertTrue(one.getOperation().equals(FeatureSet.FeatureOperation.update));
+            fail("Check exception.");
         } catch (Exception e) {
-        fail();
+            fail();
         }
     }
 
@@ -230,12 +224,12 @@ public class JPAIdentityStoreConfigurationTestCase extends
         addContextInitializers(jpaConfig);
 
         try {
-        createIdentityManager(builder.build());
-        fail();
+            createIdentityManager(builder.build());
+            fail();
         } catch (SecurityConfigurationException sce) {
-        assertTrue(sce.getMessage().toLowerCase().contains("identityclass not set"));
+            assertTrue(sce.getMessage().toLowerCase().contains("identityclass not set"));
         } catch (Exception e) {
-        fail();
+            fail();
         }
     }
 
@@ -278,11 +272,10 @@ public class JPAIdentityStoreConfigurationTestCase extends
         jpaConfig.credentialAttributeClass(CredentialObjectAttribute.class);
 
         // enabled basic features
-        jpaConfig.supportIdentityType(User.class, Role.class, Group.class);
-        jpaConfig.supportFeature(FeatureGroup.relationship, FeatureGroup.credential);
+        jpaConfig.supportAllFeatures();
 
         // enable the custom relationship class
-        jpaConfig.supportRelationshipType(CustomRelationship.class);
+        jpaConfig.supportType(CustomRelationship.class);
 
         return jpaConfig;
     }

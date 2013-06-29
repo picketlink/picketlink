@@ -24,7 +24,6 @@ package org.picketlink.test.idm.config;
 
 import org.picketlink.idm.config.FileStoreConfigurationBuilder;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
 
 /**
  * <p>

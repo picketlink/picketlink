@@ -22,10 +22,15 @@
 
 package org.picketlink.test.idm.config;
 
+import java.util.Date;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.AbstractBaseCredentials;
 import org.picketlink.idm.credential.Credentials.Status;
@@ -40,21 +45,15 @@ import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
-import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityContext;
-import org.picketlink.internal.PartitionManager;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import java.util.Date;
-
+import org.picketlink.idm.spi.IdentityStore;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * <p>Some tests for the configuration of custom {@link CredentialHandler}.</p>
@@ -108,9 +107,11 @@ public class CredentialHandlerConfigurationTestCase {
                     .credentialAttributeClass(CredentialObjectAttribute.class)
                     .partitionClass(PartitionObject.class);
 
-        PartitionManager identityManagerFactory = new PartitionManager(builder.build());
+//        PartitionManager partitionManager = new PartitionManager(builder.build());
+        PartitionManager partitionManager = null;
+        fail("Create PartitionManager");
 
-        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+        IdentityManager identityManager = partitionManager.createIdentityManager();
 
         User user = new User("user");
 
@@ -159,9 +160,10 @@ public class CredentialHandlerConfigurationTestCase {
                     .credentialAttributeClass(CredentialObjectAttribute.class)
                     .partitionClass(PartitionObject.class);
 
-        PartitionManager identityManagerFactory = new PartitionManager(builder.build());
+        PartitionManager partitionManager = null;
+        fail("Create PartitionManager");
 
-        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+        IdentityManager identityManager = partitionManager.createIdentityManager();
 
         User user = new User("user");
 
@@ -209,7 +211,7 @@ public class CredentialHandlerConfigurationTestCase {
         }
 
         @Override
-        public void update(IdentityContext context, Agent agent, Object credential, IdentityStore<?> identityStore,
+        public void update(IdentityContext context, Account agent, Object credential, IdentityStore<?> identityStore,
                 Date effectiveDate, Date expiryDate) {
             wasUpdateCalled = true;   
         }

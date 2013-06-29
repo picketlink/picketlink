@@ -22,7 +22,6 @@ import org.picketlink.idm.model.AbstractAttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.AttributeProperty;
-import org.picketlink.idm.model.annotation.IdentityProperty;
 import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
@@ -65,7 +64,7 @@ public class CustomRelationship extends AbstractAttributedType implements Relati
     private String attributeB;
     private String attributeC;
 
-    @IdentityProperty
+//    @IdentityProperty
     public IdentityType getIdentityTypeA() {
         return this.identityTypeA;
     }
@@ -74,7 +73,7 @@ public class CustomRelationship extends AbstractAttributedType implements Relati
         this.identityTypeA = identityTypeA;
     }
 
-    @IdentityProperty
+//    @IdentityProperty
     public IdentityType getIdentityTypeB() {
         return this.identityTypeB;
     }
@@ -83,7 +82,7 @@ public class CustomRelationship extends AbstractAttributedType implements Relati
         this.identityTypeB = identityTypeB;
     }
 
-    @IdentityProperty
+//    @IdentityProperty
     public IdentityType getIdentityTypeC() {
         return this.identityTypeC;
     }

@@ -24,7 +24,6 @@ package org.picketlink.idm.config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -61,6 +60,7 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
 
     private final List<Class<? extends CredentialHandler>> credentialHandlers;
     private final Map<String, Object> credentialHandlerProperties;
+    private boolean supportCredentials;
 
     private final List<ContextInitializer> contextInitializers;
 
@@ -107,12 +107,16 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
     }
 
     @Override
-    public S unsupportType(Class<? extends AttributedType> type) {
+    public S unsupportType(Class<? extends AttributedType> type, TypeOperation... operations) {
         if (!this.unsupportedTypes.containsKey(type)) {
             this.unsupportedTypes.put(type, new HashSet<TypeOperation>());
         }
 
-        for (TypeOperation op : TypeOperation.values()) {
+        if (operations != null && operations.length == 0) {
+            operations = TypeOperation.values();
+        }
+
+        for (TypeOperation op : operations) {
             this.unsupportedTypes.get(type).add(op);
         }
 
@@ -139,6 +143,12 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
     @Override
     public S addCredentialHandler(Class<? extends CredentialHandler> credentialHandler) {
         this.credentialHandlers.add(credentialHandler);
+        return (S) this;
+    }
+
+    @Override
+    public S supportCredentials(boolean supportCredentials) {
+        this.supportCredentials = supportCredentials;
         return (S) this;
     }
 

@@ -27,7 +27,6 @@ public class SecurityConfigurationException extends SecurityException {
     private static final long serialVersionUID = -8895836939958745981L;
 
     public SecurityConfigurationException() {
-        super();
     }
 
     public SecurityConfigurationException(String message, Throwable cause) {

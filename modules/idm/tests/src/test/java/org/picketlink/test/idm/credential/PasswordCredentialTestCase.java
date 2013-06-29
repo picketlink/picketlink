@@ -18,23 +18,16 @@
 
 package org.picketlink.test.idm.credential;
 
-<<<<<<< HEAD
-=======
 import java.util.Calendar;
 import java.util.Date;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
-<<<<<<< HEAD
-import org.picketlink.idm.model.sample.User;
-=======
 import org.picketlink.idm.internal.util.IDMUtil;
-import org.picketlink.idm.model.User;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
@@ -45,11 +38,6 @@ import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsRelationshipsTestSu
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-
-import java.util.Calendar;
-import java.util.Date;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * <p>

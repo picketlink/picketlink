@@ -18,10 +18,7 @@
 
 package org.picketlink.test.idm.query;
 
-<<<<<<< HEAD
-=======
 import java.util.List;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
@@ -40,12 +37,6 @@ import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuit
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsFileRelationshipTestSuite;
 import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsRelationshipsTestSuite;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-
-import java.util.List;
-
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;

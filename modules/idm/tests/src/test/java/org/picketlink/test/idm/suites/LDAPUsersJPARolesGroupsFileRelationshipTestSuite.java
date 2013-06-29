@@ -8,27 +8,19 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
-import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.schema.IdentityObject;
 import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
 import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityWeakObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
-import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
-import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.Authorization;
-<<<<<<< HEAD
-import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.User;
-=======
-import org.picketlink.idm.model.Realm;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -44,7 +36,6 @@ import org.picketlink.test.idm.query.UserQueryTestCase;
 import org.picketlink.test.idm.relationship.AgentGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupRoleRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupsRelationshipTestCase;
-import org.picketlink.test.idm.relationship.CustomRelationship;
 import org.picketlink.test.idm.relationship.CustomRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
@@ -111,13 +102,12 @@ public class LDAPUsersJPARolesGroupsFileRelationshipTestSuite extends LDAPAbstra
 
     @SuppressWarnings("unchecked")
     @Override
-    public IdentityManagerFactory createIdentityManagerFactory() {
+    public PartitionManager createPartitionManager() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
             .stores()
                 .ldap()
-<<<<<<< HEAD
                     .baseDN(BASE_DN)
                     .bindDN("uid=admin,ou=system")
                     .bindCredential("secret")
@@ -127,50 +117,31 @@ public class LDAPUsersJPARolesGroupsFileRelationshipTestSuite extends LDAPAbstra
                     .agentDNSuffix(AGENT_DN_SUFFIX)
                     .groupDNSuffix(GROUP_DN_SUFFIX)
                     .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
-                    .supportIdentityType(Agent.class)
-                    .supportIdentityType(User.class)
-=======
-                    .addRealm(Realm.DEFAULT_REALM)
-                    .addTier("Application A", "Application B", "Application C")
-                    .baseDN(getBaseDn())
-                    .bindDN(getBindDn())
-                    .bindCredential(getBindCredential())
-                    .url(getConnectionUrl())
-                    .userDNSuffix(getUserDnSuffix())
-                    .roleDNSuffix(getRolesDnSuffix())
-                    .agentDNSuffix(getAgentDnSuffix())
-                    .groupDNSuffix(getGroupDnSuffix())
-                    .addGroupMapping("/QA Group", "ou=QA," + getBaseDn())
-                    .supportFeature(FeatureGroup.agent)
-                    .supportFeature(FeatureGroup.user)
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
-                    .supportFeature(FeatureGroup.credential)
-                    .supportFeature(FeatureGroup.attribute)
+                    .supportType(Agent.class)
+                    .supportType(User.class)
+                    .supportCredentials(true)
                 .jpa()
-                    .addRealm(Realm.DEFAULT_REALM)
-                    .addTier("Application A", "Application B", "Application C")
                     .identityClass(IdentityObject.class)
                     .attributeClass(IdentityObjectAttribute.class)
                     .relationshipClass(RelationshipObject.class)
                     .relationshipIdentityClass(RelationshipIdentityWeakObject.class)
                     .relationshipAttributeClass(RelationshipObjectAttribute.class)
                     .partitionClass(PartitionObject.class)
-                    .supportIdentityType(Role.class)
-                    .supportIdentityType(Group.class)
-                    .supportFeature(FeatureGroup.attribute)
+                    .supportType(Role.class)
+                    .supportType(Group.class)
+//                    .supportFeature(FeatureGroup.attribute)
                     .addContextInitializer(new JPAContextInitializer(emf) {
                         @Override
                         public EntityManager getEntityManager() {
                             return entityManager;
                         }
                     })
-                .file()
-                    .addRealm(Realm.DEFAULT_REALM)
-                    .addTier("Application A", "Application B", "Application C")
-                    .supportFeature(FeatureGroup.relationship)
-                    .supportRelationshipType(CustomRelationship.class, Authorization.class);
+                .file();
+//                    .supportFeature(FeatureGroup.relationship)
+//                    .supportRelationshipType(CustomRelationship.class, Authorization.class);
 
-        return new IdentityManagerFactory(builder.build());
+        return null;
+//        return new IdentityManagerFactory(builder.build());
     }
 
     @Override
