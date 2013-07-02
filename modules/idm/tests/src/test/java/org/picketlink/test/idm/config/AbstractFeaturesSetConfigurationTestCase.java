@@ -27,6 +27,7 @@ import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
@@ -91,7 +92,10 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
 
-        IdentityManager identityManager = createIdentityManager(builder.build());
+        IdentityConfiguration configuration = builder.build();
+
+        PartitionManager partitionManager = createPartitionManager(configuration);
+        IdentityManager identityManager = createIdentityManager(configuration);
 
         User user = identityManager.getUser("someUser");
 
@@ -123,9 +127,9 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         identityManager.add(group);
 
-        identityManager.grantRole(user, role);
-        identityManager.grantGroupRole(user, role, group);
-        identityManager.addToGroup(user, group);
+        partitionManager.grantRole(user, role);
+        partitionManager.grantGroupRole(user, role, group);
+        partitionManager.addToGroup(user, group);
     }
 
     @Test
@@ -451,9 +455,9 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         storeConfig.unsupportType(Relationship.class, TypeOperation.read);
 
         try {
-            IdentityManager identityManager = createIdentityManager(builder.build());
+            PartitionManager partitionManager = createPartitionManager(builder.build());
 
-            identityManager.createRelationshipQuery(Relationship.class);
+            partitionManager.createRelationshipQuery(Relationship.class);
 
             fail();
         } catch (OperationNotSupportedException one) {
@@ -477,7 +481,10 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         storeConfig.unsupportType(Grant.class, TypeOperation.create);
 
         try {
-            IdentityManager identityManager = createIdentityManager(builder.build());
+            IdentityConfiguration configuration = builder.build();
+
+            PartitionManager partitionManager = createPartitionManager(configuration);
+            IdentityManager identityManager = createIdentityManager(configuration);
 
             User user = new User("someUser");
 
@@ -487,7 +494,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
             performGetCreateRemoveIdentityType(role, identityManager);
 
-            identityManager.add(new Grant(user, role));
+            partitionManager.add(new Grant(user, role));
 
             fail();
         } catch (IdentityManagementException ime) {
@@ -513,7 +520,10 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         
         builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
 
-        IdentityManager identityManager = createIdentityManager(builder.build());
+        IdentityConfiguration configuration = builder.build();
+
+        PartitionManager partitionManager = createPartitionManager(configuration);
+        IdentityManager identityManager = createIdentityManager(configuration);
 
         User user = new User("someUser");
 
@@ -529,7 +539,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         customRelationship.setIdentityTypeB(role);
 
         try {
-            identityManager.add(customRelationship);
+            partitionManager.add(customRelationship);
             fail();
         } catch (IdentityManagementException ime) {
             if (SecurityConfigurationException.class.isInstance(ime.getCause())) {
@@ -556,7 +566,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         identityManager = createIdentityManager(builder.build());
 
         try {
-            identityManager.add(customRelationship);
+            partitionManager.add(customRelationship);
             fail();
         } catch (IdentityManagementException ime) {
             if (OperationNotSupportedException.class.isInstance(ime.getCause())) {
@@ -585,7 +595,10 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         storeConfig.unsupportType(Grant.class, TypeOperation.delete);
 
         try {
-            IdentityManager identityManager = createIdentityManager(builder.build());
+            IdentityConfiguration configuration = builder.build();
+
+            PartitionManager partitionManager = createPartitionManager(configuration);
+            IdentityManager identityManager = createIdentityManager(configuration);
 
             User user = new User("someUser");
 
@@ -597,9 +610,8 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
             Grant grant = new Grant(user, role);
 
-            identityManager.add(grant);
-
-            identityManager.remove(grant);
+            partitionManager.add(grant);
+            partitionManager.remove(grant);
 
             fail();
         } catch (IdentityManagementException ime) {
@@ -692,6 +704,11 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     protected IdentityManager createIdentityManager(IdentityConfiguration config) {
         fail("Create PartitionManager.");
 //        return new DefaultPartitionManager(config).createIdentityManager();
+        return null;
+    }
+
+    protected PartitionManager createPartitionManager(IdentityConfiguration config) {
+        fail("Create PartitionManager.");
         return null;
     }
 

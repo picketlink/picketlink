@@ -22,6 +22,7 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
@@ -101,10 +102,11 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         Group administratorGroup = createGroup("Administrators", null);
         Group someGroup = createGroup("someGroup", null);
 
+        PartitionManager partitionManager = getPartitionManager();
         IdentityManager identityManager = getIdentityManager();
 
-        identityManager.addToGroup(agentType, administratorGroup);
-        identityManager.addToGroup(someAgent, administratorGroup);
+        partitionManager.addToGroup(agentType, administratorGroup);
+        partitionManager.addToGroup(someAgent, administratorGroup);
 
         IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
@@ -117,7 +119,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         assertTrue(contains(result, agentType.getId()));
         assertTrue(contains(result, someAgent.getId()));
 
-        identityManager.addToGroup(agentType, someGroup);
+        partitionManager.addToGroup(agentType, someGroup);
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
@@ -139,9 +141,10 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         Role someRole = createRole("someRole");
 
         IdentityManager identityManager = getIdentityManager();
+        PartitionManager partitionManager = getPartitionManager();
 
-        identityManager.grantRole(agentType, administratorRole);
-        identityManager.grantRole(someAgent, administratorRole);
+        partitionManager.grantRole(agentType, administratorRole);
+        partitionManager.grantRole(someAgent, administratorRole);
 
         IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
@@ -154,7 +157,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         assertTrue(contains(result, agentType.getId()));
         assertTrue(contains(result, someAgent.getId()));
 
-        identityManager.grantRole(agentType, someRole);
+        partitionManager.grantRole(agentType, someRole);
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
@@ -190,7 +193,9 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         assertTrue(result.isEmpty());
 
-        identityManager.grantGroupRole(agentType, managerRole, salesGroup);
+        PartitionManager partitionManager = getPartitionManager();
+
+        partitionManager.grantGroupRole(agentType, managerRole, salesGroup);
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
@@ -224,7 +229,9 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         assertTrue(result.isEmpty());
 
-        identityManager.addToGroup(agentType, administratorGroup);
+        PartitionManager partitionManager = getPartitionManager();
+
+        partitionManager.addToGroup(agentType, administratorGroup);
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
@@ -258,7 +265,9 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         assertTrue(result.isEmpty());
 
-        identityManager.grantRole(agentType, administratorRole);
+        PartitionManager partitionManager = getPartitionManager();
+
+        partitionManager.grantRole(agentType, administratorRole);
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
@@ -284,9 +293,10 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         Group someGroup = createGroup("someGroup", null);
 
         IdentityManager identityManager = getIdentityManager();
+        PartitionManager partitionManager = getPartitionManager();
 
-        identityManager.addToGroup(agentType, administratorGroup);
-        identityManager.addToGroup(agentType, someGroup);
+        partitionManager.addToGroup(agentType, administratorGroup);
+        partitionManager.addToGroup(agentType, someGroup);
 
         IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
@@ -297,7 +307,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         assertFalse(result.isEmpty());
         assertEquals(agentType.getId(), result.get(0).getId());
 
-        identityManager.removeFromGroup(agentType, someGroup);
+        partitionManager.removeFromGroup(agentType, someGroup);
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
@@ -331,9 +341,10 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         Role someRole = createRole("someRole");
 
         IdentityManager identityManager = getIdentityManager();
+        PartitionManager partitionManager = getPartitionManager();
 
-        identityManager.grantRole(agentType, administratorRole);
-        identityManager.grantRole(agentType, someRole);
+        partitionManager.grantRole(agentType, administratorRole);
+        partitionManager.grantRole(agentType, someRole);
 
         IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
@@ -344,7 +355,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         assertFalse(result.isEmpty());
         assertEquals(agentType.getId(), result.get(0).getId());
 
-        identityManager.revokeRole(agentType, someRole);
+        partitionManager.revokeRole(agentType, someRole);
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
@@ -380,9 +391,10 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         Group someGroup = createGroup("someGroup", null);
 
         IdentityManager identityManager = getIdentityManager();
+        PartitionManager partitionManager = getPartitionManager();
 
-        identityManager.addToGroup(agentType, administratorGroup);
-        identityManager.addToGroup(someAgent, administratorGroup);
+        partitionManager.addToGroup(agentType, administratorGroup);
+        partitionManager.addToGroup(someAgent, administratorGroup);
 
         IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
@@ -394,7 +406,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         assertTrue(contains(result, agentType.getId()));
         assertTrue(contains(result, someAgent.getId()));
 
-        identityManager.addToGroup(agentType, someGroup);
+        partitionManager.addToGroup(agentType, someGroup);
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
@@ -424,9 +436,10 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         Role someRole = createRole("someRole");
 
         IdentityManager identityManager = getIdentityManager();
+        PartitionManager partitionManager = getPartitionManager();
 
-        identityManager.grantRole(agentType, administratorRole);
-        identityManager.grantRole(someagent, administratorRole);
+        partitionManager.grantRole(agentType, administratorRole);
+        partitionManager.grantRole(someagent, administratorRole);
 
         IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
@@ -438,7 +451,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         assertTrue(contains(result, agentType.getId()));
         assertTrue(contains(result, someagent.getId()));
 
-        identityManager.grantRole(agentType, someRole);
+        partitionManager.grantRole(agentType, someRole);
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 

@@ -19,6 +19,7 @@ package org.picketlink.test.idm.usecases;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Authorization;
 import org.picketlink.idm.model.sample.User;
@@ -65,11 +66,13 @@ public class ApplicationUserRelationshipTestCase extends AbstractIdentityManager
         authorized.setAuthorizationCode(authorizationCode);
         authorized.setAccessToken(accessToken);
         authorized.setRefreshToken(refreshToken);
-        
-        identityManager.add(authorized);
+
+        PartitionManager partitionManager = getPartitionManager();
+
+        partitionManager.add(authorized);
         
         //Query the relationship
-        RelationshipQuery<Authorization> query = identityManager.createRelationshipQuery(Authorization.class);
+        RelationshipQuery<Authorization> query = partitionManager.createRelationshipQuery(Authorization.class);
         
         query.setParameter(Authorization.USER, robert);
         query.setParameter(Authorization.APPLICATION, myOauthApp);
@@ -85,7 +88,7 @@ public class ApplicationUserRelationshipTestCase extends AbstractIdentityManager
         assertNotNull(authorized.getApplication());
         assertNotNull(authorized.getAuthorizationCode());
         
-        query = identityManager.createRelationshipQuery(Authorization.class);
+        query = partitionManager.createRelationshipQuery(Authorization.class);
         
         query.setParameter(Authorization.APPLICATION, myOauthApp);
         
@@ -96,7 +99,7 @@ public class ApplicationUserRelationshipTestCase extends AbstractIdentityManager
         assertNotNull(authorized.getUser());
         assertNotNull(authorized.getApplication());
         
-        query = identityManager.createRelationshipQuery(Authorization.class);
+        query = partitionManager.createRelationshipQuery(Authorization.class);
         
         query.setParameter(Authorization.USER, robert);
         
@@ -109,7 +112,7 @@ public class ApplicationUserRelationshipTestCase extends AbstractIdentityManager
         
         User someUser = createUser("someUser");
         
-        query = identityManager.createRelationshipQuery(Authorization.class);
+        query = partitionManager.createRelationshipQuery(Authorization.class);
         
         query.setParameter(Authorization.USER, someUser);
         query.setParameter(Authorization.APPLICATION, myOauthApp);
@@ -120,9 +123,9 @@ public class ApplicationUserRelationshipTestCase extends AbstractIdentityManager
         assertTrue(result.isEmpty());
         
         // remove the relationship
-        identityManager.remove(authorized);
+        partitionManager.remove(authorized);
         
-        query = identityManager.createRelationshipQuery(Authorization.class);
+        query = partitionManager.createRelationshipQuery(Authorization.class);
         
         query.setParameter(Authorization.USER, robert);
         query.setParameter(Authorization.APPLICATION, myOauthApp);

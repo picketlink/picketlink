@@ -21,6 +21,7 @@ package org.picketlink.test.idm.basic;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.GroupRole;
@@ -219,16 +220,18 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
         Role role = createRole("role");
         Group group = createGroup("group", null);
 
-        identityManager.addToGroup(anotherUser, group);
-        identityManager.grantGroupRole(anotherUser, role, group);
+        PartitionManager partitionManager = getPartitionManager();
 
-        RelationshipQuery<?> relationshipQuery = identityManager.createRelationshipQuery(GroupMembership.class);
+        partitionManager.addToGroup(anotherUser, group);
+        partitionManager.grantGroupRole(anotherUser, role, group);
+
+        RelationshipQuery<?> relationshipQuery = partitionManager.createRelationshipQuery(GroupMembership.class);
 
         relationshipQuery.setParameter(GroupMembership.GROUP, group);
 
         assertFalse(relationshipQuery.getResultList().isEmpty());
 
-        relationshipQuery = identityManager.createRelationshipQuery(GroupRole.class);
+        relationshipQuery = partitionManager.createRelationshipQuery(GroupRole.class);
 
         relationshipQuery.setParameter(GroupRole.GROUP, group);
 
@@ -236,13 +239,13 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
         identityManager.remove(group);
 
-        relationshipQuery = identityManager.createRelationshipQuery(GroupMembership.class);
+        relationshipQuery = partitionManager.createRelationshipQuery(GroupMembership.class);
 
         relationshipQuery.setParameter(GroupMembership.GROUP, group);
 
         assertTrue(relationshipQuery.getResultList().isEmpty());
 
-        relationshipQuery = identityManager.createRelationshipQuery(GroupRole.class);
+        relationshipQuery = partitionManager.createRelationshipQuery(GroupRole.class);
 
         relationshipQuery.setParameter(GroupRole.GROUP, group);
 

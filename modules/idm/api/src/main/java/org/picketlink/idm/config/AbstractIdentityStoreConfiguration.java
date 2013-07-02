@@ -24,6 +24,7 @@ import java.util.Set;
 import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
@@ -119,6 +120,10 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
     }
 
     @Override
+    public Set<Class<? extends Relationship>> getSupportedRelationships() {
+        return null;
+    }
+
     public boolean supportsType(Class<? extends AttributedType> type, IdentityOperation operation) {
         if (operation == null) {
             throw IDMMessages.MESSAGES.nullArgument("TypeOperation");

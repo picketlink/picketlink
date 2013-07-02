@@ -24,6 +24,7 @@ package org.picketlink.test.idm.query;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
@@ -47,14 +48,15 @@ public class RelationshipQueryTestCase extends AbstractIdentityManagerTestCase {
         User user = createUser("user");
         Role role = createRole("role");
         Group group = createGroup("group");
-        
+
+        PartitionManager partitionManager = getPartitionManager();
         IdentityManager identityManager = getIdentityManager();
+
+        partitionManager.grantRole(user, role);
+        partitionManager.grantGroupRole(user, role, group);
+        partitionManager.addToGroup(user, group);
         
-        identityManager.grantRole(user, role);
-        identityManager.grantGroupRole(user, role, group);
-        identityManager.addToGroup(user, group);
-        
-        RelationshipQuery<Relationship> query = identityManager.createRelationshipQuery(Relationship.class);
+        RelationshipQuery<Relationship> query = partitionManager.createRelationshipQuery(Relationship.class);
         
         query.setParameter(Relationship.IDENTITY, user);
         
@@ -63,7 +65,7 @@ public class RelationshipQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertEquals(3, result.size());
         
-        query = identityManager.createRelationshipQuery(Relationship.class);
+        query = partitionManager.createRelationshipQuery(Relationship.class);
         
         query.setParameter(Relationship.IDENTITY, role);
         
@@ -72,7 +74,7 @@ public class RelationshipQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
         
-        query = identityManager.createRelationshipQuery(Relationship.class);
+        query = partitionManager.createRelationshipQuery(Relationship.class);
         
         query.setParameter(Relationship.IDENTITY, group);
         
@@ -81,7 +83,7 @@ public class RelationshipQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertEquals(2, result.size());
         
-        query = identityManager.createRelationshipQuery(Relationship.class);
+        query = partitionManager.createRelationshipQuery(Relationship.class);
         
         query.setParameter(Relationship.IDENTITY, user.getId());
         

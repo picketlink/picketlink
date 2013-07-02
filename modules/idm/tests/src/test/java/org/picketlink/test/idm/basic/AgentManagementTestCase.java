@@ -21,6 +21,7 @@ package org.picketlink.test.idm.basic;
 import java.util.Date;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Grant;
@@ -108,24 +109,26 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
         
         Role role = createRole("role");
         Group group = createGroup("group", null);
+
+        PartitionManager partitionManager = getPartitionManager();
+
+        partitionManager.grantRole(anotherAgent, role);
+        partitionManager.addToGroup(anotherAgent, group);
+        partitionManager.grantGroupRole(anotherAgent, role, group);
         
-        identityManager.grantRole(anotherAgent, role);
-        identityManager.addToGroup(anotherAgent, group);
-        identityManager.grantGroupRole(anotherAgent, role, group);
-        
-        RelationshipQuery<?> relationshipQuery = identityManager.createRelationshipQuery(Grant.class);
+        RelationshipQuery<?> relationshipQuery = partitionManager.createRelationshipQuery(Grant.class);
         
         relationshipQuery.setParameter(Grant.ASSIGNEE, anotherAgent);
         
         assertFalse(relationshipQuery.getResultList().isEmpty());
         
-        relationshipQuery = identityManager.createRelationshipQuery(GroupMembership.class);
+        relationshipQuery = partitionManager.createRelationshipQuery(GroupMembership.class);
         
         relationshipQuery.setParameter(GroupMembership.MEMBER, anotherAgent);
         
         assertFalse(relationshipQuery.getResultList().isEmpty());
         
-        relationshipQuery = identityManager.createRelationshipQuery(GroupRole.class);
+        relationshipQuery = partitionManager.createRelationshipQuery(GroupRole.class);
         
         relationshipQuery.setParameter(GroupRole.ASSIGNEE, anotherAgent);
         
@@ -133,19 +136,19 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
         
         identityManager.remove(anotherAgent);
         
-        relationshipQuery = identityManager.createRelationshipQuery(Grant.class);
+        relationshipQuery = partitionManager.createRelationshipQuery(Grant.class);
         
         relationshipQuery.setParameter(Grant.ASSIGNEE, anotherAgent);
         
         assertTrue(relationshipQuery.getResultList().isEmpty());
         
-        relationshipQuery = identityManager.createRelationshipQuery(GroupMembership.class);
+        relationshipQuery = partitionManager.createRelationshipQuery(GroupMembership.class);
         
         relationshipQuery.setParameter(GroupMembership.MEMBER, anotherAgent);
         
         assertTrue(relationshipQuery.getResultList().isEmpty());
         
-        relationshipQuery = identityManager.createRelationshipQuery(GroupRole.class);
+        relationshipQuery = partitionManager.createRelationshipQuery(GroupRole.class);
         
         relationshipQuery.setParameter(GroupRole.ASSIGNEE, anotherAgent);
         
