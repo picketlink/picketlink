@@ -419,7 +419,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
     public RequestSecurityTokenResponse validate(RequestSecurityToken request, Principal callerPrincipal)
             throws WSTrustException {
 
-        logger.trace("Started validation for request " + request.getContext().toString());
+        logger.trace("Started validation for request " + request.getContext());
 
         if (request.getValidateTargetElement() == null)
             throw new WSTrustException(logger.nullValueError("request does not have a validate target. Unable to validate token"));
