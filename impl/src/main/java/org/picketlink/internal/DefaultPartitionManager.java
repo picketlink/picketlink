@@ -42,6 +42,7 @@ import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.PartitionStore;
+import org.picketlink.idm.spi.RelationshipPolicy;
 import org.picketlink.idm.spi.StoreSelector;
 
 /**
@@ -78,14 +79,17 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     private final Map<Partition,IdentityConfiguration> partitionConfigurations = new ConcurrentHashMap<Partition,IdentityConfiguration>();
 
     /**
+     * 
+     */
+    private final RelationshipPolicy relationshipPolicy;
+
+    /**
      *
      */
     private final IdentityConfiguration partitionManagementConfig;
 
-    public DefaultPartitionManager(Map<String,IdentityConfiguration> configurations) {
-        this(configurations,
-             new EventBridge() { public void raiseEvent(Object event) { /* no-op */}},
-             new DefaultIdGenerator());
+    public DefaultPartitionManager(Map<String,IdentityConfiguration> configurations, RelationshipPolicy relationshipPolicy) {
+        this(configurations, relationshipPolicy, null, null);
     }
 
     /**
@@ -95,7 +99,8 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
      * @param storeFactory
      * @param configurations
      */
-    public DefaultPartitionManager(Map<String,IdentityConfiguration> configurations, EventBridge eventBridge, IdGenerator idGenerator) {
+    public DefaultPartitionManager(Map<String,IdentityConfiguration> configurations, RelationshipPolicy relationshipPolicy, 
+            EventBridge eventBridge, IdGenerator idGenerator) {
         this(configurations, eventBridge, idGenerator, null);
     }
 
@@ -107,13 +112,24 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
      * @param configurations
      * @param partitionManagementConfigName
      */
-    public DefaultPartitionManager(Map<String,IdentityConfiguration> configurations, EventBridge eventBridge, IdGenerator idGenerator,
-            String partitionManagementConfigName) {
+    public DefaultPartitionManager(Map<String,IdentityConfiguration> configurations, RelationshipPolicy relationshipPolicy, 
+            EventBridge eventBridge, IdGenerator idGenerator, String partitionManagementConfigName) {
         LOGGER.identityManagerBootstrapping();
 
-        this.eventBridge = eventBridge;
-        this.idGenerator = idGenerator;
+        if (eventBridge != null) {
+            this.eventBridge = eventBridge;
+        } else {
+            this.eventBridge = new EventBridge() { public void raiseEvent(Object event) { /* no-op */}};
+        }
+
+        if (idGenerator != null) {
+            this.idGenerator = idGenerator;
+        } else {
+            this.idGenerator = new DefaultIdGenerator();
+        }
+
         this.configurations = Collections.unmodifiableMap(configurations);
+        this.relationshipPolicy = relationshipPolicy;
 
         if (!StringUtil.isNullOrEmpty(partitionManagementConfigName)) {
             this.partitionManagementConfig = configurations.get(partitionManagementConfigName);
@@ -123,7 +139,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             throw new IllegalArgumentException("The partitionManagementConfigName parameter must be specified " +
                     "when more than one configuration has been provided");
         }
-        
+
         // TODO we're going to create all the identity stores here at initialization time.
     }
 
