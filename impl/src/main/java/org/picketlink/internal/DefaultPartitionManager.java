@@ -20,8 +20,8 @@ package org.picketlink.internal;
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
-import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,15 +30,21 @@ import org.picketlink.idm.DefaultIdGenerator;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.internal.ContextualIdentityManager;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.PartitionStore;
@@ -101,7 +107,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
      */
     public DefaultPartitionManager(Map<String,IdentityConfiguration> configurations, RelationshipPolicy relationshipPolicy, 
             EventBridge eventBridge, IdGenerator idGenerator) {
-        this(configurations, eventBridge, idGenerator, null);
+        this(configurations, relationshipPolicy, eventBridge, idGenerator, null);
     }
 
     /**
@@ -114,7 +120,20 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
      */
     public DefaultPartitionManager(Map<String,IdentityConfiguration> configurations, RelationshipPolicy relationshipPolicy, 
             EventBridge eventBridge, IdGenerator idGenerator, String partitionManagementConfigName) {
+
         LOGGER.identityManagerBootstrapping();
+
+        if (configurations == null || configurations.isEmpty()) {
+            throw new IllegalArgumentException("At least one IdentityConfiguration must be provided");
+        }
+
+        this.configurations = Collections.unmodifiableMap(configurations);
+
+        if (relationshipPolicy != null) {
+            this.relationshipPolicy = relationshipPolicy;
+        } else {
+            this.relationshipPolicy = createDefaultRelationshipPolicy(configurations);
+        }
 
         if (eventBridge != null) {
             this.eventBridge = eventBridge;
@@ -128,8 +147,6 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             this.idGenerator = new DefaultIdGenerator();
         }
 
-        this.configurations = Collections.unmodifiableMap(configurations);
-        this.relationshipPolicy = relationshipPolicy;
 
         if (!StringUtil.isNullOrEmpty(partitionManagementConfigName)) {
             this.partitionManagementConfig = configurations.get(partitionManagementConfigName);
@@ -141,6 +158,19 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         }
 
         // TODO we're going to create all the identity stores here at initialization time.
+    }
+
+    /**
+     * Create a default relationship policy
+     *
+     * @param configurations
+     * @return
+     */
+    private RelationshipPolicy createDefaultRelationshipPolicy(Map<String,IdentityConfiguration> configurations) {
+        // Just take the first configuration found
+        Map<Class<? extends Relationship>, IdentityConfiguration> relationshipConfigs = new HashMap<Class<? extends Relationship>, IdentityConfiguration>();
+        relationshipConfigs.put(Relationship.class, configurations.get(configurations.keySet().iterator().next()));
+        return new RelationshipPolicy(relationshipConfigs);
     }
 
     private IdentityConfiguration getConfigurationForPartition(Partition partition) {
@@ -255,12 +285,6 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     @Override
-    public <T extends IdentityStoreConfiguration> IdentityStore<T> createIdentityStore(T config, IdentityContext context) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public <T extends IdentityStore<?>> T getStoreForType(Class<T> storeType, IdentityContext context,
             Class<? extends AttributedType> type, TypeOperation operation) {
         // TODO Auto-generated method stub
@@ -269,6 +293,84 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     @Override
     public IdentityStore<?> getStoreForCredential(IdentityContext context) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void add(Relationship relationship) throws IdentityManagementException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void update(Relationship relationship) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void remove(Relationship relationship) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public boolean isMember(IdentityType identityType, Group group) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void addToGroup(Agent agent, Group group) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void removeFromGroup(Agent member, Group group) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public boolean hasGroupRole(IdentityType assignee, Role role, Group group) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void grantGroupRole(IdentityType assignee, Role role, Group group) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void revokeGroupRole(IdentityType assignee, Role role, Group group) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public boolean hasRole(IdentityType identityType, Role role) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void grantRole(IdentityType identityType, Role role) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void revokeRole(IdentityType identityType, Role role) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType) {
         // TODO Auto-generated method stub
         return null;
     }
