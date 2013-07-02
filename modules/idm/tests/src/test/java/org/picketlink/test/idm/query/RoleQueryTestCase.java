@@ -22,6 +22,7 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.Tier;
@@ -161,7 +162,9 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         assertFalse(contains(result, someAnotherRole.getId()));
         assertFalse(contains(result, someImportantRole.getId()));
 
-        identityManager.grantRole(user, someRole);
+        PartitionManager partitionManager = getPartitionManager();
+
+        partitionManager.grantRole(user, someRole);
 
         query = identityManager.createIdentityQuery(Role.class);
 
@@ -174,7 +177,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         assertFalse(contains(result, someAnotherRole.getId()));
         assertFalse(contains(result, someImportantRole.getId()));
 
-        identityManager.grantRole(user, someAnotherRole);
+        partitionManager.grantRole(user, someAnotherRole);
 
         query = identityManager.createIdentityQuery(Role.class);
 
@@ -187,7 +190,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         assertTrue(contains(result, someAnotherRole.getId()));
         assertFalse(contains(result, someImportantRole.getId()));
 
-        identityManager.grantRole(user, someImportantRole);
+        partitionManager.grantRole(user, someImportantRole);
 
         query = identityManager.createIdentityQuery(Role.class);
 
@@ -200,7 +203,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         assertTrue(contains(result, someAnotherRole.getId()));
         assertTrue(contains(result, someImportantRole.getId()));
 
-        identityManager.revokeRole(user, someRole);
+        partitionManager.revokeRole(user, someRole);
 
         query.setParameter(Role.ROLE_OF, new Object[] { user });
 

@@ -18,18 +18,15 @@
 package org.picketlink.test.idm.model.complex.entity;
 
 import java.io.Serializable;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
-
-import org.picketlink.idm.jpa.annotations.Partition;
 
 /**
  * This entity bean contains partition records such as Realms and Tiers
  *
  * @author Shane Bryzak
  */
-@Partition
+//@Partition
 @Entity
 public class IdentityPartition implements Serializable {
     private static final long serialVersionUID = -361112181956236802L;

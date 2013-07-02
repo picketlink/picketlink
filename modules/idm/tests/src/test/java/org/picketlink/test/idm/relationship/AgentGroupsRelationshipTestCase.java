@@ -20,6 +20,7 @@ package org.picketlink.test.idm.relationship;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
@@ -72,19 +73,19 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractId
         T someAgent = createIdentityType("someAgent");
         Group someGroup = createGroup("someGroup");
 
-        IdentityManager identityManager = getIdentityManager();
+        PartitionManager partitionManager = getPartitionManager();
 
-        identityManager.addToGroup(someAgent, someGroup);
+        partitionManager.addToGroup(someAgent, someGroup);
 
-        assertTrue(identityManager.isMember(someAgent, someGroup));
+        assertTrue(partitionManager.isMember(someAgent, someGroup));
 
         Group someAnotherGroup = createGroup("someAnotherGroup");
 
-        assertFalse(identityManager.isMember(someAgent, someAnotherGroup));
+        assertFalse(partitionManager.isMember(someAgent, someAnotherGroup));
 
-        identityManager.addToGroup(someAgent, someAnotherGroup);
+        partitionManager.addToGroup(someAgent, someAnotherGroup);
 
-        assertTrue(identityManager.isMember(someAgent, someAnotherGroup));
+        assertTrue(partitionManager.isMember(someAgent, someAnotherGroup));
     }
 
     /**
@@ -100,21 +101,21 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractId
         Group someGroup = createGroup("someGroup");
         Group someAnotherGroup = createGroup("someAnotherGroup");
 
-        IdentityManager identityManager = getIdentityManager();
+        PartitionManager partitionManager = getPartitionManager();
 
-        identityManager.addToGroup(someAgent, someGroup);
-        identityManager.addToGroup(someAgent, someAnotherGroup);
+        partitionManager.addToGroup(someAgent, someGroup);
+        partitionManager.addToGroup(someAgent, someAnotherGroup);
 
-        assertTrue(identityManager.isMember(someAgent, someGroup));
-        assertTrue(identityManager.isMember(someAgent, someAnotherGroup));
+        assertTrue(partitionManager.isMember(someAgent, someGroup));
+        assertTrue(partitionManager.isMember(someAgent, someAnotherGroup));
 
-        identityManager.removeFromGroup(someAgent, someGroup);
+        partitionManager.removeFromGroup(someAgent, someGroup);
 
-        assertFalse(identityManager.isMember(someAgent, someGroup));
+        assertFalse(partitionManager.isMember(someAgent, someGroup));
 
-        identityManager.removeFromGroup(someAgent, someAnotherGroup);
+        partitionManager.removeFromGroup(someAgent, someAnotherGroup);
 
-        assertFalse(identityManager.isMember(someAgent, someAnotherGroup));
+        assertFalse(partitionManager.isMember(someAgent, someAnotherGroup));
     }
     
     /**
@@ -143,8 +144,10 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractId
         assertFalse(contains(result, "someGroup"));
         assertFalse(contains(result, "someAnotherGroup"));
         assertFalse(contains(result, "someImportantGroup"));
-        
-        identityManager.addToGroup(user, someGroup);
+
+        PartitionManager partitionManager = getPartitionManager();
+
+        partitionManager.addToGroup(user, someGroup);
         
         query = identityManager.createIdentityQuery(Group.class);
         
@@ -156,8 +159,8 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractId
         assertTrue(contains(result, "someGroup"));
         assertFalse(contains(result, "someAnotherGroup"));
         assertFalse(contains(result, "someImportantGroup"));
-        
-        identityManager.addToGroup(user, someAnotherGroup);
+
+        partitionManager.addToGroup(user, someAnotherGroup);
 
         query = identityManager.createIdentityQuery(Group.class);
         
@@ -170,7 +173,7 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractId
         assertTrue(contains(result, "someAnotherGroup"));
         assertFalse(contains(result, "someImportantGroup"));
 
-        identityManager.addToGroup(user, someImportantGroup);
+        partitionManager.addToGroup(user, someImportantGroup);
         
         query = identityManager.createIdentityQuery(Group.class);
         

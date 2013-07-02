@@ -28,6 +28,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.LDAPStoreConfigurationBuilder;
 import org.picketlink.idm.config.SecurityConfigurationException;
@@ -85,7 +86,8 @@ public class LDAPIdentityStoreConfigurationTestCase extends
 
         LDAPStoreConfigurationBuilder storeConfig = createMinimalConfiguration(builder);
 
-        IdentityManager identityManager = createIdentityManager(builder.build());
+        PartitionManager partitionManager = createPartitionManager(storeConfig.build());
+        IdentityManager identityManager = partitionManager.createIdentityManager();
 
         User user = new User("someUser");
 
@@ -101,7 +103,7 @@ public class LDAPIdentityStoreConfigurationTestCase extends
         customRelationship.setIdentityTypeB(role);
 
         try {
-        identityManager.add(customRelationship);
+            partitionManager.add(customRelationship);
 
         fail();
         } catch (IdentityManagementException ime) {

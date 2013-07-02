@@ -22,6 +22,7 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
@@ -239,7 +240,9 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         assertFalse(contains(result, someAnotherGroup.getId()));
         assertFalse(contains(result, someImportantGroup.getId()));
 
-        identityManager.addToGroup(user, someGroup);
+        PartitionManager partitionManager = getPartitionManager();
+
+        partitionManager.addToGroup(user, someGroup);
 
         query = identityManager.createIdentityQuery(Group.class);
 
@@ -252,7 +255,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         assertFalse(contains(result, someAnotherGroup.getId()));
         assertFalse(contains(result, someImportantGroup.getId()));
 
-        identityManager.addToGroup(user, someAnotherGroup);
+        partitionManager.addToGroup(user, someAnotherGroup);
 
         query = identityManager.createIdentityQuery(Group.class);
 
@@ -265,7 +268,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         assertTrue(contains(result, someAnotherGroup.getId()));
         assertFalse(contains(result, someImportantGroup.getId()));
 
-        identityManager.addToGroup(user, someImportantGroup);
+        partitionManager.addToGroup(user, someImportantGroup);
 
         query = identityManager.createIdentityQuery(Group.class);
 

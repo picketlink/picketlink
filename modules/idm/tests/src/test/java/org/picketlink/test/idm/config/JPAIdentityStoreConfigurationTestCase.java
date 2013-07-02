@@ -30,6 +30,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.JPAStoreConfigurationBuilder;
 import org.picketlink.idm.config.OperationNotSupportedException;
@@ -92,7 +94,10 @@ public class JPAIdentityStoreConfigurationTestCase extends
 
         addContextInitializers(jpaConfig);
 
-        IdentityManager identityManager = createIdentityManager(builder.build());
+        IdentityConfiguration configuration = builder.build();
+
+        PartitionManager partitionManager = createPartitionManager(configuration);
+        IdentityManager identityManager = partitionManager.createIdentityManager();
 
         User user = new User("someUser");
 
@@ -107,7 +112,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
         identityManager.add(group);
 
         try {
-            identityManager.add(new Grant(user, role));
+            partitionManager.add(new Grant(user, role));
             fail();
         } catch (IdentityManagementException ime) {
             if (SecurityConfigurationException.class.isInstance(ime.getCause())) {
@@ -120,7 +125,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
         }
 
         try {
-            identityManager.add(new GroupRole(user, group, role));
+            partitionManager.add(new GroupRole(user, group, role));
             fail();
         } catch (IdentityManagementException ime) {
             if (SecurityConfigurationException.class.isInstance(ime.getCause())) {
@@ -133,7 +138,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
         }
 
         try {
-            identityManager.add(new GroupMembership(user, group));
+            partitionManager.add(new GroupMembership(user, group));
             fail();
         } catch (IdentityManagementException ime) {
             if (SecurityConfigurationException.class.isInstance(ime.getCause())) {
@@ -152,7 +157,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
             customRelationship.setIdentityTypeB(role);
             customRelationship.setIdentityTypeC(group);
 
-            identityManager.add(customRelationship);
+            partitionManager.add(customRelationship);
             fail();
         } catch (IdentityManagementException ime) {
             if (SecurityConfigurationException.class.isInstance(ime.getCause())) {

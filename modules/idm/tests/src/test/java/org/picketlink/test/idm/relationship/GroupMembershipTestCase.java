@@ -23,6 +23,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
@@ -55,9 +56,9 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         GroupMembership groupMembership = new GroupMembership(someUser, someGroup);
 
-        IdentityManager identityManager = getIdentityManager();
+        PartitionManager partitionManager = getPartitionManager();
 
-        identityManager.add(groupMembership);
+        partitionManager.add(groupMembership);
 
         List<GroupMembership> result = getGroupMembership(someUser, someGroup);
 
@@ -77,9 +78,9 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         GroupMembership groupMembership = new GroupMembership(someUser, someGroup);
 
-        IdentityManager identityManager = getIdentityManager();
+        PartitionManager partitionManager = getPartitionManager();
 
-        identityManager.add(groupMembership);
+        partitionManager.add(groupMembership);
 
         List<GroupMembership> result = getGroupMembership(someUser, someGroup);
 
@@ -93,7 +94,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         groupMembership.setAttribute(new Attribute<String>("attribute1", "1"));
         groupMembership.setAttribute(new Attribute<String[]>("attribute2", new String[] { "1", "2", "3" }));
 
-        identityManager.update(groupMembership);
+        partitionManager.update(groupMembership);
 
         result = getGroupMembership(someUser, someGroup);
 
@@ -115,19 +116,19 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         User someUser = createUser("someUser");
         Group someGroup = createGroup("someGroup", null);
 
-        IdentityManager identityManager = getIdentityManager();
+        PartitionManager partitionManager = getPartitionManager();
 
-        identityManager.addToGroup(someUser, someGroup);
+        partitionManager.addToGroup(someUser, someGroup);
 
-        assertTrue(identityManager.isMember(someUser, someGroup));
+        assertTrue(partitionManager.isMember(someUser, someGroup));
 
         Group someAnotherGroup = createGroup("someAnotherGroup", null);
 
-        assertFalse(identityManager.isMember(someUser, someAnotherGroup));
+        assertFalse(partitionManager.isMember(someUser, someAnotherGroup));
 
-        identityManager.addToGroup(someUser, someAnotherGroup);
+        partitionManager.addToGroup(someUser, someAnotherGroup);
 
-        assertTrue(identityManager.isMember(someUser, someAnotherGroup));
+        assertTrue(partitionManager.isMember(someUser, someAnotherGroup));
     }
 
     @Test
@@ -137,32 +138,33 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         Group groupA = groupB.getParentGroup();
         
         assertNotNull(groupA);
-        
-        IdentityManager identityManager = getIdentityManager();
-        
-        identityManager.addToGroup(someUser, groupA);
 
-        assertTrue(identityManager.isMember(someUser, groupA));
-        assertTrue(identityManager.isMember(someUser, groupB));
-        
+        IdentityManager identityManager = getIdentityManager();
+        PartitionManager partitionManager = getPartitionManager();
+
+        partitionManager.addToGroup(someUser, groupA);
+
+        assertTrue(partitionManager.isMember(someUser, groupA));
+        assertTrue(partitionManager.isMember(someUser, groupB));
+
         identityManager.remove(groupB);
         identityManager.remove(groupA);
         
         // group testing path is /a/b 
-        assertFalse(identityManager.isMember(someUser, groupB));
+        assertFalse(partitionManager.isMember(someUser, groupB));
         
         groupA = createGroup("a", null);
         
         groupB = createGroupWithParent("b", groupA);
         
         Group groupC = createGroupWithParent("c", groupB);
-        
-        identityManager.addToGroup(someUser, groupA);
+
+        partitionManager.addToGroup(someUser, groupA);
         
         // group testing path is /a/b/c
-        assertTrue(identityManager.isMember(someUser, groupA));
-        assertTrue(identityManager.isMember(someUser, groupB));
-        assertTrue(identityManager.isMember(someUser, groupC));
+        assertTrue(partitionManager.isMember(someUser, groupA));
+        assertTrue(partitionManager.isMember(someUser, groupB));
+        assertTrue(partitionManager.isMember(someUser, groupC));
 
         identityManager.remove(groupC);
         identityManager.remove(groupB);
@@ -181,28 +183,28 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         Group anotherGroupB = createGroupWithParent("b", qaGroup);
         
         // group testing paths are: /a/b/c/QA Group/b and /a/b/c/d
-        identityManager.addToGroup(someUser, anotherGroupB);
+        partitionManager.addToGroup(someUser, anotherGroupB);
 
-        assertTrue(identityManager.isMember(someUser, anotherGroupB));
-        assertFalse(identityManager.isMember(someUser, groupA));
-        assertFalse(identityManager.isMember(someUser, groupB));
-        assertFalse(identityManager.isMember(someUser, groupC));
-        assertFalse(identityManager.isMember(someUser, groupD));
-        assertFalse(identityManager.isMember(someUser, qaGroup));
+        assertTrue(partitionManager.isMember(someUser, anotherGroupB));
+        assertFalse(partitionManager.isMember(someUser, groupA));
+        assertFalse(partitionManager.isMember(someUser, groupB));
+        assertFalse(partitionManager.isMember(someUser, groupC));
+        assertFalse(partitionManager.isMember(someUser, groupD));
+        assertFalse(partitionManager.isMember(someUser, qaGroup));
+
+        partitionManager.addToGroup(someUser, groupB);
         
-        identityManager.addToGroup(someUser, groupB);
+        assertTrue(partitionManager.isMember(someUser, groupB));
+        assertTrue(partitionManager.isMember(someUser, groupD));
+        assertTrue(partitionManager.isMember(someUser, qaGroup));
+        assertTrue(partitionManager.isMember(someUser, anotherGroupB));
+
+        partitionManager.removeFromGroup(someUser, anotherGroupB);
         
-        assertTrue(identityManager.isMember(someUser, groupB));
-        assertTrue(identityManager.isMember(someUser, groupD));
-        assertTrue(identityManager.isMember(someUser, qaGroup));
-        assertTrue(identityManager.isMember(someUser, anotherGroupB));
-        
-        identityManager.removeFromGroup(someUser, anotherGroupB);
-        
-        assertTrue(identityManager.isMember(someUser, groupB));
-        assertTrue(identityManager.isMember(someUser, groupD));
-        assertTrue(identityManager.isMember(someUser, qaGroup));
-        assertTrue(identityManager.isMember(someUser, anotherGroupB));
+        assertTrue(partitionManager.isMember(someUser, groupB));
+        assertTrue(partitionManager.isMember(someUser, groupD));
+        assertTrue(partitionManager.isMember(someUser, qaGroup));
+        assertTrue(partitionManager.isMember(someUser, anotherGroupB));
     }
 
     @Test
@@ -211,12 +213,13 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         Group someGroup = createGroup("someGroup", null);
 
         IdentityManager identityManager = getIdentityManager();
+        PartitionManager partitionManager = getPartitionManager();
 
-        identityManager.addToGroup(someUser, someGroup);
+        partitionManager.addToGroup(someUser, someGroup);
         
         identityManager.remove(someUser);
         
-        assertFalse(identityManager.isMember(someUser, someGroup));
+        assertFalse(partitionManager.isMember(someUser, someGroup));
     }
 
     @Test
@@ -226,21 +229,22 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         Group someAnotherGroup = createGroup("someAnotherGroup", null);
 
         IdentityManager identityManager = getIdentityManager();
+        PartitionManager partitionManager = getPartitionManager();
 
-        identityManager.addToGroup(someUser, someGroup);
-        identityManager.addToGroup(someUser, someAnotherGroup);
+        partitionManager.addToGroup(someUser, someGroup);
+        partitionManager.addToGroup(someUser, someAnotherGroup);
 
-        assertTrue(identityManager.isMember(someUser, someGroup));
-        assertTrue(identityManager.isMember(someUser, someAnotherGroup));
+        assertTrue(partitionManager.isMember(someUser, someGroup));
+        assertTrue(partitionManager.isMember(someUser, someAnotherGroup));
 
-        identityManager.removeFromGroup(someUser, someGroup);
+        partitionManager.removeFromGroup(someUser, someGroup);
 
-        assertFalse(identityManager.isMember(someUser, someGroup));
-        assertTrue(identityManager.isMember(someUser, someAnotherGroup));
+        assertFalse(partitionManager.isMember(someUser, someGroup));
+        assertTrue(partitionManager.isMember(someUser, someAnotherGroup));
 
-        identityManager.removeFromGroup(someUser, someAnotherGroup);
+        partitionManager.removeFromGroup(someUser, someAnotherGroup);
 
-        assertFalse(identityManager.isMember(someUser, someAnotherGroup));
+        assertFalse(partitionManager.isMember(someUser, someAnotherGroup));
     }
 
     @Test
@@ -251,11 +255,11 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         GroupMembership groupMembership = new GroupMembership(someUser, someGroup);
 
-        IdentityManager identityManager = getIdentityManager();
+        PartitionManager partitionManager = getPartitionManager();
 
-        identityManager.add(groupMembership);
+        partitionManager.add(groupMembership);
 
-        RelationshipQuery<GroupMembership> query = identityManager.createRelationshipQuery(GroupMembership.class);
+        RelationshipQuery<GroupMembership> query = partitionManager.createRelationshipQuery(GroupMembership.class);
 
         query.setParameter(GroupMembership.ATTRIBUTE.byName("attribute1"), "1");
 
@@ -266,7 +270,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         groupMembership.setAttribute(new Attribute<String>("attribute1", "1"));
         groupMembership.setAttribute(new Attribute<String[]>("attribute2", new String[] { "1", "2", "3" }));
 
-        identityManager.update(groupMembership);
+        partitionManager.update(groupMembership);
 
         result = query.getResultList();
 
@@ -277,7 +281,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         Assert.assertEquals(someUser.getId(), groupMembership.getMember().getId());
         Assert.assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
 
-        query = identityManager.createRelationshipQuery(GroupMembership.class);
+        query = partitionManager.createRelationshipQuery(GroupMembership.class);
 
         query.setParameter(GroupMembership.ATTRIBUTE.byName("attribute1"), "2");
 
@@ -285,7 +289,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         Assert.assertTrue(result.isEmpty());
         
-        query = identityManager.createRelationshipQuery(GroupMembership.class);
+        query = partitionManager.createRelationshipQuery(GroupMembership.class);
 
         query.setParameter(GroupMembership.ATTRIBUTE.byName("attribute3"), "2");
 
@@ -293,7 +297,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         Assert.assertTrue(result.isEmpty());
         
-        query = identityManager.createRelationshipQuery(GroupMembership.class);
+        query = partitionManager.createRelationshipQuery(GroupMembership.class);
 
         query.setParameter(GroupMembership.ATTRIBUTE.byName("attribute2"), "1", "2", "3");
 
@@ -310,9 +314,9 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         GroupMembership groupMembership = new GroupMembership(someUser, someGroup);
 
-        IdentityManager identityManager = getIdentityManager();
+        PartitionManager partitionManager = getPartitionManager();
 
-        identityManager.add(groupMembership);
+        partitionManager.add(groupMembership);
 
         // Create a large array of values
         Integer[] val = new Integer[100];
@@ -322,9 +326,9 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         
         groupMembership.setAttribute(new Attribute<Serializable>("Values", val));
 
-        identityManager.update(groupMembership);
+        partitionManager.update(groupMembership);
         
-        RelationshipQuery<GroupMembership> query = identityManager.createRelationshipQuery(GroupMembership.class);
+        RelationshipQuery<GroupMembership> query = partitionManager.createRelationshipQuery(GroupMembership.class);
         
         query.setParameter(GroupMembership.MEMBER, someUser);
         query.setParameter(GroupMembership.GROUP, someGroup);
@@ -362,7 +366,9 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(contains(result, "someAnotherGroup"));
         assertFalse(contains(result, "someImportantGroup"));
 
-        identityManager.addToGroup(user, someGroup);
+        PartitionManager partitionManager = getPartitionManager();
+
+        partitionManager.addToGroup(user, someGroup);
 
         query = identityManager.createIdentityQuery(Group.class);
 
@@ -375,7 +381,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(contains(result, "someAnotherGroup"));
         assertFalse(contains(result, "someImportantGroup"));
 
-        identityManager.addToGroup(user, someAnotherGroup);
+        partitionManager.addToGroup(user, someAnotherGroup);
 
         query = identityManager.createIdentityQuery(Group.class);
 
@@ -388,7 +394,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, "someAnotherGroup"));
         assertFalse(contains(result, "someImportantGroup"));
 
-        identityManager.addToGroup(user, someImportantGroup);
+        partitionManager.addToGroup(user, someImportantGroup);
 
         query = identityManager.createIdentityQuery(Group.class);
 
@@ -411,9 +417,9 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
     }
 
     private List<GroupMembership> getGroupMembership(User someUser, Group someGroup) {
-        IdentityManager identityManager = getIdentityManager();
+        PartitionManager partitionManager = getPartitionManager();
 
-        RelationshipQuery<GroupMembership> query = identityManager.createRelationshipQuery(GroupMembership.class);
+        RelationshipQuery<GroupMembership> query = partitionManager.createRelationshipQuery(GroupMembership.class);
 
         query.setParameter(GroupMembership.MEMBER, someUser);
         query.setParameter(GroupMembership.GROUP, someGroup);

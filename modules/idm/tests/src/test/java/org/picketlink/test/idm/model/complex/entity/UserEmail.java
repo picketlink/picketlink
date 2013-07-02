@@ -18,21 +18,17 @@
 package org.picketlink.test.idm.model.complex.entity;
 
 import java.io.Serializable;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-
-import org.picketlink.idm.jpa.annotations.AttributeOf;
-import org.picketlink.test.idm.model.complex.User;
 
 /**
  * Stores user email addresses
  *
  * @author Shane Bryzak
  */
-@AttributeOf(mapToAttribute = "emails", supportedTypes = {User.class})
+//@AttributeOf(mapToAttribute = "emails", supportedTypes = {User.class})
 @Entity
 public class UserEmail implements Serializable {
     private static final long serialVersionUID = 4044401260242743000L;

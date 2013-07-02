@@ -18,14 +18,10 @@
 package org.picketlink.test.idm.model.complex.entity;
 
 import java.io.Serializable;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
-
 import org.picketlink.idm.jpa.annotations.AttributeValue;
-import org.picketlink.idm.jpa.annotations.AttributeOf;
-import org.picketlink.test.idm.model.complex.Role;
 
 /**
  * Contains role-specific attribute values
@@ -33,7 +29,7 @@ import org.picketlink.test.idm.model.complex.Role;
  * @author Shane Bryzak
  */
 @Entity
-@AttributeOf(supportedTypes = {Role.class})
+//@AttributeOf(supportedTypes = {Role.class})
 public class RoleAttribute implements Serializable {
     private static final long serialVersionUID = -1462703374364572021L;
 

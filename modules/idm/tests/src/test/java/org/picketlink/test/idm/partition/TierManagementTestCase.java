@@ -21,6 +21,7 @@ package org.picketlink.test.idm.partition;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.Tier;
@@ -210,45 +211,47 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
         assertNull(acmeRealm.getRole(roleBName));
         assertNull(acmeRealm.getRole(roleCName));
 
-        acmeRealm.grantRole(john, applicationA.getRole(roleAName));
-        acmeRealm.grantRole(bill, applicationB.getRole(roleBName));
-        acmeRealm.grantRole(mary, applicationC.getRole(roleCName));
+        PartitionManager partitionManager = getPartitionManager();
 
-        assertTrue(acmeRealm.hasRole(john, applicationA.getRole(roleAName)));
-        assertFalse(acmeRealm.hasRole(john, applicationB.getRole(roleBName)));
-        assertFalse(acmeRealm.hasRole(john, applicationC.getRole(roleCName)));
+        partitionManager.grantRole(john, applicationA.getRole(roleAName));
+        partitionManager.grantRole(bill, applicationB.getRole(roleBName));
+        partitionManager.grantRole(mary, applicationC.getRole(roleCName));
 
-        assertTrue(acmeRealm.hasRole(bill, applicationB.getRole(roleBName)));
-        assertFalse(acmeRealm.hasRole(bill, applicationA.getRole(roleAName)));
-        assertFalse(acmeRealm.hasRole(bill, applicationC.getRole(roleCName)));
+        assertTrue(partitionManager.hasRole(john, applicationA.getRole(roleAName)));
+        assertFalse(partitionManager.hasRole(john, applicationB.getRole(roleBName)));
+        assertFalse(partitionManager.hasRole(john, applicationC.getRole(roleCName)));
 
-        assertTrue(acmeRealm.hasRole(mary, applicationC.getRole(roleCName)));
-        assertFalse(acmeRealm.hasRole(mary, applicationA.getRole(roleAName)));
-        assertFalse(acmeRealm.hasRole(mary, applicationB.getRole(roleBName)));
+        assertTrue(partitionManager.hasRole(bill, applicationB.getRole(roleBName)));
+        assertFalse(partitionManager.hasRole(bill, applicationA.getRole(roleAName)));
+        assertFalse(partitionManager.hasRole(bill, applicationC.getRole(roleCName)));
 
-        acmeRealm.grantRole(john, applicationB.getRole(roleBName));
+        assertTrue(partitionManager.hasRole(mary, applicationC.getRole(roleCName)));
+        assertFalse(partitionManager.hasRole(mary, applicationA.getRole(roleAName)));
+        assertFalse(partitionManager.hasRole(mary, applicationB.getRole(roleBName)));
 
-        assertTrue(acmeRealm.hasRole(john, applicationA.getRole(roleAName)));
-        assertTrue(acmeRealm.hasRole(john, applicationB.getRole(roleBName)));
-        assertFalse(acmeRealm.hasRole(john, applicationC.getRole(roleCName)));
+        partitionManager.grantRole(john, applicationB.getRole(roleBName));
+
+        assertTrue(partitionManager.hasRole(john, applicationA.getRole(roleAName)));
+        assertTrue(partitionManager.hasRole(john, applicationB.getRole(roleBName)));
+        assertFalse(partitionManager.hasRole(john, applicationC.getRole(roleCName)));
 
         applicationA.remove(applicationA.getRole(roleAName));
 
         assertNull(applicationA.getRole(roleAName));
-        assertTrue(acmeRealm.hasRole(bill, applicationB.getRole(roleBName)));
-        assertTrue(acmeRealm.hasRole(mary, applicationC.getRole(roleCName)));
+        assertTrue(partitionManager.hasRole(bill, applicationB.getRole(roleBName)));
+        assertTrue(partitionManager.hasRole(mary, applicationC.getRole(roleCName)));
 
-        acmeRealm.revokeRole(bill, applicationB.getRole(roleBName));
+        partitionManager.revokeRole(bill, applicationB.getRole(roleBName));
 
-        assertFalse(acmeRealm.hasRole(bill, applicationB.getRole(roleBName)));
-        assertTrue(acmeRealm.hasRole(mary, applicationC.getRole(roleCName)));
+        assertFalse(partitionManager.hasRole(bill, applicationB.getRole(roleBName)));
+        assertTrue(partitionManager.hasRole(mary, applicationC.getRole(roleCName)));
 
         acmeRealm.remove(john);
         acmeRealm.remove(bill);
         acmeRealm.remove(mary);
 
-        assertFalse(acmeRealm.hasRole(bill, applicationB.getRole(roleBName)));
-        assertFalse(acmeRealm.hasRole(mary, applicationC.getRole(roleCName)));
+        assertFalse(partitionManager.hasRole(bill, applicationB.getRole(roleBName)));
+        assertFalse(partitionManager.hasRole(mary, applicationC.getRole(roleCName)));
     }
 
     @Test
@@ -275,23 +278,25 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         applicationC.add(new Group("Group C"));
 
-        acmeRealm.addToGroup(john, applicationA.getGroup("Group A"));
+        PartitionManager partitionManager = getPartitionManager();
 
-        acmeRealm.addToGroup(bill, applicationB.getGroup("Group B"));
+        partitionManager.addToGroup(john, applicationA.getGroup("Group A"));
 
-        acmeRealm.addToGroup(mary, applicationC.getGroup("Group C"));
+        partitionManager.addToGroup(bill, applicationB.getGroup("Group B"));
 
-        assertTrue(acmeRealm.isMember(john, applicationA.getGroup("Group A")));
-        assertFalse(acmeRealm.isMember(john, applicationB.getGroup("Group B")));
-        assertFalse(acmeRealm.isMember(john, applicationC.getGroup("Group C")));
+        partitionManager.addToGroup(mary, applicationC.getGroup("Group C"));
 
-        assertTrue(acmeRealm.isMember(bill, applicationB.getGroup("Group B")));
-        assertFalse(acmeRealm.isMember(bill, applicationA.getGroup("Group A")));
-        assertFalse(acmeRealm.isMember(bill, applicationC.getGroup("Group C")));
+        assertTrue(partitionManager.isMember(john, applicationA.getGroup("Group A")));
+        assertFalse(partitionManager.isMember(john, applicationB.getGroup("Group B")));
+        assertFalse(partitionManager.isMember(john, applicationC.getGroup("Group C")));
 
-        assertTrue(acmeRealm.isMember(mary, applicationC.getGroup("Group C")));
-        assertFalse(acmeRealm.isMember(mary, applicationA.getGroup("Group A")));
-        assertFalse(acmeRealm.isMember(mary, applicationB.getGroup("Group B")));
+        assertTrue(partitionManager.isMember(bill, applicationB.getGroup("Group B")));
+        assertFalse(partitionManager.isMember(bill, applicationA.getGroup("Group A")));
+        assertFalse(partitionManager.isMember(bill, applicationC.getGroup("Group C")));
+
+        assertTrue(partitionManager.isMember(mary, applicationC.getGroup("Group C")));
+        assertFalse(partitionManager.isMember(mary, applicationA.getGroup("Group A")));
+        assertFalse(partitionManager.isMember(mary, applicationB.getGroup("Group B")));
     }
 
     @Test

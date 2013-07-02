@@ -19,18 +19,15 @@ package org.picketlink.test.idm.model.complex.entity;
 
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
-
-import org.picketlink.idm.jpa.annotations.IdentityType;
 
 /**
  * Root entity bean that defines each identity object
  *
  * @author Shane Bryzak
  */
-@IdentityType
+//@IdentityType
 @Entity
 public class IdentityObject implements Serializable {
     private static final long serialVersionUID = -4903614087285491855L;
