@@ -63,8 +63,8 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             String roleDNSuffix,
             String groupDNSuffix,
             Map<String, String> groupMapping,
-            Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes,
-            Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes,
+            Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
+            Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {

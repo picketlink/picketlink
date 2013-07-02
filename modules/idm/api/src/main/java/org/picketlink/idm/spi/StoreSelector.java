@@ -18,8 +18,9 @@
 
 package org.picketlink.idm.spi;
 
-import org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
+import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.Relationship;
 
 /**
  * Creates IdentityStore instances based on a provided configuration
@@ -35,8 +36,8 @@ public interface StoreSelector {
      * @param operation
      * @return
      */
-    <T extends IdentityStore<?>> T getStoreForType(Class<T> storeType, IdentityContext context, Class<? extends AttributedType> type,
-            TypeOperation operation);
+    <T extends IdentityStore<?>> T getStoreForTypeOperation(Class<T> storeType, IdentityContext context, Class<? extends AttributedType> type,
+            IdentityOperation operation);
 
     /**
      *
@@ -44,4 +45,6 @@ public interface StoreSelector {
      * @return
      */
     IdentityStore<?> getStoreForCredential(IdentityContext context);
+
+    IdentityStore<?> getStoreForRelationship(Relationship relationship);
 }

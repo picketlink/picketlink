@@ -25,7 +25,7 @@ import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
+import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.event.EventBridge;
@@ -149,7 +149,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
         }
 
         try {
-            storeFactory.getStoreForType(this, identityType.getClass(), TypeOperation.create).add(
+            storeFactory.getStoreForType(this, identityType.getClass(), IdentityOperation.create).add(
                     this, identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeAddFailed(identityType, e);
@@ -159,7 +159,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
     @Override
     public void add(Relationship relationship) {
         try {
-            storeFactory.getStoreForType(this, relationship.getClass(), TypeOperation.create).add(
+            storeFactory.getStoreForType(this, relationship.getClass(), IdentityOperation.create).add(
                     this, relationship);
         } catch (Exception e) {
             throw MESSAGES.relationshipAddFailed(relationship, e);
@@ -175,7 +175,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
         }
 
         try {
-            storeFactory.getStoreForType(this, identityType.getClass(), TypeOperation.update).update(
+            storeFactory.getStoreForType(this, identityType.getClass(), IdentityOperation.update).update(
                     this, identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeUpdateFailed(identityType, e);
@@ -185,7 +185,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
     @Override
     public void update(Relationship relationship) {
         try {
-            storeFactory.getStoreForType(this, relationship.getClass(), TypeOperation.update).update(
+            storeFactory.getStoreForType(this, relationship.getClass(), IdentityOperation.update).update(
                     this, relationship);
         } catch (Exception e) {
             throw MESSAGES.relationshipUpdateFailed(relationship, e);
@@ -201,7 +201,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
         }
 
         try {
-            storeFactory.getStoreForType(this, identityType.getClass(), TypeOperation.delete).remove(
+            storeFactory.getStoreForType(this, identityType.getClass(), IdentityOperation.delete).remove(
                     this, identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeUpdateFailed(identityType, e);
@@ -215,7 +215,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
         }
 
         try {
-            storeFactory.getStoreForType(this, relationship.getClass(), TypeOperation.delete).remove(
+            storeFactory.getStoreForType(this, relationship.getClass(), IdentityOperation.delete).remove(
                     this, relationship);
         } catch (Exception e) {
             throw MESSAGES.relationshipRemoveFailed(relationship, e);
@@ -225,7 +225,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
     public Agent getAgent(String loginName) {
         checkCurrentPartitionForAgents();
 
-        return storeFactory.getStoreForType(this, Agent.class, TypeOperation.read).getAgent(
+        return storeFactory.getStoreForType(this, Agent.class, IdentityOperation.read).getAgent(
                 this, loginName);
     }
 
@@ -233,7 +233,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
     public User getUser(String loginName) {
         checkCurrentPartitionForAgents();
 
-        return storeFactory.getStoreForType(this, User.class, TypeOperation.read).getUser(this, loginName);
+        return storeFactory.getStoreForType(this, User.class, IdentityOperation.read).getUser(this, loginName);
     }
 
     @Override
@@ -242,7 +242,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
             return null;
         }
 
-        return storeFactory.getStoreForType(this, Group.class, TypeOperation.read).getGroup(this, path);
+        return storeFactory.getStoreForType(this, Group.class, IdentityOperation.read).getGroup(this, path);
     }
 
     @Override
@@ -259,7 +259,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
             throw MESSAGES.groupParentNotFoundWithId(parent.getId(), this.getPartition());
         }
 
-        return storeFactory.getStoreForType(this, Group.class, TypeOperation.read).getGroup(this, name,
+        return storeFactory.getStoreForType(this, Group.class, IdentityOperation.read).getGroup(this, name,
                 parent);
     }
 
@@ -309,13 +309,13 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
         checkIfIdentityTypeExists(member);
         checkIfIdentityTypeExists(group);
 
-        storeFactory.getStoreForType(this, GroupMembership.class, TypeOperation.delete)
+        storeFactory.getStoreForType(this, GroupMembership.class, IdentityOperation.delete)
                 .remove(this, new GroupMembership(member, group));
     }
 
     @Override
     public Role getRole(String name) {
-        return storeFactory.getStoreForType(this, Role.class, TypeOperation.read).getRole(this, name);
+        return storeFactory.getStoreForType(this, Role.class, IdentityOperation.read).getRole(this, name);
     }
 
     @Override
@@ -352,7 +352,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
         checkIfIdentityTypeExists(role);
         checkIfIdentityTypeExists(group);
 
-        storeFactory.getStoreForType(this, GroupRole.class, TypeOperation.delete).remove(
+        storeFactory.getStoreForType(this, GroupRole.class, IdentityOperation.delete).remove(
                 this, new GroupRole(assignee, group, role));
     }
 
@@ -396,7 +396,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
         checkIfIdentityTypeExists(identityType);
         checkIfIdentityTypeExists(role);
 
-        storeFactory.getStoreForType(this, Grant.class, TypeOperation.delete).remove(
+        storeFactory.getStoreForType(this, Grant.class, IdentityOperation.delete).remove(
                 this, new Grant(identityType, role));
     }
 
@@ -425,13 +425,13 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
 
     @Override
     public <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType) {
-        return new DefaultIdentityQuery<T>(this, identityType, storeFactory.getStoreForType(this, identityType, TypeOperation.read));
+        return new DefaultIdentityQuery<T>(this, identityType, storeFactory.getStoreForType(this, identityType, IdentityOperation.read));
     }
 
     @Override
     public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType) {
         return new DefaultRelationshipQuery<T>(this, relationshipType, storeFactory.getStoreForType(this,
-                relationshipType, TypeOperation.read));
+                relationshipType, IdentityOperation.read));
     }
 
     @Override
@@ -444,7 +444,7 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
             throw MESSAGES.nullArgument("Identifier for [" + identityType + "]");
         }
 
-        return storeFactory.getStoreForType(this, identityType, TypeOperation.read).getIdentity(identityType, id);
+        return storeFactory.getStoreForType(this, identityType, IdentityOperation.read).getIdentity(identityType, id);
     }
 
     @Override

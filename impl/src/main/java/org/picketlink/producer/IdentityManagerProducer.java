@@ -32,11 +32,11 @@ import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
 import org.picketlink.idm.config.SecurityConfigurationException;
+import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.internal.EEJPAContextInitializer;
 import org.picketlink.internal.EESecurityContextFactory;
 import org.picketlink.internal.IdentityStoreAutoConfiguration;
-import org.picketlink.internal.DefaultPartitionManager;
 import org.picketlink.internal.SecuredIdentityManager;
 import org.picketlink.internal.util.Strings;
 

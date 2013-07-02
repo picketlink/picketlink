@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.picketlink.idm.model.Partition;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 
 /**
