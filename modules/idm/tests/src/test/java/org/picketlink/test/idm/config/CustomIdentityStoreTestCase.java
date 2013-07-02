@@ -29,32 +29,31 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.AbstractIdentityStoreConfiguration;
 import org.picketlink.idm.config.AbstractIdentityStoreConfigurationBuilder;
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoresConfigurationBuilder;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
-import org.picketlink.idm.internal.IdentityManagerFactory;
-import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
-import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.CredentialStore;
-import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.IdentityContext;
 import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  *
@@ -72,18 +71,17 @@ public class CustomIdentityStoreTestCase {
 
         builder
             .stores()
-                .add(MyIdentityStoreConfiguration.class, 
-                     MyIdentityStore.class, 
-                     MyIdentityStoreConfigurationBuilder.class)
+                .add(MyIdentityStoreConfiguration.class,
+                        MyIdentityStore.class,
+                        MyIdentityStoreConfigurationBuilder.class)
                     .methodInvocationContext(methodInvocationContext)
-                .addRealm(Realm.DEFAULT_REALM)
-                .addTier("SomeTier")
                 .supportAllFeatures();
 
         IdentityConfiguration configuration = builder.build();
-        IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(configuration);
+        PartitionManager partitionManager = null;
+        fail("Create PartitionManager");
         
-        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+        IdentityManager identityManager = partitionManager.createIdentityManager();
         
         identityManager.add(new User("john"));
 
@@ -105,9 +103,11 @@ public class CustomIdentityStoreTestCase {
 
         @Override
         public MyIdentityStoreConfiguration create() {
-            MyIdentityStoreConfiguration config = new MyIdentityStoreConfiguration(getSupportedFeatures(), getSupportedRelationships(),
-                    getSupportedIdentityTypes(), getRealms(), getTiers(), getContextInitializers(),
-                    getCredentialHandlerProperties(), getCredentialHandlers());
+            MyIdentityStoreConfiguration config = new MyIdentityStoreConfiguration(getSupportedTypes(),
+                    getUnsupportedTypes(),
+                    getContextInitializers(),
+                    getCredentialHandlerProperties(),
+                    getCredentialHandlers());
 
             config.setMethodInvocationContext(this.methodInvocationContext);
 
@@ -124,13 +124,13 @@ public class CustomIdentityStoreTestCase {
 
         private MethodInvocationContext methodInvocationContext;
 
-        public MyIdentityStoreConfiguration(Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
-                Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships,
-                Map<Class<? extends IdentityType>, Set<FeatureOperation>> supportedIdentityTypes, Set<String> realms,
-                Set<String> tiers, List<ContextInitializer> contextInitializers,
-                Map<String, Object> credentialHandlerProperties, List<Class<? extends CredentialHandler>> credentialHandlers) {
-            super(supportedFeatures, supportedRelationships, supportedIdentityTypes, realms, tiers, contextInitializers, credentialHandlerProperties,
-                    credentialHandlers);
+        public MyIdentityStoreConfiguration(
+                Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes,
+                Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes,
+                List<ContextInitializer> contextInitializers,
+                Map<String, Object> credentialHandlerProperties,
+                List<Class<? extends CredentialHandler>> credentialHandlers) {
+            super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers);
         }
 
         @Override
@@ -162,121 +162,126 @@ public class CustomIdentityStoreTestCase {
         }
 
         @Override
-        public void add(SecurityContext context, AttributedType value) {
+        public <I extends IdentityType> I getIdentity(Class<I> identityType, String id) {
+            return null;
+        }
+
+        @Override
+        public void add(IdentityContext context, AttributedType value) {
             value.setId(context.getIdGenerator().generate());
             getConfig().getMethodInvocationContext().setMethodName("addAttributedType");
         }
 
         @Override
-        public void update(SecurityContext context, AttributedType value) {
+        public void update(IdentityContext context, AttributedType value) {
 
         }
 
         @Override
-        public void remove(SecurityContext context, AttributedType value) {
+        public void remove(IdentityContext context, AttributedType value) {
 
         }
 
         @Override
-        public Agent getAgent(SecurityContext context, String loginName) {
+        public Agent getAgent(IdentityContext context, String loginName) {
             return null;
         }
 
         @Override
-        public User getUser(SecurityContext context, String loginName) {
+        public User getUser(IdentityContext context, String loginName) {
             getConfig().getMethodInvocationContext().setMethodName("getUser");
             return null;
         }
 
         @Override
-        public Group getGroup(SecurityContext context, String groupPath) {
+        public Group getGroup(IdentityContext context, String groupPath) {
             // TODO Auto-generated method stub
             return null;
         }
 
         @Override
-        public Group getGroup(SecurityContext context, String name, Group parent) {
+        public Group getGroup(IdentityContext context, String name, Group parent) {
             // TODO Auto-generated method stub
             return null;
         }
 
         @Override
-        public Role getRole(SecurityContext context, String name) {
+        public Role getRole(IdentityContext context, String name) {
             // TODO Auto-generated method stub
             return null;
         }
 
         @Override
-        public <V extends IdentityType> List<V> fetchQueryResults(SecurityContext context, IdentityQuery<V> identityQuery) {
+        public <V extends IdentityType> List<V> fetchQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
             // TODO Auto-generated method stub
             return null;
         }
 
         @Override
-        public <V extends IdentityType> int countQueryResults(SecurityContext context, IdentityQuery<V> identityQuery) {
+        public <V extends IdentityType> int countQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
             // TODO Auto-generated method stub
             return 0;
         }
 
         @Override
-        public <V extends Relationship> List<V> fetchQueryResults(SecurityContext context, RelationshipQuery<V> query) {
+        public <V extends Relationship> List<V> fetchQueryResults(IdentityContext context, RelationshipQuery<V> query) {
             // TODO Auto-generated method stub
             return null;
         }
 
         @Override
-        public <V extends Relationship> int countQueryResults(SecurityContext context, RelationshipQuery<V> query) {
+        public <V extends Relationship> int countQueryResults(IdentityContext context, RelationshipQuery<V> query) {
             // TODO Auto-generated method stub
             return 0;
         }
 
         @Override
-        public void setAttribute(SecurityContext context, IdentityType identityType, Attribute<? extends Serializable> attribute) {
+        public void setAttribute(IdentityContext context, AttributedType attributedType, Attribute<? extends Serializable> attribute) {
             // TODO Auto-generated method stub
 
         }
 
         @Override
-        public <V extends Serializable> Attribute<V> getAttribute(SecurityContext context, IdentityType identityType,
+        public <V extends Serializable> Attribute<V> getAttribute(IdentityContext context, AttributedType attributedType,
                 String attributeName) {
             // TODO Auto-generated method stub
             return null;
         }
 
         @Override
-        public void removeAttribute(SecurityContext context, IdentityType identityType, String attributeName) {
+        public void removeAttribute(IdentityContext context, AttributedType attributedType, String attributeName) {
             // TODO Auto-generated method stub
 
         }
 
         @Override
-        public void validateCredentials(SecurityContext context, Credentials credentials) {
+        public void validateCredentials(IdentityContext context, Credentials credentials) {
             // TODO Auto-generated method stub
 
         }
 
         @Override
-        public void updateCredential(SecurityContext context, Agent agent, Object credential, Date effectiveDate,
+        public void updateCredential(IdentityContext context, Agent agent, Object credential, Date effectiveDate,
                 Date expiryDate) {
             // TODO Auto-generated method stub
 
         }
 
         @Override
-        public void storeCredential(SecurityContext context, Agent agent, CredentialStorage storage) {
+        public void storeCredential(IdentityContext context, Account agent, CredentialStorage storage) {
             // TODO Auto-generated method stub
 
         }
 
         @Override
-        public <T extends CredentialStorage> T retrieveCurrentCredential(SecurityContext context, Agent agent,
+        public <T extends CredentialStorage> T retrieveCurrentCredential(IdentityContext context, Account account,
                 Class<T> storageClass) {
             // TODO Auto-generated method stub
             return null;
         }
 
         @Override
-        public <T extends CredentialStorage> List<T> retrieveCredentials(SecurityContext context, Agent agent,
+        public <T extends CredentialStorage> List<T> retrieveCredentials(IdentityContext context, Agent agent,
                 Class<T> storageClass) {
             // TODO Auto-generated method stub
             return null;

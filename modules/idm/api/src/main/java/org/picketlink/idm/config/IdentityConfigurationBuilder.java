@@ -31,7 +31,7 @@ package org.picketlink.idm.config;
  */
 public class IdentityConfigurationBuilder implements IdentityConfigurationChildBuilder {
 
-    private IdentityStoresConfigurationBuilder identityStoresConfigurationBuilder;
+    private final IdentityStoresConfigurationBuilder identityStoresConfigurationBuilder;
 
     public IdentityConfigurationBuilder() {
         this.identityStoresConfigurationBuilder = new IdentityStoresConfigurationBuilder(this);

@@ -18,11 +18,10 @@
 
 package org.picketlink.idm.config;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.spi.ContextInitializer;
@@ -31,18 +30,38 @@ import static java.util.Collections.unmodifiableMap;
 import static org.picketlink.idm.IDMLogger.LOGGER;
 
 /**
- * The base class for store configurations
+ * <p>Base class for {@link IdentityStoreConfiguration} implementations.</p>
  *
  * @author Shane Bryzak
  */
 public abstract class AbstractIdentityStoreConfiguration implements IdentityStoreConfiguration {
 
-    private Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes = new HashMap<Class<? extends AttributedType>, Set<TypeOperation>>();
-    private Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes = new HashMap<Class<? extends AttributedType>, Set<TypeOperation>>();
+    /**
+     * <p>{@link AttributedType} types are supported by this configuration.</p>
+     */
+    private final Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes;
 
-    private List<ContextInitializer> contextInitializers = new ArrayList<ContextInitializer>();
-    private Map<String, Object> credentialHandlerProperties = new HashMap<String, Object>();
-    private List<Class<? extends CredentialHandler>> credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
+    /**
+     * <p>{@link AttributedType} types are not supported by this configuration.
+     * This allows us to trim any type that we don't want to support off the hierarchy tree</p>
+     */
+    private final Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes;
+
+    /**
+     * <p>{@link ContextInitializer} instances that should be used to initialize the
+     * {@link org.picketlink.idm.spi.IdentityContext} before invoking an identity store operation.</p>
+     */
+    private final List<ContextInitializer> contextInitializers;
+
+    /**
+     * <p>Configuration properties for {@CredentialHandler}.</p>
+     */
+    private final Map<String, Object> credentialHandlerProperties;
+
+    /**
+     * <p>Additional {@link CredentialHandler} types supported by this configuration.</p>
+     */
+    private final List<Class<? extends CredentialHandler>> credentialHandlers;
 
     protected AbstractIdentityStoreConfiguration(
             Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes,
@@ -50,11 +69,11 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {
-        this.supportedTypes = supportedTypes;
-        this.unsupportedTypes = unsupportedTypes;
-        this.contextInitializers.addAll(contextInitializers);
-        this.credentialHandlerProperties.putAll(credentialHandlerProperties);
-        this.credentialHandlers.addAll(credentialHandlers);
+        this.supportedTypes = unmodifiableMap(supportedTypes);
+        this.unsupportedTypes = unmodifiableMap(unsupportedTypes);
+        this.contextInitializers = unmodifiableList(contextInitializers);
+        this.credentialHandlerProperties = unmodifiableMap(credentialHandlerProperties);
+        this.credentialHandlers = unmodifiableList(credentialHandlers);
     }
 
     @Override
@@ -86,32 +105,23 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
 
     @Override
     public List<ContextInitializer> getContextInitializers() {
-        return unmodifiableList(this.contextInitializers);
+        return this.contextInitializers;
     }
 
     @Override
     public List<Class<? extends CredentialHandler>> getCredentialHandlers() {
-        return unmodifiableList(this.credentialHandlers);
+        return this.credentialHandlers;
     }
 
     @Override
     public Map<String, Object> getCredentialHandlerProperties() {
-        return unmodifiableMap(this.credentialHandlerProperties);
+        return this.credentialHandlerProperties;
     }
 
-    /**
-     * <p>
-     * Check if the {@link FeatureGroup} is supported.
-     * </p>
-     *
-     * @param feature
-     * @param operation
-     * @return
-     */
     @Override
     public boolean supportsType(Class<? extends AttributedType> type, TypeOperation operation) {
         if (operation == null) {
-            throw new IllegalArgumentException("operation may not be null");
+            throw IDMMessages.MESSAGES.nullArgument("TypeOperation");
         }
 
         return isTypeOperationSupported(type, operation) != -1;

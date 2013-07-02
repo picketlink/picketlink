@@ -25,6 +25,7 @@ package org.picketlink.idm.config;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.spi.ContextInitializer;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
 
 /**
  * <p>{@link Builder} interface defining all configuration methods for identity stores.</p>
@@ -34,15 +35,62 @@ import org.picketlink.idm.spi.ContextInitializer;
  */
 public interface IdentityStoreConfigurationBuilder<T extends IdentityStoreConfiguration, S extends IdentityStoreConfigurationBuilder<T, S>> extends Builder<T> {
 
+    /**
+     * <p>Enables the default feature set for this configuration.</p>
+     *
+     * @return
+     */
     S supportAllFeatures();
 
+    /**
+     * <p>Defines which types should be supported by this configuration.</p>
+     *
+     * @param types
+     * @return
+     */
     S supportType(Class<? extends AttributedType>... types);
 
-    S unsupportType(Class<? extends AttributedType> type);
+    /**
+     * <p>Defines which type should not be supported by this configuration.</p>
+     * <p>If the operation was not provided, the type should be completely removed from the supported types.
+     * Otherwise, only the provided operations should not be supported.</p>
+     *
+     * @param type
+     * @param operation
+     * @return
+     */
+    S unsupportType(Class<? extends AttributedType> type, TypeOperation... operation);
 
+    /**
+     * <p>Adds a custom {@CredentialHandler}.</p>
+     *
+     * @param credentialHandler
+     * @return
+     */
     S addCredentialHandler(Class<? extends CredentialHandler> credentialHandler);
 
+    /**
+     * <p>Sets a configuration property for a {@link CredentialHandler}.</p>
+     *
+     * @param propertyName
+     * @param value
+     * @return
+     */
     S setCredentialHandlerProperty(String propertyName, Object value);
 
+    /**
+     * <p>Adds a {@link ContextInitializer}.</p>
+     *
+     * @param contextInitializer
+     * @return
+     */
     S addContextInitializer(ContextInitializer contextInitializer);
+
+    /**
+     * <p>Enable/Disable credentials support</p>
+     *
+     * @param supportCredentials
+     * @return
+     */
+    S supportCredentials(boolean supportCredentials);
 }

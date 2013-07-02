@@ -22,27 +22,23 @@
 
 package org.picketlink.test.idm.config;
 
-<<<<<<< HEAD
-=======
 import java.util.HashMap;
 import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
-import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -52,24 +48,11 @@ import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
-import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.password.internal.BCryptPasswordEncoder;
 import org.picketlink.idm.password.internal.PBKDF2PasswordEncoder;
 import org.picketlink.idm.password.internal.SHAPasswordEncoder;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.picketlink.idm.credential.internal.PasswordCredentialHandler.PASSWORD_ENCODER;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -109,14 +92,13 @@ public class PasswordCredentialHandlerConfigurationTestCase {
                 .stores()
                 .jpa()
                 .setCredentialHandlerProperty(PASSWORD_ENCODER,
-                        new BCryptPasswordEncoder(4) )
+                        new BCryptPasswordEncoder(4))
                 .addContextInitializer(new JPAContextInitializer(emf) {
                     @Override
                     public EntityManager getEntityManager() {
                         return entityManager;
                     }
                 })
-                .addRealm(Realm.DEFAULT_REALM)
                 .supportAllFeatures()
                 .identityClass(IdentityObject.class)
                 .attributeClass(IdentityObjectAttribute.class)
@@ -127,11 +109,12 @@ public class PasswordCredentialHandlerConfigurationTestCase {
                 .credentialAttributeClass(CredentialObjectAttribute.class)
                 .partitionClass(PartitionObject.class);
 
-        IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(builder.build());
+        PartitionManager partitionManager = null;
+        fail("Create PartitionManager");
 
-        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+        IdentityManager identityManager = partitionManager.createIdentityManager();
 
-        User user = new SimpleUser("user");
+        User user = new User("user");
 
         identityManager.add(user);
 
@@ -158,14 +141,13 @@ public class PasswordCredentialHandlerConfigurationTestCase {
                 .stores()
                 .jpa()
                 .setCredentialHandlerProperty(PASSWORD_ENCODER,
-                        new PBKDF2PasswordEncoder("salty".getBytes(),1000,128))
+                        new PBKDF2PasswordEncoder("salty".getBytes(), 1000, 128))
                 .addContextInitializer(new JPAContextInitializer(emf) {
                     @Override
                     public EntityManager getEntityManager() {
                         return entityManager;
                     }
                 })
-                .addRealm(Realm.DEFAULT_REALM)
                 .supportAllFeatures()
                 .identityClass(IdentityObject.class)
                 .attributeClass(IdentityObjectAttribute.class)
@@ -176,11 +158,12 @@ public class PasswordCredentialHandlerConfigurationTestCase {
                 .credentialAttributeClass(CredentialObjectAttribute.class)
                 .partitionClass(PartitionObject.class);
 
-        IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(builder.build());
+        PartitionManager partitionManager = null;
+        fail("Create PartitionManager");
 
-        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+        IdentityManager identityManager = partitionManager.createIdentityManager();
 
-        User user = new SimpleUser("user");
+        User user = new User("user");
 
         identityManager.add(user);
 
@@ -206,7 +189,7 @@ public class PasswordCredentialHandlerConfigurationTestCase {
         builder
             .stores()
                 .jpa()
-                .setCredentialHandlerProperty(PASSWORD_ENCODER, 
+                .setCredentialHandlerProperty(PASSWORD_ENCODER,
                         new SHAPasswordEncoder(1) {
                             @Override
                             public String encode(String rawPassword) {
@@ -225,7 +208,6 @@ public class PasswordCredentialHandlerConfigurationTestCase {
                             return entityManager;
                         }
                     })
-                    .addRealm(Realm.DEFAULT_REALM)
                     .supportAllFeatures()
                     .identityClass(IdentityObject.class)
                     .attributeClass(IdentityObjectAttribute.class)
@@ -235,10 +217,11 @@ public class PasswordCredentialHandlerConfigurationTestCase {
                     .credentialClass(CredentialObject.class)
                     .credentialAttributeClass(CredentialObjectAttribute.class)
                     .partitionClass(PartitionObject.class);
-                    
-        IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(builder.build());
 
-        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+        PartitionManager partitionManager = null;
+        fail("Create PartitionManager");
+
+        IdentityManager identityManager = partitionManager.createIdentityManager();
 
         User user = new User("user");
 
@@ -286,7 +269,6 @@ public class PasswordCredentialHandlerConfigurationTestCase {
                             return entityManager;
                         }
                     })
-                    .addRealm(Realm.DEFAULT_REALM)
                     .supportAllFeatures()
                     .identityClass(IdentityObject.class)
                     .attributeClass(IdentityObjectAttribute.class)
@@ -296,10 +278,11 @@ public class PasswordCredentialHandlerConfigurationTestCase {
                     .credentialClass(CredentialObject.class)
                     .credentialAttributeClass(CredentialObjectAttribute.class)
                     .partitionClass(PartitionObject.class);
-                    
-        IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(builder.build());
 
-        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+        PartitionManager partitionManager = null;
+        fail("Create PartitionManager");
+
+        IdentityManager identityManager = partitionManager.createIdentityManager();
 
         User user = new User("user");
 
@@ -344,7 +327,6 @@ public class PasswordCredentialHandlerConfigurationTestCase {
                             return entityManager;
                         }
                     })
-                    .addRealm(Realm.DEFAULT_REALM)
                     .supportAllFeatures()
                     .identityClass(IdentityObject.class)
                     .attributeClass(IdentityObjectAttribute.class)
@@ -354,10 +336,11 @@ public class PasswordCredentialHandlerConfigurationTestCase {
                     .credentialClass(CredentialObject.class)
                     .credentialAttributeClass(CredentialObjectAttribute.class)
                     .partitionClass(PartitionObject.class);
-                    
-        IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(builder.build());
 
-        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+        PartitionManager partitionManager = null;
+        fail("Create PartitionManager");
+
+        IdentityManager identityManager = partitionManager.createIdentityManager();
 
         User user = new User("user");
 

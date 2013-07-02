@@ -18,17 +18,14 @@
 
 package org.picketlink.test.idm.suites;
 
-<<<<<<< HEAD
-=======
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.internal.IdentityManagerFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.schema.CredentialObject;
@@ -40,7 +37,6 @@ import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.sample.Authorization;
-import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -49,8 +45,8 @@ import org.picketlink.test.idm.basic.RoleManagementTestCase;
 import org.picketlink.test.idm.basic.UserManagementTestCase;
 import org.picketlink.test.idm.credential.CertificateCredentialTestCase;
 import org.picketlink.test.idm.credential.DigestCredentialTestCase;
-import org.picketlink.test.idm.credential.TOTPCredentialTestCase;
 import org.picketlink.test.idm.credential.PasswordCredentialTestCase;
+import org.picketlink.test.idm.credential.TOTPCredentialTestCase;
 import org.picketlink.test.idm.partition.RealmManagementTestCase;
 import org.picketlink.test.idm.partition.TierManagementTestCase;
 import org.picketlink.test.idm.query.AgentQueryTestCase;
@@ -69,10 +65,6 @@ import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
 import org.picketlink.test.idm.usecases.ApplicationRegistrationTestCase;
 import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 /**
  * <p>
@@ -117,14 +109,12 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
     @SuppressWarnings("unchecked")
     @Override
-    public IdentityManagerFactory createIdentityManagerFactory() {
+    public PartitionManager createPartitionManager() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
         
         builder
             .stores()
                 .jpa()
-                    .addRealm(Realm.DEFAULT_REALM, "Testing")
-                    .addTier("Application A", "Application B", "Application C")
                     .identityClass(IdentityObject.class)
                     .attributeClass(IdentityObjectAttribute.class)
                     .relationshipClass(RelationshipObject.class)
@@ -134,15 +124,16 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
                     .credentialAttributeClass(CredentialObjectAttribute.class)
                     .partitionClass(PartitionObject.class)
                     .supportAllFeatures()
-                    .supportRelationshipType(CustomRelationship.class, Authorization.class)
+                    .supportType(CustomRelationship.class, Authorization.class)
                     .addContextInitializer(new JPAContextInitializer(emf) {
                         @Override
                         public EntityManager getEntityManager() {
                             return entityManager;
                         }
                     });
-        
-        return new IdentityManagerFactory(builder.build());
+
+        return null;
+//        return new IdentityManagerFactory(builder.build());
     }
 
 }

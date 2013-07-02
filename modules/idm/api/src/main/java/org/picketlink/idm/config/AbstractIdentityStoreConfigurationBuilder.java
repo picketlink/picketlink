@@ -41,27 +41,38 @@ import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.spi.ContextInitializer;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
 
 /**
+ * <p>Base class for {@link IdentityStoreConfigurationBuilder} implementations.</p>
+ *
  * @author Pedro Igor
  */
 public abstract class AbstractIdentityStoreConfigurationBuilder<T extends IdentityStoreConfiguration, S extends IdentityStoreConfigurationBuilder<T, S>>
-        extends AbstractIdentityConfigurationChildBuilder implements IdentityStoreConfigurationBuilder<T, S> {
+        extends AbstractIdentityConfigurationChildBuilder
+        implements IdentityStoreConfigurationBuilder<T, S> {
 
-    private Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes = new HashMap<Class<? extends AttributedType>, Set<TypeOperation>>();
-    private Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes = new HashMap<Class<? extends AttributedType>, Set<TypeOperation>>();
+    private final Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes;
+    private final Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes;
 
-    private List<Class<? extends CredentialHandler>> credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
-    private Map<String, Object> credentialHandlerProperties = new HashMap<String, Object>();
+    private final List<Class<? extends CredentialHandler>> credentialHandlers;
+    private final Map<String, Object> credentialHandlerProperties;
+    private boolean supportCredentials;
 
-    private List<ContextInitializer> contextInitializers = new ArrayList<ContextInitializer>();
+    private final List<ContextInitializer> contextInitializers;
 
-    private IdentityStoresConfigurationBuilder identityStoresConfigurationBuilder;
+    private final IdentityStoresConfigurationBuilder identityStoresConfigurationBuilder;
 
     protected AbstractIdentityStoreConfigurationBuilder(IdentityStoresConfigurationBuilder builder) {
         super(builder);
+        this.supportedTypes = new HashMap<Class<? extends AttributedType>, Set<TypeOperation>>();
+        this.unsupportedTypes = new HashMap<Class<? extends AttributedType>, Set<TypeOperation>>();
+        this.credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
+        this.credentialHandlerProperties = new HashMap<String, Object>();
+        this.contextInitializers = new ArrayList<ContextInitializer>();
         this.identityStoresConfigurationBuilder = builder;
     }
 
@@ -96,12 +107,16 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
     }
 
     @Override
-    public S unsupportType(Class<? extends AttributedType> type) {
+    public S unsupportType(Class<? extends AttributedType> type, TypeOperation... operations) {
         if (!this.unsupportedTypes.containsKey(type)) {
             this.unsupportedTypes.put(type, new HashSet<TypeOperation>());
         }
 
-        for (TypeOperation op : TypeOperation.values()) {
+        if (operations != null && operations.length == 0) {
+            operations = TypeOperation.values();
+        }
+
+        for (TypeOperation op : operations) {
             this.unsupportedTypes.get(type).add(op);
         }
 
@@ -132,6 +147,12 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
     }
 
     @Override
+    public S supportCredentials(boolean supportCredentials) {
+        this.supportCredentials = supportCredentials;
+        return (S) this;
+    }
+
+    @Override
     public void validate() {
     }
 
@@ -141,23 +162,23 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
     }
 
     protected List<ContextInitializer> getContextInitializers() {
-        return this.contextInitializers;
+        return unmodifiableList(this.contextInitializers);
     }
 
     protected Map<String, Object> getCredentialHandlerProperties() {
-        return this.credentialHandlerProperties;
+        return unmodifiableMap(this.credentialHandlerProperties);
     }
 
     protected List<Class<? extends CredentialHandler>> getCredentialHandlers() {
-        return this.credentialHandlers;
+        return unmodifiableList(this.credentialHandlers);
     }
 
-    public Map<Class<? extends AttributedType>, Set<TypeOperation>> getSupportedTypes() {
-        return this.supportedTypes;
+    protected Map<Class<? extends AttributedType>, Set<TypeOperation>> getSupportedTypes() {
+        return unmodifiableMap(this.supportedTypes);
     }
 
-    public Map<Class<? extends AttributedType>, Set<TypeOperation>> getUnsupportedTypes() {
-        return this.unsupportedTypes;
+    protected Map<Class<? extends AttributedType>, Set<TypeOperation>> getUnsupportedTypes() {
+        return unmodifiableMap(this.unsupportedTypes);
     }
 
     private static Class<? extends AttributedType>[] getDefaultIdentityModelClasses() {

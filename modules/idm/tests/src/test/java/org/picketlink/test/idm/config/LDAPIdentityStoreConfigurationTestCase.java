@@ -26,30 +26,17 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-<<<<<<< HEAD
-import org.picketbox.test.ldap.AbstractLDAPTest;
-=======
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.LDAPStoreConfigurationBuilder;
 import org.picketlink.idm.config.SecurityConfigurationException;
-import org.picketlink.idm.model.sample.Agent;
-import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.relationship.CustomRelationship;
-<<<<<<< HEAD
-import sun.management.resources.agent;
+import org.picketlink.test.idm.suites.LDAPAbstractSuite;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-=======
-import org.picketlink.test.idm.suites.LDAPAbstractSuite;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 
 /**
  * <p>
@@ -143,8 +130,7 @@ public class LDAPIdentityStoreConfigurationTestCase extends
                 .agentDNSuffix(instance.getAgentDnSuffix())
                 .groupDNSuffix(instance.getGroupDnSuffix())
                 .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
-                .supportIdentityType(User.class, Role.class, Group.class, Agent.class)
-                .supportFeature(FeatureGroup.attribute, FeatureGroup.relationship, FeatureGroup.credential);
+                .supportAllFeatures();
 
         return storeConfig;
     }

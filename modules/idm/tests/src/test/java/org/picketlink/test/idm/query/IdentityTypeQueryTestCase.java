@@ -22,14 +22,14 @@ import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Realm;
-import org.picketlink.idm.model.SimpleAgent;
-import org.picketlink.idm.model.SimpleGroup;
-import org.picketlink.idm.model.SimpleRole;
-import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.Tier;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
-import sun.management.resources.agent;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
@@ -46,19 +46,19 @@ public class IdentityTypeQueryTestCase extends AbstractIdentityManagerTestCase {
     public void testFindByDifferentRealms() {
         IdentityManager identityManager = getIdentityManager();
 
-        SimpleAgent agent = new SimpleAgent("Agent");
+        Agent agent = new Agent("Agent");
 
         identityManager.add(agent);
 
-        SimpleUser user = new SimpleUser("User");
+        User user = new User("User");
 
         identityManager.add(user);
 
-        SimpleRole role = new SimpleRole("Role");
+        Role role = new Role("Role");
 
         identityManager.add(role);
 
-        SimpleGroup group = new SimpleGroup("Group");
+        Group group = new Group("Group");
 
         identityManager.add(group);
 
@@ -75,21 +75,21 @@ public class IdentityTypeQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, role.getId()));
         assertTrue(contains(result, group.getId()));
 
-        IdentityManager testingRealm = getIdentityManagerFactory().createIdentityManager(getIdentityManagerFactory().getRealm("Testing"));
+        IdentityManager testingRealm = getPartitionManager().createIdentityManager(getPartitionManager().getPartition(Realm.class, "Testing"));
 
-        agent = new SimpleAgent("Another Agent");
+        agent = new Agent("Another Agent");
 
         testingRealm.add(agent);
 
-        user = new SimpleUser("Another User");
+        user = new User("Another User");
 
         testingRealm.add(user);
 
-        role = new SimpleRole("Another Role");
+        role = new Role("Another Role");
 
         testingRealm.add(role);
 
-        group = new SimpleGroup("Another Group");
+        group = new Group("Another Group");
 
         testingRealm.add(group);
 
@@ -109,13 +109,13 @@ public class IdentityTypeQueryTestCase extends AbstractIdentityManagerTestCase {
 
     @Test
     public void testFindByDifferentTiers() {
-        IdentityManager identityManager = getIdentityManagerFactory().createIdentityManager(getIdentityManagerFactory().getTier("Application A"));
+        IdentityManager identityManager = getPartitionManager().createIdentityManager(getPartitionManager().getPartition(Tier.class, "Application A"));
 
-        SimpleRole role = new SimpleRole("Role");
+        Role role = new Role("Role");
 
         identityManager.add(role);
 
-        SimpleGroup group = new SimpleGroup("Group");
+        Group group = new Group("Group");
 
         identityManager.add(group);
 
@@ -130,13 +130,13 @@ public class IdentityTypeQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, role.getId()));
         assertTrue(contains(result, group.getId()));
 
-        IdentityManager testingRealm = getIdentityManagerFactory().createIdentityManager(getIdentityManagerFactory().getTier("Application B"));
+        IdentityManager testingRealm = getPartitionManager().createIdentityManager(getPartitionManager().getPartition(Tier.class, "Application B"));
 
-        role = new SimpleRole("Another Role");
+        role = new Role("Another Role");
 
         testingRealm.add(role);
 
-        group = new SimpleGroup("Another Group");
+        group = new Group("Another Group");
 
         testingRealm.add(group);
 

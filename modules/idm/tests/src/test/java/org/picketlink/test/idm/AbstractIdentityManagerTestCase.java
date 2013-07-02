@@ -18,12 +18,12 @@
 package org.picketlink.test.idm;
 
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.internal.PartitionManager;
 
 /**
  * <p>
@@ -35,26 +35,26 @@ import org.picketlink.internal.PartitionManager;
  */
 public class AbstractIdentityManagerTestCase {
 
-    private PartitionManager identityManagerFactory;
+    private PartitionManager partitionManager;
 
     private IdentityManager identityManager;
 
-    public PartitionManager getIdentityManagerFactory() {
-        if (identityManagerFactory == null) {
-            throw new RuntimeException("Identity Manager Factory is not set.");
+    public PartitionManager getPartitionManager() {
+        if (partitionManager == null) {
+            throw new RuntimeException("PartitionManager is not set.");
         }
-        return this.identityManagerFactory;
+        return this.partitionManager;
     }
 
     public IdentityManager getIdentityManager() {
         if (this.identityManager == null) {
-            this.identityManager = getIdentityManagerFactory().createIdentityManager();
+            this.identityManager = getPartitionManager().createIdentityManager();
         }
         return this.identityManager;
     }
 
-    public void setIdentityManagerFactory(PartitionManager factory) {
-        this.identityManagerFactory = factory;
+    public void setPartitionManager(PartitionManager factory) {
+        this.partitionManager = factory;
     }
 
     public void setIdentityManager(IdentityManager identityManager) {
@@ -126,7 +126,7 @@ public class AbstractIdentityManagerTestCase {
     }
 
     private IdentityManager getIdentityManagerForPartition(Partition partition) {
-        PartitionManager factory = getIdentityManagerFactory();
+        PartitionManager factory = getPartitionManager();
         
         if (partition == null) {
             return factory.createIdentityManager();

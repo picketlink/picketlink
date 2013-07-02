@@ -18,24 +18,25 @@
 
 package org.picketlink.idm.config;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.spi.ContextInitializer;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /**
+ * <p>Configuration class for the File-based {@link org.picketlink.idm.spi.IdentityStore} implementation.</p>
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
 public class FileIdentityStoreConfiguration extends AbstractIdentityStoreConfiguration {
 
-    private int asyncThreadPool = 5;
-    private boolean asyncWrite = false;
-    private boolean alwaysCreateFiles = true;
-    private String workingDir;
+    private final int asyncThreadPool;
+    private final boolean asyncWrite;
+    private final boolean alwaysCreateFiles;
+    private final String workingDir;
 
     FileIdentityStoreConfiguration(
             String workingDir,

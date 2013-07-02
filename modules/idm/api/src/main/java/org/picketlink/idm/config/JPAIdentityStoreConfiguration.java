@@ -247,12 +247,12 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
         private final Property<?> entityProperty;
         private final Class<?> entityClass;
 
-        public PropertyMapping(Property<?> entityProperty) {
+        private PropertyMapping(Property<?> entityProperty) {
             this.entityProperty = entityProperty;
             this.entityClass = null;
         }
 
-        public PropertyMapping(Class<?> entityClass) {
+        private PropertyMapping(Class<?> entityClass) {
             this.entityProperty = null;
             this.entityClass = entityClass;
         }
@@ -271,7 +271,7 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
         private final Property<String> attributeClass;
         private final Property<Object> attributeValue;
 
-        public AttributeMapping(Property<String> attributeName,
+        private AttributeMapping(Property<String> attributeName,
                 Property<String> attributeClass, Property<Object> attributeValue) {
             this.attributeName = attributeName;
             this.attributeClass = attributeClass;

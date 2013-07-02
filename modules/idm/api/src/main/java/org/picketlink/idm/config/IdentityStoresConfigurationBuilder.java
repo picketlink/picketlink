@@ -22,14 +22,13 @@
 
 package org.picketlink.idm.config;
 
-import org.picketlink.idm.IDMMessages;
-import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.StoreSelector;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.picketlink.idm.IDMMessages;
+import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.StoreSelector;
 
 /**
  * @author Pedro Igor
@@ -38,13 +37,16 @@ import java.util.Map;
 public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigurationChildBuilder implements
         Builder<IdentityStoresConfiguration> {
 
+    private final List<IdentityStoreConfigurationBuilder<?, ?>> identityStoresConfiguration;
+    private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>> supportedStoreBuilders;
+    private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores;
     private StoreSelector storeFactory;
-    private List<IdentityStoreConfigurationBuilder<?, ?>> identityStoresConfiguration = new ArrayList<IdentityStoreConfigurationBuilder<?, ?>>();
-    private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>> supportedStoreBuilders = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>>();
-    private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>>();
 
     public IdentityStoresConfigurationBuilder(IdentityConfigurationBuilder builder) {
         super(builder);
+        this.identityStoresConfiguration = new ArrayList<IdentityStoreConfigurationBuilder<?, ?>>();
+        this.supportedStoreBuilders = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>>();
+        this.identityStores = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>>();
 
         this.supportedStoreBuilders.put(FileIdentityStoreConfiguration.class, FileStoreConfigurationBuilder.class);
         this.supportedStoreBuilders.put(JPAIdentityStoreConfiguration.class, JPAStoreConfigurationBuilder.class);
@@ -66,6 +68,23 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
 
     public LDAPStoreConfigurationBuilder ldap() {
         return forIdentityStoreConfig(LDAPIdentityStoreConfiguration.class, true);
+    }
+
+    /**
+     * <p>Adds support for a custom {@link IdentityStore}.</p>
+     *
+     * @param identityStoreConfiguration
+     * @param identityStore
+     * @param builder
+     * @param <T>
+     * @return
+     */
+    public <T extends IdentityStoreConfigurationBuilder<?, ?>> T add(Class<? extends IdentityStoreConfiguration> identityStoreConfiguration,
+                                                                     Class<? extends IdentityStore<?>> identityStore, Class<T> builder) {
+        this.identityStores.put(identityStoreConfiguration, identityStore);
+        this.supportedStoreBuilders.put(identityStoreConfiguration, builder);
+
+        return forIdentityStoreConfig(identityStoreConfiguration, true);
     }
 
     @Override
@@ -142,14 +161,6 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
 
     public boolean isConfigured(Class<? extends IdentityStoreConfiguration> storeConfigType) {
         return forIdentityStoreConfig(storeConfigType, false) != null;
-    }
-
-    public <T extends IdentityStoreConfigurationBuilder<?, ?>> T add(Class<? extends IdentityStoreConfiguration> identityStoreConfiguration,
-            Class<? extends IdentityStore<?>> identityStore, Class<T> builder) {
-        this.identityStores.put(identityStoreConfiguration, identityStore);
-        this.supportedStoreBuilders.put(identityStoreConfiguration, builder);
-
-        return forIdentityStoreConfig(identityStoreConfiguration, true);
     }
 
 }

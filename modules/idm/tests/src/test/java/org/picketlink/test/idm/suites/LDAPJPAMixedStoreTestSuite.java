@@ -18,12 +18,15 @@
 
 package org.picketlink.test.idm.suites;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
@@ -34,9 +37,6 @@ import org.picketlink.idm.jpa.schema.RelationshipIdentityWeakObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
-import org.picketlink.idm.model.sample.Authorization;
-import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.internal.PartitionManager;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -52,16 +52,11 @@ import org.picketlink.test.idm.query.UserQueryTestCase;
 import org.picketlink.test.idm.relationship.AgentGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupRoleRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupsRelationshipTestCase;
-import org.picketlink.test.idm.relationship.CustomRelationship;
 import org.picketlink.test.idm.relationship.CustomRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
 import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 /**
  * <p>
@@ -122,7 +117,7 @@ public class LDAPJPAMixedStoreTestSuite extends LDAPAbstractSuite implements Tes
 
     @SuppressWarnings("unchecked")
     @Override
-    public PartitionManager createIdentityManagerFactory() {
+    public PartitionManager createPartitionManager() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
@@ -138,17 +133,16 @@ public class LDAPJPAMixedStoreTestSuite extends LDAPAbstractSuite implements Tes
                     .groupDNSuffix(getGroupDnSuffix())
                     .addGroupMapping("/QA Group", "ou=QA," + getBaseDn())
                     .supportAllFeatures()
-                    .removeFeature(FeatureGroup.relationship)
+//                    .removeFeature(FeatureGroup.relationship)
                 .jpa()
-                    .addRealm(Realm.DEFAULT_REALM)
                     .identityClass(IdentityObject.class)
                     .attributeClass(IdentityObjectAttribute.class)
                     .relationshipClass(RelationshipObject.class)
                     .relationshipIdentityClass(RelationshipIdentityWeakObject.class)
                     .relationshipAttributeClass(RelationshipObjectAttribute.class)
                     .partitionClass(PartitionObject.class)
-                    .supportFeature(FeatureGroup.relationship)
-                    .supportRelationshipType(CustomRelationship.class, Authorization.class)
+//                    .supportFeature(FeatureGroup.relationship)
+//                    .supportRelationshipType(CustomRelationship.class, Authorization.class)
                     .addContextInitializer(new JPAContextInitializer(emf) {
                         @Override
                         public EntityManager getEntityManager() {
@@ -156,7 +150,8 @@ public class LDAPJPAMixedStoreTestSuite extends LDAPAbstractSuite implements Tes
                         }
                     });
 
-        return new PartitionManager(builder.build());
+        return null;
+//        return new PartitionManager(builder.build());
     }
 
     @Override

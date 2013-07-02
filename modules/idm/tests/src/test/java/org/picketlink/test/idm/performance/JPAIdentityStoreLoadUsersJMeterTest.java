@@ -22,6 +22,9 @@
 
 package org.picketlink.test.idm.performance;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
@@ -29,12 +32,8 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.internal.PartitionManager;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 /**
  * @author Pedro Silva
@@ -43,15 +42,15 @@ import javax.persistence.Persistence;
 public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClient {
 
     private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
-    private static PartitionManager identityManagerFactory = null;
+    private static PartitionManager partitionManager = null;
     private static final ThreadLocal<EntityManager> entityManager = new ThreadLocal<EntityManager>();
 
     static {
-        identityManagerFactory = createIdentityManagerFactory();
+        partitionManager = createPartitionManager();
 
         initializeEntityManager();
 
-        IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+        IdentityManager identityManager = partitionManager.createIdentityManager();
         
         identityManager.add(new User("testingUser"));
 
@@ -110,7 +109,7 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
 
             User user = new User(loginName);
 
-            IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+            IdentityManager identityManager = partitionManager.createIdentityManager();
             
             identityManager.add(user);
 
@@ -126,8 +125,8 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
         return result;
     }
 
-    private static PartitionManager createIdentityManagerFactory() {
-        return identityManagerFactory;
+    private static PartitionManager createPartitionManager() {
+        return partitionManager;
 //        IdentityConfiguration configuration = new IdentityConfiguration();
 //        
 //        configuration
