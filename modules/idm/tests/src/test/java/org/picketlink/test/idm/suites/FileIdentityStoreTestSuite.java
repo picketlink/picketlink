@@ -68,13 +68,7 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
                 .stores()
                     .file()
                         .preserveState(false)
-                        .supportAllFeatures()
-                        .supportType(CustomRelationship.class, Authorization.class)
-            .named("teste")
-                .stores()
-                    .file();
-
-        List<IdentityConfiguration> identityConfigurations = builder.buildAll();
+                        .supportAllFeatures();
 
         PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
 
