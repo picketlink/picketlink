@@ -37,17 +37,17 @@ import org.picketlink.idm.spi.StoreSelector;
  * @author Pedro Igor
  *
  */
-public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigurationChildBuilder implements
+public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigurationChildBuilder<IdentityStoresConfiguration> implements
         Builder<IdentityStoresConfiguration> {
 
-    private final List<IdentityStoreConfigurationBuilder<?, ?>> identityStoresConfiguration;
+    private final List<AbstractIdentityStoreConfigurationBuilder<?, ?>> identityStoresConfiguration;
     private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>> supportedStoreBuilders;
     private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores;
     private StoreSelector storeSelector;
 
-    public IdentityStoresConfigurationBuilder(IdentityConfigurationBuilder builder) {
+    public IdentityStoresConfigurationBuilder(NamedIdentityConfigurationBuilder builder) {
         super(builder);
-        this.identityStoresConfiguration = new ArrayList<IdentityStoreConfigurationBuilder<?, ?>>();
+        this.identityStoresConfiguration = new ArrayList<AbstractIdentityStoreConfigurationBuilder<?, ?>>();
         this.supportedStoreBuilders = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>>();
         this.identityStores = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>>();
 
@@ -82,7 +82,7 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
      * @param <T>
      * @return
      */
-    public <T extends IdentityStoreConfigurationBuilder<?, ?>> T add(Class<? extends IdentityStoreConfiguration> identityStoreConfiguration,
+    public <T extends AbstractIdentityStoreConfigurationBuilder<?, ?>> T add(Class<? extends IdentityStoreConfiguration> identityStoreConfiguration,
                                                                      Class<? extends IdentityStore<?>> identityStore, Class<T> builder) {
         this.identityStores.put(identityStoreConfiguration, identityStore);
         this.supportedStoreBuilders.put(identityStoreConfiguration, builder);
@@ -91,13 +91,13 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
     }
 
     @Override
-    public IdentityStoresConfiguration create() {
+    protected IdentityStoresConfiguration create() {
         List<IdentityStoreConfiguration> configurations = new ArrayList<IdentityStoreConfiguration>();
 
         boolean hasPartitionStore = false;
         Set<Class<? extends AttributedType>> supportedTypes = new HashSet<Class<? extends AttributedType>>();
 
-        for (IdentityStoreConfigurationBuilder<?, ?> storeConfigurationBuilder : this.identityStoresConfiguration) {
+        for (AbstractIdentityStoreConfigurationBuilder<?, ?> storeConfigurationBuilder : this.identityStoresConfiguration) {
             IdentityStoreConfiguration storeConfiguration = storeConfigurationBuilder.create();
 
             if (storeConfiguration.supportsPartition()) {
@@ -121,12 +121,12 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
     }
 
     @Override
-    public void validate() {
+    protected void validate() {
         if (this.identityStoresConfiguration.isEmpty()) {
             throw new SecurityConfigurationException("You must configure at least one identity store.");
         }
 
-        for (IdentityStoreConfigurationBuilder<?, ?> storeConfigurationBuilder : this.identityStoresConfiguration) {
+        for (AbstractIdentityStoreConfigurationBuilder<?, ?> storeConfigurationBuilder : this.identityStoresConfiguration) {
             storeConfigurationBuilder.validate();
         }
     }
@@ -138,7 +138,7 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
         }
 
         for (IdentityStoreConfiguration identityStoreConfiguration : configuration.getConfigurations()) {
-            IdentityStoreConfigurationBuilder<IdentityStoreConfiguration, ?> storeConfigBuilder = forIdentityStoreConfig(
+            AbstractIdentityStoreConfigurationBuilder<IdentityStoreConfiguration, ?> storeConfigBuilder = forIdentityStoreConfig(
                     identityStoreConfiguration.getClass(), true);
             storeConfigBuilder.readFrom(identityStoreConfiguration);
         }
@@ -149,7 +149,7 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
     }
 
     @SuppressWarnings("unchecked")
-    private <S extends IdentityStoreConfigurationBuilder<?, ?>> S forIdentityStoreConfig(
+    private <S extends AbstractIdentityStoreConfigurationBuilder<?, ?>> S forIdentityStoreConfig(
             Class<? extends IdentityStoreConfiguration> configurationType, boolean createIfNotExists) {
         Class<S> builderType = (Class<S>) this.supportedStoreBuilders.get(configurationType);
 

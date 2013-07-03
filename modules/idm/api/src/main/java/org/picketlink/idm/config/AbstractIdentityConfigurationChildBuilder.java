@@ -21,13 +21,15 @@
  */
 package org.picketlink.idm.config;
 
+import java.util.List;
+
 /**
  * <p>Base class for {@link IdentityConfigurationChildBuilder}.</p>
  *
  * @author Pedro Igor
  *
  */
-public abstract class AbstractIdentityConfigurationChildBuilder implements IdentityConfigurationChildBuilder {
+public abstract class AbstractIdentityConfigurationChildBuilder<T> extends AbstractConfigurationBuilder<T> implements IdentityConfigurationChildBuilder {
 
     private final IdentityConfigurationChildBuilder identityConfigurationBuilder;
 
@@ -36,8 +38,8 @@ public abstract class AbstractIdentityConfigurationChildBuilder implements Ident
     }
 
     @Override
-    public IdentityStoresConfigurationBuilder stores() {
-        return this.identityConfigurationBuilder.stores();
+    public NamedIdentityConfigurationBuilder named(String configurationName) {
+        return this.identityConfigurationBuilder.named(configurationName);
     }
 
     @Override
@@ -46,8 +48,8 @@ public abstract class AbstractIdentityConfigurationChildBuilder implements Ident
     }
 
     @Override
-    public IdentityConfiguration build(String name) {
-        return this.identityConfigurationBuilder.build(name);
+    public List<IdentityConfiguration> buildAll() {
+        return this.identityConfigurationBuilder.buildAll();
     }
 
 }

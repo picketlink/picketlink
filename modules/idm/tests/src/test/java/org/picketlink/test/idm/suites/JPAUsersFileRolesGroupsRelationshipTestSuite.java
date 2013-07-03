@@ -100,7 +100,8 @@ public class JPAUsersFileRolesGroupsRelationshipTestSuite implements TestLifecyc
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
-            .stores()
+                .named("default")
+                .stores()
                 .jpa()
                     .identityClass(IdentityObject.class)
                     .credentialClass(CredentialObject.class)

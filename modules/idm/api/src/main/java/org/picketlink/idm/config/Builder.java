@@ -28,9 +28,4 @@ package org.picketlink.idm.config;
  */
 public interface Builder<T> {
 
-    T create();
-
-    void validate();
-
-    Builder<?> readFrom(T configuration);
 }

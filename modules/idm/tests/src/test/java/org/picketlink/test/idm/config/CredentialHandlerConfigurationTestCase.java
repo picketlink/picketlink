@@ -88,7 +88,8 @@ public class CredentialHandlerConfigurationTestCase {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
-            .stores()
+                .named("default")
+                .stores()
                 .jpa()
                     .addCredentialHandler(CustomCredentialHandler.class)
                     .addContextInitializer(new JPAContextInitializer(emf) {
@@ -141,7 +142,7 @@ public class CredentialHandlerConfigurationTestCase {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
-            .stores()
+                .named("default").stores()
                 .jpa()
                     .addCredentialHandler(CustomCredentialHandler.class)
                     .addContextInitializer(new JPAContextInitializer(emf) {

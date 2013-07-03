@@ -88,6 +88,7 @@ public class ProgrammaticConfigurationTestCase {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
+                .named("default")
                 .stores()
                 .file()
                 .preserveState(false)
@@ -113,6 +114,7 @@ public class ProgrammaticConfigurationTestCase {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
+                .named("default")
                 .stores()
                 .jpa()
                 .addContextInitializer(new JPAContextInitializer(emf) {
@@ -148,6 +150,7 @@ public class ProgrammaticConfigurationTestCase {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
+                .named("default")
                 .stores()
                 .ldap()
                 .baseDN(this.ldapServer.getBaseDn())
@@ -176,8 +179,9 @@ public class ProgrammaticConfigurationTestCase {
     public void failDuplicatedIdentityTypeConfiguration() throws Exception {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
-        builder.
-            stores()
+        builder
+            .named("default")
+            .stores()
                 .file()
                     .unsupportType(User.class)
                 .jpa()
@@ -198,8 +202,9 @@ public class ProgrammaticConfigurationTestCase {
     public void failDuplicatedFeatureConfiguration() throws Exception {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
-        builder.
-                stores()
+        builder
+                .named("default")
+                .stores()
                 .file()
                     .supportCredentials(true)
                 .jpa()
@@ -220,8 +225,9 @@ public class ProgrammaticConfigurationTestCase {
     public void failDuplicatedRelationshipConfiguration() throws Exception {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
-        builder.
-                stores()
+        builder
+                .named("default")
+                .stores()
                 .file()
                     .supportType(Grant.class)
                 .jpa()
@@ -242,8 +248,9 @@ public class ProgrammaticConfigurationTestCase {
     public void failUnsupportedIdentityType() throws Exception {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
-        builder.
-                stores()
+        builder
+                .named("default")
+                .stores()
                     .file()
                         .supportType(Role.class);
 
@@ -263,8 +270,9 @@ public class ProgrammaticConfigurationTestCase {
     public void failUnsupportedRelationshipType() throws Exception {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
-        builder.
-                stores()
+        builder
+                .named("default")
+                .stores()
                     .file()
                         .supportType(IdentityType.class)
                         .supportType(GroupRole.class);

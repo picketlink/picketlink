@@ -49,7 +49,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * @author Pedro Silva
@@ -58,14 +58,14 @@ import static org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation
 public abstract class AbstractFeaturesSetConfigurationTestCase<T extends IdentityStoreConfigurationBuilder<?, ?>> {
 
     @Test
-    public void testMinimalConfigurationForIdentityTypeOperations() {
+    public void testMinimalConfigurationForIdentityIdentityOperations() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         T storeConfig = createMinimalConfiguration(builder);
 
         addContextInitializers(storeConfig);
 
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
         IdentityManager identityManager = createIdentityManager(builder.build());
 
@@ -90,7 +90,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         addContextInitializers(storeConfig);
 
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
         IdentityConfiguration configuration = builder.build();
 
@@ -140,7 +140,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         addContextInitializers(storeConfig);
 
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
         IdentityManager identityManager = createIdentityManager(builder.build());
 
@@ -167,11 +167,11 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         T storeConfig = createMinimalConfiguration(builder);
 
-        storeConfig.unsupportType(User.class, TypeOperation.read);
+        storeConfig.unsupportType(User.class, IdentityOperation.read);
 
         addContextInitializers(storeConfig);
 
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
         try {
             IdentityManager identityManager = createIdentityManager(builder.build());
@@ -181,7 +181,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             fail();
         } catch (OperationNotSupportedException one) {
             assertTrue(one.getAttributedType().equals(User.class));
-            assertTrue(one.getOperation().equals(TypeOperation.read));
+            assertTrue(one.getOperation().equals(IdentityOperation.read));
         } catch (Exception e) {
             fail();
         }
@@ -195,10 +195,10 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         addContextInitializers(storeConfig);
         
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
 
-        storeConfig.unsupportType(User.class, TypeOperation.create);
+        storeConfig.unsupportType(User.class, IdentityOperation.create);
 
         try {
             IdentityManager identityManager = createIdentityManager(builder.build());
@@ -210,7 +210,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             if (OperationNotSupportedException.class.isInstance(ime.getCause())) {
                 OperationNotSupportedException one = (OperationNotSupportedException) ime.getCause();
                 assertTrue(one.getAttributedType().equals(User.class));
-                assertTrue(one.getOperation().equals(TypeOperation.create));
+                assertTrue(one.getOperation().equals(IdentityOperation.create));
             } else {
                 fail();
             }
@@ -227,10 +227,10 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         addContextInitializers(storeConfig);
         
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
 
-        storeConfig.unsupportType(User.class, TypeOperation.delete);
+        storeConfig.unsupportType(User.class, IdentityOperation.delete);
 
         try {
             IdentityManager identityManager = createIdentityManager(builder.build());
@@ -249,7 +249,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             if (OperationNotSupportedException.class.isInstance(ime.getCause())) {
                 OperationNotSupportedException one = (OperationNotSupportedException) ime.getCause();
                 assertTrue(one.getAttributedType().equals(User.class));
-                assertTrue(one.getOperation().equals(TypeOperation.delete));
+                assertTrue(one.getOperation().equals(IdentityOperation.delete));
             } else {
                 fail();
             }
@@ -267,10 +267,10 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         addContextInitializers(storeConfig);
         
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
 
-        storeConfig.unsupportType(Role.class, TypeOperation.read);
+        storeConfig.unsupportType(Role.class, IdentityOperation.read);
 
         try {
             IdentityManager identityManager = createIdentityManager(builder.build());
@@ -280,7 +280,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             fail();
         } catch (OperationNotSupportedException one) {
             assertTrue(one.getAttributedType().equals(Role.class));
-            assertTrue(one.getOperation().equals(TypeOperation.read));
+            assertTrue(one.getOperation().equals(IdentityOperation.read));
         } catch (Exception e) {
             fail();
         }
@@ -294,9 +294,9 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         addContextInitializers(storeConfig);
         
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
-        storeConfig.unsupportType(Role.class, TypeOperation.create);
+        storeConfig.unsupportType(Role.class, IdentityOperation.create);
 
         try {
             IdentityManager identityManager = createIdentityManager(builder.build());
@@ -308,7 +308,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             if (OperationNotSupportedException.class.isInstance(ime.getCause())) {
                 OperationNotSupportedException one = (OperationNotSupportedException) ime.getCause();
                 assertTrue(one.getAttributedType().equals(Role.class));
-                assertTrue(one.getOperation().equals(TypeOperation.create));
+                assertTrue(one.getOperation().equals(IdentityOperation.create));
             } else {
                 fail();
             }
@@ -325,9 +325,9 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         addContextInitializers(storeConfig);
         
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
-        storeConfig.unsupportType(Role.class, TypeOperation.delete);
+        storeConfig.unsupportType(Role.class, IdentityOperation.delete);
 
         try {
             IdentityManager identityManager = createIdentityManager(builder.build());
@@ -339,7 +339,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             if (OperationNotSupportedException.class.isInstance(ime.getCause())) {
                 OperationNotSupportedException one = (OperationNotSupportedException) ime.getCause();
                 assertTrue(one.getAttributedType().equals(Role.class));
-                assertTrue(one.getOperation().equals(TypeOperation.delete));
+                assertTrue(one.getOperation().equals(IdentityOperation.delete));
             } else {
                 fail();
             }
@@ -356,9 +356,9 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         addContextInitializers(storeConfig);
         
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
-        storeConfig.unsupportType(Group.class, TypeOperation.read);
+        storeConfig.unsupportType(Group.class, IdentityOperation.read);
 
         try {
             IdentityManager identityManager = createIdentityManager(builder.build());
@@ -368,7 +368,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             fail();
         } catch (OperationNotSupportedException one) {
             assertTrue(one.getAttributedType().equals(Group.class));
-            assertTrue(one.getOperation().equals(TypeOperation.read));
+            assertTrue(one.getOperation().equals(IdentityOperation.read));
         } catch (Exception e) {
             fail();
         }
@@ -382,9 +382,9 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         addContextInitializers(storeConfig);
         
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
-        storeConfig.unsupportType(Group.class, TypeOperation.create);
+        storeConfig.unsupportType(Group.class, IdentityOperation.create);
 
         try {
             IdentityManager identityManager = createIdentityManager(builder.build());
@@ -397,7 +397,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
                 OperationNotSupportedException one = (OperationNotSupportedException) ime.getCause();
 
                 assertTrue(one.getAttributedType().equals(Group.class));
-                assertTrue(one.getOperation().equals(TypeOperation.create));
+                assertTrue(one.getOperation().equals(IdentityOperation.create));
             } else {
                 fail();
             }
@@ -415,9 +415,9 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         addContextInitializers(storeConfig);
         
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
-        storeConfig.unsupportType(Group.class, TypeOperation.delete);
+        storeConfig.unsupportType(Group.class, IdentityOperation.delete);
 
         try {
             IdentityManager identityManager = createIdentityManager(builder.build());
@@ -432,7 +432,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
                 OperationNotSupportedException one = (OperationNotSupportedException) ime.getCause();
 
                 assertTrue(one.getAttributedType().equals(Group.class));
-                assertTrue(one.getOperation().equals(TypeOperation.delete));
+                assertTrue(one.getOperation().equals(IdentityOperation.delete));
             } else {
                 fail();
             }
@@ -450,9 +450,9 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         addContextInitializers(storeConfig);
         
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
-        storeConfig.unsupportType(Relationship.class, TypeOperation.read);
+        storeConfig.unsupportType(Relationship.class, IdentityOperation.read);
 
         try {
             PartitionManager partitionManager = createPartitionManager(builder.build());
@@ -462,7 +462,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             fail();
         } catch (OperationNotSupportedException one) {
             assertTrue(one.getAttributedType().equals(Relationship.class));
-            assertTrue(one.getOperation().equals(TypeOperation.read));
+            assertTrue(one.getOperation().equals(IdentityOperation.read));
         } catch (Exception e) {
             fail();
         }
@@ -476,9 +476,9 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         addContextInitializers(storeConfig);
         
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
-        storeConfig.unsupportType(Grant.class, TypeOperation.create);
+        storeConfig.unsupportType(Grant.class, IdentityOperation.create);
 
         try {
             IdentityConfiguration configuration = builder.build();
@@ -502,7 +502,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
                 OperationNotSupportedException one = (OperationNotSupportedException) ime.getCause();
 
                 assertTrue(one.getAttributedType().equals(Grant.class));
-                assertTrue(one.getOperation().equals(TypeOperation.create));
+                assertTrue(one.getOperation().equals(IdentityOperation.create));
             } else {
                 fail();
             }
@@ -518,7 +518,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         addContextInitializers(storeConfig);
         
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
         IdentityConfiguration configuration = builder.build();
 
@@ -559,7 +559,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         addContextInitializers(storeConfig);
         
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
         storeConfig.unsupportType(CustomRelationship.class);
 
@@ -573,7 +573,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
                 OperationNotSupportedException one = (OperationNotSupportedException) ime.getCause();
 
                 assertTrue(one.getAttributedType().equals(CustomRelationship.class));
-                assertTrue(one.getOperation().equals(TypeOperation.create));
+                assertTrue(one.getOperation().equals(IdentityOperation.create));
             } else {
                 fail();
             }
@@ -590,9 +590,9 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         addContextInitializers(storeConfig);
         
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
-        storeConfig.unsupportType(Grant.class, TypeOperation.delete);
+        storeConfig.unsupportType(Grant.class, IdentityOperation.delete);
 
         try {
             IdentityConfiguration configuration = builder.build();
@@ -619,7 +619,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
                 OperationNotSupportedException one = (OperationNotSupportedException) ime.getCause();
 
                 assertTrue(one.getAttributedType().equals(Grant.class));
-                assertTrue(one.getOperation().equals(TypeOperation.delete));
+                assertTrue(one.getOperation().equals(IdentityOperation.delete));
             } else {
                 fail();
             }
@@ -636,7 +636,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         addContextInitializers(storeConfig);
         
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
         storeConfig.supportCredentials(false);
 
@@ -666,7 +666,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         addContextInitializers(storeConfig);
 
-        builder.stores().readFrom(new IdentityStoresConfiguration((List<IdentityStoreConfiguration>) Arrays.asList(storeConfig.create()), null));
+        builder.named("default").stores().readFrom(new IdentityStoresConfiguration(null, null));
 
         storeConfig.supportCredentials(false);
 

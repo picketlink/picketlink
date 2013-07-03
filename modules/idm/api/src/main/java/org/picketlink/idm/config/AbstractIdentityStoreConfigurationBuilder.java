@@ -52,7 +52,7 @@ import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOpera
  * @author Pedro Igor
  */
 public abstract class AbstractIdentityStoreConfigurationBuilder<T extends IdentityStoreConfiguration, S extends IdentityStoreConfigurationBuilder<T, S>>
-        extends AbstractIdentityConfigurationChildBuilder
+        extends AbstractIdentityConfigurationChildBuilder<T>
         implements IdentityStoreConfigurationBuilder<T, S> {
 
     private final Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes;
@@ -155,13 +155,16 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
         return (S) this;
     }
 
-    @Override
-    public void validate() {
+    protected T create() {
+        throw new IllegalStateException("Not implemented.");
     }
 
-    @Override
-    public Builder<?> readFrom(T configuration) {
-        return this;
+    protected void validate() {
+        throw new IllegalStateException("Not implemented.");
+    }
+
+    public Builder<T> readFrom(T configuration) {
+        throw new IllegalStateException("Not implemented.");
     }
 
     protected List<ContextInitializer> getContextInitializers() {

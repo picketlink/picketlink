@@ -89,6 +89,7 @@ public class PasswordCredentialHandlerConfigurationTestCase {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
+                .named("default")
                 .stores()
                 .jpa()
                 .setCredentialHandlerProperty(PASSWORD_ENCODER,
@@ -138,6 +139,7 @@ public class PasswordCredentialHandlerConfigurationTestCase {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
+                .named("default")
                 .stores()
                 .jpa()
                 .setCredentialHandlerProperty(PASSWORD_ENCODER,
@@ -187,6 +189,7 @@ public class PasswordCredentialHandlerConfigurationTestCase {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
         
         builder
+            .named("default")
             .stores()
                 .jpa()
                 .setCredentialHandlerProperty(PASSWORD_ENCODER,
@@ -249,6 +252,7 @@ public class PasswordCredentialHandlerConfigurationTestCase {
         final Map<String, String> assertionCheck = new HashMap<String, String>();
 
         builder
+            .named("default")
             .stores()
                 .jpa()
                     .setCredentialHandlerProperty(PASSWORD_ENCODER, new PasswordEncoder() {
@@ -311,6 +315,7 @@ public class PasswordCredentialHandlerConfigurationTestCase {
         final Map<String, String> assertionCheck = new HashMap<String, String>();
 
         builder
+            .named("default")
             .stores()
                 .jpa()
                     .setCredentialHandlerProperty(PASSWORD_ENCODER, new SHAPasswordEncoder(999) {

@@ -70,12 +70,13 @@ public class CustomIdentityStoreTestCase {
         MethodInvocationContext methodInvocationContext = new MethodInvocationContext();
 
         builder
-            .stores()
-                .add(MyIdentityStoreConfiguration.class,
+            .named("default")
+                .stores()
+                    .add(MyIdentityStoreConfiguration.class,
                         MyIdentityStore.class,
                         MyIdentityStoreConfigurationBuilder.class)
                     .methodInvocationContext(methodInvocationContext)
-                .supportAllFeatures();
+                    .supportAllFeatures();
 
         IdentityConfiguration configuration = builder.build();
         PartitionManager partitionManager = null;
@@ -124,12 +125,7 @@ public class CustomIdentityStoreTestCase {
 
         private MethodInvocationContext methodInvocationContext;
 
-        public MyIdentityStoreConfiguration(
-                Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes,
-                Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes,
-                List<ContextInitializer> contextInitializers,
-                Map<String, Object> credentialHandlerProperties,
-                List<Class<? extends CredentialHandler>> credentialHandlers) {
+        protected MyIdentityStoreConfiguration(Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes, Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes, List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties, List<Class<? extends CredentialHandler>> credentialHandlers) {
             super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers);
         }
 

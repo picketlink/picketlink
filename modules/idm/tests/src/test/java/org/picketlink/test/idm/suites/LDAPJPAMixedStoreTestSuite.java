@@ -121,7 +121,7 @@ public class LDAPJPAMixedStoreTestSuite extends LDAPAbstractSuite implements Tes
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
-            .stores()
+                .named("default").stores()
                 .ldap()
                     .baseDN(getBaseDn())
                     .bindDN(getBindDn())

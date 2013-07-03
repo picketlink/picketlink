@@ -162,7 +162,8 @@ public class XMLBasedIdentityManagerProvider {
             storeConfigs.add(partitionStoreConfig);
         }
 
-        builder.stores().readFrom(new IdentityStoresConfiguration(storeConfigs, null));
+        //FIXME: apply new design
+//        builder.stores().readFrom(new IdentityStoresConfiguration(storeConfigs, null));
         
         return builder.build();
     }

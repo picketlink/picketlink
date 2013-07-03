@@ -121,7 +121,7 @@ public class LDAPIdentityStoreConfigurationTestCase extends
 
     @Override
     protected LDAPStoreConfigurationBuilder createMinimalConfiguration(IdentityConfigurationBuilder builder) {
-        LDAPStoreConfigurationBuilder storeConfig = builder.stores()
+        LDAPStoreConfigurationBuilder storeConfig = builder.named("default").stores()
                 .ldap()
                 .baseDN(instance.getBaseDn())
                 .bindDN(instance.getBindDn())

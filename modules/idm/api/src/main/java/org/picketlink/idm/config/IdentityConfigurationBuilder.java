@@ -22,6 +22,10 @@
 
 package org.picketlink.idm.config;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.picketlink.idm.IDMMessages;
+
 /**
  * <p>
  * This class should be used as the start point to build an {@link IdentityConfiguration} instance.
@@ -31,47 +35,54 @@ package org.picketlink.idm.config;
  */
 public class IdentityConfigurationBuilder implements IdentityConfigurationChildBuilder {
 
-    private final IdentityStoresConfigurationBuilder identityStoresConfigurationBuilder;
-    private String name = "default";
+    private final List<NamedIdentityConfigurationBuilder> namedIdentityConfigurationBuilders;
 
     public IdentityConfigurationBuilder() {
-        this.identityStoresConfigurationBuilder = new IdentityStoresConfigurationBuilder(this);
+        this.namedIdentityConfigurationBuilders = new ArrayList<NamedIdentityConfigurationBuilder>();
     }
 
     /**
-     * <p>
-     * You may use this constructor to provided a previously created {@link IdentityConfiguration}. The same configuration will
-     * be used and validations will be executed when building a new {@link IdentityConfiguration}.
-     * </p>
+     * <p>Creates a named configuration.</p>
      *
-     * @param from
+     * @param configurationName
+     * @return
      */
-    public IdentityConfigurationBuilder(IdentityConfiguration from) {
-        this();
-        //TODO: must be able to read custom identity stores from the configuration.
-        this.identityStoresConfigurationBuilder.readFrom(from.getStoresConfiguration());
-    }
+    public NamedIdentityConfigurationBuilder named(String configurationName) {
+        NamedIdentityConfigurationBuilder namedIdentityConfiguration = new NamedIdentityConfigurationBuilder(configurationName, this);
 
-    @Override
-    public IdentityStoresConfigurationBuilder stores() {
-        return this.identityStoresConfigurationBuilder;
+        this.namedIdentityConfigurationBuilders.add(namedIdentityConfiguration);
+
+        return namedIdentityConfiguration;
     }
 
     @Override
     public IdentityConfiguration build() {
         validate();
 
-        return new IdentityConfiguration(this.name, this.identityStoresConfigurationBuilder.create());
+        if (this.namedIdentityConfigurationBuilders.size() > 1) {
+            throw new SecurityConfigurationException("You have provided more than one configuration. Use the buildAll method instead.");
+        }
+
+        return this.namedIdentityConfigurationBuilders.get(0).create();
     }
 
     @Override
-    public IdentityConfiguration build(String name) {
-        this.name = name;
-        return build();
+    public List<IdentityConfiguration> buildAll() {
+        validate();
+
+        List<IdentityConfiguration> configurations = new ArrayList<IdentityConfiguration>();
+
+        for (NamedIdentityConfigurationBuilder identityConfigBuilder: this.namedIdentityConfigurationBuilders) {
+            configurations.add(identityConfigBuilder.create());
+        }
+
+        return configurations;
     }
 
     private void validate() {
-        this.identityStoresConfigurationBuilder.validate();
+        if (this.namedIdentityConfigurationBuilders.isEmpty()) {
+            throw new SecurityConfigurationException("You must provide at least one configuration.");
+        }
     }
 
 }

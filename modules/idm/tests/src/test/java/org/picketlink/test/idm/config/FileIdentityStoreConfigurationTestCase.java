@@ -38,7 +38,7 @@ public class FileIdentityStoreConfigurationTestCase extends
 
     @Override
     protected FileStoreConfigurationBuilder createMinimalConfiguration(IdentityConfigurationBuilder builder) {
-        FileStoreConfigurationBuilder fileConfig = builder.stores().file();
+        FileStoreConfigurationBuilder fileConfig = builder.named("default").stores().file();
         
         fileConfig
             .supportAllFeatures();

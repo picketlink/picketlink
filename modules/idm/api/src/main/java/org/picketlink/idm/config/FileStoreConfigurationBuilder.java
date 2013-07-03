@@ -100,7 +100,7 @@ public class FileStoreConfigurationBuilder extends
     }
 
     @Override
-    public void validate() {
+    protected void validate() {
         super.validate();
 
         if (this.workingDirectory == null) {

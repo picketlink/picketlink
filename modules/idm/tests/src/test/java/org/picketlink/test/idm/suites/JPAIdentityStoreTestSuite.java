@@ -113,7 +113,7 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
         
         builder
-            .stores()
+                .named("default").stores()
                 .jpa()
                     .identityClass(IdentityObject.class)
                     .attributeClass(IdentityObjectAttribute.class)

@@ -94,7 +94,7 @@ public class LDAPStoreConfigurationBuilder extends
     }
 
     @Override
-    public LDAPIdentityStoreConfiguration create() {
+    protected LDAPIdentityStoreConfiguration create() {
         return new LDAPIdentityStoreConfiguration(
                 this.url,
                 this.bindDN,
@@ -113,7 +113,7 @@ public class LDAPStoreConfigurationBuilder extends
     }
 
     @Override
-    public void validate() {
+    protected void validate() {
         super.validate();
 
         if (this.userDNSuffix == null) {

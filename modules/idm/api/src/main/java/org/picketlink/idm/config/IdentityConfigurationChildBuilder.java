@@ -21,6 +21,8 @@
  */
 package org.picketlink.idm.config;
 
+import java.util.List;
+
 /**
  * <p>Defines the top-level configuration methods for @{link Builder} implementations.</p>
  *
@@ -30,26 +32,26 @@ package org.picketlink.idm.config;
 public interface IdentityConfigurationChildBuilder {
 
     /**
-     * <p>Provides access to the configuration for all available identity stores.</p>
+     * <p>Creates a named configuration.</p>
      *
+     * @param configurationName
      * @return
      */
-    IdentityStoresConfigurationBuilder stores();
+    NamedIdentityConfigurationBuilder named(String configurationName);
 
     /**
-     * <p>Builds a {@link IdentityConfiguration} instance considering all configuration previously provided.
-     * Once the configuration is built, it is immutable.</p>
+     * <p>Builds a single {@link IdentityConfiguration}. This method should be used when there is only a single configuration.</p>
+     * <p>For multiple configurations see <code>buildAll</code>.</p>
      *
      * @return
      */
     IdentityConfiguration build();
 
     /**
-     * <p>Builds a named {@link IdentityConfiguration} instance. The behavior is the same as the <code>build()</code>
-     * method.</p>
+     * <p>Builds all named configurations.</p>
      *
      * @return
      */
-    IdentityConfiguration build(String name);
+    List<IdentityConfiguration> buildAll();
 
 }

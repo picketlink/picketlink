@@ -108,6 +108,7 @@ public class LDAPIdentityStoreTestSuite extends LDAPAbstractSuite implements Tes
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
+            .named("default")
             .stores()
                 .ldap()
                     .baseDN(BASE_DN)

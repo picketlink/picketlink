@@ -106,7 +106,7 @@ public class LDAPUsersJPARolesGroupsFileRelationshipTestSuite extends LDAPAbstra
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
-            .stores()
+                .named("default").stores()
                 .ldap()
                     .baseDN(BASE_DN)
                     .bindDN("uid=admin,ou=system")

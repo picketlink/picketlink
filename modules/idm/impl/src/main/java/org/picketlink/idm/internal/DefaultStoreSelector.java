@@ -18,6 +18,7 @@
 
 package org.picketlink.idm.internal;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,8 +57,6 @@ public class DefaultStoreSelector implements StoreSelector {
 
     @Override
     public <T extends IdentityStore<?>> T getStoreForIdentityOperation(Class<T> storeType, Partition partition, Class<? extends AttributedType> type, IdentityOperation operation) {
-        T identityStore = null;
-
         IdentityStoreConfiguration selectedConfig = this.storesConfiguration.forType(type, operation);
 
         if (selectedConfig == null) {
@@ -65,6 +64,19 @@ public class DefaultStoreSelector implements StoreSelector {
         }
 
         return createStore(storeType, selectedConfig);
+    }
+
+    @Override
+    public PartitionStore<?> getStoreForPartitionOperation() {
+        List<IdentityStoreConfiguration> storesConfiguration = this.storesConfiguration.getConfigurations();
+
+        for (IdentityStoreConfiguration storeConfiguration: storesConfiguration) {
+            if (storeConfiguration.supportsPartition()) {
+                return createStore(PartitionStore.class, storeConfiguration);
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -77,14 +89,8 @@ public class DefaultStoreSelector implements StoreSelector {
         return null;  //TODO: Implement getStoreForRelationshipOperation
     }
 
-    @Override
-    public PartitionStore<?> getStoreForPartitionOperation() {
-        return null;  //TODO: Implement getStoreForPartitionOperation
-    }
 
-    private <T extends IdentityStore> T createStore(
-            Class<T> expectedType,
-            IdentityStoreConfiguration selectedConfig) {
+    private <T extends IdentityStore> T createStore(Class<T> expectedType, IdentityStoreConfiguration selectedConfig) {
         Class<T> storeType = getStoreType(expectedType, selectedConfig);
 
         T identityStore = (T) this.storesCache.get(storeType);
@@ -102,9 +108,7 @@ public class DefaultStoreSelector implements StoreSelector {
         return identityStore;
     }
 
-    private <T extends IdentityStore> Class<T> getStoreType(
-            Class<T> expectedType,
-            IdentityStoreConfiguration selectedConfig) {
+    private <T extends IdentityStore> Class<T> getStoreType(Class<T> expectedType, IdentityStoreConfiguration selectedConfig) {
         Class<T> storeType =
                 (Class<T>) this.storesConfiguration.getIdentityStores().get(selectedConfig.getClass()); // this is safe
 

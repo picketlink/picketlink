@@ -187,6 +187,7 @@ public class TOTPCredentialHandlerConfigurationTestCase {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
+            .named("default")
             .stores()
                 .jpa()
                     .setCredentialHandlerProperty(propertyKey, propertyValue)

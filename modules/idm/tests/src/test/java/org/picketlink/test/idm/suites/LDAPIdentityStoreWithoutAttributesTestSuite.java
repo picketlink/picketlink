@@ -108,7 +108,8 @@ public class LDAPIdentityStoreWithoutAttributesTestSuite extends LDAPAbstractSui
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
-            .stores()
+                .named("default")
+                .stores()
                 .ldap()
                     .baseDN(getBaseDn())
                     .bindDN(getBindDn())

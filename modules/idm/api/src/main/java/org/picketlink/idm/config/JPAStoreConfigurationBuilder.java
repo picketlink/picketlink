@@ -110,7 +110,7 @@ public class JPAStoreConfigurationBuilder extends
     }
 
     @Override
-    public void validate() {
+    protected void validate() {
         super.validate();
 
         if (this.identityClass == null) {

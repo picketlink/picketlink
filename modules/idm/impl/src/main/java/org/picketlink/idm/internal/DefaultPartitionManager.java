@@ -57,7 +57,7 @@ public class DefaultPartitionManager implements PartitionManager {
 
     public DefaultPartitionManager(IdentityConfiguration configuration) {
         if (configuration == null) {
-            throw new IllegalArgumentException("At least one IdentityConfiguration must be provided");
+            throw MESSAGES.nullArgument("At least one IdentityConfiguration must be provided");
         }
 
         this.configurations = new ArrayList<IdentityConfiguration>();
@@ -111,8 +111,7 @@ public class DefaultPartitionManager implements PartitionManager {
 
     @Override
     public <T extends Partition> T getPartition(Class<T> partitionClass, String name) {
-        IdentityContext identityContext = createIdentityContext();
-        return (T) this.storeSelector.getStoreForPartitionOperation().get(partitionClass, name, identityContext);
+        return (T) this.storeSelector.getStoreForPartitionOperation().get(partitionClass, name, createIdentityContext());
     }
 
     @Override

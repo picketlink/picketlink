@@ -18,10 +18,12 @@
 
 package org.picketlink.test.idm.suites;
 
+import java.util.List;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.internal.DefaultPartitionManager;
@@ -62,11 +64,17 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
         
         builder
-            .stores()
-                .file()
-                    .preserveState(false)
-                    .supportAllFeatures()
-                    .supportType(CustomRelationship.class, Authorization.class);
+            .named("default")
+                .stores()
+                    .file()
+                        .preserveState(false)
+                        .supportAllFeatures()
+                        .supportType(CustomRelationship.class, Authorization.class)
+            .named("teste")
+                .stores()
+                    .file();
+
+        List<IdentityConfiguration> identityConfigurations = builder.buildAll();
 
         PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
 

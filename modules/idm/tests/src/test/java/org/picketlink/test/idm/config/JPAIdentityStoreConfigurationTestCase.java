@@ -261,7 +261,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
 
     @Override
     protected JPAStoreConfigurationBuilder createMinimalConfiguration(IdentityConfigurationBuilder builder) {
-        JPAStoreConfigurationBuilder jpaConfig = builder.stores().jpa();
+        JPAStoreConfigurationBuilder jpaConfig = builder.named("default").stores().jpa();
 
         // mandatory entity classes
         jpaConfig.identityClass(IdentityObject.class);
