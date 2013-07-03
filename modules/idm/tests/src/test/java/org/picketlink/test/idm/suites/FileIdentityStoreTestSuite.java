@@ -24,35 +24,14 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
+import org.picketlink.idm.internal.DefaultPartitionManager;
+import org.picketlink.idm.internal.DefaultStoreSelector;
 import org.picketlink.idm.model.sample.Authorization;
+import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
-import org.picketlink.test.idm.basic.AgentManagementTestCase;
-import org.picketlink.test.idm.basic.GroupManagementTestCase;
-import org.picketlink.test.idm.basic.RoleManagementTestCase;
 import org.picketlink.test.idm.basic.UserManagementTestCase;
-import org.picketlink.test.idm.credential.CertificateCredentialTestCase;
-import org.picketlink.test.idm.credential.DigestCredentialTestCase;
-import org.picketlink.test.idm.credential.PasswordCredentialTestCase;
-import org.picketlink.test.idm.credential.TOTPCredentialTestCase;
-import org.picketlink.test.idm.partition.RealmManagementTestCase;
-import org.picketlink.test.idm.partition.TierManagementTestCase;
-import org.picketlink.test.idm.query.AgentQueryTestCase;
-import org.picketlink.test.idm.query.GroupQueryTestCase;
-import org.picketlink.test.idm.query.IdentityTypeQueryTestCase;
-import org.picketlink.test.idm.query.RoleQueryTestCase;
-import org.picketlink.test.idm.query.UserQueryTestCase;
-import org.picketlink.test.idm.relationship.AgentGrantRelationshipTestCase;
-import org.picketlink.test.idm.relationship.AgentGroupRoleRelationshipTestCase;
-import org.picketlink.test.idm.relationship.AgentGroupsRelationshipTestCase;
 import org.picketlink.test.idm.relationship.CustomRelationship;
-import org.picketlink.test.idm.relationship.CustomRelationshipTestCase;
-import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
-import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
-import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
-import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
-import org.picketlink.test.idm.usecases.ApplicationRegistrationTestCase;
-import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
 
 /**
  * <p>
@@ -64,15 +43,7 @@ import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ UserManagementTestCase.class, AgentManagementTestCase.class, RoleManagementTestCase.class,
-        GroupManagementTestCase.class, CertificateCredentialTestCase.class, DigestCredentialTestCase.class,
-        PasswordCredentialTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class, AgentQueryTestCase.class,
-        RoleQueryTestCase.class, AgentGrantRelationshipTestCase.class, AgentGroupRoleRelationshipTestCase.class,
-        IdentityTypeQueryTestCase.class, AgentGroupsRelationshipTestCase.class, CustomRelationshipTestCase.class,
-        GroupGrantRelationshipTestCase.class, GroupMembershipTestCase.class, UserGrantRelationshipTestCase.class,
-        UserGroupRoleRelationshipTestCase.class, ApplicationRegistrationTestCase.class,
-        ApplicationUserRelationshipTestCase.class, RealmManagementTestCase.class, TierManagementTestCase.class,
-        TOTPCredentialTestCase.class})
+@SuiteClasses({ UserManagementTestCase.class })
 public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     private static FileIdentityStoreTestSuite instance;
@@ -97,8 +68,11 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
                     .supportAllFeatures()
                     .supportType(CustomRelationship.class, Authorization.class);
 
-        return null;
-//        return new PartitionManager(builder.build());
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+
+        return partitionManager;
     }
 
     @Override

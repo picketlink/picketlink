@@ -18,12 +18,12 @@
 
 package org.picketlink.idm.ldap.internal;
 
-import org.picketlink.idm.credential.Credentials.Status;
+import java.util.Date;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
-import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.spi.IdentityContext;
 
 /**
@@ -37,35 +37,35 @@ import org.picketlink.idm.spi.IdentityContext;
 public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
     implements CredentialHandler<LDAPIdentityStore, UsernamePasswordCredentials, Password> {
 
-
-    public void update(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.model.sample.Agent agent, org.picketlink.idm.credential.Password credential, org.picketlink.idm.ldap.internal.LDAPIdentityStore store, java.util.Date effectiveDate, java.util.Date expiryDate) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    @Override
+    public void update(IdentityContext context, Account account, Password credential, LDAPIdentityStore store, Date effectiveDate, Date expiryDate) {
+        //TODO: Implement update
     }
 
     public void validate(IdentityContext context, UsernamePasswordCredentials usernamePassword,
             LDAPIdentityStore identityStore) {
-        usernamePassword.setStatus(Status.INVALID);
-        usernamePassword.setValidatedAgent(null);
-
-        Agent agent = identityStore.getAgent(context, usernamePassword.getUsername());
-
-        // If the user for the provided username cannot be found we fail validation
-        if (agent != null) {
-            if (agent.isEnabled()) {
-                LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) identityStore;
-                LDAPUser ldapUser = ldapIdentityStore.lookupEntryById(context, LDAPUser.class, agent.getId());
-                char[] password = usernamePassword.getPassword().getValue();
-
-                boolean isValid = ldapIdentityStore.getLDAPManager().authenticate(ldapUser.getDN(), new String(password));
-
-                if (isValid) {
-                    usernamePassword.setValidatedAgent(agent);
-                    usernamePassword.setStatus(Status.VALID);
-                }
-            } else {
-                usernamePassword.setStatus(Status.AGENT_DISABLED);
-            }
-        }
+//        usernamePassword.setStatus(Status.INVALID);
+//        usernamePassword.setValidatedAgent(null);
+//
+//        Agent agent = identityStore.getAgent(context, usernamePassword.getUsername());
+//
+//        // If the user for the provided username cannot be found we fail validation
+//        if (agent != null) {
+//            if (agent.isEnabled()) {
+//                LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) identityStore;
+//                LDAPUser ldapUser = ldapIdentityStore.lookupEntryById(context, LDAPUser.class, agent.getId());
+//                char[] password = usernamePassword.getPassword().getValue();
+//
+//                boolean isValid = ldapIdentityStore.getLDAPManager().authenticate(ldapUser.getDN(), new String(password));
+//
+//                if (isValid) {
+//                    usernamePassword.setValidatedAgent(agent);
+//                    usernamePassword.setStatus(Status.VALID);
+//                }
+//            } else {
+//                usernamePassword.setStatus(Status.AGENT_DISABLED);
+//            }
+//        }
     }
 
     @Override

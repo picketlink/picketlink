@@ -64,21 +64,21 @@ public interface PartitionManager {
      * @param partition
      * @param configurationName
      */
-    void addPartition(Partition partition, String configurationName);
+    void add(Partition partition);
 
     /**
      * Updates the attributes of the specified partition
      *
      * @param partition
      */
-    void updatePartition(Partition partition);
+    void update(Partition partition);
 
     /**
      * Removes the specified partition
      *
      * @param partition
      */
-    void removePartition(Partition partition);
+    void remove(Partition partition);
 
     // Relationship management
 

@@ -17,8 +17,13 @@
  */
 package org.picketlink.idm.ldap.internal;
 
+import java.io.Serializable;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
+import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 
 /**
@@ -102,21 +107,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     @Override
-    public void setAttribute(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.model.IdentityType identityType, org.picketlink.idm.model.Attribute<? extends java.io.Serializable> attribute) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public <V extends java.io.Serializable> org.picketlink.idm.model.Attribute<V> getAttribute(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.model.IdentityType identityType, String attributeName) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void removeAttribute(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.model.IdentityType identityType, String attributeName) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
     public void validateCredentials(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.credential.Credentials credentials) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
@@ -173,7 +163,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 //        if (IdentityType.class.isInstance(attributedType)) {
 //            IdentityType identityType = (IdentityType) attributedType;
 //
-//            identityType.setPartition(context.getPartition());
+//            identityType.setPartition(context.get());
 //
 //            if (Agent.class.isInstance(attributedType)) {
 //                Agent newAgent = (Agent) attributedType;
@@ -290,7 +280,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 //
 //    @Override
 //    public Agent getAgent(SecurityContext context, String loginName) {
-//        if (Realm.class.isInstance(context.getPartition())) {
+//        if (Realm.class.isInstance(context.get())) {
 //            Agent agent = null;
 //
 //            if (loginName != null) {
@@ -317,7 +307,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 //
 //    @Override
 //    public User getUser(SecurityContext context, String loginName) {
-//        if (Realm.class.isInstance(context.getPartition())) {
+//        if (Realm.class.isInstance(context.get())) {
 //            User user = null;
 //
 //            if (loginName != null) {
@@ -350,7 +340,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 //            return null;
 //        }
 //
-//        Group group = null; // getContext().getCache().lookupGroup(getContext().getPartition(), groupPath);
+//        Group group = null; // getContext().getCache().lookupGroup(getContext().get(), groupPath);
 //
 //        if (group == null) {
 //            group = getGroup(groupPath, getGroupBaseDN(groupPath));
@@ -1222,7 +1212,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 //
 //    private void populateIdentityType(LDAPIdentityType ldapIdentityType, IdentityType identityType) {
 //        identityType.setId(ldapIdentityType.getId());
-//        identityType.setPartition(ldapIdentityType.getPartition());
+//        identityType.setPartition(ldapIdentityType.get());
 //
 //        if (isCustomAttributesSupported()) {
 //            identityType.setEnabled(ldapIdentityType.isEnabled());
@@ -1275,7 +1265,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 //        }
 //
 //        if (identityType == null) {
-//            throw MESSAGES.attributedTypeNotFoundWithId(type, id, context.getPartition());
+//            throw MESSAGES.attributedTypeNotFoundWithId(type, id, context.get());
 //        }
 //
 //        return identityType;
@@ -1754,4 +1744,24 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 //        return this.configuration.supportsFeature(FeatureGroup.attribute, null);
 //    }
 
+
+    @Override
+    public <I extends IdentityType> I getIdentity(Class<I> identityType, String id) {
+        return null;  //TODO: Implement getIdentity
+    }
+
+    @Override
+    public void setAttribute(IdentityContext context, AttributedType type, Attribute<? extends Serializable> attribute) {
+        //TODO: Implement setAttribute
+    }
+
+    @Override
+    public <V extends Serializable> Attribute<V> getAttribute(IdentityContext context, AttributedType type, String attributeName) {
+        return null;  //TODO: Implement getAttribute
+    }
+
+    @Override
+    public void removeAttribute(IdentityContext context, AttributedType type, String attributeName) {
+        //TODO: Implement removeAttribute
+    }
 }

@@ -3,7 +3,7 @@
   <!-- Start of IDM configuration -->
   <PicketLinkIDM>
     <IdentityManager ClassName="org.picketlink.idm.internal.DefaultIdentityManager" />
-    <StoreFactory ClassName="org.picketlink.idm.internal.DefaultStoreFactory" />
+    <StoreFactory ClassName="org.picketlink.idm.internal.DefaultStoreSelector" />
 
     <IdentityStoreInvocationContextFactory ClassName="org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory">
       <CredentialHandlerFactory ClassName="org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory" />

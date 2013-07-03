@@ -18,13 +18,6 @@
 
 package org.picketlink.idm.config;
 
-import java.util.List;
-import java.util.Map;
-import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.StoreSelector;
-import static java.util.Collections.unmodifiableList;
-import static java.util.Collections.unmodifiableMap;
-
 /**
  * <p>Consolidates all the configuration that should be used to initialize and start the IDM subsystem.</p>
  *
@@ -33,41 +26,25 @@ import static java.util.Collections.unmodifiableMap;
  */
 public class IdentityConfiguration {
 
-    private final List<IdentityStoreConfiguration> configuredStores;
-    private final StoreSelector storeFactory;
-    private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> additionalIdentityStores;
+    private final String name;
+    private final IdentityStoresConfiguration storesConfiguration;
 
-    IdentityConfiguration(List<IdentityStoreConfiguration> storesConfiguration, StoreSelector storeFactory,
-            Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> additionalIdentityStores) {
-        this.configuredStores = unmodifiableList(storesConfiguration);
-        this.additionalIdentityStores = unmodifiableMap(additionalIdentityStores);
-        this.storeFactory = storeFactory;
+    IdentityConfiguration(String name, IdentityStoresConfiguration storesConfiguration) {
+        if (name == null) {
+            throw new SecurityConfigurationException("You must specify a name for the IdentityConfiguration.");
+        }
+
+        this.name = name;
+
+        this.storesConfiguration = storesConfiguration;
     }
 
-    /**
-     * <p>
-     * Returns all registered {@link IdentityStoreConfiguration} instances.
-     * </p>
-     *
-     * @return
-     */
-    public List<IdentityStoreConfiguration> getConfiguredStores() {
-        return this.configuredStores;
+    public String getName() {
+        return this.name;
     }
 
-    /**
-     * <p>
-     * Returns any additional mapping for identity stores.
-     * </p>
-     *
-     * @return
-     */
-    public Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> getAdditionalIdentityStores() {
-        return this.additionalIdentityStores;
-    }
-
-    public StoreSelector getStoreFactory() {
-        return this.storeFactory;
+    public IdentityStoresConfiguration getStoresConfiguration() {
+        return this.storesConfiguration;
     }
 
 }

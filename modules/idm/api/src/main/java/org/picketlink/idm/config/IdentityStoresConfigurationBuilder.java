@@ -24,9 +24,12 @@ package org.picketlink.idm.config;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.picketlink.idm.IDMMessages;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreSelector;
 
@@ -40,7 +43,7 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
     private final List<IdentityStoreConfigurationBuilder<?, ?>> identityStoresConfiguration;
     private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>> supportedStoreBuilders;
     private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores;
-    private StoreSelector storeFactory;
+    private StoreSelector storeSelector;
 
     public IdentityStoresConfigurationBuilder(IdentityConfigurationBuilder builder) {
         super(builder);
@@ -53,8 +56,8 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
         this.supportedStoreBuilders.put(LDAPIdentityStoreConfiguration.class, LDAPStoreConfigurationBuilder.class);
     }
 
-    public IdentityStoresConfigurationBuilder storeFactory(StoreSelector storeFactory) {
-        this.storeFactory = storeFactory;
+    public IdentityStoresConfigurationBuilder selector(StoreSelector storeSelector) {
+        this.storeSelector = storeSelector;
         return this;
     }
 
@@ -91,11 +94,30 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
     public IdentityStoresConfiguration create() {
         List<IdentityStoreConfiguration> configurations = new ArrayList<IdentityStoreConfiguration>();
 
+        boolean hasPartitionStore = false;
+        Set<Class<? extends AttributedType>> supportedTypes = new HashSet<Class<? extends AttributedType>>();
+
         for (IdentityStoreConfigurationBuilder<?, ?> storeConfigurationBuilder : this.identityStoresConfiguration) {
-            configurations.add(storeConfigurationBuilder.create());
+            IdentityStoreConfiguration storeConfiguration = storeConfigurationBuilder.create();
+
+            if (storeConfiguration.supportsPartition()) {
+                if (hasPartitionStore) {
+                    throw new SecurityConfigurationException("Only one store configuration must be able to store partitions.");
+                }
+
+                hasPartitionStore = true;
+            }
+
+            try {
+                supportedTypes.addAll(storeConfiguration.getSupportedTypes());
+            } catch (IllegalArgumentException iae) {
+                throw new SecurityConfigurationException("Duplicated supported types found for [" + storeConfiguration + "].");
+            }
+
+            configurations.add(storeConfiguration);
         }
 
-        return new IdentityStoresConfiguration(configurations, this.storeFactory, this.identityStores);
+        return new IdentityStoresConfiguration(configurations, this.storeSelector, this.identityStores);
     }
 
     @Override
@@ -121,7 +143,7 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
             storeConfigBuilder.readFrom(identityStoreConfiguration);
         }
 
-        storeFactory(configuration.getStoreFactory());
+        selector(configuration.getStoreSelector());
 
         return this;
     }

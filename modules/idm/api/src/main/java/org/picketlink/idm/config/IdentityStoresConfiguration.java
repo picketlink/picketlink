@@ -22,10 +22,13 @@
 
 package org.picketlink.idm.config;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreSelector;
+import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 
 /**
@@ -37,29 +40,44 @@ import static java.util.Collections.unmodifiableMap;
 public class IdentityStoresConfiguration {
 
     private final List<IdentityStoreConfiguration> configurations;
-    private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores;
-    private StoreSelector storeFactory;
+    private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores;
+    private StoreSelector storeSelector;
 
-    public IdentityStoresConfiguration(List<IdentityStoreConfiguration> configurations, StoreSelector storeFactory) {
-        this.configurations = configurations;
-        this.storeFactory = storeFactory;
+    public IdentityStoresConfiguration(List<IdentityStoreConfiguration> configurations, StoreSelector storeSelector) {
+        this(configurations, storeSelector,
+                Collections.<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>>emptyMap());
     }
 
-    public IdentityStoresConfiguration(List<IdentityStoreConfiguration> configurations, StoreSelector storeFactory,
+    public IdentityStoresConfiguration(
+            List<IdentityStoreConfiguration> configurations,
+            StoreSelector storeSelector,
             Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores) {
-        this(configurations, storeFactory);
+        this.configurations = unmodifiableList(configurations);
         this.identityStores = unmodifiableMap(identityStores);
+        this.storeSelector = storeSelector;
     }
 
     public List<IdentityStoreConfiguration> getConfigurations() {
         return this.configurations;
     }
 
-    public StoreSelector getStoreFactory() {
-        return this.storeFactory;
+    public StoreSelector getStoreSelector() {
+        return this.storeSelector;
     }
 
     public Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> getIdentityStores() {
         return this.identityStores;
     }
+
+    public IdentityStoreConfiguration forType(Class<? extends AttributedType> type, IdentityStoreConfiguration.TypeOperation operation) {
+        for (IdentityStoreConfiguration storeConfiguration : getConfigurations()) {
+            if (storeConfiguration.supportsType(type, operation)) {
+                return storeConfiguration;
+            }
+        }
+
+        return null;
+    }
+
+
 }

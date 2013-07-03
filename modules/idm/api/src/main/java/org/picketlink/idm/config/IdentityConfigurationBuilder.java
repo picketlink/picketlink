@@ -32,6 +32,7 @@ package org.picketlink.idm.config;
 public class IdentityConfigurationBuilder implements IdentityConfigurationChildBuilder {
 
     private final IdentityStoresConfigurationBuilder identityStoresConfigurationBuilder;
+    private String name = "default";
 
     public IdentityConfigurationBuilder() {
         this.identityStoresConfigurationBuilder = new IdentityStoresConfigurationBuilder(this);
@@ -48,8 +49,7 @@ public class IdentityConfigurationBuilder implements IdentityConfigurationChildB
     public IdentityConfigurationBuilder(IdentityConfiguration from) {
         this();
         //TODO: must be able to read custom identity stores from the configuration.
-        this.identityStoresConfigurationBuilder.readFrom(new IdentityStoresConfiguration(from.getConfiguredStores(), from
-                .getStoreFactory(), null));
+        this.identityStoresConfigurationBuilder.readFrom(from.getStoresConfiguration());
     }
 
     @Override
@@ -61,12 +61,13 @@ public class IdentityConfigurationBuilder implements IdentityConfigurationChildB
     public IdentityConfiguration build() {
         validate();
 
-        IdentityStoresConfiguration storesConfiguration = this.identityStoresConfigurationBuilder.create();
+        return new IdentityConfiguration(this.name, this.identityStoresConfigurationBuilder.create());
+    }
 
-        return new IdentityConfiguration(
-            storesConfiguration.getConfigurations(),
-            storesConfiguration.getStoreFactory(),
-            storesConfiguration.getIdentityStores());
+    @Override
+    public IdentityConfiguration build(String name) {
+        this.name = name;
+        return build();
     }
 
     private void validate() {

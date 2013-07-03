@@ -22,6 +22,8 @@
 
 package org.picketlink.idm.model;
 
+import org.picketlink.idm.model.annotation.AttributeProperty;
+
 /**
  * <p>Base class for {@link Partition} implementations.</p>
  *
@@ -49,6 +51,7 @@ public abstract class AbstractPartition extends AbstractAttributedType implement
     }
 
     @Override
+    @AttributeProperty
     public String getName() {
         return name;
     }

@@ -44,4 +44,12 @@ public interface IdentityConfigurationChildBuilder {
      */
     IdentityConfiguration build();
 
+    /**
+     * <p>Builds a named {@link IdentityConfiguration} instance. The behavior is the same as the <code>build()</code>
+     * method.</p>
+     *
+     * @return
+     */
+    IdentityConfiguration build(String name);
+
 }

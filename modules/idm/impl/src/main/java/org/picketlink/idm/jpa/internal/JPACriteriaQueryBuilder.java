@@ -18,109 +18,95 @@
 
 package org.picketlink.idm.jpa.internal;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
-import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld.PropertyType;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.spi.IdentityContext;
-
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
 public class JPACriteriaQueryBuilder {
 
-    private IdentityQuery<?> identityQuery;
-    private CriteriaBuilder builder;
-    private Root<?> root;
-    private CriteriaQuery<?> criteria;
-    private JPAIdentityStore identityStore;
-
-    public JPACriteriaQueryBuilder(IdentityContext context, JPAIdentityStore identityStore, IdentityQuery<?> identityQuery) {
-        this.identityStore = identityStore;
-        this.identityQuery = identityQuery;
-
-        this.builder = getEntityManager(context).getCriteriaBuilder();
-        this.criteria = builder.createQuery(getConfig().getIdentityClass());
-        this.root = criteria.from(getConfig().getIdentityClass());
-    }
-
-    public List<Predicate> getPredicates(IdentityContext context) {
-        List<Predicate> predicates = new ArrayList<Predicate>();
-
-        if (!IdentityType.class.equals(getIdentityQuery().getIdentityType())) {
-            String discriminator = getConfig().getIdentityTypeDiscriminator(identityQuery.getIdentityType());
-
-            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getName()),
-                    discriminator));
-
-            IdentityTypeHandler<?> identityTypeManager = IdentityTypeHandlerFactory.getHandler(this.identityQuery.getIdentityType());
-
-            predicates.addAll(identityTypeManager.getPredicate(context, this, identityStore));
-        } else {
-            IdentityTypeHandler<IdentityType> identityTypeManager = new DefaultIdentityTypeHandler();
-
-            predicates.addAll(identityTypeManager.getPredicate(context, this, this.identityStore));
-        }
-
-        return predicates;
-    }
-
-    public List<Order> getOrders() {
-        IdentityTypeHandler<?> identityTypeManager;
-        if (!IdentityType.class.equals(getIdentityQuery().getIdentityType())) {
-            identityTypeManager = IdentityTypeHandlerFactory.getHandler(this.identityQuery.getIdentityType());
-        } else {
-            identityTypeManager = new DefaultIdentityTypeHandler();
-        }
-
-        return identityTypeManager.getOrders(this, this.identityStore);
-    }
-
-    protected CriteriaQuery<?> getCriteria() {
-        return this.criteria;
-    }
-
-    protected CriteriaBuilder getBuilder() {
-        return builder;
-    }
-
-    protected Root<?> getRoot() {
-        return root;
-    }
-
-    protected IdentityQuery<?> getIdentityQuery() {
-        return this.identityQuery;
-    }
-
-    private JPAIdentityStoreConfigurationOld getConfig() {
-        return this.identityStore.getConfig();
-    }
-
-    private EntityManager getEntityManager(IdentityContext context) {
-        return this.identityStore.getEntityManager(context);
-    }
-
-    private class DefaultIdentityTypeHandler extends IdentityTypeHandler<IdentityType> {
-
-        @Override
-        protected IdentityType doCreateIdentityType(IdentityContext context, Object identity, JPAIdentityStore store) {
-            return null;
-        }
-
-        @Override
-        protected void doPopulateIdentityInstance(IdentityContext context, Object toIdentity, IdentityType fromIdentityType,
-                                                  JPAIdentityStore store) {
-
-        }
-
-    }
+//    private IdentityQuery<?> identityQuery;
+//    private CriteriaBuilder builder;
+//    private Root<?> root;
+//    private CriteriaQuery<?> criteria;
+//    private JPAIdentityStore identityStore;
+//
+//    public JPACriteriaQueryBuilder(IdentityContext context, JPAIdentityStore identityStore, IdentityQuery<?> identityQuery) {
+//        this.identityStore = identityStore;
+//        this.identityQuery = identityQuery;
+//
+//        this.builder = getEntityManager(context).getCriteriaBuilder();
+//        this.criteria = builder.createQuery(getConfig().getIdentityClass());
+//        this.root = criteria.from(getConfig().getIdentityClass());
+//    }
+//
+//    public List<Predicate> getPredicates(IdentityContext context) {
+//        List<Predicate> predicates = new ArrayList<Predicate>();
+//
+//        if (!IdentityType.class.equals(getIdentityQuery().getIdentityType())) {
+//            String discriminator = getConfig().getIdentityTypeDiscriminator(identityQuery.getIdentityType());
+//
+//            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getName()),
+//                    discriminator));
+//
+//            IdentityTypeHandler<?> identityTypeManager = IdentityTypeHandlerFactory.getHandler(this.identityQuery.getIdentityType());
+//
+//            predicates.addAll(identityTypeManager.getPredicate(context, this, identityStore));
+//        } else {
+//            IdentityTypeHandler<IdentityType> identityTypeManager = new DefaultIdentityTypeHandler();
+//
+//            predicates.addAll(identityTypeManager.getPredicate(context, this, this.identityStore));
+//        }
+//
+//        return predicates;
+//    }
+//
+//    public List<Order> getOrders() {
+//        IdentityTypeHandler<?> identityTypeManager;
+//        if (!IdentityType.class.equals(getIdentityQuery().getIdentityType())) {
+//            identityTypeManager = IdentityTypeHandlerFactory.getHandler(this.identityQuery.getIdentityType());
+//        } else {
+//            identityTypeManager = new DefaultIdentityTypeHandler();
+//        }
+//
+//        return identityTypeManager.getOrders(this, this.identityStore);
+//    }
+//
+//    protected CriteriaQuery<?> getCriteria() {
+//        return this.criteria;
+//    }
+//
+//    protected CriteriaBuilder getBuilder() {
+//        return builder;
+//    }
+//
+//    protected Root<?> getRoot() {
+//        return root;
+//    }
+//
+//    protected IdentityQuery<?> getIdentityQuery() {
+//        return this.identityQuery;
+//    }
+//
+//    private JPAIdentityStoreConfigurationOld getConfig() {
+//        return this.identityStore.getConfig();
+//    }
+//
+//    private EntityManager getEntityManager(IdentityContext context) {
+//        return this.identityStore.getEntityManager(context);
+//    }
+//
+//    private class DefaultIdentityTypeHandler extends IdentityTypeHandler<IdentityType> {
+//
+//        @Override
+//        protected IdentityType doCreateIdentityType(IdentityContext context, Object identity, JPAIdentityStore store) {
+//            return null;
+//        }
+//
+//        @Override
+//        protected void doPopulateIdentityInstance(IdentityContext context, Object toIdentity, IdentityType fromIdentityType,
+//                                                  JPAIdentityStore store) {
+//
+//        }
+//
+//    }
 }

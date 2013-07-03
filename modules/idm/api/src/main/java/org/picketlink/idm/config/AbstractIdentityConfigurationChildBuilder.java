@@ -45,4 +45,9 @@ public abstract class AbstractIdentityConfigurationChildBuilder implements Ident
         return this.identityConfigurationBuilder.build();
     }
 
+    @Override
+    public IdentityConfiguration build(String name) {
+        return this.identityConfigurationBuilder.build(name);
+    }
+
 }

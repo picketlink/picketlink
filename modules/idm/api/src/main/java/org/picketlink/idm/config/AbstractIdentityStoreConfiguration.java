@@ -24,6 +24,7 @@ import java.util.Set;
 import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
 import static java.util.Collections.unmodifiableList;
@@ -64,6 +65,12 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
      */
     private final List<Class<? extends CredentialHandler>> credentialHandlers;
 
+    /**
+     * <p>Indicates if this configuration supports partition storage.</p>
+     *
+     */
+    private final boolean supportsPartition;
+
     protected AbstractIdentityStoreConfiguration(
             Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes,
             Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes,
@@ -75,11 +82,13 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
         this.contextInitializers = unmodifiableList(contextInitializers);
         this.credentialHandlerProperties = unmodifiableMap(credentialHandlerProperties);
         this.credentialHandlers = unmodifiableList(credentialHandlers);
+        this.supportsPartition = supportsPartitionType();
     }
 
     @Override
     public final void init() throws SecurityConfigurationException {
         initConfig();
+
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debugf("FeatureSet for %s", this);
             LOGGER.debug("Features [");
@@ -120,6 +129,11 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
     }
 
     @Override
+    public Set<Class<? extends AttributedType>> getSupportedTypes() {
+        return this.supportedTypes.keySet();
+    }
+
+    @Override
     public Set<Class<? extends Relationship>> getSupportedRelationships() {
         return null;
     }
@@ -131,6 +145,21 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
         }
 
         return isTypeOperationSupported(type, operation) != -1;
+    }
+
+    @Override
+    public boolean supportsPartition() {
+        return this.supportsPartition;
+    }
+
+    private boolean supportsPartitionType() {
+        for (Class<? extends AttributedType> type: this.supportedTypes.keySet()) {
+            if (Partition.class.isAssignableFrom(type)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private int isTypeOperationSupported(Class<? extends AttributedType> type, TypeOperation operation) {
@@ -165,6 +194,7 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
                 } else {
                     break;
                 }
+                cls = cls.getSuperclass();
             }
             return score;
         } else {

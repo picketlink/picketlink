@@ -32,7 +32,7 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
  * @author Pedro Silva
  *
  */
-public abstract class AbstractFileEntry<T> implements Serializable {
+public abstract class AbstractFileType<T> implements Serializable {
 
     private static final long serialVersionUID = -3979114481984415635L;
 
@@ -42,7 +42,7 @@ public abstract class AbstractFileEntry<T> implements Serializable {
 
     private transient T loadedObject;
 
-    protected AbstractFileEntry(String version, T object) {
+    protected AbstractFileType(String version, T object) {
         if (version == null) {
             throw new IdentityManagementException("Version not specified.");
         }

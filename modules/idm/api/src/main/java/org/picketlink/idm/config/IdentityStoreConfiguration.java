@@ -86,7 +86,22 @@ public interface IdentityStoreConfiguration {
     boolean supportsType(Class<? extends AttributedType> type, TypeOperation operation);
 
     /**
-     * 
+     * <p>Indicates if this configuration supports partition storage.</p>
+     *
+     * @return
+     */
+    boolean supportsPartition();
+
+    /**
+     * <p>Returns all supported {@link AttributedType} types.</p>
+     *
+     * @return
+     */
+    Set<Class<? extends AttributedType>> getSupportedTypes();
+
+    /**
+     * <p>Returns all supported {@link Relationship} types.</p>
+     *
      * @return
      */
     Set<Class<? extends Relationship>> getSupportedRelationships();

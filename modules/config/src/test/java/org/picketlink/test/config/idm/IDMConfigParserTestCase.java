@@ -65,7 +65,7 @@ public class IDMConfigParserTestCase {
         IDMType idmType = picketlink.getIdmType();
         assertNotNull(idmType);
         assertEquals("org.picketlink.idm.internal.DefaultIdentityManager", idmType.getIdentityManagerClass());
-        assertEquals("org.picketlink.idm.internal.DefaultStoreFactory", idmType.getStoreFactoryClass());
+        assertEquals("org.picketlink.idm.internal.DefaultStoreSelector", idmType.getStoreFactoryClass());
         IdentityStoreInvocationContextFactoryType invStoreInvocationContextFactoryType = idmType.getIdentityStoreInvocationContextFactory();
         assertEquals("org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory", invStoreInvocationContextFactoryType.getClassName());
         assertEquals("org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory", invStoreInvocationContextFactoryType.getCredentialHandlerFactoryClass());

@@ -46,7 +46,7 @@ import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.internal.DefaultPartitionManager;
+import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.test.integration.AbstractArquillianTestCase;
 import org.picketlink.test.integration.ArchiveUtils;
 

@@ -125,6 +125,9 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
 
     @Override
     public S supportAllFeatures() {
+        supportType(getDefaultIdentityModelClasses());
+        supportCredentials(true);
+
         return (S) this;
     }
 

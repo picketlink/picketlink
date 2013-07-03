@@ -15,93 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.picketlink.idm.file.internal;
 
+import java.io.Serializable;
+import java.util.Map;
 import org.picketlink.idm.model.Partition;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
- * @author Pedro Silva
- *
+ * @author pedroigor
  */
-public class FilePartition extends AbstractFileEntry<Partition> {
+public class FilePartition extends AbstractFileAttributedType<Partition> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -8949732184464473476L;
 
-    private static final transient String FILE_PARTITION_VERSION = "1";
-
-    private transient Map<String, FileAgent> agents = new ConcurrentHashMap<String, FileAgent>();
-    private transient Map<String, FileRole> roles = new ConcurrentHashMap<String, FileRole>();
-    private transient Map<String, FileGroup> groups = new ConcurrentHashMap<String, FileGroup>();
-    private transient Map<String, Map<String, List<FileCredentialStorage>>> credentials = new ConcurrentHashMap<String, Map<String, List<FileCredentialStorage>>>();
-
-    public FilePartition(Partition partition) {
-        super(FILE_PARTITION_VERSION, partition);
-    }
-
-    public Map<String, FileAgent> getAgents() {
-        return agents;
-    }
-
-    public void setAgents(Map<String, FileAgent> agents) {
-        this.agents = agents;
-    }
-
-    public Map<String, FileRole> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Map<String, FileRole> roles) {
-        this.roles = roles;
-    }
-
-    public Map<String, FileGroup> getGroups() {
-        return groups;
-    }
-
-    public void setGroups(Map<String, FileGroup> groups) {
-        this.groups = groups;
-    }
-
-    public Map<String, Map<String, List<FileCredentialStorage>>> getCredentials() {
-        return credentials;
-    }
-
-    public void setCredentials(Map<String, Map<String, List<FileCredentialStorage>>> credentials) {
-        this.credentials = credentials;
-    }
-
-    public Partition getPartition() {
-        return (Partition) super.getEntry();
-    }
-
-    public String getId() {
-        return getPartition().getId();
+    protected FilePartition(Partition object) {
+        super("1", object);
     }
 
     @Override
-    protected void doPopulateProperties(Map<String, Serializable> properties) throws Exception {
-        Partition partition = getPartition();
-
-        properties.put("id", partition.getId());
-    }
-
-    @Override
-    protected Partition doPopulateEntry(Map<String, Serializable> properties) throws Exception {
+    protected Partition doCreateInstance(Map<String, Serializable> properties) throws Exception {
         String id = properties.get("id").toString();
-
-        Partition partition = (Partition) Class.forName(getType()).getConstructor(String.class).newInstance(id);
-
-        return partition;
+        return (Partition) Class.forName(getType()).getConstructor(String.class).newInstance(id);
     }
 
-    @Override
-    public String toString() {
-        return getId();
-    }
 }

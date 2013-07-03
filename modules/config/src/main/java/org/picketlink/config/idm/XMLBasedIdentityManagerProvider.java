@@ -79,8 +79,8 @@ public class XMLBasedIdentityManagerProvider {
         // IdentityManager identityManager = (IdentityManager)instantiateComponent(identityManagerClass);
         //
         // if (idmType.getStoreFactoryClass() != null) {
-        // StoreFactory storeFactory = (StoreFactory)instantiateComponent(idmType.getStoreFactoryClass());
-        // identityManager.setIdentityStoreFactory(storeFactory);
+        // StoreFactory selector = (StoreFactory)instantiateComponent(idmType.getStoreFactoryClass());
+        // identityManager.setIdentityStoreFactory(selector);
         // }
         //
         // IdentityStoreInvocationContextFactory invContextFactory =

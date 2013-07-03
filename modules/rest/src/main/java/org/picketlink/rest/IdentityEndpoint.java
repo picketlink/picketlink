@@ -38,4 +38,6 @@ public class IdentityEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     public void addUser(@Context HttpServletRequest request) {
 
+    }
+
 }

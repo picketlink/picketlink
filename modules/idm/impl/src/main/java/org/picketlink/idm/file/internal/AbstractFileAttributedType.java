@@ -18,6 +18,12 @@
 
 package org.picketlink.idm.file.internal;
 
+import java.util.List;
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.common.properties.query.PropertyQuery;
+import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 
@@ -29,19 +35,24 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import org.picketlink.idm.model.annotation.AttributeProperty;
 
 /**
  * @author Pedro Silva
  *
  */
-public abstract class AbstractAttributedTypeEntry<T extends AttributedType> extends AbstractFileEntry<T> {
+public abstract class AbstractFileAttributedType<T extends AttributedType> extends AbstractFileType<T> {
 
     private static final long serialVersionUID = -8312773698663190107L;
 
     private Map<String, Serializable> attributes = new HashMap<String, Serializable>();
 
-    protected AbstractAttributedTypeEntry(String version, T object) {
+    protected AbstractFileAttributedType(String version, T object) {
         super(version, object);
+    }
+
+    public String getId() {
+        return getEntry().getId();
     }
 
     @Override
@@ -49,6 +60,10 @@ public abstract class AbstractAttributedTypeEntry<T extends AttributedType> exte
         T attributedType = doCreateInstance(properties);
 
         attributedType.setId(properties.get("id").toString());
+
+        for (Property<Serializable> property: getAttributedProperties()) {
+            property.setValue(attributedType, properties.get(property.getName()));
+        }
 
         if (this.attributes == null) {
             this.attributes = new HashMap<String, Serializable>();
@@ -70,6 +85,10 @@ public abstract class AbstractAttributedTypeEntry<T extends AttributedType> exte
         T attributedType = getEntry();
 
         properties.put("id", attributedType.getId());
+
+        for (Property<Serializable> property: getAttributedProperties()) {
+            properties.put(property.getName(), property.getValue(getEntry()));
+        }
     }
 
     @Override
@@ -92,4 +111,13 @@ public abstract class AbstractAttributedTypeEntry<T extends AttributedType> exte
     protected void doReadObject(ObjectInputStream s) throws Exception {
         this.attributes = (Map<String, Serializable>) s.readObject();
     }
+
+    private List<Property<Serializable>> getAttributedProperties() {
+        PropertyQuery<Serializable> query = PropertyQueries.createQuery(getEntry().getClass());
+
+        query.addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class));
+
+        return query.getResultList();
+    }
+
 }
