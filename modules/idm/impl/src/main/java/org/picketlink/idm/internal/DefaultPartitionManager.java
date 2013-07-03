@@ -25,7 +25,6 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.IdentityType;
@@ -37,7 +36,6 @@ import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityContext;
-import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.StoreSelector;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
@@ -108,24 +106,13 @@ public class DefaultPartitionManager implements PartitionManager {
             throw MESSAGES.partitionAlreadyExistsWithName(partition.getClass(), partition.getName());
         }
 
-        PartitionStore partitionStore = this.storeSelector.getStoreForType(
-                PartitionStore.class,
-                identityContext,
-                partition.getClass(),
-                TypeOperation.create);
-
-        partitionStore.add(partition, identityContext);
+        this.storeSelector.getStoreForPartitionOperation().add(partition, identityContext);
     }
 
     @Override
     public <T extends Partition> T getPartition(Class<T> partitionClass, String name) {
         IdentityContext identityContext = createIdentityContext();
-
-        return (T) this.storeSelector.getStoreForType(
-                PartitionStore.class,
-                identityContext,
-                partitionClass,
-                TypeOperation.read).get(partitionClass, name, identityContext);
+        return (T) this.storeSelector.getStoreForPartitionOperation().get(partitionClass, name, identityContext);
     }
 
     @Override

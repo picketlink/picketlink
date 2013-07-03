@@ -18,16 +18,20 @@
 
 package org.picketlink.idm.spi;
 
-import org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
+import java.util.Set;
+import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Relationship;
 
 /**
- * Creates IdentityStore instances based on a provided configuration
+ * Returns the correct IdentityStore instances for certain operation types, for a given Partition
  *
  * @author Shane Bryzak
  *
  */
 public interface StoreSelector {
+
     /**
      *
      * @param context
@@ -35,13 +39,28 @@ public interface StoreSelector {
      * @param operation
      * @return
      */
-    <T extends IdentityStore> T getStoreForType(Class<T> storeType, IdentityContext context, Class<? extends AttributedType> type,
-            TypeOperation operation);
+    <T extends IdentityStore<?>> T getStoreForIdentityOperation(Class<T> storeType, Partition partition, Class<? extends AttributedType> type,
+            IdentityOperation operation);
 
     /**
      *
      * @param context
      * @return
      */
-    IdentityStore getStoreForCredential(IdentityContext context);
+    IdentityStore<?> getStoreForCredentialOperation(Class<?> credentialClass, Partition partition);
+
+    /**
+     * Returns the IdentityStore that manages relationships of the specified type, for the specified partition/s.
+     *
+     * @param relationship
+     * @return
+     */
+    IdentityStore<?> getStoreForRelationshipOperation(Class<? extends Relationship> relationshipClass, Set<Partition> partitions);
+
+    /**
+     *
+     *
+     * @return
+     */
+    PartitionStore<?> getStoreForPartitionOperation();
 }

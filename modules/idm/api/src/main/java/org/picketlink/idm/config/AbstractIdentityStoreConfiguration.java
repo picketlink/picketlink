@@ -41,13 +41,13 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
     /**
      * <p>{@link AttributedType} types are supported by this configuration.</p>
      */
-    private final Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes;
+    private final Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes;
 
     /**
      * <p>{@link AttributedType} types are not supported by this configuration.
      * This allows us to trim any type that we don't want to support off the hierarchy tree</p>
      */
-    private final Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes;
+    private final Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes;
 
     /**
      * <p>{@link ContextInitializer} instances that should be used to initialize the
@@ -72,8 +72,8 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
     private final boolean supportsPartition;
 
     protected AbstractIdentityStoreConfiguration(
-            Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes,
-            Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes,
+            Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
+            Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {
@@ -138,8 +138,7 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
         return null;
     }
 
-    @Override
-    public boolean supportsType(Class<? extends AttributedType> type, TypeOperation operation) {
+    public boolean supportsType(Class<? extends AttributedType> type, IdentityOperation operation) {
         if (operation == null) {
             throw IDMMessages.MESSAGES.nullArgument("TypeOperation");
         }
@@ -162,7 +161,7 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
         return false;
     }
 
-    private int isTypeOperationSupported(Class<? extends AttributedType> type, TypeOperation operation) {
+    private int isTypeOperationSupported(Class<? extends AttributedType> type, IdentityOperation operation) {
         int score = -1;
 
         for (Class<? extends AttributedType> cls : supportedTypes.keySet()) {

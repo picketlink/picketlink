@@ -40,7 +40,7 @@ public interface IdentityStoreConfiguration {
     /**
      * <p>Supported operations for @{AttributedType} types.</p>
      */
-    enum TypeOperation {
+    enum IdentityOperation {
         create, read, update, delete
     }
 
@@ -77,13 +77,13 @@ public interface IdentityStoreConfiguration {
     Map<String, Object> getCredentialHandlerProperties();
 
     /**
-     * <p>Checks if the configuration supports the given {@link AttributedType} and {@link TypeOperation}.</p>
+     * <p>Checks if the configuration supports the given {@link AttributedType} and {@link IdentityOperation}.</p>
      *
      * @param type
      * @param operation
      * @return
      */
-    boolean supportsType(Class<? extends AttributedType> type, TypeOperation operation);
+    boolean supportsType(Class<? extends AttributedType> type, IdentityOperation operation);
 
     /**
      * <p>Indicates if this configuration supports partition storage.</p>

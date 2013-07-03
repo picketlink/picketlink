@@ -25,7 +25,7 @@ package org.picketlink.idm.config;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.spi.ContextInitializer;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * <p>{@link Builder} interface defining all configuration methods for identity stores.</p>
@@ -59,7 +59,7 @@ public interface IdentityStoreConfigurationBuilder<T extends IdentityStoreConfig
      * @param operation
      * @return
      */
-    S unsupportType(Class<? extends AttributedType> type, TypeOperation... operation);
+    S unsupportType(Class<? extends AttributedType> type, IdentityOperation... operation);
 
     /**
      * <p>Adds a custom {@CredentialHandler}.</p>

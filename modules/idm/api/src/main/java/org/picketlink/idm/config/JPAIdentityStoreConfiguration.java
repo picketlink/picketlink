@@ -293,8 +293,8 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
 
     protected JPAIdentityStoreConfiguration(
             List<Class<?>> entityClasses,
-            Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes,
-            Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes,
+            Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
+            Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {

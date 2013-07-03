@@ -18,6 +18,8 @@
 
 package org.picketlink.idm.config;
 
+import org.picketlink.idm.spi.RelationshipPolicy;
+
 /**
  * <p>Consolidates all the configuration that should be used to initialize and start the IDM subsystem.</p>
  *
@@ -28,6 +30,7 @@ public class IdentityConfiguration {
 
     private final String name;
     private final IdentityStoresConfiguration storesConfiguration;
+    private final RelationshipPolicy relationshipPolicy;
 
     IdentityConfiguration(String name, IdentityStoresConfiguration storesConfiguration) {
         if (name == null) {
@@ -35,8 +38,12 @@ public class IdentityConfiguration {
         }
 
         this.name = name;
-
         this.storesConfiguration = storesConfiguration;
+        this.relationshipPolicy = null;
+    }
+
+    public RelationshipPolicy getRelationshipPolicy() {
+        return relationshipPolicy;
     }
 
     public String getName() {

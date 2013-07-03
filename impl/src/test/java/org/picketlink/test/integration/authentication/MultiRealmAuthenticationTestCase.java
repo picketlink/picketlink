@@ -22,16 +22,11 @@
 
 package org.picketlink.test.integration.authentication;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -44,11 +39,14 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.test.integration.AbstractArquillianTestCase;
 import org.picketlink.test.integration.ArchiveUtils;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * <p>
@@ -151,14 +149,14 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
         assertEquals(TESTING_REALM_NAME, user.getPartition().getId());
 
         this.credentials.setUserId(user.getLoginName());
-        this.credentials.setPassword(buildUserPassword(this.identityManagerFactory.getRealm(Realm.DEFAULT_REALM)));
+        this.credentials.setPassword(buildUserPassword(this.identityManagerFactory.getPartition(Realm.class, Realm.DEFAULT_REALM)));
 
         this.identity.login();
 
         // should fail. The provided password is configured for john when using the default realm.
         assertFalse(this.identity.isLoggedIn());
 
-        this.credentials.setPassword(buildUserPassword(this.identityManagerFactory.getRealm(TESTING_REALM_NAME)));
+        this.credentials.setPassword(buildUserPassword(this.identityManagerFactory.getPartition(Realm.class, TESTING_REALM_NAME)));
 
         this.identity.login();
 
@@ -205,7 +203,7 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
                 this.realmName = Realm.DEFAULT_REALM;
             }
 
-            return this.identityManagerFactory.getRealm(this.realmName);
+            return this.identityManagerFactory.getPartition(Realm.class, this.realmName);
         }
 
         void setRealmName(String realmName) {
@@ -220,7 +218,7 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
         public IdentityConfiguration buildIDMConfiguration() {
             IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
-            builder.stores().file().addRealm(Realm.DEFAULT_REALM, TESTING_REALM_NAME, STAGING_REALM_NAME).supportAllFeatures();
+            builder.stores().file().supportAllFeatures();
 
             return builder.build();
         }

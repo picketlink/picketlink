@@ -27,7 +27,6 @@ import java.util.Map;
 import org.picketlink.idm.model.Partition;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
-
 /**
  * @author Pedro Igor
  *

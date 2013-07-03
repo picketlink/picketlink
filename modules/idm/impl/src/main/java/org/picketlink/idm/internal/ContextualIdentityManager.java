@@ -18,37 +18,24 @@
 package org.picketlink.idm.internal;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.sample.Agent;
-import org.picketlink.idm.model.sample.Grant;
 import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.GroupMembership;
-import org.picketlink.idm.model.sample.GroupRole;
-import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.idm.query.internal.DefaultIdentityQuery;
-import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
-import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreSelector;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * Default implementation of the IdentityManager interface
@@ -68,11 +55,11 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
 
     @Override
     public void add(IdentityType identityType) throws IdentityManagementException {
-        this.storeSelector.getStoreForType(
+        this.storeSelector.getStoreForIdentityOperation(
                 IdentityStore.class,
-                this.identityContext,
+                this.getPartition(),
                 identityType.getClass(),
-                TypeOperation.create).add(this.identityContext, identityType);
+                IdentityOperation.create).add(this.identityContext, identityType);
     }
 
     @Override
@@ -179,4 +166,5 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
     public void loadAttribute(IdentityType identityType, String attributeName) {
         //TODO: Implement loadAttribute
     }
+
 }

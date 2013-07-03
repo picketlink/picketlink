@@ -44,7 +44,7 @@ import org.picketlink.idm.spi.IdentityStore;
 import javax.naming.NamingException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.AnnotatedElement;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * <p>
@@ -125,15 +125,15 @@ public interface IDMMessages {
     SecurityConfigurationException storeConfigRealmNotConfigured(String realmId);
 
     @Message(id = 20, value = "No identity store configuration found that supports the relationship type [%s] and operation [%s].")
-    SecurityConfigurationException storeConfigUnsupportedRelationshipType(Class<? extends Relationship> type, TypeOperation operation);
+    SecurityConfigurationException storeConfigUnsupportedRelationshipType(Class<? extends Relationship> type, IdentityOperation operation);
 
     @Message(id = 21, value = "The IdentityStoreConfiguration [%s] specified is not supported by this IdentityStoreFactory implementation.")
     SecurityConfigurationException storeConfigUnsupportedConfiguration(IdentityStoreConfiguration config);
 
     @Message(id = 22, value = "No identity store configuration found for requested type operation [%s.%s].")
     OperationNotSupportedException storeConfigUnsupportedOperation(@Param Class<? extends AttributedType> type,
-            @Param TypeOperation operation, Class<? extends AttributedType> typeToDisplay,
-            TypeOperation operationToDisplay);
+            @Param IdentityOperation operation, Class<? extends AttributedType> typeToDisplay,
+            IdentityOperation operationToDisplay);
 
     @Message(id = 23, value = "Error creating instance for CredentialHandler [%s].")
     IdentityManagementException credentialCredentialHandlerInstantiationError(Class<? extends CredentialHandler> type,
@@ -301,7 +301,7 @@ public interface IDMMessages {
     SecurityConfigurationException configurationAmbiguousRelationshipForStore(Class<? extends Relationship> relationship, IdentityStoreConfiguration config1, IdentityStoreConfiguration config2);
 
     @Message(id = 77, value = "No identity store configuration found that supports the identity type [%s] and operation [%s].")
-    SecurityConfigurationException storeConfigUnsupportedIdentityType(Class<? extends IdentityType> type, TypeOperation operation);
+    SecurityConfigurationException storeConfigUnsupportedIdentityType(Class<? extends IdentityType> type, IdentityOperation operation);
 
     @Message(id = 78, value = "You must specify which credentials are supported by the [%s].")
     IdentityManagementException credentialSupportedCredentialsNotProvided(Class<? extends CredentialHandler> handlerClass);

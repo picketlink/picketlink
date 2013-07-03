@@ -19,6 +19,7 @@
 package org.picketlink.idm.internal;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
@@ -26,9 +27,12 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityStoresConfiguration;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.model.AttributedType;
-import org.picketlink.idm.spi.IdentityContext;
+import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.StoreSelector;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * Default StoreFactory implementation. This factory is pre-configured to be able to create instances of the following built-in
@@ -51,20 +55,31 @@ public class DefaultStoreSelector implements StoreSelector {
     }
 
     @Override
-    public <T extends IdentityStore> T getStoreForType(
-            Class<T> expectedType,
-            IdentityContext identityContext,
-            Class<? extends AttributedType> type,
-            IdentityStoreConfiguration.TypeOperation operation) {
+    public <T extends IdentityStore<?>> T getStoreForIdentityOperation(Class<T> storeType, Partition partition, Class<? extends AttributedType> type, IdentityOperation operation) {
         T identityStore = null;
 
-        IdentityStoreConfiguration selectedConfig = storesConfiguration.forType(type, operation);
+        IdentityStoreConfiguration selectedConfig = this.storesConfiguration.forType(type, operation);
 
         if (selectedConfig == null) {
             throw new IdentityManagementException("No store configuration found for type [" + type + "] and operation [" + operation + "].");
         }
 
-        return createStore(expectedType, selectedConfig);
+        return createStore(storeType, selectedConfig);
+    }
+
+    @Override
+    public IdentityStore<?> getStoreForCredentialOperation(Class<?> credentialClass, Partition partition) {
+        return null;  //TODO: Implement getStoreForCredentialOperation
+    }
+
+    @Override
+    public IdentityStore<?> getStoreForRelationshipOperation(Class<? extends Relationship> relationshipClass, Set<Partition> partitions) {
+        return null;  //TODO: Implement getStoreForRelationshipOperation
+    }
+
+    @Override
+    public PartitionStore<?> getStoreForPartitionOperation() {
+        return null;  //TODO: Implement getStoreForPartitionOperation
     }
 
     private <T extends IdentityStore> T createStore(
@@ -111,8 +126,4 @@ public class DefaultStoreSelector implements StoreSelector {
         return storeType;
     }
 
-    @Override
-    public IdentityStore getStoreForCredential(IdentityContext context) {
-        return null;  //TODO: Implement getStoreForCredential
-    }
 }

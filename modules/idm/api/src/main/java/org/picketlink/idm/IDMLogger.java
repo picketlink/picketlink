@@ -31,7 +31,7 @@ import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.model.AttributedType;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * @author Pedro Silva
@@ -60,7 +60,7 @@ public interface IDMLogger extends BasicLogger {
 
     @LogMessage(level = Level.ERROR)
     @Message(id = 104, value = "No suitable configuration found for type operation [%s.%s]. Could find an IdentityStore to perform the requested operation.")
-    void identityManagerUnsupportedOperation(Class<? extends AttributedType> type, TypeOperation operation);
+    void identityManagerUnsupportedOperation(Class<? extends AttributedType> type, IdentityOperation operation);
 
     @LogMessage(level = Level.ERROR)
     @Message(id = 105, value = "No configuration found for the given Realm [%s].")

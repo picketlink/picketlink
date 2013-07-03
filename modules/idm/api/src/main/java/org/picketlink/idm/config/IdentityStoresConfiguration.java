@@ -30,6 +30,7 @@ import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreSelector;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * <p>Holds all the configuration for identity stores.</p>
@@ -69,7 +70,7 @@ public class IdentityStoresConfiguration {
         return this.identityStores;
     }
 
-    public IdentityStoreConfiguration forType(Class<? extends AttributedType> type, IdentityStoreConfiguration.TypeOperation operation) {
+    public IdentityStoreConfiguration forType(Class<? extends AttributedType> type, IdentityOperation operation) {
         for (IdentityStoreConfiguration storeConfiguration : getConfigurations()) {
             if (storeConfiguration.supportsType(type, operation)) {
                 return storeConfiguration;

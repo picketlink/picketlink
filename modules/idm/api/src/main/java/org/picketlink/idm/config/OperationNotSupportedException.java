@@ -23,12 +23,12 @@
 package org.picketlink.idm.config;
 
 import org.picketlink.idm.model.AttributedType;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * <p>
  * An <code>OperationNotSupportedException</code> is thrown to indicate that a {@link AttributedType} or
- * {@link TypeOperation} is not supported by the underlying IdentityStore configured for a specific
+ * {@link IdentityOperation} is not supported by the underlying IdentityStore configured for a specific
  * IdentityManager instance.
  * </p>
  * <p>
@@ -43,9 +43,9 @@ public class OperationNotSupportedException extends SecurityConfigurationExcepti
     private static final long serialVersionUID = -669582364091679894L;
 
     private Class<? extends AttributedType> attributedType;
-    private TypeOperation operation;
+    private IdentityOperation operation;
 
-    public OperationNotSupportedException(String message, Class<? extends AttributedType> attributedType, TypeOperation operation) {
+    public OperationNotSupportedException(String message, Class<? extends AttributedType> attributedType, IdentityOperation operation) {
         super(message);
         this.attributedType = attributedType;
         this.operation = operation;
@@ -55,7 +55,7 @@ public class OperationNotSupportedException extends SecurityConfigurationExcepti
         return this.attributedType;
     }
 
-    public TypeOperation getOperation() {
+    public IdentityOperation getOperation() {
         return this.operation;
     }
 

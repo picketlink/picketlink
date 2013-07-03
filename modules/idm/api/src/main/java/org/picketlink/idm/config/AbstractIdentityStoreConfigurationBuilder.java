@@ -44,7 +44,7 @@ import org.picketlink.idm.spi.ContextInitializer;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.TypeOperation;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * <p>Base class for {@link IdentityStoreConfigurationBuilder} implementations.</p>
@@ -55,8 +55,8 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
         extends AbstractIdentityConfigurationChildBuilder
         implements IdentityStoreConfigurationBuilder<T, S> {
 
-    private final Map<Class<? extends AttributedType>, Set<TypeOperation>> supportedTypes;
-    private final Map<Class<? extends AttributedType>, Set<TypeOperation>> unsupportedTypes;
+    private final Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes;
+    private final Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes;
 
     private final List<Class<? extends CredentialHandler>> credentialHandlers;
     private final Map<String, Object> credentialHandlerProperties;
@@ -68,8 +68,8 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
 
     protected AbstractIdentityStoreConfigurationBuilder(IdentityStoresConfigurationBuilder builder) {
         super(builder);
-        this.supportedTypes = new HashMap<Class<? extends AttributedType>, Set<TypeOperation>>();
-        this.unsupportedTypes = new HashMap<Class<? extends AttributedType>, Set<TypeOperation>>();
+        this.supportedTypes = new HashMap<Class<? extends AttributedType>, Set<IdentityOperation>>();
+        this.unsupportedTypes = new HashMap<Class<? extends AttributedType>, Set<IdentityOperation>>();
         this.credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
         this.credentialHandlerProperties = new HashMap<String, Object>();
         this.contextInitializers = new ArrayList<ContextInitializer>();
@@ -96,9 +96,9 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
 
         for (Class<? extends AttributedType> attributedType: attributedTypes) {
             if (!this.supportedTypes.containsKey(attributedType)) {
-                List<TypeOperation> defaultTypeOperations = Arrays.asList(TypeOperation.values());
-                HashSet<TypeOperation> supportedOperations =
-                        new HashSet<TypeOperation>(defaultTypeOperations);
+                List<IdentityOperation> defaultTypeOperations = Arrays.asList(IdentityOperation.values());
+                HashSet<IdentityOperation> supportedOperations =
+                        new HashSet<IdentityOperation>(defaultTypeOperations);
                 this.supportedTypes.put(attributedType, supportedOperations);
             }
         }
@@ -107,16 +107,16 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
     }
 
     @Override
-    public S unsupportType(Class<? extends AttributedType> type, TypeOperation... operations) {
+    public S unsupportType(Class<? extends AttributedType> type, IdentityOperation... operations) {
         if (!this.unsupportedTypes.containsKey(type)) {
-            this.unsupportedTypes.put(type, new HashSet<TypeOperation>());
+            this.unsupportedTypes.put(type, new HashSet<IdentityOperation>());
         }
 
         if (operations != null && operations.length == 0) {
-            operations = TypeOperation.values();
+            operations = IdentityOperation.values();
         }
 
-        for (TypeOperation op : operations) {
+        for (IdentityOperation op : operations) {
             this.unsupportedTypes.get(type).add(op);
         }
 
@@ -176,11 +176,11 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
         return unmodifiableList(this.credentialHandlers);
     }
 
-    protected Map<Class<? extends AttributedType>, Set<TypeOperation>> getSupportedTypes() {
+    protected Map<Class<? extends AttributedType>, Set<IdentityOperation>> getSupportedTypes() {
         return unmodifiableMap(this.supportedTypes);
     }
 
-    protected Map<Class<? extends AttributedType>, Set<TypeOperation>> getUnsupportedTypes() {
+    protected Map<Class<? extends AttributedType>, Set<IdentityOperation>> getUnsupportedTypes() {
         return unmodifiableMap(this.unsupportedTypes);
     }
 

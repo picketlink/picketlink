@@ -24,19 +24,17 @@ import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-
 import org.picketlink.IdentityConfigurationEvent;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.config.JPAIdentityStoreConfigurationOld;
 import org.picketlink.idm.config.SecurityConfigurationException;
+import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.internal.EEJPAContextInitializer;
 import org.picketlink.internal.EESecurityContextFactory;
 import org.picketlink.internal.IdentityStoreAutoConfiguration;
-import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.internal.SecuredIdentityManager;
 import org.picketlink.internal.util.Strings;
 
@@ -86,11 +84,11 @@ public class IdentityManagerProducer {
             loadAutoConfig(builder);
         }
         
-        if (builder.stores().isConfigured(JPAIdentityStoreConfigurationOld.class)) {
-            builder.stores().jpa().addContextInitializer(this.jpaContextInitializer);
-        }
-
-        builder.contextFactory(this.icf);
+//        if (builder.stores().isConfigured(JPAIdentityStoreConfigurationOld.class)) {
+//            builder.stores().jpa().addContextInitializer(this.jpaContextInitializer);
+//        }
+//
+//        builder.contextFactory(this.icf);
 
         this.factory = new DefaultPartitionManager(builder.build());
     }
