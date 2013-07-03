@@ -23,6 +23,7 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.picketlink.common.util.StringUtil;
@@ -32,6 +33,7 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.event.EventBridge;
@@ -160,16 +162,21 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     /**
-     * Create a default relationship policy
+     * Create a default relationship policy, using the first found store in the first found configuration
      *
      * @param configurations
      * @return
      */
     private RelationshipPolicy createDefaultRelationshipPolicy(Map<String,IdentityConfiguration> configurations) {
-        // Just take the first configuration found
-        Map<Class<? extends Relationship>, IdentityConfiguration> relationshipConfigs = new HashMap<Class<? extends Relationship>, IdentityConfiguration>();
-        relationshipConfigs.put(Relationship.class, configurations.get(configurations.keySet().iterator().next()));
-        return new RelationshipPolicy(relationshipConfigs);
+        Map<Class<? extends Relationship>, IdentityStoreConfiguration> relationshipConfig = new HashMap<Class<? extends Relationship>, IdentityStoreConfiguration>();
+
+        // Get the first configuration
+        IdentityConfiguration config = configurations.get(configurations.keySet().iterator().next());
+        // Get the first store in that configuration
+        IdentityStoreConfiguration storeConfig = config.getConfiguredStores().iterator().next();
+
+        relationshipConfig.put(Relationship.class, storeConfig);
+        return new RelationshipPolicy(relationshipConfig, relationshipConfig);
     }
 
     private IdentityConfiguration getConfigurationForPartition(Partition partition) {
@@ -183,10 +190,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     private synchronized IdentityConfiguration lookupPartitionConfiguration(Partition partition) {
         if (!partitionConfigurations.containsKey(partition)) {
 
-            @SuppressWarnings("rawtypes")
-            PartitionStore<?> store = partitionManagementConfig.getStoreFactory().<PartitionStore>getStoreForType(PartitionStore.class,
-                    createIdentityContext(), Partition.class, IdentityOperation.read);
-
+            PartitionStore<?> store = getStoreForPartitionOperation();
             partitionConfigurations.put(partition, configurations.get(store.getConfigurationName(partition)));
         }
         return partitionConfigurations.get(partition);
@@ -244,9 +248,16 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
      * @return
      */
     public <T extends Partition> T getPartition(Class<T> partitionClass, String name) {
-        PartitionStore<?> store = partitionManagementConfig.getStoreFactory().<PartitionStore>getStoreForType(PartitionStore.class,
-                createIdentityContext(), Partition.class, IdentityOperation.read);
-        return store.<T>getPartition(partitionClass, name);
+        return getStoreForPartitionOperation().<T>getPartition(partitionClass, name);
+    }
+
+
+    /**
+     * 
+     * @param partition
+     */
+    public void addPartition(Partition partition) {
+        addPartition(partition, null);
     }
 
     /**
@@ -256,9 +267,16 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
      * @param configurationName
      */
     public void addPartition(Partition partition, String configurationName) {
-        PartitionStore<?> store = partitionManagementConfig.getStoreFactory().<PartitionStore>getStoreForType(PartitionStore.class,
-                createIdentityContext(), Partition.class, IdentityOperation.create);
-        store.addPartition(partition, configurationName);
+        if (configurationName == null) {
+            getStoreForPartitionOperation().addPartition(partition, getDefaultConfigurationName());
+        } else {
+            getStoreForPartitionOperation().addPartition(partition, configurationName);
+        }
+    }
+
+    private String getDefaultConfigurationName() {
+        // TODO implement this
+        return null;
     }
 
     /**
@@ -267,9 +285,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
      * @param partition
      */
     public void updatePartition(Partition partition) {
-        PartitionStore<?> store = partitionManagementConfig.getStoreFactory().<PartitionStore>getStoreForType(PartitionStore.class,
-                createIdentityContext(), Partition.class, IdentityOperation.update);
-        store.updatePartition(partition);
+        getStoreForPartitionOperation().updatePartition(partition);
     }
 
     /**
@@ -278,22 +294,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
      * @param partition
      */
     public void removePartition(Partition partition) {
-        PartitionStore<?> store = partitionManagementConfig.getStoreFactory().<PartitionStore>getStoreForType(PartitionStore.class,
-                createIdentityContext(), Partition.class, IdentityOperation.delete);
-        store.removePartition(partition);
-    }
-
-    @Override
-    public <T extends IdentityStore<?>> T getStoreForType(Class<T> storeType, IdentityContext context,
-            Class<? extends AttributedType> type, IdentityOperation operation) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public IdentityStore<?> getStoreForCredential(IdentityContext context) {
-        // TODO Auto-generated method stub
-        return null;
+        getStoreForPartitionOperation().removePartition(partition);
     }
 
     @Override
@@ -370,6 +371,32 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     @Override
     public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <T extends IdentityStore<?>> T getStoreForIdentityOperation(Class<T> storeType, Partition partition,
+            Class<? extends AttributedType> type, IdentityOperation operation) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public IdentityStore<?> getStoreForCredentialOperation(Class<?> credentialClass, Partition partition) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public IdentityStore<?> getStoreForRelationshipOperation(Class<? extends Relationship> relationshipClass,
+            Set<Partition> partitions) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public PartitionStore<?> getStoreForPartitionOperation() {
         // TODO Auto-generated method stub
         return null;
     }
