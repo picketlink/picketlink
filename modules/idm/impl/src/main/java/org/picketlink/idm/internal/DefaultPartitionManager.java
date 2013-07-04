@@ -197,24 +197,24 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             if (storeClass == null) {
                 // If no store class is configured, default to the built-in types for known configurations
                 if (FileIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
-                    store = (T) FileIdentityStore.class.newInstance();
+                    storeClass = (Class<T>) FileIdentityStore.class;
                 } else if (JPAIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
-                    store = (T) JPAIdentityStore.class.newInstance();
+                    storeClass = (Class<T>) JPAIdentityStore.class;
                 } else if (LDAPIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
-                    store = (T) LDAPIdentityStore.class.newInstance();
+                    storeClass = (Class<T>) LDAPIdentityStore.class;
                 } else {
                     throw new IdentityManagementException("Unknown IdentityStore class for configuration [" + storeConfiguration + "].");
                 }
-                return null;
-            } else {
-                store = storeClass.newInstance();
             }
+
+            store = storeClass.newInstance();
         } catch (Exception ex) {
             throw new IdentityManagementException("Error while creating IdentityStore instance for configuration [" +
                     storeConfiguration + "].", ex);
         }
 
         store.setup(storeConfiguration);
+
         return store;
     }
 
