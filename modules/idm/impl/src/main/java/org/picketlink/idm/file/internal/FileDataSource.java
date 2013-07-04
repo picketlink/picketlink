@@ -34,7 +34,9 @@ import java.util.concurrent.Executors;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.idm.file.internal.FileUtils.createFileIfNotExists;
 import static org.picketlink.idm.file.internal.FileUtils.delete;
+import static org.picketlink.idm.file.internal.FileUtils.readObject;
 
 /**
  * @author Pedro Silva
@@ -100,6 +102,11 @@ public class FileDataSource {
         flush(PARTITIONS_FILE_NAME, getPartitions());
     }
 
+    void flushPartitions(FilePartition partition) {
+        initPartition(partition.getId());
+        flush(PARTITIONS_FILE_NAME, getPartitions());
+    }
+
     void flushAttributedTypes(FilePartition partition) {
         flush(partition, ATTRIBUTED_TYPES__FILE_NAME, partition.getAttributedTypes());
     }
@@ -135,8 +142,8 @@ public class FileDataSource {
     private void init() {
         initWorkingDirectory();
 
-        File partitionsFile = FileUtils
-                .createFileIfNotExists(new File(getWorkingDir() + File.separator + PARTITIONS_FILE_NAME));
+        File partitionsFile =
+                createFileIfNotExists(new File(getWorkingDir() + File.separator + PARTITIONS_FILE_NAME));
 
         loadPartitions(partitionsFile);
 
@@ -147,7 +154,7 @@ public class FileDataSource {
     }
 
     private void loadPartitions(File partitionsFile) {
-        this.partitions = FileUtils.readObject(partitionsFile);
+        this.partitions = readObject(partitionsFile);
 
         if (this.partitions == null) {
             LOGGER.debugf("No partitions to load from %s", partitionsFile.getPath());
@@ -164,6 +171,23 @@ public class FileDataSource {
     }
 
     private void initPartition(String partitionId) {
+        FilePartition filePartition = this.partitions.get(partitionId);
+
+        LOGGER.debugf("Initializing Partition [%s] with id [%s].", filePartition.getId(), partitionId);
+
+        String attributeTypes = getWorkingDir() + File.separator + partitionId + File.separator + ATTRIBUTED_TYPES__FILE_NAME;
+
+        File agentsFile = createFileIfNotExists(new File(attributeTypes));
+
+        Map<String, FileAttributedType> attributedTypes = readObject(agentsFile);
+
+        if (attributedTypes == null) {
+            attributedTypes = new ConcurrentHashMap<String, FileAttributedType>();
+        }
+
+        filePartition.setAttributedTypes(attributedTypes);
+
+        LOGGER.debugf("Loaded Agents for Partition [%s].", filePartition.getId());
     }
 
     private String getWorkingDir() {

@@ -505,11 +505,12 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     @Override
     public <T extends IdentityStore<?>> T getStoreForIdentityOperation(IdentityContext context, Class<T> storeType,
                                                                        Class<? extends AttributedType> type, IdentityOperation operation) {
-        for (IdentityStoreConfiguration storeConfig : getConfigurationForPartition(context.getPartition())
-                .getStoreConfiguration()) {
+        IdentityConfiguration identityConfiguration = getConfigurationForPartition(context.getPartition());
+
+        for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
             if (storeConfig.supportsType(type, operation)) {
                 @SuppressWarnings("unchecked")
-                T store = (T) stores.get(storeConfig);
+                T store = (T) stores.get(identityConfiguration).get(storeConfig);
                 storeConfig.initializeContext(context, store);
                 return store;
             }

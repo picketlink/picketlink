@@ -27,6 +27,7 @@ import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
+import org.picketlink.test.idm.basic.UserManagementTestCase;
 import org.picketlink.test.idm.partition.CustomPartitionTestCase;
 import org.picketlink.test.idm.partition.RealmManagementTestCase;
 import org.picketlink.test.idm.partition.TierManagementTestCase;
@@ -41,7 +42,10 @@ import static org.junit.runners.Suite.SuiteClasses;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses ({RealmManagementTestCase.class, TierManagementTestCase.class, CustomPartitionTestCase.class})
+@SuiteClasses ({
+        RealmManagementTestCase.class, TierManagementTestCase.class, CustomPartitionTestCase.class,
+        UserManagementTestCase.class
+})
 public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     private static FileIdentityStoreTestSuite instance;

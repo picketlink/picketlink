@@ -80,7 +80,7 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
         FilePartition filePartition = new FilePartition(partition, configurationName);
 
         this.fileDataSource.getPartitions().put(filePartition.getId(), filePartition);
-        this.fileDataSource.flushPartitions();
+        this.fileDataSource.flushPartitions(filePartition);
     }
 
     @Override
@@ -174,7 +174,7 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
 
     @Override
     public User getUser(IdentityContext context, String loginName) {
-        return null;  //TODO: Implement getUser
+        return null;
     }
 
     @Override

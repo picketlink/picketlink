@@ -67,4 +67,8 @@ public class FilePartition extends AbstractFileAttributedType<Partition> {
     public Map<String, FileAttributedType> getAttributedTypes() {
         return this.attributedTypes;
     }
+
+    public void setAttributedTypes(Map<String, FileAttributedType> attributedTypes) {
+        this.attributedTypes = attributedTypes;
+    }
 }
