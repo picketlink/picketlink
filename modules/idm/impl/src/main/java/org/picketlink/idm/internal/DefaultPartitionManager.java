@@ -148,23 +148,19 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             this.idGenerator = new DefaultIdGenerator();
         }
 
-        if (configurations.size() == 1) {
-            this.partitionManagementConfig = this.configurations.iterator().next();
-        } else {
-            IdentityConfiguration partitionCfg = null;
-            search:
-            for (IdentityConfiguration config : configurations) {
-                for (IdentityStoreConfiguration storeConfig : config.getStoresConfiguration().getConfigurations()) {
-                    if (storeConfig.supportsType(Partition.class, IdentityOperation.create)) {
-                        partitionCfg = config;
-                        break search;
-                    }
+        IdentityConfiguration partitionCfg = null;
+        search:
+        for (IdentityConfiguration config : configurations) {
+            for (IdentityStoreConfiguration storeConfig : config.getStoresConfiguration().getConfigurations()) {
+                if (storeConfig.supportsType(Partition.class, IdentityOperation.create)) {
+                    partitionCfg = config;
+                    break search;
                 }
             }
-            // There may be no configuration that supports partition management, in which case the partitionManagementConfig
-            // field will be null and partition management operations will not be supported
-            this.partitionManagementConfig = partitionCfg;
         }
+        // There may be no configuration that supports partition management, in which case the partitionManagementConfig
+        // field will be null and partition management operations will not be supported
+        this.partitionManagementConfig = partitionCfg;
 
         Map<IdentityConfiguration,Map<IdentityStoreConfiguration,IdentityStore<?>>> configuredStores =
                 new HashMap<IdentityConfiguration, Map<IdentityStoreConfiguration, IdentityStore<?>>>();
