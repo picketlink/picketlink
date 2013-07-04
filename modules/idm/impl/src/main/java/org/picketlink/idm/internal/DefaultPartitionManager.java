@@ -72,8 +72,6 @@ public class DefaultPartitionManager implements PartitionManager {
 
         this.storeSelectors = new ConcurrentHashMap<String, StoreSelector>();
 
-        IdentityConfiguration providedPartitionConfig = null;
-
         for (IdentityConfiguration identityConfiguration: configurations) {
             if (identityConfiguration.supportsPartition()) {
                 if (this.partitionConfiguration == null) {
@@ -83,14 +81,8 @@ public class DefaultPartitionManager implements PartitionManager {
                 }
             }
 
-            IdentityStoresConfiguration storesConfiguration = identityConfiguration.getStoresConfiguration();
-            StoreSelector storeSelector = storesConfiguration.getStoreSelector();
-
-            if (storeSelector == null) {
-                storeSelector = new DefaultStoreSelector(storesConfiguration);
-            }
-
-            this.storeSelectors.put(identityConfiguration.getName(), storeSelector);
+            this.storeSelectors.put(identityConfiguration.getName(),
+                    new DefaultStoreSelector(identityConfiguration.getStoresConfiguration()));
         }
     }
 
@@ -111,7 +103,7 @@ public class DefaultPartitionManager implements PartitionManager {
 
     @Override
     public IdentityManager createIdentityManager(Partition partition) throws SecurityConfigurationException, IdentityManagementException {
-        return new ContextualIdentityManager(createIdentityContext(), getStoreSelectorForPartitionConfig(partition));
+        return new ContextualIdentityManager(createIdentityContext(), getStoreSelectorForPartition(partition));
     }
 
     @Override
@@ -135,7 +127,7 @@ public class DefaultPartitionManager implements PartitionManager {
 
     @Override
     public <T extends Partition> T getPartition(Class<T> partitionClass, String name) {
-        return (T) getStoreSelectorForPartitionConfig().getStoreForPartitionOperation().get(createIdentityContext(), partitionClass, name);
+        return (T) getStoreSelectorForPartition().getStoreForPartitionOperation().get(createIdentityContext(), partitionClass, name);
     }
 
     @Override
@@ -251,7 +243,7 @@ public class DefaultPartitionManager implements PartitionManager {
         };
     }
 
-    private StoreSelector getStoreSelectorForPartitionConfig(Partition... partition) {
+    private StoreSelector getStoreSelectorForPartition(Partition... partition) {
         StoreSelector partitionStoreSelector = getStoreSelector(this.partitionConfiguration.getName());
 
         if (partition.length == 0) {
@@ -303,7 +295,7 @@ public class DefaultPartitionManager implements PartitionManager {
     }
 
     private PartitionStore<?> getStoreForPartition() {
-        return getStoreSelectorForPartitionConfig().getStoreForPartitionOperation();
+        return getStoreSelectorForPartition().getStoreForPartitionOperation();
     }
 
 }

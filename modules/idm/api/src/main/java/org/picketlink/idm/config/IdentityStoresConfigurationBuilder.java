@@ -43,7 +43,6 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
     private final List<AbstractIdentityStoreConfigurationBuilder<?, ?>> identityStoresConfiguration;
     private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>> supportedStoreBuilders;
     private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores;
-    private StoreSelector storeSelector;
 
     public IdentityStoresConfigurationBuilder(NamedIdentityConfigurationBuilder builder) {
         super(builder);
@@ -54,11 +53,6 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
         this.supportedStoreBuilders.put(FileIdentityStoreConfiguration.class, FileStoreConfigurationBuilder.class);
         this.supportedStoreBuilders.put(JPAIdentityStoreConfiguration.class, JPAStoreConfigurationBuilder.class);
         this.supportedStoreBuilders.put(LDAPIdentityStoreConfiguration.class, LDAPStoreConfigurationBuilder.class);
-    }
-
-    public IdentityStoresConfigurationBuilder selector(StoreSelector storeSelector) {
-        this.storeSelector = storeSelector;
-        return this;
     }
 
     public FileStoreConfigurationBuilder file() {
@@ -121,7 +115,7 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
             throw new SecurityConfigurationException("At least one store configuration must support partitions.");
         }
 
-        return new IdentityStoresConfiguration(configurations, this.storeSelector, this.identityStores);
+        return new IdentityStoresConfiguration(configurations, this.identityStores);
     }
 
     @Override

@@ -42,43 +42,24 @@ public class IdentityStoresConfiguration {
 
     private final List<IdentityStoreConfiguration> configurations;
     private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores;
-    private StoreSelector storeSelector;
 
-    public IdentityStoresConfiguration(List<IdentityStoreConfiguration> configurations, StoreSelector storeSelector) {
-        this(configurations, storeSelector,
-                Collections.<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>>emptyMap());
+    public IdentityStoresConfiguration(List<IdentityStoreConfiguration> configurations) {
+        this(configurations, Collections.<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>>emptyMap());
     }
 
     public IdentityStoresConfiguration(
             List<IdentityStoreConfiguration> configurations,
-            StoreSelector storeSelector,
             Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores) {
         this.configurations = unmodifiableList(configurations);
         this.identityStores = unmodifiableMap(identityStores);
-        this.storeSelector = storeSelector;
     }
 
     public List<IdentityStoreConfiguration> getConfigurations() {
         return this.configurations;
     }
 
-    public StoreSelector getStoreSelector() {
-        return this.storeSelector;
-    }
-
     public Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> getIdentityStores() {
         return this.identityStores;
     }
-
-    public IdentityStoreConfiguration forType(Class<? extends AttributedType> type, IdentityOperation operation) {
-        for (IdentityStoreConfiguration storeConfiguration : getConfigurations()) {
-            if (storeConfiguration.supportsType(type, operation)) {
-                return storeConfiguration;
-            }
-        }
-
-        return null;
-    }
-
 
 }
