@@ -56,6 +56,10 @@ public abstract class AbstractPartition extends AbstractAttributedType implement
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

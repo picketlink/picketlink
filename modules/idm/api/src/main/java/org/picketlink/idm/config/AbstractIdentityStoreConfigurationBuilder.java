@@ -155,14 +155,14 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
         return (S) this;
     }
 
-    protected T create() {
-        throw new IllegalStateException("Not implemented.");
-    }
-
+    @Override
     protected void validate() {
-        throw new IllegalStateException("Not implemented.");
+        if (this.supportedTypes.isEmpty()) {
+            throw new SecurityConfigurationException("The store configuration must have at least one supported type.");
+        }
     }
 
+    @Override
     public Builder<T> readFrom(T configuration) {
         throw new IllegalStateException("Not implemented.");
     }

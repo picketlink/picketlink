@@ -26,7 +26,7 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityStoresConfiguration;
-import org.picketlink.idm.file.internal.FileBasedIdentityStore;
+import org.picketlink.idm.file.internal.FileIdentityStore;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
@@ -41,7 +41,7 @@ import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOpera
  * <p/>
  * JPAIdentityStore - JPAIdentityStoreConfiguration
  * LDAPIdentityStore - LDAPConfiguration
- * FileBasedIdentityStore - FileIdentityStoreConfiguration
+ * FileIdentityStore - FileIdentityStoreConfiguration
  *
  * @author Shane Bryzak
  */
@@ -115,7 +115,7 @@ public class DefaultStoreSelector implements StoreSelector {
         if (storeType == null) {
             // let's check the built-in store types
             if (FileIdentityStoreConfiguration.class.equals(selectedConfig.getClass())) {
-                storeType = (Class<T>) FileBasedIdentityStore.class;
+                storeType = (Class<T>) FileIdentityStore.class;
             }
         }
 

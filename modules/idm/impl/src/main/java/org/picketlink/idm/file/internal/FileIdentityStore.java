@@ -53,7 +53,7 @@ import org.picketlink.idm.spi.PartitionStore;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @CredentialHandlers({PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class, TOTPCredentialHandler.class})
-public class FileBasedIdentityStore implements PartitionStore<FileIdentityStoreConfiguration>, CredentialStore<FileIdentityStoreConfiguration> {
+public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfiguration>, CredentialStore<FileIdentityStoreConfiguration> {
 
     private FileIdentityStoreConfiguration configuration;
     private FileDataSource fileDataSource;
@@ -65,10 +65,10 @@ public class FileBasedIdentityStore implements PartitionStore<FileIdentityStoreC
     }
 
     @Override
-    public void add(Partition partition, IdentityContext identityContext) {
+    public void add(IdentityContext identityContext, Partition partition, String configurationName) {
         partition.setId(identityContext.getIdGenerator().generate());
 
-        FilePartition filePartition = new FilePartition(partition);
+        FilePartition filePartition = new FilePartition(partition, configurationName);
 
         this.fileDataSource.getPartitions().put(partition.getId(), filePartition);
         this.fileDataSource.flushPartitions();
@@ -80,7 +80,7 @@ public class FileBasedIdentityStore implements PartitionStore<FileIdentityStoreC
     }
 
     @Override
-    public <P extends Partition> P get(Class<P> partitionClass, String name, IdentityContext identityContext) {
+    public <P extends Partition> P get(IdentityContext identityContext, Class<P> partitionClass, String name) {
         for (FilePartition filePartition: this.fileDataSource.getPartitions().values()) {
             Partition partition = filePartition.getEntry();
 
@@ -92,6 +92,17 @@ public class FileBasedIdentityStore implements PartitionStore<FileIdentityStoreC
         return null;
     }
 
+    @Override
+    public String getConfigurationName(IdentityContext identityContext, Partition partition) {
+        for (FilePartition filePartition: this.fileDataSource.getPartitions().values()) {
+            if (filePartition.getEntry().getClass().equals(partition.getClass())
+                    && filePartition.getEntry().getName().equals(partition.getName())) {
+                return filePartition.getConfigurationName();
+            }
+        }
+
+        return null;
+    }
 
     @Override
     public void storeCredential(IdentityContext context, Account account, CredentialStorage storage) {
@@ -109,17 +120,12 @@ public class FileBasedIdentityStore implements PartitionStore<FileIdentityStoreC
     }
 
     @Override
-    public <P extends Partition> List<P> getPartitions() {
-        return null;  //TODO: Implement getPartitions
-    }
-
-    @Override
-    public void update(Partition partition) {
+    public void update(IdentityContext identityContext, Partition partition) {
         //TODO: Implement update
     }
 
     @Override
-    public void remove(Partition partition) {
+    public void remove(IdentityContext identityContext, Partition partition) {
         //TODO: Implement remove
     }
 

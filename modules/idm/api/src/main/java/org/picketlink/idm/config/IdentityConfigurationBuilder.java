@@ -24,7 +24,6 @@ package org.picketlink.idm.config;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.picketlink.idm.IDMMessages;
 
 /**
  * <p>
@@ -82,6 +81,10 @@ public class IdentityConfigurationBuilder implements IdentityConfigurationChildB
     private void validate() {
         if (this.namedIdentityConfigurationBuilders.isEmpty()) {
             throw new SecurityConfigurationException("You must provide at least one configuration.");
+        }
+
+        for (NamedIdentityConfigurationBuilder identityConfigBuilder: this.namedIdentityConfigurationBuilders) {
+            identityConfigBuilder.validate();
         }
     }
 

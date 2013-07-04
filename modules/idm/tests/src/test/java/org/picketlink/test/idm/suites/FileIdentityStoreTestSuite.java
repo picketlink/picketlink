@@ -18,26 +18,20 @@
 
 package org.picketlink.test.idm.suites;
 
-import java.util.List;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
-import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.internal.DefaultPartitionManager;
-import org.picketlink.idm.internal.DefaultStoreSelector;
-import org.picketlink.idm.model.sample.Authorization;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.UserManagementTestCase;
-import org.picketlink.test.idm.relationship.CustomRelationship;
 
 /**
  * <p>
- * Test suite for the {@link IdentityManager} using a {@link FileBasedIdentityStore}. For each test is created a fresh
+ * Test suite for the {@link IdentityManager} using a {@link org.picketlink.idm.file.internal.FileIdentityStore}. For each test is created a fresh
  * {@link IdentityManager} instance. Data is not preserved between tests.
  * </p>
  * 

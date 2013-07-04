@@ -17,7 +17,6 @@
  */
 package org.picketlink.idm.spi;
 
-import java.util.List;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.model.Partition;
 
@@ -29,13 +28,13 @@ import org.picketlink.idm.model.Partition;
  */
 public interface PartitionStore<T extends IdentityStoreConfiguration> extends IdentityStore<T> {
 
-    <P extends Partition> List<P> getPartitions();
+    String getConfigurationName(IdentityContext identityContext, Partition partition);
 
-    <P extends Partition> P get(Class<P> partitionClass, String name, IdentityContext identityContext);
+    <P extends Partition> P get(IdentityContext identityContext, Class<P> partitionClass, String name);
 
-    void add(Partition partition, IdentityContext identityContext);
+    void add(IdentityContext identityContext, Partition partition, String configurationName);
 
-    void update(Partition partition);
+    void update(IdentityContext identityContext, Partition partition);
 
-    void remove(Partition partition);
+    void remove(IdentityContext identityContext, Partition partition);
 }

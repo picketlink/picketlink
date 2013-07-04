@@ -64,7 +64,7 @@ public interface PartitionManager {
      * @param partition
      * @param configurationName
      */
-    void add(Partition partition);
+    void add(Partition partition, String... configurationName);
 
     /**
      * Updates the attributes of the specified partition

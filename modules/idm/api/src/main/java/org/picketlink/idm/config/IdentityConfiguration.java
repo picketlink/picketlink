@@ -54,4 +54,13 @@ public class IdentityConfiguration {
         return this.storesConfiguration;
     }
 
+    public boolean supportsPartition() {
+        for (IdentityStoreConfiguration storeConfiguration: getStoresConfiguration().getConfigurations()) {
+            if (storeConfiguration.supportsPartition()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

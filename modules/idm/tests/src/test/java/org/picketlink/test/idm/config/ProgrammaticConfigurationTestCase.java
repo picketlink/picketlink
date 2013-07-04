@@ -24,7 +24,6 @@ package org.picketlink.test.idm.config;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +32,7 @@ import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.SecurityConfigurationException;
+import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -43,8 +43,10 @@ import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Grant;
 import org.picketlink.idm.model.sample.GroupRole;
+import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.suites.LDAPAbstractSuite;
@@ -66,21 +68,21 @@ public class ProgrammaticConfigurationTestCase {
 
     @Before
     public void onInit() throws Exception {
-        this.emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
-        this.entityManager = emf.createEntityManager();
-        this.entityManager.getTransaction().begin();
-        this.ldapServer = new LDAPAbstractSuite() {};
-
-        this.ldapServer.setup();
-        this.ldapServer.importLDIF("ldap/users.ldif");
+//        this.emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
+//        this.entityManager = emf.createEntityManager();
+//        this.entityManager.getTransaction().begin();
+//        this.ldapServer = new LDAPAbstractSuite() {};
+//
+//        this.ldapServer.setup();
+//        this.ldapServer.importLDIF("ldap/users.ldif");
     }
 
     @After
     public void onDestroy() throws Exception {
-        this.entityManager.getTransaction().commit();
-        this.entityManager.close();
-        this.emf.close();
-        this.ldapServer.tearDown();
+//        this.entityManager.getTransaction().commit();
+//        this.entityManager.close();
+//        this.emf.close();
+//        this.ldapServer.tearDown();
     }
 
     @Test
@@ -88,17 +90,18 @@ public class ProgrammaticConfigurationTestCase {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
-                .named("default")
+            .named("default")
                 .stores()
-                .file()
-                .preserveState(false)
-                .workingDirectory("/tmp/pl-idm")
-                .asyncWrite(true)
-                .asyncWriteThreadPool(10)
-                .supportAllFeatures(); // you can also enable features individually. eg.:supportFeature(FeatureGroup.user)
+                    .file()
+                        .preserveState(false)
+                        .workingDirectory("/tmp/pl-idm")
+                        .asyncWrite(true)
+                        .asyncWriteThreadPool(10)
+                        .supportAllFeatures(); // you can also enable features individually. eg.:supportFeature(FeatureGroup.user)
 
-        PartitionManager partitionManager = null;
-        fail("Create PartitionManager");
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+        partitionManager.add(new Realm(Realm.DEFAULT_REALM), "default");
 
         IdentityManager identityManager = partitionManager.createIdentityManager();
 
@@ -176,6 +179,24 @@ public class ProgrammaticConfigurationTestCase {
     }
 
     @Test
+    public void failNoPartitionConfigurationProvided() throws Exception {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+            .named("default")
+                .stores()
+                    .file()
+                        .supportType(User.class);
+
+        try {
+            PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+            fail();
+        } catch (SecurityConfigurationException sce) {
+            assertTrue(sce.getMessage().contains("PLIDM000074"));
+        }
+    }
+
+    @Test
     public void failDuplicatedIdentityTypeConfiguration() throws Exception {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
@@ -183,15 +204,13 @@ public class ProgrammaticConfigurationTestCase {
             .named("default")
             .stores()
                 .file()
-                    .unsupportType(User.class)
-                .jpa()
-                    .identityClass(IdentityObject.class)
-                    .partitionClass(PartitionObject.class)
+                    .supportType(User.class)
+                    .supportType(Partition.class)
+                .file()
                     .supportType(User.class);
 
         try {
-            PartitionManager partitionManager = null;
-            fail("Create PartitionManager");
+            PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
             fail();
         } catch (SecurityConfigurationException sce) {
             assertTrue(sce.getMessage().contains("PLIDM000074"));

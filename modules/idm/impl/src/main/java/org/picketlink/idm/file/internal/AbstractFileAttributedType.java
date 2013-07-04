@@ -59,7 +59,7 @@ public abstract class AbstractFileAttributedType<T extends AttributedType> exten
 
         attributedType.setId(properties.get("id").toString());
 
-        for (Property<Serializable> property: getAttributedProperties()) {
+        for (Property<Serializable> property: getAttributedProperties(attributedType)) {
             property.setValue(attributedType, properties.get(property.getName()));
         }
 
@@ -84,7 +84,7 @@ public abstract class AbstractFileAttributedType<T extends AttributedType> exten
 
         properties.put("id", attributedType.getId());
 
-        for (Property<Serializable> property: getAttributedProperties()) {
+        for (Property<Serializable> property: getAttributedProperties(attributedType)) {
             properties.put(property.getName(), property.getValue(getEntry()));
         }
     }
@@ -110,8 +110,8 @@ public abstract class AbstractFileAttributedType<T extends AttributedType> exten
         this.attributes = (Map<String, Serializable>) s.readObject();
     }
 
-    private List<Property<Serializable>> getAttributedProperties() {
-        PropertyQuery<Serializable> query = PropertyQueries.createQuery(getEntry().getClass());
+    private List<Property<Serializable>> getAttributedProperties(T attributedType) {
+        PropertyQuery<Serializable> query = PropertyQueries.createQuery(attributedType.getClass());
 
         query.addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class));
 

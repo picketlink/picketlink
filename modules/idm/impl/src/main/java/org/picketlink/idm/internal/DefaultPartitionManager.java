@@ -17,14 +17,17 @@
  */
 package org.picketlink.idm.internal;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.picketlink.idm.DefaultIdGenerator;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.IdentityStoresConfiguration;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.IdentityType;
@@ -36,6 +39,7 @@ import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityContext;
+import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.StoreSelector;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
@@ -51,27 +55,47 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
  */
 public class DefaultPartitionManager implements PartitionManager {
 
-    private final List<IdentityConfiguration> configurations;
-    private final StoreSelector storeSelector;
-    private final IdentityConfiguration partitionConfiguration;
+    private final Map<String, IdentityConfiguration> configurations;
+    private IdentityConfiguration partitionConfiguration;
+    private final Map<String, StoreSelector> storeSelectors;
 
-    public DefaultPartitionManager(IdentityConfiguration configuration) {
-        if (configuration == null) {
+    public DefaultPartitionManager(List<IdentityConfiguration> configurations) {
+        if (configurations == null || configurations.isEmpty()) {
             throw MESSAGES.nullArgument("At least one IdentityConfiguration must be provided");
         }
 
-        this.configurations = new ArrayList<IdentityConfiguration>();
-        this.configurations.add(configuration);
+        this.configurations = new ConcurrentHashMap<String, IdentityConfiguration>();
 
-        this.partitionConfiguration = configuration;
-
-        StoreSelector providedSelector = configuration.getStoresConfiguration().getStoreSelector();
-
-        if (providedSelector == null) {
-            providedSelector = new DefaultStoreSelector(configuration.getStoresConfiguration());
+        for (IdentityConfiguration identityConfiguration: configurations) {
+            this.configurations.put(identityConfiguration.getName(), identityConfiguration);
         }
 
-        this.storeSelector = providedSelector;
+        this.storeSelectors = new ConcurrentHashMap<String, StoreSelector>();
+
+        IdentityConfiguration providedPartitionConfig = null;
+
+        for (IdentityConfiguration identityConfiguration: configurations) {
+            if (identityConfiguration.supportsPartition()) {
+                if (this.partitionConfiguration == null) {
+                    this.partitionConfiguration = identityConfiguration;
+                } else {
+                    throw new IdentityManagementException("Only one configuration may support partition management.");
+                }
+            }
+
+            IdentityStoresConfiguration storesConfiguration = identityConfiguration.getStoresConfiguration();
+            StoreSelector storeSelector = storesConfiguration.getStoreSelector();
+
+            if (storeSelector == null) {
+                storeSelector = new DefaultStoreSelector(storesConfiguration);
+            }
+
+            this.storeSelectors.put(identityConfiguration.getName(), storeSelector);
+        }
+    }
+
+    public DefaultPartitionManager(IdentityConfiguration configuration) {
+        this(Arrays.asList(configuration));
     }
 
     @Override
@@ -87,11 +111,11 @@ public class DefaultPartitionManager implements PartitionManager {
 
     @Override
     public IdentityManager createIdentityManager(Partition partition) throws SecurityConfigurationException, IdentityManagementException {
-        return new ContextualIdentityManager(createIdentityContext(), this.storeSelector);
+        return new ContextualIdentityManager(createIdentityContext(), getStoreSelectorForPartitionConfig(partition));
     }
 
     @Override
-    public void add(Partition partition) {
+    public void add(Partition partition, String... configurationName) {
         IdentityContext identityContext = createIdentityContext();
 
         if (partition == null) {
@@ -106,12 +130,12 @@ public class DefaultPartitionManager implements PartitionManager {
             throw MESSAGES.partitionAlreadyExistsWithName(partition.getClass(), partition.getName());
         }
 
-        this.storeSelector.getStoreForPartitionOperation().add(partition, identityContext);
+        getStoreForPartition().add(identityContext, partition, getConfigurationName(configurationName));
     }
 
     @Override
     public <T extends Partition> T getPartition(Class<T> partitionClass, String name) {
-        return (T) this.storeSelector.getStoreForPartitionOperation().get(partitionClass, name, createIdentityContext());
+        return (T) getStoreSelectorForPartitionConfig().getStoreForPartitionOperation().get(createIdentityContext(), partitionClass, name);
     }
 
     @Override
@@ -225,6 +249,61 @@ public class DefaultPartitionManager implements PartitionManager {
                 return null;
             }
         };
+    }
+
+    private StoreSelector getStoreSelectorForPartitionConfig(Partition... partition) {
+        StoreSelector partitionStoreSelector = getStoreSelector(this.partitionConfiguration.getName());
+
+        if (partition.length == 0) {
+            return partitionStoreSelector;
+        } else {
+            String configurationName =
+                    partitionStoreSelector.getStoreForPartitionOperation().getConfigurationName(createIdentityContext(), partition[0]);
+
+            if (isNullOrEmpty(configurationName)) {
+                throw new IdentityManagementException("No configuration found for partition [" + partition[0] + "].");
+            }
+
+            return getStoreSelector(configurationName);
+        }
+    }
+
+    private StoreSelector getStoreSelector(String... configurationName) {
+        if (configurationName.length == 0) {
+            if (this.storeSelectors.size() > 1) {
+                throw new IdentityManagementException("Multiple StoreSelector found. You must provide a configuration name.");
+            } else {
+                return this.storeSelectors.values().iterator().next();
+            }
+        }
+
+        StoreSelector storeSelector = this.storeSelectors.get(configurationName[0]);
+
+        if (storeSelector == null) {
+            throw new SecurityConfigurationException("Could not find StoreSelector for configuration [" + configurationName[0] + "].");
+        }
+
+        return storeSelector;
+    }
+
+    private String getConfigurationName(String[] configurationName) {
+        String configName = null;
+
+        if ((configurationName == null || configurationName.length == 0) && this.configurations.size() > 1) {
+            throw new IdentityManagementException("Multiple configurations found. You must specify a configuration name.");
+        }
+
+        if (configurationName.length == 0) {
+            configName = this.partitionConfiguration.getName();
+        } else {
+            configName = configurationName[0];
+        }
+
+        return configName;
+    }
+
+    private PartitionStore<?> getStoreForPartition() {
+        return getStoreSelectorForPartitionConfig().getStoreForPartitionOperation();
     }
 
 }

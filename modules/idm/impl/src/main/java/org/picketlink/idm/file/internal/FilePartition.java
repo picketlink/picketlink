@@ -17,6 +17,8 @@
  */
 package org.picketlink.idm.file.internal;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Map;
 import org.picketlink.idm.model.Partition;
@@ -28,8 +30,25 @@ public class FilePartition extends AbstractFileAttributedType<Partition> {
 
     private static final long serialVersionUID = -8949732184464473476L;
 
-    protected FilePartition(Partition object) {
+    private transient String configurationName;
+
+    protected FilePartition(Partition object, String configurationName) {
         super("1", object);
+        this.configurationName = configurationName;
+    }
+
+    @Override
+    protected void doReadObject(ObjectInputStream s) throws Exception {
+        super.doReadObject(s);
+
+        this.configurationName = s.readObject().toString();
+    }
+
+    @Override
+    protected void doWriteObject(ObjectOutputStream s) throws Exception {
+        super.doWriteObject(s);
+
+        s.writeObject(configurationName);
     }
 
     @Override
@@ -38,4 +57,7 @@ public class FilePartition extends AbstractFileAttributedType<Partition> {
         return (Partition) Class.forName(getType()).getConstructor(String.class).newInstance(id);
     }
 
+    public String getConfigurationName() {
+        return this.configurationName;
+    }
 }

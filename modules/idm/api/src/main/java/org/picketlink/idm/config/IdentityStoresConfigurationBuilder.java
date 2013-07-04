@@ -117,6 +117,10 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
             configurations.add(storeConfiguration);
         }
 
+        if (!hasPartitionStore) {
+            throw new SecurityConfigurationException("At least one store configuration must support partitions.");
+        }
+
         return new IdentityStoresConfiguration(configurations, this.storeSelector, this.identityStores);
     }
 
