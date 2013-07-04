@@ -29,7 +29,6 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.AttributedType;
@@ -45,8 +44,10 @@ import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.StoreSelector;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * Provides partition management functionality, and partition-specific {@link IdentityManager} instances.
@@ -116,7 +117,6 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
      */
     public DefaultPartitionManager(List<IdentityConfiguration> configurations,
                                    EventBridge eventBridge, IdGenerator idGenerator, String partitionManagementConfigName) {
-
         LOGGER.identityManagerBootstrapping();
 
         if (configurations == null || configurations.isEmpty()) {
@@ -142,7 +142,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         }
 
 
-        if (!StringUtil.isNullOrEmpty(partitionManagementConfigName)) {
+        if (!isNullOrEmpty(partitionManagementConfigName)) {
             this.partitionManagementConfig = this.configurations.get(partitionManagementConfigName);
         } else if (configurations.size() == 1) {
             this.partitionManagementConfig = this.configurations.values().iterator().next();
@@ -178,7 +178,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     @Override
-    public IdentityManager createIdentityManager() throws SecurityConfigurationException{
+    public IdentityManager createIdentityManager() throws SecurityConfigurationException {
         Realm defaultRealm = getPartition(Realm.class, Realm.DEFAULT_REALM);
 
         if (defaultRealm == null) {
