@@ -41,7 +41,7 @@ import static org.junit.runners.Suite.SuiteClasses;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses ({RealmManagementTestCase.class})
+@SuiteClasses ({RealmManagementTestCase.class, TierManagementTestCase.class})
 public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     private static FileIdentityStoreTestSuite instance;
