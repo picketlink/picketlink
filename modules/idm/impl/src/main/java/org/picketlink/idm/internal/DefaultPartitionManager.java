@@ -21,7 +21,6 @@ import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,7 +32,6 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.event.EventBridge;
@@ -49,7 +47,6 @@ import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.PartitionStore;
-import org.picketlink.idm.spi.RelationshipPolicy;
 import org.picketlink.idm.spi.StoreSelector;
 
 /**
@@ -90,8 +87,8 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
      */
     private final IdentityConfiguration partitionManagementConfig;
 
-    public DefaultPartitionManager(Map<String,IdentityConfiguration> configurations, RelationshipPolicy relationshipPolicy) {
-        this(configurations, relationshipPolicy, null, null);
+    public DefaultPartitionManager(Map<String,IdentityConfiguration> configurations) {
+        this(configurations, null, null);
     }
 
     /**
@@ -101,9 +98,9 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
      * @param storeFactory
      * @param configurations
      */
-    public DefaultPartitionManager(Map<String,IdentityConfiguration> configurations, RelationshipPolicy relationshipPolicy, 
-            EventBridge eventBridge, IdGenerator idGenerator) {
-        this(configurations, relationshipPolicy, eventBridge, idGenerator, null);
+    public DefaultPartitionManager(Map<String,IdentityConfiguration> configurations, EventBridge eventBridge, 
+            IdGenerator idGenerator) {
+        this(configurations, eventBridge, idGenerator, null);
     }
 
     /**
@@ -114,7 +111,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
      * @param configurations
      * @param partitionManagementConfigName
      */
-    public DefaultPartitionManager(Map<String,IdentityConfiguration> configurations, RelationshipPolicy relationshipPolicy, 
+    public DefaultPartitionManager(Map<String,IdentityConfiguration> configurations,
             EventBridge eventBridge, IdGenerator idGenerator, String partitionManagementConfigName) {
 
         LOGGER.identityManagerBootstrapping();
@@ -148,24 +145,6 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         }
 
         // TODO we're going to create all the identity stores here at initialization time.
-    }
-
-    /**
-     * Create a default relationship policy, using the first found store in the first found configuration
-     *
-     * @param configurations
-     * @return
-     */
-    private RelationshipPolicy createDefaultRelationshipPolicy(Map<String,IdentityConfiguration> configurations) {
-        Map<Class<? extends Relationship>, IdentityStoreConfiguration> relationshipConfig = new HashMap<Class<? extends Relationship>, IdentityStoreConfiguration>();
-
-        // Get the first configuration
-        IdentityConfiguration config = configurations.get(configurations.keySet().iterator().next());
-        // Get the first store in that configuration
-        IdentityStoreConfiguration storeConfig = config.getConfiguredStores().iterator().next();
-
-        relationshipConfig.put(Relationship.class, storeConfig);
-        return new RelationshipPolicy(relationshipConfig, relationshipConfig);
     }
 
     private IdentityConfiguration getConfigurationForPartition(Partition partition) {
