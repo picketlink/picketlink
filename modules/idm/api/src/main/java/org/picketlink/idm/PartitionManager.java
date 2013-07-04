@@ -32,6 +32,7 @@ import org.picketlink.idm.query.RelationshipQuery;
  * @author Shane Bryzak
  */
 public interface PartitionManager {
+
     /**
      * Creates an IdentityManager instance for the default partition
      *
@@ -59,12 +60,19 @@ public interface PartitionManager {
     <T extends Partition> T getPartition(Class<T> partitionClass, String name);
 
     /**
-     * Adds a new partition
+     * Adds a partition to the default configuration
+     *
+     * @param partition
+     */
+    void add(Partition partition);
+
+    /**
+     * Adds a new partition to the configuration specified by name
      *
      * @param partition
      * @param configurationName
      */
-    void add(Partition partition, String... configurationName);
+    void add(Partition partition, String configurationName);
 
     /**
      * Updates the attributes of the specified partition

@@ -17,20 +17,34 @@
  */
 package org.picketlink.idm.internal;
 
+import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.DefaultIdGenerator;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.event.EventBridge;
+import org.picketlink.idm.file.internal.FileIdentityStore;
+import org.picketlink.idm.jpa.internal.JPAIdentityStore;
+import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
@@ -44,10 +58,6 @@ import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.StoreSelector;
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
-import static org.picketlink.idm.IDMLogger.LOGGER;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * Provides partition management functionality, and partition-specific {@link IdentityManager} instances.
@@ -62,6 +72,8 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     private static final long serialVersionUID = 666601082732493295L;
 
+    private static final String DEFAULT_CONFIGURATION_NAME = "default";
+
     /**
      *
      */
@@ -75,7 +87,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     /**
      *
      */
-    private final Map<String,IdentityConfiguration> configurations;
+    private final Collection<IdentityConfiguration> configurations;
 
     /**
      *
@@ -83,28 +95,22 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     private final Map<Partition,IdentityConfiguration> partitionConfigurations = new ConcurrentHashMap<Partition,IdentityConfiguration>();
 
     /**
+     * The created store instances for each identity configuration
+     */
+    private final Map<IdentityConfiguration,Map<IdentityStoreConfiguration,IdentityStore<?>>> stores;
+
+    /**
      *
      */
     private final IdentityConfiguration partitionManagementConfig;
 
-    public DefaultPartitionManager(List<IdentityConfiguration> configurations) {
-        this(configurations, null, null);
-    }
 
     public DefaultPartitionManager(IdentityConfiguration configuration) {
         this(Arrays.asList(configuration), null, null);
     }
 
-    /**
-     *
-     * @param eventBridge
-     * @param idGenerator
-     * @param storeFactory
-     * @param configurations
-     */
-    public DefaultPartitionManager(List<IdentityConfiguration> configurations, EventBridge eventBridge,
-                                   IdGenerator idGenerator) {
-        this(configurations, eventBridge, idGenerator, null);
+    public DefaultPartitionManager(Collection<IdentityConfiguration> configurations) {
+        this(configurations, null, null);
     }
 
     /**
@@ -113,21 +119,16 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
      * @param idGenerator
      * @param storeFactory
      * @param configurations
-     * @param partitionManagementConfigName
      */
-    public DefaultPartitionManager(List<IdentityConfiguration> configurations,
-                                   EventBridge eventBridge, IdGenerator idGenerator, String partitionManagementConfigName) {
+    public DefaultPartitionManager(Collection<IdentityConfiguration> configurations, EventBridge eventBridge,
+                                   IdGenerator idGenerator) {
         LOGGER.identityManagerBootstrapping();
 
         if (configurations == null || configurations.isEmpty()) {
             throw new IllegalArgumentException("At least one IdentityConfiguration must be provided");
         }
 
-        this.configurations = new ConcurrentHashMap<String, IdentityConfiguration>();
-
-        for (IdentityConfiguration identityConfiguration: configurations) {
-            this.configurations.put(identityConfiguration.getName(), identityConfiguration);
-        }
+        this.configurations = Collections.unmodifiableCollection(configurations);
 
         if (eventBridge != null) {
             this.eventBridge = eventBridge;
@@ -141,17 +142,77 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             this.idGenerator = new DefaultIdGenerator();
         }
 
-
-        if (!isNullOrEmpty(partitionManagementConfigName)) {
-            this.partitionManagementConfig = this.configurations.get(partitionManagementConfigName);
-        } else if (configurations.size() == 1) {
-            this.partitionManagementConfig = this.configurations.values().iterator().next();
+        if (configurations.size() == 1) {
+            this.partitionManagementConfig = this.configurations.iterator().next();
         } else {
-            throw new IllegalArgumentException("The partitionManagementConfigName parameter must be specified " +
-                    "when more than one configuration has been provided");
+            IdentityConfiguration partitionCfg = null;
+            search:
+            for (IdentityConfiguration config : configurations) {
+                for (IdentityStoreConfiguration storeConfig : config.getStoresConfiguration().getConfigurations()) {
+                    if (storeConfig.supportsType(Partition.class, IdentityOperation.create)) {
+                        partitionCfg = config;
+                        break search;
+                    }
+                }
+            }
+            // There may be no configuration that supports partition management, in which case the partitionManagementConfig
+            // field will be null and partition management operations will not be supported
+            this.partitionManagementConfig = partitionCfg;
         }
 
-        // TODO we're going to create all the identity stores here at initialization time.
+        Map<IdentityConfiguration,Map<IdentityStoreConfiguration,IdentityStore<?>>> configuredStores =
+                new HashMap<IdentityConfiguration, Map<IdentityStoreConfiguration, IdentityStore<?>>>();
+
+        for (IdentityConfiguration config : configurations) {
+            Map<IdentityStoreConfiguration,IdentityStore<?>> storeMap = new HashMap<IdentityStoreConfiguration,IdentityStore<?>>();
+
+            for (IdentityStoreConfiguration storeConfig : config.getStoresConfiguration().getConfigurations()) {
+                @SuppressWarnings("rawtypes")
+                Class<? extends IdentityStore> storeClass = config.getStoresConfiguration().getIdentityStores().get(storeConfig);
+                storeMap.put(storeConfig, createIdentityStore(storeClass, storeConfig));
+            }
+
+            configuredStores.put(config, Collections.unmodifiableMap(storeMap));
+        }
+
+        stores = Collections.unmodifiableMap(configuredStores);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private <T extends IdentityStore> T createIdentityStore(Class<T> storeClass, IdentityStoreConfiguration storeConfiguration) {
+        T store = null;
+
+        try {
+            if (storeClass == null) {
+                // If no store class is configured, default to the built-in types for known configurations
+                if (FileIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
+                    store = (T) FileIdentityStore.class.newInstance();
+                } else if (JPAIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
+                    store = (T) JPAIdentityStore.class.newInstance();
+                } else if (LDAPIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
+                    store = (T) LDAPIdentityStore.class.newInstance();
+                } else {
+                    throw new IdentityManagementException("Unknown IdentityStore class for configuration [" + storeConfiguration + "].");
+                }
+            } else {
+                store = storeClass.newInstance();
+            }
+        } catch (Exception ex) {
+            throw new IdentityManagementException("Error while creating IdentityStore instance for configuration [" +
+                    storeConfiguration + "].", ex);
+        }
+
+        store.setup(storeConfiguration);
+        return store;
+    }
+
+    private IdentityConfiguration getConfigurationByName(String name) {
+        for (IdentityConfiguration config : configurations) {
+            if (name.equals(config.getName())) {
+                return config;
+            }
+        }
+        return null;
     }
 
     private IdentityConfiguration getConfigurationForPartition(Partition partition) {
@@ -166,7 +227,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         if (!partitionConfigurations.containsKey(partition)) {
 
             PartitionStore<?> store = getStoreForPartitionOperation();
-            partitionConfigurations.put(partition, configurations.get(store.getConfigurationName(createIdentityContext(), partition)));
+            partitionConfigurations.put(partition, getConfigurationByName(store.getConfigurationName(createIdentityContext(), partition)));
         }
 
         return partitionConfigurations.get(partition);
@@ -209,20 +270,29 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         return getStoreForPartitionOperation().<T>get(createIdentityContext(), partitionClass, name);
     }
 
+    public void add(Partition partition) {
+        add(partition, null);
+    }
 
     @Override
-    public void add(Partition partition, String... configurationName) {
-        if (configurationName.length == 0 || configurationName == null) {
+    public void add(Partition partition, String configurationName) {
+        if (StringUtil.isNullOrEmpty(configurationName)) {
             getStoreForPartitionOperation().add(createIdentityContext(), partition, getDefaultConfigurationName());
         } else {
-            // TODO: validate configurationName > 1
-            getStoreForPartitionOperation().add(createIdentityContext(), partition, configurationName[0]);
+            getStoreForPartitionOperation().add(createIdentityContext(), partition, configurationName);
         }
     }
 
     private String getDefaultConfigurationName() {
-        // TODO implement this
-        return null;
+        // If there is a configuration with the default configuration name, return that name
+        for (IdentityConfiguration config : configurations) {
+            if (DEFAULT_CONFIGURATION_NAME.equals(config.getName())) {
+                return DEFAULT_CONFIGURATION_NAME;
+            }
+        }
+
+        // Otherwise return the first configuration found
+        return configurations.iterator().next().getName();
     }
 
     @Override
