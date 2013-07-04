@@ -328,13 +328,21 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     public void add(Partition partition, String configurationName) {
         checkPartitionManagementSupported();
 
+        if (partition == null) {
+            throw MESSAGES.nullArgument("Partition");
+        }
+
         if (isNullOrEmpty(configurationName)) {
             configurationName = getDefaultConfigurationName();
         }
 
-        IdentityContext context = createIdentityContext();
+        if (getPartition(partition.getClass(), partition.getName()) != null) {
+            throw IDMMessages.MESSAGES.partitionAlreadyExistsWithName(partition.getClass(), partition.getName());
+        }
 
         try {
+            IdentityContext context = createIdentityContext();
+
             getStoreForPartitionOperation(context).add(context, partition, configurationName);
         } catch (Exception e) {
             throw new IdentityManagementException("Could not add partition [" + partition + "] using configuration [" + configurationName + ".", e);
@@ -344,15 +352,25 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     @Override
     public void update(Partition partition) {
         checkPartitionManagementSupported();
-        IdentityContext context = createIdentityContext();
-        getStoreForPartitionOperation(context).update(context, partition);
+
+        try {
+            IdentityContext context = createIdentityContext();
+            getStoreForPartitionOperation(context).update(context, partition);
+        } catch (Exception e) {
+            throw new IdentityManagementException("Could not update partition [" + partition + "].", e);
+        }
     }
 
     @Override
     public void remove(Partition partition) {
         checkPartitionManagementSupported();
-        IdentityContext context = createIdentityContext();
-        getStoreForPartitionOperation(context).remove(context, partition);
+
+        try {
+            IdentityContext context = createIdentityContext();
+            getStoreForPartitionOperation(context).remove(context, partition);
+        } catch (Exception e) {
+            throw new IdentityManagementException("Could not remove partition [" + partition + "].", e);
+        }
     }
 
     @Override
