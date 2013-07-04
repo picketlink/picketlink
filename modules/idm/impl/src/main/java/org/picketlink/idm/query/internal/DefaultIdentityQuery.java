@@ -41,10 +41,10 @@ import java.util.Set;
  */
 public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQuery<T> {
 
-    private Map<QueryParameter, Object[]> parameters = new LinkedHashMap<QueryParameter, Object[]>();
-    private IdentityContext context;
-    private IdentityStore<?> identityStore;
-    private Class<T> identityType;
+    private final Map<QueryParameter, Object[]> parameters = new LinkedHashMap<QueryParameter, Object[]>();
+    private final IdentityContext context;
+    private final IdentityStore<?> identityStore;
+    private final Class<T> identityType;
     private int offset;
     private int limit;
     private QueryParameter[] sortParameters;

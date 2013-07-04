@@ -26,6 +26,7 @@ import java.util.Set;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.spi.ContextInitializer;
+import org.picketlink.idm.spi.IdentityStore;
 
 /**
  * A {@link AbstractIdentityStoreConfiguration} for the LDAP store.
@@ -82,6 +83,11 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
 
     @Override
     protected void initConfig() throws SecurityConfigurationException {
+    }
+
+    @Override
+    public Class<? extends IdentityStore> getIdentityStoreType() {
+        return null;
     }
 
     public String getStandardAttributesFileName() {

@@ -60,6 +60,7 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.spi.ContextInitializer;
+import org.picketlink.idm.spi.IdentityStore;
 
 /**
  * Defines the configuration for a JPA based IdentityStore implementation.
@@ -1248,5 +1249,10 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
                 }
             }
         }
+    }
+
+    @Override
+    public Class<? extends IdentityStore> getIdentityStoreType() {
+        return null;
     }
 }

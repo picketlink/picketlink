@@ -18,6 +18,10 @@ package org.picketlink.config.idm;
  * limitations under the License.
  */
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
@@ -31,13 +35,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.config.IdentityStoresConfiguration;
 import org.picketlink.idm.config.SecurityConfigurationException;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Creating IDM runtime from parsed XML configuration

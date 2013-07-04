@@ -36,18 +36,16 @@ import org.picketlink.idm.spi.IdentityStore;
  * @author Pedro Igor
  *
  */
-public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigurationChildBuilder<IdentityStoresConfiguration> implements
-        Builder<IdentityStoresConfiguration> {
+public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigurationChildBuilder<List<? extends IdentityStoreConfiguration>> implements
+        Builder<List<? extends IdentityStoreConfiguration>> {
 
     private final List<AbstractIdentityStoreConfigurationBuilder<?, ?>> identityStoresConfiguration;
     private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>> supportedStoreBuilders;
-    private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores;
 
     public IdentityStoresConfigurationBuilder(NamedIdentityConfigurationBuilder builder) {
         super(builder);
         this.identityStoresConfiguration = new ArrayList<AbstractIdentityStoreConfigurationBuilder<?, ?>>();
         this.supportedStoreBuilders = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>>();
-        this.identityStores = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>>();
 
         this.supportedStoreBuilders.put(FileIdentityStoreConfiguration.class, FileStoreConfigurationBuilder.class);
         this.supportedStoreBuilders.put(JPAIdentityStoreConfiguration.class, JPAStoreConfigurationBuilder.class);
@@ -75,16 +73,14 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
      * @param <T>
      * @return
      */
-    public <T extends AbstractIdentityStoreConfigurationBuilder<?, ?>> T add(Class<? extends IdentityStoreConfiguration> identityStoreConfiguration,
-                                                                     Class<? extends IdentityStore<?>> identityStore, Class<T> builder) {
-        this.identityStores.put(identityStoreConfiguration, identityStore);
+    public <T extends AbstractIdentityStoreConfigurationBuilder<?, ?>> T add(
+            Class<? extends IdentityStoreConfiguration> identityStoreConfiguration, Class<T> builder) {
         this.supportedStoreBuilders.put(identityStoreConfiguration, builder);
-
         return forIdentityStoreConfig(identityStoreConfiguration, true);
     }
 
     @Override
-    protected IdentityStoresConfiguration create() {
+    protected List<? extends IdentityStoreConfiguration> create() {
         List<IdentityStoreConfiguration> configurations = new ArrayList<IdentityStoreConfiguration>();
 
         boolean hasPartitionStore = false;
@@ -114,7 +110,7 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
             throw new SecurityConfigurationException("At least one store configuration must support partitions.");
         }
 
-        return new IdentityStoresConfiguration(configurations, this.identityStores);
+        return configurations;
     }
 
     @Override
@@ -129,12 +125,12 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
     }
 
     @Override
-    public IdentityStoresConfigurationBuilder readFrom(IdentityStoresConfiguration configuration) {
-        if (configuration == null) {
+    public IdentityStoresConfigurationBuilder readFrom(List<? extends IdentityStoreConfiguration> fromConfiguration) {
+        if (fromConfiguration == null) {
             throw IDMMessages.MESSAGES.nullArgument("Configurations to read");
         }
 
-        for (IdentityStoreConfiguration identityStoreConfiguration : configuration.getConfigurations()) {
+        for (IdentityStoreConfiguration identityStoreConfiguration : fromConfiguration) {
             AbstractIdentityStoreConfigurationBuilder<IdentityStoreConfiguration, ?> storeConfigBuilder = forIdentityStoreConfig(
                     identityStoreConfiguration.getClass(), true);
             storeConfigBuilder.readFrom(identityStoreConfiguration);

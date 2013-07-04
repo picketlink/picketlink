@@ -68,12 +68,6 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
      */
     private final List<Class<? extends CredentialHandler>> credentialHandlers;
 
-    /**
-     * <p>Indicates if this configuration supports partition storage.</p>
-     *
-     */
-    private final boolean supportsPartition;
-
     protected AbstractIdentityStoreConfiguration(
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
@@ -85,7 +79,6 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
         this.contextInitializers = unmodifiableList(contextInitializers);
         this.credentialHandlerProperties = unmodifiableMap(credentialHandlerProperties);
         this.credentialHandlers = unmodifiableList(credentialHandlers);
-        this.supportsPartition = supportsPartitionType();
     }
 
     @Override
@@ -157,17 +150,7 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
 
     @Override
     public boolean supportsPartition() {
-        return this.supportsPartition;
-    }
-
-    private boolean supportsPartitionType() {
-        for (Class<? extends AttributedType> type: this.supportedTypes.keySet()) {
-            if (Partition.class.isAssignableFrom(type)) {
-                return true;
-            }
-        }
-
-        return false;
+        return supportsType(Partition.class, IdentityOperation.create);
     }
 
     private int isTypeOperationSupported(Class<? extends AttributedType> type, IdentityOperation operation) {

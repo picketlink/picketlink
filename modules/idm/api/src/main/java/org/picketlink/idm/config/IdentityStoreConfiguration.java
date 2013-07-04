@@ -116,4 +116,11 @@ public interface IdentityStoreConfiguration {
      * @return
      */
     Set<Class<? extends Relationship>> getSupportedRelationships();
+
+    /**
+     * <p>Returns the {@link IdentityStore} type associated with this configuration.</p>
+     *
+     * @return
+     */
+    Class<? extends IdentityStore> getIdentityStoreType();
 }

@@ -23,7 +23,6 @@
 package org.picketlink.test.idm.config;
 
 import org.picketlink.idm.config.FileStoreConfigurationBuilder;
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
 
 /**
  * <p>
@@ -36,14 +35,14 @@ import org.picketlink.idm.config.IdentityConfigurationBuilder;
 public class FileIdentityStoreConfigurationTestCase extends
         AbstractFeaturesSetConfigurationTestCase<FileStoreConfigurationBuilder> {
 
-    @Override
-    protected FileStoreConfigurationBuilder createMinimalConfiguration(IdentityConfigurationBuilder builder) {
-        FileStoreConfigurationBuilder fileConfig = builder.named("default").stores().file();
-        
-        fileConfig
-            .supportAllFeatures();
-        
-        return fileConfig;
-    }
+//    @Override
+//    protected FileStoreConfigurationBuilder createMinimalConfiguration(IdentityConfigurationBuilder builder) {
+//        FileStoreConfigurationBuilder fileConfig = builder.named("default").stores().file();
+//
+//        fileConfig
+//            .supportAllFeatures();
+//
+//        return fileConfig;
+//    }
 
 }

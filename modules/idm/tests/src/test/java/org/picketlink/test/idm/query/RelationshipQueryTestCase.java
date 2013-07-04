@@ -58,7 +58,7 @@ public class RelationshipQueryTestCase extends AbstractIdentityManagerTestCase {
         
         RelationshipQuery<Relationship> query = partitionManager.createRelationshipQuery(Relationship.class);
         
-        query.setParameter(Relationship.IDENTITY, user);
+//        query.setParameter(Relationship.IDENTITY, user);
         
         List<Relationship> result = query.getResultList();
         
@@ -67,7 +67,7 @@ public class RelationshipQueryTestCase extends AbstractIdentityManagerTestCase {
         
         query = partitionManager.createRelationshipQuery(Relationship.class);
         
-        query.setParameter(Relationship.IDENTITY, role);
+//        query.setParameter(Relationship.IDENTITY, role);
         
         result = query.getResultList();
         
@@ -76,7 +76,7 @@ public class RelationshipQueryTestCase extends AbstractIdentityManagerTestCase {
         
         query = partitionManager.createRelationshipQuery(Relationship.class);
         
-        query.setParameter(Relationship.IDENTITY, group);
+//        query.setParameter(Relationship.IDENTITY, group);
         
         result = query.getResultList();
         
@@ -85,7 +85,7 @@ public class RelationshipQueryTestCase extends AbstractIdentityManagerTestCase {
         
         query = partitionManager.createRelationshipQuery(Relationship.class);
         
-        query.setParameter(Relationship.IDENTITY, user.getId());
+//        query.setParameter(Relationship.IDENTITY, user.getId());
         
         result = query.getResultList();
         

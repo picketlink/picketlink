@@ -17,9 +17,6 @@
  */
 package org.picketlink.idm.internal;
 
-import static org.picketlink.idm.IDMLogger.LOGGER;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,7 +25,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.PropertyQuery;
@@ -69,6 +65,8 @@ import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.StoreSelector;
+import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Provides partition management functionality, and partition-specific {@link IdentityManager} instances.
@@ -162,7 +160,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         IdentityConfiguration partitionCfg = null;
         search:
         for (IdentityConfiguration config : configurations) {
-            for (IdentityStoreConfiguration storeConfig : config.getStoresConfiguration().getConfigurations()) {
+            for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
                 if (storeConfig.supportsType(Partition.class, IdentityOperation.create)) {
                     partitionCfg = config;
                     break search;
@@ -179,9 +177,9 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         for (IdentityConfiguration config : configurations) {
             Map<IdentityStoreConfiguration,IdentityStore<?>> storeMap = new HashMap<IdentityStoreConfiguration,IdentityStore<?>>();
 
-            for (IdentityStoreConfiguration storeConfig : config.getStoresConfiguration().getConfigurations()) {
+            for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
                 @SuppressWarnings("rawtypes")
-                Class<? extends IdentityStore> storeClass = config.getStoresConfiguration().getIdentityStores().get(storeConfig);
+                Class<? extends IdentityStore> storeClass = storeConfig.getIdentityStoreType();
                 storeMap.put(storeConfig, createIdentityStore(storeClass, storeConfig));
             }
 
@@ -495,7 +493,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     public <T extends IdentityStore<?>> T getStoreForIdentityOperation(IdentityContext context, Class<T> storeType,
                                                                        Class<? extends AttributedType> type, IdentityOperation operation) {
         for (IdentityStoreConfiguration storeConfig : getConfigurationForPartition(context.getPartition())
-                .getStoresConfiguration().getConfigurations()) {
+                .getStoreConfiguration()) {
             if (storeConfig.supportsType(type, operation)) {
                 @SuppressWarnings("unchecked")
                 T store = (T) stores.get(storeConfig);
@@ -510,7 +508,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     @Override
     public IdentityStore<?> getStoreForCredentialOperation(IdentityContext context, Class<?> credentialClass) {
         IdentityConfiguration config = getConfigurationForPartition(context.getPartition());
-        for (IdentityStoreConfiguration storeConfig : config.getStoresConfiguration().getConfigurations()) {
+        for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
             for (@SuppressWarnings("rawtypes") Class<? extends CredentialHandler> handlerClass : storeConfig.getCredentialHandlers()) {
                 if (handlerClass.isAnnotationPresent(SupportsCredentials.class)) {
                     for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).value()) {

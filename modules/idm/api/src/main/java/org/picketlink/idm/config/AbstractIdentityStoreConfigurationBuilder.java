@@ -31,15 +31,14 @@ import java.util.Map;
 import java.util.Set;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
-import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.sample.Grant;
-import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.Tier;
-import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.spi.ContextInitializer;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
@@ -191,19 +190,13 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
         List<Class<? extends AttributedType>> classes = new ArrayList<Class<? extends AttributedType>>();
 
         // identity types
-        classes.add(Agent.class);
-        classes.add(User.class);
-        classes.add(Role.class);
-        classes.add(Group.class);
+        classes.add(IdentityType.class);
 
         // relationship types
-        classes.add(Grant.class);
-        classes.add(GroupMembership.class);
-        classes.add(GroupRole.class);
+        classes.add(Relationship.class);
 
         // partition types
-        classes.add(Realm.class);
-        classes.add(Tier.class);
+        classes.add(Partition.class);
 
         return (Class<? extends AttributedType>[]) classes.toArray(new Class<?>[classes.size()]);
     }

@@ -52,6 +52,7 @@ import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
+import org.picketlink.idm.spi.IdentityStore;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -73,7 +74,6 @@ public class CustomIdentityStoreTestCase {
             .named("default")
                 .stores()
                     .add(MyIdentityStoreConfiguration.class,
-                        MyIdentityStore.class,
                         MyIdentityStoreConfigurationBuilder.class)
                     .methodInvocationContext(methodInvocationContext)
                     .supportAllFeatures();
@@ -132,6 +132,11 @@ public class CustomIdentityStoreTestCase {
         @Override
         protected void initConfig() {
 
+        }
+
+        @Override
+        public Class<? extends IdentityStore> getIdentityStoreType() {
+            return MyIdentityStore.class;
         }
 
         public void setMethodInvocationContext(MethodInvocationContext assertion) {
@@ -257,7 +262,7 @@ public class CustomIdentityStoreTestCase {
         }
 
         @Override
-        public void updateCredential(IdentityContext context, Agent agent, Object credential, Date effectiveDate,
+        public void updateCredential(IdentityContext context, Account agent, Object credential, Date effectiveDate,
                 Date expiryDate) {
             // TODO Auto-generated method stub
 
@@ -277,7 +282,7 @@ public class CustomIdentityStoreTestCase {
         }
 
         @Override
-        public <T extends CredentialStorage> List<T> retrieveCredentials(IdentityContext context, Agent agent,
+        public <T extends CredentialStorage> List<T> retrieveCredentials(IdentityContext context, Account agent,
                 Class<T> storageClass) {
             // TODO Auto-generated method stub
             return null;

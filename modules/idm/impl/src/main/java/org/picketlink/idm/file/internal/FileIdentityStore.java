@@ -19,6 +19,7 @@
 package org.picketlink.idm.file.internal;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
@@ -171,7 +172,7 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
 
     @Override
     public <V extends IdentityType> List<V> fetchQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
-        return null;  //TODO: Implement fetchQueryResults
+        return Collections.emptyList();
     }
 
     @Override

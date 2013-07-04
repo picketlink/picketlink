@@ -18,7 +18,9 @@
 
 package org.picketlink.idm.config;
 
+import java.util.List;
 import org.picketlink.idm.spi.RelationshipPolicy;
+import static java.util.Collections.unmodifiableList;
 
 /**
  * <p>Consolidates all the configuration that should be used to initialize and start the IDM subsystem.</p>
@@ -29,16 +31,16 @@ import org.picketlink.idm.spi.RelationshipPolicy;
 public class IdentityConfiguration {
 
     private final String name;
-    private final IdentityStoresConfiguration storesConfiguration;
+    private final List<? extends IdentityStoreConfiguration> storeConfiguration;
     private final RelationshipPolicy relationshipPolicy;
 
-    IdentityConfiguration(String name, IdentityStoresConfiguration storesConfiguration) {
+    IdentityConfiguration(String name, List<? extends IdentityStoreConfiguration> identityStores) {
         if (name == null) {
             throw new SecurityConfigurationException("You must specify a name for the IdentityConfiguration.");
         }
 
         this.name = name;
-        this.storesConfiguration = storesConfiguration;
+        this.storeConfiguration = unmodifiableList(identityStores);
         this.relationshipPolicy = null;
     }
 
@@ -50,12 +52,12 @@ public class IdentityConfiguration {
         return this.name;
     }
 
-    public IdentityStoresConfiguration getStoresConfiguration() {
-        return this.storesConfiguration;
+    public List<? extends IdentityStoreConfiguration> getStoreConfiguration() {
+        return this.storeConfiguration;
     }
 
     public boolean supportsPartition() {
-        for (IdentityStoreConfiguration storeConfiguration: getStoresConfiguration().getConfigurations()) {
+        for (IdentityStoreConfiguration storeConfiguration: getStoreConfiguration()) {
             if (storeConfiguration.supportsPartition()) {
                 return true;
             }
