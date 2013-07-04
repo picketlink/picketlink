@@ -28,6 +28,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.event.EventBridge;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
@@ -35,6 +36,8 @@ import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.internal.DefaultIdentityQuery;
+import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreSelector;
@@ -64,15 +67,6 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
         this.storeSelector = storeSelector;
         this.eventBridge = eventBridge;
         this.idGenerator = idGenerator;
-    }
-
-    @Override
-    public void add(IdentityType identityType) throws IdentityManagementException {
-        this.storeSelector.getStoreForIdentityOperation(
-                this,
-                IdentityStore.class,
-                identityType.getClass(),
-                IdentityOperation.create).add(this, identityType);
     }
 
     @Override
@@ -109,73 +103,126 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
     }
 
     @Override
-    public void update(IdentityType identityType) throws IdentityManagementException {
-        //TODO: Implement update
+    public void add(IdentityType identityType) throws IdentityManagementException {
+        storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, identityType.getClass(), IdentityOperation.create)
+            .add(this, identityType);
+    }
+
+    @Override
+    public void update(IdentityType value) throws IdentityManagementException {
+        storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, IdentityType.class, IdentityOperation.update)
+            .update(this, value);
     }
 
     @Override
     public void remove(IdentityType value) throws IdentityManagementException {
-        //TODO: Implement remove
+        storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, IdentityType.class, IdentityOperation.delete)
+            .remove(this, value);
     }
 
     @Override
     public Agent getAgent(String loginName) throws IdentityManagementException {
-        return null;  //TODO: Implement getAgent
+        List<Agent> agents = createIdentityQuery(Agent.class).setParameter(Agent.LOGIN_NAME, loginName).getResultList();
+        if (agents.isEmpty()) {
+            return null;
+        } else if (agents.size() == 1) {
+            return agents.get(0);
+        } else {
+            throw new IdentityManagementException("Error - multiple Agent objects found with same login name");
+        }
     }
 
     @Override
     public User getUser(String loginName) {
-        return null;  //TODO: Implement getUser
+        List<User> users = createIdentityQuery(User.class).setParameter(User.LOGIN_NAME, loginName).getResultList();
+        if (users.isEmpty()) {
+            return null;
+        } else if (users.size() == 1) {
+            return users.get(0);
+        } else {
+            throw new IdentityManagementException("Error - multiple User objects found with same login name");
+        }
     }
 
     @Override
     public Role getRole(String name) {
-        return null;  //TODO: Implement getRole
+        List<Role> roles = createIdentityQuery(Role.class).setParameter(Role.NAME, name).getResultList();
+        if (roles.isEmpty()) {
+            return null;
+        } else if (roles.size() == 1) {
+            return roles.get(0);
+        } else {
+            throw new IdentityManagementException("Error - multiple Role objects found with same name");
+        }
     }
 
     @Override
     public Group getGroup(String groupPath) {
-        return null;  //TODO: Implement getGroup
+        List<Group> groups = createIdentityQuery(Group.class).setParameter(Group.PATH, groupPath).getResultList();
+        if (groups.isEmpty()) {
+            return null;
+        } else if (groups.size() == 1) {
+            return groups.get(0);
+        } else {
+            throw new IdentityManagementException("Error - multiple Group objects found with same path");
+        }
     }
 
     @Override
     public Group getGroup(String groupName, Group parent) {
-        return null;  //TODO: Implement getGroup
+        List<Group> groups = createIdentityQuery(Group.class)
+                .setParameter(Group.NAME, groupName)
+                .setParameter(Group.PARENT, parent)
+                .getResultList();
+        if (groups.isEmpty()) {
+            return null;
+        } else if (groups.size() == 1) {
+            return groups.get(0);
+        } else {
+            throw new IdentityManagementException("Error - multiple Group objects found with same name and parent");
+        }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends IdentityType> T lookupIdentityById(Class<T> identityType, String id) {
-        return null;  //TODO: Implement lookupIdentityById
+        return (T) storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, identityType, IdentityOperation.read)
+                .getIdentity(identityType, id);
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType) {
-        return null;  //TODO: Implement createIdentityQuery
+        return new DefaultIdentityQuery(this, identityType, storeSelector.getStoreForIdentityOperation(
+                this, IdentityStore.class, identityType, IdentityOperation.read));
     }
 
     @Override
     public void validateCredentials(Credentials credentials) {
-        //TODO: Implement validateCredentials
+        storeSelector.getStoreForCredentialOperation(this, credentials.getClass()).validateCredentials(this, credentials);
     }
 
     @Override
-    public void updateCredential(Agent agent, Object credential) {
-        //TODO: Implement updateCredential
+    public void updateCredential(Account account, Object credential) {
+        updateCredential(account, credential, null, null);
     }
 
     @Override
-    public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
-        //TODO: Implement updateCredential
+    public void updateCredential(Account account, Object credential, Date effectiveDate, Date expiryDate) {
+        storeSelector.getStoreForCredentialOperation(this, credential.getClass())
+            .updateCredential(this, account, credential, effectiveDate, expiryDate);
     }
 
     @Override
-    public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
-        return null;  //TODO: Implement retrieveCurrentCredential
+    public <T extends CredentialStorage> T retrieveCurrentCredential(Account account, Class<T> storageClass) {
+        return (T) ((CredentialStore<?>) storeSelector.getStoreForCredentialOperation(this, storageClass))
+            .retrieveCurrentCredential(this, account, storageClass);
     }
 
     @Override
-    public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
-        return null;  //TODO: Implement retrieveCredentials
+    public <T extends CredentialStorage> List<T> retrieveCredentials(Account account, Class<T> storageClass) {
+        return (List<T>) ((CredentialStore<?>) storeSelector.getStoreForCredentialOperation(this, storageClass))
+                .retrieveCredentials(this, account, storageClass);
     }
 
     @Override

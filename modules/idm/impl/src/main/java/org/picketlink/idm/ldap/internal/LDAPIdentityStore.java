@@ -112,7 +112,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     @Override
-    public void updateCredential(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.model.sample.Agent agent, Object credential, java.util.Date effectiveDate, java.util.Date expiryDate) {
+    public void updateCredential(org.picketlink.idm.spi.IdentityContext context, org.picketlink.idm.model.Account account, Object credential, java.util.Date effectiveDate, java.util.Date expiryDate) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 //    private LDAPIdentityStoreConfiguration configuration;

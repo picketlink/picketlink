@@ -21,7 +21,6 @@ package org.picketlink.idm.spi;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.sample.Agent;
 
 import java.util.List;
 
@@ -41,7 +40,7 @@ public interface CredentialStore<T extends IdentityStoreConfiguration> extends I
     void storeCredential(IdentityContext context, Account account, CredentialStorage storage);
 
     /**
-     * Return the currently active credential state of the specified class, for the specified Agent
+     * Return the currently active credential state of the specified class, for the specified Account
      *
      * @param storageClass
      * @return
@@ -49,11 +48,11 @@ public interface CredentialStore<T extends IdentityStoreConfiguration> extends I
     <T extends CredentialStorage> T retrieveCurrentCredential(IdentityContext context, Account account, Class<T> storageClass);
 
     /**
-     * Returns a List of all credential state of the specified class, for the specified Agent
+     * Returns a List of all credential state of the specified class, for the specified Account
      *
-     * @param agent
+     * @param account
      * @param storageClass
      * @return
      */
-    <T extends CredentialStorage> List<T> retrieveCredentials(IdentityContext context, Agent agent, Class<T> storageClass);
+    <T extends CredentialStorage> List<T> retrieveCredentials(IdentityContext context, Account account, Class<T> storageClass);
 }

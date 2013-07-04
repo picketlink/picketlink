@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialStorage;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
@@ -179,18 +180,18 @@ public interface IdentityManager {
 
     /**
      * <p>
-     * Updates a credential for the given {@link Agent}.
+     * Updates a credential for the given {@link Account}.
      * </p>
      *
      * @param agent
      * @param credential The <code>credential</code> must be a object supported by any {@link CredentialHandler}. Examples of
      *        credentials are the {@link Password} and {@link Digest} types.
      */
-    void updateCredential(Agent agent, Object credential);
+    void updateCredential(Account account, Object credential);
 
     /**
      * <p>
-     * Updates a credential for the given {@link Agent}.
+     * Updates a credential for the given {@link Account}.
      * </p>
      * <p>
      * This methods also allows to specify the expiration and effective date for the credential.
@@ -200,25 +201,25 @@ public interface IdentityManager {
      * @param credential The <code>credential</code> must be a object supported by any {@link CredentialHandler}. Examples of
      *        credentials are the {@link Password} and {@link Digest} types.
      */
-    void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate);
+    void updateCredential(Account account, Object credential, Date effectiveDate, Date expiryDate);
 
     /**
-     * Returns the current stored credential value for the specific agent and credential storage class
+     * Returns the current stored credential value for the specific account and credential storage class
      *
      * @param agent
      * @param storageClass
      * @return
      */
-    <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass);
+    <T extends CredentialStorage> T retrieveCurrentCredential(Account account, Class<T> storageClass);
 
     /**
-     * Returns a list of all stored credential values for the specified agent and credential storage class
+     * Returns a list of all stored credential values for the specified account and credential storage class
      *
      * @param agent
      * @param storageClass
      * @return
      */
-    <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass);
+    <T extends CredentialStorage> List<T> retrieveCredentials(Account account, Class<T> storageClass);
 
     // Attributes
 

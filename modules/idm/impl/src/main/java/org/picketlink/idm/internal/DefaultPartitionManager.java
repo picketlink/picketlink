@@ -482,12 +482,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     @Override
     public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(IdentityContext context, Class<T> relationshipClass) {
-        Set<IdentityStore<?>> stores = null;
-
-        // FIXME the relationship query may span multiple configurations...
-        IdentityStore<?> store = getStoreForRelationshipOperation(context, relationshipClass, null);
-
-        return new DefaultRelationshipQuery<T>(context, relationshipClass, stores);
+        return new DefaultRelationshipQuery<T>(context, relationshipClass, this);
     }
 
     @Override

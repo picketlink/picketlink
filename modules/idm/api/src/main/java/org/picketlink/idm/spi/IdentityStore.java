@@ -19,6 +19,7 @@ package org.picketlink.idm.spi;
 
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
@@ -122,7 +123,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
     Group getGroup(IdentityContext context, String groupPath);
 
     /**
-     * Returns the Group with the specified name and parent group
+     * Returns the Group with the specified name and p arent group
      *
      * @param ctx
      * @param name The name of the Group to return
@@ -201,6 +202,6 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param agent
      * @param credential
      */
-    void updateCredential(IdentityContext context, Agent agent, Object credential, Date effectiveDate, Date expiryDate);
+    void updateCredential(IdentityContext context, Account account, Object credential, Date effectiveDate, Date expiryDate);
 
 }

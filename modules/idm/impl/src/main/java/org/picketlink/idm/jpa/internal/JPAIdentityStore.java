@@ -1840,7 +1840,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public <T extends CredentialStorage> List<T> retrieveCredentials(IdentityContext context, Agent agent, Class<T> storageClass) {
+    public <T extends CredentialStorage> List<T> retrieveCredentials(IdentityContext context, Account account, Class<T> storageClass) {
         return null;  //TODO: Implement retrieveCredentials
     }
 
@@ -1940,7 +1940,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public void updateCredential(IdentityContext context, Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
+    public void updateCredential(IdentityContext context, Account account, Object credential, Date effectiveDate, Date expiryDate) {
         //TODO: Implement updateCredential
     }
 }
