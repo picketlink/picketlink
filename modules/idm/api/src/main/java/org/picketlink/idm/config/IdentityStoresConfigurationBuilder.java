@@ -31,7 +31,6 @@ import java.util.Set;
 import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.StoreSelector;
 
 /**
  * @author Pedro Igor
@@ -140,8 +139,6 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
                     identityStoreConfiguration.getClass(), true);
             storeConfigBuilder.readFrom(identityStoreConfiguration);
         }
-
-        selector(configuration.getStoreSelector());
 
         return this;
     }

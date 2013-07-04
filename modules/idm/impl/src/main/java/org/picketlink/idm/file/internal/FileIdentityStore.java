@@ -75,8 +75,8 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
     }
 
     @Override
-    public void add(IdentityContext context, AttributedType value) {
-        System.out.println(value);
+    public void add(IdentityContext context, AttributedType attributedType) {
+        //TODO: add
     }
 
     @Override

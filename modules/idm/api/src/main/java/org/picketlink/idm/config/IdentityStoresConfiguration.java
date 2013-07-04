@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.StoreSelector;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
@@ -44,7 +43,8 @@ public class IdentityStoresConfiguration {
     private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> identityStores;
 
     public IdentityStoresConfiguration(List<IdentityStoreConfiguration> configurations) {
-        this(configurations, Collections.<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>>emptyMap());
+        this(configurations,
+                Collections.<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>>emptyMap());
     }
 
     public IdentityStoresConfiguration(
@@ -61,5 +61,16 @@ public class IdentityStoresConfiguration {
     public Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore>> getIdentityStores() {
         return this.identityStores;
     }
+
+    public IdentityStoreConfiguration forType(Class<? extends AttributedType> type, IdentityOperation operation) {
+        for (IdentityStoreConfiguration storeConfiguration : getConfigurations()) {
+            if (storeConfiguration.supportsType(type, operation)) {
+                return storeConfiguration;
+            }
+        }
+
+        return null;
+    }
+
 
 }
