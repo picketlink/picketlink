@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.internal.DigestCredentialHandler;
@@ -45,6 +46,7 @@ import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.PartitionStore;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * <p>
@@ -71,26 +73,39 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
 
         FilePartition filePartition = new FilePartition(partition, configurationName);
 
-        this.fileDataSource.getPartitions().put(partition.getId(), filePartition);
+        this.fileDataSource.getPartitions().put(filePartition.getId(), filePartition);
         this.fileDataSource.flushPartitions();
     }
 
     @Override
-    public void add(IdentityContext context, AttributedType attributedType) {
-        //TODO: add
+    public void update(IdentityContext identityContext, Partition partition) {
+        FilePartition filePartition = resolve(partition.getClass(), partition.getName());
+
+        this.fileDataSource.getPartitions().put(partition.getId(),
+                new FilePartition(partition, filePartition.getConfigurationName()));
+        this.fileDataSource.flushPartitions();
+    }
+
+    @Override
+    public void remove(IdentityContext identityContext, Partition partition) {
+        FilePartition filePartition = resolve(partition.getClass(), partition.getName());
+
+        this.fileDataSource.getPartitions().remove(filePartition.getId());
+
+        //TODO: check for associated attributed types
     }
 
     @Override
     public <P extends Partition> P get(IdentityContext identityContext, Class<P> partitionClass, String name) {
-        for (FilePartition filePartition: this.fileDataSource.getPartitions().values()) {
-            Partition partition = filePartition.getEntry();
+        P partition = null;
 
-            if (partition.getClass().equals(partitionClass) && partition.getName().equals(name)) {
-                return (P) partition;
-            }
+        try {
+            partition = (P) resolve(partitionClass, name).getEntry();
+        } catch (IdentityManagementException ime) {
+            //just ignore if not found.
         }
 
-        return null;
+        return partition;
     }
 
     @Override
@@ -106,6 +121,11 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
     }
 
     @Override
+    public void add(IdentityContext context, AttributedType attributedType) {
+        //TODO: add
+    }
+
+    @Override
     public void storeCredential(IdentityContext context, Account account, CredentialStorage storage) {
         //TODO: Implement storeCredential
     }
@@ -118,16 +138,6 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
     @Override
     public <T extends CredentialStorage> List<T> retrieveCredentials(IdentityContext context, Account account, Class<T> storageClass) {
         return null;  //TODO: Implement retrieveCredentials
-    }
-
-    @Override
-    public void update(IdentityContext identityContext, Partition partition) {
-        //TODO: Implement update
-    }
-
-    @Override
-    public void remove(IdentityContext identityContext, Partition partition) {
-        //TODO: Implement remove
     }
 
     @Override
@@ -220,4 +230,22 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
         return this.configuration;
     }
 
+    /**
+     * <p>Resolves the corresponding {@link FilePartition} for the given {@link Partition}.</p>
+     *
+     * @param partition
+     * @return
+     * @throws IdentityManagementException if no {@link FilePartition} exists for the given partition
+     */
+    private FilePartition resolve(Class<? extends Partition> type, String name) throws IdentityManagementException {
+        for (FilePartition filePartition: this.fileDataSource.getPartitions().values()) {
+            Partition storedPartition = filePartition.getEntry();
+
+            if (storedPartition.getClass().equals(type) && storedPartition.getName().equals(name)) {
+                return filePartition;
+            }
+        }
+
+        throw MESSAGES.partitionNotFoundWithName(type, name);
+    }
 }
