@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -58,12 +59,9 @@ public class FileDataSource {
     private static final String DEFAULT_WORKING_DIR = System.getProperty("java.io.tmpdir", File.separator + "tmp")
             + File.separator + "pl-idm";
 
-    private static final String GROUPS_FILE_NAME = "pl-idm-groups.db";
-    private static final String CREDENTIALS_FILE_NAME = "pl-idm-credentials.db";
-    private static final String RELATIONSHIPS_FILE_NAME = "pl-idm-relationships.db";
     private static final String PARTITIONS_FILE_NAME = "pl-idm-partitions.db";
-    private static final String ROLES_FILE_NAME = "pl-idm-roles.db";
-    private static final String AGENTS_FILE_NAME = "pl-idm-agents.db";
+    private static final String ATTRIBUTED_TYPES__FILE_NAME = "pl-idm-attributed-types.db";
+    private static final String RELATIONSHIPS_FILE_NAME = "pl-idm-relationships.db";
 
     private final FileIdentityStoreConfiguration configuration;
 
@@ -75,19 +73,39 @@ public class FileDataSource {
      */
     private Map<String, FilePartition> partitions = new ConcurrentHashMap<String, FilePartition>();
 
+    /**
+     * <p>
+     * Holds all configured {@link FileRelationship} instances loaded from the filesystem. This {@link Map} is also used to persist
+     * information to the filesystem.
+     * </p>
+     */
+    private Map<String, List<FileRelationship>> relationships = new ConcurrentHashMap<String, List<FileRelationship>>();
+
     private ExecutorService executorService;
 
-    public FileDataSource(FileIdentityStoreConfiguration configuration) {
+    FileDataSource(FileIdentityStoreConfiguration configuration) {
         this.configuration = configuration;
         init();
     }
 
-    public Map<String, FilePartition> getPartitions() {
+    Map<String, FilePartition> getPartitions() {
         return this.partitions;
+    }
+
+    Map<String, List<FileRelationship>> getRelationships() {
+        return this.relationships;
     }
 
     void flushPartitions() {
         flush(PARTITIONS_FILE_NAME, getPartitions());
+    }
+
+    void flushAttributedTypes(FilePartition partition) {
+        flush(partition, ATTRIBUTED_TYPES__FILE_NAME, partition.getAttributedTypes());
+    }
+
+    void flushRelationships() {
+        flush(RELATIONSHIPS_FILE_NAME, getRelationships());
     }
 
     /**

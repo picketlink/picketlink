@@ -22,6 +22,11 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
@@ -37,6 +42,7 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
@@ -122,7 +128,13 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
 
     @Override
     public void add(IdentityContext context, AttributedType attributedType) {
-        //TODO: add
+        FilePartition filePartition = resolve(context.getPartition().getClass(), context.getPartition().getName());
+
+        attributedType.setId(context.getIdGenerator().generate());
+
+        filePartition.getAttributedTypes().put(attributedType.getId(), new FileAttributedType(attributedType));
+
+        this.fileDataSource.flushAttributedTypes(filePartition);
     }
 
     @Override
@@ -230,6 +242,67 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
         return this.configuration;
     }
 
+    <T extends Relationship> T convertToRelationship(IdentityContext context, FileRelationship fileRelationship) {
+        Class<T> relationshipType = null;
+
+        try {
+            relationshipType = (Class<T>) Class.forName(fileRelationship.getType());
+        } catch (Exception e) {
+            throw MESSAGES.classNotFound(fileRelationship.getType());
+        }
+
+        return cloneRelationship(context, fileRelationship, relationshipType);
+    }
+
+    private <T extends Relationship> T cloneRelationship(IdentityContext context, FileRelationship fileRelationship,
+                                                         Class<? extends Relationship> relationshipType) {
+        T clonedRelationship = null;
+
+        try {
+            clonedRelationship = (T) relationshipType.newInstance();
+        } catch (Exception e) {
+            throw MESSAGES.instantiationError(relationshipType.getName(), e);
+        }
+
+        clonedRelationship.setId(fileRelationship.getEntry().getId());
+
+        List<Property<IdentityType>> relationshipIdentityTypes = PropertyQueries
+                .<IdentityType>createQuery(clonedRelationship.getClass())
+                .addCriteria(new TypedPropertyCriteria(IdentityType.class)).getResultList();
+
+        for (Property<IdentityType> annotatedProperty : relationshipIdentityTypes) {
+            try {
+                IdentityType identityType = annotatedProperty.getJavaClass().newInstance();
+
+                identityType.setId(fileRelationship.getIdentityTypeId(annotatedProperty.getName()));
+
+                annotatedProperty.setValue(clonedRelationship, identityType);
+            } catch (Exception e) {
+                throw new IdentityManagementException("Could not create relationship.", e);
+            }
+        }
+
+        updateAttributedType(fileRelationship.getEntry(), clonedRelationship);
+
+        return clonedRelationship;
+    }
+
+    boolean hasParentGroup(Group childGroup, Group parentGroup) {
+        if (childGroup.getParentGroup() != null && parentGroup != null) {
+            if (childGroup.getParentGroup().getId().equals(parentGroup.getId())) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+
+        return hasParentGroup(childGroup.getParentGroup(), parentGroup);
+    }
+
+    Map<String, List<FileRelationship>> getRelationships() {
+        return this.fileDataSource.getRelationships();
+    }
+
     /**
      * <p>Resolves the corresponding {@link FilePartition} for the given {@link Partition}.</p>
      *
@@ -248,4 +321,26 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
 
         throw MESSAGES.partitionNotFoundWithName(type, name);
     }
+
+    private void updateAttributedType(AttributedType fromIdentityType, AttributedType toIdentityType) {
+        toIdentityType.setId(fromIdentityType.getId());
+
+        for (Object object : toIdentityType.getAttributes().toArray()) {
+            Attribute<? extends Serializable> attribute = (Attribute<? extends Serializable>) object;
+            toIdentityType.removeAttribute(attribute.getName());
+        }
+
+        List<Property<Serializable>> attributeProperties = PropertyQueries
+                .<Serializable>createQuery(fromIdentityType.getClass())
+                .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class)).getResultList();
+
+        for (Property<Serializable> attributeProperty : attributeProperties) {
+            attributeProperty.setValue(toIdentityType, attributeProperty.getValue(fromIdentityType));
+        }
+
+        for (Attribute<? extends Serializable> attrib : fromIdentityType.getAttributes()) {
+            toIdentityType.setAttribute(attrib);
+        }
+    }
+
 }

@@ -21,6 +21,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.picketlink.idm.model.Partition;
 
 /**
@@ -29,11 +30,13 @@ import org.picketlink.idm.model.Partition;
 public class FilePartition extends AbstractFileAttributedType<Partition> {
 
     private static final long serialVersionUID = -8949732184464473476L;
+    private static final String VERSION = "1";
 
     private transient String configurationName;
+    private transient Map<String, FileAttributedType> attributedTypes = new ConcurrentHashMap<String, FileAttributedType>();
 
     protected FilePartition(Partition object, String configurationName) {
-        super("1", object);
+        super(VERSION, object);
         this.configurationName = configurationName;
     }
 
@@ -59,5 +62,9 @@ public class FilePartition extends AbstractFileAttributedType<Partition> {
 
     public String getConfigurationName() {
         return this.configurationName;
+    }
+
+    public Map<String, FileAttributedType> getAttributedTypes() {
+        return this.attributedTypes;
     }
 }
