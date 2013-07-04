@@ -25,7 +25,6 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -35,6 +34,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
+ * <p>Base class for partition management.</p>
+ *
  * @author pedroigor
  */
 public abstract class AbstractPartitionTestCase<T extends Partition> extends AbstractIdentityManagerTestCase {

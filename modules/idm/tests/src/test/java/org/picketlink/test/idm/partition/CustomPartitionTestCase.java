@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * <p>Test case for the {@link org.picketlink.idm.model.sample.CustomPartition} management operations.</p>
+ * <p>Test case for the custom partitions.</p>
  *
  * @author Pedro Silva
  *

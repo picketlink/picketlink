@@ -34,8 +34,7 @@ import static org.junit.runners.Suite.SuiteClasses;
 
 /**
  * <p>
- * Test suite for the {@link IdentityManager} using a {@link org.picketlink.idm.file.internal.FileIdentityStore}. For each test is created a fresh
- * {@link IdentityManager} instance. Data is not preserved between tests.
+ * Test suite for the {@link IdentityManager} using a {@link org.picketlink.idm.file.internal.FileIdentityStore}.
  * </p>
  * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>

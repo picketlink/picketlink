@@ -21,7 +21,6 @@ package org.picketlink.test.idm.partition;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Realm;
