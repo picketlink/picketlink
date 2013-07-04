@@ -24,7 +24,6 @@ import javax.persistence.Persistence;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
@@ -39,24 +38,6 @@ import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
-import org.picketlink.test.idm.basic.AgentManagementTestCase;
-import org.picketlink.test.idm.basic.GroupManagementTestCase;
-import org.picketlink.test.idm.basic.RoleManagementTestCase;
-import org.picketlink.test.idm.basic.UserManagementTestCase;
-import org.picketlink.test.idm.credential.PasswordCredentialTestCase;
-import org.picketlink.test.idm.query.AgentQueryTestCase;
-import org.picketlink.test.idm.query.GroupQueryTestCase;
-import org.picketlink.test.idm.query.RelationshipQueryTestCase;
-import org.picketlink.test.idm.query.RoleQueryTestCase;
-import org.picketlink.test.idm.query.UserQueryTestCase;
-import org.picketlink.test.idm.relationship.AgentGrantRelationshipTestCase;
-import org.picketlink.test.idm.relationship.AgentGroupRoleRelationshipTestCase;
-import org.picketlink.test.idm.relationship.AgentGroupsRelationshipTestCase;
-import org.picketlink.test.idm.relationship.CustomRelationshipTestCase;
-import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
-import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
-import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
-import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
 
 /**
  * <p>
@@ -68,11 +49,6 @@ import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ RelationshipQueryTestCase.class, CustomRelationshipTestCase.class, PasswordCredentialTestCase.class, UserManagementTestCase.class,
-        RoleManagementTestCase.class, GroupManagementTestCase.class, AgentManagementTestCase.class, AgentQueryTestCase.class,
-        UserQueryTestCase.class, RoleQueryTestCase.class, GroupQueryTestCase.class, AgentGroupRoleRelationshipTestCase.class,
-        AgentGroupsRelationshipTestCase.class, UserGrantRelationshipTestCase.class, AgentGrantRelationshipTestCase.class,
-        GroupGrantRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class, GroupMembershipTestCase.class })
 public class LDAPJPAMixedStoreTestSuite extends LDAPAbstractSuite implements TestLifecycle {
 
     private static LDAPJPAMixedStoreTestSuite instance;

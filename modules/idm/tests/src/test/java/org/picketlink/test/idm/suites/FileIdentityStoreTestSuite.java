@@ -19,7 +19,7 @@
 package org.picketlink.test.idm.suites;
 
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
+import org.junit.runners.Suite;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
@@ -27,7 +27,9 @@ import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
-import org.picketlink.test.idm.basic.UserManagementTestCase;
+import org.picketlink.test.idm.partition.RealmManagementTestCase;
+import org.picketlink.test.idm.partition.TierManagementTestCase;
+import static org.junit.runners.Suite.SuiteClasses;
 
 /**
  * <p>
@@ -39,7 +41,7 @@ import org.picketlink.test.idm.basic.UserManagementTestCase;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ UserManagementTestCase.class })
+@SuiteClasses ({RealmManagementTestCase.class, TierManagementTestCase.class})
 public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     private static FileIdentityStoreTestSuite instance;

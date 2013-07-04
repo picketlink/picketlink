@@ -22,49 +22,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
-import org.picketlink.idm.jpa.schema.CredentialObject;
-import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
-import org.picketlink.idm.jpa.schema.IdentityObject;
-import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
-import org.picketlink.idm.jpa.schema.PartitionObject;
-import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
-import org.picketlink.idm.jpa.schema.RelationshipObject;
-import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
-import org.picketlink.idm.model.sample.Authorization;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
-import org.picketlink.test.idm.basic.AgentManagementTestCase;
-import org.picketlink.test.idm.basic.GroupManagementTestCase;
-import org.picketlink.test.idm.basic.RoleManagementTestCase;
-import org.picketlink.test.idm.basic.UserManagementTestCase;
-import org.picketlink.test.idm.credential.CertificateCredentialTestCase;
-import org.picketlink.test.idm.credential.DigestCredentialTestCase;
-import org.picketlink.test.idm.credential.PasswordCredentialTestCase;
-import org.picketlink.test.idm.credential.TOTPCredentialTestCase;
-import org.picketlink.test.idm.partition.RealmManagementTestCase;
-import org.picketlink.test.idm.partition.TierManagementTestCase;
-import org.picketlink.test.idm.query.AgentQueryTestCase;
-import org.picketlink.test.idm.query.GroupQueryTestCase;
-import org.picketlink.test.idm.query.IdentityTypeQueryTestCase;
-import org.picketlink.test.idm.query.RoleQueryTestCase;
-import org.picketlink.test.idm.query.UserQueryTestCase;
-import org.picketlink.test.idm.relationship.AgentGrantRelationshipTestCase;
-import org.picketlink.test.idm.relationship.AgentGroupRoleRelationshipTestCase;
-import org.picketlink.test.idm.relationship.AgentGroupsRelationshipTestCase;
-import org.picketlink.test.idm.relationship.CustomRelationship;
-import org.picketlink.test.idm.relationship.CustomRelationshipTestCase;
-import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
-import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
-import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
-import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
-import org.picketlink.test.idm.usecases.ApplicationRegistrationTestCase;
-import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
 
 /**
  * <p>
@@ -76,14 +38,6 @@ import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({IdentityTypeQueryTestCase.class, UserManagementTestCase.class, AgentManagementTestCase.class, RoleManagementTestCase.class,
-    GroupManagementTestCase.class, CertificateCredentialTestCase.class, DigestCredentialTestCase.class,
-    PasswordCredentialTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class, AgentQueryTestCase.class,
-    RoleQueryTestCase.class, AgentGrantRelationshipTestCase.class, AgentGroupRoleRelationshipTestCase.class,
-    AgentGroupsRelationshipTestCase.class, CustomRelationshipTestCase.class, GroupGrantRelationshipTestCase.class,
-    GroupMembershipTestCase.class, UserGrantRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
-    ApplicationRegistrationTestCase.class, ApplicationUserRelationshipTestCase.class, RealmManagementTestCase.class,
-    TierManagementTestCase.class, TOTPCredentialTestCase.class})
 public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
     private EntityManagerFactory emf;
@@ -110,30 +64,7 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
     @SuppressWarnings("unchecked")
     @Override
     public PartitionManager createPartitionManager() {
-        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
-        
-        builder
-                .named("default").stores()
-                .jpa()
-                    .identityClass(IdentityObject.class)
-                    .attributeClass(IdentityObjectAttribute.class)
-                    .relationshipClass(RelationshipObject.class)
-                    .relationshipIdentityClass(RelationshipIdentityObject.class)
-                    .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                    .credentialClass(CredentialObject.class)
-                    .credentialAttributeClass(CredentialObjectAttribute.class)
-                    .partitionClass(PartitionObject.class)
-                    .supportAllFeatures()
-                    .supportType(CustomRelationship.class, Authorization.class)
-                    .addContextInitializer(new JPAContextInitializer(emf) {
-                        @Override
-                        public EntityManager getEntityManager() {
-                            return entityManager;
-                        }
-                    });
-
         return null;
-//        return new IdentityManagerFactory(builder.build());
     }
 
 }
