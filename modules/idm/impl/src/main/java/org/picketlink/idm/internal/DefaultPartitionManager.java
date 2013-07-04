@@ -50,12 +50,15 @@ import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.file.internal.FileIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Partition;extends Serializable 
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.Grant;
 import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.GroupMembership;
+import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.query.RelationshipQuery;
@@ -404,80 +407,97 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     @Override
-    public boolean isMember(IdentityContext identityContext, IdentityType identityType, Group group) {
-        // TODO Auto-generated method stub
-        return false;
+    public boolean isMember(IdentityContext context, IdentityType identity, Group group) {
+        RelationshipQuery<GroupMembership> query = createRelationshipQuery(context, GroupMembership.class);
+        query.setParameter(GroupMembership.MEMBER, identity);
+        query.setParameter(GroupMembership.GROUP, group);
+        return query.getResultCount() > 0;
     }
 
     @Override
-    public void addToGroup(IdentityContext identityContext, Agent agent, Group group) {
-        // TODO Auto-generated method stub
-
+    public void addToGroup(IdentityContext context, Account member, Group group) {
+        add(context, new GroupMembership(member, group));
     }
 
     @Override
-    public void removeFromGroup(IdentityContext identityContext, Agent member, Group group) {
-        // TODO Auto-generated method stub
-
+    public void removeFromGroup(IdentityContext context, Account member, Group group) {
+        RelationshipQuery<GroupMembership> query = createRelationshipQuery(context, GroupMembership.class);
+        query.setParameter(GroupMembership.MEMBER, member);
+        query.setParameter(GroupMembership.GROUP, group);
+        for (GroupMembership membership : query.getResultList()) {
+            remove(context, membership);
+        }
     }
 
     @Override
-    public boolean hasGroupRole(IdentityContext identityContext, IdentityType assignee, Role role, Group group) {
-        // TODO Auto-generated method stub
-        return false;
+    public boolean hasGroupRole(IdentityContext context, IdentityType assignee, Role role, Group group) {
+        RelationshipQuery<GroupRole> query = createRelationshipQuery(context, GroupRole.class);
+        query.setParameter(GroupRole.ASSIGNEE, assignee);
+        query.setParameter(GroupRole.GROUP, group);
+        query.setParameter(GroupRole.ROLE, role);
+        return query.getResultCount() > 0;
     }
 
     @Override
-    public void grantGroupRole(IdentityContext identityContext, IdentityType assignee, Role role, Group group) {
-        // TODO Auto-generated method stub
-
+    public void grantGroupRole(IdentityContext context, IdentityType assignee, Role role, Group group) {
+        add(context, new GroupRole(assignee, group, role));
     }
 
     @Override
-    public void revokeGroupRole(IdentityContext identityContext, IdentityType assignee, Role role, Group group) {
-        // TODO Auto-generated method stub
-
+    public void revokeGroupRole(IdentityContext context, IdentityType assignee, Role role, Group group) {
+        RelationshipQuery<GroupRole> query = createRelationshipQuery(context, GroupRole.class);
+        query.setParameter(GroupRole.ASSIGNEE, assignee);
+        query.setParameter(GroupRole.GROUP, group);
+        query.setParameter(GroupRole.ROLE, role);
+        for (GroupRole groupRole : query.getResultList()) {
+            remove(context, groupRole);
+        }
     }
 
     @Override
-    public boolean hasRole(IdentityContext identityContext, IdentityType identityType, Role role) {
-        // TODO Auto-generated method stub
-        return false;
+    public boolean hasRole(IdentityContext context, IdentityType assignee, Role role) {
+        RelationshipQuery<Grant> query = createRelationshipQuery(context, Grant.class);
+        query.setParameter(Grant.ASSIGNEE, assignee);
+        query.setParameter(GroupRole.ROLE, role);
+        return query.getResultCount() > 0;
     }
 
     @Override
-    public void grantRole(IdentityContext identityContext, IdentityType identityType, Role role) {
-        // TODO Auto-generated method stub
-
+    public void grantRole(IdentityContext context, IdentityType assignee, Role role) {
+        add(context, new Grant(assignee, role));
     }
 
     @Override
-    public void revokeRole(IdentityContext identityContext, IdentityType identityType, Role role) {
-        // TODO Auto-generated method stub
-
+    public void revokeRole(IdentityContext context, IdentityType assignee, Role role) {
+        RelationshipQuery<Grant> query = createRelationshipQuery(context, Grant.class);
+        query.setParameter(Grant.ASSIGNEE, assignee);
+        query.setParameter(GroupRole.ROLE, role);
+        for (Grant grant : query.getResultList()) {
+            remove(context, grant);
+        }
     }
 
     @Override
-    public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(IdentityContext identityContext, Class<T> relationshipType) {
+    public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(IdentityContext context, Class<T> relationshipType) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public <T extends IdentityStore<?>> T getStoreForIdentityOperation(IdentityContext identityContext, Class<T> storeType,
+    public <T extends IdentityStore<?>> T getStoreForIdentityOperation(IdentityContext context, Class<T> storeType,
                                                                        Class<? extends AttributedType> type, IdentityOperation operation) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public IdentityStore<?> getStoreForCredentialOperation(IdentityContext identityContext, Class<?> credentialClass) {
+    public IdentityStore<?> getStoreForCredentialOperation(IdentityContext context, Class<?> credentialClass) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public IdentityStore<?> getStoreForRelationshipOperation(IdentityContext identityContext, Class<? extends Relationship> relationshipClass,
+    public IdentityStore<?> getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> relationshipClass,
                                                              Set<Partition> partitions) {
         // TODO Auto-generated method stub
         return null;

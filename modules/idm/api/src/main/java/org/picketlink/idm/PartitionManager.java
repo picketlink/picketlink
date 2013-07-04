@@ -21,7 +21,7 @@ import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.query.RelationshipQuery;
@@ -142,7 +142,7 @@ public interface PartitionManager {
      * @param agent
      * @param group
      */
-    void addToGroup(IdentityContext context, Agent agent, Group group);
+    void addToGroup(IdentityContext context, Account identity, Group group);
 
     /**
      * <p>
@@ -152,7 +152,7 @@ public interface PartitionManager {
      * @param member
      * @param group
      */
-    void removeFromGroup(IdentityContext context, Agent member, Group group);
+    void removeFromGroup(IdentityContext context, Account member, Group group);
 
     /**
      * <p>

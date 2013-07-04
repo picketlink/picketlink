@@ -17,8 +17,6 @@
  */
 package org.picketlink.idm.model;
 
-import org.picketlink.idm.query.QueryParameter;
-
 /**
  * Represents a relationship between two or more {@link IdentityType}, which is also
  * capable of supporting multiple attribute values.
@@ -28,7 +26,5 @@ import org.picketlink.idm.query.QueryParameter;
  * @since Dec 18, 2012
  */
 public interface Relationship extends AttributedType {
-
-    QueryParameter IDENTITY = new QueryParameter() { };
 
 }

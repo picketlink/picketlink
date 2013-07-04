@@ -17,7 +17,6 @@
  */
 package org.picketlink.idm;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import org.picketlink.idm.credential.Credentials;

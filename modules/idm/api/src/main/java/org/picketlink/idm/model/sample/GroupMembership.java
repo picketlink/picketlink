@@ -19,6 +19,7 @@
 package org.picketlink.idm.model.sample;
 
 import org.picketlink.idm.model.AbstractAttributedType;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.query.RelationshipQueryParameter;
 
@@ -47,23 +48,23 @@ public class GroupMembership extends AbstractAttributedType implements Relations
 
     private static final long serialVersionUID = 6851576454138812116L;
 
-    private Agent member;
+    private Account member;
     private Group group;
 
     public GroupMembership() {
 
     }
 
-    public GroupMembership(Agent member, Group group) {
+    public GroupMembership(Account member, Group group) {
         this.member = member;
         this.group = group;
     }
 
-    public Agent getMember() {
+    public Account getMember() {
         return member;
     }
 
-    public void setMember(Agent member) {
+    public void setMember(Account member) {
         this.member = member;
     }
 
