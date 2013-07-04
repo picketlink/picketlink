@@ -43,6 +43,13 @@ public interface PartitionManager {
     IdentityManager createIdentityManager() throws SecurityConfigurationException;
 
     /**
+     * Creates a partition-less IdentityContext which may be used for relationship management operations
+     *
+     * @return
+     */
+    IdentityContext createIdentityContext();
+
+    /**
      * Creates an IdentityManager for the specified partition
      * @param partition
      * @return

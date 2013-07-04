@@ -46,6 +46,10 @@ import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOpera
 /**
  * Default implementation of the IdentityManager interface.
  *
+ * This lightweight class is intended to be created any time a batch of partition-specific identity management
+ * operations are to be performed.  In a web environment, it is recommended that instances are scoped to the
+ * web request lifecycle.
+ *
  * This class is not thread-safe.
  *
  * @author Shane Bryzak

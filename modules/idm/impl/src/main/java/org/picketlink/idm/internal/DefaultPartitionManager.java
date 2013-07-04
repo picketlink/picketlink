@@ -84,35 +84,41 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     private static final String DEFAULT_CONFIGURATION_NAME = "default";
 
     /**
-     *
+     * The event bridge allows events to be "bridged" to an event bus, such as the CDI event bus
      */
     private final EventBridge eventBridge;
 
     /**
-     *
+     * The ID generator is responsible for generating unique identifier values
      */
     private final IdGenerator idGenerator;
 
     /**
-     *
+     * A collection of all identity configurations.  Each configuration has a unique name.
      */
     private final Collection<IdentityConfiguration> configurations;
 
     /**
-     *
+     * Each partition is governed by a specific IdentityConfiguration, indicated by this Map.  Every IdentityConfiguration instance
+     * will also be found in the configurations property above.
      */
     private final Map<Partition,IdentityConfiguration> partitionConfigurations = new ConcurrentHashMap<Partition,IdentityConfiguration>();
 
     /**
-     * The created store instances for each identity configuration
+     * The store instances for each IdentityConfiguration, mapped by their corresponding IdentityStoreConfiguration
      */
     private final Map<IdentityConfiguration,Map<IdentityStoreConfiguration,IdentityStore<?>>> stores;
 
     /**
-     *
+     * The IdentityConfiguration that is responsible for managing partition CRUD operations.  It is possible for this
+     * value to be null, in which case partition management will not be supported.
      */
     private final IdentityConfiguration partitionManagementConfig;
 
+    /**
+     * This Map stores the set of identity properties for each relationship type, so that they are not required to be
+     * queried for every single relationship operation.  The properties are populated at runtime.
+     */
     private Map<Class<? extends Relationship>, Set<Property<? extends IdentityType>>> relationshipIdentityProperties =
             new ConcurrentHashMap<Class<? extends Relationship>, Set<Property<? extends IdentityType>>>();
 
@@ -127,10 +133,9 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     /**
      *
+     * @param configurations
      * @param eventBridge
      * @param idGenerator
-     * @param storeFactory
-     * @param configurations
      */
     public DefaultPartitionManager(Collection<IdentityConfiguration> configurations, EventBridge eventBridge,
                                    IdGenerator idGenerator) {
@@ -243,6 +248,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         return partitionConfigurations.get(partition);
     }
 
+    @Override
     public IdentityContext createIdentityContext() {
         return new IdentityContext() {
             private Map<String,Object> params = new HashMap<String,Object>();
