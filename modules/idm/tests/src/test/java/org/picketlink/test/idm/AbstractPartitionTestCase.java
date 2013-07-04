@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import org.junit.Test;
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Partition;
@@ -31,6 +32,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author pedroigor
@@ -285,6 +287,34 @@ public abstract class AbstractPartitionTestCase<T extends Partition> extends Abs
         multiValuedAttribute = updatedIdentityType.getAttribute("multi-valued");
 
         assertNull(multiValuedAttribute);
+    }
+
+    @Test
+    public void failDuplicatedPartition() {
+        T partition = createPartition();
+
+        String name = partition.getName();
+
+        try {
+            getPartitionManager().add(partition);
+            fail();
+        } catch (IdentityManagementException ime) {
+
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void failNullPartition() {
+        try {
+            getPartitionManager().add(null);
+            fail();
+        } catch (IdentityManagementException ime) {
+
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     protected abstract T createPartition();
