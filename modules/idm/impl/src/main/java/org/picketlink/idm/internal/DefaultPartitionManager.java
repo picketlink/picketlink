@@ -52,7 +52,7 @@ import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Partition;extends Serializable 
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
@@ -200,6 +200,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                 } else {
                     throw new IdentityManagementException("Unknown IdentityStore class for configuration [" + storeConfiguration + "].");
                 }
+                return null;
             } else {
                 store = storeClass.newInstance();
             }
@@ -293,13 +294,10 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         }
 
         try {
-            //FIXME
-//            return new ContextualIdentityManager(eventBridge, idGenerator, partition, this);
+            return new ContextualIdentityManager(partition, this, eventBridge, idGenerator);
         } catch (Exception e) {
             throw MESSAGES.couldNotCreateContextualIdentityManager(partition);
         }
-
-        return null;
     }
 
     @Override

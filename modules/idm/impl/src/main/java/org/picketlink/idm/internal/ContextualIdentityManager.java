@@ -18,7 +18,10 @@
 package org.picketlink.idm.internal;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -38,58 +41,71 @@ import org.picketlink.idm.spi.StoreSelector;
 import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
- * Default implementation of the IdentityManager interface
+ * Default implementation of the IdentityManager interface.
+ *
+ * This class is not thread-safe.
  *
  * @author Shane Bryzak
  * @author anil saldhana
  */
 public class ContextualIdentityManager implements IdentityManager, IdentityContext {
 
-    private final IdentityContext identityContext;
+    private final Partition partition;
     private final StoreSelector storeSelector;
+    private final EventBridge eventBridge;
+    private final IdGenerator idGenerator;
 
-    public ContextualIdentityManager(IdentityContext identityContext, StoreSelector storeSelector) {
-        this.identityContext = identityContext;
+    // We only create the parameters Map if required
+    private Map<String,Object> parameters = null;
+
+    public ContextualIdentityManager(Partition partition, StoreSelector storeSelector, EventBridge eventBridge,
+            IdGenerator idGenerator) {
+        this.partition = partition;
         this.storeSelector = storeSelector;
+        this.eventBridge = eventBridge;
+        this.idGenerator = idGenerator;
     }
 
     @Override
     public void add(IdentityType identityType) throws IdentityManagementException {
         this.storeSelector.getStoreForIdentityOperation(
-                identityContext,
+                this,
                 IdentityStore.class,
                 identityType.getClass(),
-                IdentityOperation.create).add(this.identityContext, identityType);
+                IdentityOperation.create).add(this, identityType);
     }
 
     @Override
     public Object getParameter(String paramName) {
-        return null;  //TODO: Implement getParameter
+        return parameters != null ? parameters.get(paramName) : null;
     }
 
     @Override
     public boolean isParameterSet(String paramName) {
-        return false;  //TODO: Implement isParameterSet
+        return parameters != null ? parameters.containsKey(paramName) : false;
     }
 
     @Override
     public void setParameter(String paramName, Object value) {
-        //TODO: Implement setParameter
+        if (parameters == null) {
+            parameters = new HashMap<String,Object>();
+        }
+        parameters.put(paramName, value);
     }
 
     @Override
     public EventBridge getEventBridge() {
-        return null;  //TODO: Implement getEventBridge
+        return eventBridge;
     }
 
     @Override
     public IdGenerator getIdGenerator() {
-        return null;  //TODO: Implement getIdGenerator
+        return idGenerator;
     }
 
     @Override
     public Partition getPartition() {
-        return null;  //TODO: Implement get
+        return partition;
     }
 
     @Override

@@ -34,7 +34,7 @@ import org.picketlink.idm.query.IdentityQuery;
  *
  * @author Shane Bryzak
  */
-public interface IdentityManager extends Serializable {
+public interface IdentityManager {
 
     // Identity CRUD methods
 
