@@ -86,11 +86,6 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     private final Map<Partition,IdentityConfiguration> partitionConfigurations = new ConcurrentHashMap<Partition,IdentityConfiguration>();
 
     /**
-     * 
-     */
-    private final RelationshipPolicy relationshipPolicy;
-
-    /**
      *
      */
     private final IdentityConfiguration partitionManagementConfig;
@@ -129,12 +124,6 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         }
 
         this.configurations = Collections.unmodifiableMap(configurations);
-
-        if (relationshipPolicy != null) {
-            this.relationshipPolicy = relationshipPolicy;
-        } else {
-            this.relationshipPolicy = createDefaultRelationshipPolicy(configurations);
-        }
 
         if (eventBridge != null) {
             this.eventBridge = eventBridge;
