@@ -46,6 +46,8 @@ import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.config.SecurityConfigurationException;
+import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.file.internal.FileIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
@@ -62,6 +64,7 @@ import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.PartitionStore;
@@ -229,7 +232,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         }
     }
 
-    private synchronized IdentityConfiguration lookupPartitionConfiguration(Partition partition) {
+    private IdentityConfiguration lookupPartitionConfiguration(Partition partition) {
         if (!partitionConfigurations.containsKey(partition)) {
 
             IdentityContext context = createIdentityContext();
@@ -478,27 +481,55 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     @Override
-    public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(IdentityContext context, Class<T> relationshipType) {
-        // TODO Auto-generated method stub
-        return null;
+    public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(IdentityContext context, Class<T> relationshipClass) {
+        Set<IdentityStore<?>> stores = null;
+
+        // FIXME the relationship query may span multiple configurations...
+        IdentityStore<?> store = getStoreForRelationshipOperation(context, relationshipClass, null);
+
+        return new DefaultRelationshipQuery<T>(context, relationshipClass, stores);
     }
 
     @Override
     public <T extends IdentityStore<?>> T getStoreForIdentityOperation(IdentityContext context, Class<T> storeType,
                                                                        Class<? extends AttributedType> type, IdentityOperation operation) {
-        // TODO Auto-generated method stub
-        return null;
+        for (IdentityStoreConfiguration storeConfig : getConfigurationForPartition(context.getPartition())
+                .getStoresConfiguration().getConfigurations()) {
+            if (storeConfig.supportsType(type, operation)) {
+                @SuppressWarnings("unchecked")
+                T store = (T) stores.get(storeConfig);
+                storeConfig.initializeContext(context, store);
+                return store;
+            }
+        }
+
+        throw new IdentityManagementException("No IdentityStore found for required type [" + type + "]");
     }
 
     @Override
     public IdentityStore<?> getStoreForCredentialOperation(IdentityContext context, Class<?> credentialClass) {
-        // TODO Auto-generated method stub
-        return null;
+        IdentityConfiguration config = getConfigurationForPartition(context.getPartition());
+        for (IdentityStoreConfiguration storeConfig : config.getStoresConfiguration().getConfigurations()) {
+            for (@SuppressWarnings("rawtypes") Class<? extends CredentialHandler> handlerClass : storeConfig.getCredentialHandlers()) {
+                if (handlerClass.isAnnotationPresent(SupportsCredentials.class)) {
+                    for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).value()) {
+                        if (cls.equals(credentialClass)) {
+                            IdentityStore<?> store = stores.get(config).get(storeConfig);
+                            storeConfig.initializeContext(context, store);
+                            return store;
+                        }
+                    }
+                }
+            }
+        }
+
+        throw new IdentityManagementException("No IdentityStore found for credential class [" + credentialClass + "]");
     }
 
     @Override
     public IdentityStore<?> getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> relationshipClass,
                                                              Set<Partition> partitions) {
+
         // TODO Auto-generated method stub
         return null;
     }

@@ -24,9 +24,11 @@ import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityContext;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
@@ -41,14 +43,14 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
 
     private Map<QueryParameter, Object[]> parameters = new LinkedHashMap<QueryParameter, Object[]>();
     private IdentityContext context;
-    private IdentityStore<?> identityStore;
+    private Set<IdentityStore<?>> stores;
     private Class<T> relationshipType;
-    private int offset;
-    private int limit;
+    private long offset;
+    private long limit;
 
-    public DefaultRelationshipQuery(IdentityContext context, Class<T> relationshipType, IdentityStore<?> identityStore) {
+    public DefaultRelationshipQuery(IdentityContext context, Class<T> relationshipType, Set<IdentityStore<?>> stores) {
         this.context = context;
-        this.identityStore = identityStore;
+        this.stores = stores;
         this.relationshipType = relationshipType;
     }
 
@@ -74,21 +76,23 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
     }
 
     @Override
-    public int getLimit() {
+    public long getLimit() {
         return limit;
     }
 
     @Override
-    public int getOffset() {
+    public long getOffset() {
         return offset;
     }
 
     @Override
     public List<T> getResultList() {
-        List<T> result = null;
+        List<T> result = new ArrayList<T>();
 
         try {
-            result = this.identityStore.fetchQueryResults(context, this);
+            for (IdentityStore<?> store : stores) {
+                result.addAll(store.fetchQueryResults(context, this));
+            }
         } catch (Exception e) {
             throw MESSAGES.relationshipQueryFailed(this, e);
         }
@@ -97,18 +101,22 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
     }
 
     @Override
-    public int getResultCount() {
-        return this.identityStore.countQueryResults(context, this);
+    public long getResultCount() {
+        long count = 0;
+        for (IdentityStore<?> store : stores) {
+            count += store.countQueryResults(context, this);
+        }
+        return count;
     }
 
     @Override
-    public RelationshipQuery<T> setOffset(int offset) {
+    public RelationshipQuery<T> setOffset(long offset) {
         this.offset = offset;
         return this;
     }
 
     @Override
-    public RelationshipQuery<T> setLimit(int limit) {
+    public RelationshipQuery<T> setLimit(long limit) {
         this.limit = limit;
         return this;
     }
