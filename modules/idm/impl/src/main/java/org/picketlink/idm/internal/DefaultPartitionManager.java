@@ -311,8 +311,13 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     @Override
     public <T extends Partition> T getPartition(Class<T> partitionClass, String name) {
         checkPartitionManagementSupported();
-        IdentityContext context = createIdentityContext();
-        return getStoreForPartitionOperation(context).<T>get(context, partitionClass, name);
+
+        try {
+            IdentityContext context = createIdentityContext();
+            return getStoreForPartitionOperation(context).<T>get(context, partitionClass, name);
+        } catch (Exception e) {
+            throw new IdentityManagementException("Could not load partition for type [" + partitionClass.getName() + "] and name [" + name + "].");
+        }
     }
 
     public void add(Partition partition) {
