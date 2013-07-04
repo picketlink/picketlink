@@ -22,6 +22,7 @@ import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.sample.Realm;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -48,6 +49,8 @@ public class FileIdentityStoreTestCase {
         defaultPartition = partitionManager.getPartition(Realm.class, defaultPartition.getName());
 
         assertNotNull(defaultPartition);
+        assertNotNull(defaultPartition.getId());
+        assertEquals(Realm.DEFAULT_REALM, defaultPartition.getName());
     }
 
 }

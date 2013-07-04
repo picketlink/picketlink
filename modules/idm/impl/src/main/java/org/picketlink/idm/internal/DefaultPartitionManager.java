@@ -29,8 +29,8 @@ import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.PropertyQuery;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
-import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.DefaultIdGenerator;
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -41,6 +41,7 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
+import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
@@ -65,6 +66,7 @@ import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.StoreSelector;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
@@ -320,11 +322,17 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     @Override
     public void add(Partition partition, String configurationName) {
         checkPartitionManagementSupported();
+
+        if (isNullOrEmpty(configurationName)) {
+            configurationName = getDefaultConfigurationName();
+        }
+
         IdentityContext context = createIdentityContext();
-        if (StringUtil.isNullOrEmpty(configurationName)) {
-            getStoreForPartitionOperation(context).add(context, partition, getDefaultConfigurationName());
-        } else {
+
+        try {
             getStoreForPartitionOperation(context).add(context, partition, configurationName);
+        } catch (Exception e) {
+            throw new IdentityManagementException("Could not add partition [" + partition + "] using configuration [" + configurationName + ".", e);
         }
     }
 
@@ -340,24 +348,6 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         checkPartitionManagementSupported();
         IdentityContext context = createIdentityContext();
         getStoreForPartitionOperation(context).remove(context, partition);
-    }
-
-    private String getDefaultConfigurationName() {
-        // If there is a configuration with the default configuration name, return that name
-        for (IdentityConfiguration config : configurations) {
-            if (DEFAULT_CONFIGURATION_NAME.equals(config.getName())) {
-                return DEFAULT_CONFIGURATION_NAME;
-            }
-        }
-
-        // Otherwise return the first configuration found
-        return configurations.iterator().next().getName();
-    }
-
-    private void checkPartitionManagementSupported() {
-        if (partitionManagementConfig == null) {
-            throw new UnsupportedOperationException("Partition management is not supported by the current configuration");
-        }
     }
 
     @Override
@@ -544,6 +534,25 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             }
         }
         throw new IdentityManagementException("Could not locate PartitionStore");
+    }
+
+    private String getDefaultConfigurationName() {
+        // If there is a configuration with the default configuration name, return that name
+        for (IdentityConfiguration config : configurations) {
+            if (DEFAULT_CONFIGURATION_NAME.equals(config.getName())) {
+                return DEFAULT_CONFIGURATION_NAME;
+            }
+        }
+
+        // Otherwise return the first configuration found
+        return configurations.iterator().next().getName();
+    }
+
+    private void checkPartitionManagementSupported() {
+        if (partitionManagementConfig == null) {
+            throw new OperationNotSupportedException(
+                    "Partition management is not supported by the current configuration", Partition.class, IdentityOperation.create);
+        }
     }
 
 }
