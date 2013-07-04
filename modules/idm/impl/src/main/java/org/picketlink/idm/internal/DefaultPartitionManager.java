@@ -24,10 +24,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.common.properties.query.PropertyQuery;
+import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.DefaultIdGenerator;
 import org.picketlink.idm.IdGenerator;
@@ -70,8 +75,6 @@ import org.picketlink.idm.spi.StoreSelector;
  */
 public class DefaultPartitionManager implements PartitionManager, StoreSelector {
 
-    private static final long serialVersionUID = 666601082732493295L;
-
     private static final String DEFAULT_CONFIGURATION_NAME = "default";
 
     /**
@@ -103,6 +106,9 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
      *
      */
     private final IdentityConfiguration partitionManagementConfig;
+
+    private Map<Class<? extends Relationship>, Set<Property<? extends IdentityType>>> relationshipIdentityProperties =
+            new ConcurrentHashMap<Class<? extends Relationship>, Set<Property<? extends IdentityType>>>();
 
 
     public DefaultPartitionManager(IdentityConfiguration configuration) {
@@ -226,16 +232,47 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     private synchronized IdentityConfiguration lookupPartitionConfiguration(Partition partition) {
         if (!partitionConfigurations.containsKey(partition)) {
 
-            PartitionStore<?> store = getStoreForPartitionOperation();
-            partitionConfigurations.put(partition, getConfigurationByName(store.getConfigurationName(createIdentityContext(), partition)));
+            IdentityContext context = createIdentityContext();
+            PartitionStore<?> store = getStoreForPartitionOperation(context);
+            partitionConfigurations.put(partition, getConfigurationByName(store.getConfigurationName(context, partition)));
         }
 
         return partitionConfigurations.get(partition);
     }
 
-    private IdentityContext createIdentityContext() {
-        // TODO implement this
-        return null;
+    public IdentityContext createIdentityContext() {
+        return new IdentityContext() {
+            private Map<String,Object> params = new HashMap<String,Object>();
+            @Override
+            public Object getParameter(String paramName) {
+                return params.get(paramName);
+            }
+
+            @Override
+            public boolean isParameterSet(String paramName) {
+                return params.containsKey(paramName);
+            }
+
+            @Override
+            public void setParameter(String paramName, Object value) {
+                params.put(paramName, value);
+            }
+
+            @Override
+            public EventBridge getEventBridge() {
+                return eventBridge;
+            }
+
+            @Override
+            public IdGenerator getIdGenerator() {
+                return idGenerator;
+            }
+
+            @Override
+            public Partition getPartition() {
+                return null;
+            }
+        };
     }
 
     @Override
@@ -267,7 +304,9 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     @Override
     public <T extends Partition> T getPartition(Class<T> partitionClass, String name) {
-        return getStoreForPartitionOperation().<T>get(createIdentityContext(), partitionClass, name);
+        checkPartitionManagementSupported();
+        IdentityContext context = createIdentityContext();
+        return getStoreForPartitionOperation(context).<T>get(context, partitionClass, name);
     }
 
     public void add(Partition partition) {
@@ -276,11 +315,27 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     @Override
     public void add(Partition partition, String configurationName) {
+        checkPartitionManagementSupported();
+        IdentityContext context = createIdentityContext();
         if (StringUtil.isNullOrEmpty(configurationName)) {
-            getStoreForPartitionOperation().add(createIdentityContext(), partition, getDefaultConfigurationName());
+            getStoreForPartitionOperation(context).add(context, partition, getDefaultConfigurationName());
         } else {
-            getStoreForPartitionOperation().add(createIdentityContext(), partition, configurationName);
+            getStoreForPartitionOperation(context).add(context, partition, configurationName);
         }
+    }
+
+    @Override
+    public void update(Partition partition) {
+        checkPartitionManagementSupported();
+        IdentityContext context = createIdentityContext();
+        getStoreForPartitionOperation(context).update(context, partition);
+    }
+
+    @Override
+    public void remove(Partition partition) {
+        checkPartitionManagementSupported();
+        IdentityContext context = createIdentityContext();
+        getStoreForPartitionOperation(context).remove(context, partition);
     }
 
     private String getDefaultConfigurationName() {
@@ -295,118 +350,156 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         return configurations.iterator().next().getName();
     }
 
-    @Override
-    public void update(Partition partition) {
-        getStoreForPartitionOperation().update(createIdentityContext(), partition);
+    private void checkPartitionManagementSupported() {
+        if (partitionManagementConfig == null) {
+            throw new UnsupportedOperationException("Partition management is not supported by the current configuration");
+        }
     }
 
     @Override
-    public void remove(Partition partition) {
-        getStoreForPartitionOperation().remove(createIdentityContext(), partition);
+    public void add(IdentityContext context, Relationship relationship) throws IdentityManagementException {
+        getStoreForRelationshipOperation(context, relationship.getClass(),
+                getRelationshipPartitions(relationship)).add(context, relationship);
     }
 
     @Override
-    public void add(Relationship relationship) throws IdentityManagementException {
-        // TODO Auto-generated method stub
-
+    public void update(IdentityContext context, Relationship relationship) {
+        getStoreForRelationshipOperation(context, relationship.getClass(),
+                getRelationshipPartitions(relationship)).update(context, relationship);
     }
 
     @Override
-    public void update(Relationship relationship) {
-        // TODO Auto-generated method stub
+    public void remove(IdentityContext context, Relationship relationship) {
+        getStoreForRelationshipOperation(context, relationship.getClass(),
+                getRelationshipPartitions(relationship)).remove(context, relationship);
+    }
 
+    private Set<Partition> getRelationshipPartitions(Relationship relationship) {
+        Set<Partition> partitions = new HashSet<Partition>();
+        for (Property<? extends IdentityType> prop : getRelationshipIdentityProperties(relationship.getClass())) {
+            IdentityType identity = prop.getValue(relationship);
+            if (!partitions.contains(identity.getPartition())) {
+                partitions.add(identity.getPartition());
+            }
+        }
+        return partitions;
+    }
+
+    private Set<Property<? extends IdentityType>> getRelationshipIdentityProperties(
+            Class<? extends Relationship> relationshipClass) {
+
+        if (!relationshipIdentityProperties.containsKey(relationshipClass)) {
+            ((ConcurrentHashMap<Class<? extends Relationship>, Set<Property<? extends IdentityType>>>)
+                    relationshipIdentityProperties).putIfAbsent(relationshipClass,
+                    queryRelationshipIdentityProperties(relationshipClass));
+        }
+
+        return relationshipIdentityProperties.get(relationshipClass);
+    }
+
+    private Set<Property<? extends IdentityType>> queryRelationshipIdentityProperties(Class<? extends Relationship> relationshipClass) {
+        PropertyQuery<? extends IdentityType> query = PropertyQueries.createQuery(relationshipClass);
+        query.addCriteria(new TypedPropertyCriteria(IdentityType.class));
+
+        Set<Property<? extends IdentityType>> properties = new HashSet<Property<? extends IdentityType>>();
+        for (Property<? extends IdentityType> prop : query.getResultList()) {
+            properties.add(prop);
+        }
+
+        return Collections.unmodifiableSet(properties);
     }
 
     @Override
-    public void remove(Relationship relationship) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public boolean isMember(IdentityType identityType, Group group) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public void addToGroup(Agent agent, Group group) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void removeFromGroup(Agent member, Group group) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public boolean hasGroupRole(IdentityType assignee, Role role, Group group) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public void grantGroupRole(IdentityType assignee, Role role, Group group) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void revokeGroupRole(IdentityType assignee, Role role, Group group) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public boolean hasRole(IdentityType identityType, Role role) {
+    public boolean isMember(IdentityContext identityContext, IdentityType identityType, Group group) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public void grantRole(IdentityType identityType, Role role) {
+    public void addToGroup(IdentityContext identityContext, Agent agent, Group group) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void revokeRole(IdentityType identityType, Role role) {
+    public void removeFromGroup(IdentityContext identityContext, Agent member, Group group) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType) {
+    public boolean hasGroupRole(IdentityContext identityContext, IdentityType assignee, Role role, Group group) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void grantGroupRole(IdentityContext identityContext, IdentityType assignee, Role role, Group group) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void revokeGroupRole(IdentityContext identityContext, IdentityType assignee, Role role, Group group) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public boolean hasRole(IdentityContext identityContext, IdentityType identityType, Role role) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void grantRole(IdentityContext identityContext, IdentityType identityType, Role role) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void revokeRole(IdentityContext identityContext, IdentityType identityType, Role role) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(IdentityContext identityContext, Class<T> relationshipType) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public <T extends IdentityStore<?>> T getStoreForIdentityOperation(Class<T> storeType, Partition partition,
+    public <T extends IdentityStore<?>> T getStoreForIdentityOperation(IdentityContext identityContext, Class<T> storeType,
                                                                        Class<? extends AttributedType> type, IdentityOperation operation) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public IdentityStore<?> getStoreForCredentialOperation(Class<?> credentialClass, Partition partition) {
+    public IdentityStore<?> getStoreForCredentialOperation(IdentityContext identityContext, Class<?> credentialClass) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public IdentityStore<?> getStoreForRelationshipOperation(Class<? extends Relationship> relationshipClass,
+    public IdentityStore<?> getStoreForRelationshipOperation(IdentityContext identityContext, Class<? extends Relationship> relationshipClass,
                                                              Set<Partition> partitions) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public PartitionStore<?> getStoreForPartitionOperation() {
-        // TODO Auto-generated method stub
-        return null;
+    public PartitionStore<?> getStoreForPartitionOperation(IdentityContext context) {
+        Map<IdentityStoreConfiguration,IdentityStore<?>> configStores = stores.get(partitionManagementConfig);
+        for (IdentityStoreConfiguration cfg : configStores.keySet()) {
+            if (cfg.supportsType(Partition.class, IdentityOperation.create)) {
+                PartitionStore<?> store = (PartitionStore<?>) configStores.get(cfg);
+                cfg.initializeContext(context, store);
+                return store;
+            }
+        }
+        throw new IdentityManagementException("Could not locate PartitionStore");
     }
 
 }

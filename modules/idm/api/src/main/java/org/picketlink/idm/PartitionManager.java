@@ -25,6 +25,7 @@ import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.idm.spi.IdentityContext;
 
 /**
  * Provides partition management operations
@@ -98,7 +99,7 @@ public interface PartitionManager {
      * @param relationship
      * @throws IdentityManagementException If cannot add the provided {@link Relationship} instance.
      */
-    void add(Relationship relationship) throws IdentityManagementException;
+    void add(IdentityContext context, Relationship relationship) throws IdentityManagementException;
 
     /**
      * <p>
@@ -109,7 +110,7 @@ public interface PartitionManager {
      * @param relationship
      * @throws IdentityManagementException If cannot update the provided {@link Relationship} instance.
      */
-    void update(Relationship relationship);
+    void update(IdentityContext context, Relationship relationship);
 
     /**
      * <p>
@@ -120,7 +121,7 @@ public interface PartitionManager {
      * @param relationship
      * @throws IdentityManagementException If cannot remove the provided {@link Relationship} instance.
      */
-    void remove(Relationship relationship);
+    void remove(IdentityContext context, Relationship relationship);
 
     /**
      * <p>
@@ -131,7 +132,7 @@ public interface PartitionManager {
      * @param group
      * @return true if the {@link IdentityType} is a member of the provided {@link Group}.
      */
-    boolean isMember(IdentityType identityType, Group group);
+    boolean isMember(IdentityContext context, IdentityType identityType, Group group);
 
     /**
      * <p>
@@ -141,7 +142,7 @@ public interface PartitionManager {
      * @param agent
      * @param group
      */
-    void addToGroup(Agent agent, Group group);
+    void addToGroup(IdentityContext context, Agent agent, Group group);
 
     /**
      * <p>
@@ -151,7 +152,7 @@ public interface PartitionManager {
      * @param member
      * @param group
      */
-    void removeFromGroup(Agent member, Group group);
+    void removeFromGroup(IdentityContext context, Agent member, Group group);
 
     /**
      * <p>
@@ -164,7 +165,7 @@ public interface PartitionManager {
      * @param group
      * @return
      */
-    boolean hasGroupRole(IdentityType assignee, Role role, Group group);
+    boolean hasGroupRole(IdentityContext context, IdentityType assignee, Role role, Group group);
 
     /**
      * <p>
@@ -175,7 +176,7 @@ public interface PartitionManager {
      * @param role
      * @param group
      */
-    void grantGroupRole(IdentityType assignee, Role role, Group group);
+    void grantGroupRole(IdentityContext context, IdentityType assignee, Role role, Group group);
 
     /**
      * <p>
@@ -186,7 +187,7 @@ public interface PartitionManager {
      * @param role
      * @param group
      */
-    void revokeGroupRole(IdentityType assignee, Role role, Group group);
+    void revokeGroupRole(IdentityContext context, IdentityType assignee, Role role, Group group);
 
     /**
      * <p>
@@ -197,7 +198,7 @@ public interface PartitionManager {
      * @param role
      * @return
      */
-    boolean hasRole(IdentityType identityType, Role role);
+    boolean hasRole(IdentityContext context, IdentityType identityType, Role role);
 
 
     /**
@@ -208,7 +209,7 @@ public interface PartitionManager {
      * @param identityType
      * @param role
      */
-    void grantRole(IdentityType identityType, Role role);
+    void grantRole(IdentityContext context, IdentityType identityType, Role role);
 
     /**
      * <p>
@@ -218,7 +219,7 @@ public interface PartitionManager {
      * @param identityType
      * @param role
      */
-    void revokeRole(IdentityType identityType, Role role);
+    void revokeRole(IdentityContext context, IdentityType identityType, Role role);
 
     /**
      * <p>
@@ -232,5 +233,5 @@ public interface PartitionManager {
      * @param identityType
      * @return
      */
-    <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType);
+    <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(IdentityContext context, Class<T> relationshipType);
 }

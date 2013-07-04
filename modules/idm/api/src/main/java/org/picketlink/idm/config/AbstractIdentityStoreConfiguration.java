@@ -27,6 +27,9 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
+import org.picketlink.idm.spi.IdentityContext;
+import org.picketlink.idm.spi.IdentityStore;
+
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static org.picketlink.idm.IDMLogger.LOGGER;
@@ -114,8 +117,14 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
     protected abstract void initConfig();
 
     @Override
-    public List<ContextInitializer> getContextInitializers() {
-        return this.contextInitializers;
+    public void addContextInitializer(ContextInitializer contextInitializer) {
+        this.contextInitializers.add(contextInitializer);
+    }
+
+    public void initializeContext(IdentityContext context, IdentityStore<?> store) {
+        for (ContextInitializer initializer : contextInitializers) {
+            initializer.initContextForStore(context, store);
+        }
     }
 
     @Override

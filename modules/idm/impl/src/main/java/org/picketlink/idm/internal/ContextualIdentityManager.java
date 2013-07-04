@@ -56,8 +56,8 @@ public class ContextualIdentityManager implements IdentityManager, IdentityConte
     @Override
     public void add(IdentityType identityType) throws IdentityManagementException {
         this.storeSelector.getStoreForIdentityOperation(
+                identityContext,
                 IdentityStore.class,
-                this.getPartition(),
                 identityType.getClass(),
                 IdentityOperation.create).add(this.identityContext, identityType);
     }

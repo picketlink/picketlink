@@ -25,6 +25,8 @@ import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
+import org.picketlink.idm.spi.IdentityContext;
+import org.picketlink.idm.spi.IdentityStore;
 
 /**
  * <p>
@@ -55,12 +57,21 @@ public interface IdentityStoreConfiguration {
 
     /**
      * <p>
-     * Returns all {@link ContextInitializer} instances configured for a specific identity store.
+     * Adds a {@link ContextInitializer} instance which will be used to initialize {@link IdentityContext}s for
+     * this configuration.
      * </p>
      *
-     * @return
      */
-    List<ContextInitializer> getContextInitializers();
+    void addContextInitializer(ContextInitializer contextInitializer);
+
+    /**
+     * <p>
+     * Initialize the specified {@link IdentityContext}
+     * </p>
+     *
+     * @param context The {@link IdentityContext} to initialize
+     */
+    void initializeContext(IdentityContext context, IdentityStore<?> store);
 
     /**
      * <p>Returns a {@link List} of the {@link CredentialHandler} types configured.</p>
