@@ -84,11 +84,9 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
     public void add(IdentityContext identityContext, Partition partition, String configurationName) {
         partition.setId(identityContext.getIdGenerator().generate());
 
-        Partition clonedPartition = cloneAttributedType(identityContext, partition);
+        FilePartition filePartition = new FilePartition(cloneAttributedType(identityContext, partition), configurationName);
 
-        FilePartition filePartition = new FilePartition(clonedPartition, configurationName);
-
-        this.fileDataSource.getPartitions().put(clonedPartition.getId(), filePartition);
+        this.fileDataSource.getPartitions().put(filePartition.getId(), filePartition);
         this.fileDataSource.flushPartitions(filePartition);
     }
 
@@ -97,7 +95,7 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
         FilePartition filePartition = resolve(partition.getClass(), partition.getName());
 
         this.fileDataSource.getPartitions().put(partition.getId(),
-                new FilePartition(partition, filePartition.getConfigurationName()));
+                new FilePartition(cloneAttributedType(identityContext, partition), filePartition.getConfigurationName()));
         this.fileDataSource.flushPartitions();
     }
 
@@ -106,60 +104,52 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
         FilePartition filePartition = resolve(partition.getClass(), partition.getName());
 
         this.fileDataSource.getPartitions().remove(filePartition.getId());
-
-        //TODO: check for associated attributed types
+        this.fileDataSource.flushPartitions();
     }
 
     @Override
     public <P extends Partition> P get(IdentityContext identityContext, Class<P> partitionClass, String name) {
-        P partition = null;
-
         try {
-            partition = (P) resolve(partitionClass, name).getEntry();
+            return (P) resolve(partitionClass, name).getEntry();
         } catch (IdentityManagementException ime) {
             //just ignore if not found.
-        }
-
-        return partition;
-    }
-
-    @Override
-    public String getConfigurationName(IdentityContext identityContext, Partition partition) {
-        for (FilePartition filePartition : this.fileDataSource.getPartitions().values()) {
-            if (filePartition.getEntry().getClass().equals(partition.getClass())
-                    && filePartition.getEntry().getName().equals(partition.getName())) {
-                return filePartition.getConfigurationName();
-            }
         }
 
         return null;
     }
 
     @Override
-    public void add(IdentityContext context, AttributedType attributedType) {
+    public String getConfigurationName(IdentityContext identityContext, Partition partition) {
+        return resolve(partition.getClass(), partition.getName()).getConfigurationName();
+    }
+
+    @Override
+    public void add(IdentityContext context, final AttributedType attributedType) {
         FilePartition filePartition = resolve(context.getPartition().getClass(), context.getPartition().getName());
 
         attributedType.setId(context.getIdGenerator().generate());
 
-        attributedType = cloneAttributedType(context, attributedType);
+        AttributedType newAttributedType = cloneAttributedType(context, attributedType);
 
-        if (IdentityType.class.isInstance(attributedType)) {
-            filePartition.getAttributedTypes().put(attributedType.getId(), new FileIdentityType((IdentityType) attributedType));
+        if (IdentityType.class.isInstance(newAttributedType)) {
+            filePartition.getAttributedTypes().put(newAttributedType.getId(), new FileIdentityType((IdentityType) newAttributedType));
         } else {
-            filePartition.getAttributedTypes().put(attributedType.getId(), new FileAttributedType(attributedType));
+            filePartition.getAttributedTypes().put(newAttributedType.getId(), new FileAttributedType(newAttributedType));
         }
 
         this.fileDataSource.flushAttributedTypes(filePartition);
     }
 
     @Override
-    public void update(IdentityContext context, AttributedType value) {
+    public void update(IdentityContext context, final AttributedType attributedType) {
         FilePartition filePartition = resolve(context.getPartition().getClass(), context.getPartition().getName());
 
-        if (IdentityType.class.isInstance(value)) {
-            filePartition.getAttributedTypes().put(value.getId(), new FileIdentityType((IdentityType) cloneAttributedType(context, (value))));
+        AttributedType updatedAttributedType = cloneAttributedType(context, (attributedType));
+
+        if (IdentityType.class.isInstance(attributedType)) {
+            filePartition.getAttributedTypes().put(attributedType.getId(), new FileIdentityType((IdentityType) updatedAttributedType));
         } else {
-            filePartition.getAttributedTypes().put(value.getId(), new FileAttributedType(cloneAttributedType(context, (value))));
+            filePartition.getAttributedTypes().put(attributedType.getId(), new FileAttributedType(updatedAttributedType));
         }
 
         this.fileDataSource.flushAttributedTypes(filePartition);
@@ -167,9 +157,7 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
 
     @Override
     public void remove(IdentityContext context, AttributedType value) {
-        FilePartition filePartition = resolve(context.getPartition().getClass(), context.getPartition().getName());
-
-        filePartition.getAttributedTypes().remove(value.getId());
+        resolve(context.getPartition().getClass(), context.getPartition().getName()).getAttributedTypes().remove(value.getId());
     }
 
     @Override
@@ -225,8 +213,6 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
 
     @Override
     public <V extends IdentityType> List<V> fetchQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
-        Class<V> identityTypeClass = identityQuery.getIdentityType();
-
         Object[] partitionParameters = identityQuery.getParameter(IdentityType.PARTITION);
         Partition partition = null;
 
@@ -244,78 +230,65 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
 
         Object[] ids = identityQuery.getParameter(IdentityType.ID);
 
+        // if we have a ID parameter just get the an instance directly
         if (ids != null && ids.length > 0) {
             AbstractFileAttributedType fileAttributedType = filePartition.getAttributedTypes().get(ids[0]);
 
             if (fileAttributedType != null) {
-                V identityType = (V) fileAttributedType.getEntry();
-
-                configurePartition(identityType);
-
-                result.add(identityType);
+                result.add(cloneAttributedType(context, (V) fileAttributedType.getEntry()));
             }
         } else {
-            List<AbstractFileAttributedType> entries = new ArrayList<AbstractFileAttributedType>();
-
-            entries.addAll(filePartition.getAttributedTypes().values());
-
             FileIdentityQueryHelper queryHelper = new FileIdentityQueryHelper(identityQuery, this);
 
-            for (AbstractFileAttributedType fileAttributedType : entries) {
-                if (!IdentityType.class.isInstance(fileAttributedType.getEntry())) {
-                    continue;
-                }
-
+            for (AbstractFileAttributedType fileAttributedType : filePartition.getAttributedTypes().values()) {
                 IdentityType storedEntry = (IdentityType) fileAttributedType.getEntry();
 
-                if (!identityTypeClass.isAssignableFrom(storedEntry.getClass())) {
+                if (!IdentityType.class.isInstance(storedEntry)) {
                     continue;
                 }
 
-                boolean hasAttributeParameter = true;
-                Map<QueryParameter, Object[]> queryParameters = identityQuery.getParameters(AttributeParameter.class);
+                if (!identityQuery.getIdentityType().isAssignableFrom(storedEntry.getClass())) {
+                    continue;
+                }
 
-                for (Entry<QueryParameter, Object[]> entry : queryParameters.entrySet()) {
-                    if (!hasAttributeParameter) {
+                boolean found = true;
+
+                for (Entry<QueryParameter, Object[]> entry : identityQuery.getParameters(AttributeParameter.class).entrySet()) {
+                    // if one of the parameters didn`t match is because the entry should not be selected
+                    if (!found) {
                         break;
                     }
 
-                    hasAttributeParameter = false;
+                    found = false;
 
                     QueryParameter queryParameter = entry.getKey();
 
                     if (AttributeParameter.class.isInstance(queryParameter)) {
-                        AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
+                        String attributeParameterName = ((AttributeParameter) queryParameter).getName();
 
-                        PropertyQuery<Serializable> query = PropertyQueries.createQuery(identityTypeClass);
+                        Property<Serializable> property = PropertyQueries.<Serializable>createQuery(identityQuery.getIdentityType())
+                                .addCriteria(new NamedPropertyCriteria(attributeParameterName))
+                                .getSingleResult();
 
-                        query.addCriteria(new NamedPropertyCriteria(attributeParameter.getName()));
+                        if (property.getName().equals(attributeParameterName)) {
+                            Serializable storedValue = property.getValue(storedEntry);
 
-                        Object[] queryParameterValues = entry.getValue();
+                            if (storedValue != null) {
+                                Object[] queryParameterValues = entry.getValue();
 
-                        for (Property<Serializable> property : query.getResultList()) {
-                            if (property.getName().equals(attributeParameter.getName())) {
-                                Serializable storedValue = property.getValue(storedEntry);
-
-                                if (storedValue != null) {
-                                    if (storedValue.getClass().isArray() || Collection.class.isInstance(storedValue)) {
-                                        // handle multi-valued properties
-                                    } else {
-                                        hasAttributeParameter = storedValue != null && storedValue.equals(queryParameterValues[0]);
-                                    }
+                                if (storedValue.getClass().isArray() || Collection.class.isInstance(storedValue)) {
+                                    // TODO: handle multi-valued properties
+                                } else {
+                                    found = storedValue != null && storedValue.equals(queryParameterValues[0]);
                                 }
                             }
                         }
                     }
                 }
 
-                if (!hasAttributeParameter) {
-                    continue;
+                if (found) {
+                    result.add((V) cloneAttributedType(context, storedEntry));
                 }
-
-                configurePartition(storedEntry);
-
-                result.add((V) cloneAttributedType(context, storedEntry));
             }
         }
 
@@ -474,18 +447,6 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
         }
     }
 
-    private void configurePartition(IdentityType identityType) {
-        if (identityType == null) {
-            throw MESSAGES.nullArgument("IdentityType");
-        }
-
-        if (identityType.getPartition() == null) {
-            throw new IdentityManagementException("IdentityType [" + identityType + "] does not belong to any Partition.");
-        }
-
-        identityType.setPartition(identityType.getPartition());
-    }
-
     private <T extends AttributedType> T cloneAttributedType(IdentityContext context, T attributedType) {
         T clonedAttributedType = null;
 
@@ -493,7 +454,7 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
             Partition partition = (Partition) attributedType;
 
             try {
-                clonedAttributedType = (T) attributedType.getClass().getConstructor(new Class[] {String.class}).newInstance(partition.getName());
+                clonedAttributedType = (T) attributedType.getClass().getConstructor(new Class[]{String.class}).newInstance(partition.getName());
             } catch (Exception e) {
                 e.printStackTrace();
             }
