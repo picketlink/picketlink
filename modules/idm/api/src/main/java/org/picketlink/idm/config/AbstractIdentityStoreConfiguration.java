@@ -29,10 +29,10 @@ import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
-
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.idm.util.IDMUtil.isTypeSupported;
 
 /**
  * <p>Base class for {@link IdentityStoreConfiguration} implementations.</p>
@@ -145,7 +145,8 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
             throw IDMMessages.MESSAGES.nullArgument("TypeOperation");
         }
 
-        return isTypeOperationSupported(type, operation) != -1;
+        return isTypeSupported(type, this.supportedTypes.keySet(), this.unsupportedTypes.keySet()) != -1
+                && this.supportedTypes.get(type).contains(operation);
     }
 
     @Override
@@ -153,43 +154,4 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
         return supportsType(Partition.class, IdentityOperation.create);
     }
 
-    private int isTypeOperationSupported(Class<? extends AttributedType> type, IdentityOperation operation) {
-        int score = -1;
-
-        for (Class<? extends AttributedType> cls : supportedTypes.keySet()) {
-            int clsScore = calcScore(type, cls);
-            if (clsScore > score && supportedTypes.get(cls).contains(operation)) {
-                score = clsScore;
-            }
-        }
-
-        for (Class<? extends AttributedType> cls : unsupportedTypes.keySet()) {
-            if (cls.isAssignableFrom(type) && unsupportedTypes.get(cls).contains(operation)) {
-                score = -1;
-                break;
-            }
-        }
-        return score;
-    }
-
-    private int calcScore(Class<?> type, Class<?> targetClass) {
-        if (type.equals(targetClass)) {
-            return 0;
-        } else if (targetClass.isAssignableFrom(type)) {
-            int score = 0;
-
-            Class<?> cls = type.getSuperclass();
-            while (!cls.equals(Object.class)) {
-                if (targetClass.isAssignableFrom(cls)) {
-                    score++;
-                } else {
-                    break;
-                }
-                cls = cls.getSuperclass();
-            }
-            return score;
-        } else {
-            return -1;
-        }
-    }
 }

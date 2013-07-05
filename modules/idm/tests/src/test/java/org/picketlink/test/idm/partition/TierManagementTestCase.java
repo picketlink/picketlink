@@ -63,6 +63,16 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
     }
 
     @Test
+    public void failAddUserToTier() throws Exception {
+        try {
+            createUser("someUser", createPartition());
+        } catch (IdentityManagementException ime) {
+        } catch (Exception e) {
+            fail();
+        }
+    }
+
+    @Test
     @Ignore
     public void testRolesForTier() throws Exception {
         IdentityManager applicationTierIdentityManager = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
@@ -353,20 +363,6 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
         assertFalse(realmRole.getId().equals(applicationRole.getId()));
     }
     
-    @Test
-    @Ignore
-    public void failAddUserToTier() throws Exception {
-        Tier applicationTier = new Tier(APPLICATION_A_TIER_NAME);
-        
-        try {
-            createUser("testingUserTier", applicationTier);               
-        } catch (IdentityManagementException ime) {
-            assertTrue(ime.getMessage().contains("PLIDM000067"));  
-        } catch (Exception e) {
-            fail();
-        }
-    }
-
     private IdentityManager createIdentityManagerForTier(String tierName) {
         return getPartitionManager().createIdentityManager(getPartitionManager().getPartition(Tier.class, tierName));
     }

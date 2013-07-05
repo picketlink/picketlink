@@ -54,6 +54,7 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.annotation.IdentityPartition;
 import org.picketlink.idm.model.sample.Grant;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
@@ -69,10 +70,12 @@ import org.picketlink.idm.spi.StoreSelector;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.util.IDMUtil.isTypeSupported;
+import static org.picketlink.idm.util.IDMUtil.toSet;
 
 /**
  * Provides partition management functionality, and partition-specific {@link IdentityManager} instances.
- *
+ * <p/>
  * Before using this factory you need a valid {@link IdentityConfiguration}, usually created using the
  * {@link org.picketlink.idm.config.IdentityConfigurationBuilder}.
  * </p>
@@ -102,12 +105,12 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
      * Each partition is governed by a specific IdentityConfiguration, indicated by this Map.  Every IdentityConfiguration instance
      * will also be found in the configurations property above.
      */
-    private final Map<Partition,IdentityConfiguration> partitionConfigurations = new ConcurrentHashMap<Partition,IdentityConfiguration>();
+    private final Map<Partition, IdentityConfiguration> partitionConfigurations = new ConcurrentHashMap<Partition, IdentityConfiguration>();
 
     /**
      * The store instances for each IdentityConfiguration, mapped by their corresponding IdentityStoreConfiguration
      */
-    private final Map<IdentityConfiguration,Map<IdentityStoreConfiguration,IdentityStore<?>>> stores;
+    private final Map<IdentityConfiguration, Map<IdentityStoreConfiguration, IdentityStore<?>>> stores;
 
     /**
      * The IdentityConfiguration that is responsible for managing partition CRUD operations.  It is possible for this
@@ -132,7 +135,6 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     /**
-     *
      * @param configurations
      * @param eventBridge
      * @param idGenerator
@@ -150,7 +152,9 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         if (eventBridge != null) {
             this.eventBridge = eventBridge;
         } else {
-            this.eventBridge = new EventBridge() { public void raiseEvent(Object event) { /* no-op */}};
+            this.eventBridge = new EventBridge() {
+                public void raiseEvent(Object event) { /* no-op */}
+            };
         }
 
         if (idGenerator != null) {
@@ -173,11 +177,11 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         // field will be null and partition management operations will not be supported
         this.partitionManagementConfig = partitionCfg;
 
-        Map<IdentityConfiguration,Map<IdentityStoreConfiguration,IdentityStore<?>>> configuredStores =
+        Map<IdentityConfiguration, Map<IdentityStoreConfiguration, IdentityStore<?>>> configuredStores =
                 new HashMap<IdentityConfiguration, Map<IdentityStoreConfiguration, IdentityStore<?>>>();
 
         for (IdentityConfiguration config : configurations) {
-            Map<IdentityStoreConfiguration,IdentityStore<?>> storeMap = new HashMap<IdentityStoreConfiguration,IdentityStore<?>>();
+            Map<IdentityStoreConfiguration, IdentityStore<?>> storeMap = new HashMap<IdentityStoreConfiguration, IdentityStore<?>>();
 
             for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
                 @SuppressWarnings("rawtypes")
@@ -191,7 +195,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         stores = Collections.unmodifiableMap(configuredStores);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private <T extends IdentityStore> T createIdentityStore(Class<T> storeClass, IdentityStoreConfiguration storeConfiguration) {
         T store = null;
 
@@ -251,7 +255,8 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     @Override
     public IdentityContext createIdentityContext() {
         return new IdentityContext() {
-            private Map<String,Object> params = new HashMap<String,Object>();
+            private Map<String, Object> params = new HashMap<String, Object>();
+
             @Override
             public Object getParameter(String paramName) {
                 return params.get(paramName);
@@ -505,6 +510,8 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     @Override
     public <T extends IdentityStore<?>> T getStoreForIdentityOperation(IdentityContext context, Class<T> storeType,
                                                                        Class<? extends AttributedType> type, IdentityOperation operation) {
+        checkSupportedTypes(context.getPartition(), type);
+
         IdentityConfiguration identityConfiguration = getConfigurationForPartition(context.getPartition());
 
         for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
@@ -549,7 +556,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     @Override
     public PartitionStore<?> getStoreForPartitionOperation(IdentityContext context) {
-        Map<IdentityStoreConfiguration,IdentityStore<?>> configStores = stores.get(partitionManagementConfig);
+        Map<IdentityStoreConfiguration, IdentityStore<?>> configStores = stores.get(partitionManagementConfig);
         for (IdentityStoreConfiguration cfg : configStores.keySet()) {
             if (cfg.supportsType(Partition.class, IdentityOperation.create)) {
                 PartitionStore<?> store = (PartitionStore<?>) configStores.get(cfg);
@@ -579,4 +586,15 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         }
     }
 
+    private void checkSupportedTypes(Partition partition, Class<? extends AttributedType> type) {
+        if (IdentityType.class.isAssignableFrom(type)) {
+            IdentityPartition identityPartition = partition.getClass().getAnnotation(IdentityPartition.class);
+
+            if (identityPartition != null
+                    && isTypeSupported((Class<? extends IdentityType>) type, toSet(identityPartition.supportedTypes()),
+                    toSet(identityPartition.unsupportedTypes())) == -1) {
+                throw new IdentityManagementException("Partition [" + partition + "] does not support type [" + type + "].");
+            }
+        }
+    }
 }

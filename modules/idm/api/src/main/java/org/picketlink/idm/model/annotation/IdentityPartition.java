@@ -1,6 +1,12 @@
 package org.picketlink.idm.model.annotation;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import org.picketlink.idm.model.IdentityType;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Used to annotate a custom partition type and define the identity types that it supports and
@@ -19,6 +25,10 @@ import org.picketlink.idm.model.IdentityType;
  * @author Shane Bryzak
  *
  */
+@Target({TYPE})
+@Documented
+@Retention(RUNTIME)
+@Inherited
 public @interface IdentityPartition {
     Class<? extends IdentityType>[] supportedTypes() default {};
     Class<? extends IdentityType>[] unsupportedTypes() default {};
