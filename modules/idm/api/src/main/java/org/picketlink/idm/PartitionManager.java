@@ -18,14 +18,7 @@
 package org.picketlink.idm;
 
 import org.picketlink.idm.config.SecurityConfigurationException;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.idm.spi.IdentityContext;
 
 /**
  * Provides partition management operations
@@ -43,11 +36,10 @@ public interface PartitionManager {
     IdentityManager createIdentityManager() throws SecurityConfigurationException;
 
     /**
-     * Creates a partition-less IdentityContext which may be used for relationship management operations
      *
      * @return
      */
-    IdentityContext createIdentityContext();
+    RelationshipManager createRelationshipManager();
 
     /**
      * Creates an IdentityManager for the specified partition
@@ -96,149 +88,4 @@ public interface PartitionManager {
      */
     void remove(Partition partition);
 
-    // Relationship management
-
-    /**
-     * <p>
-     * Adds the given {@link Relationship} instance to the configured identity store.
-     * </p>
-     *
-     * @param relationship
-     * @throws IdentityManagementException If cannot add the provided {@link Relationship} instance.
-     */
-    void add(IdentityContext context, Relationship relationship) throws IdentityManagementException;
-
-    /**
-     * <p>
-     * Updates the given {@link Relationship} instance. The instance must have an identifier, otherwise a exception will be
-     * thrown.
-     * </p>
-     *
-     * @param relationship
-     * @throws IdentityManagementException If cannot update the provided {@link Relationship} instance.
-     */
-    void update(IdentityContext context, Relationship relationship);
-
-    /**
-     * <p>
-     * Removes the given {@link Relationship} instance. The instance must have an identifier, otherwise a exception will be
-     * thrown.
-     * </p>
-     *
-     * @param relationship
-     * @throws IdentityManagementException If cannot remove the provided {@link Relationship} instance.
-     */
-    void remove(IdentityContext context, Relationship relationship);
-
-    /**
-     * <p>
-     * Checks if the given {@link IdentityType} is a member of a specific {@link Group}.
-     * </p>
-     *
-     * @param identityType Must be a {@link Agent} or {@link Group} instance.
-     * @param group
-     * @return true if the {@link IdentityType} is a member of the provided {@link Group}.
-     */
-    boolean isMember(IdentityContext context, IdentityType identityType, Group group);
-
-    /**
-     * <p>
-     * Adds the given {@link Agent} as a member of the provided {@link Group}.
-     * </p>
-     *
-     * @param agent
-     * @param group
-     */
-    void addToGroup(IdentityContext context, Account identity, Group group);
-
-    /**
-     * <p>
-     * Removes the given {@link Agent} from the provided {@link Group}.
-     * </p>
-     *
-     * @param member
-     * @param group
-     */
-    void removeFromGroup(IdentityContext context, Account member, Group group);
-
-    /**
-     * <p>
-     * Checks if the given {@link IdentityType}, {@link Role} and {@link Group} instances maps to a {@link GroupRole}
-     * relationship.
-     * </p>
-     *
-     * @param assignee
-     * @param role
-     * @param group
-     * @return
-     */
-    boolean hasGroupRole(IdentityContext context, IdentityType assignee, Role role, Group group);
-
-    /**
-     * <p>
-     * Creates a {@link GroupRole} relationship for the given {@link IdentityType}, {@link Role} and {@link Group} instances.
-     * </p>
-     *
-     * @param assignee
-     * @param role
-     * @param group
-     */
-    void grantGroupRole(IdentityContext context, IdentityType assignee, Role role, Group group);
-
-    /**
-     * <p>
-     * Revokes a {@link GroupRole} relationship for the given {@link IdentityType}, {@link Role} and {@link Group} instances.
-     * </p>
-     *
-     * @param assignee
-     * @param role
-     * @param group
-     */
-    void revokeGroupRole(IdentityContext context, IdentityType assignee, Role role, Group group);
-
-    /**
-     * <p>
-     * Checks if the given {@link Role} is granted to the provided {@link IdentityType}.
-     * </p>
-     *
-     * @param identityType
-     * @param role
-     * @return
-     */
-    boolean hasRole(IdentityContext context, IdentityType identityType, Role role);
-
-
-    /**
-     * <p>
-     * Grants the given {@link Role} to the provided {@link IdentityType}.
-     * </p>
-     *
-     * @param identityType
-     * @param role
-     */
-    void grantRole(IdentityContext context, IdentityType identityType, Role role);
-
-    /**
-     * <p>
-     * Revokes the given {@link Role} from the provided {@link IdentityType}.
-     * </p>
-     *
-     * @param identityType
-     * @param role
-     */
-    void revokeRole(IdentityContext context, IdentityType identityType, Role role);
-
-    /**
-     * <p>
-     * Creates an {@link RelationshipQuery} that can be used to query for {@link Relationship} instances.
-     * </p>
-     * <p>
-     * The first argument tells which {@link Relationship} type should be returned. If you provide the {@link Relationship} base
-     * interface any {@link Relationship} instance that matches the provided query parameters will be returned.
-     * </p>
-     *
-     * @param identityType
-     * @return
-     */
-    <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(IdentityContext context, Class<T> relationshipType);
 }

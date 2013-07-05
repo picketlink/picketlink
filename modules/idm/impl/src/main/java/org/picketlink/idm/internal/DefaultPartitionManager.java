@@ -17,24 +17,25 @@
  */
 package org.picketlink.idm.internal;
 
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.picketlink.common.properties.Property;
-import org.picketlink.common.properties.query.PropertyQueries;
-import org.picketlink.common.properties.query.PropertyQuery;
-import org.picketlink.common.properties.query.TypedPropertyCriteria;
+
 import org.picketlink.idm.DefaultIdGenerator;
 import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
@@ -47,28 +48,17 @@ import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.file.internal.FileIdentityStore;
+import org.picketlink.idm.internal.util.RelationshipMetadata;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
-import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.AttributedType;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.sample.Grant;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.GroupMembership;
-import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.StoreSelector;
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
-import static org.picketlink.idm.IDMLogger.LOGGER;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Provides partition management functionality, and partition-specific {@link IdentityManager} instances.
@@ -115,13 +105,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
      */
     private final IdentityConfiguration partitionManagementConfig;
 
-    /**
-     * This Map stores the set of identity properties for each relationship type, so that they are not required to be
-     * queried for every single relationship operation.  The properties are populated at runtime.
-     */
-    private Map<Class<? extends Relationship>, Set<Property<? extends IdentityType>>> relationshipIdentityProperties =
-            new ConcurrentHashMap<Class<? extends Relationship>, Set<Property<? extends IdentityType>>>();
-
+    private RelationshipMetadata relationshipMetadata = new RelationshipMetadata();
 
     public DefaultPartitionManager(IdentityConfiguration configuration) {
         this(Arrays.asList(configuration), null, null);
@@ -248,8 +232,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         return partitionConfigurations.get(partition);
     }
 
-    @Override
-    public IdentityContext createIdentityContext() {
+    private IdentityContext createIdentityContext() {
         return new IdentityContext() {
             private Map<String,Object> params = new HashMap<String,Object>();
             @Override
@@ -302,10 +285,15 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         }
 
         try {
-            return new ContextualIdentityManager(partition, this, eventBridge, idGenerator);
+            return new ContextualIdentityManager(partition, eventBridge, idGenerator, this);
         } catch (Exception e) {
             throw MESSAGES.couldNotCreateContextualIdentityManager(partition);
         }
+    }
+
+    @Override
+    public RelationshipManager createRelationshipManager() {
+        return new ContextualRelationshipManager(eventBridge, idGenerator, this, relationshipMetadata);
     }
 
     @Override
@@ -371,135 +359,6 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         } catch (Exception e) {
             throw new IdentityManagementException("Could not remove partition [" + partition + "].", e);
         }
-    }
-
-    @Override
-    public void add(IdentityContext context, Relationship relationship) throws IdentityManagementException {
-        getStoreForRelationshipOperation(context, relationship.getClass(),
-                getRelationshipPartitions(relationship)).add(context, relationship);
-    }
-
-    @Override
-    public void update(IdentityContext context, Relationship relationship) {
-        getStoreForRelationshipOperation(context, relationship.getClass(),
-                getRelationshipPartitions(relationship)).update(context, relationship);
-    }
-
-    @Override
-    public void remove(IdentityContext context, Relationship relationship) {
-        getStoreForRelationshipOperation(context, relationship.getClass(),
-                getRelationshipPartitions(relationship)).remove(context, relationship);
-    }
-
-    private Set<Partition> getRelationshipPartitions(Relationship relationship) {
-        Set<Partition> partitions = new HashSet<Partition>();
-        for (Property<? extends IdentityType> prop : getRelationshipIdentityProperties(relationship.getClass())) {
-            IdentityType identity = prop.getValue(relationship);
-            if (!partitions.contains(identity.getPartition())) {
-                partitions.add(identity.getPartition());
-            }
-        }
-        return partitions;
-    }
-
-    private Set<Property<? extends IdentityType>> getRelationshipIdentityProperties(
-            Class<? extends Relationship> relationshipClass) {
-
-        if (!relationshipIdentityProperties.containsKey(relationshipClass)) {
-            ((ConcurrentHashMap<Class<? extends Relationship>, Set<Property<? extends IdentityType>>>)
-                    relationshipIdentityProperties).putIfAbsent(relationshipClass,
-                    queryRelationshipIdentityProperties(relationshipClass));
-        }
-
-        return relationshipIdentityProperties.get(relationshipClass);
-    }
-
-    private Set<Property<? extends IdentityType>> queryRelationshipIdentityProperties(Class<? extends Relationship> relationshipClass) {
-        PropertyQuery<? extends IdentityType> query = PropertyQueries.createQuery(relationshipClass);
-        query.addCriteria(new TypedPropertyCriteria(IdentityType.class));
-
-        Set<Property<? extends IdentityType>> properties = new HashSet<Property<? extends IdentityType>>();
-        for (Property<? extends IdentityType> prop : query.getResultList()) {
-            properties.add(prop);
-        }
-
-        return Collections.unmodifiableSet(properties);
-    }
-
-    @Override
-    public boolean isMember(IdentityContext context, IdentityType identity, Group group) {
-        RelationshipQuery<GroupMembership> query = createRelationshipQuery(context, GroupMembership.class);
-        query.setParameter(GroupMembership.MEMBER, identity);
-        query.setParameter(GroupMembership.GROUP, group);
-        return query.getResultCount() > 0;
-    }
-
-    @Override
-    public void addToGroup(IdentityContext context, Account member, Group group) {
-        add(context, new GroupMembership(member, group));
-    }
-
-    @Override
-    public void removeFromGroup(IdentityContext context, Account member, Group group) {
-        RelationshipQuery<GroupMembership> query = createRelationshipQuery(context, GroupMembership.class);
-        query.setParameter(GroupMembership.MEMBER, member);
-        query.setParameter(GroupMembership.GROUP, group);
-        for (GroupMembership membership : query.getResultList()) {
-            remove(context, membership);
-        }
-    }
-
-    @Override
-    public boolean hasGroupRole(IdentityContext context, IdentityType assignee, Role role, Group group) {
-        RelationshipQuery<GroupRole> query = createRelationshipQuery(context, GroupRole.class);
-        query.setParameter(GroupRole.ASSIGNEE, assignee);
-        query.setParameter(GroupRole.GROUP, group);
-        query.setParameter(GroupRole.ROLE, role);
-        return query.getResultCount() > 0;
-    }
-
-    @Override
-    public void grantGroupRole(IdentityContext context, IdentityType assignee, Role role, Group group) {
-        add(context, new GroupRole(assignee, group, role));
-    }
-
-    @Override
-    public void revokeGroupRole(IdentityContext context, IdentityType assignee, Role role, Group group) {
-        RelationshipQuery<GroupRole> query = createRelationshipQuery(context, GroupRole.class);
-        query.setParameter(GroupRole.ASSIGNEE, assignee);
-        query.setParameter(GroupRole.GROUP, group);
-        query.setParameter(GroupRole.ROLE, role);
-        for (GroupRole groupRole : query.getResultList()) {
-            remove(context, groupRole);
-        }
-    }
-
-    @Override
-    public boolean hasRole(IdentityContext context, IdentityType assignee, Role role) {
-        RelationshipQuery<Grant> query = createRelationshipQuery(context, Grant.class);
-        query.setParameter(Grant.ASSIGNEE, assignee);
-        query.setParameter(GroupRole.ROLE, role);
-        return query.getResultCount() > 0;
-    }
-
-    @Override
-    public void grantRole(IdentityContext context, IdentityType assignee, Role role) {
-        add(context, new Grant(assignee, role));
-    }
-
-    @Override
-    public void revokeRole(IdentityContext context, IdentityType assignee, Role role) {
-        RelationshipQuery<Grant> query = createRelationshipQuery(context, Grant.class);
-        query.setParameter(Grant.ASSIGNEE, assignee);
-        query.setParameter(GroupRole.ROLE, role);
-        for (Grant grant : query.getResultList()) {
-            remove(context, grant);
-        }
-    }
-
-    @Override
-    public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(IdentityContext context, Class<T> relationshipClass) {
-        return new DefaultRelationshipQuery<T>(context, relationshipClass, this);
     }
 
     @Override

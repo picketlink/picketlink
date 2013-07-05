@@ -18,13 +18,12 @@
 package org.picketlink.idm.internal;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.event.EventBridge;
@@ -38,10 +37,8 @@ import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.spi.CredentialStore;
-import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreSelector;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * Default implementation of the IdentityManager interface.
@@ -55,55 +52,14 @@ import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOpera
  * @author Shane Bryzak
  * @author anil saldhana
  */
-public class ContextualIdentityManager implements IdentityManager, IdentityContext {
+public class ContextualIdentityManager extends AbstractIdentityContext implements IdentityManager {
 
-    private final Partition partition;
     private final StoreSelector storeSelector;
-    private final EventBridge eventBridge;
-    private final IdGenerator idGenerator;
 
-    // We only create the parameters Map if required
-    private Map<String,Object> parameters = null;
-
-    public ContextualIdentityManager(Partition partition, StoreSelector storeSelector, EventBridge eventBridge,
-            IdGenerator idGenerator) {
-        this.partition = partition;
+    public ContextualIdentityManager(Partition partition, EventBridge eventBridge, IdGenerator idGenerator,
+            StoreSelector storeSelector) {
+        super(partition, eventBridge, idGenerator);
         this.storeSelector = storeSelector;
-        this.eventBridge = eventBridge;
-        this.idGenerator = idGenerator;
-    }
-
-    @Override
-    public Object getParameter(String paramName) {
-        return parameters != null ? parameters.get(paramName) : null;
-    }
-
-    @Override
-    public boolean isParameterSet(String paramName) {
-        return parameters != null ? parameters.containsKey(paramName) : false;
-    }
-
-    @Override
-    public void setParameter(String paramName, Object value) {
-        if (parameters == null) {
-            parameters = new HashMap<String,Object>();
-        }
-        parameters.put(paramName, value);
-    }
-
-    @Override
-    public EventBridge getEventBridge() {
-        return eventBridge;
-    }
-
-    @Override
-    public IdGenerator getIdGenerator() {
-        return idGenerator;
-    }
-
-    @Override
-    public Partition getPartition() {
-        return partition;
     }
 
     @Override
