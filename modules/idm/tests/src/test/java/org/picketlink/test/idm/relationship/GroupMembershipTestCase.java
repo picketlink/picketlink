@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.User;
@@ -261,7 +262,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         RelationshipQuery<GroupMembership> query = partitionManager.createRelationshipQuery(GroupMembership.class);
 
-        query.setParameter(GroupMembership.ATTRIBUTE.byName("attribute1"), "1");
+        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute1"), "1");
 
         List<GroupMembership> result = query.getResultList();
 
@@ -283,7 +284,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         query = partitionManager.createRelationshipQuery(GroupMembership.class);
 
-        query.setParameter(GroupMembership.ATTRIBUTE.byName("attribute1"), "2");
+        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute1"), "2");
 
         result = query.getResultList();
 
@@ -291,7 +292,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         
         query = partitionManager.createRelationshipQuery(GroupMembership.class);
 
-        query.setParameter(GroupMembership.ATTRIBUTE.byName("attribute3"), "2");
+        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute3"), "2");
 
         result = query.getResultList();
 
@@ -299,7 +300,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         
         query = partitionManager.createRelationshipQuery(GroupMembership.class);
 
-        query.setParameter(GroupMembership.ATTRIBUTE.byName("attribute2"), "1", "2", "3");
+        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute2"), "1", "2", "3");
 
         result = query.getResultList();
 

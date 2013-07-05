@@ -78,7 +78,7 @@ public interface AttributedType extends Serializable {
      */
     Collection<Attribute<? extends Serializable>> getAttributes();
 
-    public final class ATTRIBUTE {
+    public final class QUERY_ATTRIBUTE {
         public static AttributeParameter byName(String name) {
             return new AttributeParameter(name);
         }

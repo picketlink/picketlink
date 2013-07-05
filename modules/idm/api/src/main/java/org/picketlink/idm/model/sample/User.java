@@ -32,17 +32,17 @@ public class User extends Agent {
     /**
      * A query parameter used to set the firstName value.
      */
-    public static final QueryParameter FIRST_NAME = ATTRIBUTE.byName("firstName");
+    public static final QueryParameter FIRST_NAME = QUERY_ATTRIBUTE.byName("firstName");
 
     /**
      * A query parameter used to set the lastName value.
      */
-    public static final QueryParameter LAST_NAME = ATTRIBUTE.byName("lastName");
+    public static final QueryParameter LAST_NAME = QUERY_ATTRIBUTE.byName("lastName");
 
     /**
      * A query parameter used to set the email value.
      */
-    public static final QueryParameter EMAIL = ATTRIBUTE.byName("email");
+    public static final QueryParameter EMAIL = QUERY_ATTRIBUTE.byName("email");
 
     private String firstName;
     private String lastName;

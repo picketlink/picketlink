@@ -36,7 +36,7 @@ import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.oauth.common.OAuthConstants;
@@ -154,7 +154,7 @@ public class OAuthServerUtil {
             }
 
             IdentityQuery<org.picketlink.idm.model.Agent> agentQuery = identityManager.createIdentityQuery(org.picketlink.idm.model.Agent.class);
-            agentQuery.setParameter(IdentityType.ATTRIBUTE.byName("clientID"), passedClientID);
+            agentQuery.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("clientID"), passedClientID);
 
             List<org.picketlink.idm.model.Agent> agents = agentQuery.getResultList();
             if (agents.size() == 0) {
@@ -247,7 +247,7 @@ public class OAuthServerUtil {
      */
     public static boolean validateAccessToken(String passedAccessToken, IdentityManager identityManager) {
         IdentityQuery<org.picketlink.idm.model.Agent> agentQuery = identityManager.createIdentityQuery(org.picketlink.idm.model.Agent.class);
-        agentQuery.setParameter(IdentityType.ATTRIBUTE.byName("accessToken"), passedAccessToken);
+        agentQuery.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("accessToken"), passedAccessToken);
 
         List<org.picketlink.idm.model.Agent> agents = agentQuery.getResultList();
         int size = agents.size();
@@ -397,7 +397,7 @@ public class OAuthServerUtil {
         }
 
         IdentityQuery<org.picketlink.idm.model.Agent> agentQuery = identityManager.createIdentityQuery(org.picketlink.idm.model.Agent.class);
-        agentQuery.setParameter(IdentityType.ATTRIBUTE.byName("clientID"), passedClientID);
+        agentQuery.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("clientID"), passedClientID);
 
         List<org.picketlink.idm.model.Agent> agents = agentQuery.getResultList();
         if (agents.size() == 0) {

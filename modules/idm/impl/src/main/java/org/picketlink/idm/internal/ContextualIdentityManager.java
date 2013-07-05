@@ -32,6 +32,7 @@ import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.Account;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.annotation.Unique;
@@ -257,7 +258,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
         IdentityQuery<? extends IdentityType> identityQuery = createIdentityQuery(identityType.getClass());
 
         for (Property<Serializable> property: propertyQuery.getResultList()) {
-            identityQuery.setParameter(IdentityType.ATTRIBUTE.byName(property.getName()), property.getValue(identityType));
+            identityQuery.setParameter(AttributedType.QUERY_ATTRIBUTE.byName(property.getName()), property.getValue(identityType));
         }
 
         if (!identityQuery.getResultList().isEmpty()) {

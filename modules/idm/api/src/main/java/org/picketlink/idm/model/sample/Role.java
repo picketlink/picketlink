@@ -35,7 +35,7 @@ public class Role extends AbstractIdentityType {
     /**
      * A query parameter used to set the name value.
      */
-    public static final QueryParameter NAME = ATTRIBUTE.byName("name");
+    public static final QueryParameter NAME = QUERY_ATTRIBUTE.byName("name");
 
     private String name;
 

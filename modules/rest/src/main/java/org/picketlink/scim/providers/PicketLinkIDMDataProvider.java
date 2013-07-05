@@ -37,7 +37,7 @@ import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.User;
@@ -69,7 +69,7 @@ public class PicketLinkIDMDataProvider implements DataProvider {
         SCIMUser scimUser = new SCIMUser();
 
         IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
-        query.setParameter(IdentityType.ATTRIBUTE.byName("ID"), id);
+        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("ID"), id);
 
         List<User> result = query.getResultList();
         User user = null;
@@ -91,7 +91,7 @@ public class PicketLinkIDMDataProvider implements DataProvider {
         SCIMGroups scimGroup = new SCIMGroups();
 
         IdentityQuery<Group> query = identityManager.<Group> createIdentityQuery(Group.class);
-        query.setParameter(IdentityType.ATTRIBUTE.byName("ID"), id);
+        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("ID"), id);
 
         List<Group> result = query.getResultList();
         Group group = null;

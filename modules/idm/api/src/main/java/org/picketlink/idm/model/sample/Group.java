@@ -34,17 +34,17 @@ public class Group extends AbstractIdentityType {
     /**
      * A query parameter used to set the name value.
      */
-    public static final QueryParameter NAME = ATTRIBUTE.byName("name");
+    public static final QueryParameter NAME = QUERY_ATTRIBUTE.byName("name");
 
     /**
      * A query parameter used to set the path.
      */
-    public static final QueryParameter PATH = ATTRIBUTE.byName("path");
+    public static final QueryParameter PATH = QUERY_ATTRIBUTE.byName("path");
 
     /**
      * A query parameter used to set the parent value.
      */
-    public static final QueryParameter PARENT = ATTRIBUTE.byName("parentGroup");
+    public static final QueryParameter PARENT = QUERY_ATTRIBUTE.byName("parentGroup");
 
     public static final String PATH_SEPARATOR = "/";
 

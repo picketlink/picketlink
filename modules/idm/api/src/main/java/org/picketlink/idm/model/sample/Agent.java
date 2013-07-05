@@ -33,7 +33,7 @@ public class Agent extends AbstractIdentityType implements Account {
 
     private static final long serialVersionUID = 2915865002176741632L;
 
-    public static final QueryParameter LOGIN_NAME = ATTRIBUTE.byName("loginName");
+    public static final QueryParameter LOGIN_NAME = QUERY_ATTRIBUTE.byName("loginName");
 
     private String loginName;
 
