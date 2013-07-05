@@ -272,13 +272,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     @Override
     public IdentityManager createIdentityManager() throws SecurityConfigurationException {
-        Realm defaultRealm = getPartition(Realm.class, Realm.DEFAULT_REALM);
-
-        if (defaultRealm == null) {
-            throw MESSAGES.configurationDefaultRealmNotDefined();
-        }
-
-        return createIdentityManager(defaultRealm);
+        return createIdentityManager(new Realm(Realm.DEFAULT_REALM));
     }
 
     @Override
@@ -287,10 +281,16 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             throw MESSAGES.nullArgument("Partition");
         }
 
+        Partition storedPartition = getPartition(partition.getClass(), partition.getName());
+
+        if (storedPartition == null) {
+            throw MESSAGES.partitionNotFoundWithName(partition.getClass(), partition.getName());
+        }
+
         try {
-            return new ContextualIdentityManager(partition, eventBridge, idGenerator, this);
+            return new ContextualIdentityManager(storedPartition, eventBridge, idGenerator, this);
         } catch (Exception e) {
-            throw MESSAGES.couldNotCreateContextualIdentityManager(partition);
+            throw MESSAGES.couldNotCreateContextualIdentityManager(storedPartition);
         }
     }
 
