@@ -19,8 +19,10 @@ package org.picketlink.idm.util;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import org.picketlink.idm.model.AttributedType;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * General purpose Util
@@ -42,16 +44,6 @@ public class IDMUtil {
         return new HashSet<P>(Arrays.asList(values));
     }
 
-    /**
-     * <p>Determines if a specific type is supported considering its class hierarchy.</p>
-     * <p>A score is returned to determine the support level for the type.</p>
-     *
-     * @param type
-     * @param supportedTypes
-     * @param unsupportedTypes
-     * @param <P>
-     * @return -1 the type is not supported. Otherwise the support score for this type.
-     */
     public static <P extends Class<?>> int isTypeSupported(P type, Set<P> supportedTypes, Set<P> unsupportedTypes) {
         int score = -1;
 
@@ -68,8 +60,33 @@ public class IDMUtil {
                 break;
             }
         }
+
         return score;
     }
+
+    public static int isTypeOperationSupported(Class<? extends AttributedType> type,
+                                         IdentityOperation operation,
+                                         Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
+                                         Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes) {
+        int score = -1;
+
+        for (Class<? extends AttributedType> cls : supportedTypes.keySet()) {
+            int clsScore = calcScore(type, cls);
+            if (clsScore > score && supportedTypes.get(cls).contains(operation)) {
+                score = clsScore;
+            }
+        }
+
+        for (Class<? extends AttributedType> cls : unsupportedTypes.keySet()) {
+            if (cls.isAssignableFrom(type) && unsupportedTypes.get(cls).contains(operation)) {
+                score = -1;
+                break;
+            }
+        }
+
+        return score;
+    }
+
 
     private static int calcScore(Class<?> type, Class<?> targetClass) {
         if (type.equals(targetClass)) {

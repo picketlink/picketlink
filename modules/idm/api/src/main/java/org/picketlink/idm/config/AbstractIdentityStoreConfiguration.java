@@ -32,6 +32,7 @@ import org.picketlink.idm.spi.IdentityStore;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.idm.util.IDMUtil.isTypeOperationSupported;
 import static org.picketlink.idm.util.IDMUtil.isTypeSupported;
 
 /**
@@ -145,8 +146,7 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
             throw IDMMessages.MESSAGES.nullArgument("TypeOperation");
         }
 
-        return isTypeSupported(type, this.supportedTypes.keySet(), this.unsupportedTypes.keySet()) != -1
-                && this.supportedTypes.get(type).contains(operation);
+        return isTypeOperationSupported(type, operation, this.supportedTypes, this.unsupportedTypes) != -1;
     }
 
     @Override
