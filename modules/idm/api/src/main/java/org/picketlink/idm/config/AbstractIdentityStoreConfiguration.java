@@ -33,7 +33,6 @@ import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.util.IDMUtil.isTypeOperationSupported;
-import static org.picketlink.idm.util.IDMUtil.isTypeSupported;
 
 /**
  * <p>Base class for {@link IdentityStoreConfiguration} implementations.</p>
