@@ -343,6 +343,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     @Override
     public void update(Partition partition) {
         checkPartitionManagementSupported();
+        checkIfPartitionExists(partition);
 
         try {
             IdentityContext context = createIdentityContext();
@@ -355,6 +356,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     @Override
     public void remove(Partition partition) {
         checkPartitionManagementSupported();
+        checkIfPartitionExists(partition);
 
         try {
             IdentityContext context = createIdentityContext();
@@ -454,4 +456,11 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             }
         }
     }
+
+    private void checkIfPartitionExists(Partition partition) {
+        if (getPartition(partition.getClass(), partition.getName()) == null) {
+            throw MESSAGES.partitionNotFoundWithName(partition.getClass(), partition.getName());
+        }
+    }
+
 }
