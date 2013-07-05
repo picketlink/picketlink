@@ -19,6 +19,7 @@ package org.picketlink.idm.model.sample;
 
 import org.picketlink.idm.model.AbstractIdentityType;
 import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.model.annotation.Unique;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
@@ -33,17 +34,17 @@ public class Group extends AbstractIdentityType {
     /**
      * A query parameter used to set the name value.
      */
-    public static final QueryParameter NAME = new QueryParameter() {};
+    public static final QueryParameter NAME = ATTRIBUTE.byName("name");
 
     /**
      * A query parameter used to set the path.
      */
-    public static final QueryParameter PATH = new QueryParameter() {};
+    public static final QueryParameter PATH = ATTRIBUTE.byName("path");
 
     /**
      * A query parameter used to set the parent value.
      */
-    public static final QueryParameter PARENT = new QueryParameter() {};
+    public static final QueryParameter PARENT = ATTRIBUTE.byName("parentGroup");
 
     public static final String PATH_SEPARATOR = "/";
 
@@ -51,6 +52,9 @@ public class Group extends AbstractIdentityType {
     private Group parentGroup;
     private String path;
 
+    public Group() {
+
+    }
 
     public Group(String name) {
         if (name == null || name.isEmpty()) {
@@ -82,6 +86,7 @@ public class Group extends AbstractIdentityType {
     }
 
     @AttributeProperty
+    @Unique
     public String getPath() {
         return this.path;
     }

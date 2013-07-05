@@ -19,6 +19,7 @@ package org.picketlink.idm.model.sample;
 
 import org.picketlink.idm.model.AbstractIdentityType;
 import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.model.annotation.Unique;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
@@ -34,7 +35,7 @@ public class Role extends AbstractIdentityType {
     /**
      * A query parameter used to set the name value.
      */
-    public static final QueryParameter NAME = new QueryParameter() {};
+    public static final QueryParameter NAME = ATTRIBUTE.byName("name");
 
     private String name;
 
@@ -46,6 +47,7 @@ public class Role extends AbstractIdentityType {
     }
 
     @AttributeProperty
+    @Unique
     public String getName() {
         return name;
     }

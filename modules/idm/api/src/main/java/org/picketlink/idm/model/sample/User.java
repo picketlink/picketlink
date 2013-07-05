@@ -26,26 +26,31 @@ import org.picketlink.idm.query.QueryParameter;
  * @author Shane Bryzak
  */
 public class User extends Agent {
+
     private static final long serialVersionUID = 4117586097100398485L;
 
     /**
      * A query parameter used to set the firstName value.
      */
-    public static final QueryParameter FIRST_NAME = new QueryParameter() {};
+    public static final QueryParameter FIRST_NAME = ATTRIBUTE.byName("firstName");
 
     /**
      * A query parameter used to set the lastName value.
      */
-    public static final QueryParameter LAST_NAME = new QueryParameter() {};
+    public static final QueryParameter LAST_NAME = ATTRIBUTE.byName("lastName");
 
     /**
      * A query parameter used to set the email value.
      */
-    public static final QueryParameter EMAIL = new QueryParameter() {};
+    public static final QueryParameter EMAIL = ATTRIBUTE.byName("email");
 
     private String firstName;
     private String lastName;
     private String email;
+
+    public User() {
+
+    }
 
     public User(String loginName) {
         super(loginName);

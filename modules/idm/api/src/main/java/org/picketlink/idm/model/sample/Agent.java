@@ -21,6 +21,7 @@ package org.picketlink.idm.model.sample;
 import org.picketlink.idm.model.AbstractIdentityType;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.model.annotation.Unique;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
@@ -29,17 +30,23 @@ import org.picketlink.idm.query.QueryParameter;
  * @author Shane Bryzak
  */
 public class Agent extends AbstractIdentityType implements Account {
+
     private static final long serialVersionUID = 2915865002176741632L;
 
-    public static final QueryParameter LOGIN_NAME = new QueryParameter() {};
+    public static final QueryParameter LOGIN_NAME = ATTRIBUTE.byName("loginName");
 
     private String loginName;
+
+    public Agent() {
+
+    }
 
     public Agent(String loginName) {
         this.loginName = loginName;
     }
 
     @AttributeProperty
+    @Unique
     public String getLoginName() {
         return loginName;
     }
