@@ -18,10 +18,10 @@
 
 package org.picketlink.idm.model;
 
-import org.picketlink.idm.query.QueryParameter;
-
 import java.io.Serializable;
 import java.util.Collection;
+import org.picketlink.idm.query.AttributeParameter;
+import org.picketlink.idm.query.QueryParameter;
 
 /**
  *
@@ -77,17 +77,6 @@ public interface AttributedType extends Serializable {
      * @return map of attribute names and their values
      */
     Collection<Attribute<? extends Serializable>> getAttributes();
-
-    public class AttributeParameter implements QueryParameter {
-        private String name;
-        public AttributeParameter(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
 
     public final class ATTRIBUTE {
         public static AttributeParameter byName(String name) {
