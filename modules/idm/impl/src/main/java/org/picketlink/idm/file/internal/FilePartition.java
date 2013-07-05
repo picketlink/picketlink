@@ -33,7 +33,7 @@ public class FilePartition extends AbstractFileAttributedType<Partition> {
     private static final String VERSION = "1";
 
     private transient String configurationName;
-    private transient Map<String, FileAttributedType> attributedTypes = new ConcurrentHashMap<String, FileAttributedType>();
+    private transient Map<String, AbstractFileAttributedType<?>> attributedTypes = new ConcurrentHashMap<String, AbstractFileAttributedType<?>>();
 
     protected FilePartition(Partition object, String configurationName) {
         super(VERSION, object);
@@ -56,19 +56,35 @@ public class FilePartition extends AbstractFileAttributedType<Partition> {
 
     @Override
     protected Partition doCreateInstance(Map<String, Serializable> properties) throws Exception {
-        String id = properties.get("id").toString();
-        return (Partition) Class.forName(getType()).getConstructor(String.class).newInstance(id);
+        String name = properties.get("name").toString();
+        return (Partition) Class.forName(getType()).getConstructor(String.class).newInstance(name);
+    }
+
+    @Override
+    protected void doPopulateProperties(Map<String, Serializable> properties) throws Exception {
+        super.doPopulateProperties(properties);
+
+        Partition partition = getEntry();
+
+        properties.put("name", partition.getName());
+    }
+
+    @Override
+    protected Partition doPopulateEntry(Map<String, Serializable> properties) throws Exception {
+        Partition partition = super.doPopulateEntry(properties);
+
+        return partition;
     }
 
     public String getConfigurationName() {
         return this.configurationName;
     }
 
-    public Map<String, FileAttributedType> getAttributedTypes() {
+    public Map<String, AbstractFileAttributedType<?>> getAttributedTypes() {
         return this.attributedTypes;
     }
 
-    public void setAttributedTypes(Map<String, FileAttributedType> attributedTypes) {
+    public void setAttributedTypes(Map<String, AbstractFileAttributedType<?>> attributedTypes) {
         this.attributedTypes = attributedTypes;
     }
 }

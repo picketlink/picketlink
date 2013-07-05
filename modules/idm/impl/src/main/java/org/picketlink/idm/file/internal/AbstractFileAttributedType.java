@@ -53,6 +53,10 @@ public abstract class AbstractFileAttributedType<T extends AttributedType> exten
         return getEntry().getId();
     }
 
+    protected T doCreateInstance(Map<String, Serializable> properties) throws Exception {
+        return (T) Class.forName(getType()).newInstance();
+    }
+
     @Override
     protected T doPopulateEntry(Map<String, Serializable> properties) throws Exception {
         T attributedType = doCreateInstance(properties);
@@ -75,8 +79,6 @@ public abstract class AbstractFileAttributedType<T extends AttributedType> exten
 
         return attributedType;
     }
-
-    protected abstract T doCreateInstance(Map<String, Serializable> properties) throws Exception;
 
     @Override
     protected void doPopulateProperties(Map<String, Serializable> properties) throws Exception {

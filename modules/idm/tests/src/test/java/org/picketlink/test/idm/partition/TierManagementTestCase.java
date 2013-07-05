@@ -18,7 +18,6 @@
 
 package org.picketlink.test.idm.partition;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -30,7 +29,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -50,11 +48,15 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
     @Override
     protected Tier createPartition() {
-        Tier realm = new Tier(DEFAULT_TIER_NAME);
+        Tier tier = new Tier(DEFAULT_TIER_NAME);
 
-        getPartitionManager().add(realm, "default");
+        if (getPartitionManager().getPartition(tier.getClass(), tier.getName()) != null) {
+            getPartitionManager().remove(tier);
+        }
 
-        return realm;
+        getPartitionManager().add(tier, "default");
+
+        return tier;
     }
 
     @Override
@@ -73,7 +75,6 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
     }
 
     @Test
-    @Ignore
     public void testRolesForTier() throws Exception {
         IdentityManager applicationTierIdentityManager = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
@@ -85,7 +86,7 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         assertNotNull(testingRole);
         assertNotNull(testingRole.getPartition());
-        assertEquals(APPLICATION_A_TIER_NAME, testingRole.getPartition().getId());
+        assertEquals(APPLICATION_A_TIER_NAME, testingRole.getPartition().getName());
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -95,7 +96,6 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
     }
 
     @Test
-    @Ignore
     public void testGroupsForTier() throws Exception {
         IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
@@ -107,7 +107,7 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         assertNotNull(testingGroup);
         assertNotNull(testingGroup.getPartition());
-        assertEquals(APPLICATION_A_TIER_NAME, testingGroup.getPartition().getId());
+        assertEquals(APPLICATION_A_TIER_NAME, testingGroup.getPartition().getName());
 
         IdentityManager identityManager = getIdentityManager();
         
@@ -117,7 +117,6 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
     }
 
     @Test
-    @Ignore
     public void testCreateSameRoleDifferentTiers() throws Exception {
         IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
@@ -147,7 +146,6 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
     }
 
     @Test
-    @Ignore
     public void testCreateSameGroupDifferentTiers() throws Exception {
         IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
@@ -177,7 +175,6 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
     }
 
     @Test
-    @Ignore
     public void testCreateSameGroupDifferentRealms() throws Exception {
         IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
@@ -329,7 +326,6 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 //    }
 
     @Test
-    @Ignore
     public void testGrantSameRoleToTierAndRealm() throws Exception {
         IdentityManager acmeRealm = getIdentityManager();
 
@@ -364,7 +360,14 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
     }
     
     private IdentityManager createIdentityManagerForTier(String tierName) {
-        return getPartitionManager().createIdentityManager(getPartitionManager().getPartition(Tier.class, tierName));
+        Tier partition = getPartitionManager().getPartition(Tier.class, tierName);
+
+        if (partition == null) {
+            partition = new Tier(tierName);
+            getPartitionManager().add(partition);
+        }
+
+        return getPartitionManager().createIdentityManager(partition);
     }
 
 }

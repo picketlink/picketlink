@@ -18,10 +18,9 @@
 
 package org.picketlink.test.idm.partition;
 
-import org.junit.Ignore;
 import org.junit.Test;
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
@@ -47,6 +46,10 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
     protected Realm createPartition() {
         Realm realm = new Realm(TESTING_REALM_NAME);
 
+        if (getPartitionManager().getPartition(realm.getClass(), realm.getName()) != null) {
+            getPartitionManager().remove(realm);
+        }
+
         getPartitionManager().add(realm, "default");
 
         return realm;
@@ -57,17 +60,15 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         return getPartitionManager().getPartition(Realm.class, TESTING_REALM_NAME);
     }
 
-    @Test (expected=SecurityConfigurationException.class)
-    @Ignore
+    @Test (expected=IdentityManagementException.class)
     public void testUseNonExistentRealm() throws Exception {
         IdentityManager identityManager = getPartitionManager().createIdentityManager(new Realm("Not Configured Realm"));
         identityManager.add(new User("mary"));
     }
 
     @Test
-    @Ignore
     public void testCreateUsers() throws Exception {
-        Realm realm = getPartitionManager().getPartition(Realm.class, TESTING_REALM_NAME);
+        Realm realm = createPartition();
         
         User realmUser = createUser("realmUser", realm);
         
@@ -88,7 +89,6 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
     }
     
     @Test
-    @Ignore
     public void testCreateSameUserDifferentRealms() throws Exception {
         IdentityManager defaultIdentityManager = getIdentityManager();
         
@@ -100,14 +100,14 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
             // we can not add this user with the same login name
             defaultIdentityManager.add(new User(defaultRealmUser.getLoginName()));
             fail();
-        } catch (Exception e) {
+        } catch (IdentityManagementException e) {
         }
         
         defaultRealmUser = defaultIdentityManager.getUser(defaultRealmUser.getLoginName());
         
         assertNotNull(defaultRealmUser);
 
-        Realm realm = new Realm(TESTING_REALM_NAME);
+        Realm realm = createPartition();
         
         User testingRealmUser = createUser("commonName", realm);
         
@@ -120,7 +120,6 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
     }
     
     @Test
-    @Ignore
     public void testCreateSameRoleDifferentRealms() throws Exception {
         IdentityManager defaultIdentityManager = getIdentityManager();
         
@@ -139,7 +138,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         
         assertNotNull(defaultRealmRole);
 
-        Realm realm = new Realm(TESTING_REALM_NAME);
+        Realm realm = createPartition();
         
         Role testingRealmRole = createRole("commonName", realm);
         
@@ -153,7 +152,6 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
     }
  
     @Test
-    @Ignore
     public void testCreateSameGroupDifferentRealms() throws Exception {
         IdentityManager defaultIdentityManager = getIdentityManager();
         
@@ -172,7 +170,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         
         assertNotNull(defaultRealmGroup);
 
-        Realm realm = new Realm(TESTING_REALM_NAME);
+        Realm realm = createPartition();
         
         Group testingRealmGroup = createGroup("commonName", null, realm);
         
@@ -186,9 +184,8 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
     }
     
     @Test
-    @Ignore
     public void testCreateRoles() throws Exception {
-        Realm realm = new Realm(TESTING_REALM_NAME);
+        Realm realm = createPartition();
         
         Role testingRole = createRole("testingRole", realm);
         
@@ -207,9 +204,8 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
     }
     
     @Test
-    @Ignore
     public void testCreateGroups() throws Exception {
-        Realm realm = new Realm(TESTING_REALM_NAME);
+        Realm realm = createPartition();
         
         Group testingGroup = createGroup("testingRealmGroup", null, realm);
         

@@ -87,6 +87,7 @@ public abstract class AbstractFileType<T> implements Serializable {
             doReadObject(s);
             this.loadedObject = doPopulateEntry(this.properties);
         } catch (Exception e) {
+            System.out.println(this.type);
             throw MESSAGES.unmarshallingError(e);
         }
     }

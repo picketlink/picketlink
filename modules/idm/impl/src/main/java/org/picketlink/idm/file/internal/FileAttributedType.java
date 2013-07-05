@@ -17,8 +17,6 @@
  */
 package org.picketlink.idm.file.internal;
 
-import java.io.Serializable;
-import java.util.Map;
 import org.picketlink.idm.model.AttributedType;
 
 /**
@@ -32,8 +30,4 @@ public class FileAttributedType extends AbstractFileAttributedType<AttributedTyp
         super(VERSION, object);
     }
 
-    @Override
-    protected AttributedType doCreateInstance(Map<String, Serializable> properties) throws Exception {
-        return null;
-    }
 }

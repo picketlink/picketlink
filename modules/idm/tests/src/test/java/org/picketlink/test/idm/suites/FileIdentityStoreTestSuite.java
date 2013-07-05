@@ -27,6 +27,9 @@ import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
+import org.picketlink.test.idm.basic.AgentManagementTestCase;
+import org.picketlink.test.idm.basic.GroupManagementTestCase;
+import org.picketlink.test.idm.basic.RoleManagementTestCase;
 import org.picketlink.test.idm.basic.UserManagementTestCase;
 import org.picketlink.test.idm.partition.CustomPartitionTestCase;
 import org.picketlink.test.idm.partition.RealmManagementTestCase;
@@ -44,7 +47,7 @@ import static org.junit.runners.Suite.SuiteClasses;
 @RunWith(IdentityManagerRunner.class)
 @SuiteClasses ({
         RealmManagementTestCase.class, TierManagementTestCase.class, CustomPartitionTestCase.class,
-        UserManagementTestCase.class
+        AgentManagementTestCase.class, UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class
 })
 public class FileIdentityStoreTestSuite implements TestLifecycle {
 
@@ -72,7 +75,13 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
 
         PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
 
-        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+        Realm defaultRealm = new Realm(Realm.DEFAULT_REALM);
+
+        if (partitionManager.getPartition(defaultRealm.getClass(), defaultRealm.getName()) != null) {
+            partitionManager.remove(defaultRealm);
+        }
+
+        partitionManager.add(defaultRealm);
 
         return partitionManager;
     }

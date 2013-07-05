@@ -52,7 +52,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
         assertEquals(newGroup.getId(), storedGroup.getId());
         assertEquals(newGroup.getName(), storedGroup.getName());
         assertNotNull(storedGroup.getPartition());
-        assertEquals(Realm.DEFAULT_REALM, storedGroup.getPartition().getId());
+        assertEquals(Realm.DEFAULT_REALM, storedGroup.getPartition().getName());
         assertTrue(storedGroup.isEnabled());
         assertNull(storedGroup.getExpirationDate());
         assertNotNull(storedGroup.getCreatedDate());

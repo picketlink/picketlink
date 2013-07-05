@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Grant;
@@ -33,6 +32,7 @@ import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.query.AttributeParameter;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
@@ -299,13 +299,13 @@ public class FileIdentityQueryHelper {
      */
     public boolean matchAttributes(IdentityType identityType) {
         Map<QueryParameter, Object[]> attributeParameters = this.identityQuery
-                .getParameters(AttributedType.AttributeParameter.class);
+                .getParameters(AttributeParameter.class);
 
         boolean match = false;
 
         if (!attributeParameters.isEmpty()) {
             for (Entry<QueryParameter, Object[]> parameterEntry : attributeParameters.entrySet()) {
-                AttributedType.AttributeParameter parameter = (AttributedType.AttributeParameter) parameterEntry.getKey();
+                AttributeParameter parameter = (AttributeParameter) parameterEntry.getKey();
                 Object[] parameterValues = parameterEntry.getValue();
 
                 Attribute<Serializable> identityTypeAttribute = identityType.getAttribute(parameter.getName());

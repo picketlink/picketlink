@@ -70,7 +70,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         assertEquals(newUser.getLastName(), storedUser.getLastName());
         assertEquals(newUser.getEmail(), storedUser.getEmail());
         assertNotNull(storedUser.getPartition());
-        assertEquals(Realm.DEFAULT_REALM, storedUser.getPartition().getId());
+        assertEquals(Realm.DEFAULT_REALM, storedUser.getPartition().getName());
         assertTrue(storedUser.isEnabled());
         assertNull(storedUser.getExpirationDate());
         assertNotNull(storedUser.getCreatedDate());

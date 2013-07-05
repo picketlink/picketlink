@@ -179,10 +179,10 @@ public class FileDataSource {
 
         File agentsFile = createFileIfNotExists(new File(attributeTypes));
 
-        Map<String, FileAttributedType> attributedTypes = readObject(agentsFile);
+        Map<String, AbstractFileAttributedType<?>> attributedTypes = readObject(agentsFile);
 
         if (attributedTypes == null) {
-            attributedTypes = new ConcurrentHashMap<String, FileAttributedType>();
+            attributedTypes = new ConcurrentHashMap<String, AbstractFileAttributedType<?>>();
         }
 
         filePartition.setAttributedTypes(attributedTypes);

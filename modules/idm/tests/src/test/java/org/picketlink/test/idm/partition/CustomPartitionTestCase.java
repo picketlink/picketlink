@@ -40,11 +40,15 @@ public class CustomPartitionTestCase extends AbstractPartitionTestCase<CustomPar
 
     @Override
     protected CustomPartition createPartition() {
-        CustomPartition CustomPartition = new CustomPartition(CUSTOM_PARTITION_NAME);
+        CustomPartition customPartition = new CustomPartition(CUSTOM_PARTITION_NAME);
 
-        getPartitionManager().add(CustomPartition, "default");
+        if (getPartitionManager().getPartition(customPartition.getClass(), customPartition.getName()) != null) {
+            getPartitionManager().remove(customPartition);
+        }
 
-        return CustomPartition;
+        getPartitionManager().add(customPartition, "default");
+
+        return customPartition;
     }
 
     @Override
@@ -64,6 +68,10 @@ public class CustomPartitionTestCase extends AbstractPartitionTestCase<CustomPar
         partition.setAttributeB(100l);
         partition.setAttributeC(90);
         partition.setAttributeD(Arrays.asList(new String[]{"Value1", "Value2", "Value3"}));
+
+        if (partitionManager.getPartition(partition.getClass(), partition.getName()) != null) {
+            partitionManager.remove(partition);
+        }
 
         partitionManager.add(partition);
 
