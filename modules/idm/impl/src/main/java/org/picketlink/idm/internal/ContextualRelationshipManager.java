@@ -17,6 +17,9 @@
  */
 package org.picketlink.idm.internal;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.RelationshipManager;
@@ -76,9 +79,23 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
     @Override
     public boolean isMember(IdentityType identity, Group group) {
         RelationshipQuery<GroupMembership> query = createRelationshipQuery(GroupMembership.class);
+
         query.setParameter(GroupMembership.MEMBER, identity);
-        query.setParameter(GroupMembership.GROUP, group);
-        return query.getResultCount() > 0;
+        query.setParameter(GroupMembership.GROUP, getGroups(group));
+
+        return !query.getResultList().isEmpty();
+    }
+
+    private Group[] getGroups(Group group) {
+        List<Group> groups = new ArrayList<Group>();
+
+        groups.add(group);
+
+        if (group.getParentGroup() != null) {
+            groups.addAll(Arrays.asList(getGroups(group.getParentGroup())));
+        }
+
+        return groups.toArray(new Group[groups.size()]);
     }
 
     @Override
@@ -99,10 +116,12 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
     @Override
     public boolean hasGroupRole(IdentityType assignee, Role role, Group group) {
         RelationshipQuery<GroupRole> query = createRelationshipQuery(GroupRole.class);
+
         query.setParameter(GroupRole.ASSIGNEE, assignee);
-        query.setParameter(GroupRole.GROUP, group);
+        query.setParameter(GroupRole.GROUP, getGroups(group));
         query.setParameter(GroupRole.ROLE, role);
-        return query.getResultCount() > 0;
+
+        return !query.getResultList().isEmpty();
     }
 
     @Override
@@ -124,9 +143,11 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
     @Override
     public boolean hasRole(IdentityType assignee, Role role) {
         RelationshipQuery<Grant> query = createRelationshipQuery(Grant.class);
+
         query.setParameter(Grant.ASSIGNEE, assignee);
         query.setParameter(GroupRole.ROLE, role);
-        return query.getResultCount() > 0;
+
+        return !query.getResultList().isEmpty();
     }
 
     @Override

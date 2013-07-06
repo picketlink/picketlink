@@ -34,6 +34,14 @@ import org.picketlink.test.idm.basic.UserManagementTestCase;
 import org.picketlink.test.idm.partition.CustomPartitionTestCase;
 import org.picketlink.test.idm.partition.RealmManagementTestCase;
 import org.picketlink.test.idm.partition.TierManagementTestCase;
+import org.picketlink.test.idm.relationship.AgentGrantRelationshipTestCase;
+import org.picketlink.test.idm.relationship.AgentGroupRoleRelationshipTestCase;
+import org.picketlink.test.idm.relationship.AgentGroupsRelationshipTestCase;
+import org.picketlink.test.idm.relationship.CustomRelationshipTestCase;
+import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
+import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
+import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
+import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
 import static org.junit.runners.Suite.SuiteClasses;
 
 /**
@@ -47,7 +55,11 @@ import static org.junit.runners.Suite.SuiteClasses;
 @RunWith(IdentityManagerRunner.class)
 @SuiteClasses ({
         RealmManagementTestCase.class, TierManagementTestCase.class, CustomPartitionTestCase.class,
-        AgentManagementTestCase.class, UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class
+        AgentManagementTestCase.class, UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
+        UserGrantRelationshipTestCase.class, AgentGrantRelationshipTestCase.class, GroupGrantRelationshipTestCase.class,
+        GroupMembershipTestCase.class, AgentGroupsRelationshipTestCase.class,
+        AgentGroupRoleRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
+        CustomRelationshipTestCase.class
 })
 public class FileIdentityStoreTestSuite implements TestLifecycle {
 

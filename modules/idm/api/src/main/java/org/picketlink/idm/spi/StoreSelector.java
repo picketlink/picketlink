@@ -47,7 +47,7 @@ public interface StoreSelector {
      * @param context
      * @return
      */
-    IdentityStore<?> getStoreForCredentialOperation(IdentityContext context, Class<?> credentialClass);
+    <T extends IdentityStore<?>> T getStoreForCredentialOperation(IdentityContext context, Class<?> credentialClass);
 
     /**
      * Returns the IdentityStore that manages relationships of the specified type, for the specified partition/s.
@@ -55,12 +55,12 @@ public interface StoreSelector {
      * @param relationship
      * @return
      */
-    IdentityStore<?> getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> relationshipClass, Set<Partition> partitions);
+    <T extends IdentityStore<?>> T getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> relationshipClass, Set<Partition> partitions);
 
     /**
      *
      *
      * @return
      */
-    PartitionStore<?> getStoreForPartitionOperation(IdentityContext context);
+    <T extends PartitionStore<?>> T getStoreForPartitionOperation(IdentityContext context);
 }

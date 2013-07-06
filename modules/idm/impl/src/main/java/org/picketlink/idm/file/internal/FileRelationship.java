@@ -59,7 +59,7 @@ public class FileRelationship extends AbstractFileAttributedType<Relationship> {
 
         List<Property<IdentityType>> relationshipIdentityTypes = PropertyQueries
                 .<IdentityType> createQuery(getEntry().getClass())
-                .addCriteria(new TypedPropertyCriteria(IdentityType.class)).getResultList();
+                .addCriteria(new TypedPropertyCriteria(IdentityType.class, true)).getResultList();
 
         for (Property<IdentityType> annotatedProperty : relationshipIdentityTypes) {
             IdentityType identityType = annotatedProperty.getValue(getEntry());
@@ -67,14 +67,6 @@ public class FileRelationship extends AbstractFileAttributedType<Relationship> {
             if (identityType != null) {
                 this.identityTypeIds.put(identityType.getId(), annotatedProperty.getName());
             }
-        }
-
-        List<Property<Serializable>> relationshipAttributeTypes = PropertyQueries
-                .<Serializable> createQuery(getEntry().getClass())
-                .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class)).getResultList();
-
-        for (Property<Serializable> property : relationshipAttributeTypes) {
-            properties.put(property.getName(), property.getValue(getEntry()));
         }
     }
 

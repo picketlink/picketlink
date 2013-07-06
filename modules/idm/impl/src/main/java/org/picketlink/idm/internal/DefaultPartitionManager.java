@@ -386,14 +386,14 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     @Override
-    public IdentityStore<?> getStoreForCredentialOperation(IdentityContext context, Class<?> credentialClass) {
+    public <T extends IdentityStore<?>> T getStoreForCredentialOperation(IdentityContext context, Class<?> credentialClass) {
         IdentityConfiguration config = getConfigurationForPartition(context.getPartition());
         for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
             for (@SuppressWarnings("rawtypes") Class<? extends CredentialHandler> handlerClass : storeConfig.getCredentialHandlers()) {
                 if (handlerClass.isAnnotationPresent(SupportsCredentials.class)) {
                     for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).value()) {
                         if (cls.equals(credentialClass)) {
-                            IdentityStore<?> store = stores.get(config).get(storeConfig);
+                            T store = (T) stores.get(config).get(storeConfig);
                             storeConfig.initializeContext(context, store);
                             return store;
                         }
@@ -406,19 +406,28 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     @Override
-    public IdentityStore<?> getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> relationshipClass,
-                                                             Set<Partition> partitions) {
+    public <T extends IdentityStore<?>> T getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> type,
+                                                                           Set<Partition> partitions) {
+        for (IdentityConfiguration identityConfiguration : this.configurations) {
+            for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
+                if (storeConfig.supportsType(type, IdentityOperation.create)) {
+                    @SuppressWarnings("unchecked")
+                    T store = (T) stores.get(identityConfiguration).get(storeConfig);
+                    storeConfig.initializeContext(context, store);
+                    return store;
+                }
+            }
+        }
 
-        // TODO Auto-generated method stub
-        return null;
+        throw new IdentityManagementException("No IdentityStore found for required type [" + type + "]");
     }
 
     @Override
-    public PartitionStore<?> getStoreForPartitionOperation(IdentityContext context) {
+    public <T extends PartitionStore<?>> T getStoreForPartitionOperation(IdentityContext context) {
         Map<IdentityStoreConfiguration, IdentityStore<?>> configStores = stores.get(partitionManagementConfig);
         for (IdentityStoreConfiguration cfg : configStores.keySet()) {
             if (cfg.supportsType(Partition.class, IdentityOperation.create)) {
-                PartitionStore<?> store = (PartitionStore<?>) configStores.get(cfg);
+                T store = (T) configStores.get(cfg);
                 cfg.initializeContext(context, store);
                 return store;
             }

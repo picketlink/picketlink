@@ -18,17 +18,16 @@
 
 package org.picketlink.test.idm.relationship;
 
+import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.sample.Grant;
 import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
-
-import java.util.List;
-
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
@@ -58,21 +57,21 @@ public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> 
         T someAgent = createIdentityType("someAgent");
         Role someRole = createRole("someRole");
 
-        PartitionManager partitionManager = getPartitionManager();
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
         IdentityManager identityManager = getIdentityManager();
 
-        partitionManager.grantRole(someAgent, someRole);
+        relationshipManager.grantRole(someAgent, someRole);
 
-        assertTrue(partitionManager.hasRole(someAgent, someRole));
+        assertTrue(relationshipManager.hasRole(someAgent, someRole));
 
         Role someAnotherRole = createRole("someAnotherRole");
 
-        assertFalse(partitionManager.hasRole(someAgent, someAnotherRole));
+        assertFalse(relationshipManager.hasRole(someAgent, someAnotherRole));
 
-        partitionManager.grantRole(someAgent, someAnotherRole);
+        relationshipManager.grantRole(someAgent, someAnotherRole);
 
-        assertTrue(partitionManager.hasRole(someAgent, someAnotherRole));
-        assertTrue(partitionManager.hasRole(someAgent, someRole));
+        assertTrue(relationshipManager.hasRole(someAgent, someAnotherRole));
+        assertTrue(relationshipManager.hasRole(someAgent, someRole));
     }
 
     /**
@@ -89,23 +88,23 @@ public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> 
         Role someRole = createRole("someRole");
         Role someAnotherRole = createRole("someAnotherRole");
 
-        PartitionManager partitionManager = getPartitionManager();
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
         IdentityManager identityManager = getIdentityManager();
 
-        partitionManager.grantRole(someAgent, someRole);
-        partitionManager.grantRole(someAgent, someAnotherRole);
+        relationshipManager.grantRole(someAgent, someRole);
+        relationshipManager.grantRole(someAgent, someAnotherRole);
 
-        assertTrue(partitionManager.hasRole(someAgent, someRole));
-        assertTrue(partitionManager.hasRole(someAgent, someAnotherRole));
+        assertTrue(relationshipManager.hasRole(someAgent, someRole));
+        assertTrue(relationshipManager.hasRole(someAgent, someAnotherRole));
 
-        partitionManager.revokeRole(someAgent, someRole);
+        relationshipManager.revokeRole(someAgent, someRole);
 
-        assertFalse(partitionManager.hasRole(someAgent, someRole));
-        assertTrue(partitionManager.hasRole(someAgent, someAnotherRole));
+        assertFalse(relationshipManager.hasRole(someAgent, someRole));
+        assertTrue(relationshipManager.hasRole(someAgent, someAnotherRole));
 
-        partitionManager.revokeRole(someAgent, someAnotherRole);
+        relationshipManager.revokeRole(someAgent, someAnotherRole);
 
-        assertFalse(partitionManager.hasRole(someAgent, someAnotherRole));
+        assertFalse(relationshipManager.hasRole(someAgent, someAnotherRole));
     }
     
     /**
@@ -123,24 +122,24 @@ public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> 
         
         T user = createIdentityType("someAgent");
 
-        PartitionManager partitionManager = getPartitionManager();
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
         IdentityManager identityManager = getIdentityManager();
         
-        IdentityQuery<Role> query = identityManager.createIdentityQuery(Role.class);
+        RelationshipQuery<Grant> query = relationshipManager.createRelationshipQuery(Grant.class);
         
-        query.setParameter(Role.ROLE_OF, new Object[] {user});
+        query.setParameter(Grant.ASSIGNEE, user);
         
-        List<Role> result = query.getResultList();
+        List<Grant> result = query.getResultList();
         
         assertFalse(contains(result, "someRole"));
         assertFalse(contains(result, "someAnotherRole"));
         assertFalse(contains(result, "someImportantRole"));
 
-        partitionManager.grantRole(user, someRole);
+        relationshipManager.grantRole(user, someRole);
         
-        query = identityManager.createIdentityQuery(Role.class);
+        query = relationshipManager.createRelationshipQuery(Grant.class);
         
-        query.setParameter(Role.ROLE_OF, new Object[] {user});
+        query.setParameter(Grant.ASSIGNEE, user);
         
         result = query.getResultList();
         
@@ -149,11 +148,11 @@ public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> 
         assertFalse(contains(result, "someAnotherRole"));
         assertFalse(contains(result, "someImportantRole"));
 
-        partitionManager.grantRole(user, someAnotherRole);
+        relationshipManager.grantRole(user, someAnotherRole);
 
-        query = identityManager.createIdentityQuery(Role.class);
+        query = relationshipManager.createRelationshipQuery(Grant.class);
         
-        query.setParameter(Role.ROLE_OF, new Object[] {user});
+        query.setParameter(Grant.ASSIGNEE, user);
         
         result = query.getResultList();
         
@@ -162,11 +161,11 @@ public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> 
         assertTrue(contains(result, "someAnotherRole"));
         assertFalse(contains(result, "someImportantRole"));
 
-        partitionManager.grantRole(user, someImportantRole);
+        relationshipManager.grantRole(user, someImportantRole);
         
-        query = identityManager.createIdentityQuery(Role.class);
+        query = relationshipManager.createRelationshipQuery(Grant.class);
         
-        query.setParameter(Role.ROLE_OF, new Object[] {user});
+        query.setParameter(Grant.ASSIGNEE, user);
         
         result = query.getResultList();
         
@@ -176,9 +175,9 @@ public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> 
         assertTrue(contains(result, "someImportantRole"));
     }
 
-    private boolean contains(List<Role> result, String roleId) {
-        for (Role resultRole : result) {
-            if (resultRole.getName().equals(roleId)) {
+    private boolean contains(List<Grant> result, String roleId) {
+        for (Grant resultRole : result) {
+            if (resultRole.getRole().getName().equals(roleId)) {
                 return true;
             }
         }

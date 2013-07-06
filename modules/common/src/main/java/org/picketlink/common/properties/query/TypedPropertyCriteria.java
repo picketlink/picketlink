@@ -29,10 +29,17 @@ import java.lang.reflect.Method;
 public class TypedPropertyCriteria implements PropertyCriteria 
 {
     private final Class<?> propertyClass;
+    private final boolean selectSubTypes;
 
     public TypedPropertyCriteria(Class<?> propertyClass) 
     {
+        this(propertyClass, false);
+    }
+
+    public TypedPropertyCriteria(Class<?> propertyClass, boolean selectSubTypes)
+    {
         this.propertyClass = propertyClass;
+        this.selectSubTypes = selectSubTypes;
     }
 
     public boolean fieldMatches(Field f) 
@@ -42,6 +49,12 @@ public class TypedPropertyCriteria implements PropertyCriteria
 
     public boolean methodMatches(Method m) 
     {
-        return propertyClass.equals(m.getReturnType());
+        boolean equals = propertyClass.equals(m.getReturnType());
+
+        if (!equals && selectSubTypes) {
+            equals = propertyClass.isAssignableFrom(m.getReturnType());
+        }
+
+        return equals;
     }
 }

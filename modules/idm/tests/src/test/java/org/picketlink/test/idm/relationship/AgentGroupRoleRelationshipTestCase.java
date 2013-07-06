@@ -20,14 +20,13 @@ package org.picketlink.test.idm.relationship;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
-
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
@@ -75,33 +74,33 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
         Group companyGroup = createGroup("Company Group", null);
         Group projectGroup = createGroup("Project Group", null);
 
-        PartitionManager partitionManager = getPartitionManager();
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
         IdentityManager identityManager = getIdentityManager();
 
         // developerAgent is an employee at the company group
-        partitionManager.grantGroupRole(developerAgent, employeeRole, companyGroup);
+        relationshipManager.grantGroupRole(developerAgent, employeeRole, companyGroup);
 
         // developerAgent is a developer at the project group
-        partitionManager.grantGroupRole(developerAgent, developerRole, projectGroup);
+        relationshipManager.grantGroupRole(developerAgent, developerRole, projectGroup);
 
         // projectManagerAgent is an employee at the company group
-        partitionManager.grantGroupRole(projectManagerAgent, employeeRole, companyGroup);
+        relationshipManager.grantGroupRole(projectManagerAgent, employeeRole, companyGroup);
 
         // projectManagerAgent is the manager of the project group
-        partitionManager.grantGroupRole(projectManagerAgent, managerRole, projectGroup);
+        relationshipManager.grantGroupRole(projectManagerAgent, managerRole, projectGroup);
 
-        assertTrue(partitionManager.hasGroupRole(developerAgent, employeeRole, companyGroup));
-        assertTrue(partitionManager.hasGroupRole(developerAgent, developerRole, projectGroup));
+        assertTrue(relationshipManager.hasGroupRole(developerAgent, employeeRole, companyGroup));
+        assertTrue(relationshipManager.hasGroupRole(developerAgent, developerRole, projectGroup));
 
-        assertTrue(partitionManager.hasGroupRole(projectManagerAgent, employeeRole, companyGroup));
-        assertTrue(partitionManager.hasGroupRole(projectManagerAgent, managerRole, projectGroup));
+        assertTrue(relationshipManager.hasGroupRole(projectManagerAgent, employeeRole, companyGroup));
+        assertTrue(relationshipManager.hasGroupRole(projectManagerAgent, managerRole, projectGroup));
 
-        assertFalse(partitionManager.hasGroupRole(developerAgent, managerRole, projectGroup));
-        assertFalse(partitionManager.hasGroupRole(projectManagerAgent, developerRole, projectGroup));
+        assertFalse(relationshipManager.hasGroupRole(developerAgent, managerRole, projectGroup));
+        assertFalse(relationshipManager.hasGroupRole(projectManagerAgent, developerRole, projectGroup));
 
-        assertFalse(partitionManager.isMember(developerAgent, projectGroup));
-        assertFalse(partitionManager.isMember(developerAgent, companyGroup));
-        assertFalse(partitionManager.hasRole(developerAgent, employeeRole));
+        assertFalse(relationshipManager.isMember(developerAgent, projectGroup));
+        assertFalse(relationshipManager.isMember(developerAgent, companyGroup));
+        assertFalse(relationshipManager.hasRole(developerAgent, employeeRole));
     }
 
     @Test
@@ -118,33 +117,33 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
 
         T agent = createIdentityType("agent", null);
 
-        PartitionManager partitionManager = getPartitionManager();
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        partitionManager.grantGroupRole(agent, managerRole, administratorsGroup);
+        relationshipManager.grantGroupRole(agent, managerRole, administratorsGroup);
 
-        assertTrue(partitionManager.hasGroupRole(agent, managerRole, administratorsGroup));
-        assertTrue(partitionManager.hasGroupRole(agent, managerRole, databaseAdministratorsGroup));
-        assertTrue(partitionManager.hasGroupRole(agent, managerRole, systemAdministradorsGroup));
+        assertTrue(relationshipManager.hasGroupRole(agent, managerRole, administratorsGroup));
+        assertTrue(relationshipManager.hasGroupRole(agent, managerRole, databaseAdministratorsGroup));
+        assertTrue(relationshipManager.hasGroupRole(agent, managerRole, systemAdministradorsGroup));
 
         Role securityManager = createRole("Data Security Manager");
 
-        partitionManager.grantGroupRole(agent, securityManager, databaseAdministratorsGroup);
+        relationshipManager.grantGroupRole(agent, securityManager, databaseAdministratorsGroup);
 
-        assertTrue(partitionManager.hasGroupRole(agent, securityManager, databaseAdministratorsGroup));
-        assertFalse(partitionManager.hasGroupRole(agent, securityManager, administratorsGroup));
-        assertFalse(partitionManager.hasGroupRole(agent, securityManager, systemAdministradorsGroup));
+        assertTrue(relationshipManager.hasGroupRole(agent, securityManager, databaseAdministratorsGroup));
+        assertFalse(relationshipManager.hasGroupRole(agent, securityManager, administratorsGroup));
+        assertFalse(relationshipManager.hasGroupRole(agent, securityManager, systemAdministradorsGroup));
 
-        partitionManager.revokeGroupRole(agent, managerRole, administratorsGroup);
+        relationshipManager.revokeGroupRole(agent, managerRole, administratorsGroup);
 
-        assertFalse(partitionManager.hasGroupRole(agent, managerRole, administratorsGroup));
-        assertFalse(partitionManager.hasGroupRole(agent, managerRole, databaseAdministratorsGroup));
-        assertFalse(partitionManager.hasGroupRole(agent, managerRole, systemAdministradorsGroup));
+        assertFalse(relationshipManager.hasGroupRole(agent, managerRole, administratorsGroup));
+        assertFalse(relationshipManager.hasGroupRole(agent, managerRole, databaseAdministratorsGroup));
+        assertFalse(relationshipManager.hasGroupRole(agent, managerRole, systemAdministradorsGroup));
 
-        partitionManager.grantGroupRole(agent, managerRole, systemAdministradorsGroup);
+        relationshipManager.grantGroupRole(agent, managerRole, systemAdministradorsGroup);
 
-        assertTrue(partitionManager.hasGroupRole(agent, managerRole, databaseAdministratorsGroup));
-        assertTrue(partitionManager.hasGroupRole(agent, managerRole, systemAdministradorsGroup));
-        assertFalse(partitionManager.hasGroupRole(agent, managerRole, administratorsGroup));
+        assertTrue(relationshipManager.hasGroupRole(agent, managerRole, databaseAdministratorsGroup));
+        assertTrue(relationshipManager.hasGroupRole(agent, managerRole, systemAdministradorsGroup));
+        assertFalse(relationshipManager.hasGroupRole(agent, managerRole, administratorsGroup));
     }
 
     /**
@@ -164,26 +163,26 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
         Group companyGroup = createGroup("Company Group", null);
         Group projectGroup = createGroup("Project Group", null);
 
-        PartitionManager partitionManager = getPartitionManager();
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
         IdentityManager identityManager = getIdentityManager();
 
         // developerAgent is an employee at the company group
-        partitionManager.grantGroupRole(developerAgent, employeeRole, companyGroup);
+        relationshipManager.grantGroupRole(developerAgent, employeeRole, companyGroup);
 
         // developerAgent is a developer at the project group
-        partitionManager.grantGroupRole(developerAgent, developerRole, projectGroup);
+        relationshipManager.grantGroupRole(developerAgent, developerRole, projectGroup);
 
-        assertTrue(partitionManager.hasGroupRole(developerAgent, employeeRole, companyGroup));
-        assertTrue(partitionManager.hasGroupRole(developerAgent, developerRole, projectGroup));
+        assertTrue(relationshipManager.hasGroupRole(developerAgent, employeeRole, companyGroup));
+        assertTrue(relationshipManager.hasGroupRole(developerAgent, developerRole, projectGroup));
 
-        partitionManager.revokeGroupRole(developerAgent, developerRole, projectGroup);
+        relationshipManager.revokeGroupRole(developerAgent, developerRole, projectGroup);
 
-        assertFalse(partitionManager.hasGroupRole(developerAgent, developerRole, projectGroup));
-        assertTrue(partitionManager.hasGroupRole(developerAgent, employeeRole, companyGroup));
+        assertFalse(relationshipManager.hasGroupRole(developerAgent, developerRole, projectGroup));
+        assertTrue(relationshipManager.hasGroupRole(developerAgent, employeeRole, companyGroup));
 
-        partitionManager.revokeGroupRole(developerAgent, employeeRole, companyGroup);
+        relationshipManager.revokeGroupRole(developerAgent, employeeRole, companyGroup);
 
-        assertFalse(partitionManager.hasGroupRole(developerAgent, employeeRole, companyGroup));
+        assertFalse(relationshipManager.hasGroupRole(developerAgent, employeeRole, companyGroup));
     }
 
 }

@@ -18,17 +18,16 @@
 
 package org.picketlink.test.idm.relationship;
 
+import java.util.List;
 import org.junit.Test;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
-
-import java.util.List;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -73,19 +72,19 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractId
         T someAgent = createIdentityType("someAgent");
         Group someGroup = createGroup("someGroup");
 
-        PartitionManager partitionManager = getPartitionManager();
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        partitionManager.addToGroup(someAgent, someGroup);
+        relationshipManager.addToGroup(someAgent, someGroup);
 
-        assertTrue(partitionManager.isMember(someAgent, someGroup));
+        assertTrue(relationshipManager.isMember(someAgent, someGroup));
 
         Group someAnotherGroup = createGroup("someAnotherGroup");
 
-        assertFalse(partitionManager.isMember(someAgent, someAnotherGroup));
+        assertFalse(relationshipManager.isMember(someAgent, someAnotherGroup));
 
-        partitionManager.addToGroup(someAgent, someAnotherGroup);
+        relationshipManager.addToGroup(someAgent, someAnotherGroup);
 
-        assertTrue(partitionManager.isMember(someAgent, someAnotherGroup));
+        assertTrue(relationshipManager.isMember(someAgent, someAnotherGroup));
     }
 
     /**
@@ -101,21 +100,21 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractId
         Group someGroup = createGroup("someGroup");
         Group someAnotherGroup = createGroup("someAnotherGroup");
 
-        PartitionManager partitionManager = getPartitionManager();
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        partitionManager.addToGroup(someAgent, someGroup);
-        partitionManager.addToGroup(someAgent, someAnotherGroup);
+        relationshipManager.addToGroup(someAgent, someGroup);
+        relationshipManager.addToGroup(someAgent, someAnotherGroup);
 
-        assertTrue(partitionManager.isMember(someAgent, someGroup));
-        assertTrue(partitionManager.isMember(someAgent, someAnotherGroup));
+        assertTrue(relationshipManager.isMember(someAgent, someGroup));
+        assertTrue(relationshipManager.isMember(someAgent, someAnotherGroup));
 
-        partitionManager.removeFromGroup(someAgent, someGroup);
+        relationshipManager.removeFromGroup(someAgent, someGroup);
 
-        assertFalse(partitionManager.isMember(someAgent, someGroup));
+        assertFalse(relationshipManager.isMember(someAgent, someGroup));
 
-        partitionManager.removeFromGroup(someAgent, someAnotherGroup);
+        relationshipManager.removeFromGroup(someAgent, someAnotherGroup);
 
-        assertFalse(partitionManager.isMember(someAgent, someAnotherGroup));
+        assertFalse(relationshipManager.isMember(someAgent, someAnotherGroup));
     }
     
     /**
@@ -133,25 +132,23 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractId
         
         T user = createIdentityType("someAgent");
         
-        IdentityManager identityManager = getIdentityManager();
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
         
-        IdentityQuery<Group> query = identityManager.createIdentityQuery(Group.class);
+        RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
         
-        query.setParameter(Group.HAS_MEMBER, new Object[] {user});
+        query.setParameter(GroupMembership.MEMBER, new Object[] {user});
         
-        List<Group> result = query.getResultList();
+        List<GroupMembership> result = query.getResultList();
         
         assertFalse(contains(result, "someGroup"));
         assertFalse(contains(result, "someAnotherGroup"));
         assertFalse(contains(result, "someImportantGroup"));
 
-        PartitionManager partitionManager = getPartitionManager();
-
-        partitionManager.addToGroup(user, someGroup);
+        relationshipManager.addToGroup(user, someGroup);
         
-        query = identityManager.createIdentityQuery(Group.class);
+        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
         
-        query.setParameter(Group.HAS_MEMBER, new Object[] {user});
+        query.setParameter(GroupMembership.MEMBER, new Object[]{user});
         
         result = query.getResultList();
         
@@ -160,11 +157,11 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractId
         assertFalse(contains(result, "someAnotherGroup"));
         assertFalse(contains(result, "someImportantGroup"));
 
-        partitionManager.addToGroup(user, someAnotherGroup);
+        relationshipManager.addToGroup(user, someAnotherGroup);
 
-        query = identityManager.createIdentityQuery(Group.class);
+        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
         
-        query.setParameter(Group.HAS_MEMBER, new Object[] {user});
+        query.setParameter(GroupMembership.MEMBER, new Object[] {user});
         
         result = query.getResultList();
         
@@ -173,11 +170,11 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractId
         assertTrue(contains(result, "someAnotherGroup"));
         assertFalse(contains(result, "someImportantGroup"));
 
-        partitionManager.addToGroup(user, someImportantGroup);
+        relationshipManager.addToGroup(user, someImportantGroup);
         
-        query = identityManager.createIdentityQuery(Group.class);
+        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
         
-        query.setParameter(Group.HAS_MEMBER, new Object[] {user});
+        query.setParameter(GroupMembership.MEMBER, new Object[] {user});
         
         result = query.getResultList();
         
@@ -187,9 +184,9 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractId
         assertTrue(contains(result, "someImportantGroup"));
     }
 
-    private boolean contains(List<Group> result, String roleId) {
-        for (Group resultGroup : result) {
-            if (resultGroup.getName().equals(roleId)) {
+    private boolean contains(List<GroupMembership> result, String groupName) {
+        for (GroupMembership resultGroup : result) {
+            if (resultGroup.getGroup().getName().equals(groupName)) {
                 return true;
             }
         }

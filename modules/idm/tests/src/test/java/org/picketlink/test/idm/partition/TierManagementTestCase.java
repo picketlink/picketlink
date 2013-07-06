@@ -80,6 +80,10 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Role testingRole = new Role("Role");
 
+        if (applicationTierIdentityManager.getRole(testingRole.getName()) != null) {
+            applicationTierIdentityManager.remove(applicationTierIdentityManager.getRole(testingRole.getName()));
+        }
+
         applicationTierIdentityManager.add(testingRole);
 
         testingRole = applicationTierIdentityManager.getRole(testingRole.getName());
@@ -100,6 +104,10 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
         IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
         Group testingGroup = new Group("testingGroupTier");
+
+        if (applicationA.getGroup(testingGroup.getPath()) != null) {
+            applicationA.remove(applicationA.getGroup(testingGroup.getPath()));
+        }
 
         applicationA.add(testingGroup);
 
@@ -122,6 +130,10 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Role roleA = new Role("Role");
 
+        if (applicationA.getRole(roleA.getName()) != null) {
+            applicationA.remove(applicationA.getRole(roleA.getName()));
+        }
+
         applicationA.add(roleA);
 
         try {
@@ -137,6 +149,10 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Role roleB = new Role("Role");
 
+        if (applicationB.getRole(roleB.getName()) != null) {
+            applicationB.remove(applicationB.getRole(roleB.getName()));
+        }
+
         applicationB.add(roleB);
 
         roleA = applicationA.getRole(roleA.getName());
@@ -150,6 +166,10 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
         IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
         Group groupA = new Group("Group");
+
+        if (applicationA.getGroup(groupA.getPath()) != null) {
+            applicationA.remove(applicationA.getGroup(groupA.getPath()));
+        }
 
         applicationA.add(groupA);
 
@@ -166,6 +186,10 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Group groupB = new Group("Group");
 
+        if (applicationB.getGroup(groupB.getPath()) != null) {
+            applicationB.remove(applicationB.getGroup(groupB.getPath()));
+        }
+
         applicationB.add(groupB);
 
         groupA = applicationA.getGroup(groupA.getName());
@@ -179,6 +203,10 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
         IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
         Group groupA = new Group("Group");
+
+        if (applicationA.getGroup(groupA.getPath()) != null) {
+            applicationA.remove(applicationA.getGroup(groupA.getPath()));
+        }
 
         applicationA.add(groupA);
 
@@ -196,6 +224,10 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
         IdentityManager applicationB = createIdentityManagerForTier(APPLICATION_B_TIER_NAME);
 
         Group groupB = new Group("Group");
+
+        if (applicationB.getGroup(groupB.getPath()) != null) {
+            applicationB.remove(applicationB.getGroup(groupB.getPath()));
+        }
 
         applicationB.add(groupB);
 
@@ -331,11 +363,19 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Role realmRole = new Role("Role");
 
+        if (acmeRealm.getRole(realmRole.getName()) != null) {
+            acmeRealm.remove(acmeRealm.getRole(realmRole.getName()));
+        }
+
         acmeRealm.add(realmRole);
 
         IdentityManager application = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
         Role applicationRole = new Role("Role");
+
+        if (application.getRole(applicationRole.getName()) != null) {
+            application.remove(application.getRole(applicationRole.getName()));
+        }
 
         application.add(applicationRole);
 
@@ -345,6 +385,10 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
         assertFalse(realmRole.getId().equals(applicationRole.getId()));
 
         applicationRole = new Role("Another Role");
+
+        if (application.getRole(applicationRole.getName()) != null) {
+            application.remove(application.getRole(applicationRole.getName()));
+        }
 
         application.add(applicationRole);
 

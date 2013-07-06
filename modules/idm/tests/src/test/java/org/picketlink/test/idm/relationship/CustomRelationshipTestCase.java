@@ -18,18 +18,16 @@
 
 package org.picketlink.test.idm.relationship;
 
+import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
-
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -65,11 +63,11 @@ public class CustomRelationshipTestCase extends AbstractIdentityManagerTestCase 
         relationship.setAttributeB("B");
         relationship.setAttributeC("C");
 
-        PartitionManager partitionManager = getPartitionManager();
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        partitionManager.add(relationship);
+        relationshipManager.add(relationship);
 
-        RelationshipQuery<CustomRelationship> query = partitionManager.createRelationshipQuery(CustomRelationship.class);
+        RelationshipQuery<CustomRelationship> query = relationshipManager.createRelationshipQuery(CustomRelationship.class);
 
         query.setParameter(CustomRelationship.IDENTITY_TYPE_A, user);
 
@@ -82,7 +80,7 @@ public class CustomRelationshipTestCase extends AbstractIdentityManagerTestCase 
         assertEquals(relationship.getAttributeB(), result.get(0).getAttributeB());
         assertEquals(relationship.getAttributeC(), result.get(0).getAttributeC());
 
-        query = partitionManager.createRelationshipQuery(CustomRelationship.class);
+        query = relationshipManager.createRelationshipQuery(CustomRelationship.class);
 
         query.setParameter(CustomRelationship.IDENTITY_TYPE_B, role);
 
@@ -92,7 +90,7 @@ public class CustomRelationshipTestCase extends AbstractIdentityManagerTestCase 
         assertEquals(1, result.size());
         assertEquals(relationship.getId(), result.get(0).getId());
 
-        query = partitionManager.createRelationshipQuery(CustomRelationship.class);
+        query = relationshipManager.createRelationshipQuery(CustomRelationship.class);
 
         query.setParameter(CustomRelationship.IDENTITY_TYPE_C, group);
 
@@ -102,7 +100,7 @@ public class CustomRelationshipTestCase extends AbstractIdentityManagerTestCase 
         assertEquals(1, result.size());
         assertEquals(relationship.getId(), result.get(0).getId());
 
-        query = partitionManager.createRelationshipQuery(CustomRelationship.class);
+        query = relationshipManager.createRelationshipQuery(CustomRelationship.class);
 
         query.setParameter(CustomRelationship.IDENTITY_TYPE_A, user);
         query.setParameter(CustomRelationship.IDENTITY_TYPE_B, role);

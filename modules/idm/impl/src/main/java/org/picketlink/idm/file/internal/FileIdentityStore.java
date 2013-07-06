@@ -48,12 +48,15 @@ import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.GroupMembership;
+import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.AttributeParameter;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
@@ -125,39 +128,79 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
 
     @Override
     public void add(IdentityContext context, final AttributedType attributedType) {
-        FilePartition filePartition = resolve(context.getPartition().getClass(), context.getPartition().getName());
-
         attributedType.setId(context.getIdGenerator().generate());
 
         AttributedType newAttributedType = cloneAttributedType(context, attributedType);
 
         if (IdentityType.class.isInstance(newAttributedType)) {
-            filePartition.getAttributedTypes().put(newAttributedType.getId(), new FileIdentityType((IdentityType) newAttributedType));
-        } else {
-            filePartition.getAttributedTypes().put(newAttributedType.getId(), new FileAttributedType(newAttributedType));
-        }
+            FilePartition filePartition = resolve(context.getPartition().getClass(), context.getPartition().getName());
 
-        this.fileDataSource.flushAttributedTypes(filePartition);
+            filePartition.getAttributedTypes().put(newAttributedType.getId(), new FileIdentityType((IdentityType) newAttributedType));
+
+            this.fileDataSource.flushAttributedTypes(filePartition);
+        } else if (Relationship.class.isInstance(newAttributedType)) {
+            Relationship relationship = (Relationship) newAttributedType;
+            String type = relationship.getClass().getName();
+
+            List<FileRelationship> storedRelationships = this.fileDataSource.getRelationships().get(type);
+
+            if (storedRelationships == null) {
+                storedRelationships = new ArrayList<FileRelationship>();
+                this.fileDataSource.getRelationships().put(type, storedRelationships);
+            }
+
+            storedRelationships.add(new FileRelationship((Relationship) newAttributedType));
+
+            this.fileDataSource.flushRelationships();
+        } else {
+            throw MESSAGES.attributedTypeUnsupportedType(attributedType.getClass());
+        }
     }
 
     @Override
     public void update(IdentityContext context, final AttributedType attributedType) {
-        FilePartition filePartition = resolve(context.getPartition().getClass(), context.getPartition().getName());
-
         AttributedType updatedAttributedType = cloneAttributedType(context, (attributedType));
 
         if (IdentityType.class.isInstance(attributedType)) {
-            filePartition.getAttributedTypes().put(attributedType.getId(), new FileIdentityType((IdentityType) updatedAttributedType));
-        } else {
-            filePartition.getAttributedTypes().put(attributedType.getId(), new FileAttributedType(updatedAttributedType));
-        }
+            FilePartition filePartition = resolve(context.getPartition().getClass(), context.getPartition().getName());
 
-        this.fileDataSource.flushAttributedTypes(filePartition);
+            filePartition.getAttributedTypes().put(attributedType.getId(), new FileIdentityType((IdentityType) updatedAttributedType));
+
+            this.fileDataSource.flushAttributedTypes(filePartition);
+        } else if (Relationship.class.isInstance(attributedType)) {
+            Relationship relationship = (Relationship) updatedAttributedType;
+            String type = relationship.getClass().getName();
+
+            List<FileRelationship> storedRelationships = this.fileDataSource.getRelationships().get(type);
+
+            for (FileRelationship storedRelationship : new ArrayList<FileRelationship>(storedRelationships)) {
+                if (storedRelationship.getId().equals(updatedAttributedType.getId())) {
+                    storedRelationships.remove(storedRelationship);
+                }
+            }
+
+            storedRelationships.add(new FileRelationship((Relationship) updatedAttributedType));
+
+            this.fileDataSource.flushRelationships();
+        }
     }
 
     @Override
-    public void remove(IdentityContext context, AttributedType value) {
-        resolve(context.getPartition().getClass(), context.getPartition().getName()).getAttributedTypes().remove(value.getId());
+    public void remove(IdentityContext context, AttributedType attributedType) {
+        if (IdentityType.class.isInstance(attributedType)) {
+            resolve(context.getPartition().getClass(), context.getPartition().getName()).getAttributedTypes().remove(attributedType.getId());
+            removeRelationships((IdentityType) attributedType);
+        } else if (Relationship.class.isInstance(attributedType)) {
+            List<FileRelationship> fileRelationships = this.fileDataSource.getRelationships().get(attributedType.getClass().getName());
+
+            for (FileRelationship fileRelationship : new ArrayList<FileRelationship>(fileRelationships)) {
+                if (fileRelationship.getId().equals(attributedType.getId())) {
+                    fileRelationships.remove(fileRelationship);
+                }
+            }
+        }
+
+        this.fileDataSource.flushRelationships();
     }
 
     @Override
@@ -232,10 +275,12 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
 
         // if we have a ID parameter just get the an instance directly
         if (ids != null && ids.length > 0) {
-            AbstractFileAttributedType fileAttributedType = filePartition.getAttributedTypes().get(ids[0]);
+            if (ids[0] != null) {
+                AbstractFileAttributedType fileAttributedType = filePartition.getAttributedTypes().get(ids[0]);
 
-            if (fileAttributedType != null) {
-                result.add(cloneAttributedType(context, (V) fileAttributedType.getEntry()));
+                if (fileAttributedType != null) {
+                    result.add(cloneAttributedType(context, (V) fileAttributedType.getEntry()));
+                }
             }
         } else {
             FileIdentityQueryHelper queryHelper = new FileIdentityQueryHelper(identityQuery, this);
@@ -308,7 +353,7 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
 
     @Override
     public <V extends Relationship> List<V> fetchQueryResults(IdentityContext context, RelationshipQuery<V> query) {
-        return null;  //TODO: Implement fetchQueryResults
+        return fetchQueryResults(context, query, false);
     }
 
     @Override
@@ -347,48 +392,7 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
     }
 
     <T extends Relationship> T convertToRelationship(IdentityContext context, FileRelationship fileRelationship) {
-        Class<T> relationshipType = null;
-
-        try {
-            relationshipType = (Class<T>) Class.forName(fileRelationship.getType());
-        } catch (Exception e) {
-            throw MESSAGES.classNotFound(fileRelationship.getType());
-        }
-
-        return cloneRelationship(context, fileRelationship, relationshipType);
-    }
-
-    private <T extends Relationship> T cloneRelationship(IdentityContext context, FileRelationship fileRelationship,
-                                                         Class<? extends Relationship> relationshipType) {
-        T clonedRelationship = null;
-
-        try {
-            clonedRelationship = (T) relationshipType.newInstance();
-        } catch (Exception e) {
-            throw MESSAGES.instantiationError(relationshipType.getName(), e);
-        }
-
-        clonedRelationship.setId(fileRelationship.getEntry().getId());
-
-        List<Property<IdentityType>> relationshipIdentityTypes = PropertyQueries
-                .<IdentityType>createQuery(clonedRelationship.getClass())
-                .addCriteria(new TypedPropertyCriteria(IdentityType.class)).getResultList();
-
-        for (Property<IdentityType> annotatedProperty : relationshipIdentityTypes) {
-            try {
-                IdentityType identityType = annotatedProperty.getJavaClass().newInstance();
-
-                identityType.setId(fileRelationship.getIdentityTypeId(annotatedProperty.getName()));
-
-                annotatedProperty.setValue(clonedRelationship, identityType);
-            } catch (Exception e) {
-                throw new IdentityManagementException("Could not create relationship.", e);
-            }
-        }
-
-        updateAttributedType(fileRelationship.getEntry(), clonedRelationship);
-
-        return clonedRelationship;
+        return (T) cloneAttributedType(context, fileRelationship.getEntry());
     }
 
     boolean hasParentGroup(Group childGroup, Group parentGroup) {
@@ -491,8 +495,145 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
             clonedIdentityType.setExpirationDate(identityType.getExpirationDate());
             clonedIdentityType.setCreatedDate(identityType.getCreatedDate());
             clonedIdentityType.setEnabled(identityType.isEnabled());
+        } else if (Relationship.class.isInstance(attributedType)) {
+            Relationship relationship = (Relationship) attributedType;
+            Relationship clonedRelationship = (Relationship) clonedAttributedType;
+
+            PropertyQuery<Serializable> identityPropertiesQuery = PropertyQueries.createQuery(relationship.getClass());
+
+            identityPropertiesQuery.addCriteria(new TypedPropertyCriteria(IdentityType.class, true));
+
+            for (Property<Serializable> property : identityPropertiesQuery.getResultList()) {
+                property.setValue(clonedRelationship, property.getValue(relationship));
+            }
         }
 
         return clonedAttributedType;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends Relationship> List<T> fetchQueryResults(IdentityContext context, RelationshipQuery<T> query,
+                                                               boolean matchExactGroup) {
+        List<T> result = new ArrayList<T>();
+        Class<T> relationshipType = query.getRelationshipType();
+        List<FileRelationship> relationships = new ArrayList<FileRelationship>();
+
+        if (Relationship.class.equals(query.getRelationshipType())) {
+            Collection<List<FileRelationship>> allRelationships = this.fileDataSource.getRelationships().values();
+
+            for (List<FileRelationship> partitionRelationships : allRelationships) {
+                relationships.addAll(partitionRelationships);
+            }
+        } else {
+            List<FileRelationship> typedRelationship = this.fileDataSource.getRelationships().get(
+                    relationshipType.getName());
+
+            if (typedRelationship != null) {
+                relationships.addAll(typedRelationship);
+            }
+        }
+
+        if (relationships.isEmpty()) {
+            return result;
+        }
+
+        for (FileRelationship storedRelationship : relationships) {
+            boolean match = false;
+
+            if (query.getRelationshipType().getName().equals(storedRelationship.getType())) {
+                for (Entry<QueryParameter, Object[]> entry : query.getParameters().entrySet()) {
+                    QueryParameter queryParameter = entry.getKey();
+                    Object[] values = entry.getValue();
+
+                    if (queryParameter instanceof RelationshipQueryParameter) {
+                        RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) queryParameter;
+                        match = matchIdentityType(context, storedRelationship, query, identityTypeParameter,
+                                matchExactGroup);
+                    }
+
+                    if (AttributeParameter.class.isInstance(queryParameter) && values != null) {
+                        AttributeParameter customParameter = (AttributeParameter) queryParameter;
+                        Attribute<Serializable> userAttribute = storedRelationship.getEntry().getAttribute(
+                                customParameter.getName());
+
+                        Serializable userAttributeValue = null;
+
+                        if (userAttribute != null) {
+                            userAttributeValue = userAttribute.getValue();
+                        }
+
+                        if (userAttributeValue != null) {
+                            int count = values.length;
+
+                            for (Object value : values) {
+                                if (userAttributeValue.getClass().isArray()) {
+                                    Object[] userValues = (Object[]) userAttributeValue;
+
+                                    for (Object object : userValues) {
+                                        if (object.equals(value)) {
+                                            count--;
+                                        }
+                                    }
+                                } else {
+                                    if (value.equals(userAttributeValue)) {
+                                        count--;
+                                    }
+                                }
+                            }
+
+                            match = count <= 0;
+                        }
+                    }
+
+                    if (!match) {
+                        break;
+                    }
+                }
+            }
+
+            if (match) {
+                result.add((T) cloneAttributedType(context, storedRelationship.getEntry()));
+            }
+        }
+
+        return result;
+    }
+
+    private boolean matchIdentityType(IdentityContext context, FileRelationship storedRelationship, RelationshipQuery<?> query,
+                                      RelationshipQueryParameter identityTypeParameter, boolean matchExactGroup) {
+        Object[] values = query.getParameter(identityTypeParameter);
+        int valuesMathCount = values.length;
+
+        String identityTypeId = storedRelationship.getIdentityTypeId(identityTypeParameter.getName());
+
+        for (Object object : values) {
+            IdentityType identityType = (IdentityType) object;
+
+            if (identityTypeId.equals(identityType.getId())) {
+                valuesMathCount--;
+
+                if ((GroupMembership.class.isInstance(storedRelationship.getEntry()) || GroupRole.class
+                        .isInstance(storedRelationship.getEntry())) && !matchExactGroup) {
+                    if (Group.class.isInstance(identityType)) {
+                        valuesMathCount = valuesMathCount - (values.length - 1);
+                    }
+                }
+
+            }
+        }
+
+        return valuesMathCount <= 0;
+    }
+
+    private void removeRelationships(IdentityType identityType) {
+        for (List<FileRelationship> relationshipsType : this.fileDataSource.getRelationships().values()) {
+            for (FileRelationship fileRelationship : new ArrayList<FileRelationship>(relationshipsType)) {
+                if (fileRelationship.hasIdentityType(identityType.getId())) {
+                    relationshipsType.remove(fileRelationship);
+                }
+            }
+        }
+
+        this.fileDataSource.flushRelationships();
     }
 }

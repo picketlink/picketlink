@@ -88,18 +88,7 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
 
     @Override
     public List<T> getResultList() {
-        List<T> result = new ArrayList<T>();
-
-        //storeSelector.getStoreForRelationshipOperation(context, relationshipClass, partitions)
-        try {
-            //for (IdentityStore<?> store : stores) {
-              //  result.addAll(store.fetchQueryResults(context, this));
-            //}
-        } catch (Exception e) {
-            throw MESSAGES.relationshipQueryFailed(this, e);
-        }
-
-        return result;
+        return this.storeSelector.getStoreForRelationshipOperation(this.context, this.relationshipType, null).fetchQueryResults(this.context, this);
     }
 
     @Override
