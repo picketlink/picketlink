@@ -23,6 +23,7 @@ import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.Tier;
@@ -162,9 +163,9 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         assertFalse(contains(result, someAnotherRole.getId()));
         assertFalse(contains(result, someImportantRole.getId()));
 
-        PartitionManager partitionManager = getPartitionManager();
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        partitionManager.grantRole(user, someRole);
+        relationshipManager.grantRole(user, someRole);
 
         query = identityManager.createIdentityQuery(Role.class);
 
@@ -177,7 +178,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         assertFalse(contains(result, someAnotherRole.getId()));
         assertFalse(contains(result, someImportantRole.getId()));
 
-        partitionManager.grantRole(user, someAnotherRole);
+        relationshipManager.grantRole(user, someAnotherRole);
 
         query = identityManager.createIdentityQuery(Role.class);
 
@@ -190,7 +191,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         assertTrue(contains(result, someAnotherRole.getId()));
         assertFalse(contains(result, someImportantRole.getId()));
 
-        partitionManager.grantRole(user, someImportantRole);
+        relationshipManager.grantRole(user, someImportantRole);
 
         query = identityManager.createIdentityQuery(Role.class);
 
@@ -203,7 +204,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         assertTrue(contains(result, someAnotherRole.getId()));
         assertTrue(contains(result, someImportantRole.getId()));
 
-        partitionManager.revokeRole(user, someRole);
+        relationshipManager.revokeRole(user, someRole);
 
         query.setParameter(Role.ROLE_OF, new Object[] { user });
 

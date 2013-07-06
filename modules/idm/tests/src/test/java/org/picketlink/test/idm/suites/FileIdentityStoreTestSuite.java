@@ -19,12 +19,12 @@
 package org.picketlink.test.idm.suites;
 
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -34,6 +34,12 @@ import org.picketlink.test.idm.basic.UserManagementTestCase;
 import org.picketlink.test.idm.partition.CustomPartitionTestCase;
 import org.picketlink.test.idm.partition.RealmManagementTestCase;
 import org.picketlink.test.idm.partition.TierManagementTestCase;
+import org.picketlink.test.idm.query.AgentQueryTestCase;
+import org.picketlink.test.idm.query.GroupQueryTestCase;
+import org.picketlink.test.idm.query.IdentityTypeQueryTestCase;
+import org.picketlink.test.idm.query.RelationshipQueryTestCase;
+import org.picketlink.test.idm.query.RoleQueryTestCase;
+import org.picketlink.test.idm.query.UserQueryTestCase;
 import org.picketlink.test.idm.relationship.AgentGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupRoleRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupsRelationshipTestCase;
@@ -59,7 +65,9 @@ import static org.junit.runners.Suite.SuiteClasses;
         UserGrantRelationshipTestCase.class, AgentGrantRelationshipTestCase.class, GroupGrantRelationshipTestCase.class,
         GroupMembershipTestCase.class, AgentGroupsRelationshipTestCase.class,
         AgentGroupRoleRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
-        CustomRelationshipTestCase.class
+        CustomRelationshipTestCase.class,
+        AgentQueryTestCase.class, GroupQueryTestCase.class, IdentityTypeQueryTestCase.class, RelationshipQueryTestCase.class,
+        RoleQueryTestCase.class, UserQueryTestCase.class
 })
 public class FileIdentityStoreTestSuite implements TestLifecycle {
 
@@ -94,6 +102,22 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
         }
 
         partitionManager.add(defaultRealm);
+
+        Tier tier = new Tier("Application A");
+
+        if (partitionManager.getPartition(tier.getClass(), tier.getName()) != null) {
+            partitionManager.remove(tier);
+        }
+
+        partitionManager.add(tier);
+
+        tier = new Tier("Application B");
+
+        if (partitionManager.getPartition(tier.getClass(), tier.getName()) != null) {
+            partitionManager.remove(tier);
+        }
+
+        partitionManager.add(tier);
 
         return partitionManager;
     }

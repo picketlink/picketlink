@@ -24,11 +24,15 @@ import java.util.Date;
 import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.Grant;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
@@ -512,7 +516,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         IdentityQuery<T> query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
 
         List<T> result = query.getResultList();
 
@@ -523,7 +527,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
 
         query.setParameter(IdentityType.ENABLED, identityType.isEnabled());
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue2");
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), "someAttributeValue2");
 
         result = query.getResultList();
 
@@ -531,7 +535,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
 
         result = query.getResultList();
 
@@ -541,7 +545,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
         query.setParameter(IdentityType.ENABLED, !identityType.isEnabled());
 
         result = query.getResultList();
@@ -562,7 +566,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         IdentityQuery<T> query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
 
         List<T> result = query.getResultList();
 
@@ -576,7 +580,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
 
         result = query.getResultList();
 
@@ -588,8 +592,8 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValueChanged");
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute2"), "someAttributeValue2");
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), "someAttributeValueChanged");
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute2"), "someAttributeValue2");
 
         result = query.getResultList();
 
@@ -612,7 +616,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         IdentityQuery<T> query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
                 "someAttributeValue2" });
 
         List<T> result = query.getResultList();
@@ -623,7 +627,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute2"), new Object[] { "someAttributeValue1",
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute2"), new Object[] { "someAttributeValue1",
                 "someAttributeValue2" });
 
         result = query.getResultList();
@@ -632,7 +636,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValueChanged",
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValueChanged",
                 "someAttributeValue2" });
 
         result = query.getResultList();
@@ -641,7 +645,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue" });
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue" });
 
         result = query.getResultList();
 
@@ -656,9 +660,9 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
                 "someAttributeValueChanged" });
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute2"), new Object[] { "someAttribute2Value1",
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute2"), new Object[] { "someAttribute2Value1",
                 "someAttribute2Value2" });
 
         result = query.getResultList();
@@ -669,14 +673,44 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
                 "someAttributeValueChanged" });
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute2"), new Object[] { "someAttribute2ValueChanged",
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute2"), new Object[] { "someAttribute2ValueChanged",
                 "someAttribute2Value2" });
 
         result = query.getResultList();
 
         assertTrue(result.isEmpty());
+    }
+
+    protected boolean containsMembership(List<GroupMembership> result, Account account) {
+        for (GroupMembership identityType : result) {
+            if (identityType.getMember().getId().equals(account.getId())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected boolean containsMembership(List<GroupMembership> result, Group group) {
+        for (GroupMembership identityType : result) {
+            if (identityType.getGroup().getId().equals(group.getId())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected boolean containsGrant(List<Grant> result, IdentityType identityType) {
+        for (Grant grant : result) {
+            if (grant.getAssignee().getId().equals(identityType.getId())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected boolean contains(List<T> result, String id) {
