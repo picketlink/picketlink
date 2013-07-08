@@ -72,7 +72,13 @@ public class IdentityConfigurationBuilder implements IdentityConfigurationChildB
         List<IdentityConfiguration> configurations = new ArrayList<IdentityConfiguration>();
 
         for (NamedIdentityConfigurationBuilder identityConfigBuilder: this.namedIdentityConfigurationBuilders) {
-            configurations.add(identityConfigBuilder.create());
+            IdentityConfiguration configuration = identityConfigBuilder.create();
+
+            if (configurations.contains(configuration)) {
+                throw new SecurityConfigurationException("Multiple configuration with the same name [" + configuration.getName() + "].");
+            }
+
+            configurations.add(configuration);
         }
 
         return configurations;

@@ -19,6 +19,7 @@
 package org.picketlink.idm.config;
 
 import java.util.List;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.spi.RelationshipPolicy;
 import static java.util.Collections.unmodifiableList;
 
@@ -64,5 +65,20 @@ public class IdentityConfiguration {
         }
 
         return false;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!getClass().isInstance(obj)) {
+            return false;
+        }
+
+        IdentityConfiguration other = (IdentityConfiguration) obj;
+
+        return getName() != null && other.getName() != null && getName().equals(other.getName());
     }
 }

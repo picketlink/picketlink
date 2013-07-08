@@ -24,12 +24,7 @@ package org.picketlink.test.idm.config;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -39,15 +34,8 @@ import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
-import org.picketlink.idm.jpa.internal.JPAContextInitializer;
-import org.picketlink.idm.jpa.schema.CredentialObject;
-import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
-import org.picketlink.idm.jpa.schema.IdentityObject;
-import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
-import org.picketlink.idm.jpa.schema.PartitionObject;
-import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
-import org.picketlink.idm.jpa.schema.RelationshipObject;
-import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
+import org.picketlink.idm.internal.DefaultPartitionManager;
+import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.password.internal.BCryptPasswordEncoder;
@@ -67,51 +55,20 @@ import static org.picketlink.idm.credential.internal.PasswordCredentialHandler.P
  */
 public class PasswordCredentialHandlerConfigurationTestCase {
     
-    private EntityManagerFactory emf;
-    private EntityManager entityManager;
-
-    @Before
-    public void onInit() {
-        this.emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
-        this.entityManager = emf.createEntityManager();
-        this.entityManager.getTransaction().begin();
-    }
-
-    @After
-    public void onDestroy() {
-        this.entityManager.getTransaction().commit();
-        this.entityManager.close();
-        this.emf.close();
-    }
-
     @Test
     public void testBCryptPasswordEncoder() throws Exception {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
-                .named("default")
+            .named("default")
                 .stores()
-                .jpa()
-                .setCredentialHandlerProperty(PASSWORD_ENCODER,
-                        new BCryptPasswordEncoder(4))
-                .addContextInitializer(new JPAContextInitializer(emf) {
-                    @Override
-                    public EntityManager getEntityManager() {
-                        return entityManager;
-                    }
-                })
-                .supportAllFeatures()
-                .identityClass(IdentityObject.class)
-                .attributeClass(IdentityObjectAttribute.class)
-                .relationshipClass(RelationshipObject.class)
-                .relationshipIdentityClass(RelationshipIdentityObject.class)
-                .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                .credentialClass(CredentialObject.class)
-                .credentialAttributeClass(CredentialObjectAttribute.class)
-                .partitionClass(PartitionObject.class);
+                    .file()
+                        .setCredentialHandlerProperty(PASSWORD_ENCODER, new BCryptPasswordEncoder(4))
+                        .supportAllFeatures();
 
-        PartitionManager partitionManager = null;
-        fail("Create PartitionManager");
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
 
         IdentityManager identityManager = partitionManager.createIdentityManager();
 
@@ -139,29 +96,15 @@ public class PasswordCredentialHandlerConfigurationTestCase {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
-                .named("default")
+            .named("default")
                 .stores()
-                .jpa()
-                .setCredentialHandlerProperty(PASSWORD_ENCODER,
-                        new PBKDF2PasswordEncoder("salty".getBytes(), 1000, 128))
-                .addContextInitializer(new JPAContextInitializer(emf) {
-                    @Override
-                    public EntityManager getEntityManager() {
-                        return entityManager;
-                    }
-                })
-                .supportAllFeatures()
-                .identityClass(IdentityObject.class)
-                .attributeClass(IdentityObjectAttribute.class)
-                .relationshipClass(RelationshipObject.class)
-                .relationshipIdentityClass(RelationshipIdentityObject.class)
-                .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                .credentialClass(CredentialObject.class)
-                .credentialAttributeClass(CredentialObjectAttribute.class)
-                .partitionClass(PartitionObject.class);
+                    .file()
+                        .setCredentialHandlerProperty(PASSWORD_ENCODER, new PBKDF2PasswordEncoder("salty".getBytes(), 1000, 128))
+                    .supportAllFeatures();
 
-        PartitionManager partitionManager = null;
-        fail("Create PartitionManager");
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
 
         IdentityManager identityManager = partitionManager.createIdentityManager();
 
@@ -187,42 +130,29 @@ public class PasswordCredentialHandlerConfigurationTestCase {
     @Test
     public void testCustomSHAPasswordEncoder() throws Exception {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
-        
+
         builder
             .named("default")
-            .stores()
-                .jpa()
-                .setCredentialHandlerProperty(PASSWORD_ENCODER,
-                        new SHAPasswordEncoder(1) {
-                            @Override
-                            public String encode(String rawPassword) {
-                                Assert.assertEquals(1, this.getStrength());
-                                return super.encode(rawPassword);
-                            }
+                .stores()
+                    .file()
+                        .setCredentialHandlerProperty(PASSWORD_ENCODER,
+                            new SHAPasswordEncoder(1) {
+                                @Override
+                                public String encode(String rawPassword) {
+                                    Assert.assertEquals(1, this.getStrength());
+                                    return super.encode(rawPassword);
+                                }
 
-                            @Override
-                            public boolean verify(String rawPassword, String encodedPassword) {
-                                return super.verify(rawPassword, encodedPassword);
-                            }
-                        })
-                    .addContextInitializer(new JPAContextInitializer(emf) {
-                        @Override
-                        public EntityManager getEntityManager() {
-                            return entityManager;
-                        }
-                    })
-                    .supportAllFeatures()
-                    .identityClass(IdentityObject.class)
-                    .attributeClass(IdentityObjectAttribute.class)
-                    .relationshipClass(RelationshipObject.class)
-                    .relationshipIdentityClass(RelationshipIdentityObject.class)
-                    .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                    .credentialClass(CredentialObject.class)
-                    .credentialAttributeClass(CredentialObjectAttribute.class)
-                    .partitionClass(PartitionObject.class);
+                                @Override
+                                public boolean verify(String rawPassword, String encodedPassword) {
+                                    return super.verify(rawPassword, encodedPassword);
+                                }
+                            })
+                        .supportAllFeatures();
 
-        PartitionManager partitionManager = null;
-        fail("Create PartitionManager");
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
 
         IdentityManager identityManager = partitionManager.createIdentityManager();
 
@@ -247,44 +177,31 @@ public class PasswordCredentialHandlerConfigurationTestCase {
     
     @Test
     public void testCustomPasswordEncoder() throws Exception {
-        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
-
         final Map<String, String> assertionCheck = new HashMap<String, String>();
+
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
             .named("default")
-            .stores()
-                .jpa()
-                    .setCredentialHandlerProperty(PASSWORD_ENCODER, new PasswordEncoder() {
-                        @Override
-                        public String encode(String rawPassword) {
-                            assertionCheck.put("WAS_INVOKED", "true");
-                            return rawPassword;
-                        }
+                .stores()
+                    .file()
+                        .setCredentialHandlerProperty(PASSWORD_ENCODER, new PasswordEncoder() {
+                            @Override
+                            public String encode(String rawPassword) {
+                                assertionCheck.put("WAS_INVOKED", "true");
+                                return rawPassword;
+                            }
 
-                        @Override
-                        public boolean verify(String rawPassword, String encodedPassword) {
-                            return true;
-                        }
-                    })
-                    .addContextInitializer(new JPAContextInitializer(emf) {
-                        @Override
-                        public EntityManager getEntityManager() {
-                            return entityManager;
-                        }
-                    })
-                    .supportAllFeatures()
-                    .identityClass(IdentityObject.class)
-                    .attributeClass(IdentityObjectAttribute.class)
-                    .relationshipClass(RelationshipObject.class)
-                    .relationshipIdentityClass(RelationshipIdentityObject.class)
-                    .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                    .credentialClass(CredentialObject.class)
-                    .credentialAttributeClass(CredentialObjectAttribute.class)
-                    .partitionClass(PartitionObject.class);
+                            @Override
+                            public boolean verify(String rawPassword, String encodedPassword) {
+                                return true;
+                            }
+                        })
+                        .supportAllFeatures();
 
-        PartitionManager partitionManager = null;
-        fail("Create PartitionManager");
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
 
         IdentityManager identityManager = partitionManager.createIdentityManager();
 
@@ -310,40 +227,27 @@ public class PasswordCredentialHandlerConfigurationTestCase {
 
     @Test (expected=IdentityManagementException.class)
     public void failInvalidEncodingAlgorithm() throws Exception {
-        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
-
         final Map<String, String> assertionCheck = new HashMap<String, String>();
+
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
             .named("default")
-            .stores()
-                .jpa()
-                    .setCredentialHandlerProperty(PASSWORD_ENCODER, new SHAPasswordEncoder(999) {
-                        @Override
-                        public String encode(String rawPassword) {
-                            String encode = super.encode(rawPassword);
-                            fail();
-                            return encode;
-                        }
-                    })
-                    .addContextInitializer(new JPAContextInitializer(emf) {
-                        @Override
-                        public EntityManager getEntityManager() {
-                            return entityManager;
-                        }
-                    })
-                    .supportAllFeatures()
-                    .identityClass(IdentityObject.class)
-                    .attributeClass(IdentityObjectAttribute.class)
-                    .relationshipClass(RelationshipObject.class)
-                    .relationshipIdentityClass(RelationshipIdentityObject.class)
-                    .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                    .credentialClass(CredentialObject.class)
-                    .credentialAttributeClass(CredentialObjectAttribute.class)
-                    .partitionClass(PartitionObject.class);
+                .stores()
+                    .file()
+                        .setCredentialHandlerProperty(PASSWORD_ENCODER, new SHAPasswordEncoder(999) {
+                            @Override
+                            public String encode(String rawPassword) {
+                                String encode = super.encode(rawPassword);
+                                fail();
+                                return encode;
+                            }
+                        })
+                    .supportAllFeatures();
 
-        PartitionManager partitionManager = null;
-        fail("Create PartitionManager");
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
 
         IdentityManager identityManager = partitionManager.createIdentityManager();
 
@@ -360,7 +264,7 @@ public class PasswordCredentialHandlerConfigurationTestCase {
         try {
             identityManager.updateCredential(user, password);            
         } catch (Exception e) {
-            assertTrue(e.getMessage().contains("PLIDM000072"));
+            assertTrue(e.getMessage().contains("PLIDM000073"));
             throw e;
         }
         

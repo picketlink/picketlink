@@ -24,10 +24,6 @@ package org.picketlink.test.idm.config;
 
 import java.util.Calendar;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
@@ -37,6 +33,7 @@ import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.TOTPCredential;
 import org.picketlink.idm.credential.TOTPCredentials;
 import org.picketlink.idm.credential.totp.TimeBasedOTP;
+import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -46,6 +43,7 @@ import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
+import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.User;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -68,23 +66,6 @@ public class TOTPCredentialHandlerConfigurationTestCase {
     private static final String USER_TOTP_SECRET = "my_secret";
     private static final String USER_PASSWORD = "passwd";
     private static final String USER_NAME = "user";
-
-    private EntityManagerFactory emf;
-    private EntityManager entityManager;
-
-    @Before
-    public void onInit() {
-        this.emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
-        this.entityManager = emf.createEntityManager();
-        this.entityManager.getTransaction().begin();
-    }
-
-    @After
-    public void onDestroy() {
-        this.entityManager.getTransaction().commit();
-        this.entityManager.close();
-        this.emf.close();
-    }
 
     @Test
     public void testNoDelayWindow() throws Exception {
@@ -188,27 +169,14 @@ public class TOTPCredentialHandlerConfigurationTestCase {
 
         builder
             .named("default")
-            .stores()
-                .jpa()
-                    .setCredentialHandlerProperty(propertyKey, propertyValue)
-                    .addContextInitializer(new JPAContextInitializer(emf) {
-                        @Override
-                        public EntityManager getEntityManager() {
-                            return entityManager;
-                        }
-                    })
-                    .supportAllFeatures()
-                    .identityClass(IdentityObject.class)
-                    .attributeClass(IdentityObjectAttribute.class)
-                    .relationshipClass(RelationshipObject.class)
-                    .relationshipIdentityClass(RelationshipIdentityObject.class)
-                    .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                    .credentialClass(CredentialObject.class)
-                    .credentialAttributeClass(CredentialObjectAttribute.class)
-                    .partitionClass(PartitionObject.class);
+                .stores()
+                    .file()
+                        .setCredentialHandlerProperty(propertyKey, propertyValue)
+                        .supportAllFeatures();
 
-        PartitionManager partitionManager = null;
-        fail("Create PartitionManager");
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
 
         IdentityManager identityManager = partitionManager.createIdentityManager();
 

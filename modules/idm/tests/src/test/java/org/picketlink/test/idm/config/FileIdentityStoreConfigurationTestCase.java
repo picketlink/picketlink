@@ -22,27 +22,80 @@
 
 package org.picketlink.test.idm.config;
 
-import org.picketlink.idm.config.FileStoreConfigurationBuilder;
+import org.junit.Test;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.config.SecurityConfigurationException;
+import org.picketlink.idm.model.sample.User;
 
 /**
  * <p>
- * Test case for the {@link JPAIdentityStoreConfigurationOld}.
+ * Test case for the {@link org.picketlink.idm.file.internal.FileIdentityStore}.
  * </p>
  * 
  * @author Pedro Silva
  * 
  */
-public class FileIdentityStoreConfigurationTestCase extends
-        AbstractFeaturesSetConfigurationTestCase<FileStoreConfigurationBuilder> {
+public class FileIdentityStoreConfigurationTestCase {
 
-//    @Override
-//    protected FileStoreConfigurationBuilder createMinimalConfiguration(IdentityConfigurationBuilder builder) {
-//        FileStoreConfigurationBuilder fileConfig = builder.named("default").stores().file();
-//
-//        fileConfig
-//            .supportAllFeatures();
-//
-//        return fileConfig;
-//    }
+    @Test (expected = SecurityConfigurationException.class)
+    public void failNoIdentityStoreProvided() {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder.named("default").stores();
+
+        builder.build();
+    }
+
+    @Test (expected = SecurityConfigurationException.class)
+    public void failNoSupportedTypeProvided() {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder.named("default").stores().file();
+
+        builder.build();
+    }
+
+    @Test (expected = SecurityConfigurationException.class)
+    public void failNoPartitionStoreProvided() {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder.named("default").stores().file().supportType(User.class);
+
+        builder.build();
+    }
+
+    @Test (expected = SecurityConfigurationException.class)
+    public void failMultipleConfigurationWithBuildMethod() {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+            .named("default")
+                .stores()
+                    .file()
+                        .supportAllFeatures()
+            .named("default")
+                .stores()
+                    .file()
+                        .supportAllFeatures();
+
+        builder.build();
+    }
+
+    @Test (expected = SecurityConfigurationException.class)
+    public void failMultipleConfigurationWithSameName() {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+            .named("default")
+                .stores()
+                    .file()
+                        .supportAllFeatures()
+            .named("default")
+                .stores()
+                    .file()
+                        .supportAllFeatures();
+
+        builder.buildAll();
+    }
 
 }

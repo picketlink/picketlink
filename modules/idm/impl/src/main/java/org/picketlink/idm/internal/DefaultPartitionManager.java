@@ -227,11 +227,19 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     private IdentityConfiguration getConfigurationForPartition(Partition partition) {
+        IdentityConfiguration identityConfiguration;
+
         if (partitionConfigurations.containsKey(partition)) {
-            return partitionConfigurations.get(partition);
+            identityConfiguration = partitionConfigurations.get(partition);
         } else {
-            return lookupPartitionConfiguration(partition);
+            identityConfiguration = lookupPartitionConfiguration(partition);
         }
+
+        if (identityConfiguration == null) {
+            throw new IdentityManagementException("No configuration found for partition [" + partition + "].");
+        }
+
+        return identityConfiguration;
     }
 
     private IdentityConfiguration lookupPartitionConfiguration(Partition partition) {
@@ -318,7 +326,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             IdentityContext context = createIdentityContext();
             return getStoreForPartitionOperation(context).<T>get(context, partitionClass, name);
         } catch (Exception e) {
-            throw new IdentityManagementException("Could not load partition for type [" + partitionClass.getName() + "] and name [" + name + "].");
+            throw new IdentityManagementException("Could not load partition for type [" + partitionClass.getName() + "] and name [" + name + "].", e);
         }
     }
 
@@ -512,13 +520,19 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     @Override
     public <T extends PartitionStore<?>> T getStoreForPartitionOperation(IdentityContext context) {
         Map<IdentityStoreConfiguration, IdentityStore<?>> configStores = stores.get(partitionManagementConfig);
+
         for (IdentityStoreConfiguration cfg : configStores.keySet()) {
             if (cfg.supportsType(Partition.class, IdentityOperation.create)) {
-                T store = (T) configStores.get(cfg);
-                cfg.initializeContext(context, store);
-                return store;
+                try {
+                    T store = (T) configStores.get(cfg);
+                    cfg.initializeContext(context, store);
+                    return store;
+                } catch (ClassCastException cce) {
+                    throw new IdentityManagementException("Store [" + configStores.get(cfg) + "] is not a PartitionStore.");
+                }
             }
         }
+
         throw new IdentityManagementException("Could not locate PartitionStore");
     }
 

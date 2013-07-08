@@ -23,7 +23,9 @@
 package org.picketlink.test.idm.config;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,19 +34,21 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.AbstractIdentityStoreConfiguration;
 import org.picketlink.idm.config.AbstractIdentityStoreConfigurationBuilder;
-import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoresConfigurationBuilder;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
+import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
@@ -53,8 +57,8 @@ import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.PartitionStore;
 import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  *
@@ -78,10 +82,10 @@ public class CustomIdentityStoreTestCase {
                     .methodInvocationContext(methodInvocationContext)
                     .supportAllFeatures();
 
-        IdentityConfiguration configuration = builder.build();
-        PartitionManager partitionManager = null;
-        fail("Create PartitionManager");
-        
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+
         IdentityManager identityManager = partitionManager.createIdentityManager();
         
         identityManager.add(new User("john"));
@@ -90,7 +94,7 @@ public class CustomIdentityStoreTestCase {
 
         identityManager.getUser("john");
 
-        assertEquals("getUser", methodInvocationContext.getMethodName());
+        assertEquals("queryIdentityType", methodInvocationContext.getMethodName());
     }
 
     public static class MyIdentityStoreConfigurationBuilder extends
@@ -148,9 +152,10 @@ public class CustomIdentityStoreTestCase {
         }
     }
 
-    public static class MyIdentityStore implements CredentialStore<MyIdentityStoreConfiguration> {
+    public static class MyIdentityStore implements PartitionStore<MyIdentityStoreConfiguration>, CredentialStore<MyIdentityStoreConfiguration> {
 
         private MyIdentityStoreConfiguration config;
+        private final Map<String, Partition> partitions = new HashMap<String, Partition>();
 
         @Override
         public void setup(MyIdentityStoreConfiguration config) {
@@ -214,8 +219,8 @@ public class CustomIdentityStoreTestCase {
 
         @Override
         public <V extends IdentityType> List<V> fetchQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
-            // TODO Auto-generated method stub
-            return null;
+            getConfig().getMethodInvocationContext().setMethodName("queryIdentityType");
+            return Collections.emptyList();
         }
 
         @Override
@@ -288,6 +293,31 @@ public class CustomIdentityStoreTestCase {
             return null;
         }
 
+        @Override
+        public String getConfigurationName(IdentityContext identityContext, Partition partition) {
+            return "default";  //TODO: Implement getConfigurationName
+        }
+
+        @Override
+        public <P extends Partition> P get(IdentityContext identityContext, Class<P> partitionClass, String name) {
+            return (P) this.partitions.get(name);
+        }
+
+        @Override
+        public void add(IdentityContext identityContext, Partition partition, String configurationName) {
+            partition.setId(identityContext.getIdGenerator().generate());
+            this.partitions.put(partition.getName(), partition);
+        }
+
+        @Override
+        public void update(IdentityContext identityContext, Partition partition) {
+            //TODO: Implement update
+        }
+
+        @Override
+        public void remove(IdentityContext identityContext, Partition partition) {
+            //TODO: Implement remove
+        }
     }
 
     public static class MethodInvocationContext {
