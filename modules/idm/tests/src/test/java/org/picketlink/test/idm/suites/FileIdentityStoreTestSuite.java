@@ -31,6 +31,10 @@ import org.picketlink.test.idm.basic.AgentManagementTestCase;
 import org.picketlink.test.idm.basic.GroupManagementTestCase;
 import org.picketlink.test.idm.basic.RoleManagementTestCase;
 import org.picketlink.test.idm.basic.UserManagementTestCase;
+import org.picketlink.test.idm.credential.CertificateCredentialTestCase;
+import org.picketlink.test.idm.credential.DigestCredentialTestCase;
+import org.picketlink.test.idm.credential.PasswordCredentialTestCase;
+import org.picketlink.test.idm.credential.TOTPCredentialTestCase;
 import org.picketlink.test.idm.partition.CustomPartitionTestCase;
 import org.picketlink.test.idm.partition.RealmManagementTestCase;
 import org.picketlink.test.idm.partition.TierManagementTestCase;
@@ -48,6 +52,7 @@ import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
 import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
+import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
 import static org.junit.runners.Suite.SuiteClasses;
 
 /**
@@ -64,10 +69,12 @@ import static org.junit.runners.Suite.SuiteClasses;
         AgentManagementTestCase.class, UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
         UserGrantRelationshipTestCase.class, AgentGrantRelationshipTestCase.class, GroupGrantRelationshipTestCase.class,
         GroupMembershipTestCase.class, AgentGroupsRelationshipTestCase.class,
-        AgentGroupRoleRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
+        AgentGroupRoleRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class, ApplicationUserRelationshipTestCase.class,
         CustomRelationshipTestCase.class,
         AgentQueryTestCase.class, GroupQueryTestCase.class, IdentityTypeQueryTestCase.class, RelationshipQueryTestCase.class,
-        RoleQueryTestCase.class, UserQueryTestCase.class
+        RoleQueryTestCase.class, UserQueryTestCase.class,
+        PasswordCredentialTestCase.class, DigestCredentialTestCase.class, CertificateCredentialTestCase.class, TOTPCredentialTestCase.class
+
 })
 public class FileIdentityStoreTestSuite implements TestLifecycle {
 
@@ -102,6 +109,14 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
         }
 
         partitionManager.add(defaultRealm);
+
+        Realm testingRealm = new Realm("Testing");
+
+        if (partitionManager.getPartition(testingRealm.getClass(), testingRealm.getName()) != null) {
+            partitionManager.remove(testingRealm);
+        }
+
+        partitionManager.add(testingRealm);
 
         Tier tier = new Tier("Application A");
 

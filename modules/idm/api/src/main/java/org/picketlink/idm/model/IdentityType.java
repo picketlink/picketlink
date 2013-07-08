@@ -17,9 +17,8 @@
  */
 package org.picketlink.idm.model;
 
-import org.picketlink.idm.query.QueryParameter;
-
 import java.util.Date;
+import org.picketlink.idm.query.QueryParameter;
 
 /**
  * This interface is the base for all identity model objects.  It declares a number of
@@ -69,43 +68,6 @@ public interface IdentityType extends AttributedType {
      * A query parameter used to set the expiration before date
      */
     QueryParameter EXPIRY_BEFORE = new QueryParameter() {};
-
-    /**
-     * Used to specify either a realm or tier-specific role.  The query should only
-     * return IdentityType instances that have been granted the specified role
-     */
-    QueryParameter HAS_ROLE = new QueryParameter() {};
-
-    /**
-     * Used to specify either a realm-specific User or Group, or a tier-specific Group.  The
-     * query should only return Role instances that the specified User or Group is a member of
-     */
-    QueryParameter ROLE_OF = new QueryParameter() {};
-
-    /**
-     * Used to specify either a realm-specific or tier-specific group role, of which both the Group
-     * and Role must be provided as parameter values.  The query should only return IdentityType
-     * instances that have been granted the specified group role.
-     */
-    QueryParameter HAS_GROUP_ROLE = new QueryParameter() {};
-
-    /**
-     * Used to specify either a realm-specific User or Group, or a tier-specific Group.  The query
-     * should only return GroupRole instances that the specified User or Group is a member of
-     */
-    QueryParameter GROUP_ROLE_OF = new QueryParameter() {};
-
-    /**
-     * Used to specify either a realm-specific or tier-specific Group.  The query should only return
-     * IdentityType instances that are a member of the specified group.
-     */
-    QueryParameter MEMBER_OF = new QueryParameter() {};
-
-    /**
-     * Used to specify either a realm-specific User or Group, or a tier-specific Group.  The query
-     * should only return Group instances that the specified User or Group is a member of
-     */
-    QueryParameter HAS_MEMBER = new QueryParameter() {};
 
     /**
      * Indicates the current enabled status of this IdentityType.

@@ -71,8 +71,9 @@ public class LDAPQueryParameter {
     }
 
     public boolean isMembershipParameter() {
-        return queryParameter.equals(IdentityType.HAS_ROLE) || queryParameter.equals(IdentityType.MEMBER_OF)
-                || queryParameter.equals(IdentityType.HAS_GROUP_ROLE) || queryParameter.equals(org.picketlink.idm.model.sample.Role.ROLE_OF) || queryParameter.equals(org.picketlink.idm.model.sample.Group.HAS_MEMBER);
+//        return queryParameter.equals(IdentityType.HAS_ROLE) || queryParameter.equals(IdentityType.MEMBER_OF)
+//                || queryParameter.equals(IdentityType.HAS_GROUP_ROLE) || queryParameter.equals(org.picketlink.idm.model.sample.Role.ROLE_OF) || queryParameter.equals(org.picketlink.idm.model.sample.Group.HAS_MEMBER);
+        return false;
     }
 
     public String createFilter() {

@@ -20,15 +20,18 @@ package org.picketlink.test.idm.query;
 
 import java.util.List;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.sample.Grant;
+import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
@@ -151,69 +154,66 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
 
         User user = createUser("someUser");
 
-        IdentityManager identityManager = getIdentityManager();
-
-        IdentityQuery<Role> query = identityManager.createIdentityQuery(Role.class);
-
-        query.setParameter(Role.ROLE_OF, new Object[] { user });
-
-        List<Role> result = query.getResultList();
-
-        assertFalse(contains(result, someRole.getId()));
-        assertFalse(contains(result, someAnotherRole.getId()));
-        assertFalse(contains(result, someImportantRole.getId()));
-
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
+        RelationshipQuery<Grant> query = relationshipManager.createRelationshipQuery(Grant.class);
+
+        query.setParameter(Grant.ASSIGNEE, new Object[] { user });
+
+        List<Grant> result = query.getResultList();
+
+        assertFalse(containsGrant(result, someRole));
+        assertFalse(containsGrant(result, someAnotherRole));
+        assertFalse(containsGrant(result, someImportantRole));
 
         relationshipManager.grantRole(user, someRole);
 
-        query = identityManager.createIdentityQuery(Role.class);
+        query = relationshipManager.createRelationshipQuery(Grant.class);
 
-        query.setParameter(Role.ROLE_OF, new Object[] { user });
+        query.setParameter(Grant.ASSIGNEE, new Object[] { user });
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, someRole.getId()));
-        assertFalse(contains(result, someAnotherRole.getId()));
-        assertFalse(contains(result, someImportantRole.getId()));
+        assertTrue(containsGrant(result, someRole));
+        assertFalse(containsGrant(result, someAnotherRole));
+        assertFalse(containsGrant(result, someImportantRole));
 
         relationshipManager.grantRole(user, someAnotherRole);
 
-        query = identityManager.createIdentityQuery(Role.class);
+        query = relationshipManager.createRelationshipQuery(Grant.class);
 
-        query.setParameter(Role.ROLE_OF, new Object[] { user });
+        query.setParameter(Grant.ASSIGNEE, new Object[] { user });
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, someRole.getId()));
-        assertTrue(contains(result, someAnotherRole.getId()));
-        assertFalse(contains(result, someImportantRole.getId()));
+        assertTrue(containsGrant(result, someRole));
+        assertTrue(containsGrant(result, someAnotherRole));
+        assertFalse(containsGrant(result, someImportantRole));
 
         relationshipManager.grantRole(user, someImportantRole);
 
-        query = identityManager.createIdentityQuery(Role.class);
+        query = relationshipManager.createRelationshipQuery(Grant.class);
 
-        query.setParameter(Role.ROLE_OF, new Object[] { user });
+        query.setParameter(Grant.ASSIGNEE, new Object[] { user });
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, someRole.getId()));
-        assertTrue(contains(result, someAnotherRole.getId()));
-        assertTrue(contains(result, someImportantRole.getId()));
+        assertTrue(containsGrant(result, someRole));
+        assertTrue(containsGrant(result, someAnotherRole));
+        assertTrue(containsGrant(result, someImportantRole));
 
         relationshipManager.revokeRole(user, someRole);
 
-        query.setParameter(Role.ROLE_OF, new Object[] { user });
+        query.setParameter(Grant.ASSIGNEE, new Object[] { user });
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertFalse(contains(result, someRole.getId()));
-        assertTrue(contains(result, someAnotherRole.getId()));
-        assertTrue(contains(result, someImportantRole.getId()));
+        assertFalse(containsGrant(result, someRole));
+        assertTrue(containsGrant(result, someAnotherRole));
+        assertTrue(containsGrant(result, someImportantRole));
     }
 
     @Test
@@ -226,7 +226,11 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
 
         // Descending sorting by roleName
         IdentityQuery<Role> roleQuery = getIdentityManager().createIdentityQuery(Role.class);
+
+        roleQuery.setSortParameters(Role.NAME);
+
         roleQuery.setSortAscending(false);
+
         List<Role> roles = roleQuery.getResultList();
 
         assertEquals(3, roles.size());

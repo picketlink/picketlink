@@ -20,6 +20,7 @@ package org.picketlink.idm.file.internal;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.picketlink.idm.model.Partition;
@@ -34,6 +35,7 @@ public class FilePartition extends AbstractFileAttributedType<Partition> {
 
     private transient String configurationName;
     private transient Map<String, AbstractFileAttributedType<?>> attributedTypes = new ConcurrentHashMap<String, AbstractFileAttributedType<?>>();
+    private transient Map<String, Map<String, List<FileCredentialStorage>>> credentials = new ConcurrentHashMap<String, Map<String, List<FileCredentialStorage>>>();
 
     protected FilePartition(Partition object, String configurationName) {
         super(VERSION, object);
@@ -86,5 +88,13 @@ public class FilePartition extends AbstractFileAttributedType<Partition> {
 
     public void setAttributedTypes(Map<String, AbstractFileAttributedType<?>> attributedTypes) {
         this.attributedTypes = attributedTypes;
+    }
+
+    public Map<String, Map<String, List<FileCredentialStorage>>> getCredentials() {
+        return this.credentials;
+    }
+
+    public void setCredentials(Map<String, Map<String, List<FileCredentialStorage>>> credentials) {
+        this.credentials = credentials;
     }
 }

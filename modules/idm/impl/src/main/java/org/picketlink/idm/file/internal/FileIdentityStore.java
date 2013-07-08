@@ -21,7 +21,9 @@ package org.picketlink.idm.file.internal;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.picketlink.common.properties.Property;
@@ -33,12 +35,15 @@ import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.internal.CredentialUtils;
 import org.picketlink.idm.credential.internal.DigestCredentialHandler;
 import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
 import org.picketlink.idm.credential.internal.TOTPCredentialHandler;
 import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
+import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
+import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
@@ -50,6 +55,7 @@ import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.GroupRole;
+import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.AttributeParameter;
@@ -60,9 +66,11 @@ import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
+import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.PartitionStore;
 import static java.util.Map.Entry;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.file.internal.FileIdentityQueryHelper.isQueryParameterEquals;
 
 /**
  * <p>
@@ -204,53 +212,79 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
     }
 
     @Override
-    public User getUser(IdentityContext context, String loginName) {
-        List<User> users = fetchQueryResults(context, new DefaultIdentityQuery<User>(context, User.class, this));
-
-        if (users.isEmpty()) {
-            return null;
-        }
-
-        return users.get(0);
-    }
-
-    @Override
     public <I extends IdentityType> I getIdentity(Class<I> identityType, String id) {
         return null; //TODO: Implement storeCredential
     }
 
     @Override
     public void storeCredential(IdentityContext context, Account account, CredentialStorage storage) {
-        //TODO: Implement storeCredential
+        List<FileCredentialStorage> credentials = getCredentials(context, account, storage.getClass());
+
+        credentials.add(new FileCredentialStorage(storage));
+
+        this.fileDataSource.flushCredentials((Realm) context.getPartition());
     }
 
     @Override
     public <T extends CredentialStorage> T retrieveCurrentCredential(IdentityContext context, Account account, Class<T> storageClass) {
-        return null;  //TODO: Implement retrieveCurrentCredential
+        return CredentialUtils.getCurrentCredential(context, account, this, storageClass);
     }
 
     @Override
     public <T extends CredentialStorage> List<T> retrieveCredentials(IdentityContext context, Account account, Class<T> storageClass) {
-        return null;  //TODO: Implement retrieveCredentials
+        ArrayList<T> storedCredentials = new ArrayList<T>();
+
+        List<FileCredentialStorage> credentials = getCredentials(context, account, storageClass);
+
+        for (FileCredentialStorage fileCredentialStorage : credentials) {
+            storedCredentials.add((T) fileCredentialStorage.getEntry());
+        }
+
+        return storedCredentials;
+    }
+
+    @Override
+    public User getUser(IdentityContext context, String loginName) {
+        Agent agent = getAgent(context, loginName);
+
+        if (User.class.isInstance(agent)) {
+            return (User) agent;
+        }
+
+        return null;
     }
 
     @Override
     public Agent getAgent(IdentityContext context, String loginName) {
-        return null;  //TODO: Implement getAgent
+        IdentityQuery<Agent> query = new DefaultIdentityQuery<Agent>(context, Agent.class, this);
+
+        query.setParameter(Agent.LOGIN_NAME, loginName);
+
+        List<Agent> users = fetchQueryResults(context, query);
+
+        if (users.isEmpty()) {
+            return null;
+        }
+
+        return users.get(0);
+
     }
 
     @Override
     public Group getGroup(IdentityContext context, String groupPath) {
-        return null;  //TODO: Implement getGroup
+        //TODO: do we need this method ? Why not use the query api
+        return null;
     }
 
     @Override
     public Group getGroup(IdentityContext context, String name, Group parent) {
-        return null;  //TODO: Implement getGroup
+        //TODO: do we need this method ? Why not use the query api
+        return null;
     }
 
     @Override
     public Role getRole(IdentityContext context, String name) {
+        //TODO: do we need this method ? Why not use the query api
         return null;  //TODO: Implement getRole
     }
 
@@ -296,6 +330,18 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
                     continue;
                 }
 
+                if (!isQueryParameterEquals(identityQuery, IdentityType.ENABLED, storedEntry.isEnabled())) {
+                    continue;
+                }
+
+                if (!queryHelper.matchCreatedDateParameters(storedEntry)) {
+                    continue;
+                }
+
+                if (!queryHelper.matchExpiryDateParameters(storedEntry)) {
+                    continue;
+                }
+
                 boolean found = true;
 
                 for (Entry<QueryParameter, Object[]> entry : identityQuery.getParameters(AttributeParameter.class).entrySet()) {
@@ -311,21 +357,50 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
                     if (AttributeParameter.class.isInstance(queryParameter)) {
                         String attributeParameterName = ((AttributeParameter) queryParameter).getName();
 
-                        Property<Serializable> property = PropertyQueries.<Serializable>createQuery(identityQuery.getIdentityType())
-                                .addCriteria(new NamedPropertyCriteria(attributeParameterName))
-                                .getSingleResult();
+                        Property<Serializable> property = null;
 
-                        if (property.getName().equals(attributeParameterName)) {
+                        try {
+                            property = PropertyQueries.<Serializable>createQuery(identityQuery.getIdentityType())
+                                    .addCriteria(new NamedPropertyCriteria(attributeParameterName))
+                                    .getSingleResult();
+                        } catch (RuntimeException re) {
+                        }
+
+                        Object[] queryParameterValues = entry.getValue();
+
+                        if (property != null && property.getName().equals(attributeParameterName)) {
                             Serializable storedValue = property.getValue(storedEntry);
 
                             if (storedValue != null) {
-                                Object[] queryParameterValues = entry.getValue();
-
                                 if (storedValue.getClass().isArray() || Collection.class.isInstance(storedValue)) {
                                     // TODO: handle multi-valued properties
                                 } else {
                                     found = storedValue != null && storedValue.equals(queryParameterValues[0]);
                                 }
+                            }
+                        } else {
+                            Attribute<Serializable> identityTypeAttribute = storedEntry.getAttribute(attributeParameterName);
+
+                            if (identityTypeAttribute != null && identityTypeAttribute.getValue() != null) {
+                                int valuesMatchCount = queryParameterValues.length;
+
+                                for (Object value : queryParameterValues) {
+                                    if (identityTypeAttribute.getValue().getClass().isArray()) {
+                                        Object[] userValues = (Object[]) identityTypeAttribute.getValue();
+
+                                        for (Object object : userValues) {
+                                            if (object.equals(value)) {
+                                                valuesMatchCount--;
+                                            }
+                                        }
+                                    } else {
+                                        if (value.equals(identityTypeAttribute.getValue())) {
+                                            valuesMatchCount--;
+                                        }
+                                    }
+                                }
+
+                                found = valuesMatchCount <= 0;
                             }
                         }
                     }
@@ -336,6 +411,9 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
                 }
             }
         }
+
+        // Apply sorting
+        Collections.sort(result, new FileSortingComparator<V>(identityQuery));
 
         // Apply pagination
         if (identityQuery.getLimit() > 0) {
@@ -348,7 +426,18 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
 
     @Override
     public <V extends IdentityType> int countQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
-        return 0;  //TODO: Implement countQueryResults
+        int limit = identityQuery.getLimit();
+        int offset = identityQuery.getOffset();
+
+        identityQuery.setLimit(0);
+        identityQuery.setOffset(0);
+
+        int resultCount = identityQuery.getResultList().size();
+
+        identityQuery.setLimit(limit);
+        identityQuery.setOffset(offset);
+
+        return resultCount;
     }
 
     @Override
@@ -358,7 +447,7 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
 
     @Override
     public <V extends Relationship> int countQueryResults(IdentityContext context, RelationshipQuery<V> query) {
-        return 0;  //TODO: Implement countQueryResults
+        return fetchQueryResults(context, query).size();
     }
 
     @Override
@@ -378,12 +467,12 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
 
     @Override
     public void validateCredentials(IdentityContext context, Credentials credentials) {
-        //TODO: Implement validateCredentials
+        getCredentialHandler(credentials, this).validate(context, credentials, this);
     }
 
     @Override
     public void updateCredential(IdentityContext context, Account account, Object credential, Date effectiveDate, Date expiryDate) {
-        //TODO: Implement updateCredential
+        getCredentialHandler(credential, this).update(context, account, credential, this, effectiveDate, expiryDate);
     }
 
     @Override
@@ -635,5 +724,72 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
         }
 
         this.fileDataSource.flushRelationships();
+    }
+
+    public <C extends CredentialHandler> C getCredentialHandler(Object credentials, IdentityStore<?> identityStore) {
+        C credentialHandler = null;
+
+        for (@SuppressWarnings("rawtypes") Class<? extends CredentialHandler> handlerClass : getCredentialHandlers()) {
+            if (handlerClass.isAnnotationPresent(SupportsCredentials.class)) {
+                for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).value()) {
+                    if (cls.isAssignableFrom(credentials.getClass())) {
+                        try {
+                            credentialHandler = (C) handlerClass.newInstance();
+
+                            credentialHandler.setup(identityStore);
+                        } catch (Exception e) {
+                            throw MESSAGES.credentialCredentialHandlerInstantiationError(handlerClass, e);
+                        }
+
+                        // if we found a specific handler for the credential, immediately return.
+                        if (cls.equals(credentials.getClass())) {
+                            return credentialHandler;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (credentialHandler == null) {
+            throw MESSAGES.credentialHandlerNotFoundForCredentialType(credentials.getClass());
+        }
+
+        return credentialHandler;
+    }
+
+    private List<Class<? extends CredentialHandler>> getCredentialHandlers() {
+        List<Class<? extends CredentialHandler>> credentialHandlers = getConfig().getCredentialHandlers();
+
+        if (credentialHandlers.isEmpty()) {
+            credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
+
+            credentialHandlers.add(PasswordCredentialHandler.class);
+            credentialHandlers.add(DigestCredentialHandler.class);
+            credentialHandlers.add(TOTPCredentialHandler.class);
+            credentialHandlers.add(X509CertificateCredentialHandler.class);
+        }
+
+        return credentialHandlers;
+    }
+
+    private List<FileCredentialStorage> getCredentials(IdentityContext context, Account agent,
+                                                       Class<? extends CredentialStorage> storageType) {
+        Map<String, List<FileCredentialStorage>> agentCredentials = this.fileDataSource.getPartitions().get(context.getPartition().getId()).getCredentials().get(
+                agent.getId());
+
+        if (agentCredentials == null) {
+            agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
+            this.fileDataSource.getPartitions().get(context.getPartition().getId()).getCredentials().put(agent.getId(), agentCredentials);
+        }
+
+        List<FileCredentialStorage> credentials = agentCredentials.get(storageType.getName());
+
+        if (credentials == null) {
+            credentials = new ArrayList<FileCredentialStorage>();
+        }
+
+        agentCredentials.put(storageType.getName(), credentials);
+
+        return credentials;
     }
 }

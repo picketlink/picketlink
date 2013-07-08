@@ -20,10 +20,10 @@ package org.picketlink.test.idm.query;
 
 import java.util.List;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Grant;
@@ -260,28 +260,26 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         T agentType = createIdentityType("admin", null);
         Role administratorRole = createRole("Administrators");
 
-        IdentityManager identityManager = getIdentityManager();
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
+        RelationshipQuery<Grant> query = relationshipManager.createRelationshipQuery(Grant.class);
 
-        query.setParameter(User.HAS_ROLE, administratorRole);
+        query.setParameter(Grant.ROLE, administratorRole);
 
-        List<T> result = query.getResultList();
+        List<Grant> result = query.getResultList();
 
         assertTrue(result.isEmpty());
 
-        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
-
         relationshipManager.grantRole(agentType, administratorRole);
 
-        query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
+        query = relationshipManager.createRelationshipQuery(Grant.class);
 
-        query.setParameter(User.HAS_ROLE, administratorRole);
+        query.setParameter(Grant.ROLE, administratorRole);
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(agentType.getId(), result.get(0).getId());
+        assertEquals(agentType.getId(), result.get(0).getAssignee().getId());
     }
 
     /**
@@ -297,39 +295,39 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         Group administratorGroup = createGroup("Administrators", null);
         Group someGroup = createGroup("someGroup", null);
 
-        IdentityManager identityManager = getIdentityManager();
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
         relationshipManager.addToGroup(agentType, administratorGroup);
         relationshipManager.addToGroup(agentType, someGroup);
 
-        IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
+        RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
-        query.setParameter(User.MEMBER_OF, administratorGroup, someGroup);
+        query.setParameter(GroupMembership.GROUP, administratorGroup, someGroup);
 
-        List<T> result = query.getResultList();
+        List<GroupMembership> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(agentType.getId(), result.get(0).getId());
+        assertEquals(agentType.getId(), result.get(0).getMember().getId());
 
         relationshipManager.removeFromGroup(agentType, someGroup);
 
-        query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
+        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
-        query.setParameter(User.MEMBER_OF, administratorGroup, someGroup);
+        query.setParameter(GroupMembership.GROUP, administratorGroup);
+        query.setParameter(GroupMembership.GROUP, someGroup);
 
         result = query.getResultList();
 
         assertTrue(result.isEmpty());
 
-        query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
+        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
-        query.setParameter(User.MEMBER_OF, administratorGroup);
+        query.setParameter(GroupMembership.GROUP, administratorGroup);
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(agentType.getId(), result.get(0).getId());
+        assertEquals(agentType.getId(), result.get(0).getMember().getId());
     }
 
     /**
@@ -345,39 +343,39 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         Role administratorRole = createRole("Administrators");
         Role someRole = createRole("someRole");
 
-        IdentityManager identityManager = getIdentityManager();
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
         relationshipManager.grantRole(agentType, administratorRole);
         relationshipManager.grantRole(agentType, someRole);
 
-        IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
+        RelationshipQuery<Grant> query = relationshipManager.createRelationshipQuery(Grant.class);
 
-        query.setParameter(User.HAS_ROLE, administratorRole);
+        query.setParameter(Grant.ROLE, administratorRole);
 
-        List<T> result = query.getResultList();
+        List<Grant> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(agentType.getId(), result.get(0).getId());
+        assertEquals(agentType.getId(), result.get(0).getAssignee().getId());
 
         relationshipManager.revokeRole(agentType, someRole);
 
-        query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
+        query = relationshipManager.createRelationshipQuery(Grant.class);
 
-        query.setParameter(User.HAS_ROLE, administratorRole, someRole);
+        query.setParameter(Grant.ROLE, administratorRole);
+        query.setParameter(Grant.ROLE, someRole);
 
         result = query.getResultList();
 
         assertTrue(result.isEmpty());
 
-        query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
+        query = relationshipManager.createRelationshipQuery(Grant.class);
 
-        query.setParameter(User.HAS_ROLE, administratorRole);
+        query.setParameter(Grant.ROLE, administratorRole);
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(agentType.getId(), result.get(0).getId());
+        assertEquals(agentType.getId(), result.get(0).getAssignee().getId());
     }
 
     /**
@@ -395,34 +393,33 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         Group administratorGroup = createGroup("Administrators", null);
         Group someGroup = createGroup("someGroup", null);
 
-        IdentityManager identityManager = getIdentityManager();
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
         relationshipManager.addToGroup(agentType, administratorGroup);
         relationshipManager.addToGroup(someAgent, administratorGroup);
 
-        IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
+        RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
-        query.setParameter(User.MEMBER_OF, administratorGroup);
+        query.setParameter(GroupMembership.GROUP, administratorGroup);
 
-        List<T> result = query.getResultList();
+        List<GroupMembership> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, agentType.getId()));
-        assertTrue(contains(result, someAgent.getId()));
+        assertTrue(containsMembership(result, agentType));
+        assertTrue(containsMembership(result, someAgent));
 
         relationshipManager.addToGroup(agentType, someGroup);
 
-        query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
+        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
-        query.setParameter(User.MEMBER_OF, administratorGroup, someGroup);
+        query.setParameter(GroupMembership.GROUP, administratorGroup, someGroup);
+        query.setParameter(GroupMembership.GROUP, someGroup);
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, agentType.getId()));
-
-        assertFalse(contains(result, someAgent.getId()));
+        assertTrue(containsMembership(result, agentType));
+        assertFalse(containsMembership(result, someAgent));
     }
 
     /**
@@ -435,77 +432,80 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
     @Test
     public void testFindByMultipleUserWithRoles() throws Exception {
         T agentType = createIdentityType("admin", null);
-        T someagent = createIdentityType("someUser", null);
+        T someAgent = createIdentityType("someUser", null);
 
         Role administratorRole = createRole("Administrators");
         Role someRole = createRole("someRole");
 
-        IdentityManager identityManager = getIdentityManager();
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
         relationshipManager.grantRole(agentType, administratorRole);
-        relationshipManager.grantRole(someagent, administratorRole);
+        relationshipManager.grantRole(someAgent, administratorRole);
 
-        IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
+        RelationshipQuery<Grant> query = relationshipManager.createRelationshipQuery(Grant.class);
 
-        query.setParameter(User.HAS_ROLE, administratorRole);
+        query.setParameter(Grant.ROLE, administratorRole);
 
-        List<T> result = query.getResultList();
+        List<Grant> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, agentType.getId()));
-        assertTrue(contains(result, someagent.getId()));
+        assertTrue(containsGrant(result, agentType));
+        assertTrue(containsGrant(result, someAgent));
 
         relationshipManager.grantRole(agentType, someRole);
 
-        query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
+        query = relationshipManager.createRelationshipQuery(Grant.class);
 
-        query.setParameter(User.HAS_ROLE, administratorRole, someRole);
+        query.setParameter(Grant.ROLE, administratorRole);
+        query.setParameter(Grant.ROLE, someRole);
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, agentType.getId()));
-        assertFalse(contains(result, someagent.getId()));
+        assertTrue(containsGrant(result, agentType));
+        assertFalse(containsGrant(result, someAgent));
     }
 
     @Test
     @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class,
             LDAPJPAMixedStoreTestSuite.class, LDAPUsersJPARolesGroupsRelationshipsTestSuite.class,
             LDAPUsersJPARolesGroupsRelationshipsTestSuite.class, LDAPUsersJPARolesGroupsFileRelationshipTestSuite.class })
-    @Ignore
     public void testFindByLoginNameAndCreationDateWithSorting() throws Exception {
-//        createAgent("john");
-//        // Sleep is needed to avoid same createdDate
-//        IDMUtil.sleep(1000);
-//        createAgent("demo");
-//        IDMUtil.sleep(1000);
-//        createAgent("root");
-//        IDMUtil.sleep(1000);
-//        Agent mary = createAgent("mary");
-//        mary.setEnabled(false);
-//        getIdentityManager().update(mary);
-//
-//        // Default sorting (loginName)
-//        IdentityQuery<Agent> agentQuery = getIdentityManager().createIdentityQuery(Agent.class);
-//        List<Agent> agents = agentQuery.getResultList();
-//
-//        assertEquals(4, agents.size());
-//        assertEquals(agents.get(0).getLoginName(), "demo");
-//        assertEquals(agents.get(1).getLoginName(), "john");
-//        assertEquals(agents.get(2).getLoginName(), "mary");
-//        assertEquals(agents.get(3).getLoginName(), "root");
-//
-//        // Descending sorting by enablement and creationDate
-//        agentQuery = getIdentityManager().createIdentityQuery(Agent.class);
-//        agentQuery.setSortAscending(false);
-//        agentQuery.setSortParameters(IdentityType.ENABLED, IdentityType.CREATED_DATE);
-//        agents = agentQuery.getResultList();
-//
-//        assertEquals(4, agents.size());
-//        assertEquals(agents.get(0).getLoginName(), "root");
-//        assertEquals(agents.get(1).getLoginName(), "demo");
-//        assertEquals(agents.get(2).getLoginName(), "john");
-//        assertEquals(agents.get(3).getLoginName(), "mary");
+        createAgent("john");
+        // Sleep is needed to avoid same createdDate
+        Thread.sleep(1000);
+        createAgent("demo");
+        Thread.sleep(1000);
+        createAgent("root");
+        Thread.sleep(1000);
+        Agent mary = createAgent("mary");
+        mary.setEnabled(false);
+        getIdentityManager().update(mary);
+
+        // Default sorting (loginName)
+        IdentityQuery<Agent> agentQuery = getIdentityManager().createIdentityQuery(Agent.class);
+
+        agentQuery.setSortParameters(Agent.LOGIN_NAME);
+
+        List<Agent> agents = agentQuery.getResultList();
+
+        assertEquals(4, agents.size());
+        assertEquals(agents.get(0).getLoginName(), "demo");
+        assertEquals(agents.get(1).getLoginName(), "john");
+        assertEquals(agents.get(2).getLoginName(), "mary");
+        assertEquals(agents.get(3).getLoginName(), "root");
+
+        // Descending sorting by enablement and creationDate
+        agentQuery = getIdentityManager().createIdentityQuery(Agent.class);
+
+        agentQuery.setSortAscending(false);
+        agentQuery.setSortParameters(IdentityType.ENABLED, IdentityType.CREATED_DATE);
+        agents = agentQuery.getResultList();
+
+        assertEquals(4, agents.size());
+        assertEquals(agents.get(0).getLoginName(), "root");
+        assertEquals(agents.get(1).getLoginName(), "demo");
+        assertEquals(agents.get(2).getLoginName(), "john");
+        assertEquals(agents.get(3).getLoginName(), "mary");
     }
 }

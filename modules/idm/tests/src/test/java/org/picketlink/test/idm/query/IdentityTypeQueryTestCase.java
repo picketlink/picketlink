@@ -64,7 +64,7 @@ public class IdentityTypeQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityQuery<IdentityType> query = identityManager.createIdentityQuery(IdentityType.class);
 
-        query.setParameter(IdentityType.PARTITION, Realm.DEFAULT_REALM);
+        query.setParameter(IdentityType.PARTITION, getPartitionManager().getPartition(Realm.class, Realm.DEFAULT_REALM));
 
         List<IdentityType> result = query.getResultList();
 
@@ -75,27 +75,29 @@ public class IdentityTypeQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, role.getId()));
         assertTrue(contains(result, group.getId()));
 
-        IdentityManager testingRealm = getPartitionManager().createIdentityManager(getPartitionManager().getPartition(Realm.class, "Testing"));
+        Realm testingRealm = getPartitionManager().getPartition(Realm.class, "Testing");
+
+        IdentityManager testingIdentityManager = getPartitionManager().createIdentityManager(testingRealm);
 
         agent = new Agent("Another Agent");
 
-        testingRealm.add(agent);
+        testingIdentityManager.add(agent);
 
         user = new User("Another User");
 
-        testingRealm.add(user);
+        testingIdentityManager.add(user);
 
         role = new Role("Another Role");
 
-        testingRealm.add(role);
+        testingIdentityManager.add(role);
 
         group = new Group("Another Group");
 
-        testingRealm.add(group);
+        testingIdentityManager.add(group);
 
-        query = testingRealm.createIdentityQuery(IdentityType.class);
+        query = testingIdentityManager.createIdentityQuery(IdentityType.class);
 
-        query.setParameter(IdentityType.PARTITION, "Testing");
+        query.setParameter(IdentityType.PARTITION, testingRealm);
 
         result = query.getResultList();
 
@@ -109,7 +111,9 @@ public class IdentityTypeQueryTestCase extends AbstractIdentityManagerTestCase {
 
     @Test
     public void testFindByDifferentTiers() {
-        IdentityManager identityManager = getPartitionManager().createIdentityManager(getPartitionManager().getPartition(Tier.class, "Application A"));
+        Tier applicationATier = getPartitionManager().getPartition(Tier.class, "Application A");
+
+        IdentityManager identityManager = getPartitionManager().createIdentityManager(applicationATier);
 
         Role role = new Role("Role");
 
@@ -121,7 +125,7 @@ public class IdentityTypeQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityQuery<IdentityType> query = identityManager.createIdentityQuery(IdentityType.class);
 
-        query.setParameter(IdentityType.PARTITION, "Application A");
+        query.setParameter(IdentityType.PARTITION, applicationATier);
 
         List<IdentityType> result = query.getResultList();
 
@@ -130,19 +134,20 @@ public class IdentityTypeQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, role.getId()));
         assertTrue(contains(result, group.getId()));
 
-        IdentityManager testingRealm = getPartitionManager().createIdentityManager(getPartitionManager().getPartition(Tier.class, "Application B"));
+        Tier applicatioBTier = getPartitionManager().getPartition(Tier.class, "Application B");
+        IdentityManager identityManagerApplicationB = getPartitionManager().createIdentityManager(applicatioBTier);
 
         role = new Role("Another Role");
 
-        testingRealm.add(role);
+        identityManagerApplicationB.add(role);
 
         group = new Group("Another Group");
 
-        testingRealm.add(group);
+        identityManagerApplicationB.add(group);
 
-        query = testingRealm.createIdentityQuery(IdentityType.class);
+        query = identityManagerApplicationB.createIdentityQuery(IdentityType.class);
 
-        query.setParameter(IdentityType.PARTITION, "Application B");
+        query.setParameter(IdentityType.PARTITION, applicatioBTier);
 
         result = query.getResultList();
 

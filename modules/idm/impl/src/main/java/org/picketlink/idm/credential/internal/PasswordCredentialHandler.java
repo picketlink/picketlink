@@ -18,14 +18,10 @@
 
 package org.picketlink.idm.credential.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.credential.internal.CredentialUtils.isCredentialExpired;
-
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Map;
-
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials.Status;
@@ -40,6 +36,8 @@ import org.picketlink.idm.password.internal.EncodedPasswordStorage;
 import org.picketlink.idm.password.internal.SHAPasswordEncoder;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.credential.internal.CredentialUtils.isCredentialExpired;
 
 /**
  * <p>
@@ -144,7 +142,11 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
 
         hash.setSalt(passwordSalt);
         hash.setEncodedHash(this.passwordEncoder.encode(saltPassword(rawPassword, passwordSalt)));
-        hash.setEffectiveDate(effectiveDate);
+
+        if (effectiveDate != null) {
+            hash.setEffectiveDate(effectiveDate);
+        }
+
         hash.setExpiryDate(expiryDate);
 
         store.storeCredential(context, account, hash);

@@ -30,7 +30,7 @@ import java.util.Date;
  */
 public class EncodedPasswordStorage implements CredentialStorage {
 
-    private Date effectiveDate;
+    private Date effectiveDate = new Date();
     private Date expiryDate;
     private String encodedHash;
     private String salt;

@@ -26,7 +26,7 @@ import org.picketlink.idm.credential.spi.annotations.Stored;
  */
 public class OTPCredentialStorage implements CredentialStorage {
 
-    private Date effectiveDate;
+    private Date effectiveDate = new Date();
     private Date expiryDate;
 
     private String secretKey;

@@ -116,7 +116,7 @@ public class Group extends AbstractIdentityType {
     }
 
     /**
-     * <p>Builds the group's path based on an parent group.</p>
+     * <p>Builds the group's path based on the parent groups.</p>
      *
      * @param parentGroup
      * @return

@@ -24,6 +24,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
@@ -31,6 +32,7 @@ import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.idm.util.IDMUtil;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
@@ -145,7 +147,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 
         IdentityQuery<Group> query = identityManager.<Group>createIdentityQuery(Group.class);
 
-        query.setParameter(Group.PARENT, group.getParentGroup().getName());
+        query.setParameter(Group.PARENT, group.getParentGroup());
 
         List<Group> result = query.getResultList();
 
@@ -156,6 +158,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
     }
 
     @Test
+    @Ignore
     public void testFindGroupMembers() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
@@ -177,24 +180,16 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 
         IdentityQuery<Group> query = identityManager.createIdentityQuery(Group.class);
 
-        query.setParameter(Group.HAS_MEMBER, groupA);
+        query.setParameter(Group.PARENT, groupA);
 
         List<Group> result = query.getResultList();
 
-        assertTrue(result.isEmpty());
-
-        query = identityManager.createIdentityQuery(Group.class);
-
-        query.setParameter(Group.HAS_MEMBER, groupB);
-
-        result = query.getResultList();
-
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, groupA.getId()));
+        assertTrue(contains(result, groupB.getId()));
 
         query = identityManager.createIdentityQuery(Group.class);
 
-        query.setParameter(Group.HAS_MEMBER, groupC);
+        query.setParameter(Group.PARENT, groupC);
 
         result = query.getResultList();
 
@@ -204,7 +199,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 
         query = identityManager.createIdentityQuery(Group.class);
 
-        query.setParameter(Group.HAS_MEMBER, groupD);
+        query.setParameter(Group.PARENT, groupD);
 
         result = query.getResultList();
 
@@ -233,7 +228,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 
         RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
-        query.setParameter(Group.HAS_MEMBER, new Object[]{user});
+        query.setParameter(GroupMembership.MEMBER, new Object[]{user});
 
         List<GroupMembership> result = query.getResultList();
 
@@ -284,34 +279,36 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
     @Test
     @ExcludeTestSuite({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
             LDAPIdentityStoreWithoutAttributesTestSuite.class})
-    @Ignore
     public void testFindWithSorting() throws Exception {
-//        createGroup("someGroup", null);
-//        // Sleep is needed to avoid same createdDate
-//        IDMUtil.sleep(1000);
-//        createGroup("someAnotherGroup", null);
-//        IDMUtil.sleep(1000);
-//        createGroup("someImportantGroup", null);
-//
-//        // Default sorting by group name
-//        IdentityQuery<Group> groupQuery = getIdentityManager().createIdentityQuery(Group.class);
-//        List<Group> groups = groupQuery.getResultList();
-//
-//        assertEquals(3, groups.size());
-//        assertEquals(groups.get(0).getName(), "someAnotherGroup");
-//        assertEquals(groups.get(1).getName(), "someGroup");
-//        assertEquals(groups.get(2).getName(), "someImportantGroup");
-//
-//        // Descending sorting by creationDate
-//        groupQuery = getIdentityManager().createIdentityQuery(Group.class);
-//        groupQuery.setSortAscending(false);
-//        groupQuery.setSortParameters(IdentityType.ENABLED, IdentityType.CREATED_DATE);
-//        groups = groupQuery.getResultList();
-//
-//        assertEquals(3, groups.size());
-//        assertEquals(groups.get(0).getName(), "someImportantGroup");
-//        assertEquals(groups.get(1).getName(), "someAnotherGroup");
-//        assertEquals(groups.get(2).getName(), "someGroup");
+        createGroup("someGroup", null);
+        // Sleep is needed to avoid same createdDate
+        Thread.sleep(1000);
+        createGroup("someAnotherGroup", null);
+        Thread.sleep(1000);
+        createGroup("someImportantGroup", null);
+
+        // Default sorting by group name
+        IdentityQuery<Group> groupQuery = getIdentityManager().createIdentityQuery(Group.class);
+
+        groupQuery.setSortParameters(Group.NAME);
+
+        List<Group> groups = groupQuery.getResultList();
+
+        assertEquals(3, groups.size());
+        assertEquals(groups.get(0).getName(), "someAnotherGroup");
+        assertEquals(groups.get(1).getName(), "someGroup");
+        assertEquals(groups.get(2).getName(), "someImportantGroup");
+
+        // Descending sorting by creationDate
+        groupQuery = getIdentityManager().createIdentityQuery(Group.class);
+        groupQuery.setSortAscending(false);
+        groupQuery.setSortParameters(IdentityType.ENABLED, IdentityType.CREATED_DATE);
+        groups = groupQuery.getResultList();
+
+        assertEquals(3, groups.size());
+        assertEquals(groups.get(0).getName(), "someImportantGroup");
+        assertEquals(groups.get(1).getName(), "someAnotherGroup");
+        assertEquals(groups.get(2).getName(), "someGroup");
     }
 
 }

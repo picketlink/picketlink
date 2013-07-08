@@ -19,6 +19,7 @@
 package org.picketlink.idm.credential.internal;
 
 import org.picketlink.idm.credential.spi.CredentialStorage;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
@@ -75,7 +76,7 @@ public final class CredentialUtils {
      * @param storageClass
      * @return
      */
-    public static <T extends CredentialStorage> T getCurrentCredential(IdentityContext context, Agent agent, CredentialStore<?> store,
+    public static <T extends CredentialStorage> T getCurrentCredential(IdentityContext context, Account agent, CredentialStore<?> store,
             Class<T> storageClass) {
         T lastCredential = null;
         Date actualDate = new Date();

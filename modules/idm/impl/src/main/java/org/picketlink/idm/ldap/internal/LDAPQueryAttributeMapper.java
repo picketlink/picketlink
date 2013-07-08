@@ -18,13 +18,12 @@
 
 package org.picketlink.idm.ldap.internal;
 
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.query.QueryParameter;
-
-import javax.naming.directory.Attribute;
-import javax.naming.directory.BasicAttribute;
 import java.util.HashMap;
 import java.util.Map;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.BasicAttribute;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.query.QueryParameter;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -41,7 +40,6 @@ public class LDAPQueryAttributeMapper {
         ldapAttributeMap.put(org.picketlink.idm.model.sample.User.EMAIL, LDAPConstants.EMAIL);
         ldapAttributeMap.put(org.picketlink.idm.model.sample.User.FIRST_NAME, LDAPConstants.GIVENNAME);
         ldapAttributeMap.put(org.picketlink.idm.model.sample.User.LAST_NAME, LDAPConstants.SN);
-        ldapAttributeMap.put(org.picketlink.idm.model.sample.User.MEMBER_OF, LDAPConstants.MEMBER_OF);
         ldapAttributeMap.put(org.picketlink.idm.model.sample.Role.NAME, LDAPConstants.CN);
         ldapAttributeMap.put(org.picketlink.idm.model.sample.Group.NAME, LDAPConstants.CN);
         ldapAttributeMap.put(org.picketlink.idm.model.sample.User.CREATED_DATE, LDAPConstants.CREATE_TIMESTAMP);

@@ -17,11 +17,13 @@
  */
 package org.picketlink.idm.internal;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,6 +41,10 @@ import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.config.SecurityConfigurationException;
+import org.picketlink.idm.credential.internal.DigestCredentialHandler;
+import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
+import org.picketlink.idm.credential.internal.TOTPCredentialHandler;
+import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.event.EventBridge;
@@ -46,12 +52,14 @@ import org.picketlink.idm.file.internal.FileIdentityStore;
 import org.picketlink.idm.internal.util.RelationshipMetadata;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.ldap.internal.LDAPPlainTextPasswordCredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.IdentityPartition;
 import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.PartitionStore;
@@ -389,76 +397,77 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     @Override
-    public <T extends IdentityStore<?>> T getStoreForCredentialOperation(IdentityContext context, Class<?> credentialClass) {
+    public <T extends CredentialStore<?>> T getStoreForCredentialOperation(IdentityContext context, Class<?> credentialClass) {
+        T store = null;
+
         IdentityConfiguration config = getConfigurationForPartition(context.getPartition());
+
         for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
-            for (@SuppressWarnings("rawtypes") Class<? extends CredentialHandler> handlerClass : storeConfig.getCredentialHandlers()) {
+            for (@SuppressWarnings("rawtypes") Class<? extends CredentialHandler> handlerClass : getCredentialHandlers(storeConfig)) {
                 if (handlerClass.isAnnotationPresent(SupportsCredentials.class)) {
                     for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).value()) {
-                        if (cls.equals(credentialClass)) {
-                            T store = (T) stores.get(config).get(storeConfig);
-                            storeConfig.initializeContext(context, store);
-                            return store;
+                        if (cls.isAssignableFrom(credentialClass)) {
+                            try {
+                                store = (T) stores.get(config).get(storeConfig);
+                                storeConfig.initializeContext(context, store);
+                            } catch (Exception e) {
+                                throw MESSAGES.credentialCredentialHandlerInstantiationError(handlerClass, e);
+                            }
+
+                            // if we found a specific handler for the credential, immediately return.
+                            if (cls.equals(credentialClass)) {
+                                return store;
+                            }
                         }
                     }
                 }
             }
         }
 
-        throw new IdentityManagementException("No IdentityStore found for credential class [" + credentialClass + "]");
-    }
-
-    @Override
-    public IdentityStore<?> getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> relationshipClass,
-                                                             Relationship relationship) {
-
-        Set<Partition> partitions = relationshipMetadata.getRelationshipPartitions(relationship);
-
-        IdentityStore<?> store = null;
-
-        // Check if the partition can manage its own relationship
-        if (partitions.size() == 1) {
-            IdentityConfiguration config  = getConfigurationForPartition(partitions.iterator().next());
-            if (config.getRelationshipPolicy().isSelfRelationshipSupported(relationshipClass)) {
-                for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
-                    if (storeConfig.getSupportedRelationships().contains(relationshipClass)) {
-                        store = stores.get(config).get(storeConfig);
-                        storeConfig.initializeContext(context, store);
-                    }
-                }
-            }
-        } else {
-            // This is a multi-partition relationship - use the configuration that supports the global relationship type
-            for (Partition partition : partitions) {
-                IdentityConfiguration config  = getConfigurationForPartition(partition);
-                if (config.getRelationshipPolicy().isGlobalRelationshipSupported(relationshipClass)) {
-                    for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
-                        if (storeConfig.getSupportedRelationships().contains(relationshipClass)) {
-                            store = stores.get(config).get(storeConfig);
-                            storeConfig.initializeContext(context, store);
-                        }
-                    }
-                }
-            }
-        }
-
-        // If none of the participating partition configurations support the relationship, try to find another configuration
-        // that supports the global relationship as a last ditch effort
         if (store == null) {
-            for (IdentityConfiguration cfg : configurations) {
-                if (cfg.getRelationshipPolicy().isGlobalRelationshipSupported(relationshipClass)) {
-                    // found one
-                    for (IdentityStoreConfiguration storeConfig : cfg.getStoreConfiguration()) {
-                        if (storeConfig.getSupportedRelationships().contains(relationshipClass)) {
-                            store = stores.get(cfg).get(storeConfig);
-                            storeConfig.initializeContext(context, store);
-                        }
-                    }
-                }
-            }
+            throw new IdentityManagementException("No IdentityStore found for credential class [" + credentialClass + "]");
         }
 
         return store;
+    }
+
+    private List<Class<? extends CredentialHandler>> getCredentialHandlers(IdentityStoreConfiguration storeConfig) {
+        List<Class<? extends CredentialHandler>> credentialHandlers = storeConfig.getCredentialHandlers();
+
+        if (credentialHandlers.isEmpty()) {
+            credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
+
+            if (LDAPIdentityStoreConfiguration.class.isInstance(storeConfig)) {
+                credentialHandlers.add(LDAPPlainTextPasswordCredentialHandler.class);
+            } else {
+                credentialHandlers.add(PasswordCredentialHandler.class);
+                credentialHandlers.add(DigestCredentialHandler.class);
+                credentialHandlers.add(TOTPCredentialHandler.class);
+                credentialHandlers.add(X509CertificateCredentialHandler.class);
+            }
+        }
+
+        return credentialHandlers;
+    }
+
+    @Override
+    public <T extends IdentityStore<?>> T getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> relationshipClass,
+                                                             Relationship relationship) {
+
+        checkSupportedTypes(context.getPartition(), relationshipClass);
+
+        for (IdentityConfiguration identityConfiguration : this.configurations) {
+            for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
+                if (storeConfig.supportsType(relationshipClass, IdentityOperation.create)) {
+                    @SuppressWarnings("unchecked")
+                    T store = (T) stores.get(identityConfiguration).get(storeConfig);
+                    storeConfig.initializeContext(context, store);
+                    return store;
+                }
+            }
+        }
+
+        throw new IdentityManagementException("No IdentityStore found for required type [" + relationshipClass + "]");
     }
 
     @Override
@@ -467,7 +476,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
         Set<IdentityStore<?>> result = new HashSet<IdentityStore<?>>();
 
-        // If _no_ parameters have been specified for the query at all, we return all stores that support the 
+        // If _no_ parameters have been specified for the query at all, we return all stores that support the
         // specified relationship class
         if (partitions.isEmpty()) {
             for (IdentityConfiguration config : configurations) {

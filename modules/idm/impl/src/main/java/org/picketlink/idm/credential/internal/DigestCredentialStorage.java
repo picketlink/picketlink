@@ -33,7 +33,7 @@ import java.util.Date;
  */
 public class DigestCredentialStorage implements CredentialStorage {
 
-    private Date effectiveDate;
+    private Date effectiveDate = new Date();
     private Date expiryDate;
 
     private String realm;

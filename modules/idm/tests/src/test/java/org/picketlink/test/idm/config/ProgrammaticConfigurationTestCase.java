@@ -310,7 +310,7 @@ public class ProgrammaticConfigurationTestCase {
 
             identityManager.add(manager);
 
-            partitionManager.grantRole(john, manager);
+            partitionManager.createRelationshipManager().grantRole(john, manager);
         } catch (SecurityConfigurationException sce) {
             assertTrue(sce.getMessage().contains("PLIDM000016"));
         }

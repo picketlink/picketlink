@@ -21,7 +21,6 @@ package org.picketlink.idm.config;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Partition;
@@ -32,6 +31,7 @@ import org.picketlink.idm.spi.IdentityStore;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.util.IDMUtil.isTypeOperationSupported;
 
 /**
@@ -142,7 +142,7 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
 
     public boolean supportsType(Class<? extends AttributedType> type, IdentityOperation operation) {
         if (operation == null) {
-            throw IDMMessages.MESSAGES.nullArgument("TypeOperation");
+            throw MESSAGES.nullArgument("TypeOperation");
         }
 
         return isTypeOperationSupported(type, operation, this.supportedTypes, this.unsupportedTypes) != -1;

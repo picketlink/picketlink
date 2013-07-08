@@ -55,4 +55,5 @@ public interface CredentialStore<T extends IdentityStoreConfiguration> extends I
      * @return
      */
     <T extends CredentialStorage> List<T> retrieveCredentials(IdentityContext context, Account account, Class<T> storageClass);
+
 }

@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -33,6 +34,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
+import org.picketlink.idm.model.sample.Realm;
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.file.internal.FileUtils.createFileIfNotExists;
 import static org.picketlink.idm.file.internal.FileUtils.delete;
@@ -64,6 +66,7 @@ public class FileDataSource {
     private static final String PARTITIONS_FILE_NAME = "pl-idm-partitions.db";
     private static final String ATTRIBUTED_TYPES__FILE_NAME = "pl-idm-attributed-types.db";
     private static final String RELATIONSHIPS_FILE_NAME = "pl-idm-relationships.db";
+    private static final String CREDENTIALS_FILE_NAME = "pl-idm-credentials.db";
 
     private final FileIdentityStoreConfiguration configuration;
 
@@ -113,6 +116,11 @@ public class FileDataSource {
 
     void flushRelationships() {
         flush(RELATIONSHIPS_FILE_NAME, getRelationships());
+    }
+
+    void flushCredentials(Realm realm) {
+        FilePartition filePartition = getPartitions().get(realm.getId());
+        flush(filePartition, CREDENTIALS_FILE_NAME, filePartition.getCredentials());
     }
 
     /**
@@ -188,6 +196,20 @@ public class FileDataSource {
         filePartition.setAttributedTypes(attributedTypes);
 
         LOGGER.debugf("Loaded Agents for Partition [%s].", filePartition.getId());
+
+        String credentialsPath = getWorkingDir() + File.separator + partitionId + File.separator + CREDENTIALS_FILE_NAME;
+
+        File credentialsFile = createFileIfNotExists(new File(credentialsPath));
+
+        Map<String, Map<String, List<FileCredentialStorage>>> credentials = readObject(credentialsFile);
+
+        if (credentials == null) {
+            credentials = new HashMap<String, Map<String, List<FileCredentialStorage>>>();
+        }
+
+        filePartition.setCredentials(credentials);
+
+        LOGGER.debugf("Loaded Credentials for Partition [%s].", filePartition.getId());
     }
 
     private String getWorkingDir() {

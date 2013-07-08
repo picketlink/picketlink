@@ -49,7 +49,6 @@ import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Pedro Silva
- * 
  */
 public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> extends AbstractIdentityManagerTestCase {
 
@@ -63,7 +62,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<T> query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        IdentityQuery<T> query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         query.setParameter(AttributedType.ID, identityType.getId());
 
@@ -75,9 +74,9 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class,
+    @ExcludeTestSuite({LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class,
             LDAPJPAMixedStoreTestSuite.class, LDAPUsersJPARolesGroupsRelationshipsTestSuite.class,
-            LDAPUsersJPARolesGroupsFileRelationshipTestSuite.class })
+            LDAPUsersJPARolesGroupsFileRelationshipTestSuite.class})
     public void testPagination() throws Exception {
         T identityType = null;
 
@@ -160,9 +159,9 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class,
+    @ExcludeTestSuite({LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class,
             LDAPJPAMixedStoreTestSuite.class, LDAPUsersJPARolesGroupsRelationshipsTestSuite.class,
-            LDAPUsersJPARolesGroupsRelationshipsTestSuite.class, LDAPUsersJPARolesGroupsFileRelationshipTestSuite.class })
+            LDAPUsersJPARolesGroupsRelationshipsTestSuite.class, LDAPUsersJPARolesGroupsFileRelationshipTestSuite.class})
     public void testFindByRealm() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
@@ -201,7 +200,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreWithoutAttributesTestSuite.class })
+    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindEnabledAndDisabled() throws Exception {
         T someType = createIdentityType(null, null);
         T someAnotherType = createIdentityType("someAnotherAgent", null);
@@ -214,7 +213,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         identityManager.update(someType);
         identityManager.update(someAnotherType);
 
-        IdentityQuery<T> query = identityManager.<T> createIdentityQuery((Class<T>) someType.getClass());
+        IdentityQuery<T> query = identityManager.<T>createIdentityQuery((Class<T>) someType.getClass());
 
         query.setParameter(IdentityType.ENABLED, true);
 
@@ -226,7 +225,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertTrue(contains(result, someType.getId()));
         assertTrue(contains(result, someAnotherType.getId()));
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) someType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) someType.getClass());
 
         query.setParameter(IdentityType.ENABLED, false);
 
@@ -240,7 +239,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         // let's disabled the user and try to find him
         identityManager.update(someType);
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) someType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) someType.getClass());
 
         query.setParameter(IdentityType.ENABLED, false);
 
@@ -256,7 +255,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         // let's disabled the user and try to find him
         identityManager.update(someAnotherType);
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) someType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) someType.getClass());
 
         query.setParameter(IdentityType.ENABLED, true);
 
@@ -271,7 +270,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<T> query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        IdentityQuery<T> query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         query.setParameter(IdentityType.CREATED_DATE, identityType.getCreatedDate());
 
@@ -282,7 +281,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertEquals(1, result.size());
         assertEquals(identityType.getId(), result.get(0).getId());
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         Calendar futureDate = Calendar.getInstance();
 
@@ -294,7 +293,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreWithoutAttributesTestSuite.class })
+    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindExpiryDate() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -308,7 +307,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         identityManager.update(identityType);
 
-        IdentityQuery<T> query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        IdentityQuery<T> query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         query.setParameter(IdentityType.EXPIRY_DATE, identityType.getExpirationDate());
 
@@ -319,7 +318,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertEquals(1, result.size());
         assertEquals(identityType.getId(), result.get(0).getId());
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         Calendar calendar = Calendar.getInstance();
 
@@ -340,7 +339,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<T> query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        IdentityQuery<T> query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         Calendar calendar = Calendar.getInstance();
 
@@ -357,7 +356,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertTrue(contains(result, identityType.getId()));
         assertTrue(contains(result, someAnotherIdentityType.getId()));
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         T someFutureType = createIdentityType("someFutureAgent", null);
         T someAnotherFutureType = createIdentityType("someAnotherFutureAgent", null);
@@ -374,7 +373,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertTrue(contains(result, someFutureType.getId()));
         assertTrue(contains(result, someAnotherFutureType.getId()));
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         // users created before the given time
         query.setParameter(IdentityType.CREATED_BEFORE, new Date());
@@ -388,7 +387,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertTrue(contains(result, someFutureType.getId()));
         assertTrue(contains(result, someAnotherFutureType.getId()));
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         calendar = Calendar.getInstance();
 
@@ -402,7 +401,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreWithoutAttributesTestSuite.class })
+    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindBetweenExpirationDate() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -420,7 +419,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         identityManager.update(someAnotherType);
 
-        IdentityQuery<T> query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        IdentityQuery<T> query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         Calendar calendar = Calendar.getInstance();
 
@@ -455,7 +454,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertTrue(contains(result, identityType.getId()));
         assertTrue(contains(result, someAnotherType.getId()));
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         // users expired after the given time
         query.setParameter(IdentityType.EXPIRY_AFTER, expiryDate);
@@ -469,7 +468,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertTrue(contains(result, someFutureType.getId()));
         assertTrue(contains(result, someAnotherFutureType.getId()));
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         calendar = Calendar.getInstance();
 
@@ -487,7 +486,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertTrue(contains(result, someFutureType.getId()));
         assertTrue(contains(result, someAnotherFutureType.getId()));
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         calendar = Calendar.getInstance();
 
@@ -502,7 +501,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreWithoutAttributesTestSuite.class })
+    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindByMultipleParameters() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -514,7 +513,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         identityManager.update(identityType);
 
-        IdentityQuery<T> query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        IdentityQuery<T> query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
 
@@ -524,7 +523,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertEquals(1, result.size());
         assertTrue(contains(result, identityType.getId()));
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         query.setParameter(IdentityType.ENABLED, identityType.isEnabled());
         query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), "someAttributeValue2");
@@ -533,7 +532,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         assertTrue(result.isEmpty());
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
 
@@ -543,7 +542,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertEquals(1, result.size());
         assertTrue(contains(result, identityType.getId()));
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
         query.setParameter(IdentityType.ENABLED, !identityType.isEnabled());
@@ -554,7 +553,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreWithoutAttributesTestSuite.class })
+    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindByDefinedAttributes() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -564,7 +563,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         identityManager.update(identityType);
 
-        IdentityQuery<T> query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        IdentityQuery<T> query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
 
@@ -578,7 +577,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         identityManager.update(identityType);
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
 
@@ -590,7 +589,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         identityManager.update(identityType);
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), "someAttributeValueChanged");
         query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute2"), "someAttributeValue2");
@@ -603,21 +602,21 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreWithoutAttributesTestSuite.class })
+    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindByMultiValuedAttributes() throws Exception {
         T identityType = createIdentityType(null, null);
 
-        identityType.setAttribute(new Attribute<String[]>("someAttribute", new String[] { "someAttributeValue1",
-                "someAttributeValue2" }));
+        identityType.setAttribute(new Attribute<String[]>("someAttribute", new String[]{"someAttributeValue1",
+                "someAttributeValue2"}));
 
         IdentityManager identityManager = getIdentityManager();
 
         identityManager.update(identityType);
 
-        IdentityQuery<T> query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        IdentityQuery<T> query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
-                "someAttributeValue2" });
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[]{"someAttributeValue1",
+                "someAttributeValue2"});
 
         List<T> result = query.getResultList();
 
@@ -625,45 +624,45 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertEquals(1, result.size());
         assertTrue(contains(result, identityType.getId()));
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute2"), new Object[] { "someAttributeValue1",
-                "someAttributeValue2" });
-
-        result = query.getResultList();
-
-        assertTrue(result.isEmpty());
-
-        query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
-
-        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValueChanged",
-                "someAttributeValue2" });
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute2"), new Object[]{"someAttributeValue1",
+                "someAttributeValue2"});
 
         result = query.getResultList();
 
         assertTrue(result.isEmpty());
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue" });
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[]{"someAttributeValueChanged",
+                "someAttributeValue2"});
 
         result = query.getResultList();
 
         assertTrue(result.isEmpty());
 
-        identityType.setAttribute(new Attribute<String[]>("someAttribute", new String[] { "someAttributeValue1",
-                "someAttributeValueChanged" }));
-        identityType.setAttribute(new Attribute<String[]>("someAttribute2", new String[] { "someAttribute2Value1",
-                "someAttribute2Value2" }));
+        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
+
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[]{"someAttributeValue"});
+
+        result = query.getResultList();
+
+        assertTrue(result.isEmpty());
+
+        identityType.setAttribute(new Attribute<String[]>("someAttribute", new String[]{"someAttributeValue1",
+                "someAttributeValueChanged"}));
+        identityType.setAttribute(new Attribute<String[]>("someAttribute2", new String[]{"someAttribute2Value1",
+                "someAttribute2Value2"}));
 
         identityManager.update(identityType);
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
-                "someAttributeValueChanged" });
-        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute2"), new Object[] { "someAttribute2Value1",
-                "someAttribute2Value2" });
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[]{"someAttributeValue1",
+                "someAttributeValueChanged"});
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute2"), new Object[]{"someAttribute2Value1",
+                "someAttribute2Value2"});
 
         result = query.getResultList();
 
@@ -671,12 +670,12 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertEquals(1, result.size());
         assertTrue(contains(result, identityType.getId()));
 
-        query = identityManager.<T> createIdentityQuery((Class<T>) identityType.getClass());
+        query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
-        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
-                "someAttributeValueChanged" });
-        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute2"), new Object[] { "someAttribute2ValueChanged",
-                "someAttribute2Value2" });
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute"), new Object[]{"someAttributeValue1",
+                "someAttributeValueChanged"});
+        query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("someAttribute2"), new Object[]{"someAttribute2ValueChanged",
+                "someAttribute2Value2"});
 
         result = query.getResultList();
 
@@ -705,8 +704,14 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
     protected boolean containsGrant(List<Grant> result, IdentityType identityType) {
         for (Grant grant : result) {
-            if (grant.getAssignee().getId().equals(identityType.getId())) {
-                return true;
+            if (Account.class.isInstance(identityType)) {
+                if (grant.getAssignee().getId().equals(identityType.getId())) {
+                    return true;
+                }
+            } else {
+                if (grant.getRole().getId().equals(identityType.getId())) {
+                    return true;
+                }
             }
         }
 

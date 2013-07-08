@@ -35,7 +35,7 @@ import java.util.Date;
  */
 public class X509CertificateStorage implements CredentialStorage {
 
-    private Date effectiveDate;
+    private Date effectiveDate = new Date();
     private Date expiryDate;
     private String base64Cert;
 

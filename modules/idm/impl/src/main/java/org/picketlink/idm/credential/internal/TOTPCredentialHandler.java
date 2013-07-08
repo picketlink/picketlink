@@ -122,7 +122,10 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
 
         OTPCredentialStorage storage = new OTPCredentialStorage();
 
-        storage.setEffectiveDate(effectiveDate);
+        if (effectiveDate != null) {
+            storage.setEffectiveDate(effectiveDate);
+        }
+
         storage.setExpiryDate(expiryDate);
 
         storage.setSecretKey(credential.getSecret());

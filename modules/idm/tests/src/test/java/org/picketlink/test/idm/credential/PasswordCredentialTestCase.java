@@ -20,13 +20,11 @@ package org.picketlink.test.idm.credential;
 
 import java.util.Calendar;
 import java.util.Date;
-import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
-import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 import org.picketlink.test.idm.ExcludeTestSuite;
@@ -142,7 +140,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
 
         Password newPassword = new Password("new_password".toCharArray());
 
-        IDMUtil.sleep(1000);
+        Thread.sleep(1000);
 
         identityManager.updateCredential(user, newPassword);
 
@@ -169,7 +167,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
 
         Password secondPassword = new Password("password2".toCharArray());
 
-        IDMUtil.sleep(1000);
+        Thread.sleep(1000);
 
         identityManager.updateCredential(user, secondPassword);
 
@@ -181,7 +179,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
 
         identityManager.validateCredentials(firstCredential);
 
-        Assert.assertEquals(Status.INVALID, firstCredential.getStatus());
+        assertEquals(Status.INVALID, firstCredential.getStatus());
     }
 
     @Test
