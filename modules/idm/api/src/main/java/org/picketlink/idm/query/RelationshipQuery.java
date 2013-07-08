@@ -39,7 +39,7 @@ public interface RelationshipQuery<T extends Relationship> {
 
     Object[] getParameter(QueryParameter queryParameter);
 
-    Class<T> getRelationshipType();
+    Class<T> getRelationshipClass();
 
     long getOffset();
 

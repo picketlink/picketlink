@@ -55,7 +55,17 @@ public interface StoreSelector {
      * @param relationship
      * @return
      */
-    <T extends IdentityStore<?>> T getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> relationshipClass, Set<Partition> partitions);
+    IdentityStore<?> getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> relationshipClass,
+            Relationship relationship);
+
+    /**
+     *
+     * @param context
+     * @param relationshipClass
+     * @return
+     */
+    Set<IdentityStore<?>> getStoresForRelationshipQuery(IdentityContext context, Class<? extends Relationship> relationshipClass,
+            Set<Partition> partitions);
 
     /**
      *

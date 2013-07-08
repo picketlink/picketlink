@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -67,6 +68,8 @@ import static org.picketlink.idm.util.IDMUtil.toSet;
  * Before using this factory you need a valid {@link IdentityConfiguration}, usually created using the
  * {@link org.picketlink.idm.config.IdentityConfigurationBuilder}.
  * </p>
+ *
+ * This class is thread safe, and is intended to be used as an application-scoped component.
  *
  * @author Shane Bryzak
  */
@@ -296,7 +299,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     @Override
     public RelationshipManager createRelationshipManager() {
-        return new ContextualRelationshipManager(eventBridge, idGenerator, this, relationshipMetadata);
+        return new ContextualRelationshipManager(eventBridge, idGenerator, this);
     }
 
     @Override
@@ -406,20 +409,95 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     @Override
-    public <T extends IdentityStore<?>> T getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> type,
-                                                                           Set<Partition> partitions) {
-        for (IdentityConfiguration identityConfiguration : this.configurations) {
-            for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
-                if (storeConfig.supportsType(type, IdentityOperation.create)) {
-                    @SuppressWarnings("unchecked")
-                    T store = (T) stores.get(identityConfiguration).get(storeConfig);
-                    storeConfig.initializeContext(context, store);
-                    return store;
+    public IdentityStore<?> getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> relationshipClass,
+                                                             Relationship relationship) {
+
+        Set<Partition> partitions = relationshipMetadata.getRelationshipPartitions(relationship);
+
+        IdentityStore<?> store = null;
+
+        // Check if the partition can manage its own relationship
+        if (partitions.size() == 1) {
+            IdentityConfiguration config  = getConfigurationForPartition(partitions.iterator().next());
+            if (config.getRelationshipPolicy().isSelfRelationshipSupported(relationshipClass)) {
+                for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
+                    if (storeConfig.getSupportedRelationships().contains(relationshipClass)) {
+                        store = stores.get(config).get(storeConfig);
+                        storeConfig.initializeContext(context, store);
+                    }
+                }
+            }
+        } else {
+            // This is a multi-partition relationship - use the configuration that supports the global relationship type
+            for (Partition partition : partitions) {
+                IdentityConfiguration config  = getConfigurationForPartition(partition);
+                if (config.getRelationshipPolicy().isGlobalRelationshipSupported(relationshipClass)) {
+                    for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
+                        if (storeConfig.getSupportedRelationships().contains(relationshipClass)) {
+                            store = stores.get(config).get(storeConfig);
+                            storeConfig.initializeContext(context, store);
+                        }
+                    }
                 }
             }
         }
 
-        throw new IdentityManagementException("No IdentityStore found for required type [" + type + "]");
+        // If none of the participating partition configurations support the relationship, try to find another configuration
+        // that supports the global relationship as a last ditch effort
+        if (store == null) {
+            for (IdentityConfiguration cfg : configurations) {
+                if (cfg.getRelationshipPolicy().isGlobalRelationshipSupported(relationshipClass)) {
+                    // found one
+                    for (IdentityStoreConfiguration storeConfig : cfg.getStoreConfiguration()) {
+                        if (storeConfig.getSupportedRelationships().contains(relationshipClass)) {
+                            store = stores.get(cfg).get(storeConfig);
+                            storeConfig.initializeContext(context, store);
+                        }
+                    }
+                }
+            }
+        }
+
+        return store;
+    }
+
+    @Override
+    public Set<IdentityStore<?>> getStoresForRelationshipQuery(IdentityContext context, Class<? extends Relationship> relationshipClass,
+            Set<Partition> partitions) {
+
+        Set<IdentityStore<?>> result = new HashSet<IdentityStore<?>>();
+
+        // If _no_ parameters have been specified for the query at all, we return all stores that support the 
+        // specified relationship class
+        if (partitions.isEmpty()) {
+            for (IdentityConfiguration config : configurations) {
+                if (config.getRelationshipPolicy().isGlobalRelationshipSupported(relationshipClass) ||
+                    config.getRelationshipPolicy().isSelfRelationshipSupported(relationshipClass)) {
+                        for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
+                            if (storeConfig.getSupportedRelationships().contains(relationshipClass)) {
+                                IdentityStore<?> store = stores.get(config).get(storeConfig);
+                                storeConfig.initializeContext(context, store);
+                                result.add(store);
+                            }
+                        }
+                    }
+            }
+        } else {
+            for (Partition partition : partitions) {
+                IdentityConfiguration config = getConfigurationForPartition(partition);
+                if (config.getRelationshipPolicy().isGlobalRelationshipSupported(relationshipClass)) {
+                    for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
+                        if (storeConfig.getSupportedRelationships().contains(relationshipClass)) {
+                            IdentityStore<?> store = stores.get(config).get(storeConfig);
+                            storeConfig.initializeContext(context, store);
+                            result.add(store);
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
     @Override

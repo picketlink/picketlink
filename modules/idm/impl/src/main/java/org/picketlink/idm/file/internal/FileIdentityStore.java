@@ -515,10 +515,10 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
     private <T extends Relationship> List<T> fetchQueryResults(IdentityContext context, RelationshipQuery<T> query,
                                                                boolean matchExactGroup) {
         List<T> result = new ArrayList<T>();
-        Class<T> relationshipType = query.getRelationshipType();
+        Class<T> relationshipType = query.getRelationshipClass();
         List<FileRelationship> relationships = new ArrayList<FileRelationship>();
 
-        if (Relationship.class.equals(query.getRelationshipType())) {
+        if (Relationship.class.equals(query.getRelationshipClass())) {
             Collection<List<FileRelationship>> allRelationships = this.fileDataSource.getRelationships().values();
 
             for (List<FileRelationship> partitionRelationships : allRelationships) {
@@ -540,7 +540,7 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
         for (FileRelationship storedRelationship : relationships) {
             boolean match = false;
 
-            if (query.getRelationshipType().getName().equals(storedRelationship.getType())) {
+            if (query.getRelationshipClass().getName().equals(storedRelationship.getType())) {
                 for (Entry<QueryParameter, Object[]> entry : query.getParameters().entrySet()) {
                     QueryParameter queryParameter = entry.getKey();
                     Object[] values = entry.getValue();

@@ -24,7 +24,6 @@ import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.event.EventBridge;
-import org.picketlink.idm.internal.util.RelationshipMetadata;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
@@ -48,32 +47,26 @@ import org.picketlink.idm.spi.StoreSelector;
 public class ContextualRelationshipManager extends AbstractIdentityContext implements RelationshipManager {
 
     private StoreSelector storeSelector;
-    private RelationshipMetadata relationshipMetadata;
 
-    public ContextualRelationshipManager(EventBridge eventBridge, IdGenerator idGenerator, StoreSelector storeSelector,
-            RelationshipMetadata relationshipMetadata) {
+    public ContextualRelationshipManager(EventBridge eventBridge, IdGenerator idGenerator, StoreSelector storeSelector) {
         super(null, eventBridge, idGenerator);
         this.storeSelector = storeSelector;
-        this.relationshipMetadata = relationshipMetadata;
     }
 
 
     @Override
     public void add(Relationship relationship) throws IdentityManagementException {
-        storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(),
-                relationshipMetadata.getRelationshipPartitions(relationship)).add(this, relationship);
+        storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship).add(this, relationship);
     }
 
     @Override
     public void update(Relationship relationship) {
-        storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(),
-                relationshipMetadata.getRelationshipPartitions(relationship)).update(this, relationship);
+        storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship).update(this, relationship);
     }
 
     @Override
     public void remove(Relationship relationship) {
-        storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(),
-                relationshipMetadata.getRelationshipPartitions(relationship)).remove(this, relationship);
+        storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship).remove(this, relationship);
     }
 
     @Override
