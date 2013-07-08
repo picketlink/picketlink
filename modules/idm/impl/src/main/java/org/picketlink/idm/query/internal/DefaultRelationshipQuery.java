@@ -18,20 +18,23 @@
 
 package org.picketlink.idm.query.internal;
 
-import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.query.QueryParameter;
-import org.picketlink.idm.query.RelationshipQuery;
-//import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.IdentityContext;
-import org.picketlink.idm.spi.StoreSelector;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-//import java.util.Set;
+import java.util.Set;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.idm.spi.IdentityContext;
+import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.StoreSelector;
 
 /**
  * Default IdentityQuery implementation.
@@ -45,13 +48,13 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
     private Map<QueryParameter, Object[]> parameters = new LinkedHashMap<QueryParameter, Object[]>();
     private IdentityContext context;
     private StoreSelector storeSelector;
-    private Class<T> relationshipType;
+    private Class<T> relationshipClass;
     private long offset;
     private long limit;
 
-    public DefaultRelationshipQuery(IdentityContext context, Class<T> relationshipType, StoreSelector storeSelector) {
+    public DefaultRelationshipQuery(IdentityContext context, Class<T> relationshipClass, StoreSelector storeSelector) {
         this.context = context;
-        this.relationshipType = relationshipType;
+        this.relationshipClass = relationshipClass;
         this.storeSelector = storeSelector;
     }
 
@@ -62,8 +65,8 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
     }
 
     @Override
-    public Class<T> getRelationshipType() {
-        return relationshipType;
+    public Class<T> getRelationshipClass() {
+        return relationshipClass;
     }
 
     @Override
@@ -90,11 +93,10 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
     public List<T> getResultList() {
         List<T> result = new ArrayList<T>();
 
-        //storeSelector.getStoreForRelationshipOperation(context, relationshipClass, partitions)
         try {
-            //for (IdentityStore<?> store : stores) {
-              //  result.addAll(store.fetchQueryResults(context, this));
-            //}
+            for (IdentityStore<?> store : getStores()) {
+                result.addAll(store.fetchQueryResults(context, this));
+            }
         } catch (Exception e) {
             throw MESSAGES.relationshipQueryFailed(this, e);
         }
@@ -102,12 +104,29 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
         return result;
     }
 
+    private Set<IdentityStore<?>> getStores() {
+        Set<Partition> partitions = new HashSet<Partition>();
+
+        for (Object param : parameters.values()) {
+            if (IdentityType.class.isInstance(param)) {
+                partitions.add(((IdentityType) param).getPartition());
+            }
+        }
+
+        return storeSelector.getStoresForRelationshipQuery(context, relationshipClass, partitions);
+    }
+
     @Override
     public long getResultCount() {
         long count = 0;
-        //for (IdentityStore<?> store : stores) {
-          //  count += store.countQueryResults(context, this);
-        //}
+
+        try {
+            for (IdentityStore<?> store : getStores()) {
+                count += store.countQueryResults(context, this);
+            }
+        } catch (Exception e) {
+            throw MESSAGES.relationshipQueryFailed(this, e);
+        }
         return count;
     }
 

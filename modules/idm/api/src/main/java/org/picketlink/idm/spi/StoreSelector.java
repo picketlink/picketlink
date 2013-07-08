@@ -19,6 +19,7 @@
 package org.picketlink.idm.spi;
 
 import java.util.Set;
+
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Partition;
@@ -55,7 +56,17 @@ public interface StoreSelector {
      * @param relationship
      * @return
      */
-    IdentityStore<?> getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> relationshipClass, Set<Partition> partitions);
+    IdentityStore<?> getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> relationshipClass,
+            Relationship relationship);
+
+    /**
+     *
+     * @param context
+     * @param relationshipClass
+     * @return
+     */
+    Set<IdentityStore<?>> getStoresForRelationshipQuery(IdentityContext context, Class<? extends Relationship> relationshipClass,
+            Set<Partition> partitions);
 
     /**
      *
