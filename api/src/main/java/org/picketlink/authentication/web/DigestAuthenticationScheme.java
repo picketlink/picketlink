@@ -92,7 +92,8 @@ public class DigestAuthenticationScheme implements HTTPAuthenticationScheme {
     }
 
     @Override
-    public void postAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public boolean postAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        return true;
     }
 
     private String[] extractTokens(HttpServletRequest request) {

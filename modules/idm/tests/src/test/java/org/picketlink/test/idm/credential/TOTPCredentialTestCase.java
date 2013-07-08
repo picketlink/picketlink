@@ -26,6 +26,7 @@ import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.TOTPCredential;
 import org.picketlink.idm.credential.TOTPCredentials;
 import org.picketlink.idm.credential.totp.TimeBasedOTP;
+import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 import static org.junit.Assert.assertEquals;
@@ -41,7 +42,7 @@ import static org.picketlink.idm.credential.Credentials.Status;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class OTPCredentialTestCase extends AbstractIdentityManagerTestCase {
+public class TOTPCredentialTestCase extends AbstractIdentityManagerTestCase {
 
     public static final String DEFAULT_TOTP_SECRET = "my_secret";
     public static final String DEFAULT_PASSWORD = "passwd";
@@ -190,6 +191,8 @@ public class OTPCredentialTestCase extends AbstractIdentityManagerTestCase {
 
         credential = new TOTPCredential("new_password", DEFAULT_TOTP_SECRET);
 
+        IDMUtil.sleep(1000);
+
         // update only the password
         identityManager.updateCredential(user, credential);
 
@@ -201,6 +204,8 @@ public class OTPCredentialTestCase extends AbstractIdentityManagerTestCase {
         assertEquals(Status.VALID, validatingCredential.getStatus());
 
         credential = new TOTPCredential("new_password", "new_secret");
+
+        IDMUtil.sleep(1000);
 
         // now we update only the secret
         identityManager.updateCredential(user, credential);

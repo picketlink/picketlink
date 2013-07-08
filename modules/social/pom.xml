@@ -50,6 +50,18 @@
                <trimStackTrace>false</trimStackTrace>
             </configuration>
          </plugin>
+           <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-source-plugin</artifactId>
+              <executions>
+                 <execution>
+                   <id>attach-sources</id>
+                   <goals>
+                     <goal>jar-no-fork</goal>
+                   </goals>
+                 </execution>
+              </executions>
+           </plugin>
       </plugins>
    </build>
 
@@ -59,6 +71,11 @@
            <artifactId>picketlink-api</artifactId>
            <version>${project.version}</version>
       </dependency>
+       <dependency>
+           <groupId>org.picketlink</groupId>
+           <artifactId>picketlink-federation</artifactId>
+           <version>${project.version}</version>
+       </dependency>
        <dependency>
            <groupId>javax.enterprise</groupId>
            <artifactId>cdi-api</artifactId>
@@ -72,7 +89,7 @@
        <dependency>
            <groupId>org.twitter4j</groupId>
            <artifactId>twitter4j-core</artifactId>
-           <version>2.2.6</version>
+           <version>3.0.3</version>
        </dependency>
       <dependency>
          <groupId>org.json</groupId>

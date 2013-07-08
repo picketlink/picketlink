@@ -119,7 +119,7 @@ public class LDAPIdentityStoreWithoutAttributesTestSuite extends LDAPAbstractSui
                     .roleDNSuffix(getRolesDnSuffix())
                     .agentDNSuffix(getAgentDnSuffix())
                     .groupDNSuffix(getGroupDnSuffix())
-                    .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
+                    .addGroupMapping("/QA Group", "ou=QA," + getBaseDn())
                     .supportAllFeatures()
                     .removeFeature(FeatureGroup.attribute);
 

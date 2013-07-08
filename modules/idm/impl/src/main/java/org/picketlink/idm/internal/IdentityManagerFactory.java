@@ -168,4 +168,11 @@ public class IdentityManagerFactory implements Serializable {
         this.storeFactory.deleteRealm(contextFactory.createContext(realm), realm);
 
     }
+
+   public void deleteTier(Tier tier) {
+      if (findTier(tier.getId()) == null) return;
+      this.storeFactory.deleteTier(contextFactory.createContext(tier), tier);
+
+   }
+
 }

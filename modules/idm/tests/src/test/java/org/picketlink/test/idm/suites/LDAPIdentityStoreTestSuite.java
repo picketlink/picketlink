@@ -108,8 +108,6 @@ public class LDAPIdentityStoreTestSuite extends LDAPAbstractSuite implements Tes
     public IdentityManagerFactory createIdentityManagerFactory() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
-        System.out.println("Bind Credential="+getBindCredential());
-        
         builder
             .stores()
                 .ldap()
@@ -121,7 +119,7 @@ public class LDAPIdentityStoreTestSuite extends LDAPAbstractSuite implements Tes
                     .roleDNSuffix(getRolesDnSuffix())
                     .agentDNSuffix(getAgentDnSuffix())
                     .groupDNSuffix(getGroupDnSuffix())
-                    .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
+                    .addGroupMapping("/QA Group", "ou=QA," + getBaseDn())
                     .supportFeature(FeatureGroup.user, 
                                     FeatureGroup.agent, 
                                     FeatureGroup.user, 

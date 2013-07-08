@@ -26,6 +26,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
+import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 import org.picketlink.test.idm.ExcludeTestSuite;
@@ -127,7 +128,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
 
         Calendar expirationDate = Calendar.getInstance();
 
-        expirationDate.add(Calendar.MINUTE, -1);
+        expirationDate.add(Calendar.MINUTE, -5);
 
         identityManager.updateCredential(user, plainTextPassword, new Date(), expirationDate.getTime());
         UsernamePasswordCredentials credential = new UsernamePasswordCredentials();
@@ -140,6 +141,8 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         assertEquals(Status.EXPIRED, credential.getStatus());
 
         Password newPassword = new Password("new_password".toCharArray());
+
+        IDMUtil.sleep(1000);
 
         identityManager.updateCredential(user, newPassword);
 
@@ -165,6 +168,8 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         assertEquals(Status.VALID, firstCredential.getStatus());
 
         Password secondPassword = new Password("password2".toCharArray());
+
+        IDMUtil.sleep(1000);
 
         identityManager.updateCredential(user, secondPassword);
 

@@ -35,4 +35,13 @@ public interface PasswordEncoder {
      * @return
      */
     String encode(String rawPassword);
+
+    /**
+     * <p>Checks if the <code>rawPassword</code> and <code>encodedPassword</code> matches.</p>
+     *
+     * @param rawPassword
+     * @param encodedPassword
+     * @return
+     */
+    boolean verify(String rawPassword, String encodedPassword);
 }

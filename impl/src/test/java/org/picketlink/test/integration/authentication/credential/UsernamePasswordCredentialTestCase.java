@@ -23,7 +23,10 @@ import org.junit.Test;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.test.integration.ArchiveUtils;
 import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -45,6 +48,8 @@ public class UsernamePasswordCredentialTestCase extends AbstractAuthenticationTe
         super.identity.login();
 
         assertTrue(super.identity.isLoggedIn());
+        assertNotNull(super.identity.getAgent());
+        assertEquals(USER_NAME, super.identity.getAgent().getLoginName());
     }
 
     @Test
@@ -62,6 +67,7 @@ public class UsernamePasswordCredentialTestCase extends AbstractAuthenticationTe
         super.identity.login();
 
         assertFalse(super.identity.isLoggedIn());
+        assertNull(super.identity.getAgent());
     }
 
     private void updateUsernamePasswordCredential() {

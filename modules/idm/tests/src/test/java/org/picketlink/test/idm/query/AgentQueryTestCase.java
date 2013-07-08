@@ -18,12 +18,7 @@
 
 package org.picketlink.test.idm.query;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-
 import java.util.List;
-
 import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
@@ -42,6 +37,9 @@ import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuit
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsFileRelationshipTestSuite;
 import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsRelationshipsTestSuite;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * <p>
@@ -460,11 +458,11 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
     public void testFindByLoginNameAndCreationDateWithSorting() throws Exception {
         createAgent("john");
         // Sleep is needed to avoid same createdDate
-        IDMUtil.sleep(1);
+        IDMUtil.sleep(1000);
         createAgent("demo");
-        IDMUtil.sleep(1);
+        IDMUtil.sleep(1000);
         createAgent("root");
-        IDMUtil.sleep(1);
+        IDMUtil.sleep(1000);
         Agent mary = createAgent("mary");
         mary.setEnabled(false);
         getIdentityManager().update(mary);

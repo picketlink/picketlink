@@ -10,7 +10,6 @@ import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
-import org.picketlink.idm.model.User;
 
 /**
  * Authenticator that uses the Identity Management API to authenticate.  Assumes that the
@@ -49,7 +48,7 @@ public class IdmAuthenticator extends BaseAuthenticator {
 
         if (Credentials.Status.VALID.equals(creds.getStatus())) {
             setStatus(AuthenticationStatus.SUCCESS);
-            setAgent((User) creds.getValidatedAgent());
+            setAgent(creds.getValidatedAgent());
         } else if (Credentials.Status.AGENT_DISABLED.equals(creds.getStatus())) {
             throw new LockedAccountException("Agent [" + this.credentials.getUserId() + "] is disabled.");
         }

@@ -98,4 +98,6 @@ public interface StoreFactory {
     Tier findTier(SecurityContext context,String id);
 
     void deleteRealm(SecurityContext context, Realm realm);
+
+   void deleteTier(SecurityContext context, Tier tier);
 }

@@ -72,10 +72,16 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-      <groupId>org.jboss.logging</groupId>
-      <artifactId>jboss-logging</artifactId>
-      <scope>test</scope>
-    </dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.5.6</version>
+            <scope>test</scope>
+        </dependency>
 
 		<!-- LDAP Identity Store Dependencies -->
 		<dependency>
@@ -90,12 +96,6 @@
 			<version>1.0.2.Final</version>
 			<scope>test</scope>
 			<type>test-jar</type>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-			<version>1.5.6</version>
-			<scope>test</scope>
 		</dependency>
 
 		<!-- JPA Identity Store Dependencies -->

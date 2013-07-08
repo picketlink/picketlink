@@ -292,4 +292,7 @@ public interface IDMMessages {
 
     @Message(id = 74, value = "You must specify which credentials are supported by the [%s].")
     IdentityManagementException credentialSupportedCredentialsNotProvided(Class<? extends CredentialHandler> handlerClass);
+
+    @Message(id = 75, value = "Illegal Operation.")
+    IdentityManagementException illegalOperation();
 }
