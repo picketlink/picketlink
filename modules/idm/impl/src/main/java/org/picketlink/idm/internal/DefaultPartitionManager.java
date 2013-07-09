@@ -438,23 +438,56 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     @Override
-    public <T extends IdentityStore<?>> T getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> relationshipClass,
+    public IdentityStore<?> getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> relationshipClass,
                                                              Relationship relationship, IdentityOperation operation) {
 
-        checkSupportedTypes(context.getPartition(), relationshipClass);
+        Set<Partition> partitions = relationshipMetadata.getRelationshipPartitions(relationship);
 
-        for (IdentityConfiguration identityConfiguration : this.configurations) {
-            for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
-                if (storeConfig.supportsType(relationshipClass, operation)) {
-                    @SuppressWarnings("unchecked")
-                    T store = (T) stores.get(identityConfiguration).get(storeConfig);
-                    storeConfig.initializeContext(context, store);
-                    return store;
+        IdentityStore<?> store = null;
+
+        // Check if the partition can manage its own relationship
+        if (partitions.size() == 1) {
+            IdentityConfiguration config  = getConfigurationForPartition(partitions.iterator().next());
+            if (config.getRelationshipPolicy().isSelfRelationshipSupported(relationshipClass)) {
+                for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
+                    if (storeConfig.supportsType(relationshipClass, operation)) {
+                        store = stores.get(config).get(storeConfig);
+                        storeConfig.initializeContext(context, store);
+                    }
+                }
+            }
+        } else {
+            // This is a multi-partition relationship - use the configuration that supports the global relationship type
+            for (Partition partition : partitions) {
+                IdentityConfiguration config  = getConfigurationForPartition(partition);
+                if (config.getRelationshipPolicy().isGlobalRelationshipSupported(relationshipClass)) {
+                    for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
+                        if (storeConfig.supportsType(relationshipClass, operation)) {
+                            store = stores.get(config).get(storeConfig);
+                            storeConfig.initializeContext(context, store);
+                        }
+                    }
+                 }
+             }
+         }
+
+        // If none of the participating partition configurations support the relationship, try to find another configuration
+        // that supports the global relationship as a last ditch effort
+        if (store == null) {
+            for (IdentityConfiguration cfg : configurations) {
+                if (cfg.getRelationshipPolicy().isGlobalRelationshipSupported(relationshipClass)) {
+                    // found one
+                    for (IdentityStoreConfiguration storeConfig : cfg.getStoreConfiguration()) {
+                        if (storeConfig.supportsType(relationshipClass, operation)) {
+                            store = stores.get(cfg).get(storeConfig);
+                            storeConfig.initializeContext(context, store);
+                        }
+                    }
                 }
             }
         }
 
-        throw new IdentityManagementException("No IdentityStore found for required type [" + relationshipClass + "]");
+        return store;
     }
 
     @Override
