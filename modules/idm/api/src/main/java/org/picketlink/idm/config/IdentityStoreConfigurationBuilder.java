@@ -24,6 +24,7 @@ package org.picketlink.idm.config;
 
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
 import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
@@ -49,6 +50,22 @@ public interface IdentityStoreConfigurationBuilder<T extends IdentityStoreConfig
      * @return
      */
     S supportType(Class<? extends AttributedType>... types);
+
+    /**
+     * <p>Defines which types should be supported by this configuration.</p>
+     *
+     * @param types
+     * @return
+     */
+    S supportGlobalRelationship(Class<? extends Relationship>... types);
+
+    /**
+     * <p>Defines which types should be supported by this configuration.</p>
+     *
+     * @param types
+     * @return
+     */
+    S supportSelfRelationship(Class<? extends Relationship>... types);
 
     /**
      * <p>Defines which type should not be supported by this configuration.</p>

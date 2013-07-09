@@ -25,6 +25,7 @@ import java.util.Properties;
 import java.util.Set;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.IdentityStore;
 
@@ -66,10 +67,12 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             Map<String, String> groupMapping,
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
+            Set<Class<? extends Relationship>> globalSupportedRelationships,
+            Set<Class<? extends Relationship>> seldSupportedRelationships,
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {
-        super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers);
+        super(supportedTypes, unsupportedTypes, globalSupportedRelationships, seldSupportedRelationships, contextInitializers, credentialHandlerProperties, credentialHandlers);
         this.ldapURL = url;
         this.bindDN = bindDN;
         this.bindCredential = bindCredential;

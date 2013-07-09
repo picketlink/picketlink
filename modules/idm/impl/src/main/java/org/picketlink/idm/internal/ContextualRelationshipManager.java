@@ -35,6 +35,7 @@ import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.StoreSelector;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * Default implementation for RelationshipManager.
@@ -56,17 +57,17 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
 
     @Override
     public void add(Relationship relationship) throws IdentityManagementException {
-        storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship).add(this, relationship);
+        storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.create).add(this, relationship);
     }
 
     @Override
     public void update(Relationship relationship) {
-        storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship).update(this, relationship);
+        storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.update).update(this, relationship);
     }
 
     @Override
     public void remove(Relationship relationship) {
-        storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship).remove(this, relationship);
+        storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.delete).remove(this, relationship);
     }
 
     @Override

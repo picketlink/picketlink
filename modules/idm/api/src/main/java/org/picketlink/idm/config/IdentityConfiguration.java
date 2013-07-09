@@ -19,7 +19,6 @@
 package org.picketlink.idm.config;
 
 import java.util.List;
-import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.spi.RelationshipPolicy;
 import static java.util.Collections.unmodifiableList;
 
@@ -35,14 +34,14 @@ public class IdentityConfiguration {
     private final List<? extends IdentityStoreConfiguration> storeConfiguration;
     private final RelationshipPolicy relationshipPolicy;
 
-    IdentityConfiguration(String name, List<? extends IdentityStoreConfiguration> identityStores) {
+    IdentityConfiguration(String name, List<? extends IdentityStoreConfiguration> identityStores, RelationshipPolicy relationshipPolicy) {
         if (name == null) {
             throw new SecurityConfigurationException("You must specify a name for the IdentityConfiguration.");
         }
 
         this.name = name;
         this.storeConfiguration = unmodifiableList(identityStores);
-        this.relationshipPolicy = null;
+        this.relationshipPolicy = relationshipPolicy;
     }
 
     public RelationshipPolicy getRelationshipPolicy() {

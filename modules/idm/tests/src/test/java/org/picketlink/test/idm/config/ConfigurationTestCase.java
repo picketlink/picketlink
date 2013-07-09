@@ -29,13 +29,13 @@ import org.picketlink.idm.model.sample.User;
 
 /**
  * <p>
- * Test case for the {@link org.picketlink.idm.file.internal.FileIdentityStore}.
+ * Test case for the Configuration API.
  * </p>
  * 
  * @author Pedro Silva
  * 
  */
-public class FileIdentityStoreConfigurationTestCase {
+public class ConfigurationTestCase {
 
     @Test (expected = SecurityConfigurationException.class)
     public void failNoIdentityStoreProvided() {

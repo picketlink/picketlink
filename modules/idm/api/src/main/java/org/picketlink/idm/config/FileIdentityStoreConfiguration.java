@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
-import org.picketlink.idm.spi.IdentityStore;
 
 /**
  * <p>Configuration class for the File-based {@link org.picketlink.idm.spi.IdentityStore} implementation.</p>
@@ -46,10 +46,12 @@ public class FileIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             int asyncWriteThreadPool,
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
+            Set<Class<? extends Relationship>> globalSupportedRelationships,
+            Set<Class<? extends Relationship>> selfSupportedRelationships,
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {
-        super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers);
+        super(supportedTypes, unsupportedTypes, globalSupportedRelationships, selfSupportedRelationships, contextInitializers, credentialHandlerProperties, credentialHandlers);
         this.workingDir = workingDir;
         this.alwaysCreateFiles = !preserveState;
         this.asyncWrite = asyncWrite;
@@ -58,11 +60,6 @@ public class FileIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
 
     @Override
     protected void initConfig() throws SecurityConfigurationException {
-    }
-
-    @Override
-    public Class<? extends IdentityStore> getIdentityStoreType() {
-        return null;
     }
 
     public String getWorkingDir() {

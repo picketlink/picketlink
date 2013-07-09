@@ -18,10 +18,13 @@
 
 package org.picketlink.idm.config;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
@@ -30,6 +33,7 @@ import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
+import static java.util.Collections.unmodifiableSet;
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.util.IDMUtil.isTypeOperationSupported;
@@ -67,15 +71,22 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
      * <p>Additional {@link CredentialHandler} types supported by this configuration.</p>
      */
     private final List<Class<? extends CredentialHandler>> credentialHandlers;
+    private Class<? extends IdentityStore> identityStoreType;
+    private final Set<Class<? extends Relationship>> globalSupportedRelationships;
+    private final Set<Class<? extends Relationship>> selfSupportedRelationships;
 
     protected AbstractIdentityStoreConfiguration(
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
+            Set<Class<? extends Relationship>> globalSupportedRelationships,
+            Set<Class<? extends Relationship>> selfSupportedRelationships,
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {
         this.supportedTypes = unmodifiableMap(supportedTypes);
         this.unsupportedTypes = unmodifiableMap(unsupportedTypes);
+        this.globalSupportedRelationships = unmodifiableSet(globalSupportedRelationships);
+        this.selfSupportedRelationships = unmodifiableSet(selfSupportedRelationships);
         this.contextInitializers = unmodifiableList(contextInitializers);
         this.credentialHandlerProperties = unmodifiableMap(credentialHandlerProperties);
         this.credentialHandlers = unmodifiableList(credentialHandlers);
@@ -92,7 +103,7 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
             // FIXME
             //for (Entry<FeatureGroup, Set<FeatureOperation>> entry : getSupportedFeatures().entrySet()) {
             //    LOGGER.debugf("%s.%s", entry.getKey(), entry.getValue());
-           // }
+            // }
 
             LOGGER.debug("]");
 
@@ -122,22 +133,16 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
 
     @Override
     public List<Class<? extends CredentialHandler>> getCredentialHandlers() {
-        return this.credentialHandlers;
+        List<Class<? extends CredentialHandler>> credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>(this.credentialHandlers);
+
+        credentialHandlers.addAll(Arrays.asList(getIdentityStoreType().getAnnotation(CredentialHandlers.class).value()));
+
+        return credentialHandlers;
     }
 
     @Override
     public Map<String, Object> getCredentialHandlerProperties() {
         return this.credentialHandlerProperties;
-    }
-
-    @Override
-    public Set<Class<? extends AttributedType>> getSupportedTypes() {
-        return this.supportedTypes.keySet();
-    }
-
-    @Override
-    public Set<Class<? extends Relationship>> getSupportedRelationships() {
-        return null;
     }
 
     public boolean supportsType(Class<? extends AttributedType> type, IdentityOperation operation) {
@@ -151,6 +156,15 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
     @Override
     public boolean supportsPartition() {
         return supportsType(Partition.class, IdentityOperation.create);
+    }
+
+    @Override
+    public Class<? extends IdentityStore> getIdentityStoreType() {
+        return this.identityStoreType;
+    }
+
+    public <T extends IdentityStore> void setIdentityStoreType(Class<T> identityStoreType) {
+        this.identityStoreType = identityStoreType;
     }
 
 }

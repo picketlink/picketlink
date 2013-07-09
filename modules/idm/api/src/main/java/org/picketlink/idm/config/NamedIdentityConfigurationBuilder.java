@@ -19,6 +19,7 @@ package org.picketlink.idm.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.picketlink.idm.spi.RelationshipPolicy;
 
 /**
  * @author pedroigor
@@ -46,7 +47,8 @@ public class NamedIdentityConfigurationBuilder extends AbstractIdentityConfigura
 
     @Override
     protected IdentityConfiguration create() {
-        return new IdentityConfiguration(this.name, this.identityStoresConfigurationBuilder.create());
+        return new IdentityConfiguration(this.name, this.identityStoresConfigurationBuilder.create(),
+                new RelationshipPolicy(this.identityStoresConfigurationBuilder.getSelfRelationships(), this.identityStoresConfigurationBuilder.getGlobalRelationships()));
     }
 
     @Override

@@ -19,7 +19,9 @@
 package org.picketlink.idm.spi;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.model.Relationship;
 
@@ -43,12 +45,12 @@ import org.picketlink.idm.model.Relationship;
  */
 public class RelationshipPolicy {
 
-    private Map<Class<? extends Relationship>, IdentityStoreConfiguration> selfManagedRelationships;
+    private final Map<Class<? extends Relationship>, IdentityStoreConfiguration> selfManagedRelationships;
 
-    private Map<Class<? extends Relationship>, IdentityStoreConfiguration> globalManagedRelationships;
+    private final Map<Class<? extends Relationship>, IdentityStoreConfiguration> globalManagedRelationships;
 
     public RelationshipPolicy(Map<Class<? extends Relationship>, IdentityStoreConfiguration> selfManagedRelationships,
-            Map<Class<? extends Relationship>, IdentityStoreConfiguration> globalManagedRelationships) {
+                              Map<Class<? extends Relationship>, IdentityStoreConfiguration> globalManagedRelationships) {
         this.selfManagedRelationships = Collections.unmodifiableMap(selfManagedRelationships);
         this.globalManagedRelationships = Collections.unmodifiableMap(globalManagedRelationships);
     }

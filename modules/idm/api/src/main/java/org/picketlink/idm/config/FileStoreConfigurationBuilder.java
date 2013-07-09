@@ -94,6 +94,8 @@ public class FileStoreConfigurationBuilder extends
                 this.asyncWriteThreadPool,
                 getSupportedTypes(),
                 getUnsupportedTypes(),
+                getGlobalRelationshipTypes(),
+                getSelfRelationshipTypes(),
                 getContextInitializers(),
                 getCredentialHandlerProperties(),
                 getCredentialHandlers());

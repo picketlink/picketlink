@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.Relationship;
 
 /**
  * @author Pedro Igor
@@ -40,11 +41,15 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
 
     private final List<AbstractIdentityStoreConfigurationBuilder<?, ?>> identityStoresConfiguration;
     private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>> supportedStoreBuilders;
+    Map<Class<? extends Relationship>, IdentityStoreConfiguration> globalRelationships = new HashMap<Class<? extends Relationship>, IdentityStoreConfiguration>();
+    Map<Class<? extends Relationship>, IdentityStoreConfiguration> selfRelationships = new HashMap<Class<? extends Relationship>, IdentityStoreConfiguration>();
 
     public IdentityStoresConfigurationBuilder(NamedIdentityConfigurationBuilder builder) {
         super(builder);
         this.identityStoresConfiguration = new ArrayList<AbstractIdentityStoreConfigurationBuilder<?, ?>>();
         this.supportedStoreBuilders = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>>();
+        this.globalRelationships = new HashMap<Class<? extends Relationship>, IdentityStoreConfiguration>();
+        this.selfRelationships = new HashMap<Class<? extends Relationship>, IdentityStoreConfiguration>();
 
         this.supportedStoreBuilders.put(FileIdentityStoreConfiguration.class, FileStoreConfigurationBuilder.class);
         this.supportedStoreBuilders.put(JPAIdentityStoreConfiguration.class, JPAStoreConfigurationBuilder.class);
@@ -97,9 +102,17 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
             }
 
             try {
-                supportedTypes.addAll(storeConfiguration.getSupportedTypes());
+                supportedTypes.addAll(storeConfigurationBuilder.getSupportedTypes().keySet());
             } catch (IllegalArgumentException iae) {
                 throw new SecurityConfigurationException("Duplicated supported types found for [" + storeConfiguration + "].");
+            }
+
+            for (Class<? extends Relationship> relType: storeConfigurationBuilder.getGlobalRelationshipTypes()) {
+                this.globalRelationships.put(relType, storeConfiguration);
+            }
+
+            for (Class<? extends Relationship> relType: storeConfigurationBuilder.getSelfRelationshipTypes()) {
+                this.selfRelationships.put(relType, storeConfiguration);
             }
 
             configurations.add(storeConfiguration);
@@ -175,4 +188,11 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
         return forIdentityStoreConfig(storeConfigType, false) != null;
     }
 
+    public Map<Class<? extends Relationship>, IdentityStoreConfiguration> getGlobalRelationships() {
+        return this.globalRelationships;
+    }
+
+    public Map<Class<? extends Relationship>, IdentityStoreConfiguration> getSelfRelationships() {
+        return this.selfRelationships;
+    }
 }

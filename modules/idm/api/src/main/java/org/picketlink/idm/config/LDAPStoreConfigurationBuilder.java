@@ -107,6 +107,8 @@ public class LDAPStoreConfigurationBuilder extends
                 this.groupMapping,
                 getSupportedTypes(),
                 getUnsupportedTypes(),
+                getGlobalRelationshipTypes(),
+                getSelfRelationshipTypes(),
                 getContextInitializers(),
                 getCredentialHandlerProperties(),
                 getCredentialHandlers());

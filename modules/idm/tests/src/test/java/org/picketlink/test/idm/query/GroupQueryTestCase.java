@@ -157,58 +157,6 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         assertEquals(group.getParentGroup().getId(), result.get(0).getParentGroup().getId());
     }
 
-    @Test
-    @Ignore
-    public void testFindGroupMembers() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-
-        Group groupA = new Group("a");
-
-        identityManager.add(groupA);
-
-        Group groupB = new Group("b", groupA);
-
-        identityManager.add(groupB);
-
-        Group groupC = new Group("c", groupB);
-
-        identityManager.add(groupC);
-
-        Group groupD = new Group("d", groupC);
-
-        identityManager.add(groupD);
-
-        IdentityQuery<Group> query = identityManager.createIdentityQuery(Group.class);
-
-        query.setParameter(Group.PARENT, groupA);
-
-        List<Group> result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertTrue(contains(result, groupB.getId()));
-
-        query = identityManager.createIdentityQuery(Group.class);
-
-        query.setParameter(Group.PARENT, groupC);
-
-        result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertTrue(contains(result, groupA.getId()));
-        assertTrue(contains(result, groupB.getId()));
-
-        query = identityManager.createIdentityQuery(Group.class);
-
-        query.setParameter(Group.PARENT, groupD);
-
-        result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertTrue(contains(result, groupA.getId()));
-        assertTrue(contains(result, groupB.getId()));
-        assertTrue(contains(result, groupC.getId()));
-    }
-
     /**
      * <p>
      * Finds all groups for a specific user.

@@ -18,6 +18,7 @@
 
 package org.picketlink.idm.query.internal;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -32,6 +33,7 @@ import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreSelector;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Default IdentityQuery implementation.
@@ -88,34 +90,32 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
 
     @Override
     public List<T> getResultList() {
-//        List<T> result = new ArrayList<T>();
-//
-//        try {
-//            for (IdentityStore<?> store : getStores()) {
-//                result.addAll(store.fetchQueryResults(context, this));
-//            }
-//        } catch (Exception e) {
-//            throw MESSAGES.relationshipQueryFailed(this, e);
-//        }
-//
-//        return result;
-        return Collections.unmodifiableList(this.storeSelector.getStoreForRelationshipOperation(this.context, this.relationshipClass, null).fetchQueryResults(this.context, this));
+        List<T> result = new ArrayList<T>();
+
+        try {
+            for (IdentityStore<?> store : getStores()) {
+                result.addAll(store.fetchQueryResults(context, this));
+            }
+        } catch (Exception e) {
+            throw MESSAGES.relationshipQueryFailed(this, e);
+        }
+
+        return result;
     }
 
     @Override
     public long getResultCount() {
-//        long count = 0;
-//
-//        try {
-//            for (IdentityStore<?> store : getStores()) {
-//                count += store.countQueryResults(context, this);
-//            }
-//        } catch (Exception e) {
-//            throw MESSAGES.relationshipQueryFailed(this, e);
-//        }
-//
-//        return count;
-        return this.storeSelector.getStoreForRelationshipOperation(this.context, this.relationshipClass, null).countQueryResults(this.context, this);
+        long count = 0;
+
+        try {
+            for (IdentityStore<?> store : getStores()) {
+                count += store.countQueryResults(context, this);
+            }
+        } catch (Exception e) {
+            throw MESSAGES.relationshipQueryFailed(this, e);
+        }
+
+        return count;
     }
 
     @Override

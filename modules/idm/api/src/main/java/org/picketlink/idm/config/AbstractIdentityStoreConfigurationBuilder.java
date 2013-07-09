@@ -34,6 +34,9 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.sample.Grant;
+import org.picketlink.idm.model.sample.GroupMembership;
+import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.spi.ContextInitializer;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
@@ -52,6 +55,9 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
     private final Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes;
     private final Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes;
 
+    private final Set<Class<? extends Relationship>> globalRelationshipTypes;
+    private final Set<Class<? extends Relationship>> selfRelationshipTypes;
+
     private final List<Class<? extends CredentialHandler>> credentialHandlers;
     private final Map<String, Object> credentialHandlerProperties;
     private boolean supportCredentials;
@@ -64,6 +70,8 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
         super(builder);
         this.supportedTypes = new HashMap<Class<? extends AttributedType>, Set<IdentityOperation>>();
         this.unsupportedTypes = new HashMap<Class<? extends AttributedType>, Set<IdentityOperation>>();
+        this.globalRelationshipTypes = new HashSet<Class<? extends Relationship>>();
+        this.selfRelationshipTypes = new HashSet<Class<? extends Relationship>>();
         this.credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
         this.credentialHandlerProperties = new HashMap<String, Object>();
         this.contextInitializers = new ArrayList<ContextInitializer>();
@@ -118,9 +126,24 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
     }
 
     @Override
+    public S supportGlobalRelationship(Class<? extends Relationship>... types) {
+        this.globalRelationshipTypes.addAll(Arrays.asList(types));
+        supportType(types);
+        return (S) this;
+    }
+
+    @Override
+    public S supportSelfRelationship(Class<? extends Relationship>... types) {
+        this.selfRelationshipTypes.addAll(Arrays.asList(types));
+        supportType(types);
+        return (S) this;
+    }
+
+    @Override
     public S supportAllFeatures() {
         supportType(getDefaultIdentityModelClasses());
         supportCredentials(true);
+        supportGlobalRelationship(Grant.class, GroupMembership.class, GroupRole.class);
 
         return (S) this;
     }
@@ -179,6 +202,14 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
 
     protected Map<Class<? extends AttributedType>, Set<IdentityOperation>> getUnsupportedTypes() {
         return unmodifiableMap(this.unsupportedTypes);
+    }
+
+    protected Set<Class<? extends Relationship>> getGlobalRelationshipTypes() {
+        return this.globalRelationshipTypes;
+    }
+
+    protected Set<Class<? extends Relationship>> getSelfRelationshipTypes() {
+        return this.selfRelationshipTypes;
     }
 
     private static Class<? extends AttributedType>[] getDefaultIdentityModelClasses() {

@@ -104,20 +104,6 @@ public interface IdentityStoreConfiguration {
     boolean supportsPartition();
 
     /**
-     * <p>Returns all supported {@link AttributedType} types.</p>
-     *
-     * @return
-     */
-    Set<Class<? extends AttributedType>> getSupportedTypes();
-
-    /**
-     * <p>Returns all supported {@link Relationship} types.</p>
-     *
-     * @return
-     */
-    Set<Class<? extends Relationship>> getSupportedRelationships();
-
-    /**
      * <p>Returns the {@link IdentityStore} type associated with this configuration.</p>
      *
      * @return

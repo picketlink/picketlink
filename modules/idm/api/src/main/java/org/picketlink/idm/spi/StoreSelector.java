@@ -56,7 +56,7 @@ public interface StoreSelector {
      * @return
      */
     <T extends IdentityStore<?>> T getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> relationshipClass,
-            Relationship relationship);
+            Relationship relationship, IdentityOperation operation);
 
     /**
      *

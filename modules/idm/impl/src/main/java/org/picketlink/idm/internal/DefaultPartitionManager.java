@@ -17,13 +17,11 @@
  */
 package org.picketlink.idm.internal;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,6 +31,7 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.config.AbstractIdentityStoreConfiguration;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
@@ -41,10 +40,6 @@ import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.config.SecurityConfigurationException;
-import org.picketlink.idm.credential.internal.DigestCredentialHandler;
-import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
-import org.picketlink.idm.credential.internal.TOTPCredentialHandler;
-import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.event.EventBridge;
@@ -52,7 +47,6 @@ import org.picketlink.idm.file.internal.FileIdentityStore;
 import org.picketlink.idm.internal.util.RelationshipMetadata;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
-import org.picketlink.idm.ldap.internal.LDAPPlainTextPasswordCredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
@@ -204,6 +198,10 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                 } else {
                     throw new IdentityManagementException("Unknown IdentityStore class for configuration [" + storeConfiguration + "].");
                 }
+            }
+
+            if (storeConfiguration instanceof AbstractIdentityStoreConfiguration) {
+                ((AbstractIdentityStoreConfiguration) storeConfiguration).setIdentityStoreType(storeClass);
             }
 
             store = storeClass.newInstance();
@@ -411,7 +409,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         IdentityConfiguration config = getConfigurationForPartition(context.getPartition());
 
         for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
-            for (@SuppressWarnings("rawtypes") Class<? extends CredentialHandler> handlerClass : getCredentialHandlers(storeConfig)) {
+            for (@SuppressWarnings("rawtypes") Class<? extends CredentialHandler> handlerClass : storeConfig.getCredentialHandlers()) {
                 if (handlerClass.isAnnotationPresent(SupportsCredentials.class)) {
                     for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).value()) {
                         if (cls.isAssignableFrom(credentialClass)) {
@@ -439,34 +437,15 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         return store;
     }
 
-    private List<Class<? extends CredentialHandler>> getCredentialHandlers(IdentityStoreConfiguration storeConfig) {
-        List<Class<? extends CredentialHandler>> credentialHandlers = storeConfig.getCredentialHandlers();
-
-        if (credentialHandlers.isEmpty()) {
-            credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
-
-            if (LDAPIdentityStoreConfiguration.class.isInstance(storeConfig)) {
-                credentialHandlers.add(LDAPPlainTextPasswordCredentialHandler.class);
-            } else {
-                credentialHandlers.add(PasswordCredentialHandler.class);
-                credentialHandlers.add(DigestCredentialHandler.class);
-                credentialHandlers.add(TOTPCredentialHandler.class);
-                credentialHandlers.add(X509CertificateCredentialHandler.class);
-            }
-        }
-
-        return credentialHandlers;
-    }
-
     @Override
     public <T extends IdentityStore<?>> T getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> relationshipClass,
-                                                             Relationship relationship) {
+                                                             Relationship relationship, IdentityOperation operation) {
 
         checkSupportedTypes(context.getPartition(), relationshipClass);
 
         for (IdentityConfiguration identityConfiguration : this.configurations) {
             for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
-                if (storeConfig.supportsType(relationshipClass, IdentityOperation.create)) {
+                if (storeConfig.supportsType(relationshipClass, operation)) {
                     @SuppressWarnings("unchecked")
                     T store = (T) stores.get(identityConfiguration).get(storeConfig);
                     storeConfig.initializeContext(context, store);
@@ -481,7 +460,6 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     @Override
     public Set<IdentityStore<?>> getStoresForRelationshipQuery(IdentityContext context, Class<? extends Relationship> relationshipClass,
             Set<Partition> partitions) {
-
         Set<IdentityStore<?>> result = new HashSet<IdentityStore<?>>();
 
         // If _no_ parameters have been specified for the query at all, we return all stores that support the
@@ -491,7 +469,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                 if (config.getRelationshipPolicy().isGlobalRelationshipSupported(relationshipClass) ||
                     config.getRelationshipPolicy().isSelfRelationshipSupported(relationshipClass)) {
                         for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
-                            if (storeConfig.getSupportedRelationships().contains(relationshipClass)) {
+                            if (storeConfig.supportsType(relationshipClass, IdentityOperation.create)) {
                                 IdentityStore<?> store = stores.get(config).get(storeConfig);
                                 storeConfig.initializeContext(context, store);
                                 result.add(store);
@@ -504,7 +482,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                 IdentityConfiguration config = getConfigurationForPartition(partition);
                 if (config.getRelationshipPolicy().isGlobalRelationshipSupported(relationshipClass)) {
                     for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
-                        if (storeConfig.getSupportedRelationships().contains(relationshipClass)) {
+                        if (storeConfig.supportsType(relationshipClass, IdentityOperation.create)) {
                             IdentityStore<?> store = stores.get(config).get(storeConfig);
                             storeConfig.initializeContext(context, store);
                             result.add(store);

@@ -20,6 +20,7 @@ package org.picketlink.idm.file.internal;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -66,7 +67,6 @@ import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
-import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.PartitionStore;
 import static java.util.Map.Entry;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
@@ -84,11 +84,27 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
 
     private FileIdentityStoreConfiguration configuration;
     private FileDataSource fileDataSource;
+    private Map<Class<? extends CredentialHandler>, CredentialHandler> credentialHandlers = new HashMap<Class<? extends CredentialHandler>, CredentialHandler>();
 
     @Override
     public void setup(FileIdentityStoreConfiguration configuration) {
         this.configuration = configuration;
         this.fileDataSource = new FileDataSource(this.configuration);
+
+        List<Class<? extends CredentialHandler>> credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>(configuration.getCredentialHandlers());
+
+        for (Class<? extends CredentialHandler> handlerType : credentialHandlers) {
+            CredentialHandler credentialHandler = null;
+
+            try {
+                credentialHandler = handlerType.newInstance();
+                credentialHandler.setup(this);
+            } catch (Exception e) {
+                throw MESSAGES.credentialCredentialHandlerInstantiationError(handlerType, e);
+            }
+
+            this.credentialHandlers.put(handlerType, credentialHandler);
+        }
     }
 
     @Override
@@ -467,12 +483,14 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
 
     @Override
     public void validateCredentials(IdentityContext context, Credentials credentials) {
-        getCredentialHandler(credentials, this).validate(context, credentials, this);
+        Class<? extends CredentialHandler> credentialHandler = getCredentialHandler(credentials);
+        this.credentialHandlers.get(credentialHandler).validate(context, credentials, this);
     }
 
     @Override
     public void updateCredential(IdentityContext context, Account account, Object credential, Date effectiveDate, Date expiryDate) {
-        getCredentialHandler(credential, this).update(context, account, credential, this, effectiveDate, expiryDate);
+        Class<? extends CredentialHandler> credentialHandler = getCredentialHandler(credential);
+        this.credentialHandlers.get(credentialHandler).update(context, account, credential, this, effectiveDate, expiryDate);
     }
 
     @Override
@@ -726,24 +744,20 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
         this.fileDataSource.flushRelationships();
     }
 
-    public <C extends CredentialHandler> C getCredentialHandler(Object credentials, IdentityStore<?> identityStore) {
-        C credentialHandler = null;
+    public Class<? extends CredentialHandler> getCredentialHandler(Object credentials) {
+        Class<? extends CredentialHandler> credentialHandler = null;
 
-        for (@SuppressWarnings("rawtypes") Class<? extends CredentialHandler> handlerClass : getCredentialHandlers()) {
-            if (handlerClass.isAnnotationPresent(SupportsCredentials.class)) {
-                for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).value()) {
-                    if (cls.isAssignableFrom(credentials.getClass())) {
-                        try {
-                            credentialHandler = (C) handlerClass.newInstance();
+        if (credentialHandler == null) {
+            for (Class<? extends CredentialHandler> handlerClass : this.credentialHandlers.keySet()) {
+                if (handlerClass.isAnnotationPresent(SupportsCredentials.class)) {
+                    for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).value()) {
+                        if (cls.isAssignableFrom(credentials.getClass())) {
+                            credentialHandler = handlerClass;
 
-                            credentialHandler.setup(identityStore);
-                        } catch (Exception e) {
-                            throw MESSAGES.credentialCredentialHandlerInstantiationError(handlerClass, e);
-                        }
-
-                        // if we found a specific handler for the credential, immediately return.
-                        if (cls.equals(credentials.getClass())) {
-                            return credentialHandler;
+                            // if we found a specific handler for the credential, immediately return.
+                            if (cls.equals(credentials.getClass())) {
+                                return handlerClass;
+                            }
                         }
                     }
                 }
@@ -755,21 +769,6 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
         }
 
         return credentialHandler;
-    }
-
-    private List<Class<? extends CredentialHandler>> getCredentialHandlers() {
-        List<Class<? extends CredentialHandler>> credentialHandlers = getConfig().getCredentialHandlers();
-
-        if (credentialHandlers.isEmpty()) {
-            credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
-
-            credentialHandlers.add(PasswordCredentialHandler.class);
-            credentialHandlers.add(DigestCredentialHandler.class);
-            credentialHandlers.add(TOTPCredentialHandler.class);
-            credentialHandlers.add(X509CertificateCredentialHandler.class);
-        }
-
-        return credentialHandlers;
     }
 
     private List<FileCredentialStorage> getCredentials(IdentityContext context, Account agent,

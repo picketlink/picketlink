@@ -23,11 +23,13 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
+import org.picketlink.idm.model.sample.Authorization;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
+import org.picketlink.test.idm.basic.CustomIdentityTypeTestCase;
 import org.picketlink.test.idm.basic.GroupManagementTestCase;
 import org.picketlink.test.idm.basic.RoleManagementTestCase;
 import org.picketlink.test.idm.basic.UserManagementTestCase;
@@ -47,6 +49,7 @@ import org.picketlink.test.idm.query.UserQueryTestCase;
 import org.picketlink.test.idm.relationship.AgentGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupRoleRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupsRelationshipTestCase;
+import org.picketlink.test.idm.relationship.CustomRelationship;
 import org.picketlink.test.idm.relationship.CustomRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
@@ -67,6 +70,7 @@ import static org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses ({
         RealmManagementTestCase.class, TierManagementTestCase.class, CustomPartitionTestCase.class,
         AgentManagementTestCase.class, UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
+        CustomIdentityTypeTestCase.class,
         UserGrantRelationshipTestCase.class, AgentGrantRelationshipTestCase.class, GroupGrantRelationshipTestCase.class,
         GroupMembershipTestCase.class, AgentGroupsRelationshipTestCase.class,
         AgentGroupRoleRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class, ApplicationUserRelationshipTestCase.class,
@@ -98,6 +102,7 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
                 .stores()
                     .file()
                         .preserveState(false)
+                        .supportGlobalRelationship(CustomRelationship.class, Authorization.class)
                         .supportAllFeatures();
 
         PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
