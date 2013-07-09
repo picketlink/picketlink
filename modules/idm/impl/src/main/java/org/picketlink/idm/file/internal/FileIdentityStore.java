@@ -90,9 +90,7 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
         this.configuration = configuration;
         this.fileDataSource = new FileDataSource(this.configuration);
 
-        List<Class<? extends CredentialHandler>> credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>(configuration.getCredentialHandlers());
-
-        for (Class<? extends CredentialHandler> handlerType : credentialHandlers) {
+        for (Class<? extends CredentialHandler> handlerType : configuration.getCredentialHandlers()) {
             CredentialHandler credentialHandler = null;
 
             try {
