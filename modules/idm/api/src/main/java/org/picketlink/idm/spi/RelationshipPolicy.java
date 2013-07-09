@@ -19,9 +19,7 @@
 package org.picketlink.idm.spi;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.model.Relationship;
 
@@ -46,7 +44,6 @@ import org.picketlink.idm.model.Relationship;
 public class RelationshipPolicy {
 
     private final Map<Class<? extends Relationship>, IdentityStoreConfiguration> selfManagedRelationships;
-
     private final Map<Class<? extends Relationship>, IdentityStoreConfiguration> globalManagedRelationships;
 
     public RelationshipPolicy(Map<Class<? extends Relationship>, IdentityStoreConfiguration> selfManagedRelationships,
@@ -59,15 +56,7 @@ public class RelationshipPolicy {
         return selfManagedRelationships.containsKey(relationshipClass);
     }
 
-    public IdentityStoreConfiguration getSelfManagedRelationshipStore(Class<? extends Relationship> relationshipClass) {
-        return selfManagedRelationships.get(relationshipClass);
-    }
-
     public boolean isGlobalRelationshipSupported(Class<? extends Relationship> relationshipClass) {
         return globalManagedRelationships.containsKey(relationshipClass);
-    }
-
-    public IdentityStoreConfiguration getGlobalManagedRelationshipStore(Class<? extends Relationship> relationshipClass) {
-        return globalManagedRelationships.get(relationshipClass);
     }
 }

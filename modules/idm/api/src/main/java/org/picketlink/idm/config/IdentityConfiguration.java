@@ -80,4 +80,9 @@ public class IdentityConfiguration {
 
         return getName() != null && other.getName() != null && getName().equals(other.getName());
     }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }
