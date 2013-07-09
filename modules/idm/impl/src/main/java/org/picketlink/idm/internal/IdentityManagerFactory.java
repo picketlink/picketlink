@@ -1,6 +1,5 @@
 package org.picketlink.idm.internal;
 
-import java.io.Serializable;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
@@ -11,6 +10,9 @@ import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.SecurityContextFactory;
 import org.picketlink.idm.spi.StoreFactory;
+
+import java.io.Serializable;
+
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 

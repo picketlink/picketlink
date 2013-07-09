@@ -129,7 +129,7 @@ public class CustomIdentityStoreTestCase {
                 Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms,
                 Set<String> tiers, List<ContextInitializer> contextInitializers,
                 Map<String, Object> credentialHandlerProperties, List<Class<? extends CredentialHandler>> credentialHandlers) {
-            super(supportedFeatures, supportedRelationships, realms, tiers, contextInitializers, credentialHandlerProperties,
+            super(supportedFeatures, supportedRelationships, realms, tiers, contextInitializers, null, credentialHandlerProperties,
                     credentialHandlers);
         }
 

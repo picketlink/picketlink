@@ -38,10 +38,8 @@ import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.StoreFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -59,23 +57,13 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
  *
  * @author Shane Bryzak
  */
-public class DefaultStoreFactory implements StoreFactory {
+public class DefaultStoreFactory2 implements StoreFactory {
 
     private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> identityConfigMap = new ConcurrentHashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>>();
-
     private Map<Class<? extends IdentityStoreConfiguration>, IdentityStore<?>> storesCache = new ConcurrentHashMap<Class<? extends IdentityStoreConfiguration>, IdentityStore<?>>();
+    private Set<IdentityStoreConfiguration> configs = new HashSet<IdentityStoreConfiguration>();
 
-    private Map<String, Set<IdentityStoreConfiguration>> realmStores = new ConcurrentHashMap<String, Set<IdentityStoreConfiguration>>();
-
-    private Map<String, Realm> configuredRealms = new HashMap<String, Realm>();
-
-    private Map<String, Set<IdentityStoreConfiguration>> tierStores = new ConcurrentHashMap<String, Set<IdentityStoreConfiguration>>();
-
-    private Map<String, Tier> configuredTiers = new ConcurrentHashMap<String, Tier>();
-
-    private List<IdentityStoreConfiguration> configs = new ArrayList<IdentityStoreConfiguration>();
-
-    public DefaultStoreFactory(IdentityConfiguration identityConfig) {
+    public DefaultStoreFactory2(IdentityConfiguration identityConfig) {
         this.identityConfigMap.put(JPAIdentityStoreConfiguration.class, JPAIdentityStore.class);
         this.identityConfigMap.put(LDAPIdentityStoreConfiguration.class, LDAPIdentityStore.class);
         this.identityConfigMap.put(FileIdentityStoreConfiguration.class, FileBasedIdentityStore.class);
@@ -105,20 +93,6 @@ public class DefaultStoreFactory implements StoreFactory {
             }
 
             config.init();
-
-            // let's configure the provided partitions
-            for (String realm : config.getRealms()) {
-                getConfigs(realmStores, realm).add(config);
-            }
-
-            for (String tier : config.getTiers()) {
-                getConfigs(tierStores, tier).add(config);
-            }
-
-            // If no realms or tiers have been configured, treat this configuration as the default realm config
-            if (config.getRealms().isEmpty() && config.getTiers().isEmpty()) {
-                getConfigs(realmStores, Realm.DEFAULT_REALM).add(config);
-            }
 
             // let's add any additional/custom store
             if (identityConfig.getAdditionalIdentityStores() != null) {
@@ -161,20 +135,12 @@ public class DefaultStoreFactory implements StoreFactory {
 
     @Override
     public Realm getRealm(String id) {
-        if (configuredRealms.containsKey(id)) {
-            return configuredRealms.get(id);
-        } else if (realmStores.containsKey(id)) {
-            Realm realm = new Realm(id);
-            configuredRealms.put(id, realm);
-            return realm;
-        } else {
-            return null;
-        }
+        throw new RuntimeException("Not Implemented");
     }
 
     @Override
     public Realm createRealm(SecurityContext context, String id) {
-        Realm realm = getRealm(id);
+        Realm realm = findRealm(context, id);
         if (realm != null) return realm;
         IdentityStoreConfiguration config = getPartitionStoreConfig();
         if (config == null) return null;
@@ -182,17 +148,13 @@ public class DefaultStoreFactory implements StoreFactory {
         if (store == null) return null;
         realm = new Realm(id);
         store.createPartition(context, realm);
-        configuredRealms.put(id, realm);
-        getConfigs(realmStores, id).add(config);
         return realm;
     }
 
     @Override
     public void deleteRealm(SecurityContext context, Realm realm) {
-        realmStores.remove(realm.getId());
-        configuredRealms.remove(realm.getId());
         for (IdentityStoreConfiguration config : configs) {
-            for (Map.Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> entry : this.identityConfigMap.entrySet()) {
+            for (Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> entry : this.identityConfigMap.entrySet()) {
                 if (entry.getKey().isInstance(config) && PartitionStore.class.isAssignableFrom(entry.getValue())) {
                     PartitionStore store = getPartitionStore(context, config);
                     store.removePartition(context, realm);
@@ -203,10 +165,8 @@ public class DefaultStoreFactory implements StoreFactory {
 
    @Override
    public void deleteTier(SecurityContext context, Tier tier) {
-      tierStores.remove(tier.getId());
-      configuredTiers.remove(tier.getId());
       for (IdentityStoreConfiguration config : configs) {
-         for (Map.Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> entry : this.identityConfigMap.entrySet()) {
+         for (Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> entry : this.identityConfigMap.entrySet()) {
             if (entry.getKey().isInstance(config) && PartitionStore.class.isAssignableFrom(entry.getValue())) {
                PartitionStore store = getPartitionStore(context, config);
                store.removePartition(context, tier);
@@ -217,18 +177,13 @@ public class DefaultStoreFactory implements StoreFactory {
 
    @Override
     public Realm findRealm(SecurityContext context, String id) {
-        Realm realm = getRealm(id);
-        if (realm != null) return realm;
         for (IdentityStoreConfiguration config : configs) {
-            for (Map.Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> entry : this.identityConfigMap.entrySet()) {
+            for (Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> entry : this.identityConfigMap.entrySet()) {
                 if (entry.getKey().isInstance(config) && PartitionStore.class.isAssignableFrom(entry.getValue())) {
                     PartitionStore store = getPartitionStore(context, config);
                     Partition partition = store.findPartition(context, id);
                     if (partition instanceof Realm) {
-                        realm = (Realm) partition;
-                        configuredRealms.put(id, realm);
-                        getConfigs(realmStores, id).add(config);
-                        return realm;
+                        return (Realm)partition;
                     }
                 }
             }
@@ -238,31 +193,18 @@ public class DefaultStoreFactory implements StoreFactory {
 
     @Override
     public Tier getTier(String id) {
-        if (configuredTiers.containsKey(id)) {
-            return configuredTiers.get(id);
-        } else if (tierStores.containsKey(id)) {
-            Tier tier = new Tier(id);
-            configuredTiers.put(id, tier);
-            return tier;
-        } else {
-            return null;
-        }
+        throw new RuntimeException("Not Implemented");
     }
 
     @Override
     public Tier findTier(SecurityContext context, String id) {
-        Tier tier = getTier(id);
-        if (tier != null) return null;
         for (IdentityStoreConfiguration config : configs) {
-            for (Map.Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> entry : this.identityConfigMap.entrySet()) {
+            for (Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> entry : this.identityConfigMap.entrySet()) {
                 if (entry.getKey().isInstance(config) && PartitionStore.class.isAssignableFrom(entry.getValue())) {
                     PartitionStore store = getPartitionStore(context, config);
                     Partition partition = store.findPartition(context, id);
                     if (partition instanceof Tier) {
-                        tier = (Tier) partition;
-                        configuredTiers.put(id, tier);
-                        getConfigs(tierStores, id).add(config);
-                        return tier;
+                        return (Tier) partition;
                     }
                 }
             }
@@ -281,7 +223,7 @@ public class DefaultStoreFactory implements StoreFactory {
 
     @Override
     public Tier createTier(SecurityContext context, String id) {
-        Tier tier = getTier(id);
+        Tier tier = findTier(context, id);
         if (tier != null) return null;
         IdentityStoreConfiguration config = getPartitionStoreConfig();
         // todo jboss logging-ise this
@@ -289,14 +231,12 @@ public class DefaultStoreFactory implements StoreFactory {
         PartitionStore store = getPartitionStore(context, config);
         tier = new Tier(id);
         store.createPartition(context, tier);
-        configuredTiers.put(id, tier);
-        getConfigs(tierStores, id).add(config);
         return tier;
     }
 
     public IdentityStoreConfiguration getPartitionStoreConfig() {
         for (IdentityStoreConfiguration config : configs) {
-            for (Map.Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> entry : this.identityConfigMap.entrySet()) {
+            for (Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> entry : this.identityConfigMap.entrySet()) {
                 if (entry.getKey().isInstance(config) && PartitionStore.class.isAssignableFrom(entry.getValue())) {
                     return config;
                 }
@@ -332,20 +272,6 @@ public class DefaultStoreFactory implements StoreFactory {
     @Override
     public IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature, FeatureOperation operation,
                                                Class<? extends Relationship> relationshipClass) {
-        if (Realm.class.isInstance(context.getPartition())) {
-            Realm realm = (Realm) context.getPartition();
-            if (!realmStores.containsKey(realm.getId())) {
-                LOGGER.identityManagerRealmNotConfigured(realm.getId());
-                throw MESSAGES.storeConfigRealmNotConfigured(realm.getId());
-            }
-        } else if (Tier.class.isInstance(context.getPartition())) {
-            Tier tier = (Tier) context.getPartition();
-            if (!tierStores.containsKey(tier.getId())) {
-                LOGGER.identityManagerTierNotConfigured(tier.getId());
-                throw MESSAGES.storeConfigTierNotConfigured(tier.getId());
-            }
-        }
-
         IdentityStoreConfiguration config = lookupConfigForFeature(context.getPartition(), feature, operation,
                 relationshipClass);
 
@@ -363,14 +289,6 @@ public class DefaultStoreFactory implements StoreFactory {
 
     private IdentityStoreConfiguration lookupConfigForFeature(Partition partition, FeatureGroup feature,
                                                               FeatureOperation operation, Class<? extends Relationship> relationshipClass) {
-
-        Set<IdentityStoreConfiguration> configs = null;
-
-        if (Realm.class.isInstance(partition)) {
-            configs = realmStores.get(partition.getId());
-        } else if (Tier.class.isInstance(partition)) {
-            configs = tierStores.get(partition.getId());
-        }
 
         IdentityStoreConfiguration config = null;
 
@@ -406,15 +324,4 @@ public class DefaultStoreFactory implements StoreFactory {
 
         return config;
     }
-
-    private Set<IdentityStoreConfiguration> getConfigs(Map<String, Set<IdentityStoreConfiguration>> stores, String key) {
-        if (stores.containsKey(key)) {
-            return stores.get(key);
-        } else {
-            Set<IdentityStoreConfiguration> configs = new HashSet<IdentityStoreConfiguration>();
-            stores.put(key, configs);
-            return configs;
-        }
-    }
-
 }

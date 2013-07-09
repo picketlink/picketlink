@@ -120,6 +120,12 @@ public class JPARealmCreateTestCase extends AbstractIdentityManagerTestCase {
     @AfterClass
     public static void cleanup() throws Exception
     {
+        entityManager.getTransaction().begin();
+        Realm testingRealm = factory.findRealm(TESTING_REALM_NAME);
+        Realm defaultRealm = factory.findRealm(Realm.DEFAULT_REALM);
+        factory.deleteRealm(testingRealm);
+        factory.deleteRealm(defaultRealm);
+        entityManager.getTransaction().commit();
         entityManager.close();
         emf.close();
     }
