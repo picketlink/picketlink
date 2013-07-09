@@ -19,8 +19,8 @@
 package org.picketlink.idm.spi;
 
 import java.util.Collections;
-import java.util.Map;
-import org.picketlink.idm.config.IdentityStoreConfiguration;
+import java.util.Set;
+
 import org.picketlink.idm.model.Relationship;
 
 /**
@@ -43,20 +43,30 @@ import org.picketlink.idm.model.Relationship;
  */
 public class RelationshipPolicy {
 
-    private final Map<Class<? extends Relationship>, IdentityStoreConfiguration> selfManagedRelationships;
-    private final Map<Class<? extends Relationship>, IdentityStoreConfiguration> globalManagedRelationships;
+    private final Set<Class<? extends Relationship>> selfManagedRelationships;
+    private final Set<Class<? extends Relationship>> globalManagedRelationships;
 
-    public RelationshipPolicy(Map<Class<? extends Relationship>, IdentityStoreConfiguration> selfManagedRelationships,
-                              Map<Class<? extends Relationship>, IdentityStoreConfiguration> globalManagedRelationships) {
-        this.selfManagedRelationships = Collections.unmodifiableMap(selfManagedRelationships);
-        this.globalManagedRelationships = Collections.unmodifiableMap(globalManagedRelationships);
+    public RelationshipPolicy(Set<Class<? extends Relationship>> selfManagedRelationships,
+                              Set<Class<? extends Relationship>> globalManagedRelationships) {
+        this.selfManagedRelationships = Collections.unmodifiableSet(selfManagedRelationships);
+        this.globalManagedRelationships = Collections.unmodifiableSet(globalManagedRelationships);
     }
 
     public boolean isSelfRelationshipSupported(Class<? extends Relationship> relationshipClass) {
-        return selfManagedRelationships.containsKey(relationshipClass);
+        for (Class<? extends Relationship> cls : selfManagedRelationships) {
+            if (cls.isAssignableFrom(relationshipClass)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isGlobalRelationshipSupported(Class<? extends Relationship> relationshipClass) {
-        return globalManagedRelationships.containsKey(relationshipClass);
+        for (Class<? extends Relationship> cls : globalManagedRelationships) {
+            if (cls.isAssignableFrom(relationshipClass)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

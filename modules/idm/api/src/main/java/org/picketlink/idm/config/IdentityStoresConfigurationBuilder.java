@@ -41,15 +41,15 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
 
     private final List<AbstractIdentityStoreConfigurationBuilder<?, ?>> identityStoresConfiguration;
     private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>> supportedStoreBuilders;
-    Map<Class<? extends Relationship>, IdentityStoreConfiguration> globalRelationships = new HashMap<Class<? extends Relationship>, IdentityStoreConfiguration>();
-    Map<Class<? extends Relationship>, IdentityStoreConfiguration> selfRelationships = new HashMap<Class<? extends Relationship>, IdentityStoreConfiguration>();
+    Set<Class<? extends Relationship>> globalRelationships = new HashSet<Class<? extends Relationship>>();
+    Set<Class<? extends Relationship>> selfRelationships = new HashSet<Class<? extends Relationship>>();
 
     public IdentityStoresConfigurationBuilder(NamedIdentityConfigurationBuilder builder) {
         super(builder);
         this.identityStoresConfiguration = new ArrayList<AbstractIdentityStoreConfigurationBuilder<?, ?>>();
         this.supportedStoreBuilders = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>>();
-        this.globalRelationships = new HashMap<Class<? extends Relationship>, IdentityStoreConfiguration>();
-        this.selfRelationships = new HashMap<Class<? extends Relationship>, IdentityStoreConfiguration>();
+        this.globalRelationships = new HashSet<Class<? extends Relationship>>();
+        this.selfRelationships = new HashSet<Class<? extends Relationship>>();
 
         this.supportedStoreBuilders.put(FileIdentityStoreConfiguration.class, FileStoreConfigurationBuilder.class);
         this.supportedStoreBuilders.put(JPAIdentityStoreConfiguration.class, JPAStoreConfigurationBuilder.class);
@@ -108,11 +108,11 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
             }
 
             for (Class<? extends Relationship> relType: storeConfigurationBuilder.getGlobalRelationshipTypes()) {
-                this.globalRelationships.put(relType, storeConfiguration);
+                this.globalRelationships.add(relType);
             }
 
             for (Class<? extends Relationship> relType: storeConfigurationBuilder.getSelfRelationshipTypes()) {
-                this.selfRelationships.put(relType, storeConfiguration);
+                this.selfRelationships.add(relType);
             }
 
             configurations.add(storeConfiguration);
@@ -188,11 +188,11 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
         return forIdentityStoreConfig(storeConfigType, false) != null;
     }
 
-    public Map<Class<? extends Relationship>, IdentityStoreConfiguration> getGlobalRelationships() {
+    public Set<Class<? extends Relationship>> getGlobalRelationships() {
         return this.globalRelationships;
     }
 
-    public Map<Class<? extends Relationship>, IdentityStoreConfiguration> getSelfRelationships() {
+    public Set<Class<? extends Relationship>> getSelfRelationships() {
         return this.selfRelationships;
     }
 }
