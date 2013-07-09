@@ -22,9 +22,18 @@
 
 package org.picketlink.test.idm.query;
 
-import org.junit.Ignore;
+import java.util.List;
 import org.junit.Test;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author Pedro Silva
@@ -33,54 +42,53 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 public class RelationshipQueryTestCase extends AbstractIdentityManagerTestCase {
 
     @Test
-    @Ignore
     public void testFindAllRelationshipsForUser() throws Exception {
-//        User user = createUser("user");
-//        Role role = createRole("role");
-//        Group group = createGroup("group");
-//
-//        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
-//        IdentityManager identityManager = getIdentityManager();
-//
-//        relationshipManager.grantRole(user, role);
-//        relationshipManager.grantGroupRole(user, role, group);
-//        relationshipManager.addToGroup(user, group);
-//
-//        RelationshipQuery<Relationship> query = relationshipManager.createRelationshipQuery(Relationship.class);
-//
-//        query.setParameter(Relationship.IDENTITY, user);
-//
-//        List<Relationship> result = query.getResultList();
-//
-//        assertFalse(result.isEmpty());
-//        assertEquals(3, result.size());
-//
-//        query = partitionManager.createRelationshipQuery(Relationship.class);
-//
-////        query.setParameter(Relationship.IDENTITY, role);
-//
-//        result = query.getResultList();
-//
-//        assertFalse(result.isEmpty());
-//        assertEquals(2, result.size());
-//
-//        query = partitionManager.createRelationshipQuery(Relationship.class);
-//
-////        query.setParameter(Relationship.IDENTITY, group);
-//
-//        result = query.getResultList();
-//
-//        assertFalse(result.isEmpty());
-//        assertEquals(2, result.size());
-//
-//        query = partitionManager.createRelationshipQuery(Relationship.class);
-//
-////        query.setParameter(Relationship.IDENTITY, user.getId());
-//
-//        result = query.getResultList();
-//
-//        assertFalse(result.isEmpty());
-//        assertEquals(3, result.size());
+        User user = createUser("user");
+        Role role = createRole("role");
+        Group group = createGroup("group");
+
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
+        IdentityManager identityManager = getIdentityManager();
+
+        relationshipManager.grantRole(user, role);
+        relationshipManager.grantGroupRole(user, role, group);
+        relationshipManager.addToGroup(user, group);
+
+        RelationshipQuery<Relationship> query = relationshipManager.createRelationshipQuery(Relationship.class);
+
+        query.setParameter(Relationship.IDENTITY, user);
+
+        List<Relationship> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(3, result.size());
+
+        query = relationshipManager.createRelationshipQuery(Relationship.class);
+
+        query.setParameter(Relationship.IDENTITY, role);
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(2, result.size());
+
+        query = relationshipManager.createRelationshipQuery(Relationship.class);
+
+        query.setParameter(Relationship.IDENTITY, group);
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(2, result.size());
+
+        query = relationshipManager.createRelationshipQuery(Relationship.class);
+
+        query.setParameter(Relationship.IDENTITY, user);
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(3, result.size());
     }
     
 }

@@ -644,10 +644,24 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
         for (FileRelationship storedRelationship : relationships) {
             boolean match = false;
 
-            if (query.getRelationshipClass().getName().equals(storedRelationship.getType())) {
+            if (query.getRelationshipClass().isInstance(storedRelationship.getEntry())) {
                 for (Entry<QueryParameter, Object[]> entry : query.getParameters().entrySet()) {
                     QueryParameter queryParameter = entry.getKey();
                     Object[] values = entry.getValue();
+
+                    if (Relationship.IDENTITY.equals(queryParameter)) {
+                        int valuesMathCount = values.length;
+
+                        for (Object object : values) {
+                            IdentityType identityType = (IdentityType) object;
+
+                            if (storedRelationship.hasIdentityType(identityType.getId())) {
+                                valuesMathCount--;
+                            }
+                        }
+
+                        match = valuesMathCount <= 0;
+                    }
 
                     if (queryParameter instanceof RelationshipQueryParameter) {
                         RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) queryParameter;
