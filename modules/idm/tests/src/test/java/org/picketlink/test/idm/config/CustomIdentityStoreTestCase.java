@@ -46,10 +46,7 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.sample.Agent;
-import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
@@ -168,11 +165,6 @@ public class CustomIdentityStoreTestCase {
         }
 
         @Override
-        public <I extends IdentityType> I getIdentity(Class<I> identityType, String id) {
-            return null;
-        }
-
-        @Override
         public void add(IdentityContext context, AttributedType value) {
             value.setId(context.getIdGenerator().generate());
             getConfig().getMethodInvocationContext().setMethodName("addAttributedType");
@@ -186,35 +178,6 @@ public class CustomIdentityStoreTestCase {
         @Override
         public void remove(IdentityContext context, AttributedType value) {
 
-        }
-
-        @Override
-        public Agent getAgent(IdentityContext context, String loginName) {
-            return null;
-        }
-
-        @Override
-        public User getUser(IdentityContext context, String loginName) {
-            getConfig().getMethodInvocationContext().setMethodName("getUser");
-            return null;
-        }
-
-        @Override
-        public Group getGroup(IdentityContext context, String groupPath) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public Group getGroup(IdentityContext context, String name, Group parent) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public Role getRole(IdentityContext context, String name) {
-            // TODO Auto-generated method stub
-            return null;
         }
 
         @Override

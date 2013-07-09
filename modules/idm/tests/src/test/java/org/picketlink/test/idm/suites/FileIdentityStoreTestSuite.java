@@ -23,7 +23,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
-import org.picketlink.idm.model.sample.Authorization;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.test.idm.IdentityManagerRunner;
@@ -49,7 +49,6 @@ import org.picketlink.test.idm.query.UserQueryTestCase;
 import org.picketlink.test.idm.relationship.AgentGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupRoleRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupsRelationshipTestCase;
-import org.picketlink.test.idm.relationship.CustomRelationship;
 import org.picketlink.test.idm.relationship.CustomRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
@@ -102,7 +101,7 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
                 .stores()
                     .file()
                         .preserveState(false)
-                        .supportGlobalRelationship(CustomRelationship.class, Authorization.class)
+                        .supportGlobalRelationship(Relationship.class)
                         .supportAllFeatures();
 
         PartitionManager partitionManager = new DefaultPartitionManager(builder.build());

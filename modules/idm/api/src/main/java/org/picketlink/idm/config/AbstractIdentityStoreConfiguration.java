@@ -167,4 +167,7 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
         this.identityStoreType = identityStoreType;
     }
 
+    protected Map<Class<? extends AttributedType>, Set<IdentityOperation>> getSupportedTypes() {
+        return this.supportedTypes;
+    }
 }

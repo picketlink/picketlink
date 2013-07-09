@@ -38,7 +38,6 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
-import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
@@ -82,12 +81,12 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     /**
      * The event bridge allows events to be "bridged" to an event bus, such as the CDI event bus
      */
-    private final EventBridge eventBridge;
+    private EventBridge eventBridge;
 
     /**
      * The ID generator is responsible for generating unique identifier values
      */
-    private final IdGenerator idGenerator;
+    private IdGenerator idGenerator;
 
     /**
      * A collection of all identity configurations.  Each configuration has a unique name.
@@ -114,20 +113,10 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     private RelationshipMetadata relationshipMetadata = new RelationshipMetadata();
 
     public DefaultPartitionManager(IdentityConfiguration configuration) {
-        this(Arrays.asList(configuration), null, null);
+        this(Arrays.asList(configuration));
     }
 
     public DefaultPartitionManager(Collection<IdentityConfiguration> configurations) {
-        this(configurations, null, null);
-    }
-
-    /**
-     * @param configurations
-     * @param eventBridge
-     * @param idGenerator
-     */
-    public DefaultPartitionManager(Collection<IdentityConfiguration> configurations, EventBridge eventBridge,
-                                   IdGenerator idGenerator) {
         LOGGER.identityManagerBootstrapping();
 
         if (configurations == null || configurations.isEmpty()) {
@@ -298,7 +287,13 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             throw MESSAGES.nullArgument("Partition");
         }
 
-        Partition storedPartition = getPartition(partition.getClass(), partition.getName());
+        Partition storedPartition = null;
+
+        if (this.partitionManagementConfig != null) {
+            storedPartition = getPartition(partition.getClass(), partition.getName());
+        } else {
+            storedPartition = new Realm(Realm.DEFAULT_REALM);
+        }
 
         if (storedPartition == null) {
             throw MESSAGES.partitionNotFoundWithName(partition.getClass(), partition.getName());
@@ -388,7 +383,13 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                                                                        Class<? extends AttributedType> type, IdentityOperation operation) {
         checkSupportedTypes(context.getPartition(), type);
 
-        IdentityConfiguration identityConfiguration = getConfigurationForPartition(context.getPartition());
+        IdentityConfiguration identityConfiguration = null;
+
+        if (this.partitionManagementConfig != null) {
+            identityConfiguration = getConfigurationForPartition(context.getPartition());
+        } else {
+            identityConfiguration = this.configurations.iterator().next();
+        }
 
         for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
             if (storeConfig.supportsType(type, operation)) {
@@ -561,8 +562,8 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     private void checkPartitionManagementSupported() {
         if (partitionManagementConfig == null) {
-            throw new OperationNotSupportedException(
-                    "Partition management is not supported by the current configuration", Partition.class, IdentityOperation.create);
+//            throw new OperationNotSupportedException(
+//                    "Partition management is not supported by the current configuration", Partition.class, IdentityOperation.create);
         }
     }
 

@@ -62,12 +62,15 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
  */
 public class ContextualIdentityManager extends AbstractIdentityContext implements IdentityManager {
 
+    public static final String IDENTITY_MANAGER_CTX_PARAMETER = "IDENTITY_MANAGER_CTX_PARAMETER";
+
     private final StoreSelector storeSelector;
 
     public ContextualIdentityManager(Partition partition, EventBridge eventBridge, IdGenerator idGenerator,
             StoreSelector storeSelector) {
         super(partition, eventBridge, idGenerator);
         this.storeSelector = storeSelector;
+        setParameter(IDENTITY_MANAGER_CTX_PARAMETER, this);
     }
 
     @Override
@@ -128,13 +131,19 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
 
     @Override
     public User getUser(String loginName) {
-        Agent agent = getAgent(loginName);
-
-        if (agent != null && !User.class.isInstance(agent)) {
+        if (isNullOrEmpty(loginName)) {
             return null;
         }
 
-        return (User) agent;
+        List<User> agents = createIdentityQuery(User.class).setParameter(User.LOGIN_NAME, loginName).getResultList();
+
+        if (agents.isEmpty()) {
+            return null;
+        } else if (agents.size() == 1) {
+            return agents.get(0);
+        } else {
+            throw new IdentityManagementException("Error - multiple Agent objects found with same login name");
+        }
     }
 
     @Override

@@ -34,9 +34,6 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.sample.Grant;
-import org.picketlink.idm.model.sample.GroupMembership;
-import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.spi.ContextInitializer;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
@@ -143,7 +140,6 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
     public S supportAllFeatures() {
         supportType(getDefaultIdentityModelClasses());
         supportCredentials(true);
-        supportGlobalRelationship(Grant.class, GroupMembership.class, GroupRole.class);
 
         return (S) this;
     }

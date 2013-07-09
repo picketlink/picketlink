@@ -23,11 +23,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.ldap.annotations.LDAPEntry;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
-import org.picketlink.idm.spi.IdentityStore;
 
 /**
  * A {@link AbstractIdentityStoreConfiguration} for the LDAP store.
@@ -86,11 +87,6 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
 
     @Override
     protected void initConfig() throws SecurityConfigurationException {
-    }
-
-    @Override
-    public Class<? extends IdentityStore> getIdentityStoreType() {
-        return null;
     }
 
     public String getStandardAttributesFileName() {
@@ -175,5 +171,19 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         }
 
         return false;
+    }
+
+    public Class<? extends AttributedType> getSupportedTypeByBaseDN(String baseDN) {
+        for (Class<? extends AttributedType> supportedType : getSupportedTypes().keySet()) {
+            LDAPEntry ldapEntry = supportedType.getAnnotation(LDAPEntry.class);
+
+            if (ldapEntry != null) {
+                if (ldapEntry.baseDN().equalsIgnoreCase(baseDN)) {
+                    return supportedType;
+                }
+            }
+        }
+
+        throw new IdentityManagementException("No type found for Base DN [" + baseDN + "].");
     }
 }

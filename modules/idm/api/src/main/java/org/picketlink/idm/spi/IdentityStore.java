@@ -17,6 +17,9 @@
  */
 package org.picketlink.idm.spi;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.model.Account;
@@ -24,16 +27,8 @@ import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.sample.Agent;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
-
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
 
 /**
  * IdentityStore representation providing minimal SPI
@@ -80,67 +75,6 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param identityType
      */
     void remove(IdentityContext context, AttributedType value);
-
-    /**
-     *
-     * @param identityType
-     * @param id
-     * @return
-     */
-    <I extends IdentityType> I getIdentity(Class<I> identityType, String id);
-
-    // Agent
-
-    /**
-     * Returns the Agent with the specified login name
-     *
-     * @param context
-     * @param loginName
-     * @return
-     */
-    Agent getAgent(IdentityContext context, String loginName);
-
-    // User
-
-    /**
-     * Returns the User with the specified login name.
-     *
-     * @param context
-     * @param loginName
-     * @return
-     */
-    User getUser(IdentityContext context, String loginName);
-
-    // Group
-
-    /**
-     * <p>Returns the {@link Group} with the specified path. Eg.: /groupA/groupB/groupC.</p>
-     *
-     * @param ctx
-     * @param groupPath
-     * @return
-     */
-    Group getGroup(IdentityContext context, String groupPath);
-
-    /**
-     * Returns the Group with the specified name and p arent group
-     *
-     * @param ctx
-     * @param name The name of the Group to return
-     * @return
-     */
-    Group getGroup(IdentityContext context, String name, Group parent);
-
-    // Role
-
-    /**
-     * Returns the specified role
-     *
-     * @param ctx
-     * @param name The name of the Role to return
-     * @return A Role instance, or null if the Role with the specified name wasn't found
-     */
-    Role getRole(IdentityContext context, String name);
 
     // Identity query
 

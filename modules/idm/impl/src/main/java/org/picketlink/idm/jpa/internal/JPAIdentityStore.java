@@ -34,10 +34,6 @@ import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.sample.Agent;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
@@ -1867,36 +1863,6 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     @Override
     public void remove(IdentityContext context, AttributedType value) {
         //TODO: Implement remove
-    }
-
-    @Override
-    public <I extends IdentityType> I getIdentity(Class<I> identityType, String id) {
-        return null;  //TODO: Implement getIdentity
-    }
-
-    @Override
-    public Agent getAgent(IdentityContext context, String loginName) {
-        return null;  //TODO: Implement getAgent
-    }
-
-    @Override
-    public User getUser(IdentityContext context, String loginName) {
-        return null;  //TODO: Implement getUser
-    }
-
-    @Override
-    public Group getGroup(IdentityContext context, String groupPath) {
-        return null;  //TODO: Implement getGroup
-    }
-
-    @Override
-    public Group getGroup(IdentityContext context, String name, Group parent) {
-        return null;  //TODO: Implement getGroup
-    }
-
-    @Override
-    public Role getRole(IdentityContext context, String name) {
-        return null;  //TODO: Implement getRole
     }
 
     @Override

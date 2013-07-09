@@ -21,12 +21,17 @@ package org.picketlink.test.idm.suites;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
+import org.picketlink.test.idm.basic.UserManagementTestCase;
 
 /**
  * <p>
@@ -38,6 +43,9 @@ import org.picketlink.test.idm.TestLifecycle;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
+@Suite.SuiteClasses({
+        UserManagementTestCase.class
+})
 public class LDAPIdentityStoreTestSuite extends LDAPAbstractSuite implements TestLifecycle {
 
     private static LDAPIdentityStoreTestSuite instance;
@@ -97,10 +105,9 @@ public class LDAPIdentityStoreTestSuite extends LDAPAbstractSuite implements Tes
                     .agentDNSuffix(AGENT_DN_SUFFIX)
                     .groupDNSuffix(GROUP_DN_SUFFIX)
                     .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
-                    .supportAllFeatures();
+                    .supportType(User.class, Agent.class);
 
-        return null;
-//        return new IdentityManagerFactory(builder.build());
+        return new DefaultPartitionManager(builder.build());
     }
 
 }

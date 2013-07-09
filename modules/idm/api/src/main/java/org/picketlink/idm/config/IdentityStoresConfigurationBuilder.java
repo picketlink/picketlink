@@ -41,8 +41,8 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
 
     private final List<AbstractIdentityStoreConfigurationBuilder<?, ?>> identityStoresConfiguration;
     private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>> supportedStoreBuilders;
-    Set<Class<? extends Relationship>> globalRelationships = new HashSet<Class<? extends Relationship>>();
-    Set<Class<? extends Relationship>> selfRelationships = new HashSet<Class<? extends Relationship>>();
+    private Set<Class<? extends Relationship>> globalRelationships;
+    private Set<Class<? extends Relationship>> selfRelationships;
 
     public IdentityStoresConfigurationBuilder(NamedIdentityConfigurationBuilder builder) {
         super(builder);
@@ -119,7 +119,7 @@ public class IdentityStoresConfigurationBuilder extends AbstractIdentityConfigur
         }
 
         if (!hasPartitionStore) {
-            throw new SecurityConfigurationException("At least one store configuration must support partitions.");
+//            throw new SecurityConfigurationException("At least one store configuration must support partitions.");
         }
 
         return configurations;

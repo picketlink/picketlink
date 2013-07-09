@@ -35,7 +35,7 @@ public interface IdentityContext {
      *
      * @return
      */
-    Object getParameter(String paramName);
+    <P> P getParameter(String paramName);
 
     /**
      * Returns a boolean indicating whether the parameter with the specified name has been set
