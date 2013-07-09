@@ -299,7 +299,13 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             // Status
             StatusType statusType = new StatusType();
             StatusCodeType statusCodeType = new StatusCodeType();
-            statusCodeType.setValue(URI.create(JBossSAMLURIConstants.STATUS_SUCCESS.get()));
+            statusCodeType.setValue(URI.create(JBossSAMLURIConstants.STATUS_RESPONDER.get()));
+
+            // 2nd level status code
+            StatusCodeType status2ndLevel = new StatusCodeType();
+            status2ndLevel.setValue(URI.create(JBossSAMLURIConstants.STATUS_SUCCESS.get()));
+            statusCodeType.setStatusCode(status2ndLevel);
+
             statusType.setStatusCode(statusCodeType);
 
             statusResponse.setStatus(statusType);
@@ -427,6 +433,15 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                 String statusCodeValue = statusCodeValueURI.toString();
                 if(JBossSAMLURIConstants.STATUS_SUCCESS.get().equals(statusCodeValue)){
                     success = true;
+                }
+            }
+            if(success){
+                // we are successfully logged out
+                session.invalidate();
+            } else {
+                StatusCodeType secondLevelstatusCode = statusCode.getStatusCode();
+                if (secondLevelstatusCode != null && secondLevelstatusCode.getValue().toString().equals(JBossSAMLURIConstants.STATUS_SUCCESS.get())) {
+                    // we are successfully logged out
                     session.invalidate();
                 }
             }
@@ -457,7 +472,13 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             // Status
             StatusType statusType = new StatusType();
             StatusCodeType statusCodeType = new StatusCodeType();
-            statusCodeType.setValue(URI.create(JBossSAMLURIConstants.STATUS_SUCCESS.get()));
+            statusCodeType.setValue(URI.create(JBossSAMLURIConstants.STATUS_RESPONDER.get()));
+
+            // 2nd level status code
+            StatusCodeType status2ndLevel = new StatusCodeType();
+            status2ndLevel.setValue(URI.create(JBossSAMLURIConstants.STATUS_SUCCESS.get()));
+            statusCodeType.setStatusCode(status2ndLevel);
+
             statusType.setStatusCode(statusCodeType);
 
             statusResponse.setStatus(statusType);
