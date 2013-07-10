@@ -27,6 +27,7 @@ import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.IdentityManagerRunner;
@@ -105,7 +106,14 @@ public class LDAPIdentityStoreTestSuite extends LDAPAbstractSuite implements Tes
                     .agentDNSuffix(AGENT_DN_SUFFIX)
                     .groupDNSuffix(GROUP_DN_SUFFIX)
                     .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
-                    .supportType(User.class, Agent.class);
+                    .supportType(IdentityType.class)
+                    .mapping(User.class)
+                        .baseDN(USER_DN_SUFFIX)
+                        .objectClasses("inetOrgPerson", "organizationalPerson", "person", "top", "extensibleObject")
+                        .attribute("loginName", "uid", true)
+                        .attribute("firstName", "cn")
+                        .attribute("lastName", "sn")
+                        .attribute("email", "mail");
 
         return new DefaultPartitionManager(builder.build());
     }

@@ -190,7 +190,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         
         IdentityManager identityManager = getIdentityManager();
         
-        assertTrue(instanceA.equals(identityManager.getUser(instanceA.getLoginName())));
+        assertTrue(instanceA.getId().equals(identityManager.getUser(instanceA.getLoginName()).getId()));
     }
     
     @Test

@@ -25,7 +25,6 @@ import java.util.Properties;
 import java.util.Set;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.spi.CredentialHandler;
-import org.picketlink.idm.ldap.annotations.LDAPEntry;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
@@ -55,6 +54,7 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
     private String agentDNSuffix;
     private String baseDN;
     private Map<String, String> groupMapping = new HashMap<String, String>();
+    private final Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig;
 
     LDAPIdentityStoreConfiguration(
             String url,
@@ -66,7 +66,7 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             String roleDNSuffix,
             String groupDNSuffix,
             Map<String, String> groupMapping,
-            Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
+            Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig, Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
             Set<Class<? extends Relationship>> globalSupportedRelationships,
             Set<Class<? extends Relationship>> seldSupportedRelationships,
@@ -83,6 +83,7 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         this.roleDNSuffix = roleDNSuffix;
         this.groupDNSuffix = groupDNSuffix;
         this.groupMapping = groupMapping;
+        this.mappingConfig = mappingConfig;
     }
 
     @Override
@@ -174,16 +175,23 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
     }
 
     public Class<? extends AttributedType> getSupportedTypeByBaseDN(String baseDN) {
-        for (Class<? extends AttributedType> supportedType : getSupportedTypes().keySet()) {
-            LDAPEntry ldapEntry = supportedType.getAnnotation(LDAPEntry.class);
-
-            if (ldapEntry != null) {
-                if (ldapEntry.baseDN().equalsIgnoreCase(baseDN)) {
-                    return supportedType;
-                }
+        for (LDAPMappingConfiguration mappingConfig : this.mappingConfig.values()) {
+            if (mappingConfig.getBaseDN().equalsIgnoreCase(baseDN)) {
+                return mappingConfig.getMappedClass();
             }
         }
 
         throw new IdentityManagementException("No type found for Base DN [" + baseDN + "].");
     }
+
+    public LDAPMappingConfiguration getMappingConfig(Class<? extends AttributedType> attributedType) {
+        for (LDAPMappingConfiguration mappingConfig : this.mappingConfig.values()) {
+            if (attributedType.equals(mappingConfig.getMappedClass())) {
+                return mappingConfig;
+            }
+        }
+
+        return null;
+    }
+
 }

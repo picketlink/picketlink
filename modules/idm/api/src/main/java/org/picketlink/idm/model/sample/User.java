@@ -17,7 +17,6 @@
  */
 package org.picketlink.idm.model.sample;
 
-import org.picketlink.idm.ldap.annotations.LDAPEntry;
 import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.query.QueryParameter;
 
@@ -26,10 +25,6 @@ import org.picketlink.idm.query.QueryParameter;
  *
  * @author Shane Bryzak
  */
-@LDAPEntry(
-        baseDN = "ou=People,dc=jboss,dc=org",
-        id = "uid",
-        objectClass = {"inetOrgPerson", "organizationalPerson", "person", "top", "extensibleObject"})
 public class User extends Agent {
 
     private static final long serialVersionUID = 4117586097100398485L;
@@ -61,7 +56,7 @@ public class User extends Agent {
         super(loginName);
     }
 
-    @AttributeProperty (mappedName = "CN")
+    @AttributeProperty
     public String getFirstName() {
         return firstName;
     }
@@ -70,7 +65,7 @@ public class User extends Agent {
         this.firstName = firstName;
     }
 
-    @AttributeProperty (mappedName = "SN")
+    @AttributeProperty
     public String getLastName() {
         return lastName;
     }
