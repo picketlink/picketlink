@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Partition;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import org.picketlink.idm.model.Relationship;
 
 /**
  * @author Pedro Igor
@@ -107,6 +107,14 @@ public class LDAPStoreConfigurationBuilder extends
         return ldapMappingConfigurationBuilder;
     }
 
+    public LDAPMappingConfigurationBuilder mappingRelationship(Class<? extends Relationship> relationshipClass) {
+        LDAPMappingConfigurationBuilder ldapMappingConfigurationBuilder = new LDAPMappingConfigurationBuilder(relationshipClass, this);
+
+        this.mappingBuilders.add(ldapMappingConfigurationBuilder);
+
+        return ldapMappingConfigurationBuilder;
+    }
+
     @Override
     protected LDAPIdentityStoreConfiguration create() {
         Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig = new HashMap<Class<? extends AttributedType>, LDAPMappingConfiguration>();
@@ -141,20 +149,8 @@ public class LDAPStoreConfigurationBuilder extends
     protected void validate() {
         super.validate();
 
-        if (this.userDNSuffix == null) {
-            throw MESSAGES.ldapConfigUserDNNotProvided();
-        }
-
-        if (this.roleDNSuffix == null) {
-            throw MESSAGES.ldapConfigRoleDNNotProvided();
-        }
-
-        if (this.groupDNSuffix == null) {
-            throw MESSAGES.ldapConfigGroupDNNotProvided();
-        }
-
-        if (this.agentDNSuffix == null) {
-            this.agentDNSuffix = this.userDNSuffix;
+        for (LDAPMappingConfigurationBuilder builder: this.mappingBuilders) {
+            builder.validate();
         }
 
         unsupportType(Partition.class);

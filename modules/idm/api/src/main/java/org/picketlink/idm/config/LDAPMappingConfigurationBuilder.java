@@ -27,34 +27,68 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.NamedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.annotation.AttributeProperty;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * @author Pedro Igor
- *
  */
 public class LDAPMappingConfigurationBuilder extends
         AbstractIdentityConfigurationChildBuilder<LDAPMappingConfiguration> {
 
+    private final LDAPStoreConfigurationBuilder ldapStoreBuilder;
     private Class<? extends AttributedType> mappedClass;
     private Set<String> objectClasses = new HashSet<String>();
     private String baseDN;
-    private String idAttributeName;
+    private String idPropertyName;
     private Map<String, String> mappedProperties = new HashMap<String, String>();
+    private Class<? extends AttributedType> relatedAttributedType;
+    private String parentMembershipAttributeName;
 
     public LDAPMappingConfigurationBuilder(Class<? extends AttributedType> attributedType, LDAPStoreConfigurationBuilder builder) {
         super(builder);
         this.mappedClass = attributedType;
+        this.ldapStoreBuilder = builder;
     }
 
     @Override
     protected LDAPMappingConfiguration create() {
-        return new LDAPMappingConfiguration(this.mappedClass, this.objectClasses, this.baseDN, this.idAttributeName, this.mappedProperties);
+        return new LDAPMappingConfiguration(this.mappedClass, this.objectClasses, this.baseDN, this.idPropertyName, this.mappedProperties, this.relatedAttributedType, this.parentMembershipAttributeName);
     }
 
     @Override
     protected void validate() {
-        //TODO: Implement validate
+        if (this.mappedClass == null) {
+            throw new SecurityConfigurationException("Mapped class not provided.");
+        }
+
+        if (!Relationship.class.isAssignableFrom(this.mappedClass)) {
+            if (isNullOrEmpty(this.baseDN)) {
+                throw new SecurityConfigurationException("No base DN provided for mapped class [" + this.mappedClass + "].");
+            }
+
+            if (isNullOrEmpty(this.idPropertyName)) {
+                throw new SecurityConfigurationException("No attribute provided as the identifier for mapped class [" + this.mappedClass + "].");
+            }
+        }
+
+        for (String propertyName : this.mappedProperties.keySet()) {
+            Property<String> property =
+                    PropertyQueries.<String>createQuery(this.mappedClass).addCriteria(new NamedPropertyCriteria(propertyName)).getFirstResult();
+
+            if (property == null) {
+                throw new SecurityConfigurationException("Could not resolve property [" + propertyName + "] from mapped class [" + this.mappedClass + "].");
+            }
+
+            if (!property.getAnnotatedElement().isAnnotationPresent(AttributeProperty.class) && !Relationship.class.isAssignableFrom(this.mappedClass)) {
+                throw new SecurityConfigurationException("Mapped properties must be annotated with @AttributeProperty. Property [" + this.mappedClass + "." + propertyName + "].");
+            }
+        }
     }
 
     @Override
@@ -67,23 +101,41 @@ public class LDAPMappingConfigurationBuilder extends
         return this;
     }
 
-    public LDAPMappingConfigurationBuilder attribute(String property, String toLDAPAttribute) {
-        this.mappedProperties.put(property, toLDAPAttribute);
+    public LDAPMappingConfigurationBuilder attribute(String propertyName, String ldapAttributeName) {
+        this.mappedProperties.put(propertyName, ldapAttributeName);
         return this;
     }
 
-    public LDAPMappingConfigurationBuilder attribute(String property, String toLDAPAttribute, boolean identifier) {
-        attribute(property, toLDAPAttribute);
+    public LDAPMappingConfigurationBuilder attribute(String propertyName, String ldapAttributeName, boolean identifier) {
+        attribute(propertyName, ldapAttributeName);
 
         if (identifier) {
-            this.idAttributeName = toLDAPAttribute;
+            this.idPropertyName = propertyName;
         }
 
         return this;
     }
 
+    public LDAPMappingConfigurationBuilder mapping(Class<? extends AttributedType> attributedType) {
+        return this.ldapStoreBuilder.mapping(attributedType);
+    }
+
+    public LDAPMappingConfigurationBuilder mappingRelationship(Class<? extends Relationship> relationshipClass) {
+        return this.ldapStoreBuilder.mappingRelationship(relationshipClass);
+    }
+
     public LDAPMappingConfigurationBuilder baseDN(String baseDN) {
         this.baseDN = baseDN;
+        return this;
+    }
+
+    public LDAPMappingConfigurationBuilder forMapping(Class<? extends AttributedType> attributedType) {
+        this.relatedAttributedType = attributedType;
+        return this;
+    }
+
+    public LDAPMappingConfigurationBuilder parentMembershipAttributeName(String parentMembershipAttributeName) {
+        this.parentMembershipAttributeName = parentMembershipAttributeName; 
         return this;
     }
 }

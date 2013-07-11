@@ -167,7 +167,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
         
         IdentityManager identityManager = getIdentityManager();
         
-        assertTrue(instanceA.equals(identityManager.getAgent(instanceA.getLoginName())));
+        assertTrue(instanceA.getLoginName().equals(identityManager.getAgent(instanceA.getLoginName()).getLoginName()));
     }
 
 }

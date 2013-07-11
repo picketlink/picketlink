@@ -19,6 +19,9 @@ package org.picketlink.idm.config;
 
 import java.util.Map;
 import java.util.Set;
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.NamedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.model.AttributedType;
 
 /**
@@ -26,61 +29,61 @@ import org.picketlink.idm.model.AttributedType;
  */
 public class LDAPMappingConfiguration {
 
-    private Class<? extends AttributedType> mappedClass;
-    private Set<String> objectClasses;
-    private String baseDN;
-    private String idAttributeName;
-    private Map<String, String> mappedProperties;
+    private final Class<? extends AttributedType> mappedClass;
+    private final Set<String> objectClasses;
+    private final String baseDN;
+    private final Map<String, String> mappedProperties;
+    private final Property<String> idProperty;
+    private final Class<? extends AttributedType> relatedAttributedType;
+    private final String parentMembershipAttributeName;
 
     LDAPMappingConfiguration(Class<? extends AttributedType> mappedClass,
                              Set<String> objectClasses,
                              String baseDN,
-                             String idAttributeName,
-                             Map<String, String> mappedProperties) {
+                             String idPropertyName,
+                             Map<String, String> mappedProperties, Class<? extends AttributedType> relatedAttributedType, String parentMembershipAttributeName) {
         this.mappedClass = mappedClass;
         this.objectClasses = objectClasses;
         this.baseDN = baseDN;
-        this.idAttributeName = idAttributeName;
         this.mappedProperties = mappedProperties;
+
+        if (idPropertyName != null) {
+            this.idProperty = PropertyQueries
+                    .<String>createQuery(getMappedClass())
+                    .addCriteria(new NamedPropertyCriteria(idPropertyName)).getFirstResult();
+        } else {
+            this.idProperty = null;
+        }
+
+        this.relatedAttributedType = relatedAttributedType;
+        this.parentMembershipAttributeName = parentMembershipAttributeName;
     }
 
     public Class<? extends AttributedType> getMappedClass() {
         return this.mappedClass;
     }
 
-    public void setMappedClass(Class<? extends AttributedType> mappedClass) {
-        this.mappedClass = mappedClass;
-    }
-
     public Set<String> getObjectClasses() {
         return this.objectClasses;
-    }
-
-    public void setObjectClasses(Set<String> objectClasses) {
-        this.objectClasses = objectClasses;
     }
 
     public String getBaseDN() {
         return this.baseDN;
     }
 
-    public void setBaseDN(String baseDN) {
-        this.baseDN = baseDN;
-    }
-
-    public String getIdAttributeName() {
-        return this.idAttributeName;
-    }
-
-    public void setIdAttributeName(String idAttributeName) {
-        this.idAttributeName = idAttributeName;
-    }
-
     public Map<String, String> getMappedProperties() {
         return this.mappedProperties;
     }
 
-    public void setMappedProperties(Map<String, String> mappedProperties) {
-        this.mappedProperties = mappedProperties;
+    public Property<String> getIdProperty() {
+        return this.idProperty;
+    }
+
+    public Class<? extends AttributedType> getRelatedAttributedType() {
+        return this.relatedAttributedType;
+    }
+
+    public String getParentMembershipAttributeName() {
+        return this.parentMembershipAttributeName;
     }
 }
