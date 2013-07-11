@@ -27,7 +27,7 @@ import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
@@ -40,7 +40,7 @@ import static org.junit.Assert.assertFalse;
  */
 public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends AbstractPartitionManagerTestCase {
 
-    public AgentGroupRoleRelationshipTestCase(IdentityConfigurationTestVisitor builder) {
+    public AgentGroupRoleRelationshipTestCase(IdentityConfigurationTester builder) {
         super(builder);
     }
 

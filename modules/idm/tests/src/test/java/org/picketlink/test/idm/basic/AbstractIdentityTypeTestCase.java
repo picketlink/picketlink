@@ -28,7 +28,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNull;
@@ -45,7 +45,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> extends AbstractPartitionManagerTestCase {
 
-    public AbstractIdentityTypeTestCase(IdentityConfigurationTestVisitor builder) {
+    public AbstractIdentityTypeTestCase(IdentityConfigurationTester builder) {
         super(builder);
     }
 

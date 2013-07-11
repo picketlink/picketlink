@@ -32,7 +32,7 @@ import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -42,7 +42,7 @@ import static org.junit.Assert.assertFalse;
  */
 public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase {
 
-    public RelationshipQueryTestCase(IdentityConfigurationTestVisitor builder) {
+    public RelationshipQueryTestCase(IdentityConfigurationTester builder) {
         super(builder);
     }
 

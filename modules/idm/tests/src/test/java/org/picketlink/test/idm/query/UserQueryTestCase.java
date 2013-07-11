@@ -25,7 +25,7 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -40,7 +40,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class UserQueryTestCase extends AgentQueryTestCase<User> {
 
-    public UserQueryTestCase(IdentityConfigurationTestVisitor builder) {
+    public UserQueryTestCase(IdentityConfigurationTester builder) {
         super(builder);
     }
 

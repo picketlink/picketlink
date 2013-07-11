@@ -28,7 +28,7 @@ import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertNull;
  */
 public class CertificateCredentialTestCase extends AbstractPartitionManagerTestCase {
 
-    public CertificateCredentialTestCase(IdentityConfigurationTestVisitor builder) {
+    public CertificateCredentialTestCase(IdentityConfigurationTester builder) {
         super(builder);
     }
 

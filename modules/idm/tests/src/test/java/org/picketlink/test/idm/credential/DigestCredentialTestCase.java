@@ -28,7 +28,7 @@ import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.internal.DigestUtil;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertNull;
  */
 public class DigestCredentialTestCase extends AbstractPartitionManagerTestCase {
 
-    public DigestCredentialTestCase(IdentityConfigurationTestVisitor builder) {
+    public DigestCredentialTestCase(IdentityConfigurationTester builder) {
         super(builder);
     }
 

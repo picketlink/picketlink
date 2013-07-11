@@ -5,7 +5,7 @@ import org.picketlink.idm.PartitionManager;
 /**
  * @author pedroigor
  */
-public interface IdentityConfigurationTestVisitor {
+public interface IdentityConfigurationTester {
 
     void beforeTest();
     void afterTest();

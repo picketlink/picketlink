@@ -26,7 +26,7 @@ import org.picketlink.idm.model.sample.Authorization;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
@@ -44,7 +44,7 @@ import static junit.framework.Assert.assertTrue;
  */
 public class ApplicationUserRelationshipTestCase extends AbstractPartitionManagerTestCase {
 
-    public ApplicationUserRelationshipTestCase(IdentityConfigurationTestVisitor builder) {
+    public ApplicationUserRelationshipTestCase(IdentityConfigurationTester builder) {
         super(builder);
     }
 

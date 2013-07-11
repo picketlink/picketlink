@@ -25,7 +25,7 @@ import org.picketlink.idm.model.sample.Realm;
 /**
  * @author pedroigor
  */
-public class SimpleFileStoreConfigurationTester implements IdentityConfigurationTestVisitor {
+public class SimpleFileStoreConfigurationTester implements IdentityConfigurationTester {
 
     public static final String SIMPLE_FILE_STORE_CONFIG = "SIMPLE_FILE_STORE_CONFIG";
 

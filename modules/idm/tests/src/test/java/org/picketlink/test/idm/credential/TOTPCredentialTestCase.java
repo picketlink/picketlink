@@ -27,7 +27,7 @@ import org.picketlink.idm.credential.TOTPCredentials;
 import org.picketlink.idm.credential.totp.TimeBasedOTP;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -46,7 +46,7 @@ public class TOTPCredentialTestCase extends AbstractPartitionManagerTestCase {
     public static final String DEFAULT_TOTP_SECRET = "my_secret";
     public static final String DEFAULT_PASSWORD = "passwd";
 
-    public TOTPCredentialTestCase(IdentityConfigurationTestVisitor builder) {
+    public TOTPCredentialTestCase(IdentityConfigurationTester builder) {
         super(builder);
     }
 

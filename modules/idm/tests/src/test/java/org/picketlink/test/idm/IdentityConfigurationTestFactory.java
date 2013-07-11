@@ -27,17 +27,17 @@ public class IdentityConfigurationTestFactory {
      *
      * @return
      */
-    public static IdentityConfigurationTestVisitor[] getConfigurations() {
-        return new IdentityConfigurationTestVisitor[] {
+    public static IdentityConfigurationTester[] getConfigurations() {
+        return new IdentityConfigurationTester[] {
                 buildSimpleFileStoreConfig()
         };
     }
 
-    private static IdentityConfigurationTestVisitor buildSimpleFileStoreConfig() {
+    private static IdentityConfigurationTester buildSimpleFileStoreConfig() {
         return new SimpleFileStoreConfigurationTester();
     }
 
-    private static IdentityConfigurationTestVisitor buildSimpleLDAPStoreConfig() {
+    private static IdentityConfigurationTester buildSimpleLDAPStoreConfig() {
         return new SimpleLDAPStoreConfigurationTester();
     }
 }

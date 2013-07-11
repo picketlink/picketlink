@@ -20,7 +20,7 @@ package org.picketlink.test.idm.relationship;
 
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 
 /**
  * <p>
@@ -31,7 +31,7 @@ import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
  */
 public class UserGroupRoleRelationshipTestCase extends AgentGroupRoleRelationshipTestCase<User>{
 
-    public UserGroupRoleRelationshipTestCase(IdentityConfigurationTestVisitor builder) {
+    public UserGroupRoleRelationshipTestCase(IdentityConfigurationTester builder) {
         super(builder);
     }
 

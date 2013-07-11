@@ -20,7 +20,7 @@ package org.picketlink.test.idm.relationship;
 
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 
 /**
  * <p>
@@ -31,7 +31,7 @@ import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
  */
 public class UserGrantRelationshipTestCase extends AbstractGrantRelationshipTestCase<User> {
 
-    public UserGrantRelationshipTestCase(IdentityConfigurationTestVisitor builder) {
+    public UserGrantRelationshipTestCase(IdentityConfigurationTester builder) {
         super(builder);
     }
 

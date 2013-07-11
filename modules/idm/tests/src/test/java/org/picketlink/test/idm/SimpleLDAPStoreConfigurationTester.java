@@ -40,7 +40,7 @@ import static org.picketlink.test.idm.LDAPEmbeddedServer.LDAP_URL;
 /**
  * @author pedroigor
  */
-public class SimpleLDAPStoreConfigurationTester implements IdentityConfigurationTestVisitor {
+public class SimpleLDAPStoreConfigurationTester implements IdentityConfigurationTester {
 
     public static final String SIMPLE_LDAP_STORE_CONFIG = "SIMPLE_LDAP_STORE_CONFIG";
     private final LDAPEmbeddedServer embeddedServer = new LDAPEmbeddedServer();

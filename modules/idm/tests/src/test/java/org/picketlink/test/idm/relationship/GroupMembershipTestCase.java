@@ -32,7 +32,7 @@ import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -47,7 +47,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
-    public GroupMembershipTestCase(IdentityConfigurationTestVisitor builder) {
+    public GroupMembershipTestCase(IdentityConfigurationTester builder) {
         super(builder);
     }
 

@@ -30,7 +30,7 @@ import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
@@ -43,7 +43,7 @@ import static junit.framework.Assert.assertTrue;
  */
 public class IdentityTypeQueryTestCase extends AbstractPartitionManagerTestCase {
 
-    public IdentityTypeQueryTestCase(IdentityConfigurationTestVisitor builder) {
+    public IdentityTypeQueryTestCase(IdentityConfigurationTester builder) {
         super(builder);
     }
 

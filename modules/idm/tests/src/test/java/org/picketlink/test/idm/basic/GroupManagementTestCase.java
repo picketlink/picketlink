@@ -30,7 +30,7 @@ import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
@@ -47,7 +47,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group> {
 
-    public GroupManagementTestCase(IdentityConfigurationTestVisitor builder) {
+    public GroupManagementTestCase(IdentityConfigurationTester builder) {
         super(builder);
     }
 

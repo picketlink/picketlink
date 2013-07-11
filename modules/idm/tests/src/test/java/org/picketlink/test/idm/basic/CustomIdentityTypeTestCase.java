@@ -28,7 +28,7 @@ import org.picketlink.idm.model.annotation.Unique;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
-import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -41,7 +41,7 @@ import static org.junit.Assert.assertTrue;
 public class CustomIdentityTypeTestCase extends AbstractIdentityTypeTestCase {
 
 
-    public CustomIdentityTypeTestCase(IdentityConfigurationTestVisitor builder) {
+    public CustomIdentityTypeTestCase(IdentityConfigurationTester builder) {
         super(builder);
     }
 
