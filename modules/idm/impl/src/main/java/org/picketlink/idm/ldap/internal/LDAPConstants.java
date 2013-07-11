@@ -32,7 +32,7 @@ public interface LDAPConstants {
     String MEMBER_OF = "memberOf";
     String OBJECT_CLASS = "objectclass";
     String UID = "uid";
-    Object GROUP_OF_NAMES = "groupOfNames";
+    String GROUP_OF_NAMES = "groupOfNames";
 
     String COMMA = ",";
     String EQUAL = "=";

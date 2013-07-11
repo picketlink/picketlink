@@ -116,7 +116,7 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
         
         IdentityManager identityManager = getIdentityManager();
         
-        assertTrue(instanceA.equals(identityManager.getRole(instanceA.getName())));
+        assertTrue(instanceA.getName().equals(identityManager.getRole(instanceA.getName()).getName()));
     }
 
     @Override
