@@ -252,7 +252,7 @@ public class DefaultStoreFactory implements StoreFactory {
     @Override
     public Tier findTier(SecurityContext context, String id) {
         Tier tier = getTier(id);
-        if (tier != null) return null;
+        if (tier != null) return tier;
         for (IdentityStoreConfiguration config : configs) {
             for (Map.Entry<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> entry : this.identityConfigMap.entrySet()) {
                 if (entry.getKey().isInstance(config) && PartitionStore.class.isAssignableFrom(entry.getValue())) {

@@ -161,6 +161,11 @@ public class FileBasedIdentityStore implements CredentialStore<FileIdentityStore
         return null;
     }
 
+    public List<Partition> getPartitions(SecurityContext context) {
+        List<Partition> partitions = new ArrayList<Partition>();
+        return partitions;
+    }
+
     @Override
     public void setup(FileIdentityStoreConfiguration config) {
         this.fileDataSource = new FileDataSource();

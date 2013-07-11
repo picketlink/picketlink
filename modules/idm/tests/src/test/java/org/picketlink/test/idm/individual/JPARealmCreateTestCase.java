@@ -45,6 +45,7 @@ import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 import org.picketlink.test.idm.relationship.CustomRelationship;
@@ -64,6 +65,9 @@ import static org.junit.Assert.*;
  */
 public class JPARealmCreateTestCase extends AbstractIdentityManagerTestCase {
 
+    private static final String APPLICATION_A_TIER_NAME = "Created Application A";
+    private static final String APPLICATION_B_TIER_NAME = "Created Application B";
+    private static final String APPLICATION_C_TIER_NAME = "Created Application C";
     private static final String TESTING_REALM_NAME = "Create-Testing";
 
     private static IdentityManagerFactory factory;
@@ -76,6 +80,9 @@ public class JPARealmCreateTestCase extends AbstractIdentityManagerTestCase {
         factory = createFactory();
         entityManager.getTransaction().begin();
         factory.createRealm(TESTING_REALM_NAME); // this tests the creation
+        factory.createTier(APPLICATION_A_TIER_NAME);
+        factory.createTier(APPLICATION_B_TIER_NAME);
+        factory.createTier(APPLICATION_C_TIER_NAME);
         entityManager.getTransaction().commit();
     }
 
@@ -125,6 +132,12 @@ public class JPARealmCreateTestCase extends AbstractIdentityManagerTestCase {
         Realm defaultRealm = factory.findRealm(Realm.DEFAULT_REALM);
         factory.deleteRealm(testingRealm);
         factory.deleteRealm(defaultRealm);
+        Tier tierA = factory.findTier(APPLICATION_A_TIER_NAME);
+        factory.deleteTier(tierA);
+        Tier tierB = factory.findTier(APPLICATION_B_TIER_NAME);
+        factory.deleteTier(tierB);
+        Tier tierC = factory.findTier(APPLICATION_C_TIER_NAME);
+        factory.deleteTier(tierC);
         entityManager.getTransaction().commit();
         entityManager.close();
         emf.close();
@@ -392,6 +405,87 @@ public class JPARealmCreateTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(defaultIdentityManager.hasGroupRole(defaultRealmUser, testingRealmRole, defaultRealmGroup));
         assertFalse(defaultIdentityManager.hasGroupRole(testingRealmUser, defaultRealmRole, testingRealmGroup));
+    }
+    private IdentityManager createIdentityManagerForTier(String tierName) {
+        return getIdentityManagerFactory().createIdentityManager(getIdentityManagerFactory().getTier(tierName));
+    }
+
+
+
+    @Test
+    public void testGrantUserRolesForTier() throws Exception {
+        IdentityManager acmeRealm = getIdentityManager();
+
+        User john = new SimpleUser("John");
+        User bill = new SimpleUser("Bill");
+        User mary = new SimpleUser("Mary");
+
+        acmeRealm.add(john);
+        acmeRealm.add(bill);
+        acmeRealm.add(mary);
+
+        IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
+
+        String roleAName = "Role A";
+        String roleCName = "Role C";
+        String roleBName = "Role B";
+
+        applicationA.add(new SimpleRole(roleAName));
+        assertNotNull(applicationA.getRole(roleAName));
+
+        IdentityManager applicationB = createIdentityManagerForTier(APPLICATION_B_TIER_NAME);
+
+        applicationB.add(new SimpleRole(roleBName));
+        assertNotNull(applicationB.getRole(roleBName));
+
+        IdentityManager applicationC = createIdentityManagerForTier(APPLICATION_C_TIER_NAME);
+
+        applicationC.add(new SimpleRole(roleCName));
+        assertNotNull(applicationC.getRole(roleCName));
+
+        assertNull(acmeRealm.getRole(roleAName));
+        assertNull(acmeRealm.getRole(roleBName));
+        assertNull(acmeRealm.getRole(roleCName));
+
+        acmeRealm.grantRole(john, applicationA.getRole(roleAName));
+        acmeRealm.grantRole(bill, applicationB.getRole(roleBName));
+        acmeRealm.grantRole(mary, applicationC.getRole(roleCName));
+
+        assertTrue(acmeRealm.hasRole(john, applicationA.getRole(roleAName)));
+        assertFalse(acmeRealm.hasRole(john, applicationB.getRole(roleBName)));
+        assertFalse(acmeRealm.hasRole(john, applicationC.getRole(roleCName)));
+
+        assertTrue(acmeRealm.hasRole(bill, applicationB.getRole(roleBName)));
+        assertFalse(acmeRealm.hasRole(bill, applicationA.getRole(roleAName)));
+        assertFalse(acmeRealm.hasRole(bill, applicationC.getRole(roleCName)));
+
+        assertTrue(acmeRealm.hasRole(mary, applicationC.getRole(roleCName)));
+        assertFalse(acmeRealm.hasRole(mary, applicationA.getRole(roleAName)));
+        assertFalse(acmeRealm.hasRole(mary, applicationB.getRole(roleBName)));
+
+        acmeRealm.grantRole(john, applicationB.getRole(roleBName));
+
+        assertTrue(acmeRealm.hasRole(john, applicationA.getRole(roleAName)));
+        assertTrue(acmeRealm.hasRole(john, applicationB.getRole(roleBName)));
+        assertFalse(acmeRealm.hasRole(john, applicationC.getRole(roleCName)));
+
+        applicationA.remove(applicationA.getRole(roleAName));
+
+        assertNull(applicationA.getRole(roleAName));
+        assertTrue(acmeRealm.hasRole(bill, applicationB.getRole(roleBName)));
+        assertTrue(acmeRealm.hasRole(mary, applicationC.getRole(roleCName)));
+
+        acmeRealm.revokeRole(bill, applicationB.getRole(roleBName));
+
+        assertFalse(acmeRealm.hasRole(bill, applicationB.getRole(roleBName)));
+        assertTrue(acmeRealm.hasRole(mary, applicationC.getRole(roleCName)));
+
+        acmeRealm.remove(john);
+        acmeRealm.remove(bill);
+        acmeRealm.remove(mary);
+
+        assertFalse(acmeRealm.hasRole(bill, applicationB.getRole(roleBName)));
+        assertFalse(acmeRealm.hasRole(mary, applicationC.getRole(roleCName)));
     }
 
 }
