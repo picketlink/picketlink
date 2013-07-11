@@ -67,7 +67,7 @@ import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.ContextInitializer;
-import org.picketlink.idm.spi.IdentityContextHandler;
+import org.picketlink.idm.spi.IdentitySessionHandler;
 
 /**
  * This interface defines the configuration parameters for a JPA based IdentityStore implementation.
@@ -118,7 +118,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
             Class<?> credentialAttributeClass, Class<?> relationshipClass, Class<?> relationshipIdentityClass,
             Class<?> relationshipAttributeClass, Class<?> partitionClass, Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
             Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms, Set<String> tiers,
-            List<ContextInitializer> contextInitializers, IdentityContextHandler transactionHandler, Map<String, Object> credentialHandlerProperties,
+            List<ContextInitializer> contextInitializers, IdentitySessionHandler transactionHandler, Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {
         super(supportedFeatures, supportedRelationships, realms, tiers, contextInitializers, transactionHandler, credentialHandlerProperties,
                 credentialHandlers);

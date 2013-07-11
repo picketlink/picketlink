@@ -27,7 +27,7 @@ import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
-import org.picketlink.idm.spi.IdentityContextHandler;
+import org.picketlink.idm.spi.IdentitySessionHandler;
 
 /**
  * @author Pedro Igor
@@ -51,7 +51,7 @@ public interface IdentityStoreConfigurationBuilder<T extends IdentityStoreConfig
 
     S addContextInitializer(ContextInitializer contextInitializer);
 
-    S setIdentityContextHandler(IdentityContextHandler handler);
+    S setIdentitySessionHandler(IdentitySessionHandler handler);
 
     S removeFeature(FeatureGroup feature, FeatureOperation operation);
 

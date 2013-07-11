@@ -1,7 +1,7 @@
 package org.picketlink.idm.jpa.internal;
 
-import org.picketlink.idm.IdentityContext;
-import org.picketlink.idm.spi.IdentityContextHandler;
+import org.picketlink.idm.IdentitySession;
+import org.picketlink.idm.spi.IdentitySessionHandler;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 
@@ -13,7 +13,7 @@ import javax.persistence.Persistence;
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  * @version $Revision: 1 $
  */
-public class ResourceLocalJpaIdentityContextHandler implements IdentityContextHandler {
+public class ResourceLocalJpaIdentitySessionHandler implements IdentitySessionHandler {
 
     protected EntityManagerFactory emf;
 
@@ -47,49 +47,49 @@ public class ResourceLocalJpaIdentityContextHandler implements IdentityContextHa
         }
     }
 
-    public ResourceLocalJpaIdentityContextHandler(String persistentUnit) {
+    public ResourceLocalJpaIdentitySessionHandler(String persistentUnit) {
         this.emf = Persistence.createEntityManagerFactory(persistentUnit);
     }
 
-    public ResourceLocalJpaIdentityContextHandler(EntityManagerFactory emf) {
+    public ResourceLocalJpaIdentitySessionHandler(EntityManagerFactory emf) {
         this.emf = emf;
     }
 
-    protected EntityManager getEntityManager(IdentityContext context, IdentityStore store) {
+    protected EntityManager getEntityManager(IdentitySession context, IdentityStore store) {
         PropertyKey key = new PropertyKey(EntityManager.class.getName(), store);
         return (EntityManager)context.getProperties().get(key);
 
     }
 
     @Override
-    public void begin(IdentityContext context, IdentityStore<?> store) {
+    public void begin(IdentitySession context, IdentityStore<?> store) {
        getEntityManager(context, store).getTransaction().begin();
     }
 
     @Override
-    public void commit(IdentityContext context, IdentityStore<?> store) {
+    public void commit(IdentitySession context, IdentityStore<?> store) {
         getEntityManager(context, store).getTransaction().commit();
     }
 
     @Override
-    public void rollback(IdentityContext context, IdentityStore<?> store) {
+    public void rollback(IdentitySession context, IdentityStore<?> store) {
         getEntityManager(context, store).getTransaction().rollback();
     }
 
     @Override
-    public void setRollbackOnly(IdentityContext context, IdentityStore<?> store) {
+    public void setRollbackOnly(IdentitySession context, IdentityStore<?> store) {
         getEntityManager(context, store).getTransaction().setRollbackOnly();
 
     }
 
     @Override
-    public void initialize(IdentityContext identityContext, SecurityContext context, IdentityStore<?> store) {
+    public void initialize(IdentitySession identityContext, SecurityContext context, IdentityStore<?> store) {
         EntityManager entityManager = getEntityManager(identityContext, store);
         context.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, entityManager);
     }
 
     @Override
-    public void initialize(IdentityContext context, IdentityStore<?> store) {
+    public void initialize(IdentitySession context, IdentityStore<?> store) {
         EntityManager em = emf.createEntityManager();
         PropertyKey key = new PropertyKey(EntityManager.class.getName(), store);
         context.getProperties().put(key, em);
@@ -97,7 +97,7 @@ public class ResourceLocalJpaIdentityContextHandler implements IdentityContextHa
     }
 
     @Override
-    public void close(IdentityContext context, IdentityStore<?> store) {
+    public void close(IdentitySession context, IdentityStore<?> store) {
         getEntityManager(context, store).close();
     }
 

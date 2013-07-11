@@ -1,6 +1,6 @@
 package org.picketlink.idm.internal;
 
-import org.picketlink.idm.IdentityContext;
+import org.picketlink.idm.IdentitySession;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.IdentityTransaction;
 import org.picketlink.idm.config.IdentityConfiguration;
@@ -27,7 +27,7 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  * @version $Revision: 1 $
  */
-public class DefaultIdentityContext implements IdentityContext {
+public class DefaultIdentitySession implements IdentitySession {
     protected IdentityConfiguration identityConfig;
     protected SecurityContextFactory contextFactory;
     protected DefaultStoreFactory2 storeFactory;
@@ -42,7 +42,7 @@ public class DefaultIdentityContext implements IdentityContext {
         public void begin() {
             active = true;
             for (IdentityStore store : storesWithHandlers) {
-                store.getConfig().getIdentityContextHandler().begin(DefaultIdentityContext.this, store);
+                store.getConfig().getIdentitySessionHandler().begin(DefaultIdentitySession.this, store);
             }
         }
 
@@ -50,7 +50,7 @@ public class DefaultIdentityContext implements IdentityContext {
         public void commit() {
             active = false;
             for (IdentityStore store : storesWithHandlers) {
-                store.getConfig().getIdentityContextHandler().commit(DefaultIdentityContext.this, store);
+                store.getConfig().getIdentitySessionHandler().commit(DefaultIdentitySession.this, store);
             }
 
         }
@@ -59,7 +59,7 @@ public class DefaultIdentityContext implements IdentityContext {
         public void rollback() {
             active = false;
             for (IdentityStore store : storesWithHandlers) {
-                store.getConfig().getIdentityContextHandler().rollback(DefaultIdentityContext.this, store);
+                store.getConfig().getIdentitySessionHandler().rollback(DefaultIdentitySession.this, store);
             }
         }
 
@@ -67,7 +67,7 @@ public class DefaultIdentityContext implements IdentityContext {
         public void setRollbackOnly() {
             setRollback = true;
             for (IdentityStore store : storesWithHandlers) {
-                store.getConfig().getIdentityContextHandler().setRollbackOnly(DefaultIdentityContext.this, store);
+                store.getConfig().getIdentitySessionHandler().setRollbackOnly(DefaultIdentitySession.this, store);
             }
 
         }
@@ -118,18 +118,18 @@ public class DefaultIdentityContext implements IdentityContext {
         }
     }
 
-    public DefaultIdentityContext(IdentityConfiguration identityConfig, SecurityContextFactory contextFactory, DefaultStoreFactory2 storeFactory) {
+    public DefaultIdentitySession(IdentityConfiguration identityConfig, SecurityContextFactory contextFactory, DefaultStoreFactory2 storeFactory) {
         this.identityConfig = identityConfig;
         this.contextFactory = contextFactory;
         this.storeFactory = storeFactory;
         this.partitionStore = storeFactory.getPartitionStoreConfig();
         for (IdentityStoreConfiguration config : identityConfig.getConfiguredStores()) {
-            if (config.getIdentityContextHandler() != null) {
+            if (config.getIdentitySessionHandler() != null) {
                 storesWithHandlers.add(storeFactory.createIdentityStore(config, null));
             }
         }
         for (IdentityStore store : storesWithHandlers) {
-            store.getConfig().getIdentityContextHandler().initialize(this, store);
+            store.getConfig().getIdentitySessionHandler().initialize(this, store);
         }
 
     }
@@ -162,9 +162,9 @@ public class DefaultIdentityContext implements IdentityContext {
     }
 
     protected void initSecurityContext(SecurityContext context) {
-        context.setParameter(IdentityContext.class.getName(), this);
+        context.setParameter(IdentitySession.class.getName(), this);
         for (IdentityStore store : storesWithHandlers) {
-            store.getConfig().getIdentityContextHandler().initialize(this, context, store);
+            store.getConfig().getIdentitySessionHandler().initialize(this, context, store);
         }
     }
 
@@ -321,7 +321,7 @@ public class DefaultIdentityContext implements IdentityContext {
     @Override
     public void close() {
         for (IdentityStore store : storesWithHandlers) {
-            store.getConfig().getIdentityContextHandler().close(this, store);
+            store.getConfig().getIdentitySessionHandler().close(this, store);
         }
     }
 }

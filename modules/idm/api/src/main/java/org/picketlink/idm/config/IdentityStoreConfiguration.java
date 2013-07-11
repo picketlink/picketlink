@@ -26,7 +26,7 @@ import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
-import org.picketlink.idm.spi.IdentityContextHandler;
+import org.picketlink.idm.spi.IdentitySessionHandler;
 
 /**
  * <p>
@@ -72,7 +72,7 @@ public interface IdentityStoreConfiguration {
      */
     List<ContextInitializer> getContextInitializers();
 
-    IdentityContextHandler getIdentityContextHandler();
+    IdentitySessionHandler getIdentitySessionHandler();
 
     /**
      * <p>Returns a {@link List} of the {@link CredentialHandler} types configured.</p>
