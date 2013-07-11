@@ -24,6 +24,7 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.GroupRole;
@@ -46,6 +47,10 @@ import static org.junit.Assert.assertNotNull;
  *
  */
 public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group> {
+
+    public GroupManagementTestCase(IdentityConfigurationBuilder builder) {
+        super(builder);
+    }
 
     @Test
     public void testCreate() throws Exception {

@@ -21,12 +21,13 @@ package org.picketlink.test.idm.relationship;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Role;
-import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
+import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
@@ -37,7 +38,11 @@ import static org.junit.Assert.assertFalse;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends AbstractIdentityManagerTestCase {
+public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends AbstractPartitionManagerTestCase {
+
+    public AgentGroupRoleRelationshipTestCase(IdentityConfigurationBuilder builder) {
+        super(builder);
+    }
 
     protected T createIdentityType(String name, Partition partition) {
         if (name == null) {

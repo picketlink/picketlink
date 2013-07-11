@@ -27,6 +27,7 @@ import java.util.Date;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.sample.Grant;
 import org.picketlink.idm.model.sample.Group;
@@ -36,8 +37,6 @@ import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.ExcludeTestSuite;
-import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -53,6 +52,10 @@ import static org.junit.Assert.assertTrue;
  * 
  */
 public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
+
+    public UserManagementTestCase(IdentityConfigurationBuilder builder) {
+        super(builder);
+    }
 
     @Test
     public void testCreate() throws Exception {
@@ -85,7 +88,6 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
     }
 
     @Test
-    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testUpdate() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
@@ -201,7 +203,6 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
     }
     
     @Test
-    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testSetCertificateAsAttribute() {
         User mary = createUser("mary");
         

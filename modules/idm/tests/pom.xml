@@ -32,12 +32,7 @@
 					<printSummary>true</printSummary>
 					<disableXmlReport>false</disableXmlReport>
 					<testFailureIgnore>false</testFailureIgnore>
-					<includes>
-						<include>**/**TestSuite.java</include>
-						<include>org/picketlink/test/idm/config/**TestCase.java</include>
-					</includes>
 					<forkMode>pertest</forkMode>
-					<argLine>${surefire.jvm.args}</argLine>
 					<useFile>false</useFile>
 					<trimStackTrace>false</trimStackTrace>
 				</configuration>

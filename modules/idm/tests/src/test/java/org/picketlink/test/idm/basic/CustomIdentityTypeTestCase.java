@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.model.AbstractIdentityType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.annotation.AttributeProperty;
@@ -39,6 +40,10 @@ import static org.junit.Assert.assertTrue;
  */
 public class CustomIdentityTypeTestCase extends AbstractIdentityTypeTestCase {
 
+
+    public CustomIdentityTypeTestCase(IdentityConfigurationBuilder builder) {
+        super(builder);
+    }
 
     @Override
     protected IdentityType createIdentityType() {

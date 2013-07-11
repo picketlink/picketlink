@@ -21,17 +21,11 @@ package org.picketlink.test.idm.query;
 import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.util.IDMUtil;
-import org.picketlink.test.idm.ExcludeTestSuite;
-import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
-import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
-import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
-import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsFileRelationshipTestSuite;
-import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsRelationshipsTestSuite;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -45,6 +39,10 @@ import static org.junit.Assert.assertNotNull;
  * 
  */
 public class UserQueryTestCase extends AgentQueryTestCase<User> {
+
+    public UserQueryTestCase(IdentityConfigurationBuilder builder) {
+        super(builder);
+    }
 
     @Override
     protected User createIdentityType(String name, Partition partition) {
@@ -162,9 +160,6 @@ public class UserQueryTestCase extends AgentQueryTestCase<User> {
     }
 
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class,
-            LDAPJPAMixedStoreTestSuite.class, LDAPUsersJPARolesGroupsRelationshipsTestSuite.class,
-            LDAPUsersJPARolesGroupsFileRelationshipTestSuite.class })
     public void testFindWithPaginationAndSorting() throws Exception {
         createPopulatedUser("john", "John", "Anthony");
         // Sleep is needed to avoid same createdDate

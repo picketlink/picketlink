@@ -26,12 +26,13 @@ import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
+import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -39,7 +40,11 @@ import static org.junit.Assert.assertFalse;
  * @author Pedro Silva
  *
  */
-public class RelationshipQueryTestCase extends AbstractIdentityManagerTestCase {
+public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase {
+
+    public RelationshipQueryTestCase(IdentityConfigurationBuilder builder) {
+        super(builder);
+    }
 
     @Test
     public void testFindAllRelationshipsForUser() throws Exception {

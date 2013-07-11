@@ -20,12 +20,13 @@ package org.picketlink.test.idm.credential;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.internal.DigestUtil;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
+import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -42,7 +43,11 @@ import static org.junit.Assert.assertNull;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-public class DigestCredentialTestCase extends AbstractIdentityManagerTestCase {
+public class DigestCredentialTestCase extends AbstractPartitionManagerTestCase {
+
+    public DigestCredentialTestCase(IdentityConfigurationBuilder builder) {
+        super(builder);
+    }
 
     @Test
     public void testSuccessfulValidation() throws Exception {

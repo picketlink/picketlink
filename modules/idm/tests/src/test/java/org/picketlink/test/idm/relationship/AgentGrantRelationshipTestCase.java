@@ -18,6 +18,7 @@
 
 package org.picketlink.test.idm.relationship;
 
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.User;
@@ -30,6 +31,10 @@ import org.picketlink.idm.model.sample.User;
  *
  */
 public class AgentGrantRelationshipTestCase extends AbstractGrantRelationshipTestCase<Agent> {
+
+    public AgentGrantRelationshipTestCase(IdentityConfigurationBuilder builder) {
+        super(builder);
+    }
 
     @Override
     protected Agent createIdentityType(String name) {

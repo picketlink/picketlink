@@ -22,12 +22,13 @@ import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
+import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -39,7 +40,11 @@ import static org.junit.Assert.assertFalse;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-public class CustomRelationshipTestCase extends AbstractIdentityManagerTestCase {
+public class CustomRelationshipTestCase extends AbstractPartitionManagerTestCase {
+
+    public CustomRelationshipTestCase(IdentityConfigurationBuilder builder) {
+        super(builder);
+    }
 
     @Test
     public void testCreate() throws Exception {

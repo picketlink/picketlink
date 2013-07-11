@@ -17,48 +17,56 @@
  */
 package org.picketlink.test.idm;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
+import static org.junit.runners.Parameterized.Parameters;
+import static org.picketlink.test.idm.IdentityConfigurationTestFactory.buildSimpleFileIdentityStoreConfig;
 
 /**
  * <p>
- * Base class for test cases using a specific {@link IdentityManager} instance.
+ * Base class for test cases using a specific {@link PartitionManager} instance.
  * </p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
  */
-public class AbstractIdentityManagerTestCase {
+@RunWith(Parameterized.class)
+public abstract class AbstractPartitionManagerTestCase {
 
     private PartitionManager partitionManager;
 
-    private IdentityManager identityManager;
+    public AbstractPartitionManagerTestCase(IdentityConfigurationBuilder builder) {
+        this.partitionManager = new DefaultPartitionManager(builder.buildAll());
+        this.partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+    }
+
+    @Parameters
+    public static Collection<Object[]> getParameters() {
+        List<Object[]> parameters = new ArrayList<Object[]>();
+
+        parameters.add(new Object[] {buildSimpleFileIdentityStoreConfig()});
+
+        return parameters;
+    }
 
     public PartitionManager getPartitionManager() {
-        if (partitionManager == null) {
-            throw new RuntimeException("PartitionManager is not set.");
-        }
         return this.partitionManager;
     }
 
     public IdentityManager getIdentityManager() {
-        if (this.identityManager == null) {
-            this.identityManager = getPartitionManager().createIdentityManager();
-        }
-        return this.identityManager;
-    }
-
-    public void setPartitionManager(PartitionManager factory) {
-        this.partitionManager = factory;
-    }
-
-    public void setIdentityManager(IdentityManager identityManager) {
-        this.identityManager = identityManager;
+        return getPartitionManager().createIdentityManager();
     }
 
     protected User createUser(String userName) {
@@ -73,10 +81,10 @@ public class AbstractIdentityManagerTestCase {
 
         return user;
     }
-    
+
     protected User createUser(String userName, Partition partition) {
         IdentityManager identityManager = getIdentityManagerForPartition(partition);
-        
+
         User user = identityManager.getUser(userName);
 
         if (user != null) {
@@ -110,7 +118,7 @@ public class AbstractIdentityManagerTestCase {
 
     protected Agent createAgent(String loginName, Partition partition) {
         IdentityManager identityManager = getIdentityManagerForPartition(partition);
-        
+
         Agent agent = identityManager.getAgent(loginName);
 
         if (agent != null) {
@@ -126,12 +134,10 @@ public class AbstractIdentityManagerTestCase {
     }
 
     private IdentityManager getIdentityManagerForPartition(Partition partition) {
-        PartitionManager factory = getPartitionManager();
-        
         if (partition == null) {
-            return factory.createIdentityManager();
+            return getPartitionManager().createIdentityManager();
         } else {
-            return factory.createIdentityManager(partition);            
+            return getPartitionManager().createIdentityManager(partition);
         }
     }
 
@@ -152,10 +158,10 @@ public class AbstractIdentityManagerTestCase {
 
         return role;
     }
-    
+
     protected Role createRole(String name, Partition partition) {
         IdentityManager identityManager = getIdentityManagerForPartition(partition);
-        
+
         Role role = identityManager.getRole(name);
 
         if (role != null) {
@@ -175,11 +181,11 @@ public class AbstractIdentityManagerTestCase {
 
     protected Group createGroupWithParent(String name, Group parentGroup) {
         String path = name;
-        
+
         if (parentGroup != null) {
             path = parentGroup.getPath() + "/" + name;
         }
-        
+
         Group group = getIdentityManager().getGroup(path);
 
         if (group != null) {
@@ -199,15 +205,15 @@ public class AbstractIdentityManagerTestCase {
 
         return group;
     }
-    
+
     protected Group createGroup(String name, String parentGroupName) {
         Group parentGroup = getIdentityManager().getGroup(parentGroupName);
 
         String path = name;
-        
+
         if (parentGroupName != null) {
             path = "/" + parentGroupName + "/" + name;
-            
+
             if (parentGroup != null) {
                 path = parentGroup.getPath() + "/" + name;
             }
@@ -229,7 +235,7 @@ public class AbstractIdentityManagerTestCase {
             parentGroup = new Group(parentGroupName);
             getIdentityManager().add(parentGroup);
         }
-        
+
         if (group == null) {
             if (parentGroupName == null) {
                 group = new Group(name);
@@ -242,11 +248,11 @@ public class AbstractIdentityManagerTestCase {
 
         return group;
     }
-    
+
     protected Group createGroup(String name) {
         return createGroup(name, null);
     }
-    
+
     protected Group createGroup(String name, String parentGroupName, Partition partition) {
         IdentityManager identityManager = getIdentityManagerForPartition(partition);
         Group parentGroup = identityManager.getGroup(parentGroupName);

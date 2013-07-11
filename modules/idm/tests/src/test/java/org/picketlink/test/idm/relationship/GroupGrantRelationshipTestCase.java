@@ -18,6 +18,7 @@
 
 package org.picketlink.test.idm.relationship;
 
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Group;
 
@@ -29,6 +30,10 @@ import org.picketlink.idm.model.sample.Group;
  *
  */
 public class GroupGrantRelationshipTestCase extends AbstractGrantRelationshipTestCase<Group> {
+
+    public GroupGrantRelationshipTestCase(IdentityConfigurationBuilder builder) {
+        super(builder);
+    }
 
     @Override
     protected Group createIdentityType(String name) {
