@@ -17,8 +17,6 @@
  */
 package org.picketlink.idm.internal.util;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
@@ -26,6 +24,8 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
+
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * General purpose Util

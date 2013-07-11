@@ -18,9 +18,6 @@
 
 package org.picketlink.idm.internal;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.picketlink.idm.IdentityCache;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
@@ -29,6 +26,9 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>Default {@link IdentityCache} implementation.</p>

@@ -17,10 +17,6 @@
  */
 package org.picketlink.idm.internal;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -46,6 +42,12 @@ import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.StoreFactory;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.internal.util.IDMUtil.getFeatureGroup;
 
@@ -412,6 +414,57 @@ public class DefaultIdentityManager implements IdentityManager {
                 FeatureGroup.relationship, FeatureOperation.read, relationshipType));
     }
 
+    public <T extends IdentityType> T lookupIdentityById(Class<T> identityType, String id, String partitionId) {
+        if (identityType == null) {
+            throw MESSAGES.nullArgument("IdentityType class");
+        }
+
+        if (id == null) {
+            throw MESSAGES.nullArgument("Identifier for [" + identityType + "]");
+        }
+
+        List<T> result = Collections.emptyList();
+        List<Class<? extends IdentityType>> typesToSearch = new ArrayList<Class<? extends IdentityType>>();
+
+        if (IdentityType.class.equals(identityType)) {
+            typesToSearch.add(User.class);
+            typesToSearch.add(Agent.class);
+            typesToSearch.add(Group.class);
+            typesToSearch.add(Role.class);
+        } else {
+            typesToSearch.add(identityType);
+        }
+
+        for (Class<? extends IdentityType> childType : typesToSearch) {
+            IdentityQuery<T> query = (IdentityQuery<T>) createIdentityQuery(childType);
+
+            query.setParameter(IdentityType.ID, id);
+
+            List<String> partitionIds = new ArrayList<String>();
+
+            partitionIds.add(partitionId);
+            query.setParameter(IdentityType.PARTITION, partitionIds.toArray());
+
+            result = query.getResultList();
+
+            if (!result.isEmpty()) {
+                break;
+            }
+        }
+
+        T identity = null;
+
+        if (!result.isEmpty()) {
+            if (result.size() > 1) {
+                throw MESSAGES.identityTypeAmbiguosFoundWithId(id);
+            } else {
+                identity = result.get(0);
+            }
+        }
+
+        return identity;
+    }
+
     @Override
     public <T extends IdentityType> T lookupIdentityById(Class<T> identityType, String id) {
         if (identityType == null) {
@@ -530,8 +583,15 @@ public class DefaultIdentityManager implements IdentityManager {
         if (identityType == null) {
             throw MESSAGES.nullArgument("IdentityType");
         }
-
-        if (lookupIdentityById(identityType.getClass(), identityType.getId()) == null) {
+        // preset the partition id if the partition is set in the identity type
+        // have to do this for the case of a dynamically created tier, a role created for that tier, and a grantRole()
+        if (identityType.getPartition() != null) {
+            if (lookupIdentityById(identityType.getClass(), identityType.getId(), identityType.getPartition().getId()) == null) {
+                throw MESSAGES.attributedTypeNotFoundWithId(identityType.getClass(), identityType.getId(),
+                        this.context.getPartition());
+            }
+        }
+        else if (lookupIdentityById(identityType.getClass(), identityType.getId()) == null) {
             throw MESSAGES.attributedTypeNotFoundWithId(identityType.getClass(), identityType.getId(),
                     this.context.getPartition());
         }
@@ -541,7 +601,14 @@ public class DefaultIdentityManager implements IdentityManager {
         RelationshipQuery<Grant> query = createRelationshipQuery(Grant.class);
 
         query.setParameter(Grant.ASSIGNEE, identityType);
-        query.setParameter(Grant.ROLE, lookupIdentityById(role.getClass(), role.getId()));
+
+        // role may be in different partition, a partition that was created dynamically
+        if (role.getPartition() == null) {
+           query.setParameter(Grant.ROLE, lookupIdentityById(role.getClass(), role.getId()));
+        } else {
+            query.setParameter(Grant.ROLE, lookupIdentityById(role.getClass(), role.getId(), role.getPartition().getId()));
+
+        }
 
         List<Grant> result = query.getResultList();
 

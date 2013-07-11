@@ -36,6 +36,7 @@ import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
+import org.picketlink.idm.spi.IdentitySessionHandler;
 
 /**
  * The base class for store configurations
@@ -47,6 +48,7 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
     private final Set<String> realms = new HashSet<String>();
     private final Set<String> tiers = new HashSet<String>();
     private List<ContextInitializer> contextInitializers = new ArrayList<ContextInitializer>();
+    private IdentitySessionHandler identityContextHandler;
     private Map<String, Object> credentialHandlerProperties = new HashMap<String, Object>();
     private List<Class<? extends CredentialHandler>> credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
     /**
@@ -57,11 +59,12 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
 
     protected BaseAbstractStoreConfiguration(Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
             Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms,
-            Set<String> tiers, List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties,
+            Set<String> tiers, List<ContextInitializer> contextInitializers, IdentitySessionHandler identityContextHandler, Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {
         this.realms.addAll(realms);
         this.tiers.addAll(tiers);
         this.contextInitializers.addAll(contextInitializers);
+        this.identityContextHandler = identityContextHandler;
         this.credentialHandlerProperties.putAll(credentialHandlerProperties);
         this.credentialHandlers.addAll(credentialHandlers);
         this.supportedFeatures = supportedFeatures;
@@ -92,6 +95,11 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
     }
 
     protected abstract void initConfig();
+
+    @Override
+    public IdentitySessionHandler getIdentitySessionHandler() {
+        return identityContextHandler;
+    }
 
     @Override
     public List<ContextInitializer> getContextInitializers() {

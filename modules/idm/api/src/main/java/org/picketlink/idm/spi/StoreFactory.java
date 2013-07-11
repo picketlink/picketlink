@@ -88,4 +88,16 @@ public interface StoreFactory {
      */
     IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature,
             FeatureOperation operation, Class<? extends Relationship> relationshipClass);
+
+    Realm createRealm(SecurityContext context,String id);
+
+    Tier createTier(SecurityContext context,String id);
+
+    Realm findRealm(SecurityContext context,String id);
+
+    Tier findTier(SecurityContext context,String id);
+
+    void deleteRealm(SecurityContext context, Realm realm);
+
+   void deleteTier(SecurityContext context, Tier tier);
 }

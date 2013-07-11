@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -82,6 +83,7 @@ import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
+import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.SecurityContext;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
@@ -93,7 +95,8 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
  * @author Pedro Silva
  */
 @CredentialHandlers({PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class, TOTPCredentialHandler.class})
-public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfiguration> {
+public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfiguration>, PartitionStore
+{
 
     // Invocation context parameters
     public static final String INVOCATION_CTX_ENTITY_MANAGER = "CTX_ENTITY_MANAGER";
@@ -560,6 +563,73 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
         }
 
         handler.validate(context, credentials, this);
+    }
+
+    @Override
+    public void createPartition(SecurityContext context, Partition partition) {
+        lookupAndCreatePartitionObject(context, partition);
+    }
+
+    @Override
+    public void removePartition(SecurityContext context, Partition partition) {
+        EntityManager entityManager = getEntityManager(context);
+        Object partitionObject = entityManager.find(getConfig().getPartitionClass(), partition.getId());
+
+        if (partitionObject == null) return;
+
+        {
+            List<AttributedType> toRemove = new ArrayList<AttributedType>();
+            IdentityQuery<IdentityType> query = new DefaultIdentityQuery(context, Agent.class, this);
+            List<IdentityType> resultSet = fetchQueryResults(context, query);
+            toRemove.addAll(resultSet);
+            for (AttributedType agent : toRemove) {
+                remove(context, agent);
+            }
+        }
+        {
+            List<AttributedType> toRemove = new ArrayList<AttributedType>();
+            IdentityQuery<IdentityType> query = new DefaultIdentityQuery(context, User.class, this);
+            List<IdentityType> resultSet = fetchQueryResults(context, query);
+            toRemove.addAll(resultSet);
+            for (AttributedType agent : toRemove) {
+                remove(context, agent);
+            }
+        }
+        {
+            List<AttributedType> toRemove = new ArrayList<AttributedType>();
+            IdentityQuery<IdentityType> query = new DefaultIdentityQuery(context, Group.class, this);
+            List<IdentityType> resultSet = fetchQueryResults(context, query);
+            toRemove.addAll(resultSet);
+            for (AttributedType agent : toRemove) {
+                remove(context, agent);
+            }
+        }
+        {
+            List<AttributedType> toRemove = new ArrayList<AttributedType>();
+            IdentityQuery<IdentityType> query = new DefaultIdentityQuery(context, Role.class, this);
+            List<IdentityType> resultSet = fetchQueryResults(context, query);
+            toRemove.addAll(resultSet);
+            for (AttributedType agent : toRemove) {
+                remove(context, agent);
+            }
+        }
+
+        entityManager.remove(partitionObject);
+        entityManager.flush();
+
+
+    }
+
+    @Override
+    public Partition findPartition(SecurityContext context, String id) {
+        EntityManager entityManager = getEntityManager(context);
+
+        Object partitionObject = entityManager.find(getConfig().getPartitionClass(), id);
+        if (partitionObject == null) return null;
+        String type = (String) getConfig().getModelProperty(PropertyType.PARTITION_TYPE).getValue(partitionObject);
+        if (type.equals(Tier.class.getName())) return new Tier(id);
+        else if (type.equals(Realm.class.getName())) return new Realm(id);
+        return null;
     }
 
     protected Partition convertPartitionEntityToPartition(Object partitionObject) {
@@ -1475,11 +1545,13 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
             Property<Object> relationshipProperty = getConfig().getModelProperty(
                     PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP);
 
-            for (Entry<QueryParameter, Object[]> entry : query.getParameters().entrySet()) {
+            Set<Entry<QueryParameter, Object[]>> parameters = query.getParameters().entrySet();
+
+            for (Entry<QueryParameter, Object[]> entry : parameters) {
                 QueryParameter queryParameter = entry.getKey();
                 Object[] values = entry.getValue();
 
-                if (queryParameter instanceof RelationshipQueryParameter) {
+                if (entry.getKey() instanceof RelationshipQueryParameter) {
                     RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) entry.getKey();
 
                     for (Object object : values) {
@@ -1507,33 +1579,52 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
                                 }
                             }
 
-                            List<String> identityTypeIdentifiers = new ArrayList<String>();
+                            List<String> objects = new ArrayList<String>();
 
-                            identityTypeIdentifiers.add(identityType.getId());
+                            objects.add(identityType.getId());
 
                             if (Group.class.isInstance(identityType) && !matchExactGroup) {
                                 List<Group> groupParents = getParentGroups(context, (Group) identityType);
 
                                 for (Group group : groupParents) {
-                                    identityTypeIdentifiers.add(group.getId());
+                                    objects.add(group.getId());
                                 }
                             }
 
                             Subquery<?> subquery = criteria.subquery(getConfig().getRelationshipIdentityClass());
-                            Root fromRelationshipIdentityType = subquery.from(getConfig().getRelationshipIdentityClass());
-                            subquery.select(fromRelationshipIdentityType.get(relationshipProperty.getName()));
+                            Root fromProject = subquery.from(getConfig().getRelationshipIdentityClass());
+                            subquery.select(fromProject.get(relationshipProperty.getName()));
 
                             Predicate conjunction = builder.conjunction();
 
                             conjunction.getExpressions().add(
-                                    builder.equal(fromRelationshipIdentityType.get(descriptorProperty.getName()),
+                                    builder.equal(fromProject.get(descriptorProperty.getName()),
                                             identityTypeParameter.getName()));
 
                             if (identityProperty.getJavaClass().equals(String.class)) {
-                                conjunction.getExpressions().add(fromRelationshipIdentityType.get(identityProperty.getName()).in(identityTypeIdentifiers));
+                                conjunction.getExpressions().add(
+                                        builder.in(fromProject.get(identityProperty.getName())).value(objects));
                             } else {
-                                Join join = fromRelationshipIdentityType.join(identityProperty.getName());
-                                conjunction.getExpressions().add(join.get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()).in(identityTypeIdentifiers));
+                                List<Object> identityObjects = new ArrayList<Object>();
+
+                                for (String id : objects) {
+                                    Object identityObject = null;
+
+                                    try {
+                                        identityObject = lookupIdentityObjectById(context, id);
+                                    } catch (IdentityManagementException ime) {
+                                        // we ignore, the type may not exists
+                                    }
+
+                                    if (identityObject != null) {
+                                        identityObjects.add(identityObject);
+                                    }
+                                }
+
+                                if (!identityObjects.isEmpty()) {
+                                    conjunction.getExpressions().add(
+                                            builder.in(fromProject.get(identityProperty.getName())).value(identityObjects));
+                                }
                             }
 
                             subquery.where(conjunction);
@@ -1543,7 +1634,9 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
                             return result;
                         }
                     }
-                } else if (queryParameter instanceof AttributeParameter) {
+                }
+
+                if (queryParameter instanceof AttributeParameter) {
                     AttributeParameter customParameter = (AttributeParameter) queryParameter;
 
                     Subquery<?> subquery = criteria.subquery(getConfig().getRelationshipAttributeClass());
@@ -1566,7 +1659,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
                                     .getName()));
                     conjunction.getExpressions().add(
                             (fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE).getName())
-                                    .in(valuesToSearch)));
+                                    .in((Object[]) valuesToSearch)));
 
                     subquery.where(conjunction);
 

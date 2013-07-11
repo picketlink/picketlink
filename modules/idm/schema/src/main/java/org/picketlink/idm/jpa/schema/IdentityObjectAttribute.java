@@ -56,7 +56,7 @@ public class IdentityObjectAttribute implements Serializable {
     private String name;
 
     @AttributeValue
-    @Column (length=1024)
+    @Column (length=2048)
     private String value;
 
     @AttributeType

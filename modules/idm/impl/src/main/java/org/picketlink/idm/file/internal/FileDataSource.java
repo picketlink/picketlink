@@ -186,12 +186,14 @@ public class FileDataSource {
         }
     }
 
+
+
     protected void initPartition(String partitionId) {
         FilePartition filePartition = this.partitions.get(partitionId);
 
         LOGGER.debugf("Initializing Partition [%s] with id [%s].", filePartition.getId(), partitionId);
 
-        String agentsPath = getWorkingDir() + File.separator + partitionId + File.separator + AGENTS_FILE_NAME;
+        String agentsPath = getPartitionDirectory(partitionId) + File.separator + AGENTS_FILE_NAME;
 
         File agentsFile = createFileIfNotExists(new File(agentsPath));
 
@@ -246,6 +248,10 @@ public class FileDataSource {
         filePartition.setCredentials(credentials);
 
         LOGGER.debugf("Loaded Credentials for Partition [%s].", filePartition.getId());
+    }
+
+    protected String getPartitionDirectory(String partitionId) {
+        return getWorkingDir() + File.separator + partitionId;
     }
 
     protected void flushAgents(FilePartition partition) {
@@ -388,6 +394,17 @@ public class FileDataSource {
         }
 
         return groups;
+    }
+
+   public void addPartition(Partition partition) {
+      getPartition(partition);
+   }
+
+    public void removePartition(Partition partition) {
+        if (this.partitions.remove(partition.getId()) != null) {
+            flushPartitions();
+            FileUtils.delete(new File(getPartitionDirectory(partition.getId())));
+        }
     }
 
     public Map<String, FilePartition> getPartitions() {

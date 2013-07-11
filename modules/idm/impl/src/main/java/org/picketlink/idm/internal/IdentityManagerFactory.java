@@ -1,6 +1,5 @@
 package org.picketlink.idm.internal;
 
-import java.io.Serializable;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
@@ -11,6 +10,9 @@ import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.SecurityContextFactory;
 import org.picketlink.idm.spi.StoreFactory;
+
+import java.io.Serializable;
+
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
@@ -120,5 +122,59 @@ public class IdentityManagerFactory implements Serializable {
     public Tier getTier(String name) {
         return this.storeFactory.getTier(name);
     }
+
+    /**
+     *
+     *
+     * @param name
+     * @return null if Realm exists
+     */
+    public Realm createRealm(String name) {
+        SecurityContext context = contextFactory.createContext(null);
+        return this.storeFactory.createRealm(context, name);
+    }
+
+    /**
+     *
+     *
+     * @param name
+     * @return null if Realm exists
+     */
+    public Tier createTier(String name) {
+        SecurityContext context = contextFactory.createContext(null);
+        return this.storeFactory.createTier(context, name);
+    }
+
+    /**
+     *
+     * @param name
+     * @return null if realm does not exist
+     */
+    public Realm findRealm(String name) {
+        SecurityContext context = contextFactory.createContext(null);
+        return this.storeFactory.findRealm(context, name);
+    }
+
+    /**
+     *
+     * @param name
+     * @return null if realm does not exist
+     */
+    public Tier findTier(String name) {
+        SecurityContext context = contextFactory.createContext(null);
+        return this.storeFactory.findTier(context, name);
+    }
+
+    public void deleteRealm(Realm realm) {
+        if (findRealm(realm.getId()) == null) return;
+        this.storeFactory.deleteRealm(contextFactory.createContext(realm), realm);
+
+    }
+
+   public void deleteTier(Tier tier) {
+      if (findTier(tier.getId()) == null) return;
+      this.storeFactory.deleteTier(contextFactory.createContext(tier), tier);
+
+   }
 
 }

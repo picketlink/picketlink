@@ -39,6 +39,8 @@ import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
+import org.picketlink.idm.spi.IdentitySessionHandler;
+
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
@@ -56,6 +58,7 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
     private Map<String, Object> credentialHandlerProperties = new HashMap<String,Object>();
     private List<Class<? extends CredentialHandler>> credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
     private IdentityStoresConfigurationBuilder identityStoresConfigurationBuilder;
+    private IdentitySessionHandler identityContextHandler;
 
     protected AbstractIdentityStoreConfigurationBuilder(IdentityStoresConfigurationBuilder builder) {
         super(builder);
@@ -220,6 +223,12 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
     }
 
     @Override
+    public S setIdentitySessionHandler(IdentitySessionHandler handler) {
+        this.identityContextHandler = handler;
+        return (S)this;
+    }
+
+    @Override
     public S setCredentialHandlerProperty(String propertyName, Object value) {
         this.credentialHandlerProperties.put(propertyName, value);
         return (S) this;
@@ -316,6 +325,10 @@ public abstract class AbstractIdentityStoreConfigurationBuilder<T extends Identi
 
     protected List<ContextInitializer> getContextInitializers() {
         return this.contextInitializers;
+    }
+
+    protected IdentitySessionHandler getIdentityContextHandler() {
+        return this.identityContextHandler;
     }
 
     protected Map<String, Object> getCredentialHandlerProperties() {

@@ -29,6 +29,7 @@ import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
+import org.picketlink.idm.spi.IdentitySessionHandler;
 
 /**
  * A {@link BaseAbstractStoreConfiguration} for the LDAP store.
@@ -60,9 +61,10 @@ public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
             String agentDNSuffix, String userDNSuffix, String roleDNSuffix, String groupDNSuffix,
             Map<String, String> groupMapping, Map<FeatureGroup, Set<FeatureOperation>> supportedFeatures,
             Map<Class<? extends Relationship>, Set<FeatureOperation>> supportedRelationships, Set<String> realms,
-            Set<String> tiers, List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties,
+            Set<String> tiers, List<ContextInitializer> contextInitializers, IdentitySessionHandler transactionHandler,
+            Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {
-        super(supportedFeatures, supportedRelationships, realms, tiers, contextInitializers, credentialHandlerProperties,
+        super(supportedFeatures, supportedRelationships, realms, tiers, contextInitializers, transactionHandler, credentialHandlerProperties,
                 credentialHandlers);
         this.ldapURL = url;
         this.bindDN = bindDN;
