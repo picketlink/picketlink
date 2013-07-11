@@ -20,6 +20,7 @@ package org.picketlink.test.idm.suites;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.picketlink.idm.IdentityManager;
@@ -69,6 +70,7 @@ import static org.picketlink.test.idm.basic.CustomIdentityTypeTestCase.MyCustomI
         UserGrantRelationshipTestCase.class, AgentGrantRelationshipTestCase.class, GroupGrantRelationshipTestCase.class,
         GroupMembershipTestCase.class
 })
+@Ignore
 public class LDAPIdentityStoreTestSuite extends LDAPAbstractSuite implements TestLifecycle {
 
     private static LDAPIdentityStoreTestSuite instance;

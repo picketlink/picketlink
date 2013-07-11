@@ -104,8 +104,6 @@ public class JPAStoreConfigurationBuilder extends
                 entityClasses,
                 getSupportedTypes(),
                 getUnsupportedTypes(),
-                getGlobalRelationshipTypes(),
-                getSelfRelationshipTypes(),
                 getContextInitializers(),
                 getCredentialHandlerProperties(),
                 getCredentialHandlers());

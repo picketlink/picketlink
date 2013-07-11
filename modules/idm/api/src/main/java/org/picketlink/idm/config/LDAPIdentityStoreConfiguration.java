@@ -69,12 +69,10 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             Map<String, String> groupMapping,
             Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig, Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
-            Set<Class<? extends Relationship>> globalSupportedRelationships,
-            Set<Class<? extends Relationship>> seldSupportedRelationships,
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {
-        super(supportedTypes, unsupportedTypes, globalSupportedRelationships, seldSupportedRelationships, contextInitializers, credentialHandlerProperties, credentialHandlers);
+        super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers);
         this.ldapURL = url;
         this.bindDN = bindDN;
         this.bindCredential = bindCredential;

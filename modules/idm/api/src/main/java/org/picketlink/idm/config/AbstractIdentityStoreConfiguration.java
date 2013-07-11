@@ -27,13 +27,11 @@ import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
-import static java.util.Collections.unmodifiableSet;
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.util.IDMUtil.isTypeOperationSupported;
@@ -72,21 +70,15 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
      */
     private final List<Class<? extends CredentialHandler>> credentialHandlers;
     private Class<? extends IdentityStore> identityStoreType;
-    private final Set<Class<? extends Relationship>> globalSupportedRelationships;
-    private final Set<Class<? extends Relationship>> selfSupportedRelationships;
 
     protected AbstractIdentityStoreConfiguration(
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
-            Set<Class<? extends Relationship>> globalSupportedRelationships,
-            Set<Class<? extends Relationship>> selfSupportedRelationships,
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {
         this.supportedTypes = unmodifiableMap(supportedTypes);
         this.unsupportedTypes = unmodifiableMap(unsupportedTypes);
-        this.globalSupportedRelationships = unmodifiableSet(globalSupportedRelationships);
-        this.selfSupportedRelationships = unmodifiableSet(selfSupportedRelationships);
         this.contextInitializers = unmodifiableList(contextInitializers);
         this.credentialHandlerProperties = unmodifiableMap(credentialHandlerProperties);
         this.credentialHandlers = unmodifiableList(credentialHandlers);

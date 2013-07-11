@@ -21,6 +21,7 @@ package org.picketlink.test.idm.suites;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
@@ -38,6 +39,7 @@ import org.picketlink.test.idm.TestLifecycle;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
+@Ignore
 public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
     private EntityManagerFactory emf;

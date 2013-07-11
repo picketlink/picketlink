@@ -138,8 +138,6 @@ public class LDAPStoreConfigurationBuilder extends
                 mappingConfig,
                 getSupportedTypes(),
                 getUnsupportedTypes(),
-                getGlobalRelationshipTypes(),
-                getSelfRelationshipTypes(),
                 getContextInitializers(),
                 getCredentialHandlerProperties(),
                 getCredentialHandlers());

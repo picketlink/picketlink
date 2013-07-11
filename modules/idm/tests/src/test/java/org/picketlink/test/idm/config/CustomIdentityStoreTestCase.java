@@ -33,8 +33,8 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.AbstractIdentityStoreConfiguration;
-import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoresConfigurationBuilder;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
@@ -74,10 +74,9 @@ public class CustomIdentityStoreTestCase {
         builder
             .named("default")
                 .stores()
-                    .add(MyIdentityStoreConfiguration.class,
-                        MyIdentityStoreConfigurationBuilder.class)
-                    .methodInvocationContext(methodInvocationContext)
-                    .supportAllFeatures();
+                    .add(MyIdentityStoreConfiguration.class, MyIdentityStoreConfigurationBuilder.class)
+                        .methodInvocationContext(methodInvocationContext)
+                        .supportAllFeatures();
 
         PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
 
@@ -127,7 +126,7 @@ public class CustomIdentityStoreTestCase {
         private MethodInvocationContext methodInvocationContext;
 
         protected MyIdentityStoreConfiguration(Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes, Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes, List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties, List<Class<? extends CredentialHandler>> credentialHandlers) {
-            super(supportedTypes, unsupportedTypes, null, null, contextInitializers, credentialHandlerProperties, credentialHandlers);
+            super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers);
         }
 
         @Override

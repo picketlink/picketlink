@@ -23,10 +23,6 @@
 package org.picketlink.test.idm.config;
 
 import java.util.Date;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
@@ -36,16 +32,9 @@ import org.picketlink.idm.credential.AbstractBaseCredentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
-import org.picketlink.idm.jpa.internal.JPAContextInitializer;
-import org.picketlink.idm.jpa.schema.CredentialObject;
-import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
-import org.picketlink.idm.jpa.schema.IdentityObject;
-import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
-import org.picketlink.idm.jpa.schema.PartitionObject;
-import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
-import org.picketlink.idm.jpa.schema.RelationshipObject;
-import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
+import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Account;
+import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
@@ -53,7 +42,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * <p>Some tests for the configuration of custom {@link CredentialHandler}.</p>
@@ -63,54 +51,27 @@ import static org.junit.Assert.fail;
  */
 public class CredentialHandlerConfigurationTestCase {
     
-    private EntityManagerFactory emf;
-    private EntityManager entityManager;
-
     @Before
     public void onInit() {
-        this.emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
-        this.entityManager = emf.createEntityManager();
-        this.entityManager.getTransaction().begin();
         CustomCredentialHandler.wasSetupCalled = false;
         CustomCredentialHandler.wasValidateCalled = false;
         CustomCredentialHandler.wasUpdateCalled = false;
     }
 
-    @After
-    public void onDestroy() {
-        this.entityManager.getTransaction().commit();
-        this.entityManager.close();
-        this.emf.close();
-    }
-    
     @Test
     public void testCredentialHandlerLifeCycle() throws Exception {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
-                .named("default")
+            .named("default")
                 .stores()
-                .jpa()
-                    .addCredentialHandler(CustomCredentialHandler.class)
-                    .addContextInitializer(new JPAContextInitializer(emf) {
-                        @Override
-                        public EntityManager getEntityManager() {
-                            return entityManager;
-                        }
-                    })
-                    .supportAllFeatures()
-                    .identityClass(IdentityObject.class)
-                    .attributeClass(IdentityObjectAttribute.class)
-                    .relationshipClass(RelationshipObject.class)
-                    .relationshipIdentityClass(RelationshipIdentityObject.class)
-                    .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                    .credentialClass(CredentialObject.class)
-                    .credentialAttributeClass(CredentialObjectAttribute.class)
-                    .partitionClass(PartitionObject.class);
+                    .file()
+                        .addCredentialHandler(CustomCredentialHandler.class)
+                        .supportAllFeatures();
 
-//        PartitionManager partitionManager = new PartitionManager(builder.build());
-        PartitionManager partitionManager = null;
-        fail("Create PartitionManager");
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
 
         IdentityManager identityManager = partitionManager.createIdentityManager();
 
@@ -142,27 +103,15 @@ public class CredentialHandlerConfigurationTestCase {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
-                .named("default").stores()
-                .jpa()
-                    .addCredentialHandler(CustomCredentialHandler.class)
-                    .addContextInitializer(new JPAContextInitializer(emf) {
-                        @Override
-                        public EntityManager getEntityManager() {
-                            return entityManager;
-                        }
-                    })
-                    .supportAllFeatures()
-                    .identityClass(IdentityObject.class)
-                    .attributeClass(IdentityObjectAttribute.class)
-                    .relationshipClass(RelationshipObject.class)
-                    .relationshipIdentityClass(RelationshipIdentityObject.class)
-                    .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                    .credentialClass(CredentialObject.class)
-                    .credentialAttributeClass(CredentialObjectAttribute.class)
-                    .partitionClass(PartitionObject.class);
+            .named("default")
+                .stores()
+                    .file()
+                        .addCredentialHandler(CustomCredentialHandler.class)
+                        .supportAllFeatures();
 
-        PartitionManager partitionManager = null;
-        fail("Create PartitionManager");
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
 
         IdentityManager identityManager = partitionManager.createIdentityManager();
 

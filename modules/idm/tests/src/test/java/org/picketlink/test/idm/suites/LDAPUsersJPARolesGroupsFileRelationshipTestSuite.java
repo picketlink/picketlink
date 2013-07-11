@@ -5,6 +5,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
@@ -34,6 +35,7 @@ import org.picketlink.test.idm.TestLifecycle;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
+@Ignore
 public class LDAPUsersJPARolesGroupsFileRelationshipTestSuite extends LDAPAbstractSuite implements TestLifecycle {
 
     private static LDAPUsersJPARolesGroupsFileRelationshipTestSuite instance;
