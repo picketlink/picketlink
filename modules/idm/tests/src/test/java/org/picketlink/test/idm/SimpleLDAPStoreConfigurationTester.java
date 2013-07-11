@@ -46,7 +46,7 @@ public class SimpleLDAPStoreConfigurationTester implements IdentityConfiguration
     private final LDAPEmbeddedServer embeddedServer = new LDAPEmbeddedServer();
 
     @Override
-    public PartitionManager buildConfiguration() {
+    public PartitionManager getPartitionManager() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder

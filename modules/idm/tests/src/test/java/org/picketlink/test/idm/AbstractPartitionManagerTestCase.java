@@ -63,6 +63,7 @@ public abstract class AbstractPartitionManagerTestCase {
     @Before
     public void onBefore() {
         this.visitor.beforeTest();
+        this.partitionManager = this.visitor.getPartitionManager();
     }
 
     @After
@@ -71,10 +72,6 @@ public abstract class AbstractPartitionManagerTestCase {
     }
 
     public PartitionManager getPartitionManager() {
-        if (this.partitionManager == null) {
-            this.partitionManager = this.visitor.buildConfiguration();
-        }
-
         return this.partitionManager;
     }
 

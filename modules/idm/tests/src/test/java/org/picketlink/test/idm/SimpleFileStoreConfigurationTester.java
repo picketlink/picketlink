@@ -30,7 +30,7 @@ public class SimpleFileStoreConfigurationTester implements IdentityConfiguration
     public static final String SIMPLE_FILE_STORE_CONFIG = "SIMPLE_FILE_STORE_CONFIG";
 
     @Override
-    public DefaultPartitionManager buildConfiguration() {
+    public DefaultPartitionManager getPartitionManager() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
