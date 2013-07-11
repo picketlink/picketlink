@@ -448,7 +448,14 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
         // Check if the partition can manage its own relationship
         if (partitions.size() == 1) {
-            IdentityConfiguration config  = getConfigurationForPartition(partitions.iterator().next());
+            IdentityConfiguration config = null;
+
+            if (this.partitionManagementConfig != null) {
+                config = getConfigurationForPartition(partitions.iterator().next());
+            } else {
+                config = this.configurations.iterator().next();
+            }
+
             if (config.getRelationshipPolicy().isSelfRelationshipSupported(relationshipClass)) {
                 for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
                     if (storeConfig.supportsType(relationshipClass, operation)) {

@@ -26,13 +26,32 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
+import org.picketlink.idm.ldap.internal.LDAPConstants;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.Grant;
+import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.GroupMembership;
+import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
+import org.picketlink.test.idm.basic.AgentManagementTestCase;
+import org.picketlink.test.idm.basic.CustomIdentityTypeTestCase;
+import org.picketlink.test.idm.basic.GroupManagementTestCase;
+import org.picketlink.test.idm.basic.RoleManagementTestCase;
 import org.picketlink.test.idm.basic.UserManagementTestCase;
+import org.picketlink.test.idm.relationship.AgentGrantRelationshipTestCase;
+import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
+import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
+import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.EMAIL;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.GROUP_OF_NAMES;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.SN;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.UID;
+import static org.picketlink.test.idm.basic.CustomIdentityTypeTestCase.MyCustomIdentityType;
 
 /**
  * <p>
@@ -45,7 +64,10 @@ import org.picketlink.test.idm.basic.UserManagementTestCase;
  */
 @RunWith(IdentityManagerRunner.class)
 @Suite.SuiteClasses({
-        UserManagementTestCase.class
+        AgentManagementTestCase.class, UserManagementTestCase.class, RoleManagementTestCase.class,
+        CustomIdentityTypeTestCase.class, GroupManagementTestCase.class,
+        UserGrantRelationshipTestCase.class, AgentGrantRelationshipTestCase.class, GroupGrantRelationshipTestCase.class,
+        GroupMembershipTestCase.class
 })
 public class LDAPIdentityStoreTestSuite extends LDAPAbstractSuite implements TestLifecycle {
 
@@ -101,19 +123,42 @@ public class LDAPIdentityStoreTestSuite extends LDAPAbstractSuite implements Tes
                     .bindDN("uid=admin,ou=system")
                     .bindCredential("secret")
                     .url(LDAP_URL)
-                    .userDNSuffix(USER_DN_SUFFIX)
-                    .roleDNSuffix(ROLES_DN_SUFFIX)
-                    .agentDNSuffix(AGENT_DN_SUFFIX)
-                    .groupDNSuffix(GROUP_DN_SUFFIX)
                     .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
                     .supportType(IdentityType.class)
+                    .supportGlobalRelationship(Grant.class, GroupMembership.class)
+                    .mapping(Agent.class)
+                        .baseDN(AGENT_DN_SUFFIX)
+                        .objectClasses("account")
+                        .attribute("loginName", UID, true)
                     .mapping(User.class)
                         .baseDN(USER_DN_SUFFIX)
-                        .objectClasses("inetOrgPerson", "organizationalPerson", "person", "top", "extensibleObject")
-                        .attribute("loginName", "uid", true)
-                        .attribute("firstName", "cn")
-                        .attribute("lastName", "sn")
-                        .attribute("email", "mail");
+                        .objectClasses("inetOrgPerson", "organizationalPerson")
+                        .attribute("loginName", UID, true)
+                        .attribute("firstName", CN)
+                        .attribute("lastName", SN)
+                        .attribute("email", EMAIL)
+                    .mapping(Role.class)
+                        .baseDN(ROLES_DN_SUFFIX)
+                        .objectClasses(GROUP_OF_NAMES)
+                        .attribute("name", CN, true)
+                    .mapping(Group.class)
+                        .baseDN(GROUP_DN_SUFFIX)
+                        .objectClasses(GROUP_OF_NAMES)
+                        .attribute("name", CN, true)
+                        .parentMembershipAttributeName("member")
+                    .mapping(MyCustomIdentityType.class)
+                        .baseDN("ou=CustomTypes,dc=jboss,dc=org")
+                        .objectClasses("device")
+                        .attribute("someIdentifier", CN, true)
+                        .attribute("someAttribute", "description")
+                    .mappingRelationship(Grant.class)
+                        .forMapping(Role.class)
+                        .attribute("assignee", "member")
+                    .mappingRelationship(GroupMembership.class)
+                        .forMapping(Group.class)
+                        .attribute("member", "member")
+
+        ;
 
         return new DefaultPartitionManager(builder.build());
     }

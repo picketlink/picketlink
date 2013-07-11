@@ -263,7 +263,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
         IdentityManager identityManager = getIdentityManager();
 
-        assertTrue(instanceA.equals(identityManager.getGroup(instanceA.getPath())));
+        assertTrue(instanceA.getName().equals(identityManager.getGroup(instanceA.getPath()).getName()));
     }
 
 }

@@ -21,7 +21,9 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -31,7 +33,9 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchResult;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
@@ -45,11 +49,13 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.query.AttributeParameter;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.spi.IdentityContext;
 import static java.util.Map.Entry;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
@@ -58,7 +64,11 @@ import static org.picketlink.idm.ldap.internal.LDAPConstants.COMMA;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CREATE_TIMESTAMP;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.EQUAL;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.GROUP_OF_NAMES;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.SPACE_STRING;
 
 /**
  * An IdentityStore implementation backed by an LDAP directory
@@ -92,117 +102,266 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
     @Override
     public void add(IdentityContext context, AttributedType attributedType) {
-        BasicAttributes ldapEntryAttributes = extractLDAPAttributes(attributedType);
+        if (Relationship.class.isInstance(attributedType)) {
+            Relationship relationship = (Relationship) attributedType;
+            LDAPMappingConfiguration mappingConfig = getMappingConfig(relationship.getClass());
 
-        BasicAttribute objectClassAttribute = new BasicAttribute(OBJECT_CLASS);
+            Property<AttributedType> property = PropertyQueries
+                    .<AttributedType>createQuery(relationship.getClass())
+                    .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType(), true)).getSingleResult();
 
-        LDAPMappingConfiguration ldapEntryConfig = getConfig().getMappingConfig(attributedType.getClass());
+            AttributedType relationalAttributedType = property.getValue(relationship);
 
-        for (String objectClassValue : ldapEntryConfig.getObjectClasses()) {
-            objectClassAttribute.add(objectClassValue);
-        }
+            NamingEnumeration<SearchResult> search = null;
 
-        ldapEntryAttributes.put(objectClassAttribute);
+            try {
+                search = lookupEntryByID(relationalAttributedType.getId(), getMappingConfig(relationalAttributedType.getClass()).getBaseDN());
 
-        String baseDN = ldapEntryConfig.getBaseDN();
+                Attributes attributes = search.next().getAttributes();
 
-        this.operationManager.createSubContext(getBindingName(attributedType) + COMMA + baseDN, ldapEntryAttributes);
-        createCustomAttributes(attributedType);
+                for (Entry<String, String> entry : mappingConfig.getMappedProperties().entrySet()) {
+                    Property<AttributedType> relProperty = PropertyQueries
+                            .<AttributedType>createQuery(relationship.getClass())
+                            .addCriteria(new NamedPropertyCriteria(entry.getKey())).getSingleResult();
 
-        NamingEnumeration<SearchResult> search = null;
+                    AttributedType relType = relProperty.getValue(relationship);
 
-        try {
-            search = this.operationManager.search(baseDN, "(" + getBindingName(attributedType) + ")");
+                    javax.naming.directory.Attribute attribute = attributes.get(entry.getValue());
 
-            populateAttributedType(search.next(), attributedType);
-        } catch (NamingException ne) {
+                    if (attribute == null) {
+                        attribute = new BasicAttribute(entry.getValue());
+                        attributes.put(attribute);
+                    }
 
+                    attribute.add(getBindingDN(relType));
+
+                    this.operationManager.modifyAttribute(getBindingDN(relationalAttributedType), attribute);
+                }
+            } catch (NamingException e) {
+                throw IDMMessages.MESSAGES.relationshipAddFailed(relationship, e);
+            }
+        } else {
+            BasicAttributes ldapAttributes = extractAttributes(attributedType);
+
+            BasicAttribute objectClassAttribute = new BasicAttribute(OBJECT_CLASS);
+
+            LDAPMappingConfiguration ldapEntryConfig = getMappingConfig(attributedType.getClass());
+
+            for (String objectClassValue : ldapEntryConfig.getObjectClasses()) {
+                objectClassAttribute.add(objectClassValue);
+            }
+
+            ldapAttributes.put(objectClassAttribute);
+
+            if (ldapEntryConfig.getObjectClasses().contains(GROUP_OF_NAMES)) {
+                ldapAttributes.put(MEMBER, SPACE_STRING);
+            }
+
+            String baseDN = ldapEntryConfig.getBaseDN();
+
+            this.operationManager.createSubContext(getBindingName(attributedType) + COMMA + baseDN, ldapAttributes);
+            updateCustomAttributes(attributedType);
+
+            if (ldapEntryConfig.getParentMembershipAttributeName() != null) {
+                Property<AttributedType> parentProperty = PropertyQueries
+                        .<AttributedType>createQuery(attributedType.getClass())
+                        .addCriteria(new TypedPropertyCriteria(attributedType.getClass())).getFirstResult();
+
+                if (parentProperty != null) {
+                    AttributedType parentType = parentProperty.getValue(attributedType);
+
+                    if (parentType != null) {
+                        NamingEnumeration<SearchResult> search = null;
+
+                        try {
+                            search = lookupEntryByID(parentType.getId(), ldapEntryConfig.getBaseDN());
+
+                            if (search.hasMore()) {
+                                SearchResult next = search.next();
+
+                                javax.naming.directory.Attribute attribute = next.getAttributes().get(ldapEntryConfig.getParentMembershipAttributeName());
+
+                                attribute.add(getBindingDN(attributedType));
+
+                                this.operationManager.modifyAttribute(getBindingDN(parentType), attribute);
+                            }
+                        } catch (NamingException ne) {
+                            throw new IdentityManagementException("Could not add AttributedType [" + attributedType + "].", ne);
+                        } finally {
+                            if (search != null) {
+                                try {
+                                    search.close();
+                                } catch (NamingException e) {
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            NamingEnumeration<SearchResult> search = null;
+
+            try {
+                search = this.operationManager.search(baseDN, "(" + getBindingName(attributedType) + ")");
+                populateAttributedType(search.next(), attributedType);
+            } catch (NamingException ne) {
+                throw new IdentityManagementException("Could not add AttributedType [" + attributedType + "].", ne);
+            } finally {
+                if (search != null) {
+                    try {
+                        search.close();
+                    } catch (NamingException e) {
+                    }
+                }
+            }
         }
     }
 
     @Override
     public void update(IdentityContext context, AttributedType attributedType) {
-        BasicAttributes updatedAttributes = extractLDAPAttributes(attributedType);
+        BasicAttributes updatedAttributes = extractAttributes(attributedType);
 
         NamingEnumeration<javax.naming.directory.Attribute> attributes = updatedAttributes.getAll();
 
+        String bindingDN = getBindingDN(attributedType);
+
         try {
             while (attributes.hasMore()) {
-                javax.naming.directory.Attribute attribute = attributes.next();
-
-                String dn = getBindingName(attributedType) + COMMA + getConfig().getMappingConfig(attributedType.getClass()).getBaseDN();
-
-                this.operationManager.modifyAttribute(dn, attribute);
+                this.operationManager.modifyAttribute(bindingDN, attributes.next());
             }
-
-            createCustomAttributes(attributedType);
         } catch (NamingException ne) {
             throw new IdentityManagementException(ne);
+        } finally {
+            if (attributes != null) {
+                try {
+                    attributes.close();
+                } catch (NamingException e) {
+                }
+            }
         }
+
+        updateCustomAttributes(attributedType);
     }
 
     @Override
     public void remove(IdentityContext context, AttributedType attributedType) {
-        this.operationManager.removeEntryById(getConfig().getMappingConfig(attributedType.getClass()).getBaseDN(), attributedType.getId());
+        if (Relationship.class.isInstance(attributedType)) {
+            Relationship relationship = (Relationship) attributedType;
+            LDAPMappingConfiguration mappingConfig = getMappingConfig(relationship.getClass());
+
+            Property<AttributedType> property = PropertyQueries
+                    .<AttributedType>createQuery(relationship.getClass())
+                    .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType(), true)).getSingleResult();
+
+            AttributedType relationalAttributedType = property.getValue(relationship);
+
+            NamingEnumeration<SearchResult> search = null;
+
+            try {
+                search = lookupEntryByID(relationalAttributedType.getId(), getMappingConfig(relationalAttributedType.getClass()).getBaseDN());
+
+                Attributes attributes = search.next().getAttributes();
+
+                for (Entry<String, String> entry : mappingConfig.getMappedProperties().entrySet()) {
+                    Property<AttributedType> relProperty = PropertyQueries
+                            .<AttributedType>createQuery(relationship.getClass())
+                            .addCriteria(new NamedPropertyCriteria(entry.getKey())).getSingleResult();
+
+                    AttributedType relType = relProperty.getValue(relationship);
+
+                    javax.naming.directory.Attribute attribute = attributes.get(entry.getValue());
+
+                    if (attribute != null) {
+                        String relBindingDN = getBindingDN(relType);
+
+                        if (attribute.contains(relBindingDN)) {
+                            attribute.remove(relBindingDN);
+                        }
+                    }
+
+                    this.operationManager.modifyAttribute(getBindingDN(relationalAttributedType), attribute);
+                }
+            } catch (NamingException e) {
+            }
+        } else {
+            this.operationManager.removeEntryById(getMappingConfig(attributedType.getClass()).getBaseDN(), attributedType.getId());
+        }
     }
 
     @Override
     public <V extends IdentityType> List<V> fetchQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
-        StringBuffer filter = new StringBuffer("");
-        LDAPMappingConfiguration ldapEntryConfig = getConfig().getMappingConfig(identityQuery.getIdentityType());
         List<V> results = new ArrayList<V>();
 
+        if (identityQuery.getParameter(IdentityType.ID) != null) {
+            Object[] queryParameterValues = identityQuery.getParameter(IdentityType.ID);
+            NamingEnumeration<SearchResult> resultNamingEnumeration = lookupEntryByID(queryParameterValues[0].toString(), getConfig().getBaseDN());
+
+            try {
+                while (resultNamingEnumeration.hasMore()) {
+                    results.add((V) populateAttributedType(resultNamingEnumeration.next(), null));
+                }
+            } catch (NamingException ne) {
+                throw new IdentityManagementException(ne);
+            }
+
+            return results;
+        }
+
+        LDAPMappingConfiguration ldapEntryConfig = getMappingConfig(identityQuery.getIdentityType());
+        StringBuffer filter = new StringBuffer();
+
         for (Entry<QueryParameter, Object[]> entry : identityQuery.getParameters().entrySet()) {
+            QueryParameter queryParameter = entry.getKey();
             Object[] queryParameterValues = entry.getValue();
 
-            if (IdentityType.ID.equals(entry.getKey())) {
-                NamingEnumeration<SearchResult> resultNamingEnumeration = null;
+            // temporary
+            if (queryParameter.equals(Group.PATH)) {
+                queryParameter = Group.NAME;
+                String path = queryParameterValues[0].toString();
+                queryParameterValues = new Object[]{path.substring(path.lastIndexOf("/") + 1)};
+            }
 
-                resultNamingEnumeration = this.operationManager.lookupById(getConfig().getBaseDN(), queryParameterValues[0].toString());
+            if (queryParameterValues.length > 0) {
+                if (IdentityType.ID.equals(queryParameter)) {
+                } else {
+                    if (AttributeParameter.class.isInstance(queryParameter)) {
+                        AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
+                        String ldapAttributeName = ldapEntryConfig.getMappedProperties().get(attributeParameter.getName());
 
-                try {
-                    while (resultNamingEnumeration.hasMore()) {
-                        V attributedType = (V) populateAttributedType(resultNamingEnumeration.next(), null);
-
-                        results.add(attributedType);
-                    }
-                } catch (NamingException ne) {
-                    throw new IdentityManagementException(ne);
-                }
-
-                return results;
-            } else {
-                if (AttributeParameter.class.isInstance(entry.getKey())) {
-                    AttributeParameter attributeParameter = (AttributeParameter) entry.getKey();
-
-                    String attributeParameterName = attributeParameter.getName();
-
-                    if (attributeParameterName != null) {
-                        filter.append("(").append(ldapEntryConfig.getMappedProperties().get(attributeParameterName)).append(LDAPConstants.EQUAL).append(queryParameterValues[0]).append(")");
+                        if (ldapAttributeName != null) {
+                            filter.append("(").append(ldapAttributeName).append(LDAPConstants.EQUAL).append(queryParameterValues[0]).append(")");
+                        }
                     }
                 }
             }
         }
 
-        NamingEnumeration<SearchResult> answer = null;
+        if (filter.length() != 0) {
+            NamingEnumeration<SearchResult> search = null;
 
-        try {
-            String baseDN = getConfig().getBaseDN();
+            try {
+                String baseDN = getConfig().getBaseDN();
 
-            if (ldapEntryConfig != null) {
-                baseDN = ldapEntryConfig.getBaseDN();
+                if (ldapEntryConfig != null) {
+                    baseDN = ldapEntryConfig.getBaseDN();
+                }
+
+                search = this.operationManager.search(baseDN, filter.toString());
+
+                while (search.hasMore()) {
+                    SearchResult searchResult = search.next();
+                    results.add((V) populateAttributedType(searchResult, null));
+                }
+            } catch (Exception e) {
+                throw IDMMessages.MESSAGES.identityTypeQueryFailed(identityQuery, e);
+            } finally {
+                if (search != null) {
+                    try {
+                        search.close();
+                    } catch (NamingException e) {
+                    }
+                }
             }
-
-            answer = this.operationManager.search(baseDN, filter.toString());
-
-            while (answer.hasMore()) {
-                SearchResult searchResult = answer.next();
-                results.add((V) populateAttributedType(searchResult, null));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-
         }
 
         return results;
@@ -215,7 +374,107 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
     @Override
     public <V extends Relationship> List<V> fetchQueryResults(IdentityContext context, RelationshipQuery<V> query) {
-        return null;  //TODO: Implement fetchQueryResults
+        LDAPMappingConfiguration mappingConfig = getMappingConfig(query.getRelationshipClass());
+
+        Map<QueryParameter, Object[]> parameters = query.getParameters();
+        StringBuffer filter = new StringBuffer();
+        Map<String, String> namesToMatch = new HashMap<String, String>();
+
+        for (QueryParameter queryParameter : parameters.keySet()) {
+            Object[] values = parameters.get(queryParameter);
+
+            if (RelationshipQueryParameter.class.isInstance(queryParameter)) {
+                RelationshipQueryParameter relationshipQueryParameter = (RelationshipQueryParameter) queryParameter;
+
+                if (values.length > 0) {
+                    AttributedType attributedType = (AttributedType) values[0];
+                    String attributeName = mappingConfig.getMappedProperties().get(relationshipQueryParameter.getName());
+
+                    if (attributeName != null) {
+                        String bindingDN = getBindingDN(attributedType);
+
+                        namesToMatch.put(bindingDN, relationshipQueryParameter.getName());
+
+                        filter.append("(").append(attributeName).append(EQUAL).append("*").append(bindingDN).append("*)");
+                    } else {
+                        if (mappingConfig.getRelatedAttributedType().equals(attributedType.getClass())) {
+                            filter.append("(").append(getBindingName(attributedType)).append(")");
+                        }
+                    }
+                }
+            }
+        }
+
+        List<V> results = new ArrayList<V>();
+
+        if (filter.length() > 0) {
+            filter.insert(0, "(&").append(")");
+
+            LDAPMappingConfiguration relTypeConfig = getMappingConfig(mappingConfig.getRelatedAttributedType());
+
+            NamingEnumeration<SearchResult> search = null;
+
+            try {
+                search = this.operationManager.search(relTypeConfig.getBaseDN(), filter.toString());
+
+                Property<AttributedType> property = PropertyQueries
+                        .<AttributedType>createQuery(query.getRelationshipClass())
+                        .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType(), true)).getSingleResult();
+
+                while (search.hasMore()) {
+                    SearchResult next = search.next();
+
+                    V relationship = query.getRelationshipClass().newInstance();
+
+                    property.setValue(relationship, populateAttributedType(next, null));
+
+                    List<Property<AttributedType>> properties = PropertyQueries
+                            .<AttributedType>createQuery(query.getRelationshipClass())
+                            .addCriteria(new TypedPropertyCriteria(AttributedType.class, true)).getResultList();
+
+                    for (Property<AttributedType> relProperty : properties) {
+                        String attributeName = mappingConfig.getMappedProperties().get(relProperty.getName());
+
+                        if (attributeName != null) {
+                            javax.naming.directory.Attribute attribute = next.getAttributes().get(attributeName);
+                            NamingEnumeration<?> attributeValues = attribute.getAll();
+
+                            while (attributeValues.hasMore()) {
+                                String value = attributeValues.next().toString();
+
+                                if (!isNullOrEmpty(value.trim())) {
+                                    String propertyName = namesToMatch.get(value);
+
+                                    if (propertyName != null) {
+                                        Property<AttributedType> associatedProperty = PropertyQueries
+                                                .<AttributedType>createQuery(query.getRelationshipClass())
+                                                .addCriteria(new NamedPropertyCriteria(propertyName)).getSingleResult();
+
+                                        String baseDN = value.substring(value.indexOf(",") + 1);
+                                        String dn = value.substring(0, value.indexOf(","));
+
+                                        NamingEnumeration<SearchResult> result = this.operationManager.search(baseDN, dn);
+
+                                        if (!result.hasMore()) {
+                                            throw new IdentityManagementException("Associated entry does not exists [" + value + "].");
+                                        }
+
+                                        associatedProperty.setValue(relationship, populateAttributedType(result.next(), null));
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    results.add(relationship);
+                }
+            } catch (Exception e) {
+                throw IDMMessages.MESSAGES.relationshipQueryFailed(query, e);
+            }
+
+        }
+
+        return results;
     }
 
     @Override
@@ -258,6 +517,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 attributedType = getConfig().getSupportedTypeByBaseDN(entryDN).newInstance();
             }
 
+            LDAPMappingConfiguration mappingConfig = getMappingConfig(attributedType.getClass());
             NamingEnumeration<? extends javax.naming.directory.Attribute> ldapAttributes = attributes.getAll();
 
             while (ldapAttributes.hasMore()) {
@@ -272,7 +532,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                         .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class)).getResultList();
 
                 for (Property<String> property : properties) {
-                    String ldapAttributeName = getConfig().getMappingConfig(attributedType.getClass()).getMappedProperties().get(property.getName());
+                    String ldapAttributeName = mappingConfig.getMappedProperties().get(property.getName());
 
                     if (ldapAttributeName != null && ldapAttributeName.equals(ldapAttribute.getID())) {
                         property.setValue(attributedType, ldapAttribute.get().toString());
@@ -292,6 +552,24 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 identityType.setPartition(new Realm(Realm.DEFAULT_REALM));
             }
 
+            if (mappingConfig.getParentMembershipAttributeName() != null) {
+                StringBuffer filter = new StringBuffer("(" + mappingConfig.getParentMembershipAttributeName() + EQUAL + "*" + getBindingDN(attributedType) + "*)");
+
+                NamingEnumeration<SearchResult> search = this.operationManager.search(mappingConfig.getBaseDN(), filter.toString());
+
+                while (search.hasMore()) {
+                    SearchResult next = search.next();
+
+                    Property<AttributedType> parentProperty = PropertyQueries
+                            .<AttributedType>createQuery(attributedType.getClass())
+                            .addCriteria(new TypedPropertyCriteria(attributedType.getClass())).getFirstResult();
+
+                    if (parentProperty != null) {
+                        parentProperty.setValue(attributedType, populateAttributedType(next, null));
+                    }
+                }
+            }
+
             populateCustomAttributes(attributedType);
         } catch (NamingException e) {
             throw new IdentityManagementException(e);
@@ -303,55 +581,47 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
     }
 
     private String getBindingName(AttributedType attributedType) {
-        LDAPMappingConfiguration ldapEntryConfig = getConfig().getMappingConfig(attributedType.getClass());
+        LDAPMappingConfiguration mappingConfig = getMappingConfig(attributedType.getClass());
+        Property<String> idProperty = mappingConfig.getIdProperty();
 
-        for (Property<String> property : PropertyQueries
-                .<String>createQuery(attributedType.getClass())
-                .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class)).getResultList()) {
-            AttributeProperty attributeProperty = property.getAnnotatedElement().getAnnotation(AttributeProperty.class);
-
-            String ldapAttributeName = ldapEntryConfig.getMappedProperties().get(property.getName());
-
-            if (!isNullOrEmpty(ldapAttributeName)) {
-                if (ldapAttributeName.equalsIgnoreCase(ldapEntryConfig.getIdAttributeName())) {
-                    String propertyValue = property.getValue(attributedType);
-
-                    if (propertyValue == null) {
-                        throw new IdentityManagementException("Null value for id property [" + ldapAttributeName + "].");
-                    }
-
-                    return ldapEntryConfig.getIdAttributeName() + LDAPConstants.EQUAL + propertyValue;
-                }
-            }
-        }
-
-        throw new IdentityManagementException("Could not resolve binding name for type [" + attributedType + "].");
+        return mappingConfig.getMappedProperties().get(idProperty.getName()) + EQUAL + idProperty.getValue(attributedType);
     }
 
-    private BasicAttributes extractLDAPAttributes(AttributedType attributedType) {
+    private String getBindingDN(AttributedType attributedType) {
+        LDAPMappingConfiguration mappingConfig = getMappingConfig(attributedType.getClass());
+        Property<String> idProperty = mappingConfig.getIdProperty();
+
+        return mappingConfig.getMappedProperties().get(idProperty.getName()) + EQUAL + idProperty.getValue(attributedType) + COMMA + mappingConfig.getBaseDN();
+    }
+
+    private BasicAttributes extractAttributes(AttributedType attributedType) {
         BasicAttributes ldapEntryAttributes = new BasicAttributes();
 
-        for (Property<String> property : PropertyQueries
-                .<String>createQuery(attributedType.getClass())
-                .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class)).getResultList()) {
-            AttributeProperty attributeProperty = property.getAnnotatedElement().getAnnotation(AttributeProperty.class);
-            String propertyValue = property.getValue(attributedType);
+        Map<String, String> mappedProperties = getMappingConfig(attributedType.getClass()).getMappedProperties();
 
-            String ldapAttributeName = getConfig().getMappingConfig(attributedType.getClass()).getMappedProperties().get(property.getName());
+        for (String propertyName : mappedProperties.keySet()) {
+            Property<Object> property = PropertyQueries
+                    .<Object>createQuery(attributedType.getClass())
+                    .addCriteria(new NamedPropertyCriteria(propertyName)).getSingleResult();
 
-            if (!isNullOrEmpty(ldapAttributeName)) {
-                if (propertyValue == null) {
+            Object propertyValue = property.getValue(attributedType);
+
+            if (AttributedType.class.isInstance(propertyValue)) {
+                AttributedType referencedType = (AttributedType) propertyValue;
+                propertyValue = getBindingDN(referencedType);
+            } else {
+                if (propertyValue == null || isNullOrEmpty(propertyValue.toString())) {
                     propertyValue = " ";
                 }
-
-                ldapEntryAttributes.put(ldapAttributeName, propertyValue);
             }
+
+            ldapEntryAttributes.put(mappedProperties.get(propertyName), propertyValue);
         }
 
         return ldapEntryAttributes;
     }
 
-    private void createCustomAttributes(AttributedType attributedType) {
+    private void updateCustomAttributes(AttributedType attributedType) {
         String customDN = getCustomAttributesDN(attributedType);
 
         LDAPCustomAttributes customAttributes = this.operationManager.lookup(customDN);
@@ -389,31 +659,48 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
         LDAPCustomAttributes customAttributes = this.operationManager.lookup(customDN);
 
-        for (Entry<String, Serializable> attribute : customAttributes.getAttributes().entrySet()) {
-            if (!attribute.getKey().equals(CUSTOM_ATTRIBUTE_ENABLED)
-                    && !attribute.getKey().equals(CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
-                attributedType.setAttribute(new Attribute<Serializable>(attribute.getKey(), attribute.getValue()));
-            }
-        }
-
-        if (IdentityType.class.isInstance(attributedType)) {
-            IdentityType identityType = (IdentityType) attributedType;
-
-            Object expiryDate = customAttributes.getAttribute(CUSTOM_ATTRIBUTE_EXPIRY_DATE);
-
-            if (expiryDate != null) {
-                identityType.setExpirationDate(new Date(Long.valueOf(expiryDate.toString())));
+        if (customAttributes != null) {
+            for (Entry<String, Serializable> attribute : customAttributes.getAttributes().entrySet()) {
+                if (!attribute.getKey().equals(CUSTOM_ATTRIBUTE_ENABLED)
+                        && !attribute.getKey().equals(CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
+                    attributedType.setAttribute(new Attribute<Serializable>(attribute.getKey(), attribute.getValue()));
+                }
             }
 
-            Object enabled = customAttributes.getAttribute(LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED);
+            if (IdentityType.class.isInstance(attributedType)) {
+                IdentityType identityType = (IdentityType) attributedType;
 
-            if (enabled != null) {
-                identityType.setEnabled(Boolean.valueOf(enabled.toString()));
+                Object expiryDate = customAttributes.getAttribute(CUSTOM_ATTRIBUTE_EXPIRY_DATE);
+
+                if (expiryDate != null) {
+                    identityType.setExpirationDate(new Date(Long.valueOf(expiryDate.toString())));
+                }
+
+                Object enabled = customAttributes.getAttribute(LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED);
+
+                if (enabled != null) {
+                    identityType.setEnabled(Boolean.valueOf(enabled.toString()));
+                }
             }
         }
     }
 
     private String getCustomAttributesDN(AttributedType attributedType) {
-        return CN + "=custom-attributes" + COMMA + getBindingName(attributedType) + COMMA + getConfig().getMappingConfig(attributedType.getClass()).getBaseDN();
+        return CN + "=custom-attributes" + COMMA + getBindingName(attributedType) + COMMA + getMappingConfig(attributedType.getClass()).getBaseDN();
     }
+
+    private LDAPMappingConfiguration getMappingConfig(Class<? extends AttributedType> attributedType) {
+        LDAPMappingConfiguration mappingConfig = getConfig().getMappingConfig(attributedType);
+
+        if (mappingConfig == null) {
+            throw new IdentityManagementException("Not mapped type [" + attributedType + "].");
+        }
+
+        return mappingConfig;
+    }
+
+    private NamingEnumeration<SearchResult> lookupEntryByID(String id, String baseDN) {
+        return this.operationManager.lookupById(baseDN, id);
+    }
+
 }

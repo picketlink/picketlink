@@ -17,6 +17,7 @@
  */
 package org.picketlink.idm.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -176,8 +177,10 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
 
     public Class<? extends AttributedType> getSupportedTypeByBaseDN(String baseDN) {
         for (LDAPMappingConfiguration mappingConfig : this.mappingConfig.values()) {
-            if (mappingConfig.getBaseDN().equalsIgnoreCase(baseDN)) {
-                return mappingConfig.getMappedClass();
+            if (!Relationship.class.isAssignableFrom(mappingConfig.getMappedClass())) {
+                if (mappingConfig.getBaseDN().equalsIgnoreCase(baseDN)) {
+                    return mappingConfig.getMappedClass();
+                }
             }
         }
 
@@ -194,4 +197,15 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         return null;
     }
 
+    public List<LDAPMappingConfiguration> getRelationshipConfigs() {
+        ArrayList<LDAPMappingConfiguration> result = new ArrayList<LDAPMappingConfiguration>();
+
+        for (LDAPMappingConfiguration mappingConfig : this.mappingConfig.values()) {
+            if (mappingConfig.getRelatedAttributedType() != null) {
+                result.add(mappingConfig);
+            }
+        }
+
+        return result;
+    }
 }
