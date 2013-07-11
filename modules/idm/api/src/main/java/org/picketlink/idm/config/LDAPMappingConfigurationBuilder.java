@@ -92,7 +92,7 @@ public class LDAPMappingConfigurationBuilder extends
     }
 
     @Override
-    public Builder<LDAPMappingConfiguration> readFrom(LDAPMappingConfiguration fromConfiguration) {
+    protected Builder<LDAPMappingConfiguration> readFrom(LDAPMappingConfiguration fromConfiguration) {
         return null;  //TODO: Implement readFrom
     }
 

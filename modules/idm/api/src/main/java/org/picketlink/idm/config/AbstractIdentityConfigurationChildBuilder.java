@@ -29,7 +29,8 @@ import java.util.List;
  * @author Pedro Igor
  *
  */
-public abstract class AbstractIdentityConfigurationChildBuilder<T> extends AbstractConfigurationBuilder<T> implements IdentityConfigurationChildBuilder {
+public abstract class AbstractIdentityConfigurationChildBuilder<T> extends Builder<T>
+        implements IdentityConfigurationChildBuilder {
 
     private final IdentityConfigurationChildBuilder identityConfigurationBuilder;
 

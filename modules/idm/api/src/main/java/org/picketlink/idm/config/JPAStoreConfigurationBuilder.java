@@ -32,7 +32,7 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
  *
  */
 public class JPAStoreConfigurationBuilder extends
-        AbstractIdentityStoreConfigurationBuilder<JPAIdentityStoreConfiguration, JPAStoreConfigurationBuilder> {
+        IdentityStoreConfigurationBuilder<JPAIdentityStoreConfiguration, JPAStoreConfigurationBuilder> {
 
     private Class<?> identityClass;
     private Class<?> attributeClass;
@@ -88,7 +88,7 @@ public class JPAStoreConfigurationBuilder extends
     }
 
     @Override
-    public JPAIdentityStoreConfiguration create() {
+    protected JPAIdentityStoreConfiguration create() {
         List<Class<?>> entityClasses = new ArrayList<Class<?>>();
 
         entityClasses.add(this.identityClass);
@@ -125,7 +125,7 @@ public class JPAStoreConfigurationBuilder extends
     }
 
     @Override
-    public JPAStoreConfigurationBuilder readFrom(JPAIdentityStoreConfiguration configuration) {
+    protected JPAStoreConfigurationBuilder readFrom(JPAIdentityStoreConfiguration configuration) {
         super.readFrom(configuration);
         return this;
     }

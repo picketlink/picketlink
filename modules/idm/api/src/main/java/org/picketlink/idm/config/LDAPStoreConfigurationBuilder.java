@@ -35,7 +35,7 @@ import org.picketlink.idm.model.Relationship;
  *
  */
 public class LDAPStoreConfigurationBuilder extends
-        AbstractIdentityStoreConfigurationBuilder<LDAPIdentityStoreConfiguration, LDAPStoreConfigurationBuilder> {
+        IdentityStoreConfigurationBuilder<LDAPIdentityStoreConfiguration, LDAPStoreConfigurationBuilder> {
 
     private String url;
     private String baseDN;
@@ -157,7 +157,7 @@ public class LDAPStoreConfigurationBuilder extends
     }
 
     @Override
-    public LDAPStoreConfigurationBuilder readFrom(LDAPIdentityStoreConfiguration configuration) {
+    protected LDAPStoreConfigurationBuilder readFrom(LDAPIdentityStoreConfiguration configuration) {
         super.readFrom(configuration);
 
         this.agentDNSuffix = configuration.getAgentDNSuffix();

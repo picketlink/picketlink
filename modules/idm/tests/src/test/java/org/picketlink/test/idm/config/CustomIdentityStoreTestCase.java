@@ -33,7 +33,7 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.AbstractIdentityStoreConfiguration;
-import org.picketlink.idm.config.AbstractIdentityStoreConfigurationBuilder;
+import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoresConfigurationBuilder;
 import org.picketlink.idm.credential.Credentials;
@@ -95,7 +95,7 @@ public class CustomIdentityStoreTestCase {
     }
 
     public static class MyIdentityStoreConfigurationBuilder extends
-            AbstractIdentityStoreConfigurationBuilder<MyIdentityStoreConfiguration, MyIdentityStoreConfigurationBuilder> {
+            IdentityStoreConfigurationBuilder<MyIdentityStoreConfiguration, MyIdentityStoreConfigurationBuilder> {
 
         private MethodInvocationContext methodInvocationContext;
 

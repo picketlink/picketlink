@@ -18,6 +18,7 @@
 
 package org.picketlink.producer;
 
+import java.util.Arrays;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Event;
@@ -70,7 +71,7 @@ public class IdentityManagerProducer {
 
         if (!identityConfigInstance.isUnsatisfied()) {
             IdentityConfiguration identityConfiguration = identityConfigInstance.get();
-            builder = new IdentityConfigurationBuilder(identityConfiguration);
+            builder = new IdentityConfigurationBuilder(Arrays.asList(identityConfiguration));
         } else if (identityConfigInstance.isAmbiguous()) {
             throw new SecurityConfigurationException("Multiple IdentityConfiguration beans found, can not "
                     + "configure IdentityManagerFactory");
