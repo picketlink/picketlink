@@ -20,20 +20,19 @@ package org.picketlink.test.idm;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import static org.junit.runners.Parameterized.Parameters;
-import static org.picketlink.test.idm.IdentityConfigurationTestFactory.buildSimpleFileIdentityStoreConfig;
+import static org.picketlink.test.idm.IdentityConfigurationTestFactory.getConfigurations;
 
 /**
  * <p>
@@ -45,23 +44,37 @@ import static org.picketlink.test.idm.IdentityConfigurationTestFactory.buildSimp
 @RunWith(Parameterized.class)
 public abstract class AbstractPartitionManagerTestCase {
 
+    private final IdentityConfigurationTestVisitor visitor;
     private PartitionManager partitionManager;
 
-    public AbstractPartitionManagerTestCase(IdentityConfigurationBuilder builder) {
-        this.partitionManager = new DefaultPartitionManager(builder.buildAll());
-        this.partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+    public AbstractPartitionManagerTestCase(IdentityConfigurationTestVisitor visitor) {
+        this.visitor = visitor;
     }
 
     @Parameters
     public static Collection<Object[]> getParameters() {
         List<Object[]> parameters = new ArrayList<Object[]>();
 
-        parameters.add(new Object[] {buildSimpleFileIdentityStoreConfig()});
+        parameters.add(getConfigurations());
 
         return parameters;
     }
 
+    @Before
+    public void onBefore() {
+        this.visitor.beforeTest();
+    }
+
+    @After
+    public void afterBefore() {
+        this.visitor.afterTest();
+    }
+
     public PartitionManager getPartitionManager() {
+        if (this.partitionManager == null) {
+            this.partitionManager = this.visitor.buildConfiguration();
+        }
+
         return this.partitionManager;
     }
 

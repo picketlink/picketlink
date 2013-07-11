@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.model.AbstractIdentityType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.annotation.AttributeProperty;
@@ -29,6 +28,7 @@ import org.picketlink.idm.model.annotation.Unique;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -41,7 +41,7 @@ import static org.junit.Assert.assertTrue;
 public class CustomIdentityTypeTestCase extends AbstractIdentityTypeTestCase {
 
 
-    public CustomIdentityTypeTestCase(IdentityConfigurationBuilder builder) {
+    public CustomIdentityTypeTestCase(IdentityConfigurationTestVisitor builder) {
         super(builder);
     }
 

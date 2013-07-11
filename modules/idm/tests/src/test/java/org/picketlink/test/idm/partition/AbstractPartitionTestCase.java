@@ -23,10 +23,10 @@ import java.util.Collection;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.PartitionManager;
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
+import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -41,7 +41,7 @@ import static org.junit.Assert.fail;
  */
 public abstract class AbstractPartitionTestCase<T extends Partition> extends AbstractPartitionManagerTestCase {
 
-    public AbstractPartitionTestCase(IdentityConfigurationBuilder builder) {
+    public AbstractPartitionTestCase(IdentityConfigurationTestVisitor builder) {
         super(builder);
     }
 

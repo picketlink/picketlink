@@ -22,12 +22,12 @@ import java.util.Calendar;
 import java.util.Date;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
+import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -42,7 +42,7 @@ import static org.junit.Assert.assertNull;
  */
 public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase {
 
-    public PasswordCredentialTestCase(IdentityConfigurationBuilder builder) {
+    public PasswordCredentialTestCase(IdentityConfigurationTestVisitor builder) {
         super(builder);
     }
 

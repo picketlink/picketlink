@@ -21,13 +21,13 @@ package org.picketlink.test.idm.relationship;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
+import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
@@ -40,7 +40,7 @@ import static org.junit.Assert.assertFalse;
  */
 public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends AbstractPartitionManagerTestCase {
 
-    public AgentGroupRoleRelationshipTestCase(IdentityConfigurationBuilder builder) {
+    public AgentGroupRoleRelationshipTestCase(IdentityConfigurationTestVisitor builder) {
         super(builder);
     }
 

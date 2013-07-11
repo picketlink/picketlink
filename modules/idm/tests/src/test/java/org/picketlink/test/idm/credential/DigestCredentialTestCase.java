@@ -18,19 +18,17 @@
 
 package org.picketlink.test.idm.credential;
 
+import java.util.Calendar;
+import java.util.Date;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.internal.DigestUtil;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-
-import java.util.Calendar;
-import java.util.Date;
-
+import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -45,7 +43,7 @@ import static org.junit.Assert.assertNull;
  */
 public class DigestCredentialTestCase extends AbstractPartitionManagerTestCase {
 
-    public DigestCredentialTestCase(IdentityConfigurationBuilder builder) {
+    public DigestCredentialTestCase(IdentityConfigurationTestVisitor builder) {
         super(builder);
     }
 

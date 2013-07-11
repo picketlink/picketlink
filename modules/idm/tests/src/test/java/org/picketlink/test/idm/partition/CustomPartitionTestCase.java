@@ -22,9 +22,9 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.PartitionManager;
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.model.AbstractPartition;
 import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -38,7 +38,7 @@ public class CustomPartitionTestCase extends AbstractPartitionTestCase<CustomPar
 
     public static final String CUSTOM_PARTITION_NAME = "Custom Partition";
 
-    public CustomPartitionTestCase(IdentityConfigurationBuilder builder) {
+    public CustomPartitionTestCase(IdentityConfigurationTestVisitor builder) {
         super(builder);
     }
 

@@ -24,11 +24,11 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
+import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertNull;
  */
 public class CertificateCredentialTestCase extends AbstractPartitionManagerTestCase {
 
-    public CertificateCredentialTestCase(IdentityConfigurationBuilder builder) {
+    public CertificateCredentialTestCase(IdentityConfigurationTestVisitor builder) {
         super(builder);
     }
 

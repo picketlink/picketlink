@@ -23,7 +23,6 @@ import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Group;
@@ -31,6 +30,7 @@ import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -43,7 +43,7 @@ import static junit.framework.Assert.assertTrue;
  */
 public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 
-    public GroupQueryTestCase(IdentityConfigurationBuilder builder) {
+    public GroupQueryTestCase(IdentityConfigurationTestVisitor builder) {
         super(builder);
     }
 

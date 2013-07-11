@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
@@ -39,6 +38,7 @@ import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
+import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -49,7 +49,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> extends AbstractPartitionManagerTestCase {
 
-    public AbstractIdentityQueryTestCase(IdentityConfigurationBuilder builder) {
+    public AbstractIdentityQueryTestCase(IdentityConfigurationTestVisitor builder) {
         super(builder);
     }
 

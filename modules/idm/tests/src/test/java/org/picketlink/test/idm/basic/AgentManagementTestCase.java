@@ -22,7 +22,6 @@ import java.util.Date;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Grant;
@@ -32,6 +31,7 @@ import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.test.idm.IdentityConfigurationTestVisitor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -48,7 +48,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent> {
 
-    public AgentManagementTestCase(IdentityConfigurationBuilder builder) {
+    public AgentManagementTestCase(IdentityConfigurationTestVisitor builder) {
         super(builder);
     }
 
