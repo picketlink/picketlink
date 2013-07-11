@@ -27,6 +27,7 @@ import org.jboss.logging.Logger;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -193,25 +194,29 @@ public class PicketLinkIDMDataProvider implements DataProvider {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
-            .stores()
-                .jpa()
-                    .addRealm(Realm.DEFAULT_REALM)
-                    .identityClass(IdentityObject.class)
-                    .attributeClass(IdentityObjectAttribute.class)
-                    .relationshipClass(RelationshipObject.class)
-                    .relationshipIdentityClass(RelationshipIdentityObject.class)
-                    .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                    .credentialClass(CredentialObject.class)
-                    .credentialAttributeClass(CredentialObjectAttribute.class)
-                    .partitionClass(PartitionObject.class)
-                    .supportAllFeatures().addContextInitializer(new JPAContextInitializer(entityManagerFactory) {
-                        @Override
-                        public EntityManager getEntityManager() {
-                            return entityManagerThreadLocal.get();
-                        }
-                    });
+            .named("default")
+                .stores()
+                    .jpa()
+                        .identityClass(IdentityObject.class)
+                        .attributeClass(IdentityObjectAttribute.class)
+                        .relationshipClass(RelationshipObject.class)
+                        .relationshipIdentityClass(RelationshipIdentityObject.class)
+                        .relationshipAttributeClass(RelationshipObjectAttribute.class)
+                        .credentialClass(CredentialObject.class)
+                        .credentialAttributeClass(CredentialObjectAttribute.class)
+                        .partitionClass(PartitionObject.class)
+                        .supportAllFeatures().addContextInitializer(new JPAContextInitializer(entityManagerFactory) {
+                            @Override
+                            public EntityManager getEntityManager() {
+                                return entityManagerThreadLocal.get();
+                            }
+                        });
+
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
 
         // FIXME: IdentityManager is not threadsafe
-        identityManager = new PartitionManager(builder.build()).createIdentityManager();
+        identityManager = partitionManager.createIdentityManager();
     }
 }

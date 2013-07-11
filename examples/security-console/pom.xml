@@ -79,12 +79,12 @@
 
         <dependency>
             <groupId>org.picketlink</groupId>
-            <artifactId>picketlink-core-api</artifactId>
+            <artifactId>picketlink-api</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.picketlink</groupId>
-            <artifactId>picketlink-core-impl</artifactId>
+            <artifactId>picketlink-impl</artifactId>
         </dependency>
 
         <dependency>

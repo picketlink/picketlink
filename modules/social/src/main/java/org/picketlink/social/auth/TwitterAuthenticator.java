@@ -17,20 +17,16 @@
  */
 package org.picketlink.social.auth;
 
+import java.security.Principal;
+import javax.servlet.http.HttpSession;
 import org.picketlink.authentication.AuthenticationException;
-import org.picketlink.authentication.BaseAuthenticator;
-import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.social.auth.conf.TwitterConfiguration;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.security.Principal;
 
 /**
  * Implementation of {@link org.picketlink.authentication.Authenticator} for Twitter login
@@ -85,7 +81,7 @@ public class TwitterAuthenticator extends AbstractSocialAuthenticator{
                 principal = new TwitterPrincipal(twitter.verifyCredentials());
 
                 setStatus(AuthenticationStatus.SUCCESS);
-                setAgent(new SimpleUser(principal.getName()));
+                setAgent(new User(principal.getName()));
                 return;
             } catch (TwitterException e) {
                 throw new AuthenticationException("Twitter Login:",e);
@@ -101,7 +97,7 @@ public class TwitterAuthenticator extends AbstractSocialAuthenticator{
         }
         if(principal != null){
             setStatus(AuthenticationStatus.SUCCESS);
-            setAgent(new SimpleUser(principal.getName()));
+            setAgent(new User(principal.getName()));
         }
     }
 }

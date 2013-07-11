@@ -17,8 +17,6 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
-<<<<<<< HEAD
-=======
 import java.net.URI;
 import java.security.KeyPair;
 import java.security.Principal;
@@ -26,14 +24,11 @@ import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.List;
-
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.crypto.dsig.SignatureMethod;
 import javax.xml.namespace.QName;
-
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.WSTrustConstants;
@@ -65,18 +60,6 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import javax.xml.crypto.dsig.DigestMethod;
-import javax.xml.crypto.dsig.SignatureMethod;
-import javax.xml.namespace.QName;
-import java.net.URI;
-import java.security.KeyPair;
-import java.security.Principal;
-import java.security.PublicKey;
-import java.security.cert.Certificate;
-import java.util.List;
 
 /**
  * <p>

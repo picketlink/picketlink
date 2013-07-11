@@ -17,7 +17,6 @@
  */
 package org.picketlink.identity.federation.core.util;
 
-<<<<<<< HEAD
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
@@ -40,7 +39,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-=======
 import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.security.*;
@@ -51,7 +49,6 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 
 import javax.xml.bind.JAXBException;
 import javax.xml.crypto.MarshalException;

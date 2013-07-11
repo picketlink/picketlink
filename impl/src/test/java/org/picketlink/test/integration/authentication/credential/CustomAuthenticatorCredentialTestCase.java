@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.BaseAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.ArchiveUtils;
 import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
 import static org.junit.Assert.assertEquals;
@@ -95,7 +95,7 @@ public class CustomAuthenticatorCredentialTestCase extends AbstractAuthenticatio
 
                 if ("valid_token".equals(credential.getToken())) {
                     setStatus(AuthenticationStatus.SUCCESS);
-                    setAgent(new SimpleUser(USER_NAME));
+                    setAgent(new User(USER_NAME));
                 }
             }
 

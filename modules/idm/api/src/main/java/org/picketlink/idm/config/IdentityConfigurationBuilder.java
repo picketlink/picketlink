@@ -40,6 +40,10 @@ public class IdentityConfigurationBuilder implements IdentityConfigurationChildB
         this.namedIdentityConfigurationBuilders = new ArrayList<NamedIdentityConfigurationBuilder>();
     }
 
+    public IdentityConfigurationBuilder(IdentityConfiguration identityConfiguration) {
+        this();
+    }
+
     /**
      * <p>Creates a named configuration.</p>
      *

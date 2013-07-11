@@ -135,7 +135,7 @@ public class LDAPMappingConfigurationBuilder extends
     }
 
     public LDAPMappingConfigurationBuilder parentMembershipAttributeName(String parentMembershipAttributeName) {
-        this.parentMembershipAttributeName = parentMembershipAttributeName; 
+        this.parentMembershipAttributeName = parentMembershipAttributeName;
         return this;
     }
 }

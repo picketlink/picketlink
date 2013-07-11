@@ -22,6 +22,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
 import org.picketlink.idm.jpa.schema.IdentityObject;
@@ -31,7 +32,6 @@ import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.internal.PartitionManager;
 import org.picketlink.scim.DataProvider;
 import org.picketlink.scim.providers.PicketLinkIDMDataProvider;
 
@@ -51,21 +51,24 @@ public class CDIProducers {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
-            .stores()
-                .jpa()
-                    .addRealm(Realm.DEFAULT_REALM, "Testing")
-                    .addTier("Application")
-                    .identityClass(IdentityObject.class)
-                    .attributeClass(IdentityObjectAttribute.class)
-                    .relationshipClass(RelationshipObject.class)
-                    .relationshipIdentityClass(RelationshipIdentityObject.class)
-                    .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                    .credentialClass(CredentialObject.class)
-                    .credentialAttributeClass(CredentialObjectAttribute.class)
-                    .partitionClass(PartitionObject.class)
-                    .supportAllFeatures();
+            .named("default")
+                .stores()
+                    .jpa()
+                        .identityClass(IdentityObject.class)
+                        .attributeClass(IdentityObjectAttribute.class)
+                        .relationshipClass(RelationshipObject.class)
+                        .relationshipIdentityClass(RelationshipIdentityObject.class)
+                        .relationshipAttributeClass(RelationshipObjectAttribute.class)
+                        .credentialClass(CredentialObject.class)
+                        .credentialAttributeClass(CredentialObjectAttribute.class)
+                        .partitionClass(PartitionObject.class)
+                        .supportAllFeatures();
 
-        return new PartitionManager(builder.build()).createIdentityManager();
+        DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+
+        return partitionManager.createIdentityManager();
     }
 
     @Produces

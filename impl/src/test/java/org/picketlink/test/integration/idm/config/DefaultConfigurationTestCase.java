@@ -60,7 +60,7 @@ public class DefaultConfigurationTestCase extends AbstractArquillianTestCase {
     public void testDefaultConfiguration() throws Exception {
         IdentityConfiguration identityConfiguration = this.configurationObserver.getIdentityConfigurationBuilder().build();
         
-        List<IdentityStoreConfiguration> configuredStores = identityConfiguration.getConfiguredStores();
+        List<? extends IdentityStoreConfiguration> configuredStores = identityConfiguration.getStoreConfiguration();
         
         assertEquals(1, configuredStores.size());
         

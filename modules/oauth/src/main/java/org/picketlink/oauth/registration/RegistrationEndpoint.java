@@ -17,13 +17,10 @@
  */
 package org.picketlink.oauth.registration;
 
-import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.Attribute;
-import org.picketlink.oauth.messages.RegistrationRequest;
-import org.picketlink.oauth.messages.RegistrationResponse;
-import org.picketlink.oauth.server.endpoint.BaseEndpoint;
-import org.picketlink.oauth.server.util.OAuthServerUtil;
-
+import java.util.Date;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -32,10 +29,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.util.Date;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.oauth.messages.RegistrationRequest;
+import org.picketlink.oauth.messages.RegistrationResponse;
+import org.picketlink.oauth.server.endpoint.BaseEndpoint;
+import org.picketlink.oauth.server.util.OAuthServerUtil;
 
 /**
  * Endpoint used in registration of OAuth Client Applications

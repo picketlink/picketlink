@@ -19,17 +19,6 @@
 package org.picketlink.internal;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import org.picketlink.idm.DefaultIdGenerator;
-import org.picketlink.idm.IdGenerator;
-import org.picketlink.idm.IdentityCache;
-import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
-import org.picketlink.idm.internal.DefaultIdentityCache;
-import org.picketlink.idm.internal.DefaultSecurityContextFactory;
-import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.spi.IdentityContext;
-import org.picketlink.idm.spi.SecurityContextFactory;
 
 /**
  * 
@@ -37,23 +26,25 @@ import org.picketlink.idm.spi.SecurityContextFactory;
  *
  */
 @ApplicationScoped
-public class EESecurityContextFactory extends DefaultSecurityContextFactory implements SecurityContextFactory {
+//FIXME
+//public class EESecurityContextFactory extends DefaultSecurityContextFactory implements SecurityContextFactory {
+public class EESecurityContextFactory {
 
-    @Inject CDIEventBridge cdiEventBridge;
-
-    private CredentialHandlerFactory credentialHandlerFactory;
-    private IdentityCache identityCache;
-    private IdGenerator idGenerator;
-
-    public EESecurityContextFactory() {
-        credentialHandlerFactory = new CredentialHandlerFactory();
-        identityCache = new DefaultIdentityCache();
-        idGenerator = new DefaultIdGenerator();
-    }
-
-    @Override
-    public IdentityContext createContext(Partition partition) {
-        return new IdentityContext(this.identityCache, cdiEventBridge, credentialHandlerFactory, idGenerator, partition);
-    }
+//    @Inject CDIEventBridge cdiEventBridge;
+//
+//    private CredentialHandlerFactory credentialHandlerFactory;
+//    private IdentityCache identityCache;
+//    private IdGenerator idGenerator;
+//
+//    public EESecurityContextFactory() {
+//        credentialHandlerFactory = new CredentialHandlerFactory();
+//        identityCache = new DefaultIdentityCache();
+//        idGenerator = new DefaultIdGenerator();
+//    }
+//
+//    @Override
+//    public IdentityContext createContext(Partition partition) {
+//        return new IdentityContext(this.identityCache, cdiEventBridge, credentialHandlerFactory, idGenerator, partition);
+//    }
 
 }

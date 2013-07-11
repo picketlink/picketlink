@@ -1,9 +1,6 @@
 package org.picketlink.authentication.internal;
 
-<<<<<<< HEAD
-=======
 import javax.inject.Inject;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.picketlink.authentication.BaseAuthenticator;
 import org.picketlink.authentication.LockedAccountException;
 import org.picketlink.credential.DefaultLoginCredentials;
@@ -13,12 +10,6 @@ import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
-<<<<<<< HEAD
-import org.picketlink.idm.model.sample.User;
-
-import javax.inject.Inject;
-=======
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 
 /**
  * Authenticator that uses the Identity Management API to authenticate.  Assumes that the

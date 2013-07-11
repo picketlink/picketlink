@@ -17,20 +17,13 @@
  */
 package org.picketlink.social.auth;
 
-import org.picketlink.annotations.PicketLink;
-import org.picketlink.authentication.BaseAuthenticator;
-import org.picketlink.idm.model.SimpleUser;
-import org.picketlink.social.auth.conf.FacebookConfiguration;
-import org.picketlink.social.standalone.fb.FacebookPrincipal;
-import org.picketlink.social.standalone.fb.FacebookProcessor;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.Collections;
+import javax.servlet.http.HttpSession;
+import org.picketlink.idm.model.sample.User;
+import org.picketlink.social.auth.conf.FacebookConfiguration;
+import org.picketlink.social.standalone.fb.FacebookProcessor;
 
 /**
  * An implementation of {@link org.picketlink.authentication.Authenticator} for Facebook login
@@ -91,7 +84,7 @@ public class FacebookAuthenticator extends AbstractSocialAuthenticator {
         }
         if(principal != null){
             setStatus(AuthenticationStatus.SUCCESS);
-            setAgent(new SimpleUser(principal.getName()));
+            setAgent(new User(principal.getName()));
         }
     }
 

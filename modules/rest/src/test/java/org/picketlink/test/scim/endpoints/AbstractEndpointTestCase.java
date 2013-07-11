@@ -26,8 +26,11 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -38,11 +41,10 @@ import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.internal.PartitionManager;
 import org.picketlink.scim.PicketLinkSCIMApplication;
 import org.picketlink.test.scim.EmbeddedWebServerBase;
 
@@ -68,27 +70,32 @@ public abstract class AbstractEndpointTestCase extends EmbeddedWebServerBase {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
-            .stores()
-                .jpa()
-                    .addRealm(Realm.DEFAULT_REALM)
-                    .identityClass(IdentityObject.class)
-                    .attributeClass(IdentityObjectAttribute.class)
-                    .relationshipClass(RelationshipObject.class)
-                    .relationshipIdentityClass(RelationshipIdentityObject.class)
-                    .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                    .credentialClass(CredentialObject.class)
-                    .credentialAttributeClass(CredentialObjectAttribute.class)
-                    .partitionClass(PartitionObject.class)
-                    .supportAllFeatures()
-                    .addContextInitializer(new JPAContextInitializer(entityManagerFactory) {
-                        @Override
-                        public EntityManager getEntityManager() {
-                            return entityManager;
-                        }
-                    });
+            .named("default")
+                .stores()
+                    .jpa()
+                        .identityClass(IdentityObject.class)
+                        .attributeClass(IdentityObjectAttribute.class)
+                        .relationshipClass(RelationshipObject.class)
+                        .relationshipIdentityClass(RelationshipIdentityObject.class)
+                        .relationshipAttributeClass(RelationshipObjectAttribute.class)
+                        .credentialClass(CredentialObject.class)
+                        .credentialAttributeClass(CredentialObjectAttribute.class)
+                        .partitionClass(PartitionObject.class)
+                        .supportAllFeatures()
+                        .addContextInitializer(new JPAContextInitializer(entityManagerFactory) {
+                            @Override
+                            public EntityManager getEntityManager() {
+                                return entityManager;
+                            }
+                        });
+
+
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
 
         // FIXME: IdentityManager is not threadsafe
-        IdentityManager  identityManager = new PartitionManager(builder.build()).createIdentityManager();
+        IdentityManager  identityManager = partitionManager.createIdentityManager();
 
         User anil = identityManager.getUser("anil");
 
@@ -104,7 +111,9 @@ public abstract class AbstractEndpointTestCase extends EmbeddedWebServerBase {
             Role roleAdmin = new Role("administrator");
             identityManager.add(roleAdmin);
 
-            identityManager.grantRole(admin, roleAdmin);
+            RelationshipManager relationshipManager = partitionManager.createRelationshipManager();
+
+            relationshipManager.grantRole(admin, roleAdmin);
 
             Group group = new Group("SomeGroup");
             group.setAttribute(new Attribute<String>("ID", "jboss"));

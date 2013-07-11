@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.internal.IdentityManagerFactory;
+import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -45,7 +45,8 @@ import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
-import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.oauth.common.OAuthConstants;
 import org.picketlink.oauth.messages.ResourceAccessRequest;
@@ -90,10 +91,10 @@ public class OAuthResourceFilter implements Filter {
             String passedClientID = httpRequest.getParameter(OAuthConstants.CLIENT_ID);
             String accessToken = resourceAccessRequest.getAccessToken();
 
-            IdentityQuery<org.picketlink.idm.model.User> userQuery = identityManager.createIdentityQuery(org.picketlink.idm.model.User.class);
-            userQuery.setParameter(org.picketlink.idm.model.User.ID, passedClientID);
+            IdentityQuery<User> userQuery = identityManager.createIdentityQuery(User.class);
+            userQuery.setParameter(User.ID, passedClientID);
 
-            List<org.picketlink.idm.model.User> users = userQuery.getResultList();
+            List<User> users = userQuery.getResultList();
 
             if (users.size() == 0) {
                 httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "client_id not found");
@@ -105,7 +106,7 @@ public class OAuthResourceFilter implements Filter {
                 return;
             }
 
-            org.picketlink.idm.model.User clientApp = users.get(0);
+            User clientApp = users.get(0);
 
             // Get the values from DB
             String clientID = (String) clientApp.getAttribute("clientID").getValue();
@@ -155,26 +156,30 @@ public class OAuthResourceFilter implements Filter {
                 IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
                 builder
-                    .stores()
-                        .jpa()
-                        .addRealm(Realm.DEFAULT_REALM)
-                        .identityClass(IdentityObject.class)
-                        .attributeClass(IdentityObjectAttribute.class)
-                        .relationshipClass(RelationshipObject.class)
-                        .relationshipIdentityClass(RelationshipIdentityObject.class)
-                        .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                        .credentialClass(CredentialObject.class)
-                        .credentialAttributeClass(CredentialObjectAttribute.class)
-                        .partitionClass(PartitionObject.class)
-                        .supportAllFeatures().addContextInitializer(new JPAContextInitializer(this.entityManagerFactory) {
-                            @Override
-                            public EntityManager getEntityManager() {
-                                return entityManager.get();
-                            }
-                        });
+                    .named("default")
+                        .stores()
+                            .jpa()
+                                .identityClass(IdentityObject.class)
+                                .attributeClass(IdentityObjectAttribute.class)
+                                .relationshipClass(RelationshipObject.class)
+                                .relationshipIdentityClass(RelationshipIdentityObject.class)
+                                .relationshipAttributeClass(RelationshipObjectAttribute.class)
+                                .credentialClass(CredentialObject.class)
+                                .credentialAttributeClass(CredentialObjectAttribute.class)
+                                .partitionClass(PartitionObject.class)
+                                .supportAllFeatures().addContextInitializer(new JPAContextInitializer(this.entityManagerFactory) {
+                                    @Override
+                                    public EntityManager getEntityManager() {
+                                        return entityManager.get();
+                                    }
+                                });
+
+                DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+                partitionManager.add(new Realm(Realm.DEFAULT_REALM));
 
                 // FIXME: IdentityManager is not threadsafe
-                identityManager = new IdentityManagerFactory(builder.build()).createIdentityManager();
+                identityManager = partitionManager.createIdentityManager();
             }
 
             if (isLDAPStoreConfigured()) {
@@ -183,21 +188,23 @@ public class OAuthResourceFilter implements Filter {
                 Properties properties = getProperties();
 
                 builder
-                    .stores()
-                        .ldap()
-                            .baseDN(properties.getProperty("baseDN"))
-                            .bindDN(properties.getProperty("bindDN"))
-                            .bindCredential(properties.getProperty("bindCredential"))
-                            .url(properties.getProperty("ldapURL"))
-                            .userDNSuffix(properties.getProperty("userDNSuffix"))
-                            .roleDNSuffix(properties.getProperty("roleDNSuffix"))
-                            .agentDNSuffix(properties.getProperty("agentDNSuffix"))
-                            .groupDNSuffix(properties.getProperty("groupDNSuffix"))
-                            .addRealm(Realm.DEFAULT_REALM)
-                            .supportAllFeatures();
+                    .named("default")
+                        .stores()
+                            .ldap()
+                                .baseDN(properties.getProperty("baseDN"))
+                                .bindDN(properties.getProperty("bindDN"))
+                                .bindCredential(properties.getProperty("bindCredential"))
+                                .url(properties.getProperty("ldapURL"))
+                                .userDNSuffix(properties.getProperty("userDNSuffix"))
+                                .roleDNSuffix(properties.getProperty("roleDNSuffix"))
+                                .agentDNSuffix(properties.getProperty("agentDNSuffix"))
+                                .groupDNSuffix(properties.getProperty("groupDNSuffix"))
+                                .supportAllFeatures();
+
+                DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.build());
 
                 // FIXME: IdentityManager is not threadsafe
-                identityManager = new IdentityManagerFactory(builder.build()).createIdentityManager();
+                identityManager = partitionManager.createIdentityManager();
             }
         }
     }

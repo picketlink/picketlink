@@ -39,8 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-<<<<<<< HEAD
-=======
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -50,7 +48,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.picketlink.social.standalone.oauth.OAuthConstants;
 
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 /**
  * Processor to perform Facebook interaction
  *

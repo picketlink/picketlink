@@ -22,7 +22,7 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.internal.DigestUtil;
-import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.test.integration.ArchiveUtils;
 import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
 import static org.junit.Assert.assertEquals;
