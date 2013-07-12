@@ -18,6 +18,7 @@
 package org.picketlink.idm.model;
 
 import java.util.Date;
+import org.picketlink.idm.query.AttributeParameter;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
@@ -42,17 +43,17 @@ public interface IdentityType extends AttributedType {
     /**
      * A query parameter used to set the createdDate value
      */
-    QueryParameter CREATED_DATE = new QueryParameter() {};
+    QueryParameter CREATED_DATE = new AttributeParameter("createdDate");
 
     /**
      * A query parameter used to set the created after date
      */
-    QueryParameter CREATED_AFTER = new QueryParameter() {};
+    QueryParameter CREATED_AFTER = new AttributeParameter("createdDate");
 
     /**
      * A query parameter used to set the created before date
      */
-    QueryParameter CREATED_BEFORE = new QueryParameter() {};
+    QueryParameter CREATED_BEFORE = new AttributeParameter("createdDate");
 
     /**
      * A query parameter used to set the expiryDate value

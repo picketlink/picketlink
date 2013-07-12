@@ -23,11 +23,14 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.query.RelationshipQueryParameter;
+import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 
 /**
  * @author Pedro Silva
  * 
  */
+@IgnoreTester(LDAPStoreConfigurationTester.class)
 public class CustomRelationship extends AbstractAttributedType implements Relationship {
 
     private static final long serialVersionUID = 1030652086550754965L;

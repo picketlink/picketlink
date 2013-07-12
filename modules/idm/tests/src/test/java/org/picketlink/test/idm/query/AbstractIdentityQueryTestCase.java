@@ -38,7 +38,9 @@ import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IdentityConfigurationTester;
+import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -75,6 +77,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testPagination() throws Exception {
         T identityType = null;
 
@@ -157,6 +160,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testFindByRealm() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
@@ -197,6 +201,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testFindEnabledAndDisabled() throws Exception {
         T someType = createIdentityType(null, null);
         T someAnotherType = createIdentityType("someAnotherAgent", null);
@@ -262,6 +267,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
     @Test
     public void testFindCreationDate() throws Exception {
+        Thread.sleep(1000);
         T identityType = createIdentityType(null, null);
 
         IdentityManager identityManager = getIdentityManager();
@@ -289,6 +295,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testFindExpiryDate() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -338,7 +345,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         Calendar calendar = Calendar.getInstance();
 
-        calendar.add(Calendar.YEAR, -1);
+        calendar.add(Calendar.SECOND, -10);
 
         // users between the given time period
         query.setParameter(IdentityType.CREATED_AFTER, calendar.getTime());
@@ -396,6 +403,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testFindBetweenExpirationDate() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -495,6 +503,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testFindByMultipleParameters() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -546,6 +555,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testFindByDefinedAttributes() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -594,6 +604,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testFindByMultiValuedAttributes() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -674,6 +685,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testFindByTier() throws Exception {
         T someType = createInstance("someType");
 

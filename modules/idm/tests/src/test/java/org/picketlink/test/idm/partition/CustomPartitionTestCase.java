@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.AbstractPartition;
 import org.picketlink.idm.model.annotation.AttributeProperty;
-import org.picketlink.test.idm.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 

@@ -27,7 +27,9 @@ import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IdentityConfigurationTester;
+import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -115,6 +117,7 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
     }
 
     @Test
+    @IgnoreTester (LDAPStoreConfigurationTester.class)
     public void testExpiration() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
@@ -210,6 +213,7 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
     }
 
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testUserDisabled() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");

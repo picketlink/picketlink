@@ -27,7 +27,7 @@ import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 

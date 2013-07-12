@@ -29,7 +29,9 @@ import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.IdentityConfigurationTester;
+import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -179,6 +181,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
     }
 
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testFindWithSorting() throws Exception {
         createRole("someRole");
         createRole("someAnotherRole");

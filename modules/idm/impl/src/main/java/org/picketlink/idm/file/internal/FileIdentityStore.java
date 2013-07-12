@@ -277,14 +277,6 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
                     continue;
                 }
 
-                if (!queryHelper.matchCreatedDateParameters(storedEntry)) {
-                    continue;
-                }
-
-                if (!queryHelper.matchExpiryDateParameters(storedEntry)) {
-                    continue;
-                }
-
                 boolean found = true;
 
                 for (Entry<QueryParameter, Object[]> entry : identityQuery.getParameters(AttributeParameter.class).entrySet()) {
@@ -296,6 +288,20 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
                     found = false;
 
                     QueryParameter queryParameter = entry.getKey();
+
+                    if (queryParameter.equals(IdentityType.CREATED_DATE)
+                            || queryParameter.equals(IdentityType.CREATED_BEFORE)
+                            || queryParameter.equals(IdentityType.CREATED_AFTER)) {
+                        found = queryHelper.matchCreatedDateParameters(storedEntry);
+                        continue;
+                    }
+
+                    if (queryParameter.equals(IdentityType.EXPIRY_DATE)
+                            || queryParameter.equals(IdentityType.EXPIRY_BEFORE)
+                            || queryParameter.equals(IdentityType.EXPIRY_AFTER)) {
+                        found = queryHelper.matchExpiryDateParameters(storedEntry);
+                        continue;
+                    }
 
                     if (AttributeParameter.class.isInstance(queryParameter)) {
                         String attributeParameterName = ((AttributeParameter) queryParameter).getName();

@@ -25,7 +25,9 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.test.idm.IdentityConfigurationTester;
+import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -160,6 +162,7 @@ public class UserQueryTestCase extends AgentQueryTestCase<User> {
     }
 
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testFindWithPaginationAndSorting() throws Exception {
         createPopulatedUser("john", "John", "Anthony");
         // Sleep is needed to avoid same createdDate

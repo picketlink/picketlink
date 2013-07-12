@@ -36,16 +36,24 @@ public class LDAPMappingConfiguration {
     private final Property<String> idProperty;
     private final Class<? extends AttributedType> relatedAttributedType;
     private final String parentMembershipAttributeName;
+    private final Map<String, String> parentMapping;
+    private final Set<String> readOnlyAttributes;
 
     LDAPMappingConfiguration(Class<? extends AttributedType> mappedClass,
                              Set<String> objectClasses,
                              String baseDN,
                              String idPropertyName,
-                             Map<String, String> mappedProperties, Class<? extends AttributedType> relatedAttributedType, String parentMembershipAttributeName) {
+                             Map<String, String> mappedProperties,
+                             Set<String> readOnlyAttributes, 
+                             Map<String, String> parentMapping,
+                             Class<? extends AttributedType> relatedAttributedType,
+                             String parentMembershipAttributeName) {
         this.mappedClass = mappedClass;
         this.objectClasses = objectClasses;
         this.baseDN = baseDN;
         this.mappedProperties = mappedProperties;
+        this.readOnlyAttributes = readOnlyAttributes;
+        this.parentMapping = parentMapping;
 
         if (idPropertyName != null) {
             this.idProperty = PropertyQueries
@@ -85,5 +93,13 @@ public class LDAPMappingConfiguration {
 
     public String getParentMembershipAttributeName() {
         return this.parentMembershipAttributeName;
+    }
+
+    public Map<String, String> getParentMapping() {
+        return this.parentMapping;
+    }
+
+    public Set<String> getReadOnlyAttributes() {
+        return this.readOnlyAttributes;
     }
 }

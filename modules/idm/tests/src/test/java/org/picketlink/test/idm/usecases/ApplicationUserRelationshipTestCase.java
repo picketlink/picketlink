@@ -26,7 +26,7 @@ import org.picketlink.idm.model.sample.Authorization;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;

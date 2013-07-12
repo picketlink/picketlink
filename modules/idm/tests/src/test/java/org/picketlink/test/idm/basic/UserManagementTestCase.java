@@ -36,7 +36,9 @@ import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.IdentityConfigurationTester;
+import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -121,7 +123,6 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         assertEquals("Updated The", updatedUser.getFirstName());
         assertEquals("Updated Administrator", updatedUser.getLastName());
         assertEquals("Updated admin@jboss.org", updatedUser.getEmail());
-        assertEquals(actualDate, updatedUser.getExpirationDate());
 
     }
 
@@ -149,7 +150,6 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
         relationshipManager.grantRole(anotherUser, role);
         relationshipManager.addToGroup(anotherUser, group);
-        relationshipManager.grantGroupRole(anotherUser, role, group);
 
         RelationshipQuery<?> relationshipQuery = relationshipManager.createRelationshipQuery(Grant.class);
 
@@ -160,12 +160,6 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         relationshipQuery = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
         relationshipQuery.setParameter(GroupMembership.MEMBER, anotherUser);
-
-        assertFalse(relationshipQuery.getResultList().isEmpty());
-
-        relationshipQuery = relationshipManager.createRelationshipQuery(GroupRole.class);
-
-        relationshipQuery.setParameter(GroupRole.ASSIGNEE, anotherUser);
 
         assertFalse(relationshipQuery.getResultList().isEmpty());
 
@@ -180,12 +174,6 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         relationshipQuery = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
         relationshipQuery.setParameter(GroupMembership.MEMBER, anotherUser);
-
-        assertTrue(relationshipQuery.getResultList().isEmpty());
-
-        relationshipQuery = relationshipManager.createRelationshipQuery(GroupRole.class);
-
-        relationshipQuery.setParameter(GroupRole.ASSIGNEE, anotherUser);
 
         assertTrue(relationshipQuery.getResultList().isEmpty());
     }
@@ -203,6 +191,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
     }
     
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testSetCertificateAsAttribute() {
         User mary = createUser("mary");
         

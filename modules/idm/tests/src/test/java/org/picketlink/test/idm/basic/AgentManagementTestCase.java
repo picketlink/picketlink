@@ -27,11 +27,12 @@ import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Grant;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
-import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.IdentityConfigurationTester;
+import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -73,6 +74,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
     }
 
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testUpdate() throws Exception {
         Agent storedAgent = createIdentityType();
 
@@ -116,7 +118,6 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
 
         relationshipManager.grantRole(anotherAgent, role);
         relationshipManager.addToGroup(anotherAgent, group);
-        relationshipManager.grantGroupRole(anotherAgent, role, group);
 
         RelationshipQuery<?> relationshipQuery = relationshipManager.createRelationshipQuery(Grant.class);
 
@@ -127,12 +128,6 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
         relationshipQuery = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
         relationshipQuery.setParameter(GroupMembership.MEMBER, anotherAgent);
-
-        assertFalse(relationshipQuery.getResultList().isEmpty());
-
-        relationshipQuery = relationshipManager.createRelationshipQuery(GroupRole.class);
-
-        relationshipQuery.setParameter(GroupRole.ASSIGNEE, anotherAgent);
 
         assertFalse(relationshipQuery.getResultList().isEmpty());
 
@@ -147,12 +142,6 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
         relationshipQuery = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
         relationshipQuery.setParameter(GroupMembership.MEMBER, anotherAgent);
-
-        assertTrue(relationshipQuery.getResultList().isEmpty());
-
-        relationshipQuery = relationshipManager.createRelationshipQuery(GroupRole.class);
-
-        relationshipQuery.setParameter(GroupRole.ASSIGNEE, anotherAgent);
 
         assertTrue(relationshipQuery.getResultList().isEmpty());
     }

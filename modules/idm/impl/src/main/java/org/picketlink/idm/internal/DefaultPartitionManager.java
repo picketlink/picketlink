@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.picketlink.idm.DefaultIdGenerator;
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -407,16 +408,26 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     public <T extends CredentialStore<?>> T getStoreForCredentialOperation(IdentityContext context, Class<?> credentialClass) {
         T store = null;
 
-        IdentityConfiguration config = getConfigurationForPartition(context.getPartition());
+        IdentityConfiguration identityConfiguration = null;
 
-        for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
+        if (this.partitionManagementConfig != null) {
+            identityConfiguration = getConfigurationForPartition(context.getPartition());
+        } else {
+            identityConfiguration = this.configurations.iterator().next();
+        }
+
+        for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
             for (@SuppressWarnings("rawtypes") Class<? extends CredentialHandler> handlerClass : storeConfig.getCredentialHandlers()) {
                 if (handlerClass.isAnnotationPresent(SupportsCredentials.class)) {
                     for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).value()) {
                         if (cls.isAssignableFrom(credentialClass)) {
+                            IdentityStore<?> identityStore = null;
                             try {
-                                store = (T) stores.get(config).get(storeConfig);
+                                identityStore = stores.get(identityConfiguration).get(storeConfig);
+                                store = (T) identityStore;
                                 storeConfig.initializeContext(context, store);
+                            } catch (ClassCastException cce) {
+                                throw IDMMessages.MESSAGES.credentialInvalidCredentialStoreType(identityStore.getClass());
                             } catch (Exception e) {
                                 throw MESSAGES.credentialCredentialHandlerInstantiationError(handlerClass, e);
                             }

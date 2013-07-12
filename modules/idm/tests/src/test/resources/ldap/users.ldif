@@ -24,30 +24,6 @@ objectclass: top
 objectclass: organizationalUnit
 ou: CustomTypes
 
-dn: uid=admin,ou=People,dc=jboss,dc=org
-objectclass: top
-objectclass: uidObject
-objectclass: person
-objectclass: extensibleObject
-objectclass: inetOrgPerson
-uid: admin
-cn: The Administrator
-givenname: The
-sn: Administrator
-mail: admin@jboss.org
-userPassword: admin
-
-dn: uid=guest,ou=People,dc=jboss,dc=org
-objectclass: top
-objectclass: uidObject
-objectclass: person
-objectclass: extensibleObject
-objectclass: inetOrgPerson
-uid: guest
-cn: Guest User
-sn: User
-userPassword: guest
-
 dn: ou=Roles,dc=jboss,dc=org
 objectclass: top
 objectclass: organizationalUnit
@@ -57,40 +33,3 @@ dn: ou=Groups,dc=jboss,dc=org
 objectclass: top
 objectclass: organizationalUnit
 ou: Groups
-
-dn: cn=Echo,ou=Roles,dc=jboss,dc=org
-objectClass: top
-objectClass: groupOfNames
-cn: Echo
-description: the JBossAdmin group
-member: uid=admin,ou=People,dc=jboss,dc=org
-
-dn: cn=Administrator,ou=Roles,dc=jboss,dc=org
-objectClass: groupOfNames
-objectClass: top
-cn: Administrator
-description: Administrator role context
-member: uid=admin,ou=People,dc=jboss,dc=org
-
-dn: cn=Test Group,ou=Groups,dc=jboss,dc=org
-objectClass: top
-objectClass: groupOfNames
-cn: Test Group
-description: the Test Group
-member: cn=Echo,ou=Roles,dc=jboss,dc=org
-member: uid=admin,ou=People,dc=jboss,dc=org
-
-dn: cn=Test Parent Group,ou=Groups,dc=jboss,dc=org
-objectClass: top
-objectClass: groupOfNames
-cn: Test Parent Group
-description: the Test Parent Group
-member: cn=Test Group,ou=Groups,dc=jboss,dc=org
-
-dn: cn=Lonely Group,ou=Groups,dc=jboss,dc=org
-objectClass: top
-objectClass: groupOfNames
-cn: Lonely Group
-description: the Lonely Group
-member: 
-

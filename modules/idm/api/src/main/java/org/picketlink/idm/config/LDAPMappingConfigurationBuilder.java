@@ -43,10 +43,12 @@ public class LDAPMappingConfigurationBuilder extends
 
     private final LDAPStoreConfigurationBuilder ldapStoreBuilder;
     private Class<? extends AttributedType> mappedClass;
-    private Set<String> objectClasses = new HashSet<String>();
+    private final Set<String> objectClasses = new HashSet<String>();
     private String baseDN;
     private String idPropertyName;
-    private Map<String, String> mappedProperties = new HashMap<String, String>();
+    private final Map<String, String> mappedProperties = new HashMap<String, String>();
+    private final Set<String> readOnlyAttributes = new HashSet<String>();
+    private final Map<String, String> parentMapping = new HashMap<String, String>();
     private Class<? extends AttributedType> relatedAttributedType;
     private String parentMembershipAttributeName;
 
@@ -58,7 +60,16 @@ public class LDAPMappingConfigurationBuilder extends
 
     @Override
     protected LDAPMappingConfiguration create() {
-        return new LDAPMappingConfiguration(this.mappedClass, this.objectClasses, this.baseDN, this.idPropertyName, this.mappedProperties, this.relatedAttributedType, this.parentMembershipAttributeName);
+        return new LDAPMappingConfiguration(
+                this.mappedClass,
+                this.objectClasses,
+                this.baseDN,
+                this.idPropertyName,
+                this.mappedProperties,
+                this.readOnlyAttributes,
+                this.parentMapping,
+                this.relatedAttributedType,
+                this.parentMembershipAttributeName);
     }
 
     @Override
@@ -106,6 +117,12 @@ public class LDAPMappingConfigurationBuilder extends
         return this;
     }
 
+    public LDAPMappingConfigurationBuilder readOnlyAttribute(String propertyName, String ldapAttributeName) {
+        this.mappedProperties.put(propertyName, ldapAttributeName);
+        this.readOnlyAttributes.add(propertyName);
+        return this;
+    }
+
     public LDAPMappingConfigurationBuilder attribute(String propertyName, String ldapAttributeName, boolean identifier) {
         attribute(propertyName, ldapAttributeName);
 
@@ -136,6 +153,11 @@ public class LDAPMappingConfigurationBuilder extends
 
     public LDAPMappingConfigurationBuilder parentMembershipAttributeName(String parentMembershipAttributeName) {
         this.parentMembershipAttributeName = parentMembershipAttributeName;
+        return this;
+    }
+
+    public LDAPMappingConfigurationBuilder parentMapping(String parentId, String baseDN) {
+        this.parentMapping.put(parentId, baseDN);
         return this;
     }
 }

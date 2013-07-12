@@ -28,7 +28,9 @@ import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IdentityConfigurationTester;
+import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -41,6 +43,7 @@ import static org.junit.Assert.assertNull;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
+@IgnoreTester({LDAPStoreConfigurationTester.class})
 public class CertificateCredentialTestCase extends AbstractPartitionManagerTestCase {
 
     public CertificateCredentialTestCase(IdentityConfigurationTester builder) {

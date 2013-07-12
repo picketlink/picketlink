@@ -29,7 +29,7 @@ import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -89,17 +89,10 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
 
         relationshipManager.grantRole(anotherUser, role);
         relationshipManager.addToGroup(anotherUser, group);
-        relationshipManager.grantGroupRole(anotherUser, role, group);
 
         RelationshipQuery<?> relationshipQuery = relationshipManager.createRelationshipQuery(Grant.class);
 
         relationshipQuery.setParameter(Grant.ROLE, role);
-
-        assertFalse(relationshipQuery.getResultList().isEmpty());
-
-        relationshipQuery = relationshipManager.createRelationshipQuery(GroupRole.class);
-
-        relationshipQuery.setParameter(GroupRole.ROLE, role);
 
         assertFalse(relationshipQuery.getResultList().isEmpty());
 
@@ -108,12 +101,6 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
         relationshipQuery = relationshipManager.createRelationshipQuery(Grant.class);
 
         relationshipQuery.setParameter(Grant.ROLE, role);
-
-        assertTrue(relationshipQuery.getResultList().isEmpty());
-
-        relationshipQuery = relationshipManager.createRelationshipQuery(GroupRole.class);
-
-        relationshipQuery.setParameter(GroupRole.ROLE, role);
 
         assertTrue(relationshipQuery.getResultList().isEmpty());
     }

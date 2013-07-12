@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.test.idm;
+package org.picketlink.test.idm.testers;
 
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
@@ -25,7 +25,7 @@ import org.picketlink.idm.model.sample.Realm;
 /**
  * @author pedroigor
  */
-public class SimpleFileStoreConfigurationTester implements IdentityConfigurationTester {
+public class FileStoreConfigurationTester implements IdentityConfigurationTester {
 
     public static final String SIMPLE_FILE_STORE_CONFIG = "SIMPLE_FILE_STORE_CONFIG";
 
@@ -55,4 +55,5 @@ public class SimpleFileStoreConfigurationTester implements IdentityConfiguration
     @Override
     public void afterTest() {
     }
+
 }

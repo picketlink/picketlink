@@ -18,6 +18,7 @@
 package org.picketlink.idm.model;
 
 import java.util.Date;
+import org.picketlink.idm.model.annotation.AttributeProperty;
 
 /**
  * Abstract base class for IdentityType implementations
@@ -54,6 +55,7 @@ public abstract class AbstractIdentityType extends AbstractAttributedType implem
     }
 
     @Override
+    @AttributeProperty
     public Date getCreatedDate() {
         return this.createdDate;
     }

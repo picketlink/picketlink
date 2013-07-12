@@ -45,7 +45,6 @@ public class LDAPStoreConfigurationBuilder extends
     private String groupDNSuffix;
     private String bindDN;
     private String bindCredential;
-    private Map<String, String> groupMapping = new HashMap<String, String>();
     private Set<LDAPMappingConfigurationBuilder> mappingBuilders = new HashSet<LDAPMappingConfigurationBuilder>();
 
     public LDAPStoreConfigurationBuilder(IdentityStoresConfigurationBuilder builder) {
@@ -92,11 +91,6 @@ public class LDAPStoreConfigurationBuilder extends
         return this;
     }
 
-    public LDAPStoreConfigurationBuilder addGroupMapping(String groupPath, String groupBaseDN) {
-        this.groupMapping.put(groupPath, groupBaseDN);
-        return this;
-    }
-
     public LDAPMappingConfigurationBuilder mapping(Class<? extends AttributedType> attributedType) {
         LDAPMappingConfigurationBuilder ldapMappingConfigurationBuilder = new LDAPMappingConfigurationBuilder(attributedType, this);
 
@@ -134,7 +128,6 @@ public class LDAPStoreConfigurationBuilder extends
                 this.userDNSuffix,
                 this.roleDNSuffix,
                 this.groupDNSuffix,
-                this.groupMapping,
                 mappingConfig,
                 getSupportedTypes(),
                 getUnsupportedTypes(),

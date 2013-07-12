@@ -35,7 +35,9 @@ import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.IdentityConfigurationTester;
+import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -129,7 +131,6 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
-        query.setParameter(GroupMembership.GROUP, administratorGroup);
         query.setParameter(GroupMembership.GROUP, someGroup);
 
         result = query.getResultList();
@@ -185,6 +186,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
      * @throws Exception
      */
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testFindBySingleGroupRole() throws Exception {
         T agentType = createIdentityType("someUser", null);
         Group salesGroup = createGroup("Sales", null);
@@ -472,6 +474,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
     }
 
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testFindByLoginNameAndCreationDateWithSorting() throws Exception {
         createAgent("john");
         // Sleep is needed to avoid same createdDate

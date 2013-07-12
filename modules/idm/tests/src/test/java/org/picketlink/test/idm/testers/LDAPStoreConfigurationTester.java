@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.test.idm;
+package org.picketlink.test.idm.testers;
 
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
@@ -28,19 +28,21 @@ import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.basic.CustomIdentityTypeTestCase;
+import org.picketlink.test.idm.util.LDAPEmbeddedServer;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.CREATE_TIMESTAMP;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.EMAIL;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.GROUP_OF_NAMES;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.SN;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.UID;
-import static org.picketlink.test.idm.LDAPEmbeddedServer.AGENT_DN_SUFFIX;
-import static org.picketlink.test.idm.LDAPEmbeddedServer.BASE_DN;
-import static org.picketlink.test.idm.LDAPEmbeddedServer.LDAP_URL;
+import static org.picketlink.test.idm.util.LDAPEmbeddedServer.AGENT_DN_SUFFIX;
+import static org.picketlink.test.idm.util.LDAPEmbeddedServer.BASE_DN;
+import static org.picketlink.test.idm.util.LDAPEmbeddedServer.LDAP_URL;
 
 /**
  * @author pedroigor
  */
-public class SimpleLDAPStoreConfigurationTester implements IdentityConfigurationTester {
+public class LDAPStoreConfigurationTester implements IdentityConfigurationTester {
 
     public static final String SIMPLE_LDAP_STORE_CONFIG = "SIMPLE_LDAP_STORE_CONFIG";
     private final LDAPEmbeddedServer embeddedServer = new LDAPEmbeddedServer();
@@ -57,13 +59,13 @@ public class SimpleLDAPStoreConfigurationTester implements IdentityConfiguration
                         .bindDN("uid=admin,ou=system")
                         .bindCredential("secret")
                         .url(LDAP_URL)
-                        .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org")
                         .supportType(IdentityType.class)
                         .supportGlobalRelationship(Grant.class, GroupMembership.class)
                         .mapping(Agent.class)
                             .baseDN(AGENT_DN_SUFFIX)
                             .objectClasses("account")
                             .attribute("loginName", UID, true)
+                            .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
                         .mapping(User.class)
                             .baseDN(LDAPEmbeddedServer.USER_DN_SUFFIX)
                             .objectClasses("inetOrgPerson", "organizationalPerson")
@@ -71,15 +73,19 @@ public class SimpleLDAPStoreConfigurationTester implements IdentityConfiguration
                             .attribute("firstName", CN)
                             .attribute("lastName", SN)
                             .attribute("email", EMAIL)
+                            .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
                         .mapping(Role.class)
                             .baseDN(LDAPEmbeddedServer.ROLES_DN_SUFFIX)
                             .objectClasses(GROUP_OF_NAMES)
                             .attribute("name", CN, true)
+                            .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
                         .mapping(Group.class)
                             .baseDN(LDAPEmbeddedServer.GROUP_DN_SUFFIX)
                             .objectClasses(GROUP_OF_NAMES)
                             .attribute("name", CN, true)
+                            .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
                             .parentMembershipAttributeName("member")
+                            .parentMapping("QA Group", "ou=QA,dc=jboss,dc=org")
                         .mapping(CustomIdentityTypeTestCase.MyCustomIdentityType.class)
                             .baseDN("ou=CustomTypes,dc=jboss,dc=org")
                             .objectClasses("device")

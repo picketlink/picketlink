@@ -17,6 +17,10 @@
  */
 package org.picketlink.test.idm;
 
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
+import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+
 /**
  * @author pedroigor
  */
@@ -29,15 +33,16 @@ public class IdentityConfigurationTestFactory {
      */
     public static IdentityConfigurationTester[] getConfigurations() {
         return new IdentityConfigurationTester[] {
-                buildSimpleFileStoreConfig()
+                buildSimpleFileStoreConfig(),
+                buildSimpleLDAPStoreConfig()
         };
     }
 
     private static IdentityConfigurationTester buildSimpleFileStoreConfig() {
-        return new SimpleFileStoreConfigurationTester();
+        return new FileStoreConfigurationTester();
     }
 
     private static IdentityConfigurationTester buildSimpleLDAPStoreConfig() {
-        return new SimpleLDAPStoreConfigurationTester();
+        return new LDAPStoreConfigurationTester();
     }
 }

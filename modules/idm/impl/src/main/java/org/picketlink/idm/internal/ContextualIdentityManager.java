@@ -50,11 +50,11 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Default implementation of the IdentityManager interface.
- *
+ * <p/>
  * This lightweight class is intended to be created any time a batch of partition-specific identity management
  * operations are to be performed.  In a web environment, it is recommended that instances are scoped to the
  * web request lifecycle.
- *
+ * <p/>
  * This class is not thread-safe.
  *
  * @author Shane Bryzak
@@ -63,11 +63,10 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
 public class ContextualIdentityManager extends AbstractIdentityContext implements IdentityManager {
 
     public static final String IDENTITY_MANAGER_CTX_PARAMETER = "IDENTITY_MANAGER_CTX_PARAMETER";
-
     private final StoreSelector storeSelector;
 
     public ContextualIdentityManager(Partition partition, EventBridge eventBridge, IdGenerator idGenerator,
-            StoreSelector storeSelector) {
+                                     StoreSelector storeSelector) {
         super(partition, eventBridge, idGenerator);
         this.storeSelector = storeSelector;
         setParameter(IDENTITY_MANAGER_CTX_PARAMETER, this);
@@ -172,29 +171,34 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
             groupPath = "/" + groupPath;
         }
 
-        List<Group> groups = createIdentityQuery(Group.class).setParameter(Group.PATH, groupPath).getResultList();
-        if (groups.isEmpty()) {
-            return null;
-        } else if (groups.size() == 1) {
-            return groups.get(0);
-        } else {
-            throw new IdentityManagementException("Error - multiple Group objects found with same path");
+        String[] paths = groupPath.split("/");
+
+        if (paths.length > 0) {
+            String name = paths[paths.length - 1];
+
+            IdentityQuery<Group> query = createIdentityQuery(Group.class);
+
+            query.setParameter(Group.NAME, name);
+
+            List<Group> result = query.getResultList();
+
+            for (Group group : result) {
+                if (group.getPath().equals(groupPath)) {
+                    return group;
+                }
+            }
         }
+
+        return null;
     }
 
     @Override
     public Group getGroup(String groupName, Group parent) {
-        List<Group> groups = createIdentityQuery(Group.class)
-                .setParameter(Group.NAME, groupName)
-                .setParameter(Group.PARENT, parent)
-                .getResultList();
-        if (groups.isEmpty()) {
+        if (groupName == null || parent == null) {
             return null;
-        } else if (groups.size() == 1) {
-            return groups.get(0);
-        } else {
-            throw new IdentityManagementException("Error - multiple Group objects found with same name and parent");
         }
+
+        return getGroup(new Group(groupName, parent).getPath());
     }
 
     @SuppressWarnings("unchecked")
@@ -219,7 +223,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
         return identity;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType) {
         return new DefaultIdentityQuery(this, identityType, storeSelector.getStoreForIdentityOperation(
@@ -239,13 +243,13 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
     @Override
     public void updateCredential(Account account, Object credential, Date effectiveDate, Date expiryDate) {
         storeSelector.getStoreForCredentialOperation(this, credential.getClass())
-            .updateCredential(this, account, credential, effectiveDate, expiryDate);
+                .updateCredential(this, account, credential, effectiveDate, expiryDate);
     }
 
     @Override
     public <T extends CredentialStorage> T retrieveCurrentCredential(Account account, Class<T> storageClass) {
         return (T) ((CredentialStore<?>) storeSelector.getStoreForCredentialOperation(this, storageClass))
-            .retrieveCurrentCredential(this, account, storageClass);
+                .retrieveCurrentCredential(this, account, storageClass);
     }
 
     @Override
@@ -266,7 +270,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
 
         IdentityQuery<? extends IdentityType> identityQuery = createIdentityQuery(identityType.getClass());
 
-        for (Property<Serializable> property: propertyQuery.getResultList()) {
+        for (Property<Serializable> property : propertyQuery.getResultList()) {
             identityQuery.setParameter(AttributedType.QUERY_ATTRIBUTE.byName(property.getName()), property.getValue(identityType));
         }
 

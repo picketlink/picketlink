@@ -18,10 +18,8 @@
 package org.picketlink.idm.config;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import org.picketlink.idm.IdentityManagementException;
@@ -54,7 +52,6 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
 
     private String agentDNSuffix;
     private String baseDN;
-    private Map<String, String> groupMapping = new HashMap<String, String>();
     private final Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig;
 
     LDAPIdentityStoreConfiguration(
@@ -66,7 +63,6 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             String userDNSuffix,
             String roleDNSuffix,
             String groupDNSuffix,
-            Map<String, String> groupMapping,
             Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig, Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
             List<ContextInitializer> contextInitializers,
@@ -81,7 +77,6 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         this.userDNSuffix = userDNSuffix;
         this.roleDNSuffix = roleDNSuffix;
         this.groupDNSuffix = groupDNSuffix;
-        this.groupMapping = groupMapping;
         this.mappingConfig = mappingConfig;
     }
 
@@ -145,38 +140,14 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         return this.baseDN;
     }
 
-    public String getGroupMappingDN(String groupPath) {
-        Set<Entry<String, String>> entrySet = this.groupMapping.entrySet();
-
-        for (Entry<String, String> entry : entrySet) {
-            if (groupPath.contains(entry.getKey())) {
-                return entry.getValue();
-            }
-        }
-
-        return this.groupMapping.get(groupPath);
-    }
-
-    public boolean isGroupNamespace(String nameInNamespace) {
-        if (nameInNamespace.endsWith(getGroupDNSuffix())) {
-            return true;
-        }
-
-        Set<Entry<String, String>> entrySet = this.groupMapping.entrySet();
-
-        for (Entry<String, String> entry : entrySet) {
-            if (nameInNamespace.endsWith(entry.getValue())) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public Class<? extends AttributedType> getSupportedTypeByBaseDN(String baseDN) {
         for (LDAPMappingConfiguration mappingConfig : this.mappingConfig.values()) {
             if (!Relationship.class.isAssignableFrom(mappingConfig.getMappedClass())) {
                 if (mappingConfig.getBaseDN().equalsIgnoreCase(baseDN)) {
+                    return mappingConfig.getMappedClass();
+                }
+
+                if (mappingConfig.getParentMapping().values().contains(baseDN)) {
                     return mappingConfig.getMappedClass();
                 }
             }

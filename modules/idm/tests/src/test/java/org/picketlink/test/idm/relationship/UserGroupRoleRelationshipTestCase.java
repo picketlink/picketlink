@@ -20,7 +20,7 @@ package org.picketlink.test.idm.relationship;
 
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.test.idm.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 
 /**
  * <p>

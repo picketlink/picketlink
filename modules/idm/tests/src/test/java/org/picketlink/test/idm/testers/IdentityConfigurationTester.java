@@ -1,4 +1,4 @@
-package org.picketlink.test.idm;
+package org.picketlink.test.idm.testers;
 
 import org.picketlink.idm.PartitionManager;
 

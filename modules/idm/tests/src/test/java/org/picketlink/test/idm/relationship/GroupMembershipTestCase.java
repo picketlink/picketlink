@@ -32,7 +32,9 @@ import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IdentityConfigurationTester;
+import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -73,6 +75,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
     }
 
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testUpdate() throws Exception {
         User someUser = createUser();
         Group someGroup = createGroup();
@@ -249,6 +252,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
     }
 
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testFindByAttributes() throws Exception {
         User someUser = createUser();
         Group someGroup = createGroup();
@@ -307,6 +311,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
     }
     
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testLargeAttributeValue() throws Exception {
         User someUser = createUser();
         Group someGroup = createGroup();
