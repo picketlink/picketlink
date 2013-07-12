@@ -279,13 +279,11 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
 
                 boolean found = true;
 
-                for (Entry<QueryParameter, Object[]> entry : identityQuery.getParameters(AttributeParameter.class).entrySet()) {
+                for (Entry<QueryParameter, Object[]> entry : identityQuery.getParameters().entrySet()) {
                     // if one of the parameters didn`t match is because the entry should not be selected
                     if (!found) {
                         break;
                     }
-
-                    found = false;
 
                     QueryParameter queryParameter = entry.getKey();
 
@@ -304,6 +302,8 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
                     }
 
                     if (AttributeParameter.class.isInstance(queryParameter)) {
+                        found = false;
+
                         String attributeParameterName = ((AttributeParameter) queryParameter).getName();
 
                         Property<Serializable> property = null;

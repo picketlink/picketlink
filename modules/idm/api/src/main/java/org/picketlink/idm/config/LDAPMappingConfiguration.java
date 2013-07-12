@@ -44,7 +44,7 @@ public class LDAPMappingConfiguration {
                              String baseDN,
                              String idPropertyName,
                              Map<String, String> mappedProperties,
-                             Set<String> readOnlyAttributes, 
+                             Set<String> readOnlyAttributes,
                              Map<String, String> parentMapping,
                              Class<? extends AttributedType> relatedAttributedType,
                              String parentMembershipAttributeName) {
