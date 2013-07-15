@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,23 +90,48 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
      */
     private RelationshipModel relationshipModel = new RelationshipModel();
 
-    private class PartitionModel {
-        private Map<Class<? extends Partition>, ModelDefinition> definitions =
-                new HashMap<Class<? extends Partition>, ModelDefinition>();
-
-        private Property<String> partitionClassProperty;
+    /**
+     *
+     */
+    public abstract class AbstractModel<T extends Class> {
+        /**
+         * Maps between specific types and their identity mapping metadata
+         */
+        protected Map<T, ModelDefinition> definitions = new HashMap<T, ModelDefinition>();
 
         /**
          * Map between entity classes and their @OwnerReference property
          */
-        private final Map<Class<?>, Property<?>> ownerReferences = new HashMap<Class<?>, Property<?>>();
+        protected final Map<Class<?>, Property<?>> ownerReferences = new HashMap<Class<?>, Property<?>>();
 
-        public ModelDefinition getDefinition(Class<? extends Partition> partitionClass) {
-            if (!definitions.containsKey(partitionClass)) {
-                definitions.put(partitionClass, new ModelDefinition());
+        public ModelDefinition getDefinition(T cls) {
+            if (!definitions.containsKey(cls)) {
+                definitions.put(cls, new ModelDefinition());
             }
-            return definitions.get(partitionClass);
+            return definitions.get(cls);
         }
+
+        public Set<ModelDefinition> getDefinitions(Class<T> cls) {
+            Set<ModelDefinition> result = new HashSet<ModelDefinition>();
+            for (Class<T> c : definitions.keySet()) {
+                if (c.isAssignableFrom(cls)) {
+                    result.add(definitions.get(c));
+                }
+            }
+            return result;
+        }
+
+        public void setOwnerReference(Class<?> entityClass, Property<?> ownerReference) {
+            ownerReferences.put(entityClass, ownerReference);
+        }
+
+        public Property<?> getOwnerReference(Class<?> entityClass) {
+            return ownerReferences.get(entityClass);
+        }
+    }
+
+    public final class PartitionModel extends AbstractModel<Class<? extends Partition>> {
+        private Property<String> partitionClassProperty;
 
         public void setPartitionClassProperty(Property<String> partitionClassProperty) {
             this.partitionClassProperty = partitionClassProperty;
@@ -114,60 +140,24 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
         public Property<String> getPartitionClassProperty() {
             return partitionClassProperty;
         }
-
-        public void setOwnerReference(Class<?> entityClass, Property<?> ownerReference) {
-            ownerReferences.put(entityClass, ownerReference);
-        }
     }
 
-    private class IdentityModel {
-        /**
-         * Maps between specific identity types and their identity mapping metadata
-         */
-        private final Map<Class<? extends IdentityType>, ModelDefinition> definitions =
-                new HashMap<Class<? extends IdentityType>, ModelDefinition>();
-
-        /**
-         * Map between entity classes and their @OwnerReference property
-         */
-        private final Map<Class<?>, Property<?>> ownerReferences = new HashMap<Class<?>, Property<?>>();
-
+    public final class IdentityModel extends AbstractModel<Class<? extends IdentityType>> {
         private Property<String> identityClassProperty;
-
-        public ModelDefinition getDefinition(Class<? extends IdentityType> identityClass) {
-            if (!definitions.containsKey(identityClass)) {
-                definitions.put(identityClass, new ModelDefinition());
-            }
-            return definitions.get(identityClass);
-        }
 
         public void setIdentityClassProperty(Property<String> identityClassProperty) {
             this.identityClassProperty = identityClassProperty;
         }
 
-        public void setOwnerReference(Class<?> entityClass, Property<?> ownerReference) {
-            ownerReferences.put(entityClass, ownerReference);
+        public Property<String> getIdentityClassProperty() {
+            return identityClassProperty;
         }
     }
 
-    private class CredentialModel {
-        private final Map<Class<? extends CredentialStorage>, ModelDefinition> definitions =
-                new HashMap<Class<? extends CredentialStorage>, ModelDefinition>();
-
-        /**
-         * Map between entity classes and their @OwnerReference property
-         */
-        private final Map<Class<?>, Property<?>> ownerReferences = new HashMap<Class<?>, Property<?>>();
+    public final class CredentialModel extends AbstractModel<Class<? extends CredentialStorage>> {
 
         private Property<String> credentialClassProperty;
         private Property<?> credentialValueProperty;
-
-        public ModelDefinition getDefinition(Class<? extends CredentialStorage> credentialClass) {
-            if (!definitions.containsKey(credentialClass)) {
-                definitions.put(credentialClass, new ModelDefinition());
-            }
-            return definitions.get(credentialClass);
-        }
 
         public void setCredentialClassProperty(Property<String> credentialClassProperty) {
             this.credentialClassProperty = credentialClassProperty;
@@ -176,31 +166,12 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
         public void setCredentialValueProperty(Property<?> credentialValueProperty) {
             this.credentialValueProperty = credentialValueProperty;
         }
-
-        public void setOwnerReference(Class<?> entityClass, Property<?> ownerReference) {
-            ownerReferences.put(entityClass, ownerReference);
-        }
     }
 
-    private class RelationshipModel {
-        private final Map<Class<? extends Relationship>, ModelDefinition> definitions =
-                new HashMap<Class<? extends Relationship>, ModelDefinition>();
-
-        /**
-         * Map between entity classes and their @OwnerReference property
-         */
-        private final Map<Class<?>, Property<?>> ownerReferences = new HashMap<Class<?>, Property<?>>();
-
+    public final class RelationshipModel extends AbstractModel<Class<? extends Relationship>> {
         private Property<String> relationshipClassProperty;
         private Property<?> relationshipMember;
         private Property<?> relationshipDescriptor;
-
-        public ModelDefinition getDefinition(Class<? extends Relationship> relationshipClass) {
-            if (!definitions.containsKey(relationshipClass)) {
-                definitions.put(relationshipClass, new ModelDefinition());
-            }
-            return definitions.get(relationshipClass);
-        }
 
         public void setRelationshipMember(Property<?> relationshipMember) {
             this.relationshipMember = relationshipMember;
@@ -214,17 +185,24 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
             this.relationshipClassProperty = relationshipClassProperty;
         }
 
-        public void setOwnerReference(Class<?> entityClass, Property<?> ownerReference) {
-            ownerReferences.put(entityClass, ownerReference);
+        public Property<String> getRelationshipClassProperty() {
+            return relationshipClassProperty;
         }
 
+        public Property<?> getRelationshipMember() {
+            return relationshipMember;
+        }
+
+        public Property<?> getRelationshipDescriptor() {
+            return relationshipDescriptor;
+        }
     }
 
     /**
      * Each model definition maps between a Property of the identity model and its corresponding
      * entity bean property, and also maps ad-hoc attribute schemas to the identity type.
      */
-    private class ModelDefinition {
+    public class ModelDefinition {
         /**
          * Maps between a property of an identity model class and its corresponding entity bean property
          */
@@ -242,13 +220,30 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
         public void addAttribute(Class<?> cls, AttributeMapping mapping) {
             attributes.put(cls, mapping);
         }
+
+        public Map<Property, PropertyMapping> getProperties() {
+            return properties;
+        }
+
+        public Map<Class<?>, AttributeMapping> getAttributes() {
+            return attributes;
+        }
     }
 
-    private class PropertyMapping {
-        private final Property<?> entityProperty;
+    /**
+     * The PropertyMapping represents a mapping between an identity property and either
+     *
+     * a) an entity class, for example when the identity property represents a collection of
+     * objects and each object is an entity
+     *
+     * b) a single entity property, when there is a one-to-one mapping between the identity property
+     * value and the entity property value
+     */
+    public class PropertyMapping {
+        private final Property<Object> entityProperty;
         private final Class<?> entityClass;
 
-        private PropertyMapping(Property<?> entityProperty) {
+        private PropertyMapping(Property<Object> entityProperty) {
             this.entityProperty = entityProperty;
             this.entityClass = null;
         }
@@ -258,7 +253,7 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
             this.entityClass = entityClass;
         }
 
-        public Property<?> getEntityProperty() {
+        public Property<Object> getEntityProperty() {
             return entityProperty;
         }
 
@@ -267,16 +262,22 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
         }
     }
 
-    private class AttributeMapping {
+    public class AttributeMapping {
+        private final Class<?> entityClass;
         private final Property<String> attributeName;
         private final Property<String> attributeClass;
         private final Property<Object> attributeValue;
 
-        private AttributeMapping(Property<String> attributeName,
+        private AttributeMapping(Class<?> entityClass, Property<String> attributeName,
                 Property<String> attributeClass, Property<Object> attributeValue) {
+            this.entityClass = entityClass;
             this.attributeName = attributeName;
             this.attributeClass = attributeClass;
             this.attributeValue = attributeValue;
+        }
+
+        public Class<?> getEntityClass() {
+            return entityClass;
         }
 
         public Property<String> getAttributeName() {
@@ -334,6 +335,22 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
                 throw IDMMessages.MESSAGES.jpaConfigAmbiguousEntityBean(entityClass);
             }
         }
+    }
+
+    public IdentityModel getIdentityModel() {
+        return identityModel;
+    }
+
+    public RelationshipModel getRelationshipModel() {
+        return relationshipModel;
+    }
+
+    public PartitionModel getPartitionModel() {
+        return partitionModel;
+    }
+
+    public CredentialModel getCredentialModel() {
+        return credentialModel;
     }
 
     @Override
@@ -610,7 +627,7 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
             ModelDefinition definition = partitionModel.getDefinition(partitionClass);
 
             // First query the identifier property on the entity
-            Property<?> prop = PropertyQueries.createQuery(entityClass)
+            Property<Object> prop = PropertyQueries.createQuery(entityClass)
                     .addCriteria(new AnnotatedPropertyCriteria(Identifier.class))
                     .getSingleResult();
 
@@ -677,7 +694,7 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
                         .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
                         .getFirstResult();
 
-                AttributeMapping mapping = new AttributeMapping(attributeName, attributeClass, attributeValue);
+                AttributeMapping mapping = new AttributeMapping(entityClass, attributeName, attributeClass, attributeValue);
 
                 for (Class<? extends Partition> partitionClass : types) {
                     ModelDefinition definition = partitionModel.getDefinition(partitionClass);
@@ -768,14 +785,14 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
             ModelDefinition definition = identityModel.getDefinition(identityClass);
 
             // First query the identifier property on the entity
-            Property<String> idProp = PropertyQueries.<String>createQuery(entityClass)
+            Property<Object> idProp = PropertyQueries.<Object>createQuery(entityClass)
                     .addCriteria(new AnnotatedPropertyCriteria(Identifier.class))
                     .getSingleResult();
 
             definition.addProperty(idProperty, new PropertyMapping(idProp));
 
             // next query the enabled property on the entity
-            Property<?> prop = PropertyQueries.createQuery(entityClass)
+            Property<Object> prop = PropertyQueries.createQuery(entityClass)
                     .addCriteria(new AnnotatedPropertyCriteria(Enabled.class))
                     .getFirstResult();
 
@@ -865,7 +882,7 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
                         .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
                         .getFirstResult();
 
-                AttributeMapping mapping = new AttributeMapping(attributeName, attributeClass, attributeValue);
+                AttributeMapping mapping = new AttributeMapping(entityClass, attributeName, attributeClass, attributeValue);
 
                 for (Class<? extends IdentityType> identityClass : types) {
                     ModelDefinition definition = identityModel.getDefinition(identityClass);
@@ -951,14 +968,14 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
             ModelDefinition definition = credentialModel.getDefinition(credentialClass);
 
             // First query the effectiveDate property on the entity
-            Property<Date> dateProp = PropertyQueries.<Date>createQuery(entityClass)
+            Property<Object> dateProp = PropertyQueries.<Object>createQuery(entityClass)
                     .addCriteria(new AnnotatedPropertyCriteria(EffectiveDate.class))
                     .getSingleResult();
 
             definition.addProperty(effectiveDateProperty, new PropertyMapping(dateProp));
 
             // next query the expiry date property on the entity
-            dateProp = PropertyQueries.<Date>createQuery(entityClass)
+            dateProp = PropertyQueries.<Object>createQuery(entityClass)
                     .addCriteria(new AnnotatedPropertyCriteria(ExpiryDate.class))
                     .getSingleResult();
 
@@ -1044,7 +1061,7 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
                         .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
                         .getFirstResult();
 
-                AttributeMapping mapping = new AttributeMapping(attributeName, attributeClass, attributeValue);
+                AttributeMapping mapping = new AttributeMapping(entityClass, attributeName, attributeClass, attributeValue);
 
                 for (Class<? extends CredentialStorage> credentialClass : types) {
                     ModelDefinition definition = credentialModel.getDefinition(credentialClass);
@@ -1119,7 +1136,7 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
             ModelDefinition definition = relationshipModel.getDefinition(relationshipClass);
 
             // First query the identifier property on the entity
-            Property<?> prop = PropertyQueries.createQuery(entityClass)
+            Property<Object> prop = PropertyQueries.createQuery(entityClass)
                     .addCriteria(new AnnotatedPropertyCriteria(Identifier.class))
                     .getSingleResult();
 
@@ -1199,7 +1216,7 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
                         .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
                         .getFirstResult();
 
-                AttributeMapping mapping = new AttributeMapping(attributeName, attributeClass, attributeValue);
+                AttributeMapping mapping = new AttributeMapping(entityClass, attributeName, attributeClass, attributeValue);
 
                 for (Class<? extends Relationship> relationshipClass : types) {
                     ModelDefinition definition = relationshipModel.getDefinition(relationshipClass);

@@ -33,6 +33,8 @@ import org.picketlink.idm.model.Relationship;
 
 /**
  * Caches metadata for relationship identity properties, and provides utility methods for working with relationships
+ * 
+ * TODO Make this class thread-safe
  *
  * @author Shane Bryzak
  */
@@ -56,7 +58,7 @@ public class RelationshipMetadata {
         return partitions;
     }
 
-    private Set<Property<? extends IdentityType>> getRelationshipIdentityProperties(
+    public Set<Property<? extends IdentityType>> getRelationshipIdentityProperties(
             Class<? extends Relationship> relationshipClass) {
 
         if (!relationshipIdentityProperties.containsKey(relationshipClass)) {
