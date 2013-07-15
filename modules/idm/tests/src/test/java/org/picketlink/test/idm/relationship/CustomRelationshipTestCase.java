@@ -28,7 +28,9 @@ import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
+import org.picketlink.test.idm.IgnoreTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -40,6 +42,7 @@ import static org.junit.Assert.assertFalse;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
+@IgnoreTester(LDAPStoreConfigurationTester.class)
 public class CustomRelationshipTestCase extends AbstractPartitionManagerTestCase {
 
     public CustomRelationshipTestCase(IdentityConfigurationTester builder) {

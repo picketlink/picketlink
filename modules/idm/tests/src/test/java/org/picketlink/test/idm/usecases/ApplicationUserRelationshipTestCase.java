@@ -26,7 +26,9 @@ import org.picketlink.idm.model.sample.Authorization;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
+import org.picketlink.test.idm.IgnoreTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
@@ -42,6 +44,7 @@ import static junit.framework.Assert.assertTrue;
  * @since Dec 18, 2012
  *
  */
+@IgnoreTester(LDAPStoreConfigurationTester.class)
 public class ApplicationUserRelationshipTestCase extends AbstractPartitionManagerTestCase {
 
     public ApplicationUserRelationshipTestCase(IdentityConfigurationTester builder) {

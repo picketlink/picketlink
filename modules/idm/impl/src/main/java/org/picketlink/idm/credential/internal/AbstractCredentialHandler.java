@@ -39,7 +39,13 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>,V ext
             throw new IdentityManagementException("IdentityManager not set into context.");
         }
 
-        return identityManager.getAgent(loginName);
+        Agent agent = identityManager.getAgent(loginName);
+
+        if (agent == null) {
+            agent = identityManager.getUser(loginName);
+        }
+
+        return agent;
     }
 
 }
