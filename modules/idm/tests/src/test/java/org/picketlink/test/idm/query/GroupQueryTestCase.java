@@ -20,7 +20,6 @@ package org.picketlink.test.idm.query;
 
 import java.util.List;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
@@ -28,15 +27,10 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
-import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.idm.util.IDMUtil;
-import org.picketlink.test.idm.ExcludeTestSuite;
-import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
-import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
-import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -49,6 +43,10 @@ import static junit.framework.Assert.assertTrue;
  */
 public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 
+    public GroupQueryTestCase(IdentityConfigurationTester builder) {
+        super(builder);
+    }
+
     @Override
     protected Group createIdentityType(String name, Partition partition) {
         if (name == null) {
@@ -56,6 +54,11 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         }
 
         return createGroup(name, null, partition);
+    }
+
+    @Override
+    protected Group createInstance(String name) {
+        return new Group(name);
     }
 
     @Override
@@ -72,47 +75,6 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         for (Group group : result) {
             getIdentityManager().remove(group);
         }
-    }
-
-    @Test
-    @ExcludeTestSuite({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
-            LDAPIdentityStoreWithoutAttributesTestSuite.class})
-    public void testFindByTier() throws Exception {
-        Group someGroup = new Group("someGroup");
-
-        Tier applicationATier = getPartitionManager().getPartition(Tier.class, "Application A");
-
-        IdentityManager applicationA = getPartitionManager().createIdentityManager(applicationATier);
-
-        applicationA.add(someGroup);
-
-        IdentityQuery<Group> query = applicationA.createIdentityQuery(Group.class);
-
-        query.setParameter(Group.PARTITION, applicationATier);
-
-        List<Group> result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertTrue(contains(result, someGroup.getId()));
-
-        Tier applicationBTier = getPartitionManager().getPartition(Tier.class, "Application B");
-
-        IdentityManager applicationB = getPartitionManager().createIdentityManager(applicationBTier);
-
-        Group anotherRole = new Group("anotherRole");
-
-        applicationB.add(anotherRole);
-
-        query = applicationB.createIdentityQuery(Group.class);
-
-        query.setParameter(Group.PARTITION, applicationBTier);
-
-        result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertTrue(contains(result, anotherRole.getId()));
     }
 
     @Test
@@ -225,8 +187,6 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
     }
 
     @Test
-    @ExcludeTestSuite({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
-            LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindWithSorting() throws Exception {
         createGroup("someGroup", null);
         // Sleep is needed to avoid same createdDate

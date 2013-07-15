@@ -20,7 +20,6 @@ package org.picketlink.idm.jpa.internal;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -37,14 +36,13 @@ import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration.AbstractModel;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration.ModelDefinition;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration.PropertyMapping;
-import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.internal.DigestCredentialHandler;
 import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
 import org.picketlink.idm.credential.internal.TOTPCredentialHandler;
 import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
-import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
+import org.picketlink.idm.internal.AbstractIdentityStore;
 import org.picketlink.idm.internal.util.RelationshipMetadata;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Attribute;
@@ -52,10 +50,6 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.sample.Agent;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
@@ -70,7 +64,7 @@ import org.picketlink.idm.spi.PartitionStore;
  * @author Pedro Silva
  */
 @CredentialHandlers({PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class, TOTPCredentialHandler.class})
-public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfiguration>, PartitionStore<JPAIdentityStoreConfiguration> {
+public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConfiguration> implements CredentialStore<JPAIdentityStoreConfiguration>, PartitionStore<JPAIdentityStoreConfiguration> {
 
     // Invocation context parameters
     public static final String INVOCATION_CTX_ENTITY_MANAGER = "CTX_ENTITY_MANAGER";
@@ -84,16 +78,6 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     private JPAIdentityStoreConfiguration config;
 
     private RelationshipMetadata relationshipMetadata = new RelationshipMetadata();
-
-    @Override
-    public void setup(JPAIdentityStoreConfiguration config) {
-        this.config = config;
-    }
-
-    @Override
-    public JPAIdentityStoreConfiguration getConfig() {
-        return config;
-    }
 
     @Override
     public void add(IdentityContext context, AttributedType value) {
@@ -116,7 +100,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
                 Object entity = graph.createEntity(relationshipIdentityClass);
                 graph.createNode(entity, false);
 
-                // If the relationship member property is a String, set the identifier as the value 
+                // If the relationship member property is a String, set the identifier as the value
                 if (String.class.equals(config.getRelationshipModel().getRelationshipMember().getJavaClass())) {
                     IdentityType relationshipIdentity = property.getValue(relationship);
                     // We use the convention "Identity ID:Partition ID" to store identity references
@@ -165,7 +149,7 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
         }
     }
 
-    private Object lookupEntityByParameter(IdentityContext context, AbstractModel model, Class<?> cls, String propertyName, 
+    private Object lookupEntityByParameter(IdentityContext context, AbstractModel model, Class<?> cls, String propertyName,
             Object value) {
         if (StringUtil.isNullOrEmpty(propertyName)) {
             throw new IllegalArgumentException("propertyName parameter must contain a value");
@@ -219,11 +203,6 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     }
 
     @Override
-    public <I extends IdentityType> I getIdentity(Class<I> identityType, String id) {
-        return null;  //TODO: Implement getIdentity
-    }
-
-    @Override
     public <V extends IdentityType> List<V> fetchQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
         return null;  //TODO: Implement fetchQueryResults
     }
@@ -241,16 +220,6 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     @Override
     public <V extends Relationship> int countQueryResults(IdentityContext context, RelationshipQuery<V> query) {
         return 0;  //TODO: Implement countQueryResults
-    }
-
-    @Override
-    public void validateCredentials(IdentityContext context, Credentials credentials) {
-     // TODO move logic in FileIdentityStore to abstract base IdentityStore class
-    }
-
-    @Override
-    public void updateCredential(IdentityContext context, Account account, Object credential, Date effectiveDate, Date expiryDate) {
-        // TODO move logic in FileIdentityStore to abstract base IdentityStore class
     }
 
     @Override
@@ -284,5 +253,24 @@ public class JPAIdentityStore implements CredentialStore<JPAIdentityStoreConfigu
     public void remove(IdentityContext context, Partition partition) {
         EntityGraph graph = EntityGraph.load(config.getPartitionModel(), partition.getClass(), partition.getId());
         graph.delete(getEntityManager(context));
+    }
+
+    @Override
+    public void removeAttribute(IdentityContext context, AttributedType type, String attributeName) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void setAttribute(IdentityContext context, AttributedType type, Attribute<? extends Serializable> attribute) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public <V extends Serializable> Attribute<V> getAttribute(IdentityContext context, AttributedType type,
+            String attributeName) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

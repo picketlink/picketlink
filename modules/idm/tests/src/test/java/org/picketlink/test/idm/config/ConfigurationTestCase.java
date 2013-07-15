@@ -25,7 +25,6 @@ package org.picketlink.test.idm.config;
 import org.junit.Test;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.SecurityConfigurationException;
-import org.picketlink.idm.model.sample.User;
 
 /**
  * <p>
@@ -51,15 +50,6 @@ public class ConfigurationTestCase {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder.named("default").stores().file();
-
-        builder.build();
-    }
-
-    @Test (expected = SecurityConfigurationException.class)
-    public void failNoPartitionStoreProvided() {
-        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
-
-        builder.named("default").stores().file().supportType(User.class);
 
         builder.build();
     }

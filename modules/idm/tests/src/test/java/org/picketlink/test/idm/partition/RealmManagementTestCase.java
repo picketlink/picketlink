@@ -26,7 +26,7 @@ import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.test.idm.AbstractPartitionTestCase;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -44,6 +44,10 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
 
     private static final String TESTING_REALM_NAME = "PicketLink Realm";
 
+    public RealmManagementTestCase(IdentityConfigurationTester builder) {
+        super(builder);
+    }
+
     @Override
     protected Realm createPartition() {
         Realm realm = new Realm(TESTING_REALM_NAME);
@@ -52,7 +56,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
             getPartitionManager().remove(realm);
         }
 
-        getPartitionManager().add(realm, "default");
+        getPartitionManager().add(realm);
 
         return realm;
     }

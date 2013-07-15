@@ -28,8 +28,7 @@ import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOpera
 /**
  * <p>
  * An <code>OperationNotSupportedException</code> is thrown to indicate that a {@link AttributedType} or
- * {@link IdentityOperation} is not supported by the underlying IdentityStore configured for a specific
- * IdentityManager instance.
+ * {@link IdentityOperation} is not supported by the configuration.
  * </p>
  * <p>
  * You should check the {@link IdentityStoreConfiguration} for individual features supported by a IdentityStore.

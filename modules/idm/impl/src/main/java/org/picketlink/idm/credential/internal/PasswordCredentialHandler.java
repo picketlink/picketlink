@@ -27,7 +27,6 @@ import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
-import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.Agent;
@@ -36,7 +35,6 @@ import org.picketlink.idm.password.internal.EncodedPasswordStorage;
 import org.picketlink.idm.password.internal.SHAPasswordEncoder;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.credential.internal.CredentialUtils.isCredentialExpired;
 
 /**
@@ -60,7 +58,7 @@ import static org.picketlink.idm.credential.internal.CredentialUtils.isCredentia
  */
 @SupportsCredentials({UsernamePasswordCredentials.class, Password.class})
 public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends UsernamePasswordCredentials, U extends Password>
-        implements CredentialHandler<S, V, U> {
+        extends AbstractCredentialHandler<S, V, U> {
 
     private static final String DEFAULT_SALT_ALGORITHM = "SHA1PRNG";
 
@@ -93,16 +91,12 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
 
     @Override
     public void validate(IdentityContext context, V credentials, S store) {
-        if (!UsernamePasswordCredentials.class.isInstance(credentials)) {
-            throw MESSAGES.credentialUnsupportedType(credentials.getClass(), this);
-        }
-
         UsernamePasswordCredentials usernamePassword = (UsernamePasswordCredentials) credentials;
 
         usernamePassword.setStatus(Status.INVALID);
         usernamePassword.setValidatedAgent(null);
 
-        Agent agent = store.getAgent(context, usernamePassword.getUsername());
+        Agent agent = getAgent(context, usernamePassword.getUsername());
 
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {

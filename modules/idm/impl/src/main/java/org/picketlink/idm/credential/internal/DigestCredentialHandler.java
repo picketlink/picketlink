@@ -25,7 +25,6 @@ import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
-import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.Agent;
@@ -54,7 +53,7 @@ import static org.picketlink.idm.credential.internal.DigestUtil.calculateDigest;
  */
 @SupportsCredentials({ DigestCredentials.class, Digest.class })
 public class DigestCredentialHandler<S,V,U>
-    implements CredentialHandler<CredentialStore<?>, DigestCredentials, Digest> {
+    extends AbstractCredentialHandler<CredentialStore<?>, DigestCredentials, Digest> {
 
     @Override
     public void setup(CredentialStore<?> identityStore) {
@@ -62,18 +61,13 @@ public class DigestCredentialHandler<S,V,U>
 
     @Override
     public void validate(IdentityContext context, DigestCredentials credentials, CredentialStore<?> store) {
-
-        if (!DigestCredentials.class.isInstance(credentials)) {
-            throw MESSAGES.credentialUnsupportedType(credentials.getClass(), this);
-        }
-
         DigestCredentials digestCredential = (DigestCredentials) credentials;
 
         digestCredential.setStatus(Status.INVALID);
         digestCredential.setValidatedAgent(null);
 
         Digest digest = digestCredential.getDigest();
-        Agent agent = store.getAgent(context, digest.getUsername());
+        Agent agent = getAgent(context, digest.getUsername());
 
         if (agent != null) {
             if (agent.isEnabled()) {

@@ -18,21 +18,20 @@
 
 package org.picketlink.internal;
 
+import java.util.Date;
+import java.util.List;
+import javax.enterprise.inject.Typed;
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialStorage;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.query.RelationshipQuery;
-
-import javax.enterprise.inject.Typed;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Decorator for IdentityManager that provides secured identity management operations
@@ -42,6 +41,7 @@ import java.util.List;
  */
 @Typed(SecuredIdentityManager.class)
 public class SecuredIdentityManager implements IdentityManager {
+
     private static final long serialVersionUID = -8197103563768366958L;
 
     private IdentityManager decorated;
@@ -51,68 +51,28 @@ public class SecuredIdentityManager implements IdentityManager {
     }
 
     @Override
-    public void add(IdentityType value) {
-        decorated.add(value);
+    public void add(IdentityType identityType) throws IdentityManagementException {
+        decorated.add(identityType);
     }
 
     @Override
-    public void update(IdentityType value) {
-        decorated.update(value);
+    public void update(IdentityType identityType) throws IdentityManagementException {
+        decorated.update(identityType);
     }
 
     @Override
-    public void remove(IdentityType value) {
+    public void remove(IdentityType value) throws IdentityManagementException {
         decorated.remove(value);
     }
 
     @Override
-    public void add(Relationship value) {
-        decorated.add(value);
-    }
-
-    @Override
-    public void update(Relationship value) {
-        decorated.update(value);
-    }
-
-    @Override
-    public void remove(Relationship value) {
-        decorated.remove(value);
-    }
-
-    @Override
-    public Agent getAgent(String loginName) {
+    public Agent getAgent(String loginName) throws IdentityManagementException {
         return decorated.getAgent(loginName);
     }
 
     @Override
-    public User getUser(String id) {
-        return decorated.getUser(id);
-    }
-
-    @Override
-    public Group getGroup(String groupId) {
-        return decorated.getGroup(groupId);
-    }
-
-    @Override
-    public Group getGroup(String groupName, Group parent) {
-        return decorated.getGroup(groupName, parent);
-    }
-
-    @Override
-    public boolean isMember(IdentityType identityType, Group group) {
-        return decorated.isMember(identityType, group);
-    }
-
-    @Override
-    public void addToGroup(Agent identityType, Group group) {
-        decorated.addToGroup(identityType, group);
-    }
-
-    @Override
-    public void removeFromGroup(Agent member, Group group) {
-        decorated.removeFromGroup(member, group);
+    public User getUser(String loginName) {
+        return decorated.getUser(loginName);
     }
 
     @Override
@@ -121,77 +81,52 @@ public class SecuredIdentityManager implements IdentityManager {
     }
 
     @Override
-    public boolean hasGroupRole(IdentityType identityType, Role role, Group group) { 
-        return decorated.hasGroupRole(identityType, role, group);
-    }
- 
-    @Override
-    public void grantGroupRole(IdentityType identityType, Role role, Group group) {
-        decorated.grantGroupRole(identityType, role, group);
+    public Group getGroup(String groupPath) {
+        return decorated.getGroup(groupPath);
     }
 
     @Override
-    public void revokeGroupRole(IdentityType member, Role role, Group group) {
-        decorated.revokeGroupRole(member, role, group);
+    public Group getGroup(String groupName, Group parent) {
+        return decorated.getGroup(groupName, parent);
     }
 
     @Override
-    public boolean hasRole(IdentityType identityType, Role role) { 
-        return decorated.hasRole(identityType, role);
+    public <T extends IdentityType> T lookupIdentityById(Class<T> identityType, String id) {
+        return decorated.lookupIdentityById(identityType, id);
     }
 
     @Override
-    public void grantRole(IdentityType identityType, Role role) { 
-        decorated.grantRole(identityType, role);
-    }
-
-    @Override
-    public void revokeRole(IdentityType identityType, Role role) { 
-        decorated.revokeRole(identityType, role);
-    }
-
-    @Override
-    public <T extends IdentityType> T lookupIdentityById(Class<T> identityType, String value) { 
-        return decorated.lookupIdentityById(identityType, value);
-    }
-
-    @Override
-    public <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType) { 
+    public <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType) {
         return decorated.createIdentityQuery(identityType);
     }
 
     @Override
-    public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType) { 
-        return decorated.createRelationshipQuery(relationshipType);
-    }
-
-    @Override
-    public void validateCredentials(Credentials credentials) { 
+    public void validateCredentials(Credentials credentials) {
         decorated.validateCredentials(credentials);
     }
 
     @Override
-    public void updateCredential(Agent agent, Object value) { 
-        decorated.updateCredential(agent, value);
+    public void updateCredential(Account account, Object credential) {
+        decorated.updateCredential(account, credential);
     }
 
     @Override
-    public void updateCredential(Agent agent, Object value, Date effectiveDate, Date expiryDate) { 
-        decorated.updateCredential(agent, value, effectiveDate, expiryDate);
+    public void updateCredential(Account account, Object credential, Date effectiveDate, Date expiryDate) {
+        decorated.updateCredential(account, credential, effectiveDate, expiryDate);
     }
 
     @Override
-    public void loadAttribute(IdentityType identityType, String attributeName) { 
+    public <T extends CredentialStorage> T retrieveCurrentCredential(Account account, Class<T> storageClass) {
+        return decorated.retrieveCurrentCredential(account, storageClass);
+    }
+
+    @Override
+    public <T extends CredentialStorage> List<T> retrieveCredentials(Account account, Class<T> storageClass) {
+        return decorated.retrieveCredentials(account, storageClass);
+    }
+
+    @Override
+    public void loadAttribute(IdentityType identityType, String attributeName) {
         decorated.loadAttribute(identityType, attributeName);
-    }
-
-    @Override
-    public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
-        return decorated.retrieveCurrentCredential(agent, storageClass);
-    }
-
-    @Override
-    public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
-        return decorated.retrieveCredentials(agent, storageClass);
     }
 }

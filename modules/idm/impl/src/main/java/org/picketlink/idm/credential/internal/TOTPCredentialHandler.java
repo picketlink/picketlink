@@ -36,18 +36,8 @@ import static org.picketlink.idm.credential.totp.TimeBasedOTP.DEFAULT_NUMBER_DIG
 
 /**
  * <p>
- * This particular implementation supports the validation of {@link org.picketlink.idm.credential.UsernamePasswordCredentials}, and updating {@link org.picketlink.idm.credential.Password}
+ * This particular implementation supports the validation of {@link TOTPCredentials}, and updating {@link TOTPCredential}
  * credentials.
- * </p>
- * <p>
- * <p/>
- * <p>
- * How passwords are encoded can be changed by specifying a configuration option using the <code>PASSWORD_ENCODER</code>. By
- * default a SHA-512 encoding is performed.
- * </p>
- * <p/>
- * <p>
- * Password are always salted before encoding.
  * </p>
  *
  * @author Shane Bryzak
@@ -143,10 +133,10 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
     }
 
     private String getConfigurationProperty(CredentialStore<?> store, String key, String defaultValue) {
-        Object algorithm = store.getConfig().getCredentialHandlerProperties().get(key);
+        Object value = store.getConfig().getCredentialHandlerProperties().get(key);
 
-        if (algorithm != null) {
-            return String.valueOf(algorithm);
+        if (value != null) {
+            return String.valueOf(value);
         }
 
         return defaultValue;

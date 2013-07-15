@@ -18,11 +18,9 @@
 
 package org.picketlink.social.auth;
 
-import java.io.IOException;
-
 import com.google.api.services.oauth2.model.Userinfo;
 import org.picketlink.authentication.AuthenticationException;
-import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.social.auth.conf.GoogleConfiguration;
 import org.picketlink.social.standalone.google.GoogleAccessTokenContext;
 import org.picketlink.social.standalone.google.GoogleConstants;
@@ -74,7 +72,7 @@ public class GoogleAuthenticator extends AbstractSocialAuthenticator {
 
             // Establish security context
             setStatus(AuthenticationStatus.SUCCESS);
-            setAgent(new SimpleUser(userInfo.getEmail()));
+            setAgent(new User(userInfo.getEmail()));
         }
     }
 

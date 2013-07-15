@@ -34,7 +34,7 @@ import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 
 /**
- * 
+ *
  * @author Shane Bryzak
  *
  */
@@ -107,7 +107,7 @@ public class EntityGraph {
                         }
                     } else {
                         throw new IdentityManagementException("Cannot process non Collection value [" + collectionValue + "]" +
-                                " for property [" + identityProperty.getName() + "] in class [" + 
+                                " for property [" + identityProperty.getName() + "] in class [" +
                                 identityProperty.getDeclaringClass().getName() + "]");
                     }
                 } else {
@@ -164,7 +164,7 @@ public class EntityGraph {
 
         return graph;
     }
-    
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void setProperty(Property property, Object value) {
         for (Node node : nodes) {

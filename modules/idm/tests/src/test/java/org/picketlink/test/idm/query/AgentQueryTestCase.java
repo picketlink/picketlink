@@ -20,6 +20,7 @@ package org.picketlink.test.idm.query;
 
 import java.util.List;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
@@ -34,12 +35,7 @@ import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.ExcludeTestSuite;
-import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
-import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
-import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
-import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsFileRelationshipTestSuite;
-import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsRelationshipsTestSuite;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -53,12 +49,21 @@ import static junit.framework.Assert.assertTrue;
  */
 public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTestCase<T> {
 
+    public AgentQueryTestCase(IdentityConfigurationTester builder) {
+        super(builder);
+    }
+
     protected T createIdentityType(String name, Partition partition) {
         if (name == null) {
             name = "someSimpleAgent";
         }
 
         return (T) createAgent(name, partition);
+    }
+
+    @Override
+    protected T createInstance(String name) {
+        return (T) new Agent(name);
     }
 
     @Override
@@ -467,9 +472,6 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
     }
 
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class,
-            LDAPJPAMixedStoreTestSuite.class, LDAPUsersJPARolesGroupsRelationshipsTestSuite.class,
-            LDAPUsersJPARolesGroupsRelationshipsTestSuite.class, LDAPUsersJPARolesGroupsFileRelationshipTestSuite.class })
     public void testFindByLoginNameAndCreationDateWithSorting() throws Exception {
         createAgent("john");
         // Sleep is needed to avoid same createdDate
@@ -507,5 +509,12 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         assertEquals(agents.get(1).getLoginName(), "demo");
         assertEquals(agents.get(2).getLoginName(), "john");
         assertEquals(agents.get(3).getLoginName(), "mary");
+    }
+
+    @Override
+    @Ignore
+    @Test
+    public void testFindByTier() throws Exception {
+
     }
 }

@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,16 +33,14 @@ import org.picketlink.common.properties.query.PropertyQuery;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
-import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.internal.CredentialUtils;
 import org.picketlink.idm.credential.internal.DigestCredentialHandler;
 import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
 import org.picketlink.idm.credential.internal.TOTPCredentialHandler;
 import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
-import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
-import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
+import org.picketlink.idm.internal.AbstractIdentityStore;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
@@ -51,19 +48,15 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.AttributeProperty;
-import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.AttributeParameter;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.RelationshipQueryParameter;
-import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.PartitionStore;
@@ -79,29 +72,16 @@ import static org.picketlink.idm.file.internal.FileIdentityQueryHelper.isQueryPa
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @CredentialHandlers({PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class, TOTPCredentialHandler.class})
-public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfiguration>, CredentialStore<FileIdentityStoreConfiguration> {
+public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreConfiguration>
+        implements PartitionStore<FileIdentityStoreConfiguration>, CredentialStore<FileIdentityStoreConfiguration> {
 
-    private FileIdentityStoreConfiguration configuration;
     private FileDataSource fileDataSource;
-    private Map<Class<? extends CredentialHandler>, CredentialHandler> credentialHandlers = new HashMap<Class<? extends CredentialHandler>, CredentialHandler>();
 
     @Override
     public void setup(FileIdentityStoreConfiguration configuration) {
-        this.configuration = configuration;
-        this.fileDataSource = new FileDataSource(this.configuration);
+        super.setup(configuration);
 
-        for (Class<? extends CredentialHandler> handlerType : configuration.getCredentialHandlers()) {
-            CredentialHandler credentialHandler = null;
-
-            try {
-                credentialHandler = handlerType.newInstance();
-                credentialHandler.setup(this);
-            } catch (Exception e) {
-                throw MESSAGES.credentialCredentialHandlerInstantiationError(handlerType, e);
-            }
-
-            this.credentialHandlers.put(handlerType, credentialHandler);
-        }
+        this.fileDataSource = new FileDataSource(configuration);
     }
 
     @Override
@@ -225,11 +205,6 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
     }
 
     @Override
-    public <I extends IdentityType> I getIdentity(Class<I> identityType, String id) {
-        return null; //TODO: Implement storeCredential
-    }
-
-    @Override
     public void storeCredential(IdentityContext context, Account account, CredentialStorage storage) {
         List<FileCredentialStorage> credentials = getCredentials(context, account, storage.getClass());
 
@@ -254,51 +229,6 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
         }
 
         return storedCredentials;
-    }
-
-    @Override
-    public User getUser(IdentityContext context, String loginName) {
-        Agent agent = getAgent(context, loginName);
-
-        if (User.class.isInstance(agent)) {
-            return (User) agent;
-        }
-
-        return null;
-    }
-
-    @Override
-    public Agent getAgent(IdentityContext context, String loginName) {
-        IdentityQuery<Agent> query = new DefaultIdentityQuery<Agent>(context, Agent.class, this);
-
-        query.setParameter(Agent.LOGIN_NAME, loginName);
-
-        List<Agent> users = fetchQueryResults(context, query);
-
-        if (users.isEmpty()) {
-            return null;
-        }
-
-        return users.get(0);
-
-    }
-
-    @Override
-    public Group getGroup(IdentityContext context, String groupPath) {
-        //TODO: do we need this method ? Why not use the query api
-        return null;
-    }
-
-    @Override
-    public Group getGroup(IdentityContext context, String name, Group parent) {
-        //TODO: do we need this method ? Why not use the query api
-        return null;
-    }
-
-    @Override
-    public Role getRole(IdentityContext context, String name) {
-        //TODO: do we need this method ? Why not use the query api
-        return null;  //TODO: Implement getRole
     }
 
     @Override
@@ -478,23 +408,6 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
         //TODO: Implement removeAttribute
     }
 
-    @Override
-    public void validateCredentials(IdentityContext context, Credentials credentials) {
-        Class<? extends CredentialHandler> credentialHandler = getCredentialHandler(credentials);
-        this.credentialHandlers.get(credentialHandler).validate(context, credentials, this);
-    }
-
-    @Override
-    public void updateCredential(IdentityContext context, Account account, Object credential, Date effectiveDate, Date expiryDate) {
-        Class<? extends CredentialHandler> credentialHandler = getCredentialHandler(credential);
-        this.credentialHandlers.get(credentialHandler).update(context, account, credential, this, effectiveDate, expiryDate);
-    }
-
-    @Override
-    public FileIdentityStoreConfiguration getConfig() {
-        return this.configuration;
-    }
-
     <T extends Relationship> T convertToRelationship(IdentityContext context, FileRelationship fileRelationship) {
         return (T) cloneAttributedType(context, fileRelationship.getEntry());
     }
@@ -644,10 +557,24 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
         for (FileRelationship storedRelationship : relationships) {
             boolean match = false;
 
-            if (query.getRelationshipClass().getName().equals(storedRelationship.getType())) {
+            if (query.getRelationshipClass().isInstance(storedRelationship.getEntry())) {
                 for (Entry<QueryParameter, Object[]> entry : query.getParameters().entrySet()) {
                     QueryParameter queryParameter = entry.getKey();
                     Object[] values = entry.getValue();
+
+                    if (Relationship.IDENTITY.equals(queryParameter)) {
+                        int valuesMathCount = values.length;
+
+                        for (Object object : values) {
+                            IdentityType identityType = (IdentityType) object;
+
+                            if (storedRelationship.hasIdentityType(identityType.getId())) {
+                                valuesMathCount--;
+                            }
+                        }
+
+                        match = valuesMathCount <= 0;
+                    }
 
                     if (queryParameter instanceof RelationshipQueryParameter) {
                         RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) queryParameter;
@@ -739,33 +666,6 @@ public class FileIdentityStore implements PartitionStore<FileIdentityStoreConfig
         }
 
         this.fileDataSource.flushRelationships();
-    }
-
-    public Class<? extends CredentialHandler> getCredentialHandler(Object credentials) {
-        Class<? extends CredentialHandler> credentialHandler = null;
-
-        if (credentialHandler == null) {
-            for (Class<? extends CredentialHandler> handlerClass : this.credentialHandlers.keySet()) {
-                if (handlerClass.isAnnotationPresent(SupportsCredentials.class)) {
-                    for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).value()) {
-                        if (cls.isAssignableFrom(credentials.getClass())) {
-                            credentialHandler = handlerClass;
-
-                            // if we found a specific handler for the credential, immediately return.
-                            if (cls.equals(credentials.getClass())) {
-                                return handlerClass;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (credentialHandler == null) {
-            throw MESSAGES.credentialHandlerNotFoundForCredentialType(credentials.getClass());
-        }
-
-        return credentialHandler;
     }
 
     private List<FileCredentialStorage> getCredentials(IdentityContext context, Account agent,

@@ -23,16 +23,19 @@
 package org.picketlink.idm.config;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Partition;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import org.picketlink.idm.model.Relationship;
 
 /**
  * @author Pedro Igor
  *
  */
 public class LDAPStoreConfigurationBuilder extends
-        AbstractIdentityStoreConfigurationBuilder<LDAPIdentityStoreConfiguration, LDAPStoreConfigurationBuilder> {
+        IdentityStoreConfigurationBuilder<LDAPIdentityStoreConfiguration, LDAPStoreConfigurationBuilder> {
 
     private String url;
     private String baseDN;
@@ -43,6 +46,7 @@ public class LDAPStoreConfigurationBuilder extends
     private String bindDN;
     private String bindCredential;
     private Map<String, String> groupMapping = new HashMap<String, String>();
+    private Set<LDAPMappingConfigurationBuilder> mappingBuilders = new HashSet<LDAPMappingConfigurationBuilder>();
 
     public LDAPStoreConfigurationBuilder(IdentityStoresConfigurationBuilder builder) {
         super(builder);
@@ -93,8 +97,34 @@ public class LDAPStoreConfigurationBuilder extends
         return this;
     }
 
+    public LDAPMappingConfigurationBuilder mapping(Class<? extends AttributedType> attributedType) {
+        LDAPMappingConfigurationBuilder ldapMappingConfigurationBuilder = new LDAPMappingConfigurationBuilder(attributedType, this);
+
+        this.mappingBuilders.add(ldapMappingConfigurationBuilder);
+
+        supportType(attributedType);
+
+        return ldapMappingConfigurationBuilder;
+    }
+
+    public LDAPMappingConfigurationBuilder mappingRelationship(Class<? extends Relationship> relationshipClass) {
+        LDAPMappingConfigurationBuilder ldapMappingConfigurationBuilder = new LDAPMappingConfigurationBuilder(relationshipClass, this);
+
+        this.mappingBuilders.add(ldapMappingConfigurationBuilder);
+
+        return ldapMappingConfigurationBuilder;
+    }
+
     @Override
     protected LDAPIdentityStoreConfiguration create() {
+        Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig = new HashMap<Class<? extends AttributedType>, LDAPMappingConfiguration>();
+
+        for (LDAPMappingConfigurationBuilder builder: this.mappingBuilders) {
+            LDAPMappingConfiguration ldapMappingConfiguration = builder.create();
+
+            mappingConfig.put(ldapMappingConfiguration.getMappedClass(), ldapMappingConfiguration);
+        }
+
         return new LDAPIdentityStoreConfiguration(
                 this.url,
                 this.bindDN,
@@ -105,10 +135,9 @@ public class LDAPStoreConfigurationBuilder extends
                 this.roleDNSuffix,
                 this.groupDNSuffix,
                 this.groupMapping,
+                mappingConfig,
                 getSupportedTypes(),
                 getUnsupportedTypes(),
-                getGlobalRelationshipTypes(),
-                getSelfRelationshipTypes(),
                 getContextInitializers(),
                 getCredentialHandlerProperties(),
                 getCredentialHandlers());
@@ -118,27 +147,15 @@ public class LDAPStoreConfigurationBuilder extends
     protected void validate() {
         super.validate();
 
-        if (this.userDNSuffix == null) {
-            throw MESSAGES.ldapConfigUserDNNotProvided();
-        }
-
-        if (this.roleDNSuffix == null) {
-            throw MESSAGES.ldapConfigRoleDNNotProvided();
-        }
-
-        if (this.groupDNSuffix == null) {
-            throw MESSAGES.ldapConfigGroupDNNotProvided();
-        }
-
-        if (this.agentDNSuffix == null) {
-            this.agentDNSuffix = this.userDNSuffix;
+        for (LDAPMappingConfigurationBuilder builder: this.mappingBuilders) {
+            builder.validate();
         }
 
         unsupportType(Partition.class);
     }
 
     @Override
-    public LDAPStoreConfigurationBuilder readFrom(LDAPIdentityStoreConfiguration configuration) {
+    protected LDAPStoreConfigurationBuilder readFrom(LDAPIdentityStoreConfiguration configuration) {
         super.readFrom(configuration);
 
         this.agentDNSuffix = configuration.getAgentDNSuffix();

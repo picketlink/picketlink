@@ -28,6 +28,7 @@ import org.picketlink.idm.model.annotation.Unique;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -40,15 +41,13 @@ import static org.junit.Assert.assertTrue;
 public class CustomIdentityTypeTestCase extends AbstractIdentityTypeTestCase {
 
 
+    public CustomIdentityTypeTestCase(IdentityConfigurationTester builder) {
+        super(builder);
+    }
+
     @Override
     protected IdentityType createIdentityType() {
-        MyCustomIdentityType identityType = new MyCustomIdentityType();
-
-        identityType.setSomeIdentifier("Custom 1");
-
-        getIdentityManager().add(identityType);
-
-        return identityType;
+        return addIdentityType("Custom 1");
     }
 
     @Override
@@ -68,44 +67,34 @@ public class CustomIdentityTypeTestCase extends AbstractIdentityTypeTestCase {
 
     @Test
     public void testCreate() throws Exception {
-        MyCustomIdentityType customIdentityType = new MyCustomIdentityType();
-
-        customIdentityType.setSomeIdentifier("Custom 2");
-
-        getIdentityManager().add(customIdentityType);
+        MyCustomIdentityType customIdentityType = addIdentityType("Custom 2");
 
         assertNotNull(customIdentityType.getId());
 
-        customIdentityType.setSomeAttribute("Some Attribute");
-
         IdentityQuery<MyCustomIdentityType> query = getIdentityManager().createIdentityQuery(MyCustomIdentityType.class);
 
-        query.setParameter(MyCustomIdentityType.SOME_IDENTIFIER, "Custom 2");
+        query.setParameter(MyCustomIdentityType.SOME_IDENTIFIER, customIdentityType.getSomeIdentifier());
 
         List<MyCustomIdentityType> result = query.getResultList();
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
 
-        customIdentityType = result.get(0);
+        MyCustomIdentityType storedCustomIdentityType = result.get(0);
 
-        assertNotNull(customIdentityType);
-        assertEquals(customIdentityType.getId(), customIdentityType.getId());
-        assertEquals(customIdentityType.getSomeIdentifier(), customIdentityType.getSomeIdentifier());
-        assertEquals(Realm.DEFAULT_REALM, customIdentityType.getPartition().getName());
-        assertTrue(customIdentityType.isEnabled());
-        assertNull(customIdentityType.getExpirationDate());
-        assertNotNull(customIdentityType.getCreatedDate());
-        assertTrue(new Date().compareTo(customIdentityType.getCreatedDate()) >= 0);
+        assertNotNull(storedCustomIdentityType);
+        assertEquals(customIdentityType.getId(), storedCustomIdentityType.getId());
+        assertEquals(customIdentityType.getSomeIdentifier(), storedCustomIdentityType.getSomeIdentifier());
+        assertEquals(Realm.DEFAULT_REALM, storedCustomIdentityType.getPartition().getName());
+        assertTrue(storedCustomIdentityType.isEnabled());
+        assertNull(storedCustomIdentityType.getExpirationDate());
+        assertNotNull(storedCustomIdentityType.getCreatedDate());
+        assertTrue(new Date().compareTo(storedCustomIdentityType.getCreatedDate()) >= 0);
     }
 
     @Test
     public void testUpdate() throws Exception {
-        MyCustomIdentityType customIdentityType = new MyCustomIdentityType();
-
-        customIdentityType.setSomeIdentifier("Custom 2");
-
-        getIdentityManager().add(customIdentityType);
+        MyCustomIdentityType customIdentityType = addIdentityType("Custom 2");
 
         assertNotNull(customIdentityType.getId());
 
@@ -157,4 +146,23 @@ public class CustomIdentityTypeTestCase extends AbstractIdentityTypeTestCase {
         }
     }
 
+    private MyCustomIdentityType addIdentityType(String someIdentifier) {
+        MyCustomIdentityType identityType = new MyCustomIdentityType();
+
+        identityType.setSomeIdentifier(someIdentifier);
+
+        IdentityQuery<MyCustomIdentityType> query = getIdentityManager().createIdentityQuery(MyCustomIdentityType.class);
+
+        query.setParameter(MyCustomIdentityType.SOME_IDENTIFIER, someIdentifier);
+
+        List<MyCustomIdentityType> result = query.getResultList();
+
+        if (!result.isEmpty()) {
+            getIdentityManager().remove(result.get(0));
+        }
+
+        getIdentityManager().add(identityType);
+
+        return identityType;
+    }
 }

@@ -34,14 +34,11 @@ import org.picketlink.idm.model.sample.Grant;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
-import org.picketlink.test.idm.ExcludeTestSuite;
-import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
-import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
-import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
-import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsFileRelationshipTestSuite;
-import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsRelationshipsTestSuite;
+import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -50,11 +47,15 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Pedro Silva
  */
-public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> extends AbstractIdentityManagerTestCase {
+public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> extends AbstractPartitionManagerTestCase {
+
+    public AbstractIdentityQueryTestCase(IdentityConfigurationTester builder) {
+        super(builder);
+    }
 
     protected abstract T createIdentityType(String name, Partition partition);
-
     protected abstract T getIdentityType();
+    protected abstract T createInstance(String name);
 
     @Test
     public void testFindById() throws Exception {
@@ -74,9 +75,6 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @ExcludeTestSuite({LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class,
-            LDAPJPAMixedStoreTestSuite.class, LDAPUsersJPARolesGroupsRelationshipsTestSuite.class,
-            LDAPUsersJPARolesGroupsFileRelationshipTestSuite.class})
     public void testPagination() throws Exception {
         T identityType = null;
 
@@ -159,9 +157,6 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @ExcludeTestSuite({LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class,
-            LDAPJPAMixedStoreTestSuite.class, LDAPUsersJPARolesGroupsRelationshipsTestSuite.class,
-            LDAPUsersJPARolesGroupsRelationshipsTestSuite.class, LDAPUsersJPARolesGroupsFileRelationshipTestSuite.class})
     public void testFindByRealm() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
@@ -181,7 +176,9 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertEquals(1, result.size());
         assertEquals(someTypeDefaultRealm.getId(), result.get(0).getId());
 
-        Realm testingRealm = getPartitionManager().getPartition(Realm.class, "Testing");
+        getPartitionManager().add(new Realm("Testing Realm"));
+
+        Realm testingRealm = getPartitionManager().getPartition(Realm.class, "Testing Realm");
 
         assertNotNull(testingRealm);
 
@@ -200,7 +197,6 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindEnabledAndDisabled() throws Exception {
         T someType = createIdentityType(null, null);
         T someAnotherType = createIdentityType("someAnotherAgent", null);
@@ -293,7 +289,6 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindExpiryDate() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -401,7 +396,6 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindBetweenExpirationDate() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -501,7 +495,6 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindByMultipleParameters() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -553,7 +546,6 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindByDefinedAttributes() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -602,7 +594,6 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindByMultiValuedAttributes() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -680,6 +671,49 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         result = query.getResultList();
 
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testFindByTier() throws Exception {
+        T someType = createInstance("someType");
+
+        getPartitionManager().add(new Tier("Application A"));
+
+        Tier applicationATier = getPartitionManager().getPartition(Tier.class, "Application A");
+
+        IdentityManager applicationA = getPartitionManager().createIdentityManager(applicationATier);
+
+        applicationA.add(someType);
+
+        IdentityQuery<T> query = (IdentityQuery<T>) applicationA.createIdentityQuery(someType.getClass());
+
+        query.setParameter(IdentityType.PARTITION, applicationATier);
+
+        List<T> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertTrue(contains(result, someType.getId()));
+
+        getPartitionManager().add(new Tier("Application B"));
+
+        Tier applicationBTier = getPartitionManager().getPartition(Tier.class, "Application B");
+
+        IdentityManager applicationB = getPartitionManager().createIdentityManager(applicationBTier);
+
+        T anotherRole = createInstance("anotherType");
+
+        applicationB.add(anotherRole);
+
+        query = (IdentityQuery<T>) applicationB.createIdentityQuery(someType.getClass());
+
+        query.setParameter(Role.PARTITION, applicationBTier);
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertTrue(contains(result, anotherRole.getId()));
     }
 
     protected boolean containsMembership(List<GroupMembership> result, Account account) {

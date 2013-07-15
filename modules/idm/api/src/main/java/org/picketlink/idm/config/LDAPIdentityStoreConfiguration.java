@@ -17,17 +17,18 @@
  */
 package org.picketlink.idm.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
-import org.picketlink.idm.spi.IdentityStore;
 
 /**
  * A {@link AbstractIdentityStoreConfiguration} for the LDAP store.
@@ -54,6 +55,7 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
     private String agentDNSuffix;
     private String baseDN;
     private Map<String, String> groupMapping = new HashMap<String, String>();
+    private final Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig;
 
     LDAPIdentityStoreConfiguration(
             String url,
@@ -65,14 +67,12 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             String roleDNSuffix,
             String groupDNSuffix,
             Map<String, String> groupMapping,
-            Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
+            Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig, Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
-            Set<Class<? extends Relationship>> globalSupportedRelationships,
-            Set<Class<? extends Relationship>> seldSupportedRelationships,
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {
-        super(supportedTypes, unsupportedTypes, globalSupportedRelationships, seldSupportedRelationships, contextInitializers, credentialHandlerProperties, credentialHandlers);
+        super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers);
         this.ldapURL = url;
         this.bindDN = bindDN;
         this.bindCredential = bindCredential;
@@ -82,15 +82,11 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         this.roleDNSuffix = roleDNSuffix;
         this.groupDNSuffix = groupDNSuffix;
         this.groupMapping = groupMapping;
+        this.mappingConfig = mappingConfig;
     }
 
     @Override
     protected void initConfig() throws SecurityConfigurationException {
-    }
-
-    @Override
-    public Class<? extends IdentityStore> getIdentityStoreType() {
-        return null;
     }
 
     public String getStandardAttributesFileName() {
@@ -175,5 +171,39 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         }
 
         return false;
+    }
+
+    public Class<? extends AttributedType> getSupportedTypeByBaseDN(String baseDN) {
+        for (LDAPMappingConfiguration mappingConfig : this.mappingConfig.values()) {
+            if (!Relationship.class.isAssignableFrom(mappingConfig.getMappedClass())) {
+                if (mappingConfig.getBaseDN().equalsIgnoreCase(baseDN)) {
+                    return mappingConfig.getMappedClass();
+                }
+            }
+        }
+
+        throw new IdentityManagementException("No type found for Base DN [" + baseDN + "].");
+    }
+
+    public LDAPMappingConfiguration getMappingConfig(Class<? extends AttributedType> attributedType) {
+        for (LDAPMappingConfiguration mappingConfig : this.mappingConfig.values()) {
+            if (attributedType.equals(mappingConfig.getMappedClass())) {
+                return mappingConfig;
+            }
+        }
+
+        return null;
+    }
+
+    public List<LDAPMappingConfiguration> getRelationshipConfigs() {
+        ArrayList<LDAPMappingConfiguration> result = new ArrayList<LDAPMappingConfiguration>();
+
+        for (LDAPMappingConfiguration mappingConfig : this.mappingConfig.values()) {
+            if (mappingConfig.getRelatedAttributedType() != null) {
+                result.add(mappingConfig);
+            }
+        }
+
+        return result;
     }
 }

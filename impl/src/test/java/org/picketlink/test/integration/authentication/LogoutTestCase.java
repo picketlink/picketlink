@@ -24,17 +24,15 @@ package org.picketlink.test.integration.authentication;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.Before;
 import org.junit.Test;
-<<<<<<< HEAD
-import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.sample.User;
-=======
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.picketlink.test.integration.ArchiveUtils;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
 
 /**
  * @author Pedro Igor
@@ -47,7 +45,6 @@ public class LogoutTestCase extends AbstractAuthenticationTestCase {
         return ArchiveUtils.create(LogoutTestCase.class);
     }
     
-<<<<<<< HEAD
     @Before
     public void onSetup() {
         User john = this.identityManager.getUser(USER_NAME);
@@ -66,8 +63,6 @@ public class LogoutTestCase extends AbstractAuthenticationTestCase {
         this.identityManager.updateCredential(john, password);
     }
     
-=======
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
     @Test
     public void testLogout() throws Exception {
         super.credentials.setUserId(USER_NAME);

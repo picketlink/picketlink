@@ -21,10 +21,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-import org.picketlink.idm.jpa.annotations.AttributeOf;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
-import org.picketlink.idm.model.sample.Group;
 
 /**
  * Contains group-specific state.  The @AttributeOf annotation specifies that this entity
@@ -33,7 +31,7 @@ import org.picketlink.idm.model.sample.Group;
  * @author Shane Bryzak
  */
 @Entity
-@AttributeOf(supportedTypes = {Group.class})
+//@AttributeOf(supportedTypes = {Group.class})
 public class GroupDetail {
 
     @OwnerReference

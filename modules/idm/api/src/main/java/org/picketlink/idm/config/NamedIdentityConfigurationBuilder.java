@@ -17,28 +17,23 @@
  */
 package org.picketlink.idm.config;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.picketlink.idm.spi.RelationshipPolicy;
 
 /**
  * @author pedroigor
  */
-public class NamedIdentityConfigurationBuilder extends AbstractIdentityConfigurationChildBuilder<IdentityConfiguration> implements Builder<IdentityConfiguration> {
+public class NamedIdentityConfigurationBuilder extends AbstractIdentityConfigurationChildBuilder<IdentityConfiguration> {
 
     private final IdentityStoresConfigurationBuilder identityStoresConfigurationBuilder;
-    private final List<NamedIdentityConfigurationBuilder> identityConfigurationBuilders;
     private String name = "default";
 
     protected NamedIdentityConfigurationBuilder(String name, IdentityConfigurationChildBuilder builder) {
         super(builder);
-        this.identityConfigurationBuilders = new ArrayList<NamedIdentityConfigurationBuilder>();
         this.identityStoresConfigurationBuilder = new IdentityStoresConfigurationBuilder(this);
 
         if (name != null) {
             this.name = name;
         }
-
     }
 
     public IdentityStoresConfigurationBuilder stores() {
@@ -61,7 +56,7 @@ public class NamedIdentityConfigurationBuilder extends AbstractIdentityConfigura
     }
 
     @Override
-    public Builder<IdentityConfiguration> readFrom(IdentityConfiguration configuration) {
+    protected Builder<IdentityConfiguration> readFrom(IdentityConfiguration configuration) {
         return null;  //TODO: Implement readFrom
     }
 }

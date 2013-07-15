@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.test.idm;
+package org.picketlink.test.idm.partition;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -25,7 +25,8 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
+import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -38,7 +39,11 @@ import static org.junit.Assert.fail;
  *
  * @author pedroigor
  */
-public abstract class AbstractPartitionTestCase<T extends Partition> extends AbstractIdentityManagerTestCase {
+public abstract class AbstractPartitionTestCase<T extends Partition> extends AbstractPartitionManagerTestCase {
+
+    public AbstractPartitionTestCase(IdentityConfigurationTester builder) {
+        super(builder);
+    }
 
     @Test
     public void testCreate() {
@@ -71,7 +76,6 @@ public abstract class AbstractPartitionTestCase<T extends Partition> extends Abs
     }
 
     @Test
-    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testSetOneValuedAttribute() throws Exception {
         T storedIdentityType = createPartition();
 
@@ -90,7 +94,6 @@ public abstract class AbstractPartitionTestCase<T extends Partition> extends Abs
     }
 
     @Test
-    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testSetMultiValuedAttribute() throws Exception {
         T storedIdentityType = createPartition();
 
@@ -116,7 +119,6 @@ public abstract class AbstractPartitionTestCase<T extends Partition> extends Abs
     }
 
     @Test
-    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testSetMultipleAttributes() throws Exception {
         T storedIdentityType = createPartition();
 
@@ -146,7 +148,6 @@ public abstract class AbstractPartitionTestCase<T extends Partition> extends Abs
     }
 
     @Test
-    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testLargeAttributeValue() throws Exception {
         T storedIdentityType = createPartition();
 
@@ -174,7 +175,6 @@ public abstract class AbstractPartitionTestCase<T extends Partition> extends Abs
     }
 
     @Test
-    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testGetAllAttributes() throws Exception {
         T storedIdentityType = createPartition();
 
@@ -226,7 +226,6 @@ public abstract class AbstractPartitionTestCase<T extends Partition> extends Abs
     }
 
     @Test
-    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testUpdateAttribute() throws Exception {
         T storedIdentityType = createPartition();
 
@@ -263,7 +262,6 @@ public abstract class AbstractPartitionTestCase<T extends Partition> extends Abs
     }
 
     @Test
-    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testRemoveAttribute() throws Exception {
         T storedIdentityType = createPartition();
 

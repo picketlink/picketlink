@@ -33,7 +33,7 @@ import org.picketlink.idm.model.Relationship;
 
 /**
  * Caches metadata for relationship identity properties, and provides utility methods for working with relationships
- * 
+ *
  * TODO Make this class thread-safe
  *
  * @author Shane Bryzak

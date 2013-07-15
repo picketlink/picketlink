@@ -26,13 +26,8 @@ import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
-import org.picketlink.test.idm.ExcludeTestSuite;
-import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
-import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
-import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
-import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsFileRelationshipTestSuite;
-import org.picketlink.test.idm.suites.LDAPUsersJPARolesGroupsRelationshipsTestSuite;
+import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -45,7 +40,11 @@ import static org.junit.Assert.assertNull;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase {
+public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase {
+
+    public PasswordCredentialTestCase(IdentityConfigurationTester builder) {
+        super(builder);
+    }
 
     @Test
     public void testSuccessfulValidation() throws Exception {
@@ -116,9 +115,6 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
     }
 
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
-            LDAPIdentityStoreWithoutAttributesTestSuite.class, LDAPUsersJPARolesGroupsRelationshipsTestSuite.class,
-            LDAPUsersJPARolesGroupsFileRelationshipTestSuite.class })
     public void testExpiration() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
@@ -214,7 +210,6 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
     }
 
     @Test
-    @ExcludeTestSuite(LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testUserDisabled() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");

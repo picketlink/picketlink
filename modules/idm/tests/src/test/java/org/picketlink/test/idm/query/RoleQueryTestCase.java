@@ -20,22 +20,16 @@ package org.picketlink.test.idm.query;
 
 import java.util.List;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Grant;
-import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.ExcludeTestSuite;
-import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
-import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
-import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -48,6 +42,15 @@ import static junit.framework.Assert.assertTrue;
  * 
  */
 public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
+
+    public RoleQueryTestCase(IdentityConfigurationTester builder) {
+        super(builder);
+    }
+
+    @Override
+    protected Role createInstance(String name) {
+        return new Role(name);
+    }
 
     @Override
     protected Role createIdentityType(String name, Partition partition) {
@@ -72,47 +75,6 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         for (Role role : result) {
             getIdentityManager().remove(role);
         }
-    }
-
-    @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
-            LDAPIdentityStoreWithoutAttributesTestSuite.class })
-    public void testFindByTier() throws Exception {
-        Role someRole = new Role("someRole");
-
-        Tier applicationATier = getPartitionManager().getPartition(Tier.class, "Application A");
-
-        IdentityManager applicationA = getPartitionManager().createIdentityManager(applicationATier);
-
-        applicationA.add(someRole);
-
-        IdentityQuery<Role> query = applicationA.createIdentityQuery(Role.class);
-
-        query.setParameter(Role.PARTITION, applicationATier);
-
-        List<Role> result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertTrue(contains(result, someRole.getId()));
-
-        Tier applicationBTier = getPartitionManager().getPartition(Tier.class, "Application B");
-
-        IdentityManager applicationB = getPartitionManager().createIdentityManager(applicationBTier);
-
-        Role anotherRole = new Role("anotherRole");
-
-        applicationB.add(anotherRole);
-
-        query = applicationB.createIdentityQuery(Role.class);
-
-        query.setParameter(Role.PARTITION, applicationBTier);
-
-        result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertTrue(contains(result, anotherRole.getId()));
     }
 
     /**
@@ -217,8 +179,6 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
     }
 
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
-            LDAPIdentityStoreWithoutAttributesTestSuite.class })
     public void testFindWithSorting() throws Exception {
         createRole("someRole");
         createRole("someAnotherRole");

@@ -26,7 +26,8 @@ import org.picketlink.idm.credential.TOTPCredential;
 import org.picketlink.idm.credential.TOTPCredentials;
 import org.picketlink.idm.credential.totp.TimeBasedOTP;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
+import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -40,10 +41,14 @@ import static org.picketlink.idm.credential.Credentials.Status;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class TOTPCredentialTestCase extends AbstractIdentityManagerTestCase {
+public class TOTPCredentialTestCase extends AbstractPartitionManagerTestCase {
 
     public static final String DEFAULT_TOTP_SECRET = "my_secret";
     public static final String DEFAULT_PASSWORD = "passwd";
+
+    public TOTPCredentialTestCase(IdentityConfigurationTester builder) {
+        super(builder);
+    }
 
     @Test
     public void testSuccessfulValidation() throws Exception {

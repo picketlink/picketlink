@@ -30,7 +30,7 @@ package org.picketlink.idm.config;
  *
  */
 public class FileStoreConfigurationBuilder extends
-        AbstractIdentityStoreConfigurationBuilder<FileIdentityStoreConfiguration, FileStoreConfigurationBuilder> {
+        IdentityStoreConfigurationBuilder<FileIdentityStoreConfiguration, FileStoreConfigurationBuilder> {
 
     private String workingDirectory = "/tmp/pl-idm";
     private boolean preserveState = false;
@@ -86,7 +86,7 @@ public class FileStoreConfigurationBuilder extends
     }
 
     @Override
-    public FileIdentityStoreConfiguration create() {
+    protected FileIdentityStoreConfiguration create() {
         return new FileIdentityStoreConfiguration(
                 this.workingDirectory,
                 this.preserveState,
@@ -94,8 +94,6 @@ public class FileStoreConfigurationBuilder extends
                 this.asyncWriteThreadPool,
                 getSupportedTypes(),
                 getUnsupportedTypes(),
-                getGlobalRelationshipTypes(),
-                getSelfRelationshipTypes(),
                 getContextInitializers(),
                 getCredentialHandlerProperties(),
                 getCredentialHandlers());
@@ -115,7 +113,7 @@ public class FileStoreConfigurationBuilder extends
     }
 
     @Override
-    public FileStoreConfigurationBuilder readFrom(FileIdentityStoreConfiguration configuration) {
+    protected FileStoreConfigurationBuilder readFrom(FileIdentityStoreConfiguration configuration) {
         super.readFrom(configuration);
         this.workingDirectory = configuration.getWorkingDir();
         this.preserveState = !configuration.isAlwaysCreateFiles();

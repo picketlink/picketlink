@@ -218,7 +218,7 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
         public IdentityConfiguration buildIDMConfiguration() {
             IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
-            builder.stores().file().supportAllFeatures();
+            builder.named("default").stores().file().supportAllFeatures();
 
             return builder.build();
         }

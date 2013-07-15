@@ -25,9 +25,9 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
-import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
+import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -38,8 +38,12 @@ import static org.junit.Assert.assertTrue;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractIdentityManagerTestCase {
-    
+public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractPartitionManagerTestCase {
+
+    public AgentGroupsRelationshipTestCase(IdentityConfigurationTester builder) {
+        super(builder);
+    }
+
     protected T createIdentityType(String name, Partition partition) {
         if (name == null) {
             name = "someAgent";

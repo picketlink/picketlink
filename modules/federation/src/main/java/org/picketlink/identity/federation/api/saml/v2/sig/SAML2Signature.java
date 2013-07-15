@@ -17,8 +17,6 @@
  */
 package org.picketlink.identity.federation.api.saml.v2.sig;
 
-<<<<<<< HEAD
-=======
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -34,7 +32,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathException;
 
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.JBossSAMLConstants;

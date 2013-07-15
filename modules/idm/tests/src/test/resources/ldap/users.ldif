@@ -19,6 +19,11 @@ objectclass: top
 objectclass: organizationalUnit
 ou: Agent
 
+dn: ou=CustomTypes,dc=jboss,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: CustomTypes
+
 dn: uid=admin,ou=People,dc=jboss,dc=org
 objectclass: top
 objectclass: uidObject

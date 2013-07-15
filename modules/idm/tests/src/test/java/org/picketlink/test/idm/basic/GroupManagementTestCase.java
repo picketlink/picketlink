@@ -22,8 +22,15 @@ import java.util.Date;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.GroupMembership;
+import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
@@ -39,6 +46,10 @@ import static org.junit.Assert.assertNotNull;
  *
  */
 public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group> {
+
+    public GroupManagementTestCase(IdentityConfigurationTester builder) {
+        super(builder);
+    }
 
     @Test
     public void testCreate() throws Exception {
@@ -208,40 +219,40 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
         assertNull(removedGroup);
 
-//        User anotherUser = createUser("user");
-//        Role role = createRole("role");
-//        Group group = createGroup("group", null);
-//
-//        PartitionManager partitionManager = getPartitionManager();
-//
-//        partitionManager.addToGroup(anotherUser, group);
-//        partitionManager.grantGroupRole(anotherUser, role, group);
-//
-//        RelationshipQuery<?> relationshipQuery = partitionManager.createRelationshipQuery(GroupMembership.class);
-//
-//        relationshipQuery.setParameter(GroupMembership.GROUP, group);
-//
-//        assertFalse(relationshipQuery.getResultList().isEmpty());
-//
-//        relationshipQuery = partitionManager.createRelationshipQuery(GroupRole.class);
-//
-//        relationshipQuery.setParameter(GroupRole.GROUP, group);
-//
-//        assertFalse(relationshipQuery.getResultList().isEmpty());
-//
-//        identityManager.remove(group);
-//
-//        relationshipQuery = partitionManager.createRelationshipQuery(GroupMembership.class);
-//
-//        relationshipQuery.setParameter(GroupMembership.GROUP, group);
-//
-//        assertTrue(relationshipQuery.getResultList().isEmpty());
-//
-//        relationshipQuery = partitionManager.createRelationshipQuery(GroupRole.class);
-//
-//        relationshipQuery.setParameter(GroupRole.GROUP, group);
-//
-//        assertTrue(relationshipQuery.getResultList().isEmpty());
+        User anotherUser = createUser("user");
+        Role role = createRole("role");
+        Group group = createGroup("group", null);
+
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
+
+        relationshipManager.addToGroup(anotherUser, group);
+        relationshipManager.grantGroupRole(anotherUser, role, group);
+
+        RelationshipQuery<?> relationshipQuery = relationshipManager.createRelationshipQuery(GroupMembership.class);
+
+        relationshipQuery.setParameter(GroupMembership.GROUP, group);
+
+        assertFalse(relationshipQuery.getResultList().isEmpty());
+
+        relationshipQuery = relationshipManager.createRelationshipQuery(GroupRole.class);
+
+        relationshipQuery.setParameter(GroupRole.GROUP, group);
+
+        assertFalse(relationshipQuery.getResultList().isEmpty());
+
+        identityManager.remove(group);
+
+        relationshipQuery = relationshipManager.createRelationshipQuery(GroupMembership.class);
+
+        relationshipQuery.setParameter(GroupMembership.GROUP, group);
+
+        assertTrue(relationshipQuery.getResultList().isEmpty());
+
+        relationshipQuery = relationshipManager.createRelationshipQuery(GroupRole.class);
+
+        relationshipQuery.setParameter(GroupRole.GROUP, group);
+
+        assertTrue(relationshipQuery.getResultList().isEmpty());
     }
 
     @Override
@@ -263,7 +274,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
         IdentityManager identityManager = getIdentityManager();
 
-        assertTrue(instanceA.equals(identityManager.getGroup(instanceA.getPath())));
+        assertTrue(instanceA.getName().equals(identityManager.getGroup(instanceA.getPath()).getName()));
     }
 
 }

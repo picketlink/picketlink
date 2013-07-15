@@ -20,19 +20,16 @@ package org.picketlink.idm.jpa.schema;
 
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-
 import org.picketlink.idm.jpa.annotations.CreationDate;
 import org.picketlink.idm.jpa.annotations.Enabled;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
-import org.picketlink.idm.model.annotation.IdentityPartition;
 
 /**
  * <p>JPA {@link Entity} that maps IdentityType instances.</p>
@@ -48,7 +45,7 @@ public class IdentityObject implements Serializable {
     @IdentityClass
     private String identityClass;
 
-    @IdentityPartition
+//    @IdentityPartition
     @ManyToOne
     private Partition partition;
 

@@ -20,11 +20,8 @@ package org.picketlink.idm.jpa.schema;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
-
-import org.picketlink.idm.jpa.annotations.AttributeOf;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
-import org.picketlink.idm.model.sample.Role;
 
 /**
  * Contains role-specific state.  The @AttributeOf annotation specifies that this entity
@@ -33,7 +30,7 @@ import org.picketlink.idm.model.sample.Role;
  * @author Shane Bryzak
  */
 @Entity
-@AttributeOf(supportedTypes = {Role.class})
+//@AttributeOf(supportedTypes = {Role.class})
 public class RoleDetail {
 
     @OwnerReference

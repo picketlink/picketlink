@@ -20,6 +20,7 @@ package org.picketlink.test.idm.relationship;
 
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.User;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 
 /**
  * <p>
@@ -29,6 +30,10 @@ import org.picketlink.idm.model.sample.User;
  *
  */
 public class UserGroupRoleRelationshipTestCase extends AgentGroupRoleRelationshipTestCase<User>{
+
+    public UserGroupRoleRelationshipTestCase(IdentityConfigurationTester builder) {
+        super(builder);
+    }
 
     @Override
     protected User createIdentityType(String name, Partition partition) {

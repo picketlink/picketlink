@@ -17,6 +17,14 @@
  */
 package org.picketlink.oauth.server.util;
 
+import java.io.IOException;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.PropertyNamingStrategy;
@@ -25,7 +33,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
-import org.picketlink.idm.internal.IdentityManagerFactory;
+import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -37,7 +45,8 @@ import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
-import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.oauth.common.OAuthConstants;
 import org.picketlink.oauth.grants.AuthorizationCodeGrant;
@@ -50,15 +59,6 @@ import org.picketlink.oauth.messages.ErrorResponse.ErrorResponseCode;
 import org.picketlink.oauth.messages.OAuthResponse;
 import org.picketlink.oauth.messages.RegistrationRequest;
 import org.picketlink.oauth.messages.ResourceAccessRequest;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.List;
 
 /**
  * Utility
@@ -90,25 +90,31 @@ public class OAuthServerUtil {
             IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
             builder
-                .stores()
-                    .jpa()
-                    .addRealm(Realm.DEFAULT_REALM)
-                    .identityClass(IdentityObject.class)
-                    .attributeClass(IdentityObjectAttribute.class)
-                    .relationshipClass(RelationshipObject.class)
-                    .relationshipIdentityClass(RelationshipIdentityObject.class)
-                    .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                    .credentialClass(CredentialObject.class)
-                    .credentialAttributeClass(CredentialObjectAttribute.class)
-                    .partitionClass(PartitionObject.class).supportAllFeatures()
-                    .addContextInitializer(new JPAContextInitializer(entityManagerFactory) {
-                        @Override
-                        public EntityManager getEntityManager() {
-                            return entityManagerThreadLocal.get();
-                        }
-                    });
+                .named("default")
+                    .stores()
+                        .jpa()
+                            .identityClass(IdentityObject.class)
+                            .attributeClass(IdentityObjectAttribute.class)
+                            .relationshipClass(RelationshipObject.class)
+                            .relationshipIdentityClass(RelationshipIdentityObject.class)
+                            .relationshipAttributeClass(RelationshipObjectAttribute.class)
+                            .credentialClass(CredentialObject.class)
+                            .credentialAttributeClass(CredentialObjectAttribute.class)
+                            .partitionClass(PartitionObject.class).supportAllFeatures()
+                            .addContextInitializer(new JPAContextInitializer(entityManagerFactory) {
+                                @Override
+                                public EntityManager getEntityManager() {
+                                    return entityManagerThreadLocal.get();
+                                }
+                            });
+
+            DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+            partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+
             // FIXME: IdentityManager is not threadsafe
-            identityManager = new IdentityManagerFactory(builder.build()).createIdentityManager();
+            identityManager = partitionManager.createIdentityManager();
+
             context.setAttribute("identityManager", identityManager);
             EntityManager entityManager = entityManagerFactory.createEntityManager();
             entityManagerThreadLocal.set(entityManager);
@@ -153,10 +159,10 @@ public class OAuthServerUtil {
                 return errorResponse;
             }
 
-            IdentityQuery<org.picketlink.idm.model.Agent> agentQuery = identityManager.createIdentityQuery(org.picketlink.idm.model.Agent.class);
+            IdentityQuery<Agent> agentQuery = identityManager.createIdentityQuery(Agent.class);
             agentQuery.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("clientID"), passedClientID);
 
-            List<org.picketlink.idm.model.Agent> agents = agentQuery.getResultList();
+            List<Agent> agents = agentQuery.getResultList();
             if (agents.size() == 0) {
                 log.error(passedClientID + " not found");
 
@@ -175,7 +181,7 @@ public class OAuthServerUtil {
                 return errorResponse;
             }
 
-            org.picketlink.idm.model.Agent clientApp = agents.get(0);
+            Agent clientApp = agents.get(0);
 
             // User clientApp = users.get(0);
             Attribute<String> clientIDAttr = clientApp.getAttribute("clientID");
@@ -246,10 +252,10 @@ public class OAuthServerUtil {
      * @return
      */
     public static boolean validateAccessToken(String passedAccessToken, IdentityManager identityManager) {
-        IdentityQuery<org.picketlink.idm.model.Agent> agentQuery = identityManager.createIdentityQuery(org.picketlink.idm.model.Agent.class);
+        IdentityQuery<Agent> agentQuery = identityManager.createIdentityQuery(Agent.class);
         agentQuery.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("accessToken"), passedAccessToken);
 
-        List<org.picketlink.idm.model.Agent> agents = agentQuery.getResultList();
+        List<Agent> agents = agentQuery.getResultList();
         int size = agents.size();
 
         if (size == 0 || size != 1) {
@@ -396,10 +402,10 @@ public class OAuthServerUtil {
             return errorResponse;
         }
 
-        IdentityQuery<org.picketlink.idm.model.Agent> agentQuery = identityManager.createIdentityQuery(org.picketlink.idm.model.Agent.class);
+        IdentityQuery<Agent> agentQuery = identityManager.createIdentityQuery(Agent.class);
         agentQuery.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("clientID"), passedClientID);
 
-        List<org.picketlink.idm.model.Agent> agents = agentQuery.getResultList();
+        List<Agent> agents = agentQuery.getResultList();
         if (agents.size() == 0) {
             log.error(passedClientID + " not found");
 
@@ -419,7 +425,7 @@ public class OAuthServerUtil {
             return errorResponse;
         }
 
-        org.picketlink.idm.model.Agent clientApp = agents.get(0);
+        Agent clientApp = agents.get(0);
 
         // Get the values from DB
         Attribute<String> clientIDAttr = clientApp.getAttribute("clientID");

@@ -44,14 +44,16 @@ public interface IdentityConfigurationChildBuilder {
      * <p>For multiple configurations see <code>buildAll</code>.</p>
      *
      * @return
+     * @throws  SecurityConfigurationException if any error occurs or for any invalid configuration
      */
-    IdentityConfiguration build();
+    IdentityConfiguration build() throws SecurityConfigurationException;
 
     /**
      * <p>Builds all named configurations.</p>
      *
      * @return
+     * @throws  SecurityConfigurationException if any error occurs or for any invalid configuration
      */
-    List<IdentityConfiguration> buildAll();
+    List<IdentityConfiguration> buildAll() throws SecurityConfigurationException;
 
 }

@@ -32,12 +32,23 @@ import java.util.List;
  *
  * @author Pedro Igor
  */
-public class IdentityConfigurationBuilder implements IdentityConfigurationChildBuilder {
+public class IdentityConfigurationBuilder extends Builder<List<IdentityConfiguration>> implements IdentityConfigurationChildBuilder {
 
     private final List<NamedIdentityConfigurationBuilder> namedIdentityConfigurationBuilders;
 
     public IdentityConfigurationBuilder() {
         this.namedIdentityConfigurationBuilders = new ArrayList<NamedIdentityConfigurationBuilder>();
+    }
+
+    /**
+     * <p>Creates a new instance reading all the configuration from a previously created list of {@link IdentityConfiguration}.</p>
+     *
+     * @param configurations
+     * @throws  SecurityConfigurationException if any error occurs or for any invalid configuration
+     */
+    public IdentityConfigurationBuilder(List<IdentityConfiguration> configurations) throws SecurityConfigurationException {
+        this();
+        readFrom(configurations);
     }
 
     /**
@@ -55,23 +66,39 @@ public class IdentityConfigurationBuilder implements IdentityConfigurationChildB
     }
 
     @Override
-    public IdentityConfiguration build() {
-        validate();
+    public IdentityConfiguration build() throws SecurityConfigurationException {
+        List<IdentityConfiguration> identityConfigurations = create();
 
-        if (this.namedIdentityConfigurationBuilders.size() > 1) {
+        if (identityConfigurations.size() > 1) {
             throw new SecurityConfigurationException("You have provided more than one configuration. Use the buildAll method instead.");
         }
 
-        return this.namedIdentityConfigurationBuilders.get(0).create();
+        return identityConfigurations.get(0);
     }
 
     @Override
-    public List<IdentityConfiguration> buildAll() {
+    public List<IdentityConfiguration> buildAll() throws SecurityConfigurationException {
+        return create();
+    }
+
+    @Override
+    protected void validate() throws SecurityConfigurationException {
+        if (this.namedIdentityConfigurationBuilders.isEmpty()) {
+            throw new SecurityConfigurationException("You must provide at least one configuration.");
+        }
+
+        for (NamedIdentityConfigurationBuilder identityConfigBuilder : this.namedIdentityConfigurationBuilders) {
+            identityConfigBuilder.validate();
+        }
+    }
+
+    @Override
+    protected List<IdentityConfiguration> create() throws SecurityConfigurationException {
         validate();
 
         List<IdentityConfiguration> configurations = new ArrayList<IdentityConfiguration>();
 
-        for (NamedIdentityConfigurationBuilder identityConfigBuilder: this.namedIdentityConfigurationBuilders) {
+        for (NamedIdentityConfigurationBuilder identityConfigBuilder : this.namedIdentityConfigurationBuilders) {
             IdentityConfiguration configuration = identityConfigBuilder.create();
 
             if (configurations.contains(configuration)) {
@@ -84,14 +111,16 @@ public class IdentityConfigurationBuilder implements IdentityConfigurationChildB
         return configurations;
     }
 
-    private void validate() {
-        if (this.namedIdentityConfigurationBuilders.isEmpty()) {
-            throw new SecurityConfigurationException("You must provide at least one configuration.");
+    @Override
+    protected Builder<List<IdentityConfiguration>> readFrom(List<IdentityConfiguration> fromConfiguration) throws SecurityConfigurationException {
+        if (fromConfiguration == null || fromConfiguration.isEmpty()) {
+            throw new SecurityConfigurationException("No configuration provided to read from.");
         }
 
-        for (NamedIdentityConfigurationBuilder identityConfigBuilder: this.namedIdentityConfigurationBuilders) {
-            identityConfigBuilder.validate();
+        for (IdentityConfiguration identityConfiguration: fromConfiguration) {
+            named(identityConfiguration.getName()).readFrom(identityConfiguration);
         }
+
+        return this;
     }
-
 }

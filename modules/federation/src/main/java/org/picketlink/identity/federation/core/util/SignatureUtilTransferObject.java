@@ -17,16 +17,10 @@
  */
 package org.picketlink.identity.federation.core.util;
 
-<<<<<<< HEAD
-=======
 import java.security.KeyPair;
 import java.security.cert.X509Certificate;
-
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import java.security.KeyPair;
 
 /**
  * A Transfer Object used by {@link XMLSignatureUtil}

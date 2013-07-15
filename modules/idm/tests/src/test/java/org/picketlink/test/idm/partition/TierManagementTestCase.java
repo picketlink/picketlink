@@ -21,13 +21,12 @@ package org.picketlink.test.idm.partition;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.test.idm.AbstractPartitionTestCase;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -49,6 +48,10 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
     private static final String APPLICATION_A_TIER_NAME = "Application A";
     private static final String APPLICATION_B_TIER_NAME = "Application B";
     private static final String APPLICATION_C_TIER_NAME = "Application C";
+
+    public TierManagementTestCase(IdentityConfigurationTester builder) {
+        super(builder);
+    }
 
     @Override
     protected Tier createPartition() {

@@ -88,6 +88,7 @@ public class Group extends AbstractIdentityType {
     @AttributeProperty
     @Unique
     public String getPath() {
+        this.path = buildPath(this);
         return this.path;
     }
 

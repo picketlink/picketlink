@@ -22,26 +22,69 @@
 
 package org.picketlink.idm.config;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
- * <p>{@link Builder} interface defining all configuration methods for identity stores.</p>
+ * <p>Base class for {@link IdentityStoreConfigurationBuilder} implementations.</p>
  *
  * @author Pedro Igor
- *
  */
-public interface IdentityStoreConfigurationBuilder<T extends IdentityStoreConfiguration, S extends IdentityStoreConfigurationBuilder<T, S>> extends Builder<T> {
+public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreConfiguration, S extends IdentityStoreConfigurationBuilder<T, S>>
+        extends AbstractIdentityConfigurationChildBuilder<T>
+        implements IdentityStoreConfigurationChildBuilder {
 
-    /**
-     * <p>Enables the default feature set for this configuration.</p>
-     *
-     * @return
-     */
-    S supportAllFeatures();
+    private final Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes;
+    private final Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes;
+    private final Set<Class<? extends Relationship>> globalRelationshipTypes;
+    private final Set<Class<? extends Relationship>> selfRelationshipTypes;
+    private final List<Class<? extends CredentialHandler>> credentialHandlers;
+    private final Map<String, Object> credentialHandlerProperties;
+    private final List<ContextInitializer> contextInitializers;
+    private final IdentityStoresConfigurationBuilder identityStoresConfigurationBuilder;
+    private boolean supportCredentials;
+
+    protected IdentityStoreConfigurationBuilder(IdentityStoresConfigurationBuilder builder) {
+        super(builder);
+        this.supportedTypes = new HashMap<Class<? extends AttributedType>, Set<IdentityOperation>>();
+        this.unsupportedTypes = new HashMap<Class<? extends AttributedType>, Set<IdentityOperation>>();
+        this.globalRelationshipTypes = new HashSet<Class<? extends Relationship>>();
+        this.selfRelationshipTypes = new HashSet<Class<? extends Relationship>>();
+        this.credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
+        this.credentialHandlerProperties = new HashMap<String, Object>();
+        this.contextInitializers = new ArrayList<ContextInitializer>();
+        this.identityStoresConfigurationBuilder = builder;
+    }
+
+    @Override
+    public FileStoreConfigurationBuilder file() {
+        return this.identityStoresConfigurationBuilder.file();
+    }
+
+    @Override
+    public JPAStoreConfigurationBuilder jpa() {
+        return this.identityStoresConfigurationBuilder.jpa();
+    }
+
+    @Override
+    public LDAPStoreConfigurationBuilder ldap() {
+        return this.identityStoresConfigurationBuilder.ldap();
+    }
 
     /**
      * <p>Defines which types should be supported by this configuration.</p>
@@ -49,23 +92,22 @@ public interface IdentityStoreConfigurationBuilder<T extends IdentityStoreConfig
      * @param types
      * @return
      */
-    S supportType(Class<? extends AttributedType>... types);
+    public S supportType(Class<? extends AttributedType>... attributedTypes) {
+        if (attributedTypes == null) {
+            throw MESSAGES.nullArgument("Attributed Types");
+        }
 
-    /**
-     * <p>Defines which types should be supported by this configuration.</p>
-     *
-     * @param types
-     * @return
-     */
-    S supportGlobalRelationship(Class<? extends Relationship>... types);
+        for (Class<? extends AttributedType> attributedType : attributedTypes) {
+            if (!this.supportedTypes.containsKey(attributedType)) {
+                List<IdentityOperation> defaultTypeOperations = Arrays.asList(IdentityOperation.values());
+                HashSet<IdentityOperation> supportedOperations =
+                        new HashSet<IdentityOperation>(defaultTypeOperations);
+                this.supportedTypes.put(attributedType, supportedOperations);
+            }
+        }
 
-    /**
-     * <p>Defines which types should be supported by this configuration.</p>
-     *
-     * @param types
-     * @return
-     */
-    S supportSelfRelationship(Class<? extends Relationship>... types);
+        return (S) this;
+    }
 
     /**
      * <p>Defines which type should not be supported by this configuration.</p>
@@ -76,15 +118,68 @@ public interface IdentityStoreConfigurationBuilder<T extends IdentityStoreConfig
      * @param operation
      * @return
      */
-    S unsupportType(Class<? extends AttributedType> type, IdentityOperation... operation);
+    public S unsupportType(Class<? extends AttributedType> type, IdentityOperation... operations) {
+        if (!this.unsupportedTypes.containsKey(type)) {
+            this.unsupportedTypes.put(type, new HashSet<IdentityOperation>());
+        }
+
+        if (operations != null && operations.length == 0) {
+            operations = IdentityOperation.values();
+        }
+
+        for (IdentityOperation op : operations) {
+            this.unsupportedTypes.get(type).add(op);
+        }
+
+        return (S) this;
+    }
 
     /**
-     * <p>Adds a custom {@CredentialHandler}.</p>
+     * <p>Defines which types should be supported by this configuration.</p>
      *
-     * @param credentialHandler
+     * @param types
      * @return
      */
-    S addCredentialHandler(Class<? extends CredentialHandler> credentialHandler);
+    public S supportGlobalRelationship(Class<? extends Relationship>... types) {
+        this.globalRelationshipTypes.addAll(Arrays.asList(types));
+        supportType(types);
+        return (S) this;
+    }
+
+    /**
+     * <p>Defines which types should be supported by this configuration.</p>
+     *
+     * @param types
+     * @return
+     */
+    public S supportSelfRelationship(Class<? extends Relationship>... types) {
+        this.selfRelationshipTypes.addAll(Arrays.asList(types));
+        supportType(types);
+        return (S) this;
+    }
+
+    /**
+     * <p>Enables the default feature set for this configuration.</p>
+     *
+     * @return
+     */
+    public S supportAllFeatures() {
+        supportType(getDefaultIdentityModelClasses());
+        supportCredentials(true);
+
+        return (S) this;
+    }
+
+    /**
+     * <p>Adds a {@link ContextInitializer}.</p>
+     *
+     * @param contextInitializer
+     * @return
+     */
+    public S addContextInitializer(ContextInitializer contextInitializer) {
+        this.contextInitializers.add(contextInitializer);
+        return (S) this;
+    }
 
     /**
      * <p>Sets a configuration property for a {@link CredentialHandler}.</p>
@@ -93,15 +188,21 @@ public interface IdentityStoreConfigurationBuilder<T extends IdentityStoreConfig
      * @param value
      * @return
      */
-    S setCredentialHandlerProperty(String propertyName, Object value);
+    public S setCredentialHandlerProperty(String propertyName, Object value) {
+        this.credentialHandlerProperties.put(propertyName, value);
+        return (S) this;
+    }
 
     /**
-     * <p>Adds a {@link ContextInitializer}.</p>
+     * <p>Adds a custom {@CredentialHandler}.</p>
      *
-     * @param contextInitializer
+     * @param credentialHandler
      * @return
      */
-    S addContextInitializer(ContextInitializer contextInitializer);
+    public S addCredentialHandler(Class<? extends CredentialHandler> credentialHandler) {
+        this.credentialHandlers.add(credentialHandler);
+        return (S) this;
+    }
 
     /**
      * <p>Enable/Disable credentials support</p>
@@ -109,5 +210,63 @@ public interface IdentityStoreConfigurationBuilder<T extends IdentityStoreConfig
      * @param supportCredentials
      * @return
      */
-    S supportCredentials(boolean supportCredentials);
+    public S supportCredentials(boolean supportCredentials) {
+        this.supportCredentials = supportCredentials;
+        return (S) this;
+    }
+
+    @Override
+    protected void validate() {
+        if (this.supportedTypes.isEmpty()) {
+            throw new SecurityConfigurationException("The store configuration must have at least one supported type.");
+        }
+    }
+
+    @Override
+    protected Builder<T> readFrom(T configuration) {
+        return this;
+    }
+
+    protected List<ContextInitializer> getContextInitializers() {
+        return unmodifiableList(this.contextInitializers);
+    }
+
+    protected Map<String, Object> getCredentialHandlerProperties() {
+        return unmodifiableMap(this.credentialHandlerProperties);
+    }
+
+    protected List<Class<? extends CredentialHandler>> getCredentialHandlers() {
+        return unmodifiableList(this.credentialHandlers);
+    }
+
+    protected Map<Class<? extends AttributedType>, Set<IdentityOperation>> getSupportedTypes() {
+        return unmodifiableMap(this.supportedTypes);
+    }
+
+    protected Map<Class<? extends AttributedType>, Set<IdentityOperation>> getUnsupportedTypes() {
+        return unmodifiableMap(this.unsupportedTypes);
+    }
+
+    protected Set<Class<? extends Relationship>> getGlobalRelationshipTypes() {
+        return this.globalRelationshipTypes;
+    }
+
+    protected Set<Class<? extends Relationship>> getSelfRelationshipTypes() {
+        return this.selfRelationshipTypes;
+    }
+
+    private static Class<? extends AttributedType>[] getDefaultIdentityModelClasses() {
+        List<Class<? extends AttributedType>> classes = new ArrayList<Class<? extends AttributedType>>();
+
+        // identity types
+        classes.add(IdentityType.class);
+
+        // relationship types
+        classes.add(Relationship.class);
+
+        // partition types
+        classes.add(Partition.class);
+
+        return (Class<? extends AttributedType>[]) classes.toArray(new Class<?>[classes.size()]);
+    }
 }

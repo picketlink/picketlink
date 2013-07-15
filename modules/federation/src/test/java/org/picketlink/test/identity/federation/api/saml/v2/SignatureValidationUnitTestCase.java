@@ -17,8 +17,6 @@
  */
 package org.picketlink.test.identity.federation.api.saml.v2;
 
-<<<<<<< HEAD
-=======
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -33,7 +31,6 @@ import java.security.cert.X509Certificate;
 
 import javax.xml.crypto.dsig.SignatureMethod;
 
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.picketlink.common.constants.JBossSAMLURIConstants;

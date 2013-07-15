@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.AbstractPartition;
 import org.picketlink.idm.model.annotation.AttributeProperty;
-import org.picketlink.test.idm.AbstractPartitionTestCase;
+import org.picketlink.test.idm.IdentityConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -37,6 +37,10 @@ import static org.junit.Assert.assertNotNull;
 public class CustomPartitionTestCase extends AbstractPartitionTestCase<CustomPartitionTestCase.CustomPartition> {
 
     public static final String CUSTOM_PARTITION_NAME = "Custom Partition";
+
+    public CustomPartitionTestCase(IdentityConfigurationTester builder) {
+        super(builder);
+    }
 
     @Override
     protected CustomPartition createPartition() {

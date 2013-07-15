@@ -19,12 +19,10 @@ package org.picketlink.test.integration.authentication;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.SimpleAgent;
+import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.test.integration.ArchiveUtils;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -50,7 +48,7 @@ public class AgentAuthenticationTestCase extends AbstractAuthenticationTestCase 
         Agent agent = this.identityManager.getAgent(AGENT_NAME);
 
         if (agent == null) {
-            agent = new SimpleAgent(AGENT_NAME);
+            agent = new Agent(AGENT_NAME);
             this.identityManager.add(agent);
         }
 

@@ -17,9 +17,7 @@
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
-<<<<<<< HEAD
 import org.picketlink.common.constants.GeneralConstants;
-=======
 import static org.picketlink.common.util.StringUtil.isNotNull;
 
 import java.io.IOException;
@@ -29,7 +27,6 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
->>>>>>> 14f502bb69a9449e55d3d17818efa3d8477d3310
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.DocumentUtil;

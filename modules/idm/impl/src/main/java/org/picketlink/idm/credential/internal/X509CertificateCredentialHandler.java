@@ -22,12 +22,10 @@ import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
-
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.X509CertificateCredentials;
-import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.Agent;
@@ -43,7 +41,7 @@ import org.picketlink.idm.spi.IdentityContext;
  */
 @SupportsCredentials({ X509CertificateCredentials.class, X509Certificate.class })
 public class X509CertificateCredentialHandler<S,V,U>
-    implements CredentialHandler<CredentialStore<?>,X509CertificateCredentials, X509Certificate> {
+    extends AbstractCredentialHandler<CredentialStore<?>,X509CertificateCredentials, X509Certificate> {
 
     @Override
     public void setup(CredentialStore<?> identityStore) {
@@ -52,7 +50,7 @@ public class X509CertificateCredentialHandler<S,V,U>
     @Override
     public void validate(IdentityContext context, X509CertificateCredentials credentials,
             CredentialStore<?> store) {
-        Agent agent = store.getAgent(context, credentials.getUsername());
+        Agent agent = getAgent(context, credentials.getUsername());
 
         credentials.setStatus(Status.INVALID);
         credentials.setValidatedAgent(null);

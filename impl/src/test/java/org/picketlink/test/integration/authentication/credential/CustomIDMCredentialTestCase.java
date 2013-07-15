@@ -31,7 +31,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.AbstractBaseCredentials;
-import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.credential.internal.AbstractCredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.Stored;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
@@ -43,10 +43,11 @@ import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
-import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.Account;
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.spi.CredentialStore;
-import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.test.integration.AbstractJPADeploymentTestCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -88,7 +89,7 @@ public class CustomIDMCredentialTestCase extends AbstractJPADeploymentTestCase {
     public void onBefore() throws Exception {
         super.onBefore();
 
-        SimpleUser john = new SimpleUser("john");
+        User john = new User("john");
 
         this.identityManager.add(john);
 
@@ -134,18 +135,19 @@ public class CustomIDMCredentialTestCase extends AbstractJPADeploymentTestCase {
             IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
             builder
-                .stores()
-                    .jpa()
-                        .addCredentialHandler(MyCredentialHandler.class)
-                        .identityClass(IdentityObject.class)
-                        .attributeClass(IdentityObjectAttribute.class)
-                        .relationshipClass(RelationshipObject.class)
-                        .relationshipIdentityClass(RelationshipIdentityObject.class)
-                        .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                        .credentialClass(CredentialObject.class)
-                        .credentialAttributeClass(CredentialObjectAttribute.class)
-                        .partitionClass(PartitionObject.class)
-                        .supportAllFeatures();
+                .named("default")
+                    .stores()
+                        .jpa()
+                            .addCredentialHandler(MyCredentialHandler.class)
+                            .identityClass(IdentityObject.class)
+                            .attributeClass(IdentityObjectAttribute.class)
+                            .relationshipClass(RelationshipObject.class)
+                            .relationshipIdentityClass(RelationshipIdentityObject.class)
+                            .relationshipAttributeClass(RelationshipObjectAttribute.class)
+                            .credentialClass(CredentialObject.class)
+                            .credentialAttributeClass(CredentialObjectAttribute.class)
+                            .partitionClass(PartitionObject.class)
+                            .supportAllFeatures();
 
             return builder.build();
         }
@@ -153,14 +155,14 @@ public class CustomIDMCredentialTestCase extends AbstractJPADeploymentTestCase {
     }
 
     @SupportsCredentials(MyCredential.class)
-    public static class MyCredentialHandler implements CredentialHandler<CredentialStore<?>, MyCredential, MyCredential> {
+    public static class MyCredentialHandler extends AbstractCredentialHandler<CredentialStore<?>, MyCredential, MyCredential> {
         @Override
         public void setup(CredentialStore<?> store) {
             // handler initialization
         }
 
         @Override
-        public void validate(SecurityContext context, MyCredential credentials, CredentialStore<?> store) {
+        public void validate(IdentityContext context, MyCredential credentials, CredentialStore<?> store) {
             if (!MyCredential.class.isInstance(credentials)) {
                 throw MESSAGES.credentialUnsupportedType(credentials.getClass(), this);
             }
@@ -169,7 +171,7 @@ public class CustomIDMCredentialTestCase extends AbstractJPADeploymentTestCase {
 
             credential.setStatus(INVALID);
 
-            Agent agent = store.getAgent(context, credential.getUserName());
+            Agent agent = getAgent(context, credential.getUserName());
 
             if (agent != null) {
                 MyCredentialStorage storage = store.retrieveCurrentCredential(context, agent, MyCredentialStorage.class);
@@ -184,7 +186,7 @@ public class CustomIDMCredentialTestCase extends AbstractJPADeploymentTestCase {
         }
 
         @Override
-        public void update(SecurityContext context, Agent agent, MyCredential credential, CredentialStore<?> store, Date effectiveDate, Date expiryDate) {
+        public void update(IdentityContext context, Account agent, MyCredential credential, CredentialStore<?> store, Date effectiveDate, Date expiryDate) {
             MyCredentialStorage storage = new MyCredentialStorage();
 
             storage.setEffectiveDate(effectiveDate);

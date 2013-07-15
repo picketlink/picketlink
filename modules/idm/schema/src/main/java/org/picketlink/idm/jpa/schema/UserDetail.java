@@ -18,15 +18,11 @@
 package org.picketlink.idm.jpa.schema;
 
 import java.io.Serializable;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
-
-import org.picketlink.idm.jpa.annotations.AttributeOf;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
-import org.picketlink.idm.model.sample.User;
 
 /**
  * Contains user-specific state.  The @AttributeOf annotation specifies that this entity
@@ -34,7 +30,7 @@ import org.picketlink.idm.model.sample.User;
  *
  * @author Shane Bryzak
  */
-@AttributeOf(supportedTypes = {User.class})
+//@AttributeOf(supportedTypes = {User.class})
 @Entity
 public class UserDetail implements Serializable {
     private static final long serialVersionUID = -2473811756440432253L;

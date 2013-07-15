@@ -27,7 +27,6 @@ import org.picketlink.idm.credential.TOTPCredential;
 import org.picketlink.idm.credential.TOTPCredentials;
 import org.picketlink.idm.credential.internal.DigestUtil;
 import org.picketlink.idm.credential.totp.TimeBasedOTP;
-import org.picketlink.idm.model.Realm;
 import org.picketlink.test.integration.ArchiveUtils;
 import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
 import static org.junit.Assert.assertEquals;

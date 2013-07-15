@@ -20,12 +20,11 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.idm.suites;
+package org.picketlink.test.idm;
 
 import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.Properties;
-
 import javax.naming.CompositeName;
 import javax.naming.Context;
 import javax.naming.ContextNotEmptyException;
@@ -35,7 +34,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-
 import org.junit.After;
 import org.junit.Before;
 import org.picketbox.test.ldap.AbstractLDAPTest;
@@ -45,17 +43,17 @@ import org.picketbox.test.ldap.AbstractLDAPTest;
  * @author Peter Skopek: pskopek at redhat dot com
  *
  */
-public abstract class LDAPAbstractSuite extends AbstractLDAPTest {
-    
-    static final String BASE_DN = "dc=jboss,dc=org";
-    static final String LDAP_URL = "ldap://localhost:10389";
-    static final String ROLES_DN_SUFFIX = "ou=Roles,dc=jboss,dc=org";
-    static final String GROUP_DN_SUFFIX = "ou=Groups,dc=jboss,dc=org";
-    static final String USER_DN_SUFFIX = "ou=People,dc=jboss,dc=org";
-    static final String AGENT_DN_SUFFIX = "ou=Agent,dc=jboss,dc=org";
-    
-    static final String CONNECTION_PROPERTIES = "config/ldap-connection.properties";
-    
+public class LDAPEmbeddedServer extends AbstractLDAPTest {
+
+    public static final String BASE_DN = "dc=jboss,dc=org";
+    public static final String LDAP_URL = "ldap://localhost:10389";
+    public static final String ROLES_DN_SUFFIX = "ou=Roles,dc=jboss,dc=org";
+    public static final String GROUP_DN_SUFFIX = "ou=Groups,dc=jboss,dc=org";
+    public static final String USER_DN_SUFFIX = "ou=People,dc=jboss,dc=org";
+    public static final String AGENT_DN_SUFFIX = "ou=Agent,dc=jboss,dc=org";
+
+    public static final String CONNECTION_PROPERTIES = "config/ldap-connection.properties";
+
     protected String connectionUrl = LDAP_URL;
     protected String baseDn = BASE_DN;
     protected String userDnSuffix = USER_DN_SUFFIX;
@@ -64,7 +62,7 @@ public abstract class LDAPAbstractSuite extends AbstractLDAPTest {
     protected String agentDnSuffix = AGENT_DN_SUFFIX;
     protected boolean startEmbeddedLdapLerver = true;
     protected String bindDn = "uid=admin,ou=system";
-    protected String bindCredential = "secret"; 
+    protected String bindCredential = "secret";
 
     public static String IDM_TEST_LDAP_CONNECTION_URL = "idm.test.ldap.connection.url";
     public static String IDM_TEST_LDAP_BASE_DN = "idm.test.ldap.base.dn";
@@ -75,15 +73,15 @@ public abstract class LDAPAbstractSuite extends AbstractLDAPTest {
     public static String IDM_TEST_LDAP_START_EMBEDDED_LDAP_SERVER = "idm.test.ldap.start.embedded.ldap.server";
     public static String IDM_TEST_LDAP_BIND_DN = "idm.test.ldap.bind.dn";
     public static String IDM_TEST_LDAP_BIND_CREDENTIAL = "idm.test.ldap.bind.credential";
-    
-    
-    public LDAPAbstractSuite() {
+
+
+    public LDAPEmbeddedServer() {
         super();
         loadConnectionProperties();
     }
-    
+
     protected void loadConnectionProperties() {
-        Properties p = new Properties(); 
+        Properties p = new Properties();
         try {
             InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(CONNECTION_PROPERTIES);
             p.load(is);
@@ -91,7 +89,7 @@ public abstract class LDAPAbstractSuite extends AbstractLDAPTest {
         catch (Exception e) {
             throw new RuntimeException(e);
         }
-        
+
         connectionUrl = p.getProperty(IDM_TEST_LDAP_CONNECTION_URL, LDAP_URL);
         baseDn = p.getProperty(IDM_TEST_LDAP_BASE_DN, BASE_DN);
         userDnSuffix = p.getProperty(IDM_TEST_LDAP_USER_DN_SUFFIX, USER_DN_SUFFIX);
@@ -115,11 +113,11 @@ public abstract class LDAPAbstractSuite extends AbstractLDAPTest {
     @Override
     @After
     public void tearDown() throws Exception {
-        
+
         // clear data left in LDAP
         DirContext ctx = getDirContext();
         clearSubContexts(ctx, new CompositeName(baseDn));
-        
+
         // suppress emb. LDAP server stop
         if (isStartEmbeddedLdapLerver()) {
             super.tearDown();
@@ -135,8 +133,8 @@ public abstract class LDAPAbstractSuite extends AbstractLDAPTest {
         DirContext ctx = new InitialDirContext(env);
         return ctx;
     }
-    
-    
+
+
     public static void clearSubContexts(DirContext ctx, Name name) throws NamingException {
 
         NamingEnumeration<NameClassPair> enumeration = null;
@@ -165,8 +163,8 @@ public abstract class LDAPAbstractSuite extends AbstractLDAPTest {
                 // Never mind this
             }
         }
-    }    
-    
+    }
+
     public String getConnectionUrl() {
         return connectionUrl;
     }
