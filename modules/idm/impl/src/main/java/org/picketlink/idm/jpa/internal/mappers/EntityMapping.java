@@ -17,7 +17,6 @@
  */
 package org.picketlink.idm.jpa.internal.mappers;
 
-import com.sun.tools.internal.xjc.api.impl.s2j.PropertyImpl;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
