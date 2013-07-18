@@ -23,16 +23,28 @@ import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.idm.IdentityManagementException;
 
 /**
  * @author pedroigor
  */
 public abstract class AbstractModelMapper implements ModelMapper {
 
+    @Override
+    public EntityMapping createMapping(Class<?> managedType, Class<?> entityType) {
+        try {
+            return doCreateMapping(managedType, entityType);
+        } catch (Exception e) {
+            throw new IdentityManagementException("Could not map type [" + managedType + "] to entity [" + entityType + "].", e);
+        }
+    }
+
+    protected abstract EntityMapping doCreateMapping(Class<?> managedType, Class<?> entityType);
+
     protected Property getAnnotatedProperty(Class<? extends Annotation> annotationType, Class<?> type) {
         return PropertyQueries.<String>createQuery(type)
                 .addCriteria(new AnnotatedPropertyCriteria(annotationType))
-                .getSingleResult();
+                .getFirstResult();
     }
 
     protected List<Property<String>> getAnnotatedProperties(Class<? extends Annotation> annotationType, Class<?> type) {
@@ -44,7 +56,7 @@ public abstract class AbstractModelMapper implements ModelMapper {
     protected Property getNamedProperty(String propertyName, Class<?> type) {
         return PropertyQueries.<String>createQuery(type)
                 .addCriteria(new NamedPropertyCriteria(propertyName))
-                .getSingleResult();
+                .getFirstResult();
     }
 
 }

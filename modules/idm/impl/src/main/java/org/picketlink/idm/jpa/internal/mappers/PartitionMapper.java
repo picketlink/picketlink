@@ -49,8 +49,8 @@ public class PartitionMapper extends AbstractAttributedTypeMapper {
     }
 
     @Override
-    public EntityMapping createMapping(Class<? extends AttributedType> managedType, Class<?> entityType) {
-        EntityMapping entityMapping = super.createMapping(managedType, entityType);
+    public EntityMapping doCreateMapping(Class<?> managedType, Class<?> entityType) {
+        EntityMapping entityMapping = super.doCreateMapping(managedType, entityType);
 
         entityMapping.addTypeProperty(getAnnotatedProperty(PartitionClass.class, entityType));
         entityMapping.addProperty(getNamedProperty("name", managedType), getAnnotatedProperty(PartitionName.class, entityType));

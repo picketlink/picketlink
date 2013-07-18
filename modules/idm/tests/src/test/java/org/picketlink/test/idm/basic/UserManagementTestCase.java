@@ -31,13 +31,11 @@ import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.sample.Grant;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
-import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.IgnoreTester;
-import org.picketlink.test.idm.model.complex.entity.StreetType;
 import org.picketlink.test.idm.model.complex.entity.UserAddress;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
@@ -235,6 +233,8 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         User storedUser = identityManager.getUser(newUser.getLoginName());
 
         assertNotNull(storedUser);
+        assertNotNull(storedUser.getAddress());
+        assertNotNull(((UserAddress) storedUser.getAddress()).getAddressId());
         assertEquals(newUser.getId(), storedUser.getId());
         assertEquals(newUser.getLoginName(), storedUser.getLoginName());
         assertEquals(newUser.getFirstName(), storedUser.getFirstName());

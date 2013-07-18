@@ -26,7 +26,6 @@ import org.picketlink.idm.jpa.annotations.Enabled;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
-import org.picketlink.idm.model.AttributedType;
 
 /**
  * @author pedroigor
@@ -51,8 +50,8 @@ public class IdentityTypeMapper extends AbstractAttributedTypeMapper {
     }
 
     @Override
-    public EntityMapping createMapping(Class<? extends AttributedType> managedType, Class<?> entityType) {
-        EntityMapping entityMapping = super.createMapping(managedType, entityType);
+    public EntityMapping doCreateMapping(Class<?> managedType, Class<?> entityType) {
+        EntityMapping entityMapping = super.doCreateMapping(managedType, entityType);
 
         entityMapping.addTypeProperty(getAnnotatedProperty(IdentityClass.class, entityType));
         entityMapping.addProperty(getNamedProperty("enabled", managedType), getAnnotatedProperty(Enabled.class, entityType));

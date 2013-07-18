@@ -28,7 +28,6 @@ import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
-import org.picketlink.idm.model.AttributedType;
 
 /**
  * @author pedroigor
@@ -41,12 +40,12 @@ public class EntityMapping {
     private final boolean rootMapping;
     private Property typeProperty;
 
-    public EntityMapping(Class<? extends AttributedType> managedType, boolean rootMapping) {
+    public EntityMapping(Class<?> managedType, boolean rootMapping) {
         this.managedType = managedType;
         this.rootMapping = rootMapping;
     }
 
-    public EntityMapping(Class<? extends AttributedType> managedType) {
+    public EntityMapping(Class<?> managedType) {
         this(managedType, false);
     }
 
@@ -85,55 +84,6 @@ public class EntityMapping {
         return this.typeProperty;
     }
 
-    public void addOwnerProperty(final Property annotatedProperty) {
-        addProperty(new PropertyMapping() {
-
-            @Override
-            public Object getValue(Object instance) {
-                IdentityManaged identityManaged =
-                        (IdentityManaged) annotatedProperty.getJavaClass().getAnnotation(IdentityManaged.class);
-
-                if (identityManaged != null) {
-                    for (Class<?> ownerType : identityManaged.value()) {
-                        Property<Object> ownerProperty = PropertyQueries
-                                .createQuery(instance.getClass())
-                                .addCriteria(new TypedPropertyCriteria(ownerType, true))
-                                .getFirstResult();
-
-                        Property<Object> ownerMappedProperty = PropertyQueries
-                                .createQuery(annotatedProperty.getDeclaringClass())
-                                .addCriteria(new AnnotatedPropertyCriteria(OwnerReference.class))
-                                .getFirstResult();
-
-                        if (ownerProperty != null && !ownerProperty.getJavaClass().equals(instance.getClass())) {
-                            return ownerProperty.getValue(instance);
-                        }
-                    }
-                }
-
-                return instance;
-            }
-
-            @Override
-            public void setValue(Object instance, Object value) {
-                IdentityManaged identityManaged =
-                        (IdentityManaged) annotatedProperty.getJavaClass().getAnnotation(IdentityManaged.class);
-
-                for (Class<?> ownerType : identityManaged.value()) {
-                    Property<Object> ownerProperty = PropertyQueries
-                            .createQuery(instance.getClass())
-                            .addCriteria(new TypedPropertyCriteria(ownerType, true))
-                            .getFirstResult();
-
-                    if (ownerProperty != null && ownerType.isInstance(value)) {
-                        ownerProperty.setValue(instance, value);
-                        return;
-                    }
-                }
-            }
-        }, annotatedProperty);
-    }
-
     public void addReferenceProperty(final Property annotatedProperty) {
         addProperty(new PropertyMapping() {
 
@@ -153,26 +103,90 @@ public class EntityMapping {
         return this.referenceProperties;
     }
 
+    public void addSelfReferenceProperty(Property<Object> property, Class<?> entityType) {
+        addProperty(property, new PropertyMapping() {
+            @Override
+            public Object getValue(Object instance) {
+                return instance;
+            }
+
+            @Override
+            public void setValue(Object instance, Object value) {
+            }
+        });
+    }
+
+    public void addOwnerProperty(Class<?> entityType) {
+        final Property<Object> ownerProperty = PropertyQueries
+                .createQuery(entityType)
+                .addCriteria(new AnnotatedPropertyCriteria(OwnerReference.class))
+                .getFirstResult();
+
+        if (ownerProperty != null) {
+            addProperty(new PropertyMapping() {
+
+                @Override
+                public Object getValue(Object instance) {
+                    IdentityManaged identityManaged =
+                            (IdentityManaged) ownerProperty.getJavaClass().getAnnotation(IdentityManaged.class);
+
+                    if (identityManaged != null) {
+                        for (Class<?> ownerType : identityManaged.value()) {
+                            Property<Object> ownerProperty = PropertyQueries
+                                    .createQuery(instance.getClass())
+                                    .addCriteria(new TypedPropertyCriteria(ownerType, true))
+                                    .getFirstResult();
+
+                            if (ownerProperty != null && !ownerProperty.getJavaClass().equals(instance.getClass())) {
+                                return ownerProperty.getValue(instance);
+                            }
+                        }
+                    }
+
+                    return instance;
+                }
+
+                @Override
+                public void setValue(Object instance, Object value) {
+                    IdentityManaged identityManaged =
+                            (IdentityManaged) ownerProperty.getJavaClass().getAnnotation(IdentityManaged.class);
+
+                    for (Class<?> ownerType : identityManaged.value()) {
+                        Property<Object> ownerProperty = PropertyQueries
+                                .createQuery(instance.getClass())
+                                .addCriteria(new TypedPropertyCriteria(ownerType, true))
+                                .getFirstResult();
+
+                        if (ownerProperty != null && ownerType.isInstance(value)) {
+                            ownerProperty.setValue(instance, value);
+                            return;
+                        }
+                    }
+                }
+            }, ownerProperty);
+        }
+    }
+
     private abstract class PropertyMapping implements Property {
 
         @Override
         public String getName() {
-            return "";  //TODO: Implement getName
+            return "";
         }
 
         @Override
         public Type getBaseType() {
-            return null;  //TODO: Implement getBaseType
+            return getClass();
         }
 
         @Override
         public Class getJavaClass() {
-            return null;  //TODO: Implement getJavaClass
+            return getClass();
         }
 
         @Override
         public AnnotatedElement getAnnotatedElement() {
-            return null;  //TODO: Implement getAnnotatedElement
+            return getClass();
         }
 
         @Override

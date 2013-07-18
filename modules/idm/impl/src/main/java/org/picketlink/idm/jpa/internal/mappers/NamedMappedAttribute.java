@@ -17,18 +17,24 @@
  */
 package org.picketlink.idm.jpa.internal.mappers;
 
-import org.picketlink.idm.jpa.annotations.Identifier;
+import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * @author pedroigor
  */
-public abstract class AbstractAttributedTypeMapper extends AbstractModelMapper {
+public class NamedMappedAttribute extends AbstractModelMapper {
+
+    @Override
+    public boolean supports(Class<?> entityType) {
+        MappedAttribute mappedAttribute = entityType.getAnnotation(MappedAttribute.class);
+        return mappedAttribute != null && !isNullOrEmpty(mappedAttribute.name());
+    }
 
     @Override
     public EntityMapping doCreateMapping(Class<?> managedType, Class<?> entityType) {
-        EntityMapping entityMapping = new EntityMapping(managedType, true);
+        EntityMapping entityMapping = new EntityMapping(managedType);
 
-        entityMapping.addProperty(getNamedProperty("id", managedType), getAnnotatedProperty(Identifier.class, entityType));
         entityMapping.addOwnerProperty(entityType);
 
         return entityMapping;

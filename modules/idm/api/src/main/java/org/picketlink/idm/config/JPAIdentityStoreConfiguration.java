@@ -108,10 +108,6 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
         return this.entityTypes;
     }
 
-    public AttributeMapping getAttributeMapping() {
-        return attributeMapping;
-    }
-
     public static class AttributeMapping {
         private final Class<?> entityClass;
         private final Property<String> attributeName;

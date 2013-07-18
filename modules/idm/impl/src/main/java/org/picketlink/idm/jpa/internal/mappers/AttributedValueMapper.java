@@ -17,14 +17,11 @@
  */
 package org.picketlink.idm.jpa.internal.mappers;
 
-import java.util.List;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
-import org.picketlink.idm.jpa.annotations.OwnerReference;
-import org.picketlink.idm.model.AttributedType;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
@@ -43,7 +40,7 @@ public class AttributedValueMapper extends AbstractModelMapper {
     }
 
     @Override
-    public EntityMapping createMapping(Class<? extends AttributedType> managedType, Class<?> entityType) {
+    public EntityMapping doCreateMapping(Class<?> managedType, Class<?> entityType) {
         EntityMapping entityMapping = new EntityMapping(managedType);
 
         for (Property mappedProperty : getAnnotatedProperties(AttributeValue.class, entityType)) {
@@ -54,19 +51,14 @@ public class AttributedValueMapper extends AbstractModelMapper {
                 propertyName = attributeValue.name();
             }
 
-            try {
-                Property property = getNamedProperty(propertyName, managedType);
+            Property property = getNamedProperty(propertyName, managedType);
+
+            if (property != null) {
                 entityMapping.addProperty(property, mappedProperty);
-            } catch (Exception e) {
-                // ignore
             }
         }
 
-        try {
-            entityMapping.addOwnerProperty(getAnnotatedProperty(OwnerReference.class, entityType));
-        } catch (Exception e) {
-            // ignore
-        }
+        entityMapping.addOwnerProperty(entityType);
 
         return entityMapping;
     }

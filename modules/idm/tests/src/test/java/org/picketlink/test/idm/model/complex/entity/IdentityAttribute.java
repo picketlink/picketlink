@@ -18,17 +18,16 @@
 package org.picketlink.test.idm.model.complex.entity;
 
 import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-
-import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeClass;
+import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
 
 /**
  * This entity holds ad-hoc attribute values for all identity types
@@ -36,6 +35,7 @@ import org.picketlink.idm.jpa.annotations.OwnerReference;
  * @author Shane Bryzak
  */
 @Entity
+@MappedAttribute
 public class IdentityAttribute implements Serializable {
     private static final long serialVersionUID = 5375379361556212335L;
 

@@ -20,7 +20,6 @@ package org.picketlink.idm.jpa.internal.mappers;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.jpa.annotations.RelationshipClass;
-import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Relationship;
 
 /**
@@ -36,12 +35,12 @@ public class RelationshipMapper extends AbstractAttributedTypeMapper {
     }
 
     @Override
-    public EntityMapping createMapping(Class<? extends AttributedType> managedType, Class<?> entityType) {
+    public EntityMapping doCreateMapping(Class<?> managedType, Class<?> entityType) {
         if (!Relationship.class.isAssignableFrom(managedType)) {
             managedType = Relationship.class;
         }
 
-        EntityMapping entityMapping = super.createMapping(managedType, entityType);
+        EntityMapping entityMapping = super.doCreateMapping(managedType, entityType);
 
         entityMapping.addTypeProperty(getAnnotatedProperty(RelationshipClass.class, entityType));
 
