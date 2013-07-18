@@ -97,31 +97,6 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 
     /**
      * <p>
-     * Finds groups by the creation date.
-     * </p>
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testFindWithParent() throws Exception {
-        Group group = createGroup("someGroup", "Parent Group");
-
-        IdentityManager identityManager = getIdentityManager();
-
-        IdentityQuery<Group> query = identityManager.<Group>createIdentityQuery(Group.class);
-
-        query.setParameter(Group.PARENT, group.getParentGroup());
-
-        List<Group> result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertEquals(group.getId(), result.get(0).getId());
-        assertEquals(group.getParentGroup().getId(), result.get(0).getParentGroup().getId());
-    }
-
-    /**
-     * <p>
      * Finds all groups for a specific user.
      * </p>
      *
