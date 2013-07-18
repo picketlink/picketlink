@@ -75,7 +75,7 @@ public class EntityMapper {
             if (getEntityType().isAnnotationPresent(MappedAttribute.class)) {
                 Property<Object> property = PropertyQueries
                         .createQuery(attributedType.getClass())
-                        .addCriteria(new NamedPropertyCriteria(getEntityType().getAnnotation(MappedAttribute.class).name()))
+                        .addCriteria(new NamedPropertyCriteria(getEntityType().getAnnotation(MappedAttribute.class).value()))
                         .getFirstResult();
 
                 if (property != null) {
@@ -132,7 +132,7 @@ public class EntityMapper {
         if (getEntityType().isAnnotationPresent(MappedAttribute.class)) {
             Property<Object> property = PropertyQueries
                     .createQuery(attributedType.getClass())
-                    .addCriteria(new NamedPropertyCriteria(getEntityType().getAnnotation(MappedAttribute.class).name()))
+                    .addCriteria(new NamedPropertyCriteria(getEntityType().getAnnotation(MappedAttribute.class).value()))
                     .getFirstResult();
 
             if (property != null) {
@@ -181,7 +181,7 @@ public class EntityMapper {
             MappedAttribute mappedAttribute = getEntityType().getAnnotation(MappedAttribute.class);
             Property<Object> property = PropertyQueries
                     .createQuery(attributedType.getClass())
-                    .addCriteria(new NamedPropertyCriteria(mappedAttribute.name()))
+                    .addCriteria(new NamedPropertyCriteria(mappedAttribute.value()))
                     .getFirstResult();
 
             if (property != null) {
@@ -360,7 +360,7 @@ public class EntityMapper {
     private Object updateMapperAttribute(AttributedType attributedType, Object entityInstance, EntityManager entityManager) {
         Property<Object> property = PropertyQueries
                 .createQuery(attributedType.getClass())
-                .addCriteria(new NamedPropertyCriteria(getEntityType().getAnnotation(MappedAttribute.class).name()))
+                .addCriteria(new NamedPropertyCriteria(getEntityType().getAnnotation(MappedAttribute.class).value()))
                 .getFirstResult();
 
         if (property != null) {

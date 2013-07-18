@@ -28,7 +28,7 @@ public class NamedMappedAttribute extends AbstractIdentityManagedMapper {
     @Override
     public boolean supports(Class<?> entityType) {
         MappedAttribute mappedAttribute = entityType.getAnnotation(MappedAttribute.class);
-        return mappedAttribute != null && !isNullOrEmpty(mappedAttribute.name());
+        return mappedAttribute != null && !isNullOrEmpty(mappedAttribute.value());
     }
 
     @Override

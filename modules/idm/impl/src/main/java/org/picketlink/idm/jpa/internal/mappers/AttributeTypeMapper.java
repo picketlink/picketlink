@@ -35,7 +35,7 @@ public class AttributeTypeMapper extends AbstractIdentityManagedMapper {
         MappedAttribute mappedAttribute = entityType.getAnnotation(MappedAttribute.class);
 
         return  !entityType.isAnnotationPresent(ManagedCredential.class)
-                && mappedAttribute != null && isNullOrEmpty(mappedAttribute.name())
+                && mappedAttribute != null && isNullOrEmpty(mappedAttribute.value())
                 && getAnnotatedProperty(AttributeName.class, entityType) != null
                 && getAnnotatedProperty(AttributeValue.class, entityType) != null;
     }

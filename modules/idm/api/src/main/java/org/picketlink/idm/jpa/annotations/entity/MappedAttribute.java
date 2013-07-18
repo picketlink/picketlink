@@ -24,14 +24,8 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * This annotation is applied to an entity bean to indicate that it is used to store attribute data
- * for identity types, relationships, credentials or partitions.  If the name property is provided, the
- * values represented by the entity will be mapped as a multi-valued attribute of the same name, for the
- * owning entity.  If the supportedClasses property is provided, then this entity will only be used to store
- * values of the types specified by supportedClasses.
- *
- * The name and supportedClasses properties are mutually exclusive - only one or the other may be specified,
- * and if both are provided an exception will be thrown during initialization of the identity store.
+ * If this annotation is present on an entity bean used to store ad-hoc attribute values, then this entity will
+ * only be used to store attribute values of the types (or subtypes) specified by the annotation's value.
  *
  * @author Shane Bryzak
  */
@@ -39,5 +33,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(TYPE)
 @Retention(RUNTIME)
 public @interface MappedAttribute {
-    String name() default "";
+    String value() default "";
 }

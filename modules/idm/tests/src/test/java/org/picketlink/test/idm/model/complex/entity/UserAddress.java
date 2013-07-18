@@ -33,7 +33,7 @@ import org.picketlink.idm.model.sample.User;
  * @author Shane Bryzak
  */
 @IdentityManaged (User.class)
-@MappedAttribute (name = "address")
+@MappedAttribute (value = "address")
 @Entity
 public class UserAddress implements Serializable {
     private static final long serialVersionUID = 1345860654288091126L;
