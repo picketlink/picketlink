@@ -35,12 +35,12 @@ public class RelationshipMapper extends AbstractAttributedTypeMapper {
     }
 
     @Override
-    public EntityMapping doCreateMapping(Class<?> managedType, Class<?> entityType) {
+    public EntityMapping configure(Class<?> managedType, Class<?> entityType) {
         if (!Relationship.class.isAssignableFrom(managedType)) {
             managedType = Relationship.class;
         }
 
-        EntityMapping entityMapping = super.doCreateMapping(managedType, entityType);
+        EntityMapping entityMapping = super.configure(managedType, entityType);
 
         entityMapping.addTypeProperty(getAnnotatedProperty(RelationshipClass.class, entityType));
 

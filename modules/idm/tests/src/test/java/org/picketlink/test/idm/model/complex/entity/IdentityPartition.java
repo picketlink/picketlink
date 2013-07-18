@@ -21,8 +21,10 @@ import javax.persistence.Entity;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
 import org.picketlink.idm.jpa.annotations.PartitionName;
+import org.picketlink.idm.jpa.annotations.entity.ConfigurationName;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.model.Partition;
+import static org.picketlink.test.idm.partition.CustomPartitionTestCase.CustomPartition;
 
 /**
  * This entity bean contains partition records such as Realms and Tiers
@@ -30,7 +32,7 @@ import org.picketlink.idm.model.Partition;
  * @author Shane Bryzak
  */
 @Entity
-@IdentityManaged ({Partition.class})
+@IdentityManaged ({Partition.class, CustomPartition.class})
 public class IdentityPartition extends AttributedTypeObject {
 
     private static final long serialVersionUID = -361112181956236802L;
@@ -40,6 +42,9 @@ public class IdentityPartition extends AttributedTypeObject {
 
     @PartitionClass
     private String partitionType;
+
+    @ConfigurationName
+    private String configurationName;
 
     @AttributeValue
     private String attributeA;

@@ -18,21 +18,22 @@
 package org.picketlink.idm.jpa.annotations.entity;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * <p>This annotation is applied to an entity class to indicate that it contains managed
- * credential-related state.</p>
- * <p>If used in conjunction with {@link SupportedAttributes}, you can specify which {@link org.picketlink.idm.spi.CredentialStore}
- * types are supported.</p>
+ * <p>Used to mark a property that will be used to store the configuration name for a partition.</p>
  *
  * @author Shane Bryzak
  */
+@Target({METHOD, FIELD})
 @Documented
-@Target(TYPE)
 @Retention(RUNTIME)
-public @interface ManagedCredential {
+@Inherited
+public @interface ConfigurationName {
+
 }

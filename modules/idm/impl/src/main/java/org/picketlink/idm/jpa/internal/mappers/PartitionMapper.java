@@ -23,8 +23,8 @@ import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
 import org.picketlink.idm.jpa.annotations.PartitionName;
+import org.picketlink.idm.jpa.annotations.entity.ConfigurationName;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
-import org.picketlink.idm.model.AttributedType;
 
 /**
  * @author pedroigor
@@ -49,11 +49,12 @@ public class PartitionMapper extends AbstractAttributedTypeMapper {
     }
 
     @Override
-    public EntityMapping doCreateMapping(Class<?> managedType, Class<?> entityType) {
-        EntityMapping entityMapping = super.doCreateMapping(managedType, entityType);
+    public EntityMapping configure(Class<?> managedType, Class<?> entityType) {
+        EntityMapping entityMapping = super.configure(managedType, entityType);
 
         entityMapping.addTypeProperty(getAnnotatedProperty(PartitionClass.class, entityType));
         entityMapping.addProperty(getNamedProperty("name", managedType), getAnnotatedProperty(PartitionName.class, entityType));
+        entityMapping.addMappedProperty(getAnnotatedProperty(ConfigurationName.class, entityType));
 
         return entityMapping;
     }

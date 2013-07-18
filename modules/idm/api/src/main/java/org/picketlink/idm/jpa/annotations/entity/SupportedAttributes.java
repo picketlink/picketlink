@@ -24,15 +24,14 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * <p>This annotation is applied to an entity class to indicate that it contains managed
- * credential-related state.</p>
- * <p>If used in conjunction with {@link SupportedAttributes}, you can specify which {@link org.picketlink.idm.spi.CredentialStore}
- * types are supported.</p>
+ * <p>This annotation is applied to an attribute entity bean to indicate which attribute types should be supported
+ * and stored by the annotated entity.</p>
  *
- * @author Shane Bryzak
+ * @author Pedro Igor
  */
 @Documented
 @Target(TYPE)
 @Retention(RUNTIME)
-public @interface ManagedCredential {
+public @interface SupportedAttributes {
+    Class[] value();
 }

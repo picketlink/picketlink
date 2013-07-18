@@ -20,6 +20,7 @@ package org.picketlink.test.idm.query;
 
 import java.util.List;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
@@ -30,9 +31,7 @@ import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.IgnoreTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -189,7 +188,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
     }
 
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Ignore
     public void testFindWithSorting() throws Exception {
         createGroup("someGroup", null);
         // Sleep is needed to avoid same createdDate

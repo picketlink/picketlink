@@ -23,7 +23,7 @@ import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 /**
  * @author pedroigor
  */
-public class NamedMappedAttribute extends AbstractModelMapper {
+public class NamedMappedAttribute extends AbstractIdentityManagedMapper {
 
     @Override
     public boolean supports(Class<?> entityType) {
@@ -32,8 +32,8 @@ public class NamedMappedAttribute extends AbstractModelMapper {
     }
 
     @Override
-    public EntityMapping doCreateMapping(Class<?> managedType, Class<?> entityType) {
-        EntityMapping entityMapping = new EntityMapping(managedType);
+    public EntityMapping configure(Class<?> supportedType, Class<?> entityType) {
+        EntityMapping entityMapping = new EntityMapping(supportedType);
 
         entityMapping.addOwnerProperty(entityType);
 

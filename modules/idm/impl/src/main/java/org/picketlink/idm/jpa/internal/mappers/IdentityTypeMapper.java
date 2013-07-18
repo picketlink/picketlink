@@ -50,13 +50,13 @@ public class IdentityTypeMapper extends AbstractAttributedTypeMapper {
     }
 
     @Override
-    public EntityMapping doCreateMapping(Class<?> managedType, Class<?> entityType) {
-        EntityMapping entityMapping = super.doCreateMapping(managedType, entityType);
+    public EntityMapping configure(Class<?> supportedTypes, Class<?> entityType) {
+        EntityMapping entityMapping = super.configure(supportedTypes, entityType);
 
         entityMapping.addTypeProperty(getAnnotatedProperty(IdentityClass.class, entityType));
-        entityMapping.addProperty(getNamedProperty("enabled", managedType), getAnnotatedProperty(Enabled.class, entityType));
-        entityMapping.addProperty(getNamedProperty("createdDate", managedType), getAnnotatedProperty(CreationDate.class, entityType));
-        entityMapping.addProperty(getNamedProperty("expirationDate", managedType), getAnnotatedProperty(ExpiryDate.class, entityType));
+        entityMapping.addProperty(getNamedProperty("enabled", supportedTypes), getAnnotatedProperty(Enabled.class, entityType));
+        entityMapping.addProperty(getNamedProperty("createdDate", supportedTypes), getAnnotatedProperty(CreationDate.class, entityType));
+        entityMapping.addProperty(getNamedProperty("expirationDate", supportedTypes), getAnnotatedProperty(ExpiryDate.class, entityType));
 
         return entityMapping;
     }

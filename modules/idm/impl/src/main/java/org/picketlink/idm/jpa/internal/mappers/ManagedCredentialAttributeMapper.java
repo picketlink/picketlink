@@ -17,24 +17,25 @@
  */
 package org.picketlink.idm.jpa.internal.mappers;
 
-import org.picketlink.idm.jpa.annotations.AttributeClass;
+import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.jpa.annotations.EffectiveDate;
+import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
 import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
-import org.picketlink.idm.model.Attribute;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * @author pedroigor
  */
-public class AttributeTypeMapper extends AbstractIdentityManagedMapper {
+public class ManagedCredentialAttributeMapper extends AttributeTypeMapper {
 
     @Override
     public boolean supports(Class<?> entityType) {
         MappedAttribute mappedAttribute = entityType.getAnnotation(MappedAttribute.class);
 
-        return  !entityType.isAnnotationPresent(ManagedCredential.class)
+        return  entityType.isAnnotationPresent(ManagedCredential.class)
                 && mappedAttribute != null && isNullOrEmpty(mappedAttribute.name())
                 && getAnnotatedProperty(AttributeName.class, entityType) != null
                 && getAnnotatedProperty(AttributeValue.class, entityType) != null;
@@ -42,19 +43,16 @@ public class AttributeTypeMapper extends AbstractIdentityManagedMapper {
 
     @Override
     public EntityMapping configure(Class<?> managedType, Class<?> entityType) {
-        EntityMapping entityMapping = new EntityMapping(getSupportedAttributeType(managedType), true);
+        EntityMapping entityMapping = super.configure(managedType, entityType);
 
-        entityMapping.addProperty(getNamedProperty("name", Attribute.class), getAnnotatedProperty(AttributeName.class, entityType));
-        entityMapping.addProperty(getNamedProperty("value", Attribute.class), getAnnotatedProperty(AttributeValue.class, entityType));
-        entityMapping.addProperty(getSupportedAttributeType(managedType).getClass().getName(), getAnnotatedProperty(AttributeClass.class, entityType));
-
-        entityMapping.addOwnerProperty(entityType);
+        entityMapping.addProperty(getNamedProperty("effectiveDate", getSupportedAttributeType(managedType)), getAnnotatedProperty(EffectiveDate.class, entityType));
+        entityMapping.addProperty(getNamedProperty("expiryDate", getSupportedAttributeType(managedType)), getAnnotatedProperty(ExpiryDate.class, entityType));
 
         return entityMapping;
     }
 
+    @Override
     protected Class<?> getSupportedAttributeType(Class<?> managedType) {
-        return Attribute.class;
+        return CredentialStorage.class.isAssignableFrom(managedType) ? managedType : CredentialStorage.class;
     }
-
 }

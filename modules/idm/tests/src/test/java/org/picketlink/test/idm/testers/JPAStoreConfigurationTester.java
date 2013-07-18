@@ -23,11 +23,10 @@ import javax.persistence.Persistence;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
-import org.picketlink.idm.model.sample.Grant;
-import org.picketlink.idm.model.sample.GroupMembership;
-import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.test.idm.model.complex.entity.AccountLogin;
+import org.picketlink.test.idm.model.complex.entity.AuthorizationRelationshipEntity;
+import org.picketlink.test.idm.model.complex.entity.CredentialAttribute;
 import org.picketlink.test.idm.model.complex.entity.CustomIdentityTypeObject;
 import org.picketlink.test.idm.model.complex.entity.GroupAttribute;
 import org.picketlink.test.idm.model.complex.entity.IdentityAttribute;
@@ -38,7 +37,6 @@ import org.picketlink.test.idm.model.complex.entity.RelationshipIdentityObject;
 import org.picketlink.test.idm.model.complex.entity.RoleAttribute;
 import org.picketlink.test.idm.model.complex.entity.UserAddress;
 import org.picketlink.test.idm.model.complex.entity.UserAttribute;
-import org.picketlink.test.idm.relationship.CustomRelationship;
 
 /**
  * @author pedroigor
@@ -65,9 +63,11 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
                                 RoleAttribute.class,
                                 GroupAttribute.class,
                                 IdentityAttribute.class,
+                                CredentialAttribute.class,
                                 IdentityPartition.class,
                                 UserAddress.class,
                                 Relationship.class,
+                                AuthorizationRelationshipEntity.class,
                                 RelationshipIdentityObject.class,
                                 CustomIdentityTypeObject.class)
                         .supportGlobalRelationship(org.picketlink.idm.model.Relationship.class)

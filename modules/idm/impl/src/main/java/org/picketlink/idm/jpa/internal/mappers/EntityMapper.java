@@ -19,6 +19,7 @@ package org.picketlink.idm.jpa.internal.mappers;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Id;
@@ -28,7 +29,6 @@ import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
-import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.model.Attribute;
@@ -38,15 +38,16 @@ import static java.util.Map.Entry;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
- * <p>This class holds all the mapping information for a specific JPA Entity and their corresponding IDM model classes.
- * A specific JPA entity can be mapped to and from different IDM model classes. Each {@link EntityMapping} holds
- * the specific mapping for a IDM model.</p>
+ * <p>This class holds all the mapping configuration for a specific JPA Entity and their corresponding IDM model classes.
+ * A specific JPA entity can be mapped to and from different IDM model classes.
+ * </p>
+ * <p>Each {@link EntityMapping} holds the specific mapping for a IDM model type.</p>
  *
  * @author pedroigor
  */
 public class EntityMapper {
 
-    private final List<EntityMapping> mappings = new ArrayList<EntityMapping>();
+    private final List<EntityMapping> entityMappings;
     private final Class<?> entityType;
     private final JPAIdentityStore store;
 
@@ -54,14 +55,20 @@ public class EntityMapper {
         this.entityType = entityType;
         this.store = jpaIdentityStore;
 
-        createMappings(entityType);
+        List<EntityMapping> mappings = new ArrayList<EntityMapping>();
+
+        for (ModelMapper modelMapper : getModelMappers()) {
+            mappings.addAll(modelMapper.createMapping(entityType));
+        }
+
+        this.entityMappings = Collections.unmodifiableList(mappings);
     }
 
     public boolean supports(Class<?> attributedType) {
-        return !getMappingsFor(attributedType).isEmpty();
+        return getMappingsFor(attributedType) != null;
     }
 
-    public <A extends AttributedType> Object createEntity(A attributedType, EntityManager entityManager) {
+    public Object createEntity(AttributedType attributedType, EntityManager entityManager) {
         Object entityInstance = null;
 
         try {
@@ -79,31 +86,31 @@ public class EntityMapper {
             }
 
             if (entityInstance != null) {
-                for (EntityMapping entityMapping : getMappingsFor(attributedType.getClass())) {
-                    for (Property property : entityMapping.getProperties().keySet()) {
-                        Property mappedProperty = entityMapping.getProperties().get(property);
-                        Object value = property.getValue(attributedType);
+                EntityMapping entityMapping = getMappingsFor(attributedType.getClass());
 
-                        if (mappedProperty.getAnnotatedElement().isAnnotationPresent(OwnerReference.class)) {
+                for (Property property : entityMapping.getProperties().keySet()) {
+                    Property mappedProperty = entityMapping.getProperties().get(property);
+                    Object value = property.getValue(attributedType);
+
+                    if (mappedProperty.getAnnotatedElement().isAnnotationPresent(OwnerReference.class)) {
+                        AttributedType ownerType = (AttributedType) value;
+
+                        if (ownerType == null || ownerType.getId() == null) {
+                            throw new IdentityManagementException("Owner does not exists or was not provided.");
+                        }
+
+                        mappedProperty.setValue(entityInstance, entityManager.find(mappedProperty.getJavaClass(), ownerType.getId()));
+                    } else {
+                        // if the property maps to a mapped type is because we have a many-to-one relationship
+                        // this is the case when a type has a hierarchy
+                        if (this.store.isMappedType(mappedProperty.getJavaClass())) {
                             AttributedType ownerType = (AttributedType) value;
 
-                            if (ownerType == null || ownerType.getId() == null) {
-                                throw new IdentityManagementException("Owner does not exists or was not provided.");
+                            if (ownerType != null) {
+                                mappedProperty.setValue(entityInstance, entityManager.find(mappedProperty.getJavaClass(), ownerType.getId()));
                             }
-
-                            mappedProperty.setValue(entityInstance, entityManager.find(mappedProperty.getJavaClass(), ownerType.getId()));
                         } else {
-                            // if the property maps to a mapped type is because we have a many-to-one relationship
-                            // this is the case when a type has a hierarchy
-                            if (isMappedClass(mappedProperty.getJavaClass())) {
-                                AttributedType ownerType = (AttributedType) value;
-
-                                if (ownerType != null) {
-                                    mappedProperty.setValue(entityInstance, entityManager.find(mappedProperty.getJavaClass(), ownerType.getId()));
-                                }
-                            } else {
-                                mappedProperty.setValue(entityInstance, value);
-                            }
+                            mappedProperty.setValue(entityInstance, value);
                         }
                     }
                 }
@@ -136,26 +143,26 @@ public class EntityMapper {
         }
 
         if (entityInstance != null) {
-            for (EntityMapping entityMapping : getMappingsFor(attributedType.getClass())) {
-                for (Property property : entityMapping.getProperties().keySet()) {
-                    Property mappedProperty = entityMapping.getProperties().get(property);
+            EntityMapping entityMapping = getMappingsFor(attributedType.getClass());
 
-                    Object value = property.getValue(attributedType);
+            for (Property property : entityMapping.getProperties().keySet()) {
+                Property mappedProperty = entityMapping.getProperties().get(property);
 
-                    if (value != null) {
-                        if (isMappedClass(mappedProperty.getJavaClass())) {
-                            for (EntityMapper entityMapper : getEntityMappers()) {
-                                if (mappedProperty.getJavaClass().equals(entityMapper.getEntityType())) {
-                                    AttributedType attributedType1 = (AttributedType) value;
-                                    mappedProperty.setValue(entityInstance, entityManager.find(mappedProperty.getJavaClass(), attributedType1.getId()));
-                                }
+                Object value = property.getValue(attributedType);
+
+                if (value != null) {
+                    if (this.store.isMappedType(mappedProperty.getJavaClass())) {
+                        for (EntityMapper entityMapper : getEntityMappers()) {
+                            if (mappedProperty.getJavaClass().equals(entityMapper.getEntityType())) {
+                                AttributedType attributedType1 = (AttributedType) value;
+                                mappedProperty.setValue(entityInstance, entityManager.find(mappedProperty.getJavaClass(), attributedType1.getId()));
                             }
-                        } else {
-                            mappedProperty.setValue(entityInstance, value);
                         }
                     } else {
-                        mappedProperty.setValue(entityInstance, null);
+                        mappedProperty.setValue(entityInstance, value);
                     }
+                } else {
+                    mappedProperty.setValue(entityInstance, null);
                 }
             }
         }
@@ -181,7 +188,7 @@ public class EntityMapper {
                 property.setValue(attributedType, entityInstance);
             }
         } else {
-            for (EntityMapping entityMapping : getMappings()) {
+            for (EntityMapping entityMapping : getEntityMappings()) {
                 for (Property property : entityMapping.getProperties().keySet()) {
                     Property mappedProperty = entityMapping.getProperties().get(property);
 
@@ -189,7 +196,7 @@ public class EntityMapper {
                         Object value = mappedProperty.getValue(entityInstance);
 
                         if (value != null) {
-                            if (isMappedClass(mappedProperty.getJavaClass())) {
+                            if (this.store.isMappedType(mappedProperty.getJavaClass())) {
                                 for (EntityMapper entityMapper : getEntityMappers()) {
                                     if (mappedProperty.getJavaClass().equals(entityMapper.getEntityType())) {
                                         property.setValue(attributedType, entityMapper.createType(value, entityManager));
@@ -217,51 +224,52 @@ public class EntityMapper {
             throw MESSAGES.instantiationError(this.entityType.getName(), e);
         }
 
-        for (EntityMapping entityMapping : getMappingsFor(attributedType.getClass())) {
-            for (Property property : entityMapping.getProperties().keySet()) {
-                Property mappedProperty = entityMapping.getProperties().get(property);
+        EntityMapping entityMapping = getMappingsFor(attributedType.getClass());
 
-                if (mappedProperty.getAnnotatedElement().isAnnotationPresent(OwnerReference.class)) {
-                    Object ownerType = mappedProperty.getValue(entityInstance);
+        for (Property property : entityMapping.getProperties().keySet()) {
+            Property mappedProperty = entityMapping.getProperties().get(property);
 
-                    if (ownerType == null) {
-                        throw new IdentityManagementException("Owner does not exists or was not provided.");
-                    }
+            if (mappedProperty.getAnnotatedElement().isAnnotationPresent(OwnerReference.class)) {
+                Object ownerType = mappedProperty.getValue(entityInstance);
 
-                    AttributedType ownerAttributedType = null;
-
-                    for (EntityMapper entityMapper : getEntityMappers()) {
-                        if (mappedProperty.getJavaClass().equals(entityMapper.getEntityType())) {
-                            ownerAttributedType = entityMapper.createType(ownerType, entityManager);
-                        }
-                    }
-
-                    property.setValue(attributedType, ownerAttributedType);
-                } else {
-                    property.setValue(attributedType, mappedProperty.getValue(entityInstance));
+                if (ownerType == null) {
+                    throw new IdentityManagementException("Owner does not exists or was not provided.");
                 }
+
+                AttributedType ownerAttributedType = null;
+
+                for (EntityMapper entityMapper : getEntityMappers()) {
+                    if (mappedProperty.getJavaClass().equals(entityMapper.getEntityType())) {
+                        ownerAttributedType = entityMapper.createType(ownerType, entityManager);
+                    }
+                }
+
+                property.setValue(attributedType, ownerAttributedType);
+            } else {
+                property.setValue(attributedType, mappedProperty.getValue(entityInstance));
             }
         }
 
+        this.store.populateAttributedType(attributedType, entityInstance, entityManager);
         this.store.populateAllAttributes(attributedType, entityManager);
 
         return attributedType;
     }
 
     public Entry<Property, Property> getProperty(Class<? extends AttributedType> attributedType, String propertyName) {
-        for (EntityMapping entityMapping : getMappingsFor(attributedType)) {
-            for (Entry<Property, Property> property : entityMapping.getProperties().entrySet()) {
-                if (property.getKey().getName().equals(propertyName)) {
-                    return property;
-                }
+        EntityMapping entityMapping = getMappingsFor(attributedType);
+
+        for (Entry<Property, Property> property : entityMapping.getProperties().entrySet()) {
+            if (property.getKey().getName().equals(propertyName)) {
+                return property;
             }
         }
 
         return null;
     }
 
-    public List<EntityMapping> getMappings() {
-        return this.mappings;
+    public List<EntityMapping> getEntityMappings() {
+        return this.entityMappings;
     }
 
     public Class<?> getEntityType() {
@@ -270,52 +278,46 @@ public class EntityMapper {
 
     public Entry<Property, Property> getProperty(Class<?> attributedType,
                                                  Class<? extends Annotation> annotation) {
-        for (EntityMapping entityMapping : getMappingsFor(attributedType)) {
-            for (Entry<Property, Property> property : entityMapping.getProperties().entrySet()) {
-                if (property.getValue().getAnnotatedElement().isAnnotationPresent(annotation)) {
-                    return property;
-                }
+        EntityMapping entityMapping = getMappingsFor(attributedType);
+
+        for (Entry<Property, Property> property : entityMapping.getProperties().entrySet()) {
+            if (property.getValue().getAnnotatedElement().isAnnotationPresent(annotation)) {
+                return property;
             }
         }
 
         return null;
     }
 
-    public List<EntityMapping> getMappingsFor(Class<?> attributedType) {
-        List<EntityMapping> mappings = new ArrayList<EntityMapping>();
-
-        for (EntityMapping entityMapping : getMappings()) {
-            if (entityMapping.getManagedType().equals(attributedType)) {
-                mappings.add(entityMapping);
+    public EntityMapping getMappingsFor(Class<?> attributedType) {
+        for (EntityMapping entityMapping : getEntityMappings()) {
+            if (entityMapping.supports(attributedType)) {
+                return entityMapping;
             }
         }
 
-        if (!mappings.isEmpty()) {
-            return mappings;
-        }
+//        for (EntityMapping entityMapping : new ArrayList<EntityMapping>(getEntityMappings())) {
+//            if (entityMapping.getSupportedType().isAssignableFrom(attributedType)) {
+//                entityMappings.add(entityMapping);
+//
+//                for (ModelMapper mapper : getModelMappers()) {
+//                    if (mapper.supports(getEntityType())) {
+//                        EntityMapping mapping = mapper.createMapping(attributedType, getEntityType());
+//
+//                        if (!mapping.getProperties().isEmpty()) {
+//                            this.entityMappings.add(mapping);
+//                            entityMappings.add(mapping);
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
-        for (EntityMapping entityMapping : new ArrayList<EntityMapping>(getMappings())) {
-            if (entityMapping.getManagedType().isAssignableFrom(attributedType)) {
-                mappings.add(entityMapping);
-
-                for (ModelMapper mapper : getModelMappers()) {
-                    if (mapper.supports(getEntityType())) {
-                        EntityMapping mapping = mapper.createMapping(attributedType, getEntityType());
-
-                        if (!mapping.getProperties().isEmpty()) {
-                            this.mappings.add(mapping);
-                            mappings.add(mapping);
-                        }
-                    }
-                }
-            }
-        }
-
-        return mappings;
+        return null;
     }
 
     public boolean isRoot() {
-        for (EntityMapping entityMapping : getMappings()) {
+        for (EntityMapping entityMapping : getEntityMappings()) {
             if (entityMapping.isRootMapping()) {
                 return true;
             }
@@ -332,37 +334,13 @@ public class EntityMapper {
     }
 
     private <V extends IdentityType> Property getTypeProperty() {
-        for (EntityMapping entityMapping : getMappings()) {
+        for (EntityMapping entityMapping : getEntityMappings()) {
             if (entityMapping.getTypeProperty() != null) {
                 return entityMapping.getTypeProperty();
             }
         }
 
         return null;
-    }
-
-    private void createMappings(Class<?> entityType) {
-        IdentityManaged identityManaged = this.entityType.getAnnotation(IdentityManaged.class);
-
-        Class<? extends AttributedType>[] value = null;
-
-        if (identityManaged != null) {
-            value = identityManaged.value();
-        } else {
-            value = new Class[]{AttributedType.class};
-        }
-
-        for (ModelMapper mapper : getModelMappers()) {
-            for (Class<? extends AttributedType> managedType : value) {
-                if (mapper.supports(entityType)) {
-                    EntityMapping mapping = mapper.createMapping(managedType, entityType);
-
-                    if (!mapping.getProperties().isEmpty()) {
-                        this.mappings.add(mapping);
-                    }
-                }
-            }
-        }
     }
 
     private List<ModelMapper> getModelMappers() {
@@ -374,18 +352,9 @@ public class EntityMapper {
         modelMappers.add(new AttributedValueMapper());
         modelMappers.add(new NamedMappedAttribute());
         modelMappers.add(new AttributeTypeMapper());
+        modelMappers.add(new ManagedCredentialAttributeMapper());
 
         return modelMappers;
-    }
-
-    private boolean isMappedClass(Class<?> mappedClass) {
-        for (EntityMapper entityMapper : getEntityMappers()) {
-            if (entityMapper.getEntityType().equals(mappedClass)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private Object updateMapperAttribute(AttributedType attributedType, Object entityInstance, EntityManager entityManager) {
@@ -398,7 +367,7 @@ public class EntityMapper {
             entityInstance = property.getValue(attributedType);
 
             if (entityInstance != null) {
-                for (EntityMapping entityMapping : getMappings()) {
+                for (EntityMapping entityMapping : getEntityMappings()) {
                     for (Property ownerReference : entityMapping.getProperties().values()) {
                         if (ownerReference.getAnnotatedElement().isAnnotationPresent(OwnerReference.class)) {
                             ownerReference.setValue(entityInstance, entityManager.find(ownerReference.getJavaClass(), attributedType.getId()));

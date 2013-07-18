@@ -22,6 +22,9 @@
 
 package org.picketlink.idm;
 
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.AnnotatedElement;
+import javax.naming.NamingException;
 import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
@@ -40,10 +43,6 @@ import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityStore;
-
-import javax.naming.NamingException;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.AnnotatedElement;
 import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
@@ -76,13 +75,13 @@ public interface IDMMessages {
     IdentityManagementException identityTypeAmbiguosFoundWithId(String id);
 
     @Message (id = 4, value = "Could not add IdentityType [%s].")
-    IdentityManagementException identityTypeAddFailed(IdentityType identityType, @Cause Throwable t);
+    IdentityManagementException attributedTypeAddFailed(AttributedType identityType, @Cause Throwable t);
 
     @Message (id = 5, value = "Could not remove IdentityType [%s].")
-    IdentityManagementException identityTypeRemoveFailed(IdentityType identityType, @Cause Throwable t);
+    IdentityManagementException attributedTypeRemoveFailed(AttributedType identityType, @Cause Throwable t);
 
     @Message (id = 6, value = "Could not update IdentityType [%s].")
-    IdentityManagementException identityTypeUpdateFailed(IdentityType identityType, @Cause Throwable t);
+    IdentityManagementException attributedTypeUpdateFailed(AttributedType identityType, @Cause Throwable t);
 
     @Message (id = 7, value = "Could not query IdentityType using query [%s].")
     IdentityManagementException identityTypeQueryFailed(IdentityQuery<?> query, @Cause Throwable t);

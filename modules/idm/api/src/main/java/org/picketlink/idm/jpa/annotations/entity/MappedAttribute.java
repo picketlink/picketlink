@@ -40,5 +40,4 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface MappedAttribute {
     String name() default "";
-    Class[] supportedClasses() default {};
 }

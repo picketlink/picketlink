@@ -477,7 +477,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
     }
 
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Ignore
     public void testFindByLoginNameAndCreationDateWithSorting() throws Exception {
         createAgent("john");
         // Sleep is needed to avoid same createdDate

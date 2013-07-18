@@ -27,7 +27,7 @@ import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 /**
  * @author pedroigor
  */
-public class AttributedValueMapper extends AbstractModelMapper {
+public class AttributedValueMapper extends AbstractIdentityManagedMapper {
 
     @Override
     public boolean supports(Class<?> entityType) {
@@ -40,7 +40,7 @@ public class AttributedValueMapper extends AbstractModelMapper {
     }
 
     @Override
-    public EntityMapping doCreateMapping(Class<?> managedType, Class<?> entityType) {
+    public EntityMapping configure(Class<?> managedType, Class<?> entityType) {
         EntityMapping entityMapping = new EntityMapping(managedType);
 
         for (Property mappedProperty : getAnnotatedProperties(AttributeValue.class, entityType)) {

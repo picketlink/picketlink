@@ -18,17 +18,18 @@
 package org.picketlink.idm.jpa.internal.mappers;
 
 import org.picketlink.idm.jpa.annotations.Identifier;
+import org.picketlink.idm.model.AttributedType;
 
 /**
  * @author pedroigor
  */
-public abstract class AbstractAttributedTypeMapper extends AbstractModelMapper {
+public abstract class AbstractAttributedTypeMapper extends AbstractIdentityManagedMapper {
 
     @Override
-    public EntityMapping doCreateMapping(Class<?> managedType, Class<?> entityType) {
+    public EntityMapping configure(Class<?> managedType, Class<?> entityType) {
         EntityMapping entityMapping = new EntityMapping(managedType, true);
 
-        entityMapping.addProperty(getNamedProperty("id", managedType), getAnnotatedProperty(Identifier.class, entityType));
+        entityMapping.addProperty(getNamedProperty("id", AttributedType.class), getAnnotatedProperty(Identifier.class, entityType));
         entityMapping.addOwnerProperty(entityType);
 
         return entityMapping;

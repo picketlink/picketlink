@@ -25,14 +25,13 @@ import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.model.sample.Agent;
-import org.picketlink.idm.model.sample.User;
 
 /**
  * This entity contains login names for all account identities
  *
  * @author Shane Bryzak
  */
-@IdentityManaged ({User.class, Agent.class})
+@IdentityManaged ({Agent.class})
 @Entity
 public class AccountLogin implements Serializable {
 

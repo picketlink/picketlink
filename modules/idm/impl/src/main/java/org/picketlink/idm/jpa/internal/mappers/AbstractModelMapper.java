@@ -18,6 +18,7 @@
 package org.picketlink.idm.jpa.internal.mappers;
 
 import java.lang.annotation.Annotation;
+import java.util.Collections;
 import java.util.List;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
@@ -31,15 +32,19 @@ import org.picketlink.idm.IdentityManagementException;
 public abstract class AbstractModelMapper implements ModelMapper {
 
     @Override
-    public EntityMapping createMapping(Class<?> managedType, Class<?> entityType) {
+    public List<EntityMapping> createMapping(Class<?> entityType) {
+        if (!supports(entityType)) {
+            return Collections.emptyList();
+        }
+
         try {
-            return doCreateMapping(managedType, entityType);
+            return doCreateMapping(entityType);
         } catch (Exception e) {
-            throw new IdentityManagementException("Could not map type [" + managedType + "] to entity [" + entityType + "].", e);
+            throw new IdentityManagementException("Could not map entity [" + entityType + "].", e);
         }
     }
 
-    protected abstract EntityMapping doCreateMapping(Class<?> managedType, Class<?> entityType);
+    protected abstract List<EntityMapping> doCreateMapping(Class<?> entityType);
 
     protected Property getAnnotatedProperty(Class<? extends Annotation> annotationType, Class<?> type) {
         return PropertyQueries.<String>createQuery(type)

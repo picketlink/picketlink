@@ -24,9 +24,6 @@ import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.credential.spi.CredentialHandler;
-import org.picketlink.idm.jpa.annotations.AttributeClass;
-import org.picketlink.idm.jpa.annotations.AttributeName;
-import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.RelationshipClass;
@@ -44,7 +41,6 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
 public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfiguration {
 
     private final List<Class<?>> entityTypes;
-    private final AttributeMapping attributeMapping;
     private final RelationshipIdentityMapping relationshipIdentityMapping;
     private final RelationshipMapping relationshipMapping;
 
@@ -60,22 +56,14 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
         if (entityTypes == null) {
             throw MESSAGES.jpaConfigNoEntityClassesProvided();
         }
-        
+
         this.entityTypes = entityTypes;
 
-        AttributeMapping attributeMapping = null;
         RelationshipMapping relationshipMapping = null;
         RelationshipIdentityMapping relationshipIdentityMapping = null;
 
         for (Class<?> entityType: this.entityTypes) {
-            Property<Object> property = PropertyQueries
-                    .createQuery(entityType)
-                    .addCriteria(new AnnotatedPropertyCriteria(AttributeClass.class))
-                    .getFirstResult();
-
-            if (property != null) {
-                attributeMapping = new AttributeMapping(entityType);
-            }
+            Property<Object> property = null;
 
             property = PropertyQueries
                     .createQuery(entityType)
@@ -96,7 +84,6 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
             }
         }
 
-        this.attributeMapping = attributeMapping;
         this.relationshipMapping = relationshipMapping;
         this.relationshipIdentityMapping = relationshipIdentityMapping;
     }
@@ -106,54 +93,6 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
 
     public List<Class<?>> getEntityTypes() {
         return this.entityTypes;
-    }
-
-    public static class AttributeMapping {
-        private final Class<?> entityClass;
-        private final Property<String> attributeName;
-        private final Property<String> attributeClass;
-        private final Property<Object> attributeValue;
-        private final Property<Object> attributeOwner;
-
-        private AttributeMapping(Class<?> entityClass) {
-            this.entityClass = entityClass;
-            this.attributeClass = PropertyQueries
-                    .<String>createQuery(this.entityClass)
-                    .addCriteria(new AnnotatedPropertyCriteria(AttributeClass.class))
-                    .getSingleResult();
-            this.attributeName = PropertyQueries
-                    .<String>createQuery(this.entityClass)
-                    .addCriteria(new AnnotatedPropertyCriteria(AttributeName.class))
-                    .getSingleResult();
-            this.attributeValue = PropertyQueries
-                    .createQuery(this.entityClass)
-                    .addCriteria(new AnnotatedPropertyCriteria(AttributeValue.class))
-                    .getSingleResult();
-            this.attributeOwner = PropertyQueries
-                    .createQuery(this.entityClass)
-                    .addCriteria(new AnnotatedPropertyCriteria(OwnerReference.class))
-                    .getSingleResult();
-        }
-
-        public Class<?> getEntityClass() {
-            return this.entityClass;
-        }
-
-        public Property<String> getAttributeName() {
-            return this.attributeName;
-        }
-
-        public Property<String> getAttributeClass() {
-            return this.attributeClass;
-        }
-
-        public Property<Object> getAttributeValue() {
-            return this.attributeValue;
-        }
-
-        public Property<Object> getAttributeOwner() {
-            return this.attributeOwner;
-        }
     }
 
     public static class RelationshipMapping {

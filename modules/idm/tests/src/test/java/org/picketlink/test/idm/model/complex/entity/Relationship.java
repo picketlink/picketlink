@@ -21,12 +21,15 @@ package org.picketlink.test.idm.model.complex.entity;
 import javax.persistence.Entity;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.RelationshipClass;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+import org.picketlink.test.idm.relationship.CustomRelationship;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
 @Entity
+@IdentityManaged ({org.picketlink.idm.model.Relationship.class, CustomRelationship.class})
 public class Relationship extends AttributedTypeObject {
 
     private static final long serialVersionUID = -7482143409681874546L;

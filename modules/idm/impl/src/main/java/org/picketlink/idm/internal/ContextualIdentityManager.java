@@ -84,7 +84,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
             storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, identityType.getClass(), IdentityOperation.create)
                     .add(this, identityType);
         } catch (Exception e) {
-            throw MESSAGES.identityTypeAddFailed(identityType, e);
+            throw MESSAGES.attributedTypeAddFailed(identityType, e);
         }
     }
 
@@ -96,7 +96,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
             storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, IdentityType.class, IdentityOperation.update)
                     .update(this, identityType);
         } catch (Exception e) {
-            throw MESSAGES.identityTypeUpdateFailed(identityType, e);
+            throw MESSAGES.attributedTypeUpdateFailed(identityType, e);
         }
     }
 
@@ -108,7 +108,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
             storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, IdentityType.class, IdentityOperation.delete)
                     .remove(this, identityType);
         } catch (Exception e) {
-            throw MESSAGES.identityTypeRemoveFailed(identityType, e);
+            throw MESSAGES.attributedTypeRemoveFailed(identityType, e);
         }
     }
 

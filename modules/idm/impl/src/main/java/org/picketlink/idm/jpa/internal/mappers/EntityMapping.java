@@ -17,9 +17,11 @@
  */
 package org.picketlink.idm.jpa.internal.mappers;
 
+import com.sun.tools.internal.xjc.api.impl.s2j.PropertyImpl;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.picketlink.common.properties.Property;
@@ -34,19 +36,19 @@ import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
  */
 public class EntityMapping {
 
-    private final Map<Property, Property> properties = new HashMap<Property, Property>();
-    private final Map<Property, Property> referenceProperties = new HashMap<Property, Property>();
-    private final Class<?> managedType;
+    private final Map<Property, Property> properties;
+    private final Class<?> supportedType;
     private final boolean rootMapping;
     private Property typeProperty;
 
     public EntityMapping(Class<?> managedType, boolean rootMapping) {
-        this.managedType = managedType;
+        this.supportedType = managedType;
         this.rootMapping = rootMapping;
+        this.properties = new HashMap<Property, Property>();
     }
 
-    public EntityMapping(Class<?> managedType) {
-        this(managedType, false);
+    public EntityMapping(Class<?> supportedType) {
+        this(supportedType, false);
     }
 
     public void addProperty(Property property, Property mappedProperty) {
@@ -68,12 +70,8 @@ public class EntityMapping {
         this.typeProperty = property;
     }
 
-    public Class<?> getManagedType() {
-        return this.managedType;
-    }
-
     public Map<Property, Property> getProperties() {
-        return properties;
+        return Collections.unmodifiableMap(this.properties);
     }
 
     public boolean isRootMapping() {
@@ -84,36 +82,14 @@ public class EntityMapping {
         return this.typeProperty;
     }
 
-    public void addReferenceProperty(final Property annotatedProperty) {
-        addProperty(new PropertyMapping() {
-
-            @Override
-            public Object getValue(Object instance) {
-                return instance;
+    public Class<?> getOwnerType() {
+        for (Property property: getProperties().values()) {
+            if (property.getAnnotatedElement().isAnnotationPresent(OwnerReference.class)) {
+                return property.getJavaClass();
             }
+        }
 
-            @Override
-            public void setValue(Object instance, Object value) {
-                System.out.println(value);
-            }
-        }, annotatedProperty);
-    }
-
-    public Map<Property, Property> getReferenceProperties() {
-        return this.referenceProperties;
-    }
-
-    public void addSelfReferenceProperty(Property<Object> property, Class<?> entityType) {
-        addProperty(property, new PropertyMapping() {
-            @Override
-            public Object getValue(Object instance) {
-                return instance;
-            }
-
-            @Override
-            public void setValue(Object instance, Object value) {
-            }
-        });
+        return null;
     }
 
     public void addOwnerProperty(Class<?> entityType) {
@@ -165,6 +141,38 @@ public class EntityMapping {
                 }
             }, ownerProperty);
         }
+    }
+
+    public void addProperty(final Object getterValue, Property property) {
+        addProperty(new PropertyMapping() {
+
+            @Override
+            public Object getValue(Object instance) {
+                return getterValue;
+            }
+
+            @Override
+            public void setValue(Object instance, Object value) {
+            }
+        }, property);
+    }
+
+    public boolean supports(Class<?> type) {
+        return this.supportedType.isAssignableFrom(type);
+    }
+
+    public void addMappedProperty(Property mappedProperty) {
+        addProperty(new PropertyMapping() {
+            @Override
+            public Object getValue(Object instance) {
+                return null;  //TODO: Implement getValue
+            }
+
+            @Override
+            public void setValue(Object instance, Object value) {
+                //TODO: Implement setValue
+            }
+        }, mappedProperty);
     }
 
     private abstract class PropertyMapping implements Property {
