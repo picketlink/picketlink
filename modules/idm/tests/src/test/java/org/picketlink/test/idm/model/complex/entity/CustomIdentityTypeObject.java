@@ -18,14 +18,13 @@
 package org.picketlink.test.idm.model.complex.entity;
 
 import java.io.Serializable;
-import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
-import org.picketlink.idm.model.sample.User;
+import static org.picketlink.test.idm.basic.CustomIdentityTypeTestCase.MyCustomIdentityType;
 
 /**
  * This entity bean stores the user attribute values that are mapped directly to the User class 
@@ -33,9 +32,9 @@ import org.picketlink.idm.model.sample.User;
  * @author Shane Bryzak
  *
  */
-@IdentityManaged (User.class)
+@IdentityManaged (MyCustomIdentityType.class)
 @Entity
-public class UserAttribute implements Serializable {
+public class CustomIdentityTypeObject implements Serializable {
     private static final long serialVersionUID = -2360572753933756991L;
 
     @Id
@@ -44,61 +43,32 @@ public class UserAttribute implements Serializable {
     private IdentityObject identity;
 
     @AttributeValue
-    private String title;
+    private String someIdentifier;
 
     @AttributeValue
-    private String firstName;
+    private String someAttribute;
 
-    @AttributeValue
-    private String lastName;
-
-    @AttributeValue
-    private Date dateOfBirth;
-
-    @AttributeValue
-    private String email;
+    public IdentityObject getIdentity() {
+        return identity;
+    }
 
     public void setIdentity(IdentityObject identity) {
         this.identity = identity;
     }
 
-    public String getTitle() {
-        return title;
+    public String getSomeIdentifier() {
+        return someIdentifier;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setSomeIdentifier(String someIdentifier) {
+        this.someIdentifier = someIdentifier;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getSomeAttribute() {
+        return someAttribute;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public Date getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(Date dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
-
-    public String getEmail() {
-        return this.email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public void setSomeAttribute(String someAttribute) {
+        this.someAttribute = someAttribute;
     }
 }

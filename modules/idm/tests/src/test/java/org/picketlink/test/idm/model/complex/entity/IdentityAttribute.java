@@ -19,6 +19,7 @@ package org.picketlink.test.idm.model.complex.entity;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -39,10 +40,10 @@ public class IdentityAttribute implements Serializable {
     private static final long serialVersionUID = 5375379361556212335L;
 
     @Id @GeneratedValue private Long attributeId;
-    @OwnerReference @ManyToOne private IdentityObject identity;
+    @OwnerReference @ManyToOne private AttributedTypeObject identity;
     @AttributeClass private String attributeType;
     @AttributeName private String attributeName;
-    @AttributeValue private String attributeValue;
+    @AttributeValue @Column (length = 1024) private String attributeValue;
 
     public Long getAttributeId() {
         return attributeId;
@@ -52,11 +53,11 @@ public class IdentityAttribute implements Serializable {
         this.attributeId = attributeId;
     }
 
-    public IdentityObject getIdentity() {
+    public AttributedTypeObject getIdentity() {
         return identity;
     }
 
-    public void setIdentity(IdentityObject identity) {
+    public void setIdentity(AttributedTypeObject identity) {
         this.identity = identity;
     }
 

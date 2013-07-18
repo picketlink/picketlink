@@ -19,24 +19,31 @@ package org.picketlink.test.idm.model.complex.entity;
 
 import java.io.Serializable;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.User;
 
 /**
  * This entity contains login names for all account identities
  *
  * @author Shane Bryzak
  */
-//@AttributeOf(supportedTypes = {Account.class})
+@IdentityManaged ({User.class, Agent.class})
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = "loginName")})
 public class AccountLogin implements Serializable {
+
     private static final long serialVersionUID = -532751717690637948L;
 
-    @OneToOne @Id @GeneratedValue private IdentityObject identity;
+    @OneToOne
+    @Id
+    @OwnerReference
+    private IdentityObject identity;
+
+    @AttributeValue
     private String loginName;
 
     public IdentityObject getIdentity() {

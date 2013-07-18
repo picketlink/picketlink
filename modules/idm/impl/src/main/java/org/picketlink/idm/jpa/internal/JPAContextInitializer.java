@@ -1,11 +1,10 @@
 package org.picketlink.idm.jpa.internal;
 
-import org.picketlink.idm.spi.ContextInitializer;
-import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.IdentityContext;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import org.picketlink.idm.spi.ContextInitializer;
+import org.picketlink.idm.spi.IdentityContext;
+import org.picketlink.idm.spi.IdentityStore;
 
 /**
  *
@@ -25,10 +24,10 @@ public class JPAContextInitializer implements ContextInitializer {
 
     @Override
     public void initContextForStore(IdentityContext ctx, IdentityStore<?> store) {
-//        if (store instanceof JPAIdentityStore) {
-//            if (!ctx.isParameterSet(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER)) {
-//                ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, getEntityManager());
-//            }
-//        }
+        if (store instanceof JPAIdentityStore) {
+            if (!ctx.isParameterSet(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER)) {
+                ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, getEntityManager());
+            }
+        }
     }
 }

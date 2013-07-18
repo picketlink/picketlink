@@ -18,13 +18,14 @@
 package org.picketlink.test.idm.model.complex.entity;
 
 import java.io.Serializable;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-
 import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+import org.picketlink.idm.model.sample.Group;
 
 /**
  * Contains group-specific attribute values
@@ -32,12 +33,24 @@ import org.picketlink.idm.jpa.annotations.AttributeValue;
  * @author Shane Bryzak
  */
 @Entity
+@IdentityManaged(Group.class)
 public class GroupAttribute implements Serializable {
     private static final long serialVersionUID = 5125034753443642890L;
 
-    @Id @OneToOne private IdentityObject identity;
-    @AttributeValue(name = "name") private String groupName;
-    @ManyToOne private IdentityObject parentGroup;
+    @Id
+    @OneToOne
+    @OwnerReference
+    private IdentityObject identity;
+
+    @AttributeValue(name = "name")
+    private String groupName;
+
+    @AttributeValue
+    private String path;
+
+    @ManyToOne
+    @AttributeValue (name = "parentGroup")
+    private IdentityObject parent;
 
     public IdentityObject getIdentity() {
         return identity;
@@ -55,11 +68,19 @@ public class GroupAttribute implements Serializable {
         this.groupName = groupName;
     }
 
-    public IdentityObject getParentGroup() {
-        return parentGroup;
+    public String getPath() {
+        return this.path;
     }
 
-    public void setParentGroup(IdentityObject parentGroup) {
-        this.parentGroup = parentGroup;
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public IdentityObject getParent() {
+        return parent;
+    }
+
+    public void setParent(IdentityObject parent) {
+        this.parent = parent;
     }
 }

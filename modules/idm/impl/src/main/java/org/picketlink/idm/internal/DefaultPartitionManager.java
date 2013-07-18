@@ -211,7 +211,8 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                 return config;
             }
         }
-        return null;
+
+        throw new IdentityManagementException("No configuration found with the given name [" + name + "].");
     }
 
     private IdentityConfiguration getConfigurationForPartition(Partition partition) {
@@ -242,24 +243,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     private IdentityContext createIdentityContext() {
-        return new IdentityContext() {
-            private Map<String, Object> params = new HashMap<String, Object>();
-
-            @Override
-            public Object getParameter(String paramName) {
-                return params.get(paramName);
-            }
-
-            @Override
-            public boolean isParameterSet(String paramName) {
-                return params.containsKey(paramName);
-            }
-
-            @Override
-            public void setParameter(String paramName, Object value) {
-                params.put(paramName, value);
-            }
-
+        return new AbstractIdentityContext(null, this.eventBridge, this.idGenerator) {
             @Override
             public EventBridge getEventBridge() {
                 return eventBridge;
@@ -349,7 +333,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
             getStoreForPartitionOperation(context).add(context, partition, configurationName);
         } catch (Exception e) {
-            throw new IdentityManagementException("Could not add partition [" + partition + "] using configuration [" + configurationName + ".", e);
+            throw new IdentityManagementException("Could not add partition [" + partition + "] using configuration [" + configurationName + "].", e);
         }
     }
 

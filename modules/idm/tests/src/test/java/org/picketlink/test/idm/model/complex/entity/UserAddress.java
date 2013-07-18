@@ -22,19 +22,30 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
+import org.picketlink.idm.model.sample.User;
 
 /**
  * Stores user address records
  *
  * @author Shane Bryzak
  */
-//@AttributeOf(mapToAttribute = "addresses", supportedTypes = {User.class})
+@IdentityManaged (User.class)
+@MappedAttribute (name = "address")
 @Entity
 public class UserAddress implements Serializable {
     private static final long serialVersionUID = 1345860654288091126L;
 
-    @Id @GeneratedValue private Long addressId;
-    @ManyToOne private IdentityObject identity;
+    @Id
+    @GeneratedValue
+    private Long addressId;
+
+    @ManyToOne
+    @OwnerReference
+    private IdentityObject identity;
+
     private String unitNumber;
     private String streetNumber;
     private String streetName;

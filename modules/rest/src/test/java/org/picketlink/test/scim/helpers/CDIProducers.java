@@ -54,15 +54,16 @@ public class CDIProducers {
             .named("default")
                 .stores()
                     .jpa()
-                        .identityClass(IdentityObject.class)
-                        .attributeClass(IdentityObjectAttribute.class)
-                        .relationshipClass(RelationshipObject.class)
-                        .relationshipIdentityClass(RelationshipIdentityObject.class)
-                        .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                        .credentialClass(CredentialObject.class)
-                        .credentialAttributeClass(CredentialObjectAttribute.class)
-                        .partitionClass(PartitionObject.class)
-                        .supportAllFeatures();
+//                        .identityClass(IdentityObject.class)
+//                        .attributeClass(IdentityObjectAttribute.class)
+//                        .relationshipClass(RelationshipObject.class)
+//                        .relationshipIdentityClass(RelationshipIdentityObject.class)
+//                        .relationshipAttributeClass(RelationshipObjectAttribute.class)
+//                        .credentialClass(CredentialObject.class)
+//                        .credentialAttributeClass(CredentialObjectAttribute.class)
+//                        .partitionClass(PartitionObject.class)
+//                        .supportAllFeatures();
+        ;
 
         DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.build());
 

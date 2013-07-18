@@ -33,7 +33,7 @@ public interface AttributedType extends Serializable {
     /**
      * A query parameter used to set the id value.
      */
-    QueryParameter ID = new QueryParameter() {};
+    QueryParameter ID = new AttributeParameter("id");
 
     /**
      * Returns the unique identifier for this instance

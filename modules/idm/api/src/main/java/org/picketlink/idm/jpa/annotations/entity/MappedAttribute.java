@@ -17,6 +17,12 @@
  */
 package org.picketlink.idm.jpa.annotations.entity;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 /**
  * This annotation is applied to an entity bean to indicate that it is used to store attribute data
  * for identity types, relationships, credentials or partitions.  If the name property is provided, the
@@ -29,6 +35,9 @@ package org.picketlink.idm.jpa.annotations.entity;
  *
  * @author Shane Bryzak
  */
+@Documented
+@Target(TYPE)
+@Retention(RUNTIME)
 public @interface MappedAttribute {
     String name() default "";
     Class[] supportedClasses() default {};

@@ -93,20 +93,21 @@ public class OAuthServerUtil {
                 .named("default")
                     .stores()
                         .jpa()
-                            .identityClass(IdentityObject.class)
-                            .attributeClass(IdentityObjectAttribute.class)
-                            .relationshipClass(RelationshipObject.class)
-                            .relationshipIdentityClass(RelationshipIdentityObject.class)
-                            .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                            .credentialClass(CredentialObject.class)
-                            .credentialAttributeClass(CredentialObjectAttribute.class)
-                            .partitionClass(PartitionObject.class).supportAllFeatures()
-                            .addContextInitializer(new JPAContextInitializer(entityManagerFactory) {
-                                @Override
-                                public EntityManager getEntityManager() {
-                                    return entityManagerThreadLocal.get();
-                                }
-                            });
+//                            .identityClass(IdentityObject.class)
+//                            .attributeClass(IdentityObjectAttribute.class)
+//                            .relationshipClass(RelationshipObject.class)
+//                            .relationshipIdentityClass(RelationshipIdentityObject.class)
+//                            .relationshipAttributeClass(RelationshipObjectAttribute.class)
+//                            .credentialClass(CredentialObject.class)
+//                            .credentialAttributeClass(CredentialObjectAttribute.class)
+//                            .partitionClass(PartitionObject.class).supportAllFeatures()
+//                            .addContextInitializer(new JPAContextInitializer(entityManagerFactory) {
+//                                @Override
+//                                public EntityManager getEntityManager() {
+//                                    return entityManagerThreadLocal.get();
+//                                }
+//                            });
+            ;
 
             DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.build());
 

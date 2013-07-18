@@ -52,7 +52,7 @@ import static org.picketlink.test.idm.IdentityConfigurationTestFactory.getConfig
 @RunWith(Parameterized.class)
 public abstract class AbstractPartitionManagerTestCase {
 
-    private final IdentityConfigurationTester visitor;
+    protected final IdentityConfigurationTester visitor;
     private PartitionManager partitionManager;
 
     public AbstractPartitionManagerTestCase(IdentityConfigurationTester visitor) {

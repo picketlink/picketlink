@@ -17,6 +17,7 @@
  */
 package org.picketlink.idm.model.sample;
 
+import java.util.Date;
 import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.query.QueryParameter;
 
@@ -47,6 +48,9 @@ public class User extends Agent {
     private String firstName;
     private String lastName;
     private String email;
+    private String title;
+    private Date dateOfBirth;
+    private Object address;
 
     public User() {
 
@@ -81,5 +85,31 @@ public class User extends Agent {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    @AttributeProperty
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    @AttributeProperty
+    public Date getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(Date dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public Object getAddress() {
+        return address;
+    }
+
+    public void setAddress(Object address) {
+        this.address = address;
     }
 }

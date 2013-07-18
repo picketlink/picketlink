@@ -22,6 +22,7 @@ import java.util.Date;
 
 import org.picketlink.idm.model.AbstractIdentityType;
 import org.picketlink.idm.model.Account;
+import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.test.idm.model.complex.entity.UserAddress;
 import org.picketlink.test.idm.model.complex.entity.UserContact;
 import org.picketlink.test.idm.model.complex.entity.UserEmail;
@@ -36,11 +37,21 @@ public class User extends AbstractIdentityType implements Account {
 
     private static final long serialVersionUID = -8870176959974538663L;
 
+    @AttributeProperty
     private String loginName;
+
+    @AttributeProperty
     private String title;
+
+    @AttributeProperty
     private String firstName;
+
+    @AttributeProperty
     private String lastName;
+
+    @AttributeProperty
     private Date dateOfBirth;
+
     private Collection<UserAddress> addresses;
     private Collection<UserEmail> emails;
     private Collection<UserContact> contacts;

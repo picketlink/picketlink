@@ -119,4 +119,10 @@ public class LDAPStoreConfigurationTester implements IdentityConfigurationTester
             throw new RuntimeException("Error starting Embedded LDAP server.", e);
         }
     }
+
+    @Override
+    public void commit() {
+
+    }
+
 }

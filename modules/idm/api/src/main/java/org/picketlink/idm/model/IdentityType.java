@@ -33,12 +33,12 @@ public interface IdentityType extends AttributedType {
     /**
      * A query parameter used to set the {@link Partition} value
      */
-    QueryParameter PARTITION = new QueryParameter() {};
+    QueryParameter PARTITION = new AttributeParameter("partition");
 
     /**
      * A query parameter used to set the enabled value.
      */
-    QueryParameter ENABLED = new QueryParameter() {};
+    QueryParameter ENABLED = new AttributeParameter("enabled");
 
     /**
      * A query parameter used to set the createdDate value
@@ -58,17 +58,17 @@ public interface IdentityType extends AttributedType {
     /**
      * A query parameter used to set the expiryDate value
      */
-    QueryParameter EXPIRY_DATE = new QueryParameter() {};
+    QueryParameter EXPIRY_DATE = new AttributeParameter("expirationDate");
 
     /**
      * A query parameter used to set the expiration after date
      */
-    QueryParameter EXPIRY_AFTER = new QueryParameter() {};
+    QueryParameter EXPIRY_AFTER = new AttributeParameter("expirationDate");
 
     /**
      * A query parameter used to set the expiration before date
      */
-    QueryParameter EXPIRY_BEFORE = new QueryParameter() {};
+    QueryParameter EXPIRY_BEFORE = new AttributeParameter("expirationDate");
 
     /**
      * Indicates the current enabled status of this IdentityType.

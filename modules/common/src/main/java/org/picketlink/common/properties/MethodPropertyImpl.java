@@ -18,13 +18,11 @@
 
 package org.picketlink.common.properties;
 
-import org.picketlink.common.reflection.Reflections;
-
 import java.beans.Introspector;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-
+import org.picketlink.common.reflection.Reflections;
 import static org.picketlink.common.reflection.Reflections.invokeMethod;
 
 /**
@@ -150,6 +148,18 @@ class MethodPropertyImpl<V> implements MethodProperty<V>
     {
         if (setterMethod == null) 
         {
+            // if the setter method is null may be because the declaring type is an interface which does not declare
+            // a setter method. We just check if the instance is assignable from the property declaring class and
+            // try to find a overridden method.
+            if (getDeclaringClass().isAssignableFrom(instance.getClass())) {
+                Method instanceSetterMethod = getSetterMethod(instance.getClass(), getName());
+
+                if (instanceSetterMethod != null) {
+                    invokeMethod(instanceSetterMethod, instance, value);
+                    return;
+                }
+            }
+
             throw new UnsupportedOperationException("Property " + 
                 this.getterMethod.getDeclaringClass() + "." + propertyName + 
                 " is read only, as there is no setter method.");

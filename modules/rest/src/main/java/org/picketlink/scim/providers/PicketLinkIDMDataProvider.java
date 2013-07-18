@@ -28,15 +28,6 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
-import org.picketlink.idm.jpa.internal.JPAContextInitializer;
-import org.picketlink.idm.jpa.schema.CredentialObject;
-import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
-import org.picketlink.idm.jpa.schema.IdentityObject;
-import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
-import org.picketlink.idm.jpa.schema.PartitionObject;
-import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
-import org.picketlink.idm.jpa.schema.RelationshipObject;
-import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.sample.Group;
@@ -196,21 +187,8 @@ public class PicketLinkIDMDataProvider implements DataProvider {
         builder
             .named("default")
                 .stores()
-                    .jpa()
-                        .identityClass(IdentityObject.class)
-                        .attributeClass(IdentityObjectAttribute.class)
-                        .relationshipClass(RelationshipObject.class)
-                        .relationshipIdentityClass(RelationshipIdentityObject.class)
-                        .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                        .credentialClass(CredentialObject.class)
-                        .credentialAttributeClass(CredentialObjectAttribute.class)
-                        .partitionClass(PartitionObject.class)
-                        .supportAllFeatures().addContextInitializer(new JPAContextInitializer(entityManagerFactory) {
-                            @Override
-                            public EntityManager getEntityManager() {
-                                return entityManagerThreadLocal.get();
-                            }
-                        });
+                    .file()
+                        .supportAllFeatures();
 
         PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
 

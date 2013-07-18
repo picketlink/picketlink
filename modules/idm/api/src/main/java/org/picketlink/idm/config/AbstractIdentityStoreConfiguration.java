@@ -125,11 +125,15 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
 
     @Override
     public List<Class<? extends CredentialHandler>> getCredentialHandlers() {
-        List<Class<? extends CredentialHandler>> credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>(this.credentialHandlers);
+        List<Class<? extends CredentialHandler>> supportedCredentialHandlers = new ArrayList<Class<? extends CredentialHandler>>(this.credentialHandlers);
 
-        credentialHandlers.addAll(Arrays.asList(getIdentityStoreType().getAnnotation(CredentialHandlers.class).value()));
+        CredentialHandlers credentialHandlers = getIdentityStoreType().getAnnotation(CredentialHandlers.class);
 
-        return credentialHandlers;
+        if (credentialHandlers != null) {
+            supportedCredentialHandlers.addAll(Arrays.asList(credentialHandlers.value()));
+        }
+
+        return supportedCredentialHandlers;
     }
 
     @Override

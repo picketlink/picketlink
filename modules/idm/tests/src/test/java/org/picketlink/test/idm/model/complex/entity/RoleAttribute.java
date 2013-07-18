@@ -22,6 +22,9 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+import org.picketlink.idm.model.sample.Role;
 
 /**
  * Contains role-specific attribute values
@@ -29,12 +32,17 @@ import org.picketlink.idm.jpa.annotations.AttributeValue;
  * @author Shane Bryzak
  */
 @Entity
-//@AttributeOf(supportedTypes = {Role.class})
+@IdentityManaged(Role.class)
 public class RoleAttribute implements Serializable {
     private static final long serialVersionUID = -1462703374364572021L;
 
-    @Id @OneToOne private IdentityObject identity;
-    @AttributeValue(name = "name") private String roleName;
+    @Id
+    @OneToOne
+    @OwnerReference
+    private IdentityObject identity;
+
+    @AttributeValue(name = "name")
+    private String roleName;
 
     public IdentityObject getIdentity() {
         return identity;

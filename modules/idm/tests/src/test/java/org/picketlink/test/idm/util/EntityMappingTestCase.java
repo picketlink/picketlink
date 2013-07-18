@@ -15,31 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.picketlink.test.idm.util;
 
-package org.picketlink.idm.model.sample;
-
-import org.picketlink.idm.model.AbstractPartition;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.annotation.IdentityPartition;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
- * A Realm defines a boundary for certain identity state. Users, Groups and standard Roles are unique within a Realm.
- *
- * @author Shane Bryzak
+ * @author pedroigor
  */
-@IdentityPartition(supportedTypes = {IdentityType.class})
-public class Realm extends AbstractPartition {
+public class EntityMappingTestCase {
 
-    private static final long serialVersionUID = -2667438382506066497L;
-
-    public static final String DEFAULT_REALM = "default";
-
-    public Realm() {
-        super(null);
+    @Before
+    public void onSetup() {
     }
 
-    public Realm(String name) {
-        super(name);
+    @Test
+    public void testPartitionMapping() {
     }
 
 }

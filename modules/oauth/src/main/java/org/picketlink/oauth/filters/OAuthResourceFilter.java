@@ -159,20 +159,21 @@ public class OAuthResourceFilter implements Filter {
                     .named("default")
                         .stores()
                             .jpa()
-                                .identityClass(IdentityObject.class)
-                                .attributeClass(IdentityObjectAttribute.class)
-                                .relationshipClass(RelationshipObject.class)
-                                .relationshipIdentityClass(RelationshipIdentityObject.class)
-                                .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                                .credentialClass(CredentialObject.class)
-                                .credentialAttributeClass(CredentialObjectAttribute.class)
-                                .partitionClass(PartitionObject.class)
-                                .supportAllFeatures().addContextInitializer(new JPAContextInitializer(this.entityManagerFactory) {
-                                    @Override
-                                    public EntityManager getEntityManager() {
-                                        return entityManager.get();
-                                    }
-                                });
+//                                .identityClass(IdentityObject.class)
+//                                .attributeClass(IdentityObjectAttribute.class)
+//                                .relationshipClass(RelationshipObject.class)
+//                                .relationshipIdentityClass(RelationshipIdentityObject.class)
+//                                .relationshipAttributeClass(RelationshipObjectAttribute.class)
+//                                .credentialClass(CredentialObject.class)
+//                                .credentialAttributeClass(CredentialObjectAttribute.class)
+//                                .partitionClass(PartitionObject.class)
+//                                .supportAllFeatures().addContextInitializer(new JPAContextInitializer(this.entityManagerFactory) {
+//                                    @Override
+//                                    public EntityManager getEntityManager() {
+//                                        return entityManager.get();
+//                                    }
+//                                });
+                ;
 
                 DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.build());
 

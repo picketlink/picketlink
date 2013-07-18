@@ -98,6 +98,10 @@ public class CustomPartitionTestCase extends AbstractPartitionTestCase<CustomPar
         private int attributeC;
         private List<String> attributeD;
 
+        public CustomPartition() {
+            super(null);
+        }
+
         public CustomPartition(String name) {
             super(name);
         }

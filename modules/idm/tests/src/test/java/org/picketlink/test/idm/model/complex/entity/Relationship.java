@@ -15,55 +15,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.picketlink.test.idm.model.complex.entity;
 
 import javax.persistence.Entity;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
-import org.picketlink.idm.jpa.annotations.PartitionClass;
-import org.picketlink.idm.jpa.annotations.PartitionName;
-import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
-import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.jpa.annotations.RelationshipClass;
 
 /**
- * This entity bean contains partition records such as Realms and Tiers
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
- * @author Shane Bryzak
  */
 @Entity
-@IdentityManaged ({Partition.class})
-public class IdentityPartition extends AttributedTypeObject {
+public class Relationship extends AttributedTypeObject {
 
-    private static final long serialVersionUID = -361112181956236802L;
+    private static final long serialVersionUID = -7482143409681874546L;
 
-    @PartitionName
-    private String name;
-
-    @PartitionClass
-    private String partitionType;
+    @RelationshipClass
+    private String relationshipClass;
 
     @AttributeValue
     private String attributeA;
 
     @AttributeValue
-    private Long attributeB;
+    private String attributeB;
 
     @AttributeValue
-    private int attributeC;
+    private String attributeC;
 
-    public String getName() {
-        return this.name;
+    public String getRelationshipClass() {
+        return relationshipClass;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPartitionType() {
-        return partitionType;
-    }
-
-    public void setPartitionType(String partitionType) {
-        this.partitionType = partitionType;
+    public void setRelationshipClass(String relationshipClass) {
+        this.relationshipClass = relationshipClass;
     }
 
     public String getAttributeA() {
@@ -74,19 +59,19 @@ public class IdentityPartition extends AttributedTypeObject {
         this.attributeA = attributeA;
     }
 
-    public Long getAttributeB() {
+    public String getAttributeB() {
         return attributeB;
     }
 
-    public void setAttributeB(Long attributeB) {
+    public void setAttributeB(String attributeB) {
         this.attributeB = attributeB;
     }
 
-    public int getAttributeC() {
+    public String getAttributeC() {
         return attributeC;
     }
 
-    public void setAttributeC(int attributeC) {
+    public void setAttributeC(String attributeC) {
         this.attributeC = attributeC;
     }
 }

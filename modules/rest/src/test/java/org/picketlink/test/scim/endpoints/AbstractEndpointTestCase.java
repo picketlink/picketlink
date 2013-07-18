@@ -31,15 +31,6 @@ import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.internal.DefaultPartitionManager;
-import org.picketlink.idm.jpa.internal.JPAContextInitializer;
-import org.picketlink.idm.jpa.schema.CredentialObject;
-import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
-import org.picketlink.idm.jpa.schema.IdentityObject;
-import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
-import org.picketlink.idm.jpa.schema.PartitionObject;
-import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
-import org.picketlink.idm.jpa.schema.RelationshipObject;
-import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Realm;
@@ -73,21 +64,21 @@ public abstract class AbstractEndpointTestCase extends EmbeddedWebServerBase {
             .named("default")
                 .stores()
                     .jpa()
-                        .identityClass(IdentityObject.class)
-                        .attributeClass(IdentityObjectAttribute.class)
-                        .relationshipClass(RelationshipObject.class)
-                        .relationshipIdentityClass(RelationshipIdentityObject.class)
-                        .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                        .credentialClass(CredentialObject.class)
-                        .credentialAttributeClass(CredentialObjectAttribute.class)
-                        .partitionClass(PartitionObject.class)
-                        .supportAllFeatures()
-                        .addContextInitializer(new JPAContextInitializer(entityManagerFactory) {
-                            @Override
-                            public EntityManager getEntityManager() {
-                                return entityManager;
-                            }
-                        });
+//                        .identityClass(IdentityObject.class)
+//                        .attributeClass(IdentityObjectAttribute.class)
+//                        .relationshipClass(RelationshipObject.class)
+//                        .relationshipIdentityClass(RelationshipIdentityObject.class)
+//                        .relationshipAttributeClass(RelationshipObjectAttribute.class)
+//                        .credentialClass(CredentialObject.class)
+//                        .credentialAttributeClass(CredentialObjectAttribute.class)
+//                        .partitionClass(PartitionObject.class)
+//                        .supportAllFeatures()
+//                        .addContextInitializer(new JPAContextInitializer(entityManagerFactory) {
+//                            @Override
+//                            public EntityManager getEntityManager() {
+//                                return entityManager;
+//                            }})
+                        ;
 
 
         PartitionManager partitionManager = new DefaultPartitionManager(builder.build());

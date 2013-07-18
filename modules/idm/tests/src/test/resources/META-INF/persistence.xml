@@ -5,28 +5,13 @@
     <persistence-unit name="jpa-identity-store-tests-pu" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.ejb.HibernatePersistence</provider>
         
-        <class>org.picketlink.idm.jpa.schema.IdentityObject</class>
-        <class>org.picketlink.idm.jpa.schema.PartitionObject</class>
-        <class>org.picketlink.idm.jpa.schema.RelationshipObject</class>
-        <class>org.picketlink.idm.jpa.schema.RelationshipIdentityObject</class>
-        <class>org.picketlink.idm.jpa.schema.RelationshipIdentityWeakObject</class>
-        <class>org.picketlink.idm.jpa.schema.RelationshipObjectAttribute</class>
-        <class>org.picketlink.idm.jpa.schema.IdentityObjectAttribute</class>
-        <class>org.picketlink.idm.jpa.schema.CredentialObject</class>
-        <class>org.picketlink.idm.jpa.schema.CredentialObjectAttribute</class>
-
-        <class>org.picketlink.idm.jpa.schema.sample.Person</class>
-        <class>org.picketlink.idm.jpa.schema.sample.Application</class>
-        <class>org.picketlink.idm.jpa.schema.sample.Address</class>
-        <class>org.picketlink.idm.jpa.schema.sample.ApplicationUser</class>
-        
         <properties>
             <property name="hibernate.connection.url" value="jdbc:h2:mem:test"/>
             <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
             <property name="hibernate.connection.username" value="sa"/>
             <property name="hibernate.connection.password" value=""/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
-            <property name="hibernate.show_sql" value="false" />
+            <property name="hibernate.show_sql" value="true" />
             <property name="hibernate.format_sql" value="true" />
         </properties>
     </persistence-unit>

@@ -56,4 +56,10 @@ public class FileStoreConfigurationTester implements IdentityConfigurationTester
     public void afterTest() {
     }
 
+    @Override
+    public void commit() {
+
+    }
+
+
 }

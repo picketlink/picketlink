@@ -309,7 +309,10 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
-        query.setParameter(GroupMembership.GROUP, administratorGroup, someGroup);
+        query.setParameter(GroupMembership.GROUP, administratorGroup);
+        query.setParameter(GroupMembership.GROUP, someGroup);
+
+//        visitor.commit();
 
         List<GroupMembership> result = query.getResultList();
 

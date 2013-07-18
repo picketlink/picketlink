@@ -67,7 +67,6 @@ public class CustomRelationship extends AbstractAttributedType implements Relati
     private String attributeB;
     private String attributeC;
 
-//    @IdentityProperty
     public IdentityType getIdentityTypeA() {
         return this.identityTypeA;
     }
@@ -76,7 +75,6 @@ public class CustomRelationship extends AbstractAttributedType implements Relati
         this.identityTypeA = identityTypeA;
     }
 
-//    @IdentityProperty
     public IdentityType getIdentityTypeB() {
         return this.identityTypeB;
     }
@@ -85,7 +83,6 @@ public class CustomRelationship extends AbstractAttributedType implements Relati
         this.identityTypeB = identityTypeB;
     }
 
-//    @IdentityProperty
     public IdentityType getIdentityTypeC() {
         return this.identityTypeC;
     }

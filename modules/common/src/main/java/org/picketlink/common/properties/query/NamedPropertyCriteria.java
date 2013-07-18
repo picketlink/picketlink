@@ -50,14 +50,16 @@ public class NamedPropertyCriteria implements PropertyCriteria
 
     public boolean methodMatches(Method m) 
     {
+        String[] validPrefix = {"get", "is"};
         for (String propertyName : propertyNames) 
         {
-            if (m.getName().startsWith("get") &&
-                    Introspector.decapitalize(m.getName().substring(3)).equals(propertyName)) 
-            {
-                return true;
+            for (String prefix: validPrefix) {
+                if (m.getName().startsWith(prefix) &&
+                        Introspector.decapitalize(m.getName().substring(prefix.length())).equals(propertyName))
+                {
+                    return true;
+                }
             }
-
         }
         return false;
     }

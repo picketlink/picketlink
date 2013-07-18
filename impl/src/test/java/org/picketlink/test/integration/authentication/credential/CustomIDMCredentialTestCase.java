@@ -138,16 +138,17 @@ public class CustomIDMCredentialTestCase extends AbstractJPADeploymentTestCase {
                 .named("default")
                     .stores()
                         .jpa()
-                            .addCredentialHandler(MyCredentialHandler.class)
-                            .identityClass(IdentityObject.class)
-                            .attributeClass(IdentityObjectAttribute.class)
-                            .relationshipClass(RelationshipObject.class)
-                            .relationshipIdentityClass(RelationshipIdentityObject.class)
-                            .relationshipAttributeClass(RelationshipObjectAttribute.class)
-                            .credentialClass(CredentialObject.class)
-                            .credentialAttributeClass(CredentialObjectAttribute.class)
-                            .partitionClass(PartitionObject.class)
-                            .supportAllFeatures();
+//                            .addCredentialHandler(MyCredentialHandler.class)
+//                            .identityClass(IdentityObject.class)
+//                            .attributeClass(IdentityObjectAttribute.class)
+//                            .relationshipClass(RelationshipObject.class)
+//                            .relationshipIdentityClass(RelationshipIdentityObject.class)
+//                            .relationshipAttributeClass(RelationshipObjectAttribute.class)
+//                            .credentialClass(CredentialObject.class)
+//                            .credentialAttributeClass(CredentialObjectAttribute.class)
+//                            .partitionClass(PartitionObject.class)
+//                            .supportAllFeatures();
+            ;
 
             return builder.build();
         }

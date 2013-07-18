@@ -15,40 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.picketlink.idm.jpa.schema;
+package org.picketlink.test.idm.model.complex.entity;
 
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import org.picketlink.idm.jpa.annotations.AttributeValue;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import org.picketlink.idm.jpa.annotations.Identifier;
-import org.picketlink.idm.jpa.annotations.RelationshipClass;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+import org.picketlink.idm.model.AttributedType;
 
 /**
- * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
+ * Root entity bean that defines each identity object
  *
+ * @author Shane Bryzak
  */
+@IdentityManaged (AttributedType.class)
 @Entity
-public class Relationship implements Serializable {
-
-    private static final long serialVersionUID = -7482143409681874546L;
+@Inheritance(strategy = InheritanceType.JOINED)
+public abstract class AttributedTypeObject implements Serializable {
+    private static final long serialVersionUID = -4903614087285491855L;
 
     @Id
     @Identifier
     private String id;
-
-    @RelationshipClass
-    private String relationshipClass;
-
-    @AttributeValue
-    private String attributeA;
-
-    @AttributeValue
-    private String attributeB;
-
-    @AttributeValue
-    private String attributeC;
 
     public String getId() {
         return id;
@@ -56,38 +47,6 @@ public class Relationship implements Serializable {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getRelationshipClass() {
-        return relationshipClass;
-    }
-
-    public void setRelationshipClass(String relationshipClass) {
-        this.relationshipClass = relationshipClass;
-    }
-
-    public String getAttributeA() {
-        return attributeA;
-    }
-
-    public void setAttributeA(String attributeA) {
-        this.attributeA = attributeA;
-    }
-
-    public String getAttributeB() {
-        return attributeB;
-    }
-
-    public void setAttributeB(String attributeB) {
-        this.attributeB = attributeB;
-    }
-
-    public String getAttributeC() {
-        return attributeC;
-    }
-
-    public void setAttributeC(String attributeC) {
-        this.attributeC = attributeC;
     }
 
     @Override

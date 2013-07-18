@@ -23,8 +23,8 @@
 package org.picketlink.idm.config;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 
 /**
@@ -34,74 +34,16 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
 public class JPAStoreConfigurationBuilder extends
         IdentityStoreConfigurationBuilder<JPAIdentityStoreConfiguration, JPAStoreConfigurationBuilder> {
 
-    private Class<?> identityClass;
-    private Class<?> attributeClass;
-    private Class<?> credentialClass;
-    private Class<?> credentialAttributeClass;
-    private Class<?> relationshipClass;
-    private Class<?> relationshipIdentityClass;
-    private Class<?> relationshipAttributeClass;
-    private Class<?> partitionClass;
+    private final List<Class<?>> mappedEntities = new ArrayList<Class<?>>();
 
     public JPAStoreConfigurationBuilder(IdentityStoresConfigurationBuilder builder) {
         super(builder);
     }
 
-    public JPAStoreConfigurationBuilder identityClass(Class<?> identityClass) {
-        this.identityClass = identityClass;
-        return this;
-    }
-
-    public JPAStoreConfigurationBuilder attributeClass(Class<?> attributeClass) {
-        this.attributeClass = attributeClass;
-        return this;
-    }
-
-    public JPAStoreConfigurationBuilder credentialClass(Class<?> credentialClass) {
-        this.credentialClass = credentialClass;
-        return this;
-    }
-
-    public JPAStoreConfigurationBuilder credentialAttributeClass(Class<?> credentialAttributeClass) {
-        this.credentialAttributeClass = credentialAttributeClass;
-        return this;
-    }
-
-    public JPAStoreConfigurationBuilder relationshipClass(Class<?> relationshipClass) {
-        this.relationshipClass = relationshipClass;
-        return this;
-    }
-
-    public JPAStoreConfigurationBuilder relationshipIdentityClass(Class<?> relationshipIdentityClass) {
-        this.relationshipIdentityClass = relationshipIdentityClass;
-        return this;
-    }
-
-    public JPAStoreConfigurationBuilder relationshipAttributeClass(Class<?> relationshipAttributeClass) {
-        this.relationshipAttributeClass = relationshipAttributeClass;
-        return this;
-    }
-
-    public JPAStoreConfigurationBuilder partitionClass(Class<?> partitionClass) {
-        this.partitionClass = partitionClass;
-        return this;
-    }
-
     @Override
     protected JPAIdentityStoreConfiguration create() {
-        List<Class<?>> entityClasses = new ArrayList<Class<?>>();
-
-        entityClasses.add(this.identityClass);
-        entityClasses.add(this.attributeClass);
-        entityClasses.add(this.credentialClass);
-        entityClasses.add(this.credentialAttributeClass);
-        entityClasses.add(this.relationshipClass);
-        entityClasses.add(this.relationshipIdentityClass);
-        entityClasses.add(this.relationshipAttributeClass);
-        entityClasses.add(this.partitionClass);
-
         return new JPAIdentityStoreConfiguration(
-                entityClasses,
+                this.mappedEntities,
                 getSupportedTypes(),
                 getUnsupportedTypes(),
                 getContextInitializers(),
@@ -112,19 +54,16 @@ public class JPAStoreConfigurationBuilder extends
     @Override
     protected void validate() {
         super.validate();
-
-        if (this.identityClass == null) {
-            throw MESSAGES.jpaConfigIdentityClassNotProvided();
-        }
-
-//        if (this.partitionClass == null) {
-//            throw MESSAGES.jpaConfigPartitionClassNotProvided();
-//        }
     }
 
     @Override
     protected JPAStoreConfigurationBuilder readFrom(JPAIdentityStoreConfiguration configuration) {
         super.readFrom(configuration);
+        return this;
+    }
+
+    public IdentityStoreConfigurationBuilder mappedEntity(Class<?>... mappedEntity) {
+        this.mappedEntities.addAll(Arrays.asList(mappedEntity));
         return this;
     }
 }

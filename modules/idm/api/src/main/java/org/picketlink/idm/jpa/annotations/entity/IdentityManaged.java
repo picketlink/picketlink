@@ -17,7 +17,12 @@
  */
 package org.picketlink.idm.jpa.annotations.entity;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import org.picketlink.idm.model.AttributedType;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * This annotation is applied to an entity bean to indicate that it is used to store identity-related
@@ -25,6 +30,9 @@ import org.picketlink.idm.model.AttributedType;
  *
  * @author Shane Bryzak
  */
+@Documented
+@Target(TYPE)
+@Retention(RUNTIME)
 public @interface IdentityManaged {
     Class<? extends AttributedType>[] value() default {};
 }
