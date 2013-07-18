@@ -30,7 +30,9 @@ import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
+import org.picketlink.test.idm.IgnoreTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
@@ -41,6 +43,7 @@ import static junit.framework.Assert.assertTrue;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
+@IgnoreTester(LDAPStoreConfigurationTester.class)
 public class IdentityTypeQueryTestCase extends AbstractPartitionManagerTestCase {
 
     public IdentityTypeQueryTestCase(IdentityConfigurationTester builder) {

@@ -210,6 +210,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
     }
 
     @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testAddressAttribute() throws Exception {
         User newUser = createUser("jduke");
 
@@ -234,7 +235,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
         assertNotNull(storedUser);
         assertNotNull(storedUser.getAddress());
-        assertNotNull(((UserAddress) storedUser.getAddress()).getAddressId());
+        assertNotNull(((UserAddress) storedUser.getAddress()).getStreetNumber());
         assertEquals(newUser.getId(), storedUser.getId());
         assertEquals(newUser.getLoginName(), storedUser.getLoginName());
         assertEquals(newUser.getFirstName(), storedUser.getFirstName());

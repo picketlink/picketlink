@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.Id;
 import javax.persistence.Query;
@@ -319,17 +318,16 @@ public class JPAIdentityStore
             partition = (Partition) identityQuery.getParameter(IdentityType.PARTITION)[0];
         }
 
-        EntityMapper partitionRootMapper = getRootMapper(partition.getClass());
-
         EntityMapping rootMapping = rootMapper.getMappingsFor(identityQuery.getIdentityType());
+        EntityMapper partitionRootMapper = getRootMapper(partition.getClass());
 
         for (Property ownerProperty : rootMapping.getProperties().keySet()) {
             Property mappedOwnerProperty = rootMapping.getProperties().get(ownerProperty);
             Class mappedClass = mappedOwnerProperty.getJavaClass();
 
             if (mappedClass.equals(partitionRootMapper.getEntityType())) {
-                Join<Object, Object> partitionJoing = from.join(mappedOwnerProperty.getName());
-                predicates.add(qb.equal(partitionJoing, entityManager.find(partitionRootMapper.getEntityType(), partition.getId())));
+                Join<Object, Object> join = from.join(mappedOwnerProperty.getName());
+                predicates.add(qb.equal(join, entityManager.find(partitionRootMapper.getEntityType(), partition.getId())));
             }
         }
 
@@ -363,7 +361,8 @@ public class JPAIdentityStore
                             Property mappedOwnerProperty = entityMapping.getProperties().get(ownerProperty);
                             Class mappedClass = mappedOwnerProperty.getJavaClass();
 
-                            if (mappedClass.equals(rootMapper.getEntityType()) && mappedOwnerProperty.getAnnotatedElement().isAnnotationPresent(OwnerReference.class)) {
+                            if (mappedClass.equals(rootMapper.getEntityType())
+                                    && mappedOwnerProperty.getAnnotatedElement().isAnnotationPresent(OwnerReference.class)) {
                                 propertyEntityJoin = cq.from(parameterEntityMapper.getEntityType());
                                 predicates.add(qb.and(qb.equal(from, propertyEntityJoin)));
                                 addedJoin = true;
@@ -557,11 +556,7 @@ public class JPAIdentityStore
 
                     predicates.add(builder.in(root).value(subquery));
                 }
-            }
 
-            Set<Entry<QueryParameter, Object[]>> entrySet = query.getParameters().entrySet();
-
-            for (Entry<QueryParameter, Object[]> entry : entrySet) {
                 if (AttributeParameter.class.equals(entry.getKey().getClass())) {
                     AttributeParameter customParameter = (AttributeParameter) entry.getKey();
                     Object[] attributeValues = entry.getValue();
@@ -606,6 +601,7 @@ public class JPAIdentityStore
                     predicates.add(builder.in(root).value(subquery));
                 }
             }
+
 
             criteria.where(predicates.toArray(new Predicate[predicates.size()]));
 
@@ -923,21 +919,13 @@ public class JPAIdentityStore
             IdentityType identityType = prop.getValue(relationship);
 
             if (identityType != null) {
-                Object identityObject = null;
-
-                try {
-                    identityObject = entityManager.find(getConfig().getRelationshipIdentityMapping().getRelationshipMember().getJavaClass(), identityType.getId());
-                } catch (IdentityManagementException ignore) {
-                    // if the identity object does not exists, use only its id.
-                }
-
                 Property<Object> identityTypeProperty = getConfig().getRelationshipIdentityMapping().getRelationshipMember();
 
                 if (identityTypeProperty.getJavaClass().equals(String.class)) {
                     identityTypeProperty.setValue(relationshipIdentity,
                             identityType.getId());
                 } else {
-                    identityTypeProperty.setValue(relationshipIdentity, identityObject);
+                    identityTypeProperty.setValue(relationshipIdentity, getAttributedTypeEntity(identityType, entityManager));
                 }
 
                 getConfig().getRelationshipIdentityMapping().getRelationshipDescriptor().setValue(relationshipIdentity,

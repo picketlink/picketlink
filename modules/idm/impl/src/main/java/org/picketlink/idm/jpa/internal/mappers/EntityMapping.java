@@ -160,6 +160,10 @@ public class EntityMapping {
         return this.supportedType.isAssignableFrom(type);
     }
 
+    public Class<?> getSupportedType() {
+        return this.supportedType;
+    }
+
     public void addMappedProperty(Property mappedProperty) {
         addProperty(new PropertyMapping() {
             @Override

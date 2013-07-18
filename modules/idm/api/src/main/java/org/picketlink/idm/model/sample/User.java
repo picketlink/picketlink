@@ -105,6 +105,7 @@ public class User extends Agent {
         this.dateOfBirth = dateOfBirth;
     }
 
+    @AttributeProperty
     public Object getAddress() {
         return address;
     }

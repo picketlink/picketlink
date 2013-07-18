@@ -291,7 +291,13 @@ public class EntityMapper {
 
     public EntityMapping getMappingsFor(Class<?> attributedType) {
         for (EntityMapping entityMapping : getEntityMappings()) {
-            if (entityMapping.supports(attributedType)) {
+            if (entityMapping.getSupportedType().equals(attributedType)) {
+                return entityMapping;
+            }
+        }
+
+        for (EntityMapping entityMapping : getEntityMappings()) {
+            if (entityMapping.getSupportedType().isAssignableFrom(attributedType)) {
                 return entityMapping;
             }
         }

@@ -24,8 +24,7 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * If this annotation is present on an entity bean used to store ad-hoc attribute values, then this entity will
- * only be used to store attribute values of the types (or subtypes) specified by the annotation's value.
+ * If this annotation is present on an entity bean used to store ad-hoc attribute values.
  *
  * @author Shane Bryzak
  */

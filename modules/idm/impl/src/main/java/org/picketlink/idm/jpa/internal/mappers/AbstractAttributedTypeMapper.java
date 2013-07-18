@@ -17,8 +17,11 @@
  */
 package org.picketlink.idm.jpa.internal.mappers;
 
+import org.picketlink.common.properties.Property;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.model.AttributedType;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * @author pedroigor
@@ -31,6 +34,21 @@ public abstract class AbstractAttributedTypeMapper extends AbstractIdentityManag
 
         entityMapping.addProperty(getNamedProperty("id", AttributedType.class), getAnnotatedProperty(Identifier.class, entityType));
         entityMapping.addOwnerProperty(entityType);
+
+        for (Property mappedProperty : getAnnotatedProperties(AttributeValue.class, entityType)) {
+            AttributeValue attributeValue = mappedProperty.getAnnotatedElement().getAnnotation(AttributeValue.class);
+            String propertyName = mappedProperty.getName();
+
+            if (!isNullOrEmpty(attributeValue.name())) {
+                propertyName = attributeValue.name();
+            }
+
+            Property property = getNamedProperty(propertyName, managedType);
+
+            if (property != null) {
+                entityMapping.addProperty(property, mappedProperty);
+            }
+        }
 
         return entityMapping;
     }
