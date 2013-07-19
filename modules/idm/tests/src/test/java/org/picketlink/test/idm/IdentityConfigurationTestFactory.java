@@ -34,6 +34,8 @@ public class IdentityConfigurationTestFactory {
      */
     public static IdentityConfigurationTester[] getConfigurations() {
         return new IdentityConfigurationTester[] {
+                buildSimpleFileStoreConfig(),
+                buildSimpleJPAStoreConfig(),
                 buildSimpleLDAPStoreConfig()
         };
     }

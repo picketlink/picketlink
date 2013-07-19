@@ -146,7 +146,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         IdentityManager identityManager = getIdentityManager();
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        relationshipManager.addToGroup(someUser, groupA);
+        relationshipManager.addToGroup(someUser, groupB);
 
         assertTrue(relationshipManager.isMember(someUser, groupA));
         assertTrue(relationshipManager.isMember(someUser, groupB));
@@ -163,7 +163,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         
         Group groupC = createGroupWithParent("c", groupB);
 
-        relationshipManager.addToGroup(someUser, groupA);
+        relationshipManager.addToGroup(someUser, groupC);
         
         // group testing path is /a/b/c
         assertTrue(relationshipManager.isMember(someUser, groupA));
@@ -190,25 +190,19 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         relationshipManager.addToGroup(someUser, anotherGroupB);
 
         assertTrue(relationshipManager.isMember(someUser, anotherGroupB));
-        assertFalse(relationshipManager.isMember(someUser, groupA));
-        assertFalse(relationshipManager.isMember(someUser, groupB));
-        assertFalse(relationshipManager.isMember(someUser, groupC));
-        assertFalse(relationshipManager.isMember(someUser, groupD));
-        assertFalse(relationshipManager.isMember(someUser, qaGroup));
-
-        relationshipManager.addToGroup(someUser, groupB);
-        
+        assertTrue(relationshipManager.isMember(someUser, groupA));
         assertTrue(relationshipManager.isMember(someUser, groupB));
-        assertTrue(relationshipManager.isMember(someUser, groupD));
+        assertTrue(relationshipManager.isMember(someUser, groupC));
         assertTrue(relationshipManager.isMember(someUser, qaGroup));
-        assertTrue(relationshipManager.isMember(someUser, anotherGroupB));
+        assertFalse(relationshipManager.isMember(someUser, groupD));
 
         relationshipManager.removeFromGroup(someUser, anotherGroupB);
+        relationshipManager.addToGroup(someUser, groupD);
         
+        assertTrue(relationshipManager.isMember(someUser, groupA));
         assertTrue(relationshipManager.isMember(someUser, groupB));
         assertTrue(relationshipManager.isMember(someUser, groupD));
-        assertTrue(relationshipManager.isMember(someUser, qaGroup));
-        assertTrue(relationshipManager.isMember(someUser, anotherGroupB));
+        assertFalse(relationshipManager.isMember(someUser, anotherGroupB));
     }
 
     @Test

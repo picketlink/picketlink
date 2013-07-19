@@ -75,9 +75,20 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
         RelationshipQuery<GroupMembership> query = createRelationshipQuery(GroupMembership.class);
 
         query.setParameter(GroupMembership.MEMBER, identity);
-        query.setParameter(GroupMembership.GROUP, getGroups(group));
 
-        return !query.getResultList().isEmpty();
+        List<GroupMembership> result = query.getResultList();
+
+        for (GroupMembership membership: result) {
+            if (membership.getGroup().getId().equals(group.getId())) {
+                return true;
+            }
+
+            if (membership.getGroup().getPath().startsWith(group.getPath())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private Group[] getGroups(Group group) {

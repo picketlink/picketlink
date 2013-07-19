@@ -22,7 +22,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -84,12 +83,47 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
     private static SimpleDateFormat dateFormat;
 
-    {
+    static {
         dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
     private LDAPOperationManager operationManager;
+
+    /**
+     * Parses dates/time stamps stored in LDAP. Some possible values:
+     * <p/>
+     * <ul>
+     * <li>20020228150820</li>
+     * <li>20030228150820Z</li>
+     * <li>20050228150820.12</li>
+     * <li>20060711011740.0Z</li>
+     * </ul>
+     *
+     * @param dateText the date string.
+     * @return the Date.
+     */
+    private static Date parseLDAPDate(String dateText) {
+        // If the date ends with a "Z", that means that it's in the UTC time zone. Otherwise,
+        // Use the default time zone.
+        boolean useUTC = false;
+        if (dateText.endsWith("Z")) {
+            useUTC = true;
+        }
+        Date date = new Date();
+        try {
+            if (useUTC) {
+                dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            } else {
+                dateFormat.setTimeZone(TimeZone.getDefault());
+            }
+            date = dateFormat.parse(dateText);
+        } catch (Exception e) {
+            throw new IdentityManagementException("Error converting ldap date.", e);
+        }
+
+        return date;
+    }
 
     @Override
     public void setup(LDAPIdentityStoreConfiguration config) {
@@ -190,7 +224,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 for (LDAPMappingConfiguration relationshipConfig : relationshipConfigs) {
 
                     for (String attributeName : relationshipConfig.getMappedProperties().values()) {
-                        StringBuffer filter = new StringBuffer();
+                        StringBuilder filter = new StringBuilder();
 
                         filter.append("(&(").append(attributeName).append(EQUAL).append("*").append(bindingDN).append("*))");
 
@@ -240,7 +274,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         }
 
         LDAPMappingConfiguration ldapEntryConfig = getMappingConfig(identityQuery.getIdentityType());
-        StringBuffer filter = new StringBuffer();
+        StringBuilder filter = new StringBuilder();
 
         for (Entry<QueryParameter, Object[]> entry : identityQuery.getParameters().entrySet()) {
             QueryParameter queryParameter = entry.getKey();
@@ -288,7 +322,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                 filter.insert(0, "(&(");
 
-                for (String objectClass: ldapEntryConfig.getObjectClasses()) {
+                for (String objectClass : ldapEntryConfig.getObjectClasses()) {
                     filter.append("(objectClass=").append(objectClass).append(")");
                 }
 
@@ -319,7 +353,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
     }
 
     @Override
-    public <V extends IdentityType> int countQueryResults(IdentityContext context, IdentityQuery <V> identityQuery) {
+    public <V extends IdentityType> int countQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
         return 0;  //TODO: Implement countQueryResults
     }
 
@@ -328,8 +362,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         LDAPMappingConfiguration mappingConfig = getMappingConfig(query.getRelationshipClass());
 
         Map<QueryParameter, Object[]> parameters = query.getParameters();
-        StringBuffer filter = new StringBuffer();
-        Map<String, String> namesToMatch = new HashMap<String, String>();
+        StringBuilder filter = new StringBuilder();
 
         List<AttributedType> rootFilter = new ArrayList<AttributedType>();
 
@@ -359,7 +392,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 NamingEnumeration<SearchResult> search = null;
 
                 try {
-                    search = this.operationManager.search(relTypeConfig.getBaseDN(), getBindingName(relFilter));
+                    search = this.operationManager.search(getConfig().getBaseDN(), getBindingName(relFilter));
 
                     List<Property<AttributedType>> properties = PropertyQueries
                             .<AttributedType>createQuery(query.getRelationshipClass())
@@ -389,7 +422,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                                                     AttributedType relType = (AttributedType) value;
 
                                                     if (!attribute.contains(getBindingDN(relType))) {
-                                                        return results;
+                                                        break;
                                                     }
 
                                                     V relationship = query.getRelationshipClass().newInstance();
@@ -440,7 +473,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 NamingEnumeration<SearchResult> search = null;
 
                 try {
-                    search = this.operationManager.search(relTypeConfig.getBaseDN(), filter.toString());
+                    search = this.operationManager.search(getConfig().getBaseDN(), filter.toString());
 
                     Property<AttributedType> property = PropertyQueries
                             .<AttributedType>createQuery(query.getRelationshipClass())
@@ -471,13 +504,23 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                                         throw new IdentityManagementException("Associated entry does not exists [" + value + "].");
                                     }
 
-                                    V relationship = query.getRelationshipClass().newInstance();
 
-                                    property.setValue(relationship, populateAttributedType(next, null));
+                                    AttributedType ownerRelType = populateAttributedType(next, null);
 
-                                    associatedProperty.setValue(relationship, populateAttributedType(result.next(), null));
+                                    if (property.getJavaClass().isAssignableFrom(ownerRelType.getClass())) {
+                                        V relationship = query.getRelationshipClass().newInstance();
 
-                                    results.add(relationship);
+                                        property.setValue(relationship, ownerRelType);
+
+                                        SearchResult member = result.next();
+
+                                        AttributedType relType = populateAttributedType(member, null);
+
+                                        if (associatedProperty.getJavaClass().isAssignableFrom(relType.getClass())) {
+                                            associatedProperty.setValue(relationship, relType);
+                                            results.add(relationship);
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -557,7 +600,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                     NamingEnumeration<SearchResult> search = null;
 
                     try {
-                        search = lookupEntryByID(parentType.getId(), getBaseDN(attributedType));
+                        search = lookupEntryByID(parentType.getId(), getBaseDN(parentType));
 
                         if (search.hasMore()) {
                             SearchResult next = search.next();
@@ -683,7 +726,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
             }
 
             if (mappingConfig.getParentMembershipAttributeName() != null) {
-                StringBuffer filter = new StringBuffer("(|");
+                StringBuilder filter = new StringBuilder("(|");
 
                 filter.append("(").append(mappingConfig.getParentMembershipAttributeName()).append(EQUAL).append("*").append(getBindingName(attributedType)).append(COMMA).append(entryDN).append("*)");
 
@@ -699,14 +742,17 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                             .addCriteria(new TypedPropertyCriteria(attributedType.getClass())).getFirstResult();
 
                     if (parentProperty != null) {
-                        parentProperty.setValue(attributedType, populateAttributedType(next, null));
+                        String baseDN = next.getNameInNamespace().substring(next.getNameInNamespace().indexOf(",") + 1);
+                        Class<? extends AttributedType> baseDNType = getConfig().getSupportedTypeByBaseDN(baseDN);
+
+                        if (parentProperty.getJavaClass().isAssignableFrom(baseDNType)) {
+                            parentProperty.setValue(attributedType, populateAttributedType(next, null));
+                        }
                     }
                 }
             }
-        } catch (NamingException e) {
-            throw new IdentityManagementException(e);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new IdentityManagementException("Could not populate attribute type.", e);
         }
 
         return attributedType;
@@ -810,42 +856,5 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         }
 
         return baseDN;
-    }
-
-    /**
-     * Parses dates/time stamps stored in LDAP. Some possible values:
-     *
-     * <ul>
-     *      <li>20020228150820</li>
-     *      <li>20030228150820Z</li>
-     *      <li>20050228150820.12</li>
-     *      <li>20060711011740.0Z</li>
-     * </ul>
-     *
-     * @param dateText the date string.
-     * @return the Date.
-     */
-    private static Date parseLDAPDate(String dateText) {
-        // If the date ends with a "Z", that means that it's in the UTC time zone. Otherwise,
-        // Use the default time zone.
-        boolean useUTC = false;
-        if (dateText.endsWith("Z")) {
-            useUTC = true;
-        }
-        Date date = new Date();
-        try {
-            if (useUTC) {
-                dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            }
-            else {
-                dateFormat.setTimeZone(TimeZone.getDefault());
-            }
-            date = dateFormat.parse(dateText);
-        }
-        catch (Exception e) {
-            throw new IdentityManagementException("Error converting ldap date.", e);
-        }
-
-        return date;
     }
 }
