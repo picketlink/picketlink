@@ -18,6 +18,7 @@
 package org.picketlink.idm.jpa.internal.mappers;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.List;
 import org.picketlink.common.properties.Property;
@@ -35,6 +36,10 @@ public abstract class AbstractModelMapper implements ModelMapper {
     public List<EntityMapping> createMapping(Class<?> entityType) {
         if (!supports(entityType)) {
             return Collections.emptyList();
+        }
+
+        if (Modifier.isAbstract(entityType.getModifiers())) {
+            throw new IdentityManagementException("Mapped entity [" + entityType + "] is marked as abstract.");
         }
 
         try {

@@ -22,11 +22,14 @@ import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.model.AbstractAttributedType;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.IgnoreTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
@@ -67,10 +70,6 @@ public class CustomRelationshipTestCase extends AbstractPartitionManagerTestCase
 
         relationship.setIdentityTypeC(group);
 
-        relationship.setAttributeA("A");
-        relationship.setAttributeB("B");
-        relationship.setAttributeC("C");
-
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
         relationshipManager.add(relationship);
@@ -84,9 +83,6 @@ public class CustomRelationshipTestCase extends AbstractPartitionManagerTestCase
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
         assertEquals(relationship.getId(), result.get(0).getId());
-        assertEquals(relationship.getAttributeA(), result.get(0).getAttributeA());
-        assertEquals(relationship.getAttributeB(), result.get(0).getAttributeB());
-        assertEquals(relationship.getAttributeC(), result.get(0).getAttributeC());
 
         query = relationshipManager.createRelationshipQuery(CustomRelationship.class);
 
@@ -119,6 +115,64 @@ public class CustomRelationshipTestCase extends AbstractPartitionManagerTestCase
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
         assertEquals(relationship.getId(), result.get(0).getId());
+    }
+
+    public static class CustomRelationship extends AbstractAttributedType implements Relationship {
+
+        private static final long serialVersionUID = 1030652086550754965L;
+
+        public static final RelationshipQueryParameter IDENTITY_TYPE_A = new RelationshipQueryParameter() {
+
+            @Override
+            public String getName() {
+                return "identityTypeA";
+            }
+        };
+
+        public static final RelationshipQueryParameter IDENTITY_TYPE_B = new RelationshipQueryParameter() {
+
+            @Override
+            public String getName() {
+                return "identityTypeB";
+            }
+        };
+
+        public static final RelationshipQueryParameter IDENTITY_TYPE_C = new RelationshipQueryParameter() {
+
+            @Override
+            public String getName() {
+                return "identityTypeC";
+            }
+        };
+
+        private IdentityType identityTypeA;
+        private IdentityType identityTypeB;
+        private IdentityType identityTypeC;
+
+        public IdentityType getIdentityTypeA() {
+            return this.identityTypeA;
+        }
+
+        public void setIdentityTypeA(IdentityType identityTypeA) {
+            this.identityTypeA = identityTypeA;
+        }
+
+        public IdentityType getIdentityTypeB() {
+            return this.identityTypeB;
+        }
+
+        public void setIdentityTypeB(IdentityType identityTypeB) {
+            this.identityTypeB = identityTypeB;
+        }
+
+        public IdentityType getIdentityTypeC() {
+            return this.identityTypeC;
+        }
+
+        public void setIdentityTypeC(IdentityType identityTypeC) {
+            this.identityTypeC = identityTypeC;
+        }
+
     }
 
 }

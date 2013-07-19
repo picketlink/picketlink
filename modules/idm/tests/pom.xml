@@ -52,7 +52,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.picketlink</groupId>
-			<artifactId>picketlink-idm-schema</artifactId>
+			<artifactId>picketlink-idm-simple-schema</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

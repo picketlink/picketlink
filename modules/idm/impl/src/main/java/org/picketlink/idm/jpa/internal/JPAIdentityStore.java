@@ -350,7 +350,7 @@ public class JPAIdentityStore
                 if (parameterEntityMapper != null) {
                     boolean addedJoin = false;
 
-                    Root<?> propertyEntityJoin = from;
+                    Root<?> propertyEntityJoin = null;
 
                     for (EntityMapping entityMapping : parameterEntityMapper.getEntityMappings()) {
                         if (addedJoin) {
@@ -369,6 +369,10 @@ public class JPAIdentityStore
                                 break;
                             }
                         }
+                    }
+
+                    if (propertyEntityJoin == null) {
+                        propertyEntityJoin = from;
                     }
 
                     Object parameterValue = parameterValues[0];
@@ -671,11 +675,22 @@ public class JPAIdentityStore
         EntityMapper rootEntityMapper = null;
 
         for (EntityMapper entityMapper : this.entityMappers) {
-            if (entityMapper.supports(attributedType)) {
-                if (entityMapper.isRoot()) {
-                    rootEntityMapper = entityMapper;
+            for (EntityMapping entityMapping : entityMapper.getEntityMappings()) {
+                if (entityMapping.getSupportedType().equals(attributedType)) {
+                    if (entityMapper.isRoot()) {
+                        rootEntityMapper = entityMapper;
+                        mappers.add(entityMapper);
+                    }
                 }
-                mappers.add(entityMapper);
+            }
+
+            if (rootEntityMapper == null) {
+                for (EntityMapping entityMapping : entityMapper.getEntityMappings()) {
+                    if (entityMapping.getSupportedType().isAssignableFrom(attributedType)) {
+                        rootEntityMapper = entityMapper;
+                        mappers.add(entityMapper);
+                    }
+                }
             }
         }
 
@@ -749,15 +764,16 @@ public class JPAIdentityStore
 
             Object identityTypeEntity = null;
             IdentityType identityType = null;
-            EntityMapper entityMapper = getRootMapper(IdentityType.class);
 
             if (identityProperty.getJavaClass().equals(String.class)) {
                 identityTypeEntity = entityManager.find(identityProperty.getJavaClass(), identityProperty.getValue(object).toString());
-                identityType = entityMapper.createType(identityTypeEntity, entityManager);
             } else {
                 identityTypeEntity = identityProperty.getValue(object);
-                identityType = entityMapper.createType(identityTypeEntity, entityManager);
             }
+
+            EntityMapper entityMapper = getRootMapperForEntity(identityTypeEntity.getClass());
+
+            identityType = entityMapper.createType(identityTypeEntity, entityManager);
 
             identityTypeProperty.get(0).setValue(relationshipType, identityType);
         }
@@ -805,6 +821,16 @@ public class JPAIdentityStore
 
     private EntityMapper getRootMapper(Class<? extends AttributedType> aClass) {
         return getMapperFor(aClass).get(0);
+    }
+
+    private EntityMapper getRootMapperForEntity(Class<?> entityClass) {
+        for (EntityMapper entityMapper : this.entityMappers) {
+            if (entityMapper.isRoot() && entityMapper.getEntityType().equals(entityClass)) {
+                return entityMapper;
+            }
+        }
+
+        throw new IdentityManagementException("No mapper for entity type [" + entityClass + "].");
     }
 
     public List<EntityMapper> getEntityMappers() {
@@ -945,7 +971,7 @@ public class JPAIdentityStore
     public void populateAttributedType(AttributedType attributedType, Object rootEntity, EntityManager entityManager) {
         for (EntityMapper finalMapper : getMapperFor(attributedType.getClass())) {
             if (!finalMapper.isRoot()) {
-                StringBuffer hql = new StringBuffer();
+                StringBuilder hql = new StringBuilder();
 
                 hql.append("from " + finalMapper.getEntityType().getName()).append(" where ");
 

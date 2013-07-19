@@ -104,7 +104,13 @@
 
       <dependency>
           <groupId>org.picketlink</groupId>
-          <artifactId>picketlink-idm-schema</artifactId>
+          <artifactId>picketlink-idm-simple-schema</artifactId>
+          <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+          <groupId>org.picketlink</groupId>
+          <artifactId>picketlink-idm-complex-schema</artifactId>
           <version>${project.version}</version>
       </dependency>
 

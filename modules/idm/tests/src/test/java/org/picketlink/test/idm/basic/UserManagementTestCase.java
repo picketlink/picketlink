@@ -36,7 +36,6 @@ import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.IgnoreTester;
-import org.picketlink.test.idm.model.complex.entity.UserAddress;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import static org.junit.Assert.assertEquals;
@@ -209,46 +208,6 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         assertEquals(certificate, mary.<X509Certificate>getAttribute("certificate").getValue());
     }
 
-    @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
-    public void testAddressAttribute() throws Exception {
-        User newUser = createUser("jduke");
-
-        assertNotNull(newUser.getId());
-
-        newUser.setEmail("jduke@jboss.org");
-        newUser.setFirstName("Java");
-        newUser.setLastName("Duke");
-
-        UserAddress address = new UserAddress();
-
-        address.setStreetName("Name");
-        address.setStreetNumber("Number");
-
-        newUser.setAddress(address);
-
-        IdentityManager identityManager = getIdentityManager();
-
-        identityManager.update(newUser);
-
-        User storedUser = identityManager.getUser(newUser.getLoginName());
-
-        assertNotNull(storedUser);
-        assertNotNull(storedUser.getAddress());
-        assertNotNull(((UserAddress) storedUser.getAddress()).getStreetNumber());
-        assertEquals(newUser.getId(), storedUser.getId());
-        assertEquals(newUser.getLoginName(), storedUser.getLoginName());
-        assertEquals(newUser.getFirstName(), storedUser.getFirstName());
-        assertEquals(newUser.getLastName(), storedUser.getLastName());
-        assertEquals(newUser.getEmail(), storedUser.getEmail());
-        assertNotNull(storedUser.getPartition());
-        assertEquals(Realm.DEFAULT_REALM, storedUser.getPartition().getName());
-        assertTrue(storedUser.isEnabled());
-        assertNull(storedUser.getExpirationDate());
-        assertNotNull(storedUser.getCreatedDate());
-        assertTrue(new Date().compareTo(storedUser.getCreatedDate()) >= 0);
-    }
-    
     @Override
     protected User createIdentityType() {
         return createUser("admin");

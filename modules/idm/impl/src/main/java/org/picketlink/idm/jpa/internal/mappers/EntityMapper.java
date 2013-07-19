@@ -35,7 +35,6 @@ import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import static java.util.Map.Entry;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * <p>This class holds all the mapping configuration for a specific JPA Entity and their corresponding IDM model classes.
@@ -217,41 +216,50 @@ public class EntityMapper {
     public <P extends AttributedType> P createType(Object entityInstance, EntityManager entityManager) {
         P attributedType = null;
 
-        try {
-            attributedType =
-                    (P) Class.forName(getTypeProperty().getValue(entityInstance).toString()).newInstance();
-        } catch (Exception e) {
-            throw MESSAGES.instantiationError(this.entityType.getName(), e);
-        }
+        if (entityInstance != null) {
+            try {
+                attributedType =
+                        (P) Class.forName(getTypeProperty().getValue(entityInstance).toString()).newInstance();
 
-        EntityMapping entityMapping = getMappingsFor(attributedType.getClass());
+                EntityMapping entityMapping = getMappingsFor(attributedType.getClass());
 
-        for (Property property : entityMapping.getProperties().keySet()) {
-            Property mappedProperty = entityMapping.getProperties().get(property);
+                for (Property property : entityMapping.getProperties().keySet()) {
+                    Property mappedProperty = entityMapping.getProperties().get(property);
 
-            if (mappedProperty.getAnnotatedElement().isAnnotationPresent(OwnerReference.class)) {
-                Object ownerType = mappedProperty.getValue(entityInstance);
+                    if (mappedProperty.getAnnotatedElement().isAnnotationPresent(OwnerReference.class)) {
+                        Object ownerType = mappedProperty.getValue(entityInstance);
 
-                if (ownerType == null) {
-                    throw new IdentityManagementException("Owner does not exists or was not provided.");
-                }
+                        if (ownerType == null) {
+                            throw new IdentityManagementException("Owner does not exists or was not provided.");
+                        }
 
-                AttributedType ownerAttributedType = null;
+                        AttributedType ownerAttributedType = null;
 
-                for (EntityMapper entityMapper : getEntityMappers()) {
-                    if (mappedProperty.getJavaClass().equals(entityMapper.getEntityType())) {
-                        ownerAttributedType = entityMapper.createType(ownerType, entityManager);
+                        for (EntityMapper entityMapper : getEntityMappers()) {
+                            if (mappedProperty.getJavaClass().equals(entityMapper.getEntityType())) {
+                                ownerAttributedType = entityMapper.createType(ownerType, entityManager);
+                            }
+                        }
+
+                        property.setValue(attributedType, ownerAttributedType);
+                    } else {
+                        // if the property maps to a mapped type is because we have a many-to-one relationship
+                        // this is the case when a type has a hierarchy
+                        if (this.store.isMappedType(mappedProperty.getJavaClass())) {
+                            property.setValue(attributedType, createType(mappedProperty.getValue(entityInstance), entityManager));
+                        } else {
+                            property.setValue(attributedType, mappedProperty.getValue(entityInstance));
+                        }
                     }
                 }
 
-                property.setValue(attributedType, ownerAttributedType);
-            } else {
-                property.setValue(attributedType, mappedProperty.getValue(entityInstance));
+                this.store.populateAttributedType(attributedType, entityInstance, entityManager);
+                this.store.populateAllAttributes(attributedType, entityManager);
+
+            } catch (Exception e) {
+                throw new IdentityManagementException("Could not create [" + attributedType + " from entity [" + entityInstance + "].", e);
             }
         }
-
-        this.store.populateAttributedType(attributedType, entityInstance, entityManager);
-        this.store.populateAllAttributes(attributedType, entityManager);
 
         return attributedType;
     }

@@ -23,20 +23,17 @@ import javax.persistence.Persistence;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
+import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.AttributedTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.CredentialAttributeTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.GroupTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.RelationshipIdentityTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
 import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.test.idm.model.complex.entity.AccountLogin;
-import org.picketlink.test.idm.model.complex.entity.AuthorizationRelationshipEntity;
-import org.picketlink.test.idm.model.complex.entity.CredentialAttribute;
-import org.picketlink.test.idm.model.complex.entity.CustomIdentityTypeObject;
-import org.picketlink.test.idm.model.complex.entity.GroupAttribute;
-import org.picketlink.test.idm.model.complex.entity.IdentityAttribute;
-import org.picketlink.test.idm.model.complex.entity.IdentityObject;
-import org.picketlink.test.idm.model.complex.entity.IdentityPartition;
-import org.picketlink.test.idm.model.complex.entity.Relationship;
-import org.picketlink.test.idm.model.complex.entity.RelationshipIdentityObject;
-import org.picketlink.test.idm.model.complex.entity.RoleAttribute;
-import org.picketlink.test.idm.model.complex.entity.UserAddress;
-import org.picketlink.test.idm.model.complex.entity.UserAttribute;
 
 /**
  * @author pedroigor
@@ -57,19 +54,17 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
                 .stores()
                     .jpa()
                         .mappedEntity(
-                                IdentityObject.class,
-                                UserAttribute.class,
-                                AccountLogin.class,
-                                RoleAttribute.class,
-                                GroupAttribute.class,
-                                IdentityAttribute.class,
-                                CredentialAttribute.class,
-                                IdentityPartition.class,
-                                UserAddress.class,
-                                Relationship.class,
-                                AuthorizationRelationshipEntity.class,
-                                RelationshipIdentityObject.class,
-                                CustomIdentityTypeObject.class)
+                                AttributedTypeEntity.class,
+                                AccountTypeEntity.class,
+                                RoleTypeEntity.class,
+                                GroupTypeEntity.class,
+                                IdentityTypeEntity.class,
+                                RelationshipTypeEntity.class,
+                                RelationshipIdentityTypeEntity.class,
+                                PartitionTypeEntity.class,
+                                CredentialAttributeTypeEntity.class,
+                                AttributeTypeEntity.class
+                        )
                         .supportGlobalRelationship(org.picketlink.idm.model.Relationship.class)
                         .addContextInitializer(new JPAContextInitializer(null) {
                             @Override
