@@ -25,6 +25,7 @@ import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.test.idm.other.shane.model.scenario1.Role;
 import org.picketlink.test.idm.other.shane.model.scenario1.User;
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.City;
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.Country;
@@ -33,6 +34,7 @@ import org.picketlink.test.idm.other.shane.model.scenario1.entity.IdentityObject
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.IdentityTextAttribute;
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.PartitionAttribute;
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.PasswordHash;
+import org.picketlink.test.idm.other.shane.model.scenario1.entity.RoleDetail;
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.State;
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.StreetType;
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.UserAddress;
@@ -357,6 +359,23 @@ public class ShanesBigSanityCheckTestSuite {
         creds = new UsernamePasswordCredentials("jsmith", newPwd);
         identityManager.validateCredentials(creds);
         assert Credentials.Status.INVALID.equals(creds.getStatus());
+
+        // Create a new role and add it
+        Role role = new Role("employee");
+        identityManager.add(role);
+
+        // Lookup the role
+        role = identityManager.lookupIdentityById(Role.class, role.getId());
+
+        // Confirm the role name was correctly set
+        assert "employee".equals(role.getName());
+
+        // Confirm that a RoleDetail entity was created
+        assert !em.createQuery(
+                "select r from RoleDetail r where r.identity.id = :id",
+                RoleDetail.class)
+            .setParameter("id", r.getId())
+            .getResultList().isEmpty();
 
         em.getTransaction().commit();
     }

@@ -24,7 +24,7 @@ import javax.persistence.OneToOne;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
-import org.picketlink.test.idm.model.complex.Role;
+import org.picketlink.test.idm.other.shane.model.scenario1.Role;
 
 /**
  * Contains role-specific attribute values
