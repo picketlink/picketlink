@@ -49,7 +49,7 @@ public class ShanesBigSanityCheckTestSuite {
      */
     @Test
     public void testScenario1() {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("shanes-test-suite-pu");
         final EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
 
