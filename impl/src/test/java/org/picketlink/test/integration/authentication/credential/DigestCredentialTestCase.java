@@ -22,6 +22,7 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.internal.DigestUtil;
+import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.test.integration.ArchiveUtils;
 import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
@@ -55,8 +56,8 @@ public class DigestCredentialTestCase extends AbstractAuthenticationTestCase {
         super.identity.login();
 
         assertTrue(super.identity.isLoggedIn());
-        assertNotNull(super.identity.getAgent());
-        assertEquals(USER_NAME, super.identity.getAgent().getLoginName());
+        assertNotNull(super.identity.getAccount());
+        assertEquals(USER_NAME, ((Agent) super.identity.getAccount()).getLoginName());
     }
 
     @Test
@@ -91,7 +92,7 @@ public class DigestCredentialTestCase extends AbstractAuthenticationTestCase {
         super.identity.login();
 
         assertFalse(super.identity.isLoggedIn());
-        assertNull(super.identity.getAgent());
+        assertNull(super.identity.getAccount());
     }
 
     private void updateDigestCredential() {

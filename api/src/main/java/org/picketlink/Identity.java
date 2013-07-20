@@ -17,10 +17,10 @@
  */
 package org.picketlink;
 
-import org.picketlink.authentication.AuthenticationException;
-import org.picketlink.idm.model.sample.Agent;
-
 import java.io.Serializable;
+
+import org.picketlink.authentication.AuthenticationException;
+import org.picketlink.idm.model.Account;
 
 /**
  * Represents the identity of the current user, and provides an API for authentication and authorization. 
@@ -42,7 +42,7 @@ public interface Identity extends Serializable
      */
     boolean isLoggedIn();
 
-    Agent getAgent();
+    Account getAccount();
 
     /**
      * Attempts to authenticate the user.  This method raises the following events in response 

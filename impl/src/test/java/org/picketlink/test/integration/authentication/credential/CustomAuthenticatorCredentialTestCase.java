@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.BaseAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
+import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.ArchiveUtils;
 import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
@@ -65,8 +66,8 @@ public class CustomAuthenticatorCredentialTestCase extends AbstractAuthenticatio
         super.identity.login();
 
         assertTrue(super.identity.isLoggedIn());
-        assertNotNull(super.identity.getAgent());
-        assertEquals(USER_NAME, super.identity.getAgent().getLoginName());
+        assertNotNull(super.identity.getAccount());
+        assertEquals(USER_NAME, ((Agent) super.identity.getAccount()).getLoginName());
     }
 
     @Test
@@ -75,7 +76,7 @@ public class CustomAuthenticatorCredentialTestCase extends AbstractAuthenticatio
         super.identity.login();
 
         assertFalse(super.identity.isLoggedIn());
-        assertNull(super.identity.getAgent());
+        assertNull(super.identity.getAccount());
     }
 
     @RequestScoped
