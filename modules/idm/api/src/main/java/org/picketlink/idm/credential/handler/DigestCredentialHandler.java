@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.credential.internal;
+package org.picketlink.idm.credential.handler;
 
 import java.util.Date;
 import java.util.List;
@@ -25,17 +25,19 @@ import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
-import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
+import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
+import org.picketlink.idm.credential.storage.DigestCredentialStorage;
+import org.picketlink.idm.credential.util.DigestUtil;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.credential.internal.CredentialUtils.isCurrentCredential;
-import static org.picketlink.idm.credential.internal.CredentialUtils.isLastCredentialExpired;
-import static org.picketlink.idm.credential.internal.DigestUtil.calculateA2;
-import static org.picketlink.idm.credential.internal.DigestUtil.calculateDigest;
+import static org.picketlink.idm.credential.util.CredentialUtils.isCurrentCredential;
+import static org.picketlink.idm.credential.util.CredentialUtils.isLastCredentialExpired;
+import static org.picketlink.idm.credential.util.DigestUtil.calculateA2;
+import static org.picketlink.idm.credential.util.DigestUtil.calculateDigest;
 
 /**
  * <p>

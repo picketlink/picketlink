@@ -31,22 +31,22 @@ import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.TOTPCredential;
 import org.picketlink.idm.credential.TOTPCredentials;
-import org.picketlink.idm.credential.totp.TimeBasedOTP;
+import org.picketlink.idm.credential.util.TimeBasedOTP;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.User;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.picketlink.idm.credential.internal.TOTPCredentialHandler.DELAY_WINDOW;
-import static org.picketlink.idm.credential.internal.TOTPCredentialHandler.INTERVAL_SECONDS;
-import static org.picketlink.idm.credential.internal.TOTPCredentialHandler.NUMBER_DIGITS;
-import static org.picketlink.idm.credential.totp.TimeBasedOTP.DEFAULT_ALGORITHM;
-import static org.picketlink.idm.credential.totp.TimeBasedOTP.DEFAULT_DELAY_WINDOW;
-import static org.picketlink.idm.credential.totp.TimeBasedOTP.DEFAULT_INTERVAL_SECONDS;
-import static org.picketlink.idm.credential.totp.TimeBasedOTP.DEFAULT_NUMBER_DIGITS;
+import static org.picketlink.idm.credential.handler.TOTPCredentialHandler.DELAY_WINDOW;
+import static org.picketlink.idm.credential.handler.TOTPCredentialHandler.INTERVAL_SECONDS;
+import static org.picketlink.idm.credential.handler.TOTPCredentialHandler.NUMBER_DIGITS;
+import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_ALGORITHM;
+import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_DELAY_WINDOW;
+import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_INTERVAL_SECONDS;
+import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_NUMBER_DIGITS;
 
 /**
- * <p>Some tests for the configuration of the encoding when using the {@link org.picketlink.idm.credential.internal.PasswordCredentialHandler}.</p>
+ * <p>Some tests for the configuration of the encoding when using the {@link org.picketlink.idm.credential.handler.PasswordCredentialHandler}.</p>
  *
  * @author Pedro Silva
  */

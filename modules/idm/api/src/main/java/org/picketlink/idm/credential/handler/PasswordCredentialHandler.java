@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.credential.internal;
+package org.picketlink.idm.credential.handler;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -27,15 +27,16 @@ import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
-import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
+import org.picketlink.idm.credential.encoder.PasswordEncoder;
+import org.picketlink.idm.credential.encoder.SHAPasswordEncoder;
+import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
+import org.picketlink.idm.credential.storage.EncodedPasswordStorage;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.Agent;
-import org.picketlink.idm.password.PasswordEncoder;
-import org.picketlink.idm.password.internal.EncodedPasswordStorage;
-import org.picketlink.idm.password.internal.SHAPasswordEncoder;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
-import static org.picketlink.idm.credential.internal.CredentialUtils.isCredentialExpired;
+
+import static org.picketlink.idm.credential.util.CredentialUtils.isCredentialExpired;
 
 /**
  * <p>

@@ -25,13 +25,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import org.picketlink.idm.credential.storage.EncodedPasswordStorage;
 import org.picketlink.idm.jpa.annotations.CredentialClass;
 import org.picketlink.idm.jpa.annotations.CredentialValue;
 import org.picketlink.idm.jpa.annotations.EffectiveDate;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
-import org.picketlink.idm.password.internal.EncodedPasswordStorage;
 
 /**
  * Stores credential information

@@ -16,27 +16,32 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.credential.spi.annotations;
-
-import org.picketlink.idm.credential.spi.CredentialHandler;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+package org.picketlink.idm.credential.encoder;
 
 /**
- * This annotation is used to declare which CredentialHandlers are supported by an IdentityStore implementation.
+ * <p>
+ * Represents different forms to encode passwords.
+ * </p>
  *
- * @author Shane Bryzak
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
+ *
  */
-@Target({TYPE})
-@Documented
-@Retention(RUNTIME)
-@Inherited
-public @interface CredentialHandlers {
-    Class<? extends CredentialHandler>[] value();
+public interface PasswordEncoder {
+
+    /**
+     * <p>Encodes given password.</p>
+     *
+     * @param rawPassword
+     * @return
+     */
+    String encode(String rawPassword);
+
+    /**
+     * <p>Checks if the <code>rawPassword</code> and <code>encodedPassword</code> matches.</p>
+     *
+     * @param rawPassword
+     * @param encodedPassword
+     * @return
+     */
+    boolean verify(String rawPassword, String encodedPassword);
 }

@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.credential.spi.CredentialStorage;
+import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
@@ -32,6 +32,11 @@ import org.picketlink.idm.query.IdentityQuery;
  * @author Shane Bryzak
  */
 public interface IdentityManager {
+
+    /**
+     * The active IdentityManager instance may be stored in the IdentityContext under this parameter name
+     */
+    String IDENTITY_MANAGER_CTX_PARAMETER = "IDENTITY_MANAGER_CTX_PARAMETER";
 
     // Identity CRUD methods
 

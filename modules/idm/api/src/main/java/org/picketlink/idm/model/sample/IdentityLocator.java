@@ -33,8 +33,6 @@ import org.picketlink.idm.query.IdentityQuery;
  */
 public class IdentityLocator {
 
-    // Agent
-
     /**
      * <p>
      * Returns an {@link Agent} with the given <code>loginName</code>. {@link User} are also agents, so if the
@@ -59,8 +57,6 @@ public class IdentityLocator {
             throw new IdentityManagementException("Error - multiple Agent objects found with same login name");
         }
     }
-
-    // User
 
     /**
      * <p>
@@ -87,8 +83,6 @@ public class IdentityLocator {
         }
     }
 
-    // Roles
-
     /**
      * <p>
      * Returns an {@link Role} with the given <code>name</code>.
@@ -111,8 +105,6 @@ public class IdentityLocator {
             throw new IdentityManagementException("Error - multiple Role objects found with same name");
         }
     }
-
-    // Group
 
     /**
      * <p>

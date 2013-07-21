@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.credential.spi;
+package org.picketlink.idm.credential.handler;
 
 import java.util.Date;
 

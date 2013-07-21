@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.credential.spi.annotations;
+package org.picketlink.idm.credential.handler.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;

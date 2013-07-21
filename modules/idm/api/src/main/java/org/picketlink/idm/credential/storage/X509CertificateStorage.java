@@ -16,12 +16,11 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.credential.internal;
+package org.picketlink.idm.credential.storage;
 
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.credential.spi.CredentialStorage;
-import org.picketlink.idm.credential.spi.annotations.Stored;
+import org.picketlink.idm.credential.storage.annotations.Stored;
 
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;

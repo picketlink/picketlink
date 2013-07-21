@@ -21,7 +21,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.picketlink.idm.credential.Digest;
-import org.picketlink.idm.credential.internal.DigestUtil;
+import org.picketlink.idm.credential.util.DigestUtil;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.test.integration.ArchiveUtils;

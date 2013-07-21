@@ -32,7 +32,7 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.credential.spi.CredentialStorage;
+import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.AttributedType;
@@ -59,7 +59,6 @@ import org.picketlink.idm.spi.StoreSelector;
  */
 public class ContextualIdentityManager extends AbstractIdentityContext implements IdentityManager {
 
-    public static final String IDENTITY_MANAGER_CTX_PARAMETER = "IDENTITY_MANAGER_CTX_PARAMETER";
     private final StoreSelector storeSelector;
 
     public ContextualIdentityManager(Partition partition, EventBridge eventBridge, IdGenerator idGenerator,

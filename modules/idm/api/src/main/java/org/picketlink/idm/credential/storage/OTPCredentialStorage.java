@@ -15,11 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.idm.credential.internal;
+package org.picketlink.idm.credential.storage;
 
 import java.util.Date;
-import org.picketlink.idm.credential.spi.CredentialStorage;
-import org.picketlink.idm.credential.spi.annotations.Stored;
+
+import org.picketlink.idm.credential.storage.annotations.Stored;
 
 /**
  * @author pedroigor

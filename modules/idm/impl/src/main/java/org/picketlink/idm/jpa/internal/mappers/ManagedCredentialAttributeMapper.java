@@ -17,7 +17,7 @@
  */
 package org.picketlink.idm.jpa.internal.mappers;
 
-import org.picketlink.idm.credential.spi.CredentialStorage;
+import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.EffectiveDate;

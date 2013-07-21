@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.credential.internal;
+package org.picketlink.idm.credential.handler;
 
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
@@ -26,7 +26,8 @@ import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.X509CertificateCredentials;
-import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
+import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
+import org.picketlink.idm.credential.storage.X509CertificateStorage;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.spi.CredentialStore;

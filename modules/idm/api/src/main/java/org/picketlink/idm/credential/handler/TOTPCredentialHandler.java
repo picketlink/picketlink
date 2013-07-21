@@ -16,23 +16,25 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.credential.internal;
+package org.picketlink.idm.credential.handler;
 
 import java.util.Date;
 import java.util.List;
 import org.picketlink.idm.credential.TOTPCredential;
 import org.picketlink.idm.credential.TOTPCredentials;
-import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
-import org.picketlink.idm.credential.totp.TimeBasedOTP;
+import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
+import org.picketlink.idm.credential.storage.OTPCredentialStorage;
+import org.picketlink.idm.credential.util.CredentialUtils;
+import org.picketlink.idm.credential.util.TimeBasedOTP;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.credential.Credentials.Status;
-import static org.picketlink.idm.credential.totp.TimeBasedOTP.DEFAULT_ALGORITHM;
-import static org.picketlink.idm.credential.totp.TimeBasedOTP.DEFAULT_DELAY_WINDOW;
-import static org.picketlink.idm.credential.totp.TimeBasedOTP.DEFAULT_INTERVAL_SECONDS;
-import static org.picketlink.idm.credential.totp.TimeBasedOTP.DEFAULT_NUMBER_DIGITS;
+import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_ALGORITHM;
+import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_DELAY_WINDOW;
+import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_INTERVAL_SECONDS;
+import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_NUMBER_DIGITS;
 
 /**
  * <p>

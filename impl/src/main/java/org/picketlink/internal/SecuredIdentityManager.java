@@ -24,7 +24,7 @@ import javax.enterprise.inject.Typed;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.credential.spi.CredentialStorage;
+import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.sample.Agent;
