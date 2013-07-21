@@ -22,6 +22,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.AbstractBaseCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import static org.picketlink.idm.internal.ContextualIdentityManager.IDENTITY_MANAGER_CTX_PARAMETER;
@@ -39,10 +40,10 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>,V ext
             throw new IdentityManagementException("IdentityManager not set into context.");
         }
 
-        Agent agent = identityManager.getAgent(loginName);
+        Agent agent = IdentityLocator.getAgent(identityManager, loginName);
 
         if (agent == null) {
-            agent = identityManager.getUser(loginName);
+            agent = IdentityLocator.getUser(identityManager, loginName);
         }
 
         return agent;
