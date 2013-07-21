@@ -34,7 +34,7 @@ public class FilePartition extends AbstractFileAttributedType<Partition> {
     private static final String VERSION = "1";
 
     private transient String configurationName;
-    private transient Map<String, AbstractFileAttributedType<?>> attributedTypes = new ConcurrentHashMap<String, AbstractFileAttributedType<?>>();
+    private transient Map<String, FileIdentityType> identityTypes = new ConcurrentHashMap<String, FileIdentityType>();
     private transient Map<String, Map<String, List<FileCredentialStorage>>> credentials = new ConcurrentHashMap<String, Map<String, List<FileCredentialStorage>>>();
 
     protected FilePartition(Partition object, String configurationName) {
@@ -82,12 +82,12 @@ public class FilePartition extends AbstractFileAttributedType<Partition> {
         return this.configurationName;
     }
 
-    public Map<String, AbstractFileAttributedType<?>> getAttributedTypes() {
-        return this.attributedTypes;
+    public Map<String, FileIdentityType> getIdentityTypes() {
+        return this.identityTypes;
     }
 
-    public void setAttributedTypes(Map<String, AbstractFileAttributedType<?>> attributedTypes) {
-        this.attributedTypes = attributedTypes;
+    public void setIdentityTypes(Map<String, FileIdentityType> identityTypes) {
+        this.identityTypes = identityTypes;
     }
 
     public Map<String, Map<String, List<FileCredentialStorage>>> getCredentials() {

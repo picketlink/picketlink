@@ -25,6 +25,8 @@ import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Account;
+import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
@@ -49,6 +51,38 @@ public abstract class AbstractIdentityStore<C extends IdentityStoreConfiguration
     }
 
     @Override
+    public void add(IdentityContext context, AttributedType attributedType) {
+        attributedType.setId(context.getIdGenerator().generate());
+
+        if (IdentityType.class.isInstance(attributedType)) {
+            IdentityType identityType = (IdentityType) attributedType;
+            identityType.setPartition(context.getPartition());
+        }
+
+        addAttributedType(context, attributedType);
+    }
+
+    @Override
+    public void update(IdentityContext context, AttributedType attributedType) {
+        if (IdentityType.class.isInstance(attributedType)) {
+            IdentityType identityType = (IdentityType) attributedType;
+            identityType.setPartition(context.getPartition());
+        }
+
+        updateAttributedType(context, attributedType);
+    }
+
+    @Override
+    public void remove(IdentityContext context, AttributedType attributedType) {
+        if (IdentityType.class.isInstance(attributedType)) {
+            IdentityType identityType = (IdentityType) attributedType;
+            identityType.setPartition(context.getPartition());
+        }
+
+        removeAttributedType(context, attributedType);
+    }
+
+    @Override
     public void validateCredentials(IdentityContext context, Credentials credentials) {
         Class<? extends CredentialHandler> credentialHandler = getCredentialHandler(credentials);
         this.credentialHandlers.get(credentialHandler).validate(context, credentials, this);
@@ -59,6 +93,12 @@ public abstract class AbstractIdentityStore<C extends IdentityStoreConfiguration
         Class<? extends CredentialHandler> credentialHandler = getCredentialHandler(credential);
         this.credentialHandlers.get(credentialHandler).update(context, account, credential, this, effectiveDate, expiryDate);
     }
+
+    protected abstract void addAttributedType(IdentityContext context, AttributedType attributedType);
+
+    protected abstract void updateAttributedType(IdentityContext context, AttributedType attributedType);
+
+    protected abstract void removeAttributedType(IdentityContext context, AttributedType attributedType);
 
     private Class<? extends CredentialHandler> getCredentialHandler(Object credentials) {
         Class<? extends CredentialHandler> credentialHandler = null;

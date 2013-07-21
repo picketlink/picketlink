@@ -17,8 +17,6 @@
  */
 package org.picketlink.idm.internal;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
@@ -91,18 +89,6 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
         return false;
     }
 
-    private Group[] getGroups(Group group) {
-        List<Group> groups = new ArrayList<Group>();
-
-        groups.add(group);
-
-        if (group.getParentGroup() != null) {
-            groups.addAll(Arrays.asList(getGroups(group.getParentGroup())));
-        }
-
-        return groups.toArray(new Group[groups.size()]);
-    }
-
     @Override
     public void addToGroup(Account member, Group group) {
         add(new GroupMembership(member, group));
@@ -113,6 +99,7 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
         RelationshipQuery<GroupMembership> query = createRelationshipQuery( GroupMembership.class);
         query.setParameter(GroupMembership.MEMBER, member);
         query.setParameter(GroupMembership.GROUP, group);
+
         for (GroupMembership membership : query.getResultList()) {
             remove(membership);
         }
@@ -123,10 +110,21 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
         RelationshipQuery<GroupRole> query = createRelationshipQuery(GroupRole.class);
 
         query.setParameter(GroupRole.ASSIGNEE, assignee);
-        query.setParameter(GroupRole.GROUP, getGroups(group));
         query.setParameter(GroupRole.ROLE, role);
 
-        return !query.getResultList().isEmpty();
+        List<GroupRole> result = query.getResultList();
+
+        for (GroupRole membership: result) {
+            if (membership.getGroup().getId().equals(group.getId())) {
+                return true;
+            }
+
+            if (group.getPath().startsWith(membership.getGroup().getPath())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override

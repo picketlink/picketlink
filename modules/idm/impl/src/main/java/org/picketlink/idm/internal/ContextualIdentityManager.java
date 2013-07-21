@@ -122,7 +122,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
 
         if (!result.isEmpty()) {
             if (result.size() > 1) {
-                throw MESSAGES.identityTypeAmbiguosFoundWithId(id);
+                throw MESSAGES.attributedTypeAmbiguosFoundWithId(id);
             } else {
                 identity = result.get(0);
             }
