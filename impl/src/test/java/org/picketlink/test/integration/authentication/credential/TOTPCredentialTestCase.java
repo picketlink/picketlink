@@ -27,6 +27,7 @@ import org.picketlink.idm.credential.TOTPCredential;
 import org.picketlink.idm.credential.TOTPCredentials;
 import org.picketlink.idm.credential.internal.DigestUtil;
 import org.picketlink.idm.credential.totp.TimeBasedOTP;
+import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.test.integration.ArchiveUtils;
 import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
 import static org.junit.Assert.assertEquals;
@@ -65,8 +66,8 @@ public class TOTPCredentialTestCase extends AbstractAuthenticationTestCase {
         super.identity.login();
 
         assertTrue(super.identity.isLoggedIn());
-        assertNotNull(super.identity.getAgent());
-        assertEquals(USER_NAME, super.identity.getAgent().getLoginName());
+        assertNotNull(super.identity.getAccount());
+        assertEquals(USER_NAME, ((Agent) super.identity.getAccount()).getLoginName());
     }
 
     @Test
@@ -92,7 +93,7 @@ public class TOTPCredentialTestCase extends AbstractAuthenticationTestCase {
         super.identity.login();
 
         assertFalse(super.identity.isLoggedIn());
-        assertNull(super.identity.getAgent());
+        assertNull(super.identity.getAccount());
     }
 
     private void updateTOTPCredential() {

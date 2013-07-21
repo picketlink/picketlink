@@ -15,27 +15,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.picketlink.test.idm.other.shane.model.scenario1;
 
-package org.picketlink.authentication.event;
-
-import org.picketlink.idm.model.Account;
+import org.picketlink.idm.model.AbstractIdentityType;
 
 /**
- * This event is raised just before the user un-authenticates
- * 
+ * Represents a Group
+ *
  * @author Shane Bryzak
+ *
  */
-public class PreLoggedOutEvent 
-{
-    private Account account;
+public class Group extends AbstractIdentityType {
+    private static final long serialVersionUID = 1339811879315100620L;
 
-    public PreLoggedOutEvent(Account account)
-    {
-        this.account = account;
+    private String name;
+    private Group parent;
+
+    public String getName() {
+        return name;
     }
 
-    public Account getAccount()
-    {
-        return account;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Group getParent() {
+        return parent;
+    }
+
+    public void setParent(Group parent) {
+        this.parent = parent;
     }
 }

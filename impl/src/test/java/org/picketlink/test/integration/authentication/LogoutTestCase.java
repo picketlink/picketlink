@@ -74,6 +74,6 @@ public class LogoutTestCase extends AbstractAuthenticationTestCase {
         super.identity.logout();
         
         assertFalse(super.identity.isLoggedIn());
-        assertNull(super.identity.getAgent());
+        assertNull(super.identity.getAccount());
     }
 }

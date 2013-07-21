@@ -69,8 +69,8 @@ public class AgentAuthenticationTestCase extends AbstractAuthenticationTestCase 
         super.identity.login();
 
         assertTrue(super.identity.isLoggedIn());
-        assertNotNull(super.identity.getAgent());
-        assertEquals(AGENT_NAME, super.identity.getAgent().getLoginName());
+        assertNotNull(super.identity.getAccount());
+        assertEquals(AGENT_NAME, ((Agent) super.identity.getAccount()).getLoginName());
     }
 
     @Test
@@ -81,6 +81,6 @@ public class AgentAuthenticationTestCase extends AbstractAuthenticationTestCase 
         super.identity.login();
 
         assertFalse(super.identity.isLoggedIn());
-        assertNull(super.identity.getAgent());
+        assertNull(super.identity.getAccount());
     }
 }

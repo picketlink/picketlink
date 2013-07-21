@@ -35,14 +35,16 @@ import org.picketlink.idm.credential.internal.AbstractCredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.Stored;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
-import org.picketlink.idm.jpa.schema.CredentialObject;
-import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
-import org.picketlink.idm.jpa.schema.IdentityObject;
-import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
-import org.picketlink.idm.jpa.schema.PartitionObject;
-import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
-import org.picketlink.idm.jpa.schema.RelationshipObject;
-import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
+import org.picketlink.idm.jpa.model.sample.simple.AbstractAttributeType;
+import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.AttributedTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.CredentialAttributeTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.GroupTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.RelationshipIdentityTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.User;
@@ -112,8 +114,8 @@ public class CustomIDMCredentialTestCase extends AbstractJPADeploymentTestCase {
         this.identity.login();
 
         assertTrue(this.identity.isLoggedIn());
-        assertNotNull(this.identity.getAgent());
-        assertEquals(USER_NAME, this.identity.getAgent().getLoginName());
+        assertNotNull(this.identity.getAccount());
+        assertEquals(USER_NAME, ((Agent) this.identity.getAccount()).getLoginName());
     }
 
     @Test
@@ -124,7 +126,7 @@ public class CustomIDMCredentialTestCase extends AbstractJPADeploymentTestCase {
         this.identity.login();
 
         assertFalse(this.identity.isLoggedIn());
-        assertNull(this.identity.getAgent());
+        assertNull(this.identity.getAccount());
     }
 
     @ApplicationScoped
@@ -138,17 +140,18 @@ public class CustomIDMCredentialTestCase extends AbstractJPADeploymentTestCase {
                 .named("default")
                     .stores()
                         .jpa()
-//                            .addCredentialHandler(MyCredentialHandler.class)
-//                            .identityClass(IdentityObject.class)
-//                            .attributeClass(IdentityObjectAttribute.class)
-//                            .relationshipClass(RelationshipObject.class)
-//                            .relationshipIdentityClass(RelationshipIdentityObject.class)
-//                            .relationshipAttributeClass(RelationshipObjectAttribute.class)
-//                            .credentialClass(CredentialObject.class)
-//                            .credentialAttributeClass(CredentialObjectAttribute.class)
-//                            .partitionClass(PartitionObject.class)
-//                            .supportAllFeatures();
-            ;
+                            .mappedEntity(
+                                AbstractAttributeType.class, 
+                                AccountTypeEntity.class,
+                                AttributedTypeEntity.class,
+                                CredentialAttributeTypeEntity.class,
+                                GroupTypeEntity.class,
+                                IdentityTypeEntity.class,
+                                PartitionTypeEntity.class,
+                                RelationshipIdentityTypeEntity.class,
+                                RelationshipTypeEntity.class,
+                                RoleTypeEntity.class)
+                            .supportAllFeatures();
 
             return builder.build();
         }

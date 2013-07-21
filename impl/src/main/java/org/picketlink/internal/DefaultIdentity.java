@@ -36,6 +36,7 @@ import org.picketlink.authentication.event.PreAuthenticateEvent;
 import org.picketlink.authentication.event.PreLoggedOutEvent;
 import org.picketlink.authentication.internal.IdmAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.permission.internal.PermissionMapper;
 
@@ -76,18 +77,18 @@ public class DefaultIdentity implements Identity
      */
     private boolean authenticating;
 
-    private Agent agent;
+    private Account account;
 
     public boolean isLoggedIn() 
     {
-        // If there is a agent set, then the agent is logged in.
-        return this.agent != null;
+        // If there is an account set, then the account is logged in.
+        return this.account != null;
     }
 
     @Override
-    public Agent getAgent()
+    public Account getAccount()
     {
-        return this.agent;
+        return this.account;
     }
 
     @Override
@@ -97,13 +98,7 @@ public class DefaultIdentity implements Identity
         {
             if (isLoggedIn())
             {
-                if (isAuthenticationRequestWithDifferentUserId())
-                {
-                    throw new UnexpectedCredentialException("active agent: " + this.agent.getLoginName() +
-                            " provided credentials: [" + this.loginCredential.getUserId() + "]");
-                }
-
-                throw new UserAlreadyLoggedInException("active agent: " + this.agent.getLoginName());
+                throw new UserAlreadyLoggedInException("active agent: " + this.account.toString());
             }
 
             Agent validatedAgent = authenticate();
@@ -133,8 +128,8 @@ public class DefaultIdentity implements Identity
         }
     }
 
-    protected void handleSuccessfulLoginAttempt(Agent validatedAgent) {
-        this.agent = validatedAgent;
+    protected void handleSuccessfulLoginAttempt(Account validatedAccount) {
+        this.account = validatedAccount;
         beanManager.fireEvent(new LoggedInEvent());
     }
 
@@ -150,12 +145,6 @@ public class DefaultIdentity implements Identity
         }
 
         beanManager.fireEvent(new LoginFailedEvent(e));
-    }
-
-    private boolean isAuthenticationRequestWithDifferentUserId()
-    {
-        return isLoggedIn() && this.loginCredential.getUserId() != null &&
-                !this.loginCredential.getUserId().equals(this.agent.getLoginName());
     }
 
     protected Agent authenticate() throws AuthenticationException 
@@ -232,9 +221,9 @@ public class DefaultIdentity implements Identity
     {
         if (isLoggedIn())
         {
-            beanManager.fireEvent(new PreLoggedOutEvent(this.agent));
+            beanManager.fireEvent(new PreLoggedOutEvent(this.account));
 
-            PostLoggedOutEvent postLoggedOutEvent = new PostLoggedOutEvent(this.agent);
+            PostLoggedOutEvent postLoggedOutEvent = new PostLoggedOutEvent(this.account);
 
             unAuthenticate(invalidateLoginCredential);
 
@@ -247,7 +236,7 @@ public class DefaultIdentity implements Identity
      */
     private void unAuthenticate(boolean invalidateLoginCredential)
     {
-        this.agent = null;
+        this.account = null;
 
         if (invalidateLoginCredential)
         {

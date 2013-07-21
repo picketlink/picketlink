@@ -46,6 +46,8 @@ import org.picketlink.internal.util.Strings;
 @ApplicationScoped
 public class IdentityManagerProducer {
 
+    private static final String DEFAULT_CONFIGURATION_NAME = "default";
+
     @Inject
     Instance<IdentityConfiguration> identityConfigInstance;
 
@@ -81,33 +83,31 @@ public class IdentityManagerProducer {
 
         this.identityConfigEvent.fire(new IdentityConfigurationEvent(builder));
 
-//        if (builder.stores().isEmpty()) {
-//            loadAutoConfig(builder);
-//        }
-        
-//        if (builder.stores().isConfigured(JPAIdentityStoreConfigurationOld.class)) {
-//            builder.stores().jpa().addContextInitializer(this.jpaContextInitializer);
-//        }
-//
-//        builder.contextFactory(this.icf);
+        // TODO we need a method on builder to determine whether a configuration exists
+        //if (builder.stores().isEmpty()) {
+            loadAutoConfig(builder);
+        //}
 
         this.factory = new DefaultPartitionManager(builder.build());
     }
 
-//    private void loadAutoConfig(IdentityConfigurationBuilder builder) {
-//        if (this.autoConfig.isConfigured()) {
-//            builder
-//                .stores()
-//                    .jpa()
-//                        .readFrom(this.autoConfig.getJPAConfiguration().create())
-//                        .supportAllFeatures();
-//        } else {
-//            builder
-//                .stores()
-//                    .file()
-//                        .supportAllFeatures();
-//        }
-//    }
+    private void loadAutoConfig(IdentityConfigurationBuilder builder) {
+        if (this.autoConfig.isConfigured()) {
+            Class<?>[] entities = new Class[this.autoConfig.getEntities().size()];
+            this.autoConfig.getEntities().toArray(entities);
+            builder.named(DEFAULT_CONFIGURATION_NAME)
+                .stores()
+                    .jpa()
+                        .mappedEntity(entities)
+                        .addContextInitializer(this.jpaContextInitializer)
+                        .supportAllFeatures();
+        } else {
+            builder.named(DEFAULT_CONFIGURATION_NAME)
+                .stores()
+                    .file()
+                        .supportAllFeatures();
+        }
+    }
 
     @Produces
     public DefaultPartitionManager createIdentityManagerFactory() {

@@ -15,27 +15,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.picketlink.test.idm.other.shane.model.scenario1.entity;
 
-package org.picketlink.authentication.event;
+import java.io.Serializable;
 
-import org.picketlink.idm.model.Account;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 /**
- * This event is raised just before the user un-authenticates
- * 
+ * Lookup table containing countries
+ *
  * @author Shane Bryzak
  */
-public class PreLoggedOutEvent 
-{
-    private Account account;
+@Entity
+public class Country implements Serializable {
+    private static final long serialVersionUID = -8291183691785718272L;
 
-    public PreLoggedOutEvent(Account account)
-    {
-        this.account = account;
+    @Id @GeneratedValue private Long countryId;
+    private String name;
+
+    public Long getCountryId() {
+        return countryId;
     }
 
-    public Account getAccount()
-    {
-        return account;
+    public void setCountryId(Long countryId) {
+        this.countryId = countryId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

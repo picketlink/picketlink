@@ -21,6 +21,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.test.integration.ArchiveUtils;
 import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
 import static org.junit.Assert.assertEquals;
@@ -48,8 +49,8 @@ public class UsernamePasswordCredentialTestCase extends AbstractAuthenticationTe
         super.identity.login();
 
         assertTrue(super.identity.isLoggedIn());
-        assertNotNull(super.identity.getAgent());
-        assertEquals(USER_NAME, super.identity.getAgent().getLoginName());
+        assertNotNull(super.identity.getAccount());
+        assertEquals(USER_NAME, ((Agent) super.identity.getAccount()).getLoginName());
     }
 
     @Test
@@ -67,7 +68,7 @@ public class UsernamePasswordCredentialTestCase extends AbstractAuthenticationTe
         super.identity.login();
 
         assertFalse(super.identity.isLoggedIn());
-        assertNull(super.identity.getAgent());
+        assertNull(super.identity.getAccount());
     }
 
     private void updateUsernamePasswordCredential() {

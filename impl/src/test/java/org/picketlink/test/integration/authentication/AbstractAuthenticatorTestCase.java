@@ -74,7 +74,7 @@ public abstract class AbstractAuthenticatorTestCase extends AbstractArquillianTe
         assertEquals(AuthenticationResult.SUCCESS, status);
         assertTrue(this.identity.isLoggedIn());
         
-        User validatedAgent = (User) this.identity.getAgent();
+        User validatedAgent = (User) this.identity.getAccount();
         
         assertNotNull(validatedAgent);
         assertEquals(USER_NAME, validatedAgent.getLoginName());
@@ -90,7 +90,7 @@ public abstract class AbstractAuthenticatorTestCase extends AbstractArquillianTe
         assertEquals(AuthenticationResult.FAILED, status);
         assertFalse(this.identity.isLoggedIn());
         
-        User validatedAgent = (User) this.identity.getAgent();
+        User validatedAgent = (User) this.identity.getAccount();
         
         assertNull(validatedAgent);
     }

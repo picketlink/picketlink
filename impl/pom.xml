@@ -136,7 +136,7 @@
 		<!-- JPA Identity Store Dependencies -->
 		<dependency>
 			<groupId>org.picketlink</groupId>
-			<artifactId>picketlink-idm-schema</artifactId>
+			<artifactId>picketlink-idm-simple-schema</artifactId>
 			<scope>test</scope>
 		</dependency>
 
