@@ -24,7 +24,6 @@ import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -34,7 +33,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
-import org.picketlink.idm.model.sample.Realm;
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.file.internal.FileUtils.createFileIfNotExists;
 import static org.picketlink.idm.file.internal.FileUtils.delete;
@@ -48,13 +46,6 @@ public class FileDataSource {
 
     /**
      * <p>
-     * Default value for the thread pool size when <code>asyncWrite</code> is enabled.
-     * </p>
-     */
-    private static final int ASYNC_FLUSH_THREAD_POOL = 5;
-
-    /**
-     * <p>
      * Default buffer length when flushing changes to the filesystem. The higher the value greater will be the throughput.
      * </p>
      */
@@ -64,6 +55,7 @@ public class FileDataSource {
             + File.separator + "pl-idm";
 
     private static final String PARTITIONS_FILE_NAME = "pl-idm-partitions.db";
+    private static final String IDENTITY_TYPES__FILE_NAME = "pl-idm-identity-types.db";
     private static final String ATTRIBUTED_TYPES__FILE_NAME = "pl-idm-attributed-types.db";
     private static final String RELATIONSHIPS_FILE_NAME = "pl-idm-relationships.db";
     private static final String CREDENTIALS_FILE_NAME = "pl-idm-credentials.db";
@@ -72,19 +64,27 @@ public class FileDataSource {
 
     /**
      * <p>
-     * Holds all configured {@link FilePartition} instances loaded from the filesystem. This {@link Map} is also used to persist
+     * Holds all stored {@link FilePartition} instances loaded from the filesystem. This {@link Map} is also used to persist
      * information to the filesystem.
      * </p>
      */
-    private Map<String, FilePartition> partitions = new ConcurrentHashMap<String, FilePartition>();
+    private Map<String, FilePartition> partitions;
 
     /**
      * <p>
-     * Holds all configured {@link FileRelationship} instances loaded from the filesystem. This {@link Map} is also used to persist
+     * Holds all stored {@link FileRelationship} instances loaded from the filesystem. This {@link Map} is also used to persist
      * information to the filesystem.
      * </p>
      */
-    private Map<String, List<FileRelationship>> relationships = new ConcurrentHashMap<String, List<FileRelationship>>();
+    private Map<String, Map<String, FileRelationship>> relationships;
+
+    /**
+     * <p>
+     * Holds all stored {@link FileAttributedType} instances loaded from the filesystem. This {@link Map} is also used to persist
+     * information to the filesystem.
+     * </p>
+     */
+    private Map<String, FileAttributedType> attributedTypes;
 
     private ExecutorService executorService;
 
@@ -97,8 +97,12 @@ public class FileDataSource {
         return this.partitions;
     }
 
-    Map<String, List<FileRelationship>> getRelationships() {
+    Map<String, Map<String, FileRelationship>> getRelationships() {
         return this.relationships;
+    }
+
+    public Map<String, FileAttributedType> getAttributedTypes() {
+        return this.attributedTypes;
     }
 
     void flushPartitions() {
@@ -111,15 +115,19 @@ public class FileDataSource {
     }
 
     void flushAttributedTypes(FilePartition partition) {
-        flush(partition, ATTRIBUTED_TYPES__FILE_NAME, partition.getAttributedTypes());
+        flush(partition, IDENTITY_TYPES__FILE_NAME, partition.getIdentityTypes());
     }
 
     void flushRelationships() {
         flush(RELATIONSHIPS_FILE_NAME, getRelationships());
     }
 
-    void flushCredentials(Realm realm) {
-        FilePartition filePartition = getPartitions().get(realm.getId());
+    void flushAttributedTypes() {
+        flush(ATTRIBUTED_TYPES__FILE_NAME, getAttributedTypes());
+    }
+
+    void flushCredentials(FilePartition partition) {
+        FilePartition filePartition = getPartitions().get(partition.getId());
         flush(filePartition, CREDENTIALS_FILE_NAME, filePartition.getCredentials());
     }
 
@@ -151,9 +159,27 @@ public class FileDataSource {
         initWorkingDirectory();
 
         File partitionsFile =
-                createFileIfNotExists(new File(getWorkingDir() + File.separator + PARTITIONS_FILE_NAME));
+                createFileIfNotExists(getWorkingDirFile(PARTITIONS_FILE_NAME));
 
         loadPartitions(partitionsFile);
+
+        Map<String, Map<String, FileRelationship>> relationships =
+                readObject(createFileIfNotExists(getWorkingDirFile(RELATIONSHIPS_FILE_NAME)));
+
+        if (relationships == null) {
+            relationships = new ConcurrentHashMap<String, Map<String, FileRelationship>>();
+        }
+
+        this.relationships = relationships;
+
+        Map<String, FileAttributedType> attrubtedTypes =
+                readObject(createFileIfNotExists(getWorkingDirFile(ATTRIBUTED_TYPES__FILE_NAME)));
+
+        if (attrubtedTypes == null) {
+            attrubtedTypes = new ConcurrentHashMap<String, FileAttributedType>();
+        }
+
+        this.attributedTypes = attrubtedTypes;
 
         if (this.configuration.isAsyncWrite()) {
             LOGGER.debugf("Async write enabled. Using thread pool of size %s", this.configuration.getAsyncThreadPool());
@@ -183,28 +209,24 @@ public class FileDataSource {
 
         LOGGER.debugf("Initializing Partition [%s] with id [%s].", filePartition.getId(), partitionId);
 
-        String attributeTypes = getWorkingDir() + File.separator + partitionId + File.separator + ATTRIBUTED_TYPES__FILE_NAME;
+        File agentsFile = createFileIfNotExists(getWorkingDirFile(partitionId + File.separator + IDENTITY_TYPES__FILE_NAME));
 
-        File agentsFile = createFileIfNotExists(new File(attributeTypes));
-
-        Map<String, AbstractFileAttributedType<?>> attributedTypes = readObject(agentsFile);
+        Map<String, FileIdentityType> attributedTypes = readObject(agentsFile);
 
         if (attributedTypes == null) {
-            attributedTypes = new ConcurrentHashMap<String, AbstractFileAttributedType<?>>();
+            attributedTypes = new ConcurrentHashMap<String, FileIdentityType>();
         }
 
-        filePartition.setAttributedTypes(attributedTypes);
+        filePartition.setIdentityTypes(attributedTypes);
 
         LOGGER.debugf("Loaded Agents for Partition [%s].", filePartition.getId());
 
-        String credentialsPath = getWorkingDir() + File.separator + partitionId + File.separator + CREDENTIALS_FILE_NAME;
-
-        File credentialsFile = createFileIfNotExists(new File(credentialsPath));
+        File credentialsFile = createFileIfNotExists(getWorkingDirFile(partitionId + File.separator + CREDENTIALS_FILE_NAME));
 
         Map<String, Map<String, List<FileCredentialStorage>>> credentials = readObject(credentialsFile);
 
         if (credentials == null) {
-            credentials = new HashMap<String, Map<String, List<FileCredentialStorage>>>();
+            credentials = new ConcurrentHashMap<String, Map<String, List<FileCredentialStorage>>>();
         }
 
         filePartition.setCredentials(credentials);
@@ -277,5 +299,9 @@ public class FileDataSource {
 
             }
         }
+    }
+
+    private File getWorkingDirFile(String name) {
+        return new File(getWorkingDir() + File.separator + name);
     }
 }

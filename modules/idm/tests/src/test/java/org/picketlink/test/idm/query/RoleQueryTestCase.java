@@ -158,7 +158,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
 
         query = relationshipManager.createRelationshipQuery(Grant.class);
 
-        query.setParameter(Grant.ASSIGNEE, new Object[] { user });
+        query.setParameter(Grant.ASSIGNEE, user);
 
         result = query.getResultList();
 
@@ -169,7 +169,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
 
         relationshipManager.revokeRole(user, someRole);
 
-        query.setParameter(Grant.ASSIGNEE, new Object[] { user });
+        query.setParameter(Grant.ASSIGNEE, user);
 
         result = query.getResultList();
 

@@ -43,7 +43,9 @@ public class FileStoreConfigurationTester implements IdentityConfigurationTester
 
         DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
 
-        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+        if (partitionManager.getPartition(Realm.class, Realm.DEFAULT_REALM) == null) {
+            partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+        }
 
         return partitionManager;
     }

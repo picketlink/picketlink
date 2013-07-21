@@ -88,7 +88,6 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         assertNotNull(lookedUpIdentityType);
         assertEquals(identityType.getId(), lookedUpIdentityType.getId());
 
-        // should also be possible to lookup all IdentityType instances
         lookedUpIdentityType = (T) identityManager.lookupIdentityById(IdentityType.class, identityType.getId());
 
         assertNotNull(lookedUpIdentityType);
@@ -197,7 +196,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
 
     @Test
     @IgnoreTester(LDAPStoreConfigurationTester.class)
-    public void testLargeAttributeValue() throws Exception {
+    public void testSetLargeAttributeValue() throws Exception {
         T storedIdentityType = createIdentityType();
 
         IdentityManager identityManager = getIdentityManager();
@@ -221,6 +220,43 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         for (Integer value: retrievedVal) {
             assertTrue(contains(retrievedVal, value));
         }
+    }
+
+    @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    public void testUpdateAttribute() throws Exception {
+        T storedIdentityType = createIdentityType();
+
+        IdentityManager identityManager = getIdentityManager();
+
+        storedIdentityType.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
+
+        identityManager.update(storedIdentityType);
+
+        T updatedIdentityType = getIdentityType();
+
+        Attribute<String[]> multiValuedAttribute = updatedIdentityType.getAttribute("multi-valued");
+
+        assertNotNull(multiValuedAttribute);
+
+        multiValuedAttribute.setValue(new String[] { "3", "4", "5" });
+
+        updatedIdentityType.setAttribute(multiValuedAttribute);
+
+        identityManager.update(updatedIdentityType);
+
+        updatedIdentityType = getIdentityType();
+
+        multiValuedAttribute = updatedIdentityType.getAttribute("multi-valued");
+
+        assertNotNull(multiValuedAttribute);
+        assertEquals(3, multiValuedAttribute.getValue().length);
+
+        String[] values = multiValuedAttribute.getValue();
+
+        Arrays.sort(values);
+
+        assertTrue(Arrays.equals(values, new String[] { "3", "4", "5" }));
     }
 
     @Test
@@ -273,43 +309,6 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         assertTrue(hasQuestion1Answer);
         assertTrue(hasQuestion2);
         assertTrue(hasQuestion2Answer);
-    }
-
-    @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
-    public void testUpdateAttribute() throws Exception {
-        T storedIdentityType = createIdentityType();
-
-        IdentityManager identityManager = getIdentityManager();
-        
-        storedIdentityType.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
-        
-        identityManager.update(storedIdentityType);
-
-        T updatedIdentityType = getIdentityType();
-
-        Attribute<String[]> multiValuedAttribute = updatedIdentityType.getAttribute("multi-valued");
-
-        assertNotNull(multiValuedAttribute);
-
-        multiValuedAttribute.setValue(new String[] { "3", "4", "5" });
-
-        updatedIdentityType.setAttribute(multiValuedAttribute);
-
-        identityManager.update(updatedIdentityType);
-
-        updatedIdentityType = getIdentityType();
-
-        multiValuedAttribute = updatedIdentityType.getAttribute("multi-valued");
-
-        assertNotNull(multiValuedAttribute);
-        assertEquals(3, multiValuedAttribute.getValue().length);
-
-        String[] values = multiValuedAttribute.getValue();
-
-        Arrays.sort(values);
-
-        assertTrue(Arrays.equals(values, new String[] { "3", "4", "5" }));
     }
 
     @Test

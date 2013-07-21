@@ -29,7 +29,7 @@ import org.picketlink.test.idm.testers.IdentityConfigurationTester;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class UserGroupRoleRelationshipTestCase extends AgentGroupRoleRelationshipTestCase<User>{
+public class  UserGroupRoleRelationshipTestCase extends AgentGroupRoleRelationshipTestCase<User>{
 
     public UserGroupRoleRelationshipTestCase(IdentityConfigurationTester builder) {
         super(builder);
@@ -48,5 +48,5 @@ public class UserGroupRoleRelationshipTestCase extends AgentGroupRoleRelationshi
     protected User getIdentityType() {
         return getIdentityManager().getUser("someUser");
     }
-    
+
 }

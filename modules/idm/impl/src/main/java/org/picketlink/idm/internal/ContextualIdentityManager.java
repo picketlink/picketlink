@@ -141,7 +141,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
         } else if (agents.size() == 1) {
             return agents.get(0);
         } else {
-            throw new IdentityManagementException("Error - multiple Agent objects found with same login name");
+            throw new IdentityManagementException("Error - multiple User objects found with same login name");
         }
     }
 
@@ -214,7 +214,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
 
         if (!result.isEmpty()) {
             if (result.size() > 1) {
-                throw MESSAGES.identityTypeAmbiguosFoundWithId(id);
+                throw MESSAGES.attributedTypeAmbiguosFoundWithId(id);
             } else {
                 identity = result.get(0);
             }
