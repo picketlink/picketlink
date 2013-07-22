@@ -63,7 +63,7 @@ import static org.picketlink.idm.credential.internal.CredentialUtils.getCurrentC
 
 /**
  * <p>
- * File based {@link org.picketlink.idm.spi.IdentityStore} implementation.
+ * File based {@link IdentityStore} implementation.
  * </p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>

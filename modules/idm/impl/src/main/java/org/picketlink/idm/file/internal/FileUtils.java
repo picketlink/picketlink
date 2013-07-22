@@ -18,18 +18,21 @@
 
 package org.picketlink.idm.file.internal;
 
-import org.picketlink.idm.IdentityManagementException;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import org.picketlink.idm.IdentityManagementException;
 
 /**
  * @author Pedro Silva
  *
  */
 public final class FileUtils {
+
+    private FileUtils() {
+
+    }
 
     /**
      * <p>

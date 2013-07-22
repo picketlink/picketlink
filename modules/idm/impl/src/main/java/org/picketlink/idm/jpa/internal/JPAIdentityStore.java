@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
-import javax.persistence.Id;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -117,7 +116,7 @@ public class JPAIdentityStore
         EntityManager entityManager = getEntityManager(context);
 
         for (EntityMapper entityMapper : getMapperFor(attributedType.getClass())) {
-            entityMapper.createEntity(attributedType, entityManager);
+            entityMapper.persist(attributedType, entityManager);
 
             if (entityMapper.isRoot() && Relationship.class.isInstance(attributedType)) {
                 storeRelationshipMembers((Relationship) attributedType, entityManager);
@@ -151,50 +150,20 @@ public class JPAIdentityStore
             for (Object child : childRelationships) {
                 entityManager.remove(child);
             }
+        } else if (IdentityType.class.isInstance(attributedType)) {
+            removeRelationships(context, attributedType);
+            removeCredentials(context, attributedType, entityManager);
         }
 
         for (EntityMapper childMapper : getMapperFor(attributedType.getClass())) {
             if (!childMapper.isRoot()) {
-                for (EntityMapping entityMapping : childMapper.getEntityMappings()) {
-                    for (Property referencedProperty : entityMapping.getProperties().values()) {
-                        if (referencedProperty.getJavaClass().equals(rootEntity.getClass())) {
-                            CriteriaBuilder qb = entityManager.getCriteriaBuilder();
-                            CriteriaQuery cq = qb.createQuery(childMapper.getEntityType());
-                            List<Predicate> predicates = new ArrayList<Predicate>();
-                            Root from = cq.from(childMapper.getEntityType());
-
-                            Root propertyEntityJoin = cq.from(rootMapper.getEntityType());
-
-                            // in the case the entity identifier matchs the owner type
-                            if (referencedProperty.getAnnotatedElement().isAnnotationPresent(Id.class)) {
-                                predicates.add(qb.and(qb.equal(from, propertyEntityJoin)));
-                                predicates.add(qb.equal(propertyEntityJoin, rootEntity));
-                            } else {
-                                predicates.add(qb.and(qb.equal(from.get(referencedProperty.getName()), propertyEntityJoin)));
-                                predicates.add(qb.equal(propertyEntityJoin, rootEntity));
-                            }
-
-                            cq.where(predicates.toArray(new Predicate[predicates.size()]));
-
-                            cq.select(from);
-
-                            Query childQuery = entityManager.createQuery(cq);
-
-                            for (Object child : childQuery.getResultList()) {
-                                entityManager.remove(child);
-                            }
-                        }
-                    }
+                for (Object child : rootMapper.getAssociatedEntities(attributedType, childMapper, entityManager)) {
+                    entityManager.remove(child);
                 }
             }
-
-            if (IdentityType.class.isInstance(attributedType)) {
-                removeRelationships(context, attributedType);
-                removeCredentials(context, attributedType, entityManager);
-            }
-
-            removeAttributes(context, attributedType);
         }
+
+        removeAttributes(context, attributedType);
 
         entityManager.remove(rootEntity);
     }
@@ -610,7 +579,7 @@ public class JPAIdentityStore
         }
     }
 
-    public void populateAllAttributes(AttributedType attributedType, EntityManager entityManager) {
+    public void populateAttributes(AttributedType attributedType, EntityManager entityManager) {
         populateAttribute(attributedType, entityManager, null);
     }
 
@@ -622,7 +591,7 @@ public class JPAIdentityStore
         return (EntityManager) context.getParameter(INVOCATION_CTX_ENTITY_MANAGER);
     }
 
-    private List<EntityMapper> getMapperFor(Class<?> attributedType) {
+    public List<EntityMapper> getMapperFor(Class<?> attributedType) {
         List<EntityMapper> mappers = new ArrayList<EntityMapper>();
 
         EntityMapper rootEntityMapper = null;
@@ -786,7 +755,7 @@ public class JPAIdentityStore
         return getMapperFor(aClass).get(0);
     }
 
-    private EntityMapper getRootMapperForEntity(Class<?> entityClass) {
+    public EntityMapper getRootMapperForEntity(Class<?> entityClass) {
         for (EntityMapper entityMapper : this.entityMappers) {
             if (entityMapper.isRoot() && entityMapper.getEntityType().equals(entityClass)) {
                 return entityMapper;
@@ -929,36 +898,6 @@ public class JPAIdentityStore
 
     public Object getAttributedTypeEntity(AttributedType attributedType, EntityManager entityManager) {
         return entityManager.find(getRootMapper(attributedType.getClass()).getEntityType(), attributedType.getId());
-    }
-
-    public void populateAttributedType(AttributedType attributedType, Object rootEntity, EntityManager entityManager) {
-        for (EntityMapper finalMapper : getMapperFor(attributedType.getClass())) {
-            if (!finalMapper.isRoot()) {
-                for (Object child : getAssociatedEntities(attributedType, rootEntity, entityManager, finalMapper)) {
-                    finalMapper.populate(attributedType, child, entityManager);
-                }
-            }
-        }
-    }
-
-    public List getAssociatedEntities(AttributedType attributedType, Object rootEntity, EntityManager entityManager, EntityMapper finalMapper) {
-        StringBuilder hql = new StringBuilder();
-
-        hql.append("from " + finalMapper.getEntityType().getName()).append(" o where ");
-
-        Entry<Property, Property> ownerProperty = finalMapper.getProperty(attributedType.getClass(), OwnerReference.class);
-
-        if (ownerProperty == null) {
-            throw new IdentityManagementException("Referenced entity [" + finalMapper.getEntityType() + "] not mapped with @OwnerReference.");
-        }
-
-        hql.append(" o.").append(ownerProperty.getValue().getName()).append(" = :owner");
-
-        Query childQuery = entityManager.createQuery(hql.toString());
-
-        childQuery.setParameter("owner", rootEntity);
-
-        return childQuery.getResultList();
     }
 
     private EntityMapper getAttributeMapper(Class<? extends AttributedType> attributedType) {

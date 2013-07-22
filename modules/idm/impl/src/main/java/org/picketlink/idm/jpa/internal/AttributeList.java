@@ -25,6 +25,7 @@ import java.util.List;
  */
 public class AttributeList extends ArrayList {
 
+    private static final long serialVersionUID = -8424737190485592704L;
     private final List originalList;
 
     public AttributeList() {
