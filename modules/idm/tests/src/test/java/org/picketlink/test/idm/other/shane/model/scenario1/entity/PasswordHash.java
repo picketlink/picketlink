@@ -19,18 +19,20 @@ package org.picketlink.test.idm.other.shane.model.scenario1.entity;
 
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-
-import org.picketlink.idm.jpa.annotations.CredentialClass;
-import org.picketlink.idm.jpa.annotations.CredentialValue;
+import org.picketlink.idm.jpa.annotations.AttributeClass;
+import org.picketlink.idm.jpa.annotations.AttributeName;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.EffectiveDate;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
+import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
+import org.picketlink.idm.jpa.annotations.entity.SupportedAttributes;
+import org.picketlink.idm.jpa.model.sample.simple.CredentialAttributeTypeEntity;
 import org.picketlink.idm.password.internal.EncodedPasswordStorage;
 
 /**
@@ -39,15 +41,20 @@ import org.picketlink.idm.password.internal.EncodedPasswordStorage;
  * @author Shane Bryzak
  */
 @Entity
-@ManagedCredential(supportedClasses = {EncodedPasswordStorage.class})
+@ManagedCredential
+@MappedAttribute
+@SupportedAttributes(EncodedPasswordStorage.class)
 public class PasswordHash implements Serializable {
 
     @Id @GeneratedValue private long credentialId;
     @ManyToOne @OwnerReference IdentityObject identity;
-    @CredentialClass private String credentialClass;
-    @CredentialValue private String credentialValue;
+    @AttributeClass private String credentialClass;
+    @AttributeName private String name;
+    @AttributeValue private String credentialValue;
     @EffectiveDate private Date effectiveDate;
     @ExpiryDate private Date expiryDate;
+    @ManyToOne
+    private PasswordHash parent;
 
     public long getCredentialId() {
         return credentialId;
@@ -95,5 +102,21 @@ public class PasswordHash implements Serializable {
 
     public void setExpiryDate(Date expiryDate) {
         this.expiryDate = expiryDate;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public PasswordHash getParent() {
+        return parent;
+    }
+
+    public void setParent(PasswordHash parent) {
+        this.parent = parent;
     }
 }

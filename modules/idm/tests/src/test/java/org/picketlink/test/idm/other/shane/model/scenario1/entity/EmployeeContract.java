@@ -19,13 +19,14 @@ package org.picketlink.test.idm.other.shane.model.scenario1.entity;
 
 import java.io.Serializable;
 import java.util.Date;
-
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
-
 import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
+import org.picketlink.test.idm.other.shane.model.scenario1.User;
 
 /**
  * This entity bean stores the user attribute values that are mapped directly to the User class 
@@ -34,13 +35,14 @@ import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
  *
  */
 @Entity
-@MappedAttribute("contract")
+@IdentityManaged (User.class)
+@MappedAttribute("employeeContract")
 public class EmployeeContract implements Serializable {
     private static final long serialVersionUID = -2360572753933756991L;
 
     @Id @OneToOne @OwnerReference private IdentityObject identity;
     private Date signedDate;
-    private byte[] document;
+    @Column (length = 100000) private byte[] document;
 
     public IdentityObject getIdentity() {
         return identity;

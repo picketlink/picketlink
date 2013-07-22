@@ -23,6 +23,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
 import org.picketlink.test.idm.other.shane.model.scenario1.User;
@@ -39,10 +40,10 @@ public class UserEmail implements Serializable {
     private static final long serialVersionUID = 4044401260242743000L;
 
     @Id @GeneratedValue private Long emailId;
-    @ManyToOne private IdentityObject identity;
-    private EmailType emailType;
+    @ManyToOne @OwnerReference private IdentityObject identity;
+    private @ManyToOne EmailType emailType;
     private String emailAddress;
-    private boolean primary;
+    private boolean primaryEmail;
 
     public Long getEmailId() {
         return emailId;
@@ -76,11 +77,11 @@ public class UserEmail implements Serializable {
         this.emailAddress = emailAddress;
     }
 
-    public boolean isPrimary() {
-        return primary;
+    public boolean isPrimaryEmail() {
+        return primaryEmail;
     }
 
-    public void setPrimary(boolean primary) {
-        this.primary = primary;
+    public void setPrimaryEmail(boolean primaryEmail) {
+        this.primaryEmail = primaryEmail;
     }
 }

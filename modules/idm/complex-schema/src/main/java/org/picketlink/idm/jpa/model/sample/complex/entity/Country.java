@@ -15,34 +15,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.test.idm.other.shane.model.scenario1.entity;
+package org.picketlink.idm.jpa.model.sample.complex.entity;
 
 import java.io.Serializable;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 
 /**
- * Lookup table containing city records
- *
- * @author Shane Bryzak
+ * @author pedroigor
  */
 @Entity
-public class City implements Serializable {
-    private static final long serialVersionUID = -6885437269600298360L;
+public class Country implements Serializable {
 
-    @Id @GeneratedValue private Long cityId;
+    private static final long serialVersionUID = 4342750186308312890L;
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
     private String name;
-    @ManyToOne private State state;
 
-    public Long getCityId() {
-        return cityId;
+    public Long getId() {
+        return id;
     }
 
-    public void setCityId(Long cityId) {
-        this.cityId = cityId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -53,11 +52,26 @@ public class City implements Serializable {
         this.name = name;
     }
 
-    public State getState() {
-        return state;
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!getClass().isInstance(obj)) {
+            return false;
+        }
+
+        Country other = (Country) obj;
+
+        return getId() != null && other.getId() != null && getId().equals(other.getId());
     }
 
-    public void setState(State state) {
-        this.state = state;
+    @Override
+    public int hashCode() {
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getId() != null ? getId().hashCode() : 0);
+        return result;
     }
+
 }

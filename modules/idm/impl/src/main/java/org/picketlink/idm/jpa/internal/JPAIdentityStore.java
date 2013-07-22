@@ -117,11 +117,7 @@ public class JPAIdentityStore
         EntityManager entityManager = getEntityManager(context);
 
         for (EntityMapper entityMapper : getMapperFor(attributedType.getClass())) {
-            Object entity = entityMapper.createEntity(attributedType, entityManager);
-
-            if (entity != null) {
-                entityManager.persist(entity);
-            }
+            entityMapper.createEntity(attributedType, entityManager);
 
             if (entityMapper.isRoot() && Relationship.class.isInstance(attributedType)) {
                 storeRelationshipMembers((Relationship) attributedType, entityManager);
@@ -136,11 +132,7 @@ public class JPAIdentityStore
         EntityManager entityManager = getEntityManager(context);
 
         for (EntityMapper entityMapper : getMapperFor(attributedType.getClass())) {
-            Object entity = entityMapper.updateEntity(attributedType, entityManager);
-
-            if (entity != null) {
-                entityManager.merge(entity);
-            }
+            entityMapper.updateEntity(attributedType, entityManager);
         }
 
         entityManager.flush();
@@ -221,6 +213,7 @@ public class JPAIdentityStore
         configurationNameProperty.getValue().setValue(partitionEntity, configurationName);
 
         entityManager.merge(partitionEntity);
+        entityManager.flush();
     }
 
     @Override
@@ -588,6 +581,10 @@ public class JPAIdentityStore
             values = new Serializable[]{values};
         }
 
+        if (values instanceof byte[]) {
+            values = new Serializable[] {values};
+        }
+
         Object ownerEntity = getAttributedTypeEntity(attributedType, entityManager);
 
         EntityMapper attributeMapper = getAttributeMapper(attributedType.getClass());
@@ -644,7 +641,10 @@ public class JPAIdentityStore
             if (rootEntityMapper == null) {
                 for (EntityMapping entityMapping : entityMapper.getEntityMappings()) {
                     if (entityMapping.getSupportedType().isAssignableFrom(attributedType)) {
-                        mappers.add(entityMapper);
+                        if (!mappers.contains(entityMapper)) {
+                            mappers.add(entityMapper);
+                        }
+
                         if (entityMapper.isRoot()) {
                             rootEntityMapper = entityMapper;
                         }
@@ -655,6 +655,10 @@ public class JPAIdentityStore
 
         if (mappers.isEmpty()) {
             throw new IdentityManagementException("No entity mapper found for type [" + attributedType + "].");
+        }
+
+        if (rootEntityMapper == null) {
+            throw new IdentityManagementException("No root mapper found for type [" + attributedType + "].");
         }
 
         // we always put the root mapper at the first index,
@@ -923,34 +927,38 @@ public class JPAIdentityStore
         }
     }
 
-    private Object getAttributedTypeEntity(AttributedType attributedType, EntityManager entityManager) {
+    public Object getAttributedTypeEntity(AttributedType attributedType, EntityManager entityManager) {
         return entityManager.find(getRootMapper(attributedType.getClass()).getEntityType(), attributedType.getId());
     }
 
     public void populateAttributedType(AttributedType attributedType, Object rootEntity, EntityManager entityManager) {
         for (EntityMapper finalMapper : getMapperFor(attributedType.getClass())) {
             if (!finalMapper.isRoot()) {
-                StringBuilder hql = new StringBuilder();
-
-                hql.append("from " + finalMapper.getEntityType().getName()).append(" o where ");
-
-                Entry<Property, Property> ownerProperty = finalMapper.getProperty(attributedType.getClass(), OwnerReference.class);
-
-                if (ownerProperty == null) {
-                    throw new IdentityManagementException("Referenced entity [" + finalMapper.getEntityType() + "] not mapped with @OwnerReference.");
-                }
-
-                hql.append(" o.").append(ownerProperty.getValue().getName()).append(" = :owner");
-
-                Query childQuery = entityManager.createQuery(hql.toString());
-
-                childQuery.setParameter("owner", rootEntity);
-
-                for (Object child : childQuery.getResultList()) {
+                for (Object child : getAssociatedEntities(attributedType, rootEntity, entityManager, finalMapper)) {
                     finalMapper.populate(attributedType, child, entityManager);
                 }
             }
         }
+    }
+
+    public List getAssociatedEntities(AttributedType attributedType, Object rootEntity, EntityManager entityManager, EntityMapper finalMapper) {
+        StringBuilder hql = new StringBuilder();
+
+        hql.append("from " + finalMapper.getEntityType().getName()).append(" o where ");
+
+        Entry<Property, Property> ownerProperty = finalMapper.getProperty(attributedType.getClass(), OwnerReference.class);
+
+        if (ownerProperty == null) {
+            throw new IdentityManagementException("Referenced entity [" + finalMapper.getEntityType() + "] not mapped with @OwnerReference.");
+        }
+
+        hql.append(" o.").append(ownerProperty.getValue().getName()).append(" = :owner");
+
+        Query childQuery = entityManager.createQuery(hql.toString());
+
+        childQuery.setParameter("owner", rootEntity);
+
+        return childQuery.getResultList();
     }
 
     private EntityMapper getAttributeMapper(Class<? extends AttributedType> attributedType) {
@@ -962,7 +970,7 @@ public class JPAIdentityStore
             }
         }
 
-        return null;
+        throw new IdentityManagementException("Could not find mapper for attributes for type [" + attributedType + "].");
     }
 
     @Override

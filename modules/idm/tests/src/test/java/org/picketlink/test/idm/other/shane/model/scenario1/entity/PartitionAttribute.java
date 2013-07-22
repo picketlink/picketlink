@@ -18,22 +18,22 @@
 package org.picketlink.test.idm.other.shane.model.scenario1.entity;
 
 import java.io.Serializable;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-
 import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
 
 /**
  * This entity holds ad-hoc attribute values for partitions
  *
  * @author Shane Bryzak
  */
+@MappedAttribute
 @Entity
 public class PartitionAttribute implements Serializable {
     private static final long serialVersionUID = 5375379361556212335L;

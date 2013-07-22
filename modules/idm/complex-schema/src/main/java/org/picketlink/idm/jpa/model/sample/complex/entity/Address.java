@@ -15,52 +15,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.test.idm.other.shane.model.scenario1.entity;
+package org.picketlink.idm.jpa.model.sample.complex.entity;
 
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import org.picketlink.idm.jpa.annotations.OwnerReference;
-import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
-import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
-import org.picketlink.test.idm.other.shane.model.scenario1.User;
 
 /**
- * Stores user address records
- *
- * @author Shane Bryzak
+ * @author pedroigor
  */
 @Entity
-@IdentityManaged({User.class})
-@MappedAttribute("addresses")
-public class UserAddress implements Serializable {
-    private static final long serialVersionUID = 1345860654288091126L;
+public class Address implements Serializable {
 
-    @Id @GeneratedValue private Long addressId;
-    @ManyToOne @OwnerReference private IdentityObject identity;
+    private static final long serialVersionUID = -7853573986900909424L;
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @ManyToOne
+    private Person person;
+
     private String unitNumber;
     private String streetNumber;
     private String streetName;
-    private StreetType streetType;
     private String zip;
-    @ManyToOne private City city;
+    private String city;
 
-    public Long getAddressId() {
-        return addressId;
+    @ManyToOne
+    private Country country;
+
+    public Long getId() {
+        return id;
     }
 
-    public void setAddressId(Long addressId) {
-        this.addressId = addressId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public IdentityObject getIdentity() {
-        return identity;
+    public Person getPerson() {
+        return person;
     }
 
-    public void setIdentity(IdentityObject identity) {
-        this.identity = identity;
+    public void setPerson(Person person) {
+        this.person = person;
     }
 
     public String getUnitNumber() {
@@ -87,14 +87,6 @@ public class UserAddress implements Serializable {
         this.streetName = streetName;
     }
 
-    public StreetType getStreetType() {
-        return streetType;
-    }
-
-    public void setStreetType(StreetType streetType) {
-        this.streetType = streetType;
-    }
-
     public String getZip() {
         return zip;
     }
@@ -103,11 +95,41 @@ public class UserAddress implements Serializable {
         this.zip = zip;
     }
 
-    public City getCity() {
+    public String getCity() {
         return city;
     }
 
-    public void setCity(City city) {
+    public void setCity(String city) {
         this.city = city;
+    }
+
+    public Country getCountry() {
+        return country;
+    }
+
+    public void setCountry(Country country) {
+        this.country = country;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!getClass().isInstance(obj)) {
+            return false;
+        }
+
+        Address other = (Address) obj;
+
+        return getId() != null && other.getId() != null && getId().equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getId() != null ? getId().hashCode() : 0);
+        return result;
     }
 }

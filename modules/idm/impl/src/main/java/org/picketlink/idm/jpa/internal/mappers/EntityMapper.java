@@ -20,6 +20,7 @@ package org.picketlink.idm.jpa.internal.mappers;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Id;
@@ -29,7 +30,9 @@ import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.ConfigurationName;
 import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
+import org.picketlink.idm.jpa.internal.AttributeList;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
@@ -71,10 +74,12 @@ public class EntityMapper {
         Object entityInstance = null;
 
         try {
-            if (getEntityType().isAnnotationPresent(MappedAttribute.class)) {
+            MappedAttribute mappedAttribute = getEntityType().getAnnotation(MappedAttribute.class);
+
+            if (mappedAttribute != null && mappedAttribute.value().length() > 0) {
                 Property<Object> property = PropertyQueries
                         .createQuery(attributedType.getClass())
-                        .addCriteria(new NamedPropertyCriteria(getEntityType().getAnnotation(MappedAttribute.class).value()))
+                        .addCriteria(new NamedPropertyCriteria(mappedAttribute.value()))
                         .getFirstResult();
 
                 if (property != null) {
@@ -114,6 +119,8 @@ public class EntityMapper {
                     }
                 }
 
+                entityManager.persist(entityInstance);
+
                 for (Attribute attribute : attributedType.getAttributes()) {
                     this.store.setAttribute(attributedType, attribute, entityManager);
                 }
@@ -136,43 +143,87 @@ public class EntityMapper {
 
             if (property != null) {
                 entityInstance = property.getValue(attributedType);
+
+                if (entityInstance == null) {
+                    List childs = this.store.getAssociatedEntities(attributedType, this.store.getAttributedTypeEntity(attributedType, entityManager), entityManager, this);
+
+                    for (Object child: childs) {
+                        entityManager.remove(child);
+                    }
+                }
             }
         } else {
             entityInstance = entityManager.find(getEntityType(), attributedType.getId());
         }
 
         if (entityInstance != null) {
-            EntityMapping entityMapping = getMappingsFor(attributedType.getClass());
+            if (List.class.isInstance(entityInstance)) {
+                if (AttributeList.class.isInstance(entityInstance)) {
+                    AttributeList instances = (AttributeList) entityInstance;
+                    Iterator iterator = instances.getOriginalList().iterator();
 
-            for (Property property : entityMapping.getProperties().keySet()) {
-                Property mappedProperty = entityMapping.getProperties().get(property);
+                    while (iterator.hasNext()) {
+                        Object instance = iterator.next();
 
-                Object value = property.getValue(attributedType);
-
-                if (value != null) {
-                    if (this.store.isMappedType(mappedProperty.getJavaClass())) {
-                        for (EntityMapper entityMapper : getEntityMappers()) {
-                            if (mappedProperty.getJavaClass().equals(entityMapper.getEntityType())) {
-                                AttributedType attributedType1 = (AttributedType) value;
-                                mappedProperty.setValue(entityInstance, entityManager.find(mappedProperty.getJavaClass(), attributedType1.getId()));
-                            }
+                        if (!instances.contains(instance)) {
+                            entityManager.remove(instance);
                         }
-                    } else {
-                        mappedProperty.setValue(entityInstance, value);
                     }
-                } else {
-                    mappedProperty.setValue(entityInstance, null);
+                }
+
+                List instances = (List) entityInstance;
+                Iterator iterator = instances.iterator();
+
+                while (iterator.hasNext()) {
+                    updateEntity(attributedType, iterator.next(), entityManager);
+                }
+
+            } else {
+                updateEntity(attributedType, entityInstance, entityManager);
+            }
+
+            if (isRoot()) {
+                this.store.removeAllAttributes(attributedType, entityManager);
+
+                for (Attribute attribute : attributedType.getAttributes()) {
+                    this.store.setAttribute(attributedType, attribute, entityManager);
                 }
             }
         }
 
-        this.store.removeAllAttributes(attributedType, entityManager);
+        return entityInstance;
+    }
 
-        for (Attribute attribute : attributedType.getAttributes()) {
-            this.store.setAttribute(attributedType, attribute, entityManager);
+    private void updateEntity(AttributedType attributedType, Object entityInstance, EntityManager entityManager) {
+        EntityMapping entityMapping = getMappingsFor(attributedType.getClass());
+
+        for (Property property : entityMapping.getProperties().keySet()) {
+            Property mappedProperty = entityMapping.getProperties().get(property);
+
+            if (mappedProperty.getAnnotatedElement().isAnnotationPresent(ConfigurationName.class)) {
+                continue;
+            }
+
+            Object value = property.getValue(attributedType);
+
+            if (value != null) {
+                if (this.store.isMappedType(mappedProperty.getJavaClass())) {
+                    for (EntityMapper entityMapper : getEntityMappers()) {
+                        if (mappedProperty.getJavaClass().equals(entityMapper.getEntityType())) {
+                            AttributedType attributedType1 = (AttributedType) value;
+
+                            mappedProperty.setValue(entityInstance, entityManager.find(mappedProperty.getJavaClass(), attributedType1.getId()));
+                        }
+                    }
+                } else {
+                    mappedProperty.setValue(entityInstance, value);
+                }
+            } else {
+                mappedProperty.setValue(entityInstance, null);
+            }
         }
 
-        return entityInstance;
+        entityManager.persist(entityInstance);
     }
 
     public <V extends AttributedType> void populate(V attributedType, Object entityInstance, EntityManager entityManager) {
@@ -184,6 +235,18 @@ public class EntityMapper {
                     .getFirstResult();
 
             if (property != null) {
+                if (List.class.isAssignableFrom(property.getJavaClass())) {
+                    List instances = (List) property.getValue(attributedType);
+
+                    if (instances == null) {
+                        instances = new AttributeList();
+                    }
+
+                    instances.add(entityInstance);
+
+                    entityInstance = instances;
+                }
+
                 property.setValue(attributedType, entityInstance);
             }
         } else {

@@ -19,22 +19,24 @@ package org.picketlink.test.idm.other.shane.model.scenario1.entity;
 
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
-
+import javax.persistence.ManyToOne;
 import org.picketlink.idm.jpa.annotations.CreationDate;
 import org.picketlink.idm.jpa.annotations.Enabled;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+import org.picketlink.idm.model.IdentityType;
 
 /**
  * Root entity bean that defines each identity object
  *
  * @author Shane Bryzak
  */
+@IdentityManaged (IdentityType.class)
 @Entity
 public class IdentityObject implements Serializable {
     private static final long serialVersionUID = -4903614087285491855L;
@@ -44,7 +46,7 @@ public class IdentityObject implements Serializable {
     @CreationDate private Date createdDate;
     @ExpiryDate private Date expirationDate;
     @Enabled private boolean enabled;
-    @OwnerReference private Partition partition;
+    @OwnerReference @ManyToOne private Partition partition;
 
     public String getIdentityId() {
         return identityId;

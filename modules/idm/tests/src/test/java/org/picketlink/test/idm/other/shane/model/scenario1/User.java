@@ -20,7 +20,7 @@ public class User extends AbstractIdentityType implements Account {
     @AttributeProperty private String loginName;
     @AttributeProperty private String firstName;
     @AttributeProperty private String lastName;
-    private List<UserAddress> addresses;
+    @AttributeProperty private List<UserAddress> addresses;
     private List<UserEmail> emails;
     private EmployeeContract employeeContract;
 

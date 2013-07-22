@@ -18,15 +18,13 @@
 package org.picketlink.test.idm.other.shane.model.scenario1.entity;
 
 import java.io.Serializable;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
-
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
-import org.picketlink.test.idm.model.complex.User;
+import org.picketlink.test.idm.other.shane.model.scenario1.User;
 
 /**
  * This entity bean stores the user attribute values that are mapped directly to the User class 

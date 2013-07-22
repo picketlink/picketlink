@@ -19,6 +19,7 @@ package org.picketlink.test.idm.other.shane.model.scenario1.entity;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -28,6 +29,7 @@ import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
 import org.picketlink.idm.jpa.annotations.entity.SupportedAttributes;
 
 /**
@@ -36,6 +38,7 @@ import org.picketlink.idm.jpa.annotations.entity.SupportedAttributes;
  * @author Shane Bryzak
  */
 @Entity
+@MappedAttribute
 @SupportedAttributes({Object.class})
 public class IdentityObjectAttribute implements Serializable {
     private static final long serialVersionUID = 5375379361556212335L;
@@ -44,7 +47,7 @@ public class IdentityObjectAttribute implements Serializable {
     @OwnerReference @ManyToOne private IdentityObject identity;
     @AttributeClass private String attributeClass;
     @AttributeName private String attributeName;
-    @AttributeValue private String attributeValue;
+    @AttributeValue @Column(length = 100000) private String attributeValue;
 
     public Long getAttributeId() {
         return attributeId;

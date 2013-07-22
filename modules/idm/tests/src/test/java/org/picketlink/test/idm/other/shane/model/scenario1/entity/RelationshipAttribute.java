@@ -28,6 +28,7 @@ import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
 
 /**
  * This entity holds ad-hoc attribute values for all identity types
@@ -35,6 +36,7 @@ import org.picketlink.idm.jpa.annotations.OwnerReference;
  * @author Shane Bryzak
  */
 @Entity
+@MappedAttribute
 public class RelationshipAttribute implements Serializable {
     private static final long serialVersionUID = -4521220103274408291L;
 

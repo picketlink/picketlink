@@ -20,10 +20,11 @@ package org.picketlink.test.idm.other.shane.model.scenario1.entity;
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
 import org.picketlink.idm.jpa.annotations.PartitionName;
+import org.picketlink.idm.jpa.annotations.entity.ConfigurationName;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 
 /**
  * This entity bean contains partition records such as Realms and Tiers
@@ -31,12 +32,14 @@ import org.picketlink.idm.jpa.annotations.PartitionName;
  * @author Shane Bryzak
  */
 @Entity
+@IdentityManaged (org.picketlink.idm.model.Partition.class)
 public class Partition implements Serializable {
     private static final long serialVersionUID = -361112181956236802L;
 
     @Id @Identifier private String partitionId;
     @PartitionClass private String partitionClass;
     @PartitionName private String name;
+    @ConfigurationName private String configurationName;
 
     public String getPartitionId() {
         return partitionId;
@@ -60,5 +63,13 @@ public class Partition implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getConfigurationName() {
+        return configurationName;
+    }
+
+    public void setConfigurationName(String configurationName) {
+        this.configurationName = configurationName;
     }
 }

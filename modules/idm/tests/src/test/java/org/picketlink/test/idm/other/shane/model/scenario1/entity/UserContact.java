@@ -22,11 +22,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
-import org.picketlink.test.idm.model.complex.User;
+import org.picketlink.test.idm.other.shane.model.scenario1.User;
 
 /**
  * Contains user contact details
@@ -39,11 +38,11 @@ import org.picketlink.test.idm.model.complex.User;
 public class UserContact implements Serializable {
     private static final long serialVersionUID = -5561756250977481431L;
 
-    @Id @GeneratedValue @OwnerReference private Long contactId; 
-    @ManyToOne private IdentityObject identity;
-    private ContactType contactType;
+    @Id @GeneratedValue private Long contactId;
+    @ManyToOne @OwnerReference private IdentityObject identity;
+    @ManyToOne private ContactType contactType;
     private String value;
-    private boolean primary;
+    private boolean primaryContact;
 
     public Long getContactId() {
         return contactId;
@@ -77,11 +76,11 @@ public class UserContact implements Serializable {
         this.value = value;
     }
 
-    public boolean isPrimary() {
-        return primary;
+    public boolean isPrimaryContact() {
+        return primaryContact;
     }
 
-    public void setPrimary(boolean primary) {
-        this.primary = primary;
+    public void setPrimaryContact(boolean primaryContact) {
+        this.primaryContact = primaryContact;
     }
 }

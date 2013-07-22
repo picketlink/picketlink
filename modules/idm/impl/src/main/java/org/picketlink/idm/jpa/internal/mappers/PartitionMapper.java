@@ -54,7 +54,14 @@ public class PartitionMapper extends AbstractAttributedTypeMapper {
 
         entityMapping.addTypeProperty(getAnnotatedProperty(PartitionClass.class, entityType));
         entityMapping.addProperty(getNamedProperty("name", managedType), getAnnotatedProperty(PartitionName.class, entityType));
-        entityMapping.addMappedProperty(getAnnotatedProperty(ConfigurationName.class, entityType));
+
+        Property configurationNameProperty = getAnnotatedProperty(ConfigurationName.class, entityType);
+
+        if (configurationNameProperty == null) {
+            throw new SecurityConfigurationException("No property annotated with @ConfiguredName for entity [" + entityType + "].");
+        }
+
+        entityMapping.addMappedProperty(configurationNameProperty);
 
         return entityMapping;
     }
