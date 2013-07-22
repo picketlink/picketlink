@@ -41,19 +41,9 @@ import org.picketlink.authentication.event.PostAuthenticateEvent;
 import org.picketlink.authentication.event.PostLoggedOutEvent;
 import org.picketlink.authentication.event.PreAuthenticateEvent;
 import org.picketlink.authentication.event.PreLoggedOutEvent;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.ArchiveUtils;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
-
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.event.Observes;
-import javax.enterprise.event.Reception;
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
@@ -134,7 +124,7 @@ public class AuthenticationEventHandlingTestCase extends AbstractAuthenticationT
         Listener lockedAccountListener = this.observer.addListener(LockedAccountEvent.class);
         Listener postAuthenticationListener = this.observer.addListener(PostAuthenticateEvent.class);
 
-        User user = super.identityManager.getUser(USER_NAME);
+        User user = IdentityLocator.getUser(super.identityManager, USER_NAME);
 
         user.setEnabled(false);
 

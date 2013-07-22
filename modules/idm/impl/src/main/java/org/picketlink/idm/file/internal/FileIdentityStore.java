@@ -35,12 +35,12 @@ import org.picketlink.common.properties.query.PropertyQuery;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
-import org.picketlink.idm.credential.internal.DigestCredentialHandler;
-import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
-import org.picketlink.idm.credential.internal.TOTPCredentialHandler;
-import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
-import org.picketlink.idm.credential.spi.CredentialStorage;
-import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
+import org.picketlink.idm.credential.handler.DigestCredentialHandler;
+import org.picketlink.idm.credential.handler.PasswordCredentialHandler;
+import org.picketlink.idm.credential.handler.TOTPCredentialHandler;
+import org.picketlink.idm.credential.handler.X509CertificateCredentialHandler;
+import org.picketlink.idm.credential.handler.annotations.CredentialHandlers;
+import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.internal.AbstractIdentityStore;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Attribute;
@@ -59,7 +59,7 @@ import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.PartitionStore;
 import static java.util.Map.Entry;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.credential.internal.CredentialUtils.getCurrentCredential;
+import static org.picketlink.idm.credential.util.CredentialUtils.getCurrentCredential;
 
 /**
  * <p>

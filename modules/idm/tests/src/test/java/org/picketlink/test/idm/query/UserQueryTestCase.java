@@ -56,7 +56,7 @@ public class UserQueryTestCase extends AgentQueryTestCase<User> {
 
     @Override
     protected User getIdentityType() {
-        return getIdentityManager().getUser("someUser");
+        return getUser("someUser");
     }
 
     /**

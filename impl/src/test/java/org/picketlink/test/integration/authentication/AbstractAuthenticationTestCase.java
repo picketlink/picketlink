@@ -30,6 +30,7 @@ import org.picketlink.authentication.internal.IdmAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.AbstractArquillianTestCase;
 
@@ -57,7 +58,7 @@ public abstract class AbstractAuthenticationTestCase extends AbstractArquillianT
 
     @Before
     public void onSetup() {
-        User john = this.identityManager.getUser(USER_NAME);
+        User john = IdentityLocator.getUser(this.identityManager, USER_NAME);
 
         if (john == null) {
             john = new User(USER_NAME);

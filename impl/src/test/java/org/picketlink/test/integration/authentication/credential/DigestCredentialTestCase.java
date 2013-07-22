@@ -21,8 +21,9 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.picketlink.idm.credential.Digest;
-import org.picketlink.idm.credential.internal.DigestUtil;
+import org.picketlink.idm.credential.util.DigestUtil;
 import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.test.integration.ArchiveUtils;
 import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
@@ -102,7 +103,7 @@ public class DigestCredentialTestCase extends AbstractAuthenticationTestCase {
         credential.setUsername(USER_NAME);
         credential.setPassword(USER_PASSWORD);
 
-        super.identityManager.updateCredential(super.identityManager.getUser(USER_NAME), credential);
+        super.identityManager.updateCredential(IdentityLocator.getUser(super.identityManager, USER_NAME), credential);
     }
 
 }

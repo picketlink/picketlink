@@ -27,6 +27,7 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.ArchiveUtils;
 import static org.junit.Assert.assertFalse;
@@ -47,7 +48,7 @@ public class LogoutTestCase extends AbstractAuthenticationTestCase {
     
     @Before
     public void onSetup() {
-        User john = this.identityManager.getUser(USER_NAME);
+        User john = IdentityLocator.getUser(this.identityManager, USER_NAME);
 
         if (john == null) {
             john = new User(USER_NAME);

@@ -56,10 +56,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
     @Test
     public void testCreate() throws Exception {
         Agent newAgent = createIdentityType();
-        
-        IdentityManager identityManager = getIdentityManager();
-
-        Agent storedAgent = identityManager.getAgent(newAgent.getLoginName());
+        Agent storedAgent = getAgent(newAgent.getLoginName());
 
         assertNotNull(storedAgent);
         assertEquals(newAgent.getId(), storedAgent.getId());
@@ -87,7 +84,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
         
         identityManager.update(storedAgent);
 
-        Agent updatedUser = identityManager.getAgent(storedAgent.getLoginName());
+        Agent updatedUser = getAgent(storedAgent.getLoginName());
 
         assertNotNull(updatedUser.getAttribute("someAttribute"));
         assertEquals("1", updatedUser.getAttribute("someAttribute").getValue());
@@ -103,11 +100,11 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
 
         identityManager.remove(someAgent);
 
-        Agent removedUserInstance = getIdentityManager().getAgent(someAgent.getLoginName());
+        Agent removedUserInstance = getAgent(someAgent.getLoginName());
 
         assertNull(removedUserInstance);
         
-        anotherAgent = identityManager.getAgent(anotherAgent.getLoginName());
+        anotherAgent = getAgent(anotherAgent.getLoginName());
         
         assertNotNull(anotherAgent);
         
@@ -148,7 +145,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
 
     @Override
     protected Agent getIdentityType() {
-        return getIdentityManager().getAgent("someSimpleAgent");
+        return getAgent("someSimpleAgent");
     }
 
     @Override
@@ -163,9 +160,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
         
         assertFalse(instanceA.equals(instanceB));
         
-        IdentityManager identityManager = getIdentityManager();
-        
-        assertTrue(instanceA.getLoginName().equals(identityManager.getAgent(instanceA.getLoginName()).getLoginName()));
+        assertTrue(instanceA.getLoginName().equals(getAgent(instanceA.getLoginName()).getLoginName()));
     }
 
 }

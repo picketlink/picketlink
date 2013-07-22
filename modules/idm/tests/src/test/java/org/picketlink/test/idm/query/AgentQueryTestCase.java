@@ -70,7 +70,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
     @Override
     protected T getIdentityType() {
-        return (T) getIdentityManager().getAgent("someSimpleAgent");
+        return (T) getAgent("someSimpleAgent");
     }
 
     @After

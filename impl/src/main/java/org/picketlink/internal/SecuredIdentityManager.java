@@ -24,13 +24,9 @@ import javax.enterprise.inject.Typed;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.credential.spi.CredentialStorage;
+import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.sample.Agent;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 
 /**
@@ -63,31 +59,6 @@ public class SecuredIdentityManager implements IdentityManager {
     @Override
     public void remove(IdentityType value) throws IdentityManagementException {
         decorated.remove(value);
-    }
-
-    @Override
-    public Agent getAgent(String loginName) throws IdentityManagementException {
-        return decorated.getAgent(loginName);
-    }
-
-    @Override
-    public User getUser(String loginName) {
-        return decorated.getUser(loginName);
-    }
-
-    @Override
-    public Role getRole(String name) {
-        return decorated.getRole(name);
-    }
-
-    @Override
-    public Group getGroup(String groupPath) {
-        return decorated.getGroup(groupPath);
-    }
-
-    @Override
-    public Group getGroup(String groupName, Group parent) {
-        return decorated.getGroup(groupName, parent);
     }
 
     @Override

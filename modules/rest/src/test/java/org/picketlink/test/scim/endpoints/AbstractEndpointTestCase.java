@@ -33,6 +33,7 @@ import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
@@ -88,7 +89,7 @@ public abstract class AbstractEndpointTestCase extends EmbeddedWebServerBase {
         // FIXME: IdentityManager is not threadsafe
         IdentityManager  identityManager = partitionManager.createIdentityManager();
 
-        User anil = identityManager.getUser("anil");
+        User anil = IdentityLocator.getUser(identityManager, "anil");
 
         // Check when tests are running in unforked JVM
         if (anil == null) {

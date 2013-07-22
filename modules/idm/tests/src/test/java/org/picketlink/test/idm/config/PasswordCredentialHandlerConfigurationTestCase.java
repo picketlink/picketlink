@@ -33,19 +33,20 @@ import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
-import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
+import org.picketlink.idm.credential.encoder.BCryptPasswordEncoder;
+import org.picketlink.idm.credential.encoder.PBKDF2PasswordEncoder;
+import org.picketlink.idm.credential.encoder.PasswordEncoder;
+import org.picketlink.idm.credential.encoder.SHAPasswordEncoder;
+import org.picketlink.idm.credential.handler.PasswordCredentialHandler;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.idm.password.PasswordEncoder;
-import org.picketlink.idm.password.internal.BCryptPasswordEncoder;
-import org.picketlink.idm.password.internal.PBKDF2PasswordEncoder;
-import org.picketlink.idm.password.internal.SHAPasswordEncoder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.picketlink.idm.credential.internal.PasswordCredentialHandler.PASSWORD_ENCODER;
+import static org.picketlink.idm.credential.handler.PasswordCredentialHandler.PASSWORD_ENCODER;
+import static org.picketlink.idm.model.sample.IdentityLocator.getUser;
 
 /**
  * <p>Some tests for the configuration of the encoding when using the {@link PasswordCredentialHandler}.</p>
@@ -76,7 +77,7 @@ public class PasswordCredentialHandlerConfigurationTestCase {
 
         identityManager.add(user);
 
-        user = identityManager.getUser(user.getLoginName());
+        user = getUser(identityManager, user.getLoginName());
 
         assertNotNull(user);
 
@@ -112,7 +113,7 @@ public class PasswordCredentialHandlerConfigurationTestCase {
 
         identityManager.add(user);
 
-        user = identityManager.getUser(user.getLoginName());
+        user = getUser(identityManager, user.getLoginName());
 
         assertNotNull(user);
 
@@ -160,7 +161,7 @@ public class PasswordCredentialHandlerConfigurationTestCase {
 
         identityManager.add(user);
 
-        user = identityManager.getUser(user.getLoginName());
+        user = getUser(identityManager, user.getLoginName());
         
         assertNotNull(user);
         
@@ -209,7 +210,7 @@ public class PasswordCredentialHandlerConfigurationTestCase {
 
         identityManager.add(user);
 
-        user = identityManager.getUser(user.getLoginName());
+        user = getUser(identityManager, user.getLoginName());
         
         assertNotNull(user);
         
@@ -255,7 +256,7 @@ public class PasswordCredentialHandlerConfigurationTestCase {
 
         identityManager.add(user);
 
-        user = identityManager.getUser(user.getLoginName());
+        user = getUser(identityManager, user.getLoginName());
         
         assertNotNull(user);
         

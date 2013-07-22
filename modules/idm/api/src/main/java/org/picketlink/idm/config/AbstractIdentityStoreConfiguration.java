@@ -23,8 +23,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.picketlink.idm.credential.spi.CredentialHandler;
-import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
+
+import org.picketlink.idm.credential.handler.CredentialHandler;
+import org.picketlink.idm.credential.handler.annotations.CredentialHandlers;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.spi.ContextInitializer;

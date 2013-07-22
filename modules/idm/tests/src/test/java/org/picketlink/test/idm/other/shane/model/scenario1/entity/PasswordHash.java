@@ -23,6 +23,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import org.picketlink.idm.credential.storage.EncodedPasswordStorage;
 import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
@@ -32,8 +33,6 @@ import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
 import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
 import org.picketlink.idm.jpa.annotations.entity.SupportedAttributes;
-import org.picketlink.idm.jpa.model.sample.simple.CredentialAttributeTypeEntity;
-import org.picketlink.idm.password.internal.EncodedPasswordStorage;
 
 /**
  * Stores credential information
@@ -47,12 +46,15 @@ import org.picketlink.idm.password.internal.EncodedPasswordStorage;
 public class PasswordHash implements Serializable {
 
     @Id @GeneratedValue private long credentialId;
-    @ManyToOne @OwnerReference IdentityObject identity;
+    @ManyToOne @OwnerReference
+    IdentityObject identity;
     @AttributeClass private String credentialClass;
     @AttributeName private String name;
     @AttributeValue private String credentialValue;
-    @EffectiveDate private Date effectiveDate;
-    @ExpiryDate private Date expiryDate;
+    @EffectiveDate
+    private Date effectiveDate;
+    @ExpiryDate
+    private Date expiryDate;
     @ManyToOne
     private PasswordHash parent;
 

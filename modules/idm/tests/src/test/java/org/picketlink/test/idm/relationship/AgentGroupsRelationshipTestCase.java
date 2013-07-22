@@ -61,7 +61,7 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractPa
     }
 
     protected T getIdentityType() {
-        return (T) getIdentityManager().getAgent("someAgent");
+        return (T) getAgent("someAgent");
     }
     
     /**

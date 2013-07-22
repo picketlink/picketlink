@@ -25,7 +25,6 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
-import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
@@ -55,9 +54,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     public void testCreate() throws Exception {
         Group newGroup = createGroup("someGroup", null);
 
-        IdentityManager identityManager = getIdentityManager();
-
-        Group storedGroup = identityManager.getGroup(newGroup.getName());
+        Group storedGroup = getGroup(newGroup.getName());
 
         assertNotNull(storedGroup);
         assertEquals(newGroup.getId(), storedGroup.getId());
@@ -92,13 +89,13 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
         // the QA Group was mapped to a different DN. See the LDAP test suite configuration.
         Group qaManagerGroup = createGroup("managers", "QA Group");
 
-        Group storedManagerGroup = identityManager.getGroup(managerGroup.getPath());
+        Group storedManagerGroup = getGroup(managerGroup.getPath());
 
         assertNotNull(storedManagerGroup);
         assertEquals(managerGroup.getId(), storedManagerGroup.getId());
         assertNull(storedManagerGroup.getParentGroup());
 
-        Group storedQAManagerGroup = identityManager.getGroup(qaManagerGroup.getPath());
+        Group storedQAManagerGroup = getGroup(qaManagerGroup.getPath());
 
         assertNotNull(storedQAManagerGroup);
         assertEquals(qaManagerGroup.getId(), storedQAManagerGroup.getId());
@@ -119,7 +116,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
         Group groupD = createGroupWithParent("groupD", groupC);
 
-        Group storedGroupD = identityManager.getGroup("/QA Group/groupB/groupC/groupD");
+        Group storedGroupD = getGroup("/QA Group/groupB/groupC/groupD");
 
         assertNotNull(storedGroupD);
         assertEquals(storedGroupD.getId(), groupD.getId());
@@ -145,22 +142,22 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
         Group groupD = createGroupWithParent("groupD", groupC);
 
-        Group storedGroupD = identityManager.getGroup("/groupA/groupB/groupC/groupD");
+        Group storedGroupD = getGroup("/groupA/groupB/groupC/groupD");
 
         assertEquals(storedGroupD.getId(), groupD.getId());
         assertEquals("/groupA/groupB/groupC/groupD", storedGroupD.getPath());
 
-        Group storedGroupB = identityManager.getGroup("/groupA/groupB");
+        Group storedGroupB = getGroup("/groupA/groupB");
 
         assertEquals(storedGroupB.getId(), groupB.getId());
         assertEquals("/groupA/groupB", storedGroupB.getPath());
 
-        Group storedGroupA = identityManager.getGroup("/groupA");
+        Group storedGroupA = getGroup("/groupA");
 
         assertEquals(storedGroupA.getId(), groupA.getId());
         assertEquals("/groupA", storedGroupA.getPath());
 
-        storedGroupA = identityManager.getGroup("groupA");
+        storedGroupA = getGroup("groupA");
 
         assertEquals(storedGroupA.getId(), groupA.getId());
         assertEquals("/groupA", storedGroupA.getPath());
@@ -172,7 +169,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
         IdentityManager identityManager = getIdentityManager();
 
-        Group storedChildGroup = identityManager.getGroup(childGroup.getPath());
+        Group storedChildGroup = getGroup(childGroup.getPath());
 
         assertNotNull(storedChildGroup);
         assertEquals(childGroup.getName(), storedChildGroup.getName());
@@ -186,13 +183,13 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
         IdentityManager identityManager = getIdentityManager();
 
-        Group parentGroup = identityManager.getGroup("Test Parent Group");
+        Group parentGroup = getGroup("Test Parent Group");
 
         assertNotNull(parentGroup);
         assertNotNull("Test Parent Group", parentGroup.getName());
         assertNotNull("/Test Parent Group", parentGroup.getPath());
 
-        storedGroup = identityManager.getGroup("Test Group", parentGroup);
+        storedGroup = getGroup("Test Group", parentGroup);
 
         assertNotNull(storedGroup);
         assertNotNull(storedGroup.getParentGroup());
@@ -200,7 +197,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
         Group invalidParentGroup = createGroup("invalidParentGroup", null);
 
-        Group invalidGroup = identityManager.getGroup("Test Group", invalidParentGroup);
+        Group invalidGroup = getGroup("Test Group", invalidParentGroup);
 
         assertNull(invalidGroup);
     }
@@ -215,7 +212,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
         identityManager.remove(storedGroup);
 
-        Group removedGroup = identityManager.getGroup(storedGroup.getName());
+        Group removedGroup = getGroup(storedGroup.getName());
 
         assertNull(removedGroup);
 
@@ -249,7 +246,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
     @Override
     protected Group getIdentityType() {
-        return getIdentityManager().getGroup("Test Group", getGroup("Test Parent Group"));
+        return getGroup("Test Group", getGroup("Test Parent Group"));
     }
 
     @Test
@@ -261,7 +258,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
         IdentityManager identityManager = getIdentityManager();
 
-        assertTrue(instanceA.getName().equals(identityManager.getGroup(instanceA.getPath()).getName()));
+        assertTrue(instanceA.getName().equals(getGroup(instanceA.getPath()).getName()));
     }
 
 }

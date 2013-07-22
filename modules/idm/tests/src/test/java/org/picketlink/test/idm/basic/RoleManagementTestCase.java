@@ -24,7 +24,6 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.sample.Grant;
 import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.GroupRole;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
@@ -54,9 +53,7 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
     public void testCreate() throws Exception {
         Role newRole = createRole("someRole");
 
-        IdentityManager identityManager = getIdentityManager();
-
-        Role storedRole = identityManager.getRole(newRole.getName());
+        Role storedRole = getRole(newRole.getName());
 
         assertNotNull(storedRole);
         assertEquals(newRole.getId(), storedRole.getId());
@@ -77,7 +74,7 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
 
         identityManager.remove(storedRole);
 
-        Role removedRole = identityManager.getRole(storedRole.getName());
+        Role removedRole = getRole(storedRole.getName());
 
         assertNull(removedRole);
         
@@ -112,9 +109,7 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
         
         assertFalse(instanceA.equals(instanceB));
         
-        IdentityManager identityManager = getIdentityManager();
-        
-        assertTrue(instanceA.getName().equals(identityManager.getRole(instanceA.getName()).getName()));
+        assertTrue(instanceA.getName().equals(getRole(instanceA.getName()).getName()));
     }
 
     @Override
@@ -124,7 +119,7 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
 
     @Override
     protected Role getIdentityType() {
-        return getIdentityManager().getRole("Administrator");
+        return getRole("Administrator");
     }
 
 }

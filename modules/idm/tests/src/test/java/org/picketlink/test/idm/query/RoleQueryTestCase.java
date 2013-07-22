@@ -64,7 +64,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
 
     @Override
     protected Role getIdentityType() {
-        return getIdentityManager().getRole("someRole");
+        return getRole("someRole");
     }
 
     @After

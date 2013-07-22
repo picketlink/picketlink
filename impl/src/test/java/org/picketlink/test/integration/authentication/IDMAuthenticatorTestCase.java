@@ -23,15 +23,14 @@
 package org.picketlink.test.integration.authentication;
 
 import java.net.Authenticator;
-
 import javax.inject.Inject;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
 import org.picketlink.authentication.internal.IdmAuthenticator;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.ArchiveUtils;
 
@@ -55,7 +54,7 @@ public class IDMAuthenticatorTestCase extends AbstractAuthenticatorTestCase {
     
     @Before
     public void onSetup() {
-        User john = this.identityManager.getUser(USER_NAME);
+        User john = IdentityLocator.getUser(this.identityManager, USER_NAME);
 
         if (john == null) {
             john = new User(USER_NAME);
@@ -73,7 +72,7 @@ public class IDMAuthenticatorTestCase extends AbstractAuthenticatorTestCase {
     
     @Override
     protected User doLockUserAccount() {
-        User john = this.identityManager.getUser(USER_NAME);
+        User john = IdentityLocator.getUser(this.identityManager, USER_NAME);
 
         john.setEnabled(false);
 

@@ -22,6 +22,7 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.test.integration.ArchiveUtils;
 import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
 import static org.junit.Assert.assertEquals;
@@ -72,7 +73,7 @@ public class UsernamePasswordCredentialTestCase extends AbstractAuthenticationTe
     }
 
     private void updateUsernamePasswordCredential() {
-        super.identityManager.updateCredential(super.identityManager.getUser(USER_NAME), new Password(USER_PASSWORD));
+        super.identityManager.updateCredential(IdentityLocator.getUser(super.identityManager, USER_NAME), new Password(USER_PASSWORD));
     }
 
 }

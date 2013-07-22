@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.idm.password.internal;
+package org.picketlink.idm.credential.encoder;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -25,7 +25,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
-import org.picketlink.idm.password.PasswordEncoder;
 
 /**
  * Implementation of {@link PasswordEncoder} that uses PBKDF2

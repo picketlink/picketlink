@@ -30,8 +30,8 @@ import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.AbstractBaseCredentials;
 import org.picketlink.idm.credential.Credentials.Status;
-import org.picketlink.idm.credential.spi.CredentialHandler;
-import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
+import org.picketlink.idm.credential.handler.CredentialHandler;
+import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.Realm;
@@ -42,6 +42,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.picketlink.idm.model.sample.IdentityLocator.getUser;
 
 /**
  * <p>Some tests for the configuration of custom {@link CredentialHandler}.</p>
@@ -79,7 +80,7 @@ public class CredentialHandlerConfigurationTestCase {
 
         identityManager.add(user);
 
-        user = identityManager.getUser(user.getLoginName());
+        user = getUser(identityManager, user.getLoginName());
         
         assertNotNull(user);
         
@@ -119,7 +120,7 @@ public class CredentialHandlerConfigurationTestCase {
 
         identityManager.add(user);
 
-        user = identityManager.getUser(user.getLoginName());
+        user = getUser(identityManager, user.getLoginName());
         
         assertNotNull(user);
         

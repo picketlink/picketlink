@@ -40,6 +40,7 @@ import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.internal.DefaultPartitionManager;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.AbstractArquillianTestCase;
@@ -144,7 +145,7 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
 
         IdentityManager identityManager = this.identityManagerInstance.get();
 
-        User user = identityManager.getUser(USER_NAME);
+        User user = IdentityLocator.getUser(identityManager, USER_NAME);
 
         assertEquals(TESTING_REALM_NAME, user.getPartition().getId());
 

@@ -23,6 +23,7 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.model.sample.User;
@@ -85,15 +86,17 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
     public void testRolesForTier() throws Exception {
         IdentityManager applicationTierIdentityManager = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
-        Role testingRole = new Role("Role");
+        Role testingRole = IdentityLocator.getRole(applicationTierIdentityManager, "Role");
 
-        if (applicationTierIdentityManager.getRole(testingRole.getName()) != null) {
-            applicationTierIdentityManager.remove(applicationTierIdentityManager.getRole(testingRole.getName()));
+        if (testingRole != null) {
+            applicationTierIdentityManager.remove(testingRole);
         }
+
+        testingRole = new Role("Role");
 
         applicationTierIdentityManager.add(testingRole);
 
-        testingRole = applicationTierIdentityManager.getRole(testingRole.getName());
+        testingRole = IdentityLocator.getRole(applicationTierIdentityManager, testingRole.getName());
 
         assertNotNull(testingRole);
         assertNotNull(testingRole.getPartition());
@@ -101,7 +104,7 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         IdentityManager identityManager = getIdentityManager();
 
-        testingRole = identityManager.getRole(testingRole.getName());
+        testingRole = IdentityLocator.getRole(identityManager, testingRole.getName());
 
         assertNull(testingRole);
     }
@@ -112,13 +115,13 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Group testingGroup = new Group("testingGroupTier");
 
-        if (applicationA.getGroup(testingGroup.getPath()) != null) {
-            applicationA.remove(applicationA.getGroup(testingGroup.getPath()));
+        if (IdentityLocator.getGroup(applicationA, testingGroup.getPath()) != null) {
+            applicationA.remove(IdentityLocator.getGroup(applicationA, testingGroup.getPath()));
         }
 
         applicationA.add(testingGroup);
 
-        testingGroup = applicationA.getGroup(testingGroup.getName());
+        testingGroup = IdentityLocator.getGroup(applicationA, testingGroup.getName());
 
         assertNotNull(testingGroup);
         assertNotNull(testingGroup.getPartition());
@@ -126,7 +129,7 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         IdentityManager identityManager = getIdentityManager();
         
-        testingGroup = identityManager.getGroup(testingGroup.getName());
+        testingGroup = IdentityLocator.getGroup(identityManager, testingGroup.getName());
 
         assertNull(testingGroup);
     }
@@ -137,8 +140,8 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Role roleA = new Role("Role");
 
-        if (applicationA.getRole(roleA.getName()) != null) {
-            applicationA.remove(applicationA.getRole(roleA.getName()));
+        if (IdentityLocator.getRole(applicationA, roleA.getName()) != null) {
+            applicationA.remove(IdentityLocator.getRole(applicationA, roleA.getName()));
         }
 
         applicationA.add(roleA);
@@ -150,20 +153,20 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
         } catch (IdentityManagementException e) {
         }
 
-        roleA = applicationA.getRole(roleA.getName());
+        roleA = IdentityLocator.getRole(applicationA, roleA.getName());
 
         IdentityManager applicationB = createIdentityManagerForTier(APPLICATION_B_TIER_NAME);
 
         Role roleB = new Role("Role");
 
-        if (applicationB.getRole(roleB.getName()) != null) {
-            applicationB.remove(applicationB.getRole(roleB.getName()));
+        if (IdentityLocator.getRole(applicationB, roleB.getName()) != null) {
+            applicationB.remove(IdentityLocator.getRole(applicationB, roleB.getName()));
         }
 
         applicationB.add(roleB);
 
-        roleA = applicationA.getRole(roleA.getName());
-        roleB = applicationB.getRole(roleB.getName());
+        roleA = IdentityLocator.getRole(applicationA, roleA.getName());
+        roleB = IdentityLocator.getRole(applicationB, roleB.getName());
 
         assertFalse(roleA.getId().equals(roleB.getId()));
     }
@@ -174,8 +177,8 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Group groupA = new Group("Group");
 
-        if (applicationA.getGroup(groupA.getPath()) != null) {
-            applicationA.remove(applicationA.getGroup(groupA.getPath()));
+        if (IdentityLocator.getGroup(applicationA, groupA.getPath()) != null) {
+            applicationA.remove(IdentityLocator.getGroup(applicationA, groupA.getPath()));
         }
 
         applicationA.add(groupA);
@@ -187,20 +190,20 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
         } catch (IdentityManagementException e) {
         }
 
-        groupA = applicationA.getGroup(groupA.getName());
+        groupA = IdentityLocator.getGroup(applicationA, groupA.getName());
 
         IdentityManager applicationB = createIdentityManagerForTier(APPLICATION_B_TIER_NAME);
 
         Group groupB = new Group("Group");
 
-        if (applicationB.getGroup(groupB.getPath()) != null) {
-            applicationB.remove(applicationB.getGroup(groupB.getPath()));
+        if (IdentityLocator.getGroup(applicationB, groupB.getPath()) != null) {
+            applicationB.remove(IdentityLocator.getGroup(applicationB, groupB.getPath()));
         }
 
         applicationB.add(groupB);
 
-        groupA = applicationA.getGroup(groupA.getName());
-        groupB = applicationB.getGroup(groupB.getName());
+        groupA = IdentityLocator.getGroup(applicationA, groupA.getName());
+        groupB = IdentityLocator.getGroup(applicationB, groupB.getName());
 
         assertFalse(groupA.getId().equals(groupB.getId()));
     }
@@ -211,8 +214,8 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Group groupA = new Group("Group");
 
-        if (applicationA.getGroup(groupA.getPath()) != null) {
-            applicationA.remove(applicationA.getGroup(groupA.getPath()));
+        if (IdentityLocator.getGroup(applicationA, groupA.getPath()) != null) {
+            applicationA.remove(IdentityLocator.getGroup(applicationA, groupA.getPath()));
         }
 
         applicationA.add(groupA);
@@ -224,7 +227,7 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
         } catch (Exception e) {
         }
 
-        groupA = applicationA.getGroup(groupA.getName());
+        groupA = IdentityLocator.getGroup(applicationA, groupA.getName());
 
         assertNotNull(groupA);
 
@@ -232,14 +235,14 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Group groupB = new Group("Group");
 
-        if (applicationB.getGroup(groupB.getPath()) != null) {
-            applicationB.remove(applicationB.getGroup(groupB.getPath()));
+        if (IdentityLocator.getGroup(applicationB, groupB.getPath()) != null) {
+            applicationB.remove(IdentityLocator.getGroup(applicationB, groupB.getPath()));
         }
 
         applicationB.add(groupB);
 
-        groupA = applicationA.getGroup(groupA.getName());
-        groupB = applicationB.getGroup(groupB.getName());
+        groupA = IdentityLocator.getGroup(applicationA, groupA.getName());
+        groupB = IdentityLocator.getGroup(applicationB, groupB.getName());
 
         assertFalse(groupA.getId().equals(groupB.getId()));
     }
@@ -272,51 +275,51 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         applicationC.add(new Role(roleCName));
 
-        assertNull(acmeRealm.getRole(roleAName));
-        assertNull(acmeRealm.getRole(roleBName));
-        assertNull(acmeRealm.getRole(roleCName));
+        assertNull(IdentityLocator.getRole(acmeRealm, roleAName));
+        assertNull(IdentityLocator.getRole(acmeRealm, roleBName));
+        assertNull(IdentityLocator.getRole(acmeRealm, roleCName));
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        relationshipManager.grantRole(john, applicationA.getRole(roleAName));
-        relationshipManager.grantRole(bill, applicationB.getRole(roleBName));
-        relationshipManager.grantRole(mary, applicationC.getRole(roleCName));
+        relationshipManager.grantRole(john, IdentityLocator.getRole(applicationA, roleAName));
+        relationshipManager.grantRole(bill, IdentityLocator.getRole(applicationB, roleBName));
+        relationshipManager.grantRole(mary, IdentityLocator.getRole(applicationC, roleCName));
 
-        assertTrue(relationshipManager.hasRole(john, applicationA.getRole(roleAName)));
-        assertFalse(relationshipManager.hasRole(john, applicationB.getRole(roleBName)));
-        assertFalse(relationshipManager.hasRole(john, applicationC.getRole(roleCName)));
+        assertTrue(relationshipManager.hasRole(john, IdentityLocator.getRole(applicationA, roleAName)));
+        assertFalse(relationshipManager.hasRole(john, IdentityLocator.getRole(applicationB, roleBName)));
+        assertFalse(relationshipManager.hasRole(john, IdentityLocator.getRole(applicationC, roleCName)));
 
-        assertTrue(relationshipManager.hasRole(bill, applicationB.getRole(roleBName)));
-        assertFalse(relationshipManager.hasRole(bill, applicationA.getRole(roleAName)));
-        assertFalse(relationshipManager.hasRole(bill, applicationC.getRole(roleCName)));
+        assertTrue(relationshipManager.hasRole(bill, IdentityLocator.getRole(applicationB, roleBName)));
+        assertFalse(relationshipManager.hasRole(bill, IdentityLocator.getRole(applicationA, roleAName)));
+        assertFalse(relationshipManager.hasRole(bill, IdentityLocator.getRole(applicationC, roleCName)));
 
-        assertTrue(relationshipManager.hasRole(mary, applicationC.getRole(roleCName)));
-        assertFalse(relationshipManager.hasRole(mary, applicationA.getRole(roleAName)));
-        assertFalse(relationshipManager.hasRole(mary, applicationB.getRole(roleBName)));
+        assertTrue(relationshipManager.hasRole(mary, IdentityLocator.getRole(applicationC, roleCName)));
+        assertFalse(relationshipManager.hasRole(mary, IdentityLocator.getRole(applicationA, roleAName)));
+        assertFalse(relationshipManager.hasRole(mary, IdentityLocator.getRole(applicationB, roleBName)));
 
-        relationshipManager.grantRole(john, applicationB.getRole(roleBName));
+        relationshipManager.grantRole(john, IdentityLocator.getRole(applicationB, roleBName));
 
-        assertTrue(relationshipManager.hasRole(john, applicationA.getRole(roleAName)));
-        assertTrue(relationshipManager.hasRole(john, applicationB.getRole(roleBName)));
-        assertFalse(relationshipManager.hasRole(john, applicationC.getRole(roleCName)));
+        assertTrue(relationshipManager.hasRole(john, IdentityLocator.getRole(applicationA, roleAName)));
+        assertTrue(relationshipManager.hasRole(john, IdentityLocator.getRole(applicationB, roleBName)));
+        assertFalse(relationshipManager.hasRole(john, IdentityLocator.getRole(applicationC, roleCName)));
 
-        applicationA.remove(applicationA.getRole(roleAName));
+        applicationA.remove(IdentityLocator.getRole(applicationA, roleAName));
 
-        assertNull(applicationA.getRole(roleAName));
-        assertTrue(relationshipManager.hasRole(bill, applicationB.getRole(roleBName)));
-        assertTrue(relationshipManager.hasRole(mary, applicationC.getRole(roleCName)));
+        assertNull(IdentityLocator.getRole(applicationA, roleAName));
+        assertTrue(relationshipManager.hasRole(bill, IdentityLocator.getRole(applicationB, roleBName)));
+        assertTrue(relationshipManager.hasRole(mary, IdentityLocator.getRole(applicationC, roleCName)));
 
-        relationshipManager.revokeRole(bill, applicationB.getRole(roleBName));
+        relationshipManager.revokeRole(bill, IdentityLocator.getRole(applicationB, roleBName));
 
-        assertFalse(relationshipManager.hasRole(bill, applicationB.getRole(roleBName)));
-        assertTrue(relationshipManager.hasRole(mary, applicationC.getRole(roleCName)));
+        assertFalse(relationshipManager.hasRole(bill, IdentityLocator.getRole(applicationB, roleBName)));
+        assertTrue(relationshipManager.hasRole(mary, IdentityLocator.getRole(applicationC, roleCName)));
 
         acmeRealm.remove(john);
         acmeRealm.remove(bill);
         acmeRealm.remove(mary);
 
-        assertFalse(relationshipManager.hasRole(bill, applicationB.getRole(roleBName)));
-        assertFalse(relationshipManager.hasRole(mary, applicationC.getRole(roleCName)));
+        assertFalse(relationshipManager.hasRole(bill, IdentityLocator.getRole(applicationB, roleBName)));
+        assertFalse(relationshipManager.hasRole(mary, IdentityLocator.getRole(applicationC, roleCName)));
     }
 
     @Test
@@ -345,23 +348,23 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        relationshipManager.addToGroup(john, applicationA.getGroup("Group A"));
+        relationshipManager.addToGroup(john, IdentityLocator.getGroup(applicationA, "Group A"));
 
-        relationshipManager.addToGroup(bill, applicationB.getGroup("Group B"));
+        relationshipManager.addToGroup(bill, IdentityLocator.getGroup(applicationB, "Group B"));
 
-        relationshipManager.addToGroup(mary, applicationC.getGroup("Group C"));
+        relationshipManager.addToGroup(mary, IdentityLocator.getGroup(applicationC, "Group C"));
 
-        assertTrue(relationshipManager.isMember(john, applicationA.getGroup("Group A")));
-        assertFalse(relationshipManager.isMember(john, applicationB.getGroup("Group B")));
-        assertFalse(relationshipManager.isMember(john, applicationC.getGroup("Group C")));
+        assertTrue(relationshipManager.isMember(john, IdentityLocator.getGroup(applicationA, "Group A")));
+        assertFalse(relationshipManager.isMember(john, IdentityLocator.getGroup(applicationB, "Group B")));
+        assertFalse(relationshipManager.isMember(john, IdentityLocator.getGroup(applicationC, "Group C")));
 
-        assertTrue(relationshipManager.isMember(bill, applicationB.getGroup("Group B")));
-        assertFalse(relationshipManager.isMember(bill, applicationA.getGroup("Group A")));
-        assertFalse(relationshipManager.isMember(bill, applicationC.getGroup("Group C")));
+        assertTrue(relationshipManager.isMember(bill, IdentityLocator.getGroup(applicationB, "Group B")));
+        assertFalse(relationshipManager.isMember(bill, IdentityLocator.getGroup(applicationA, "Group A")));
+        assertFalse(relationshipManager.isMember(bill, IdentityLocator.getGroup(applicationC, "Group C")));
 
-        assertTrue(relationshipManager.isMember(mary, applicationC.getGroup("Group C")));
-        assertFalse(relationshipManager.isMember(mary, applicationA.getGroup("Group A")));
-        assertFalse(relationshipManager.isMember(mary, applicationB.getGroup("Group B")));
+        assertTrue(relationshipManager.isMember(mary, IdentityLocator.getGroup(applicationC, "Group C")));
+        assertFalse(relationshipManager.isMember(mary, IdentityLocator.getGroup(applicationA, "Group A")));
+        assertFalse(relationshipManager.isMember(mary, IdentityLocator.getGroup(applicationB, "Group B")));
     }
 
     @Test
@@ -370,8 +373,8 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Role realmRole = new Role("Role");
 
-        if (acmeRealm.getRole(realmRole.getName()) != null) {
-            acmeRealm.remove(acmeRealm.getRole(realmRole.getName()));
+        if (IdentityLocator.getRole(acmeRealm, realmRole.getName()) != null) {
+            acmeRealm.remove(IdentityLocator.getRole(acmeRealm, realmRole.getName()));
         }
 
         acmeRealm.add(realmRole);
@@ -380,32 +383,32 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Role applicationRole = new Role("Role");
 
-        if (application.getRole(applicationRole.getName()) != null) {
-            application.remove(application.getRole(applicationRole.getName()));
+        if (IdentityLocator.getRole(application, applicationRole.getName()) != null) {
+            application.remove(IdentityLocator.getRole(application, applicationRole.getName()));
         }
 
         application.add(applicationRole);
 
-        realmRole = acmeRealm.getRole("Role");
-        applicationRole = application.getRole("Role");
+        realmRole = IdentityLocator.getRole(acmeRealm, "Role");
+        applicationRole = IdentityLocator.getRole(application, "Role");
 
         assertFalse(realmRole.getId().equals(applicationRole.getId()));
 
         applicationRole = new Role("Another Role");
 
-        if (application.getRole(applicationRole.getName()) != null) {
-            application.remove(application.getRole(applicationRole.getName()));
+        if (IdentityLocator.getRole(application, applicationRole.getName()) != null) {
+            application.remove(IdentityLocator.getRole(application, applicationRole.getName()));
         }
 
         application.add(applicationRole);
 
-        assertNull(acmeRealm.getRole("Another Role"));
+        assertNull(IdentityLocator.getRole(acmeRealm, "Another Role"));
 
         realmRole = new Role("Another Role");
 
         acmeRealm.add(realmRole);
 
-        assertNotNull(application.getRole("Another Role"));
+        assertNotNull(IdentityLocator.getRole(application, "Another Role"));
 
         assertFalse(realmRole.getId().equals(applicationRole.getId()));
     }

@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.idm.credential.totp;
+package org.picketlink.idm.credential.util;
 
 import java.math.BigInteger;
 import java.util.Calendar;

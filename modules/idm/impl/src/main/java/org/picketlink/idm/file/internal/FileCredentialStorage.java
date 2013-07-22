@@ -24,8 +24,8 @@ import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.PropertyQuery;
-import org.picketlink.idm.credential.spi.CredentialStorage;
-import org.picketlink.idm.credential.spi.annotations.Stored;
+import org.picketlink.idm.credential.storage.CredentialStorage;
+import org.picketlink.idm.credential.storage.annotations.Stored;
 
 /**
  * @author pedroigor

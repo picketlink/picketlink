@@ -19,14 +19,11 @@ package org.picketlink.idm;
 
 import java.util.Date;
 import java.util.List;
+
 import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.credential.spi.CredentialStorage;
+import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.sample.Agent;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 
 /**
@@ -35,6 +32,11 @@ import org.picketlink.idm.query.IdentityQuery;
  * @author Shane Bryzak
  */
 public interface IdentityManager {
+
+    /**
+     * The active IdentityManager instance may be stored in the IdentityContext under this parameter name
+     */
+    String IDENTITY_MANAGER_CTX_PARAMETER = "IDENTITY_MANAGER_CTX_PARAMETER";
 
     // Identity CRUD methods
 
@@ -69,69 +71,6 @@ public interface IdentityManager {
      * @throws IdentityManagementException If cannot remove the provided {@link IdentityType} instance.
      */
     void remove(IdentityType value) throws IdentityManagementException;
-
-    // Agent
-
-    /**
-     * <p>
-     * Returns an {@link Agent} with the given <code>loginName</code>. {@link User} are also agents, so if the
-     * <code>loginName</code> maps to the an {@link User} it will be returned.
-     * </p>
-     *
-     * @param loginName
-     * @throws IdentityManagementException If cannot retrieve the {@link Agent}.
-     */
-    Agent getAgent(String loginName) throws IdentityManagementException;
-
-    // User
-
-    /**
-     * <p>
-     * Returns an {@link User} with the given <code>loginName</code>.
-     * </p>
-     *
-     * @param loginName
-     * @return If there is no {@link User} with the given <code>loginName</code> this method returns null.
-     */
-    User getUser(String loginName);
-
-    // Roles
-
-    /**
-     * <p>
-     * Returns an {@link Role} with the given <code>name</code>.
-     * </p>
-     *
-     * @param loginName
-     * @return If there is no {@link Role} with the given <code>name</code> this method returns null.
-     */
-    Role getRole(String name);
-
-    // Group
-
-    /**
-     * <p>
-     * Returns the {@link Group} with the specified <code>groupPath</code>. Eg.: /groupA/groupB/groupC.
-     * </p>
-     * <p>
-     * You can also provide the name only. In this case, the group returned will be the root group. Eg.: /Administrators.
-     * </p>
-     *
-     * @param groupPath
-     * @return if there is no {@link Group} with the given <code>groupPath</code> this method returns null.
-     */
-    Group getGroup(String groupPath);
-
-    /**
-     * <p>
-     * Returns the {@link Group} with the given name and child of the given parent {@link Group}.
-     * </p>
-     *
-     * @param groupName
-     * @param parent Must be a {@link Group} instance with a valid identifier.
-     * @return if there is no {@link Group} this method returns null.
-     */
-    Group getGroup(String groupName, Group parent);
 
     // Query API
 

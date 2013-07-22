@@ -46,7 +46,7 @@ public class  UserGroupRoleRelationshipTestCase extends AgentGroupRoleRelationsh
 
     @Override
     protected User getIdentityType() {
-        return getIdentityManager().getUser("someUser");
+        return getUser("someUser");
     }
 
 }

@@ -60,7 +60,7 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
     }
 
     protected T getIdentityType() {
-        return (T) getIdentityManager().getAgent("someAgent");
+        return (T) getAgent("someAgent");
     }
 
     /**

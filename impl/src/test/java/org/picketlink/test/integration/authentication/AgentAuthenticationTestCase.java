@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.test.integration.ArchiveUtils;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -45,7 +46,7 @@ public class AgentAuthenticationTestCase extends AbstractAuthenticationTestCase 
     @Override
     @Before
     public void onSetup() {
-        Agent agent = this.identityManager.getAgent(AGENT_NAME);
+        Agent agent = IdentityLocator.getAgent(super.identityManager, USER_NAME);
 
         if (agent == null) {
             agent = new Agent(AGENT_NAME);

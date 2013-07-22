@@ -55,6 +55,6 @@ public class UserGrantRelationshipTestCase extends AbstractGrantRelationshipTest
 
     @Override
     protected User getIdentityType() {
-        return getIdentityManager().getUser("someUser");
+        return getUser("someUser");
     }
 }

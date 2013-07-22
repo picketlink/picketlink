@@ -21,13 +21,12 @@ import java.util.Calendar;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
-import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.TOTPCredential;
 import org.picketlink.idm.credential.TOTPCredentials;
-import org.picketlink.idm.credential.internal.DigestUtil;
-import org.picketlink.idm.credential.totp.TimeBasedOTP;
+import org.picketlink.idm.credential.util.TimeBasedOTP;
 import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.test.integration.ArchiveUtils;
 import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
 import static org.junit.Assert.assertEquals;
@@ -99,7 +98,7 @@ public class TOTPCredentialTestCase extends AbstractAuthenticationTestCase {
     private void updateTOTPCredential() {
         TOTPCredential credential = new TOTPCredential(USER_PASSWORD, USER_TOTP_SECRET);
 
-        super.identityManager.updateCredential(super.identityManager.getUser(USER_NAME), credential);
+        super.identityManager.updateCredential(IdentityLocator.getUser(super.identityManager, USER_NAME), credential);
     }
 
 }

@@ -37,8 +37,8 @@ import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoresConfigurationBuilder;
 import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.credential.spi.CredentialHandler;
-import org.picketlink.idm.credential.spi.CredentialStorage;
+import org.picketlink.idm.credential.handler.CredentialHandler;
+import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Attribute;
@@ -88,7 +88,7 @@ public class CustomIdentityStoreTestCase {
 
         assertEquals("addAttributedType", methodInvocationContext.getMethodName());
 
-        identityManager.getUser("john");
+        identityManager.createIdentityQuery(User.class).getResultList();
 
         assertEquals("queryIdentityType", methodInvocationContext.getMethodName());
     }

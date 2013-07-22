@@ -23,7 +23,7 @@ import java.util.Set;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
-import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.RelationshipClass;

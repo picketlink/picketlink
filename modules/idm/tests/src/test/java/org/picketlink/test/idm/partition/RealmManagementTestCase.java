@@ -23,6 +23,7 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
@@ -80,7 +81,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         
         IdentityManager testingRealmManager = getPartitionManager().createIdentityManager(realm);
         
-        realmUser = testingRealmManager.getUser(realmUser.getLoginName());
+        realmUser = IdentityLocator.getUser(testingRealmManager, realmUser.getLoginName());
         
         assertNotNull(realmUser);
         assertNotNull(realmUser.getPartition());
@@ -89,7 +90,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         IdentityManager defaultIdentityManager = getIdentityManager();
         
         // the identitytype should not be associated with the DEFAULT realm
-        realmUser = defaultIdentityManager.getUser(realmUser.getLoginName());
+        realmUser = IdentityLocator.getUser(defaultIdentityManager, realmUser.getLoginName());
         
         assertNull(realmUser);
     }
@@ -109,7 +110,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         } catch (IdentityManagementException e) {
         }
         
-        defaultRealmUser = defaultIdentityManager.getUser(defaultRealmUser.getLoginName());
+        defaultRealmUser = IdentityLocator.getUser(defaultIdentityManager, defaultRealmUser.getLoginName());
         
         assertNotNull(defaultRealmUser);
 
@@ -119,7 +120,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         
         IdentityManager testingRealmManager = getPartitionManager().createIdentityManager(realm);
 
-        testingRealmUser = testingRealmManager.getUser(testingRealmUser.getLoginName());
+        testingRealmUser = IdentityLocator.getUser(testingRealmManager, testingRealmUser.getLoginName());
         
         assertNotNull(testingRealmUser);
         assertFalse(defaultRealmUser.getId().equals(testingRealmUser.getId()));
@@ -140,7 +141,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         } catch (Exception e) {
         }
         
-        defaultRealmRole = defaultIdentityManager.getRole(defaultRealmRole.getName());
+        defaultRealmRole = IdentityLocator.getRole(defaultIdentityManager, defaultRealmRole.getName());
         
         assertNotNull(defaultRealmRole);
 
@@ -151,7 +152,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         // get a IdentityManager instance for the given realm and associate the Role with the realm
         IdentityManager testingRealmManager = getPartitionManager().createIdentityManager(realm);
 
-        testingRealmRole = testingRealmManager.getRole(testingRealmRole.getName());
+        testingRealmRole = IdentityLocator.getRole(testingRealmManager, testingRealmRole.getName());
         
         assertNotNull(testingRealmRole);
         assertFalse(defaultRealmRole.getId().equals(testingRealmRole.getId()));
@@ -172,7 +173,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         } catch (Exception e) {
         }
         
-        defaultRealmGroup = defaultIdentityManager.getGroup(defaultRealmGroup.getName());
+        defaultRealmGroup = IdentityLocator.getGroup(defaultIdentityManager, defaultRealmGroup.getName());
         
         assertNotNull(defaultRealmGroup);
 
@@ -183,7 +184,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         // get a IdentityManager instance for the given realm and associate the Group with the realm
         IdentityManager testingRealmManager = getPartitionManager().createIdentityManager(realm);
 
-        testingRealmGroup = testingRealmManager.getGroup(testingRealmGroup.getName());
+        testingRealmGroup = IdentityLocator.getGroup(testingRealmManager, testingRealmGroup.getName());
         
         assertNotNull(testingRealmGroup);
         assertFalse(defaultRealmGroup.getId().equals(testingRealmGroup.getId()));
@@ -195,7 +196,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         
         Role testingRole = createRole("testingRole", realm);
         
-        testingRole = getPartitionManager().createIdentityManager(realm).getRole(testingRole.getName());
+        testingRole = IdentityLocator.getRole(getPartitionManager().createIdentityManager(realm), testingRole.getName());
         
         assertNotNull(testingRole);
         assertNotNull(testingRole.getPartition());
@@ -204,7 +205,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         IdentityManager defaultIdentityManager = getIdentityManager();
         
         // the identitytype should not be associated with the DEFAULT realm
-        testingRole = defaultIdentityManager.getRole(testingRole.getName());
+        testingRole = IdentityLocator.getRole(defaultIdentityManager, testingRole.getName());
         
         assertNull(testingRole);
     }
@@ -215,7 +216,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         
         Group testingGroup = createGroup("testingRealmGroup", null, realm);
         
-        testingGroup = getPartitionManager().createIdentityManager(realm).getGroup(testingGroup.getName());
+        testingGroup = IdentityLocator.getGroup(getPartitionManager().createIdentityManager(realm), testingGroup.getName());
         
         assertNotNull(testingGroup);
         assertNotNull(testingGroup.getPartition());
@@ -224,7 +225,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         IdentityManager defaultIdentityManager = getIdentityManager();
         
         // the identitytype should not be associated with the DEFAULT realm
-        testingGroup = defaultIdentityManager.getGroup(testingGroup.getName());
+        testingGroup = IdentityLocator.getGroup(defaultIdentityManager, testingGroup.getName());
         
         assertNull(testingGroup);
     }

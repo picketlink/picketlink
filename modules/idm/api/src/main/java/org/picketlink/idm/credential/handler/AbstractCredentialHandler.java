@@ -15,16 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.idm.credential.internal;
+package org.picketlink.idm.credential.handler;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.AbstractBaseCredentials;
-import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
-import static org.picketlink.idm.internal.ContextualIdentityManager.IDENTITY_MANAGER_CTX_PARAMETER;
 
 /**
  * @author pedroigor
@@ -33,16 +32,16 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>,V ext
         implements CredentialHandler<S, V, U> {
 
     protected Agent getAgent(IdentityContext context, String loginName) {
-        IdentityManager identityManager = context.getParameter(IDENTITY_MANAGER_CTX_PARAMETER);
+        IdentityManager identityManager = context.getParameter(IdentityManager.IDENTITY_MANAGER_CTX_PARAMETER);
 
         if (identityManager == null) {
             throw new IdentityManagementException("IdentityManager not set into context.");
         }
 
-        Agent agent = identityManager.getAgent(loginName);
+        Agent agent = IdentityLocator.getAgent(identityManager, loginName);
 
         if (agent == null) {
-            agent = identityManager.getUser(loginName);
+            agent = IdentityLocator.getUser(identityManager, loginName);
         }
 
         return agent;

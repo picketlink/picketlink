@@ -72,7 +72,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
         identityManager.update(newUser);
 
-        User storedUser = identityManager.getUser(newUser.getLoginName());
+        User storedUser = getUser(newUser.getLoginName());
 
         assertNotNull(storedUser);
         assertEquals(newUser.getId(), storedUser.getId());
@@ -100,7 +100,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
         identityManager.update(storedUser);
 
-        storedUser = identityManager.getUser(storedUser.getLoginName());
+        storedUser = getUser(storedUser.getLoginName());
 
         assertEquals("admin", storedUser.getLoginName());
         assertEquals("The", storedUser.getFirstName());
@@ -117,7 +117,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
         identityManager.update(storedUser);
 
-        User updatedUser = identityManager.getUser(storedUser.getLoginName());
+        User updatedUser = getUser(storedUser.getLoginName());
 
         assertEquals("Updated The", updatedUser.getFirstName());
         assertEquals("Updated Administrator", updatedUser.getLastName());
@@ -134,11 +134,11 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
         identityManager.remove(someUser);
 
-        User removedUser = getIdentityManager().getUser(someUser.getLoginName());
+        User removedUser = getUser(someUser.getLoginName());
 
         assertNull(removedUser);
 
-        anotherUser = identityManager.getUser(anotherUser.getLoginName());
+        anotherUser = getUser(anotherUser.getLoginName());
 
         assertNotNull(anotherUser);
 
@@ -186,7 +186,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         
         IdentityManager identityManager = getIdentityManager();
         
-        assertTrue(instanceA.getId().equals(identityManager.getUser(instanceA.getLoginName()).getId()));
+        assertTrue(instanceA.getId().equals(getUser(instanceA.getLoginName()).getId()));
     }
     
     @Test
@@ -202,7 +202,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         
         identityManager.update(mary);
         
-        mary = identityManager.getUser(mary.getLoginName());
+        mary = getUser(mary.getLoginName());
         
         assertNotNull(mary.<X509Certificate>getAttribute("certificate"));
         assertEquals(certificate, mary.<X509Certificate>getAttribute("certificate").getValue());
@@ -215,7 +215,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
     @Override
     protected User getIdentityType() {
-        return getIdentityManager().getUser("admin");
+        return getUser("admin");
     }
     
     private X509Certificate getTestingCertificate(String fromTextFile) {

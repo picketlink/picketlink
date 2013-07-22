@@ -64,7 +64,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 
     @Override
     protected Group getIdentityType() {
-        return getIdentityManager().getGroup("someGroup");
+        return getGroup("someGroup");
     }
 
     @After

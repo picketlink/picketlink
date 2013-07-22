@@ -55,6 +55,6 @@ public class GroupGrantRelationshipTestCase extends AbstractGrantRelationshipTes
 
     @Override
     protected Group getIdentityType() {
-        return getIdentityManager().getGroup("someGroup");
+        return getGroup("someGroup");
     }
 }

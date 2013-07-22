@@ -16,32 +16,33 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.password;
+package org.picketlink.idm.credential.storage;
+
+import org.picketlink.idm.credential.storage.annotations.Stored;
+
+import java.util.Date;
 
 /**
- * <p>
- * Represents different forms to encode passwords.
- * </p>
+ * A marker interface that indicates a Class is used to store credential related state
  *
- * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
+ * @author Shane Bryzak
  *
  */
-public interface PasswordEncoder {
+public interface CredentialStorage {
 
     /**
-     * <p>Encodes given password.</p>
+     * Return the Date from when the credential becomes effective.  A result of null means the credential has
+     * no effective date (and is current as long as the expiry date is either null, or in the future).
      *
-     * @param rawPassword
      * @return
      */
-    String encode(String rawPassword);
+    @Stored Date getEffectiveDate();
 
     /**
-     * <p>Checks if the <code>rawPassword</code> and <code>encodedPassword</code> matches.</p>
+     * Return the Date when the credential expires.  A result of null means the credential has no expiry date.
      *
-     * @param rawPassword
-     * @param encodedPassword
      * @return
      */
-    boolean verify(String rawPassword, String encodedPassword);
+    @Stored Date getExpiryDate();
+
 }
