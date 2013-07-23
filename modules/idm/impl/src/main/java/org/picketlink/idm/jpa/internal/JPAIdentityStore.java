@@ -51,6 +51,7 @@ import org.picketlink.idm.internal.AbstractIdentityStore;
 import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.jpa.annotations.CredentialClass;
 import org.picketlink.idm.jpa.annotations.EffectiveDate;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
@@ -58,7 +59,6 @@ import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
 import org.picketlink.idm.jpa.annotations.entity.ConfigurationName;
 import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
-import org.picketlink.idm.jpa.annotations.entity.SupportedAttributes;
 import org.picketlink.idm.jpa.internal.mappers.EntityMapper;
 import org.picketlink.idm.jpa.internal.mappers.EntityMapping;
 import org.picketlink.idm.model.Account;
@@ -551,7 +551,7 @@ public class JPAIdentityStore
         }
 
         if (values instanceof byte[]) {
-            values = new Serializable[] {values};
+            values = new Serializable[]{values};
         }
 
         Object ownerEntity = getAttributedTypeEntity(attributedType, entityManager);
@@ -936,7 +936,7 @@ public class JPAIdentityStore
         Object ownerEntity = getAttributedTypeEntity(account, entityManager);
 
         Property ownerProperty = attributeMapper.getProperty(storageType, OwnerReference.class).getValue();
-        Property typeProperty = attributeMapper.getProperty(storageType, AttributeClass.class).getValue();
+        Property typeProperty = attributeMapper.getProperty(storageType, CredentialClass.class).getValue();
         Property effectiveProperty = attributeMapper.getProperty(storageType, EffectiveDate.class).getValue();
         Property expiryProperty = attributeMapper.getProperty(storageType, ExpiryDate.class).getValue();
 
@@ -945,35 +945,20 @@ public class JPAIdentityStore
         effectiveProperty.setValue(newCredential, effectiveDate);
         expiryProperty.setValue(newCredential, storage.getExpiryDate());
 
-        entityManager.persist(newCredential);
-
-        Property nameProperty = attributeMapper.getProperty(storageType, AttributeName.class).getValue();
-        Property valueProperty = attributeMapper.getProperty(storageType, AttributeValue.class).getValue();
-        Property credentialProperty = PropertyQueries
-                .createQuery(attributeMapper.getEntityType())
-                .addCriteria(new TypedPropertyCriteria(attributeMapper.getEntityType()))
-                .getSingleResult();
-
         for (Property<Object> property : PropertyQueries
                 .createQuery(storageType)
                 .addCriteria(new AnnotatedPropertyCriteria(Stored.class))
                 .getResultList()) {
-            Object newCredentialAttribute = null;
+            Entry<Property, Property> mappedProperty = attributeMapper.getProperty(storageType, property.getName());
 
-            try {
-                newCredentialAttribute = attributeMapper.getEntityType().newInstance();
-            } catch (Exception e) {
-                throw MESSAGES.instantiationError(attributeMapper.getEntityType(), e);
+            if (mappedProperty == null) {
+                throw new IdentityManagementException("No mapping found for property [" + storageType + "." + property.getName() + "].");
             }
 
-            nameProperty.setValue(newCredentialAttribute, property.getName());
-            valueProperty.setValue(newCredentialAttribute, Base64.encodeObject((Serializable) property.getValue(storage)));
-            credentialProperty.setValue(newCredentialAttribute, newCredential);
-            ownerProperty.setValue(newCredentialAttribute, ownerEntity);
-
-            entityManager.persist(newCredentialAttribute);
+            mappedProperty.getValue().setValue(newCredential, property.getValue(storage));
         }
 
+        entityManager.persist(newCredential);
         entityManager.flush();
     }
 
@@ -989,7 +974,7 @@ public class JPAIdentityStore
         EntityMapper attributeMapper = getCredentialAttributeMapper(storageClass);
 
         Property identityTypeProperty = attributeMapper.getProperty(storageClass, OwnerReference.class).getValue();
-        Property typeProperty = attributeMapper.getProperty(storageClass, AttributeClass.class).getValue();
+        Property typeProperty = attributeMapper.getProperty(storageClass, CredentialClass.class).getValue();
         Property effectiveProperty = attributeMapper.getProperty(storageClass, EffectiveDate.class).getValue();
 
         EntityManager entityManager = getEntityManager(context);
@@ -1008,11 +993,9 @@ public class JPAIdentityStore
 
         criteria.orderBy(builder.desc(root.get(effectiveProperty.getName())));
 
-        List<?> result = entityManager.createQuery(criteria).getResultList();
-
         List<T> storages = new ArrayList<T>();
 
-        for (Object object : result) {
+        for (Object object : entityManager.createQuery(criteria).getResultList()) {
             storages.add(convertToCredentialStorage(context, object, storageClass));
         }
 
@@ -1034,57 +1017,38 @@ public class JPAIdentityStore
         return false;
     }
 
-    private <T extends CredentialStorage> T convertToCredentialStorage(IdentityContext context, Object instance,
-                                                                       Class<T> storageClass) {
+    private <T extends CredentialStorage> T convertToCredentialStorage(IdentityContext context, Object entity,
+                                                                       Class<T> storageType) {
         T storage = null;
 
-        if (instance != null) {
-            EntityMapper attributeMapper = getCredentialAttributeMapper(storageClass);
+        if (entity != null) {
+            EntityMapper attributeMapper = getCredentialAttributeMapper(storageType);
 
             try {
-                storage = storageClass.newInstance();
+                storage = storageType.newInstance();
             } catch (Exception e) {
-                throw MESSAGES.instantiationError(storageClass, e);
+                throw MESSAGES.instantiationError(storageType, e);
             }
 
-            Entry<Property, Property> effectiveProperty = attributeMapper.getProperty(storageClass, EffectiveDate.class);
-            Entry<Property, Property> expiryProperty = attributeMapper.getProperty(storageClass, ExpiryDate.class);
+            Entry<Property, Property> effectiveProperty = attributeMapper.getProperty(storageType, EffectiveDate.class);
+            Entry<Property, Property> expiryProperty = attributeMapper.getProperty(storageType, ExpiryDate.class);
 
-            effectiveProperty.getKey().setValue(storage, effectiveProperty.getValue().getValue(instance));
-            expiryProperty.getKey().setValue(storage, expiryProperty.getValue().getValue(instance));
+            effectiveProperty.getKey().setValue(storage, effectiveProperty.getValue().getValue(entity));
+            expiryProperty.getKey().setValue(storage, expiryProperty.getValue().getValue(entity));
 
-            EntityManager em = getEntityManager(context);
+            for (Property<Object> property : PropertyQueries
+                    .createQuery(storageType)
+                    .addCriteria(new AnnotatedPropertyCriteria(Stored.class))
+                    .getResultList()) {
+                Entry<Property, Property> mappedProperty = attributeMapper.getProperty(storageType, property.getName());
 
-            CriteriaBuilder builder = em.getCriteriaBuilder();
-            CriteriaQuery<?> attributeCriteria = builder.createQuery(attributeMapper.getEntityType());
-            Root<?> attributeRoot = attributeCriteria.from(attributeMapper.getEntityType());
-            List<Predicate> attributePredicates = new ArrayList<Predicate>();
+                if (mappedProperty == null) {
+                    throw new IdentityManagementException("No mapping found for property [" + storageType + "." + property.getName() + "].");
+                }
 
-            Property<Object> attributeCredential = PropertyQueries
-                    .createQuery(attributeMapper.getEntityType())
-                    .addCriteria(new TypedPropertyCriteria(attributeMapper.getEntityType()))
-                    .getSingleResult();
-
-            attributePredicates.add(builder.equal(attributeRoot.get(attributeCredential.getName()), instance));
-
-            attributeCriteria.where(attributePredicates.toArray(new Predicate[attributePredicates.size()]));
-
-            List<?> attributes = em.createQuery(attributeCriteria).getResultList();
-
-            Property attributeName = attributeMapper.getProperty(storageClass, AttributeName.class).getValue();
-            Property attributeValue = attributeMapper.getProperty(storageClass, AttributeValue.class).getValue();
-
-            for (Object attribute : attributes) {
-                String name = attributeName.getValue(attribute).toString();
-                String value = attributeValue.getValue(attribute).toString();
-
-                Property<Object> property = PropertyQueries
-                        .createQuery(storageClass)
-                        .addCriteria(new NamedPropertyCriteria(name))
-                        .getSingleResult();
-
-                property.setValue(storage, Base64.decodeToObject(value));
+                mappedProperty.getKey().setValue(storage, mappedProperty.getValue().getValue(entity));
             }
+
         }
 
         return storage;
@@ -1092,31 +1056,33 @@ public class JPAIdentityStore
 
     private EntityMapper getCredentialAttributeMapper(Class<? extends CredentialStorage> credentialStorageClass) {
         for (EntityMapper entityMapper : getMapperFor(credentialStorageClass)) {
-            Class<?> entityType = entityMapper.getEntityType();
+            ManagedCredential managedCredential = entityMapper.getEntityType().getAnnotation(ManagedCredential.class);
 
-            if (entityType.isAnnotationPresent(ManagedCredential.class)) {
-                SupportedAttributes supportedAttributes = entityType.getAnnotation(SupportedAttributes.class);
-
-                if (supportedAttributes != null) {
-                    for (Class<?> supportedType : supportedAttributes.value()) {
-                        if (supportedType.isAssignableFrom(credentialStorageClass)) {
-                            return entityMapper;
-                        }
+            if (managedCredential.value().length > 0) {
+                for (Class<?> supportedType : managedCredential.value()) {
+                    if (supportedType.equals(credentialStorageClass)) {
+                        return entityMapper;
                     }
-                } else {
-                    return entityMapper;
                 }
+
+                for (Class<?> supportedType : managedCredential.value()) {
+                    if (supportedType.isAssignableFrom(credentialStorageClass)) {
+                        return entityMapper;
+                    }
+                }
+            } else {
+                return entityMapper;
             }
         }
 
-        return null;
+        throw new IdentityManagementException("No mapper for for credential storage type [" + credentialStorageClass + "].");
     }
 
     private Object retrieveLastCredentialEntity(IdentityContext context, Account account, Class<? extends CredentialStorage> storageClass) {
         EntityMapper attributeMapper = getCredentialAttributeMapper(storageClass);
 
         Property identityTypeProperty = attributeMapper.getProperty(storageClass, OwnerReference.class).getValue();
-        Property typeProperty = attributeMapper.getProperty(storageClass, AttributeClass.class).getValue();
+        Property typeProperty = attributeMapper.getProperty(storageClass, CredentialClass.class).getValue();
         Property effectiveProperty = attributeMapper.getProperty(storageClass, EffectiveDate.class).getValue();
 
         EntityManager entityManager = getEntityManager(context);
@@ -1153,45 +1119,49 @@ public class JPAIdentityStore
         return lastCredential;
     }
 
-    private List<Object> findCredentials(IdentityContext context, AttributedType attributedType, Class<? extends CredentialStorage> storageClass) {
-        EntityMapper attributeMapper = getCredentialAttributeMapper(storageClass);
-
-        Property identityTypeProperty = attributeMapper.getProperty(storageClass, OwnerReference.class).getValue();
-        Property effectiveProperty = attributeMapper.getProperty(storageClass, EffectiveDate.class).getValue();
-
-        EntityManager entityManager = getEntityManager(context);
-
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<?> criteria = builder.createQuery(attributeMapper.getEntityType());
-        Root<?> root = criteria.from(attributeMapper.getEntityType());
-        List<Predicate> predicates = new ArrayList<Predicate>();
-
-        Object agentInstance = getAttributedTypeEntity(attributedType, entityManager);
-
-        predicates.add(builder.equal(root.get(identityTypeProperty.getName()), agentInstance));
-
-        if (!CredentialStorage.class.equals(storageClass)) {
-            Property typeProperty = attributeMapper.getProperty(storageClass, AttributeClass.class).getValue();
-            predicates.add(builder.equal(root.get(typeProperty.getName()), storageClass.getName()));
-        }
-
-        criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-
-        criteria.orderBy(builder.desc(root.get(effectiveProperty.getName())));
-
-        List result = entityManager.createQuery(criteria).getResultList();
-
+    private List<Object> findCredentials(IdentityContext context, AttributedType attributedType) {
         List storages = new ArrayList();
+        Class<CredentialStorage> storageClass = CredentialStorage.class;
 
-        for (Object storageEntity : result) {
-            storages.add(storageEntity);
+        for (EntityMapper attributeMapper: getEntityMappers()) {
+            if (attributeMapper.getEntityType().isAnnotationPresent(ManagedCredential.class)) {
+
+                Property identityTypeProperty = attributeMapper.getProperty(storageClass, OwnerReference.class).getValue();
+                Property effectiveProperty = attributeMapper.getProperty(storageClass, EffectiveDate.class).getValue();
+
+                EntityManager entityManager = getEntityManager(context);
+
+                CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+                CriteriaQuery<?> criteria = builder.createQuery(attributeMapper.getEntityType());
+                Root<?> root = criteria.from(attributeMapper.getEntityType());
+                List<Predicate> predicates = new ArrayList<Predicate>();
+
+                Object agentInstance = getAttributedTypeEntity(attributedType, entityManager);
+
+                predicates.add(builder.equal(root.get(identityTypeProperty.getName()), agentInstance));
+
+                if (!CredentialStorage.class.equals(storageClass)) {
+                    Property typeProperty = attributeMapper.getProperty(storageClass, AttributeClass.class).getValue();
+                    predicates.add(builder.equal(root.get(typeProperty.getName()), storageClass.getName()));
+                }
+
+                criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+
+                criteria.orderBy(builder.desc(root.get(effectiveProperty.getName())));
+
+                List result = entityManager.createQuery(criteria).getResultList();
+
+                for (Object storageEntity : result) {
+                    storages.add(storageEntity);
+                }
+            }
         }
 
         return storages;
     }
 
     private void removeCredentials(IdentityContext context, AttributedType attributedType, EntityManager entityManager) {
-        for (Object credentialEntity : findCredentials(context, attributedType, CredentialStorage.class)) {
+        for (Object credentialEntity : findCredentials(context, attributedType)) {
             entityManager.remove(credentialEntity);
         }
     }

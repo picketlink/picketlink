@@ -54,6 +54,7 @@ public class IdentityTypeMapper extends AbstractAttributedTypeMapper {
         EntityMapping entityMapping = super.configure(supportedTypes, entityType);
 
         entityMapping.addTypeProperty(getAnnotatedProperty(IdentityClass.class, entityType));
+        entityMapping.addOwnerProperty(entityType);
         entityMapping.addProperty(getNamedProperty("enabled", supportedTypes), getAnnotatedProperty(Enabled.class, entityType));
         entityMapping.addProperty(getNamedProperty("createdDate", supportedTypes), getAnnotatedProperty(CreationDate.class, entityType));
         entityMapping.addProperty(getNamedProperty("expirationDate", supportedTypes), getAnnotatedProperty(ExpiryDate.class, entityType));

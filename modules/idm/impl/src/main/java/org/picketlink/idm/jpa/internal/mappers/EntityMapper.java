@@ -236,7 +236,7 @@ public class EntityMapper {
         return attributedType;
     }
 
-    public Entry<Property, Property> getProperty(Class<? extends AttributedType> attributedType, String propertyName) {
+    public Entry<Property, Property> getProperty(Class<?> attributedType, String propertyName) {
         EntityMapping entityMapping = getMappingsFor(attributedType);
 
         for (Entry<Property, Property> property : entityMapping.getProperties().entrySet()) {
@@ -278,6 +278,12 @@ public class EntityMapper {
 
         for (EntityMapping entityMapping : getEntityMappings()) {
             if (entityMapping.getSupportedType().isAssignableFrom(attributedType)) {
+                return entityMapping;
+            }
+        }
+
+        for (EntityMapping entityMapping : getEntityMappings()) {
+            if (attributedType.isAssignableFrom(entityMapping.getSupportedType())) {
                 return entityMapping;
             }
         }

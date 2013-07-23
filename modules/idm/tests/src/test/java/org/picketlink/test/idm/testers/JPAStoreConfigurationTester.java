@@ -26,13 +26,16 @@ import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.AttributedTypeEntity;
-import org.picketlink.idm.jpa.model.sample.simple.CredentialAttributeTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.DigestCredentialTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.GroupTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.OTPCredentialTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.PasswordCredentialTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RelationshipIdentityTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity;
 import org.picketlink.idm.model.sample.Realm;
 
 /**
@@ -62,7 +65,10 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
                                 RelationshipTypeEntity.class,
                                 RelationshipIdentityTypeEntity.class,
                                 PartitionTypeEntity.class,
-                                CredentialAttributeTypeEntity.class,
+                                PasswordCredentialTypeEntity.class,
+                                DigestCredentialTypeEntity.class,
+                                X509CredentialTypeEntity.class,
+                                OTPCredentialTypeEntity.class,
                                 AttributeTypeEntity.class
                         )
                         .supportGlobalRelationship(org.picketlink.idm.model.Relationship.class)

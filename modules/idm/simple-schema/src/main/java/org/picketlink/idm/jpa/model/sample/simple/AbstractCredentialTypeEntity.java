@@ -17,19 +17,34 @@
  */
 package org.picketlink.idm.jpa.model.sample.simple;
 
+import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
+import org.picketlink.idm.jpa.annotations.CredentialClass;
 import org.picketlink.idm.jpa.annotations.EffectiveDate;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
-import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
 
 /**
+ * <p>Base mapping for credentials.</p>
  * @author pedroigor
  */
-@ManagedCredential
-@Entity
-public class CredentialAttributeTypeEntity extends AbstractAttributeType {
+@MappedSuperclass
+public abstract class AbstractCredentialTypeEntity implements Serializable {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @OwnerReference
+    @ManyToOne
+    private AttributedTypeEntity owner;
+
+    @CredentialClass
+    private String typeName;
 
     @EffectiveDate
     private Date effectiveDate;
@@ -37,8 +52,29 @@ public class CredentialAttributeTypeEntity extends AbstractAttributeType {
     @ExpiryDate
     private Date expiryDate;
 
-    @ManyToOne
-    private CredentialAttributeTypeEntity credentialAttribute;
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public AttributedTypeEntity getOwner() {
+        return owner;
+    }
+
+    public void setOwner(AttributedTypeEntity owner) {
+        this.owner = owner;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
 
     public Date getEffectiveDate() {
         return effectiveDate;
@@ -54,13 +90,5 @@ public class CredentialAttributeTypeEntity extends AbstractAttributeType {
 
     public void setExpiryDate(Date expiryDate) {
         this.expiryDate = expiryDate;
-    }
-
-    public CredentialAttributeTypeEntity getCredentialAttribute() {
-        return credentialAttribute;
-    }
-
-    public void setCredentialAttribute(CredentialAttributeTypeEntity credentialAttribute) {
-        this.credentialAttribute = credentialAttribute;
     }
 }

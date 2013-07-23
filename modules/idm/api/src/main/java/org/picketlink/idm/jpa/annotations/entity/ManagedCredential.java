@@ -20,14 +20,13 @@ package org.picketlink.idm.jpa.annotations.entity;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import org.picketlink.idm.credential.storage.CredentialStorage;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * <p>This annotation is applied to an entity class to indicate that it contains managed
  * credential-related state.</p>
- * <p>If used in conjunction with {@link SupportedAttributes}, you can specify which {@link org.picketlink.idm.spi.CredentialStore}
- * types are supported.</p>
  *
  * @author Shane Bryzak
  */
@@ -35,4 +34,13 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(TYPE)
 @Retention(RUNTIME)
 public @interface ManagedCredential {
+
+    /**
+     * <p>(Optional) Defines which credential storage types are supported and mapped for an entity. If not specified
+     * the entity will support any credential storage type.</p>
+     *
+     * @return
+     */
+    Class<? extends CredentialStorage>[] value() default {};
+
 }

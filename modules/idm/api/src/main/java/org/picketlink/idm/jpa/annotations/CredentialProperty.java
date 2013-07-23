@@ -21,20 +21,30 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Marks the credential value property of a credential entity
+ * <p>Specifies that a property should be mapped to a specific field of a {@link org.picketlink.idm.credential.storage.CredentialStorage}.</p>
  *
  * @author Shane Bryzak
+ * @author Pedro Igor
  */
 @Target({METHOD, FIELD})
 @Documented
 @Retention(RUNTIME)
 @Inherited
-public @interface CredentialValue {
+public @interface CredentialProperty {
+
+    /**
+     * <p>(Optional) The field from the corresponding {@link org.picketlink.idm.credential.storage.CredentialStorage} class
+     * that is mapped to this property.</p>
+     * <p>If no <code>name</code> is provided, the property name will be used to match the corresponding field on the storage class.</p>
+     *
+     *
+     * @return
+     */
+    String name() default "";
 
 }

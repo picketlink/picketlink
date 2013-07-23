@@ -36,9 +36,9 @@ import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.credential.storage.annotations.Stored;
 import org.picketlink.idm.jpa.model.sample.simple.AbstractAttributeType;
+import org.picketlink.idm.jpa.model.sample.simple.AbstractCredentialTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.AttributedTypeEntity;
-import org.picketlink.idm.jpa.model.sample.simple.CredentialAttributeTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.GroupTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity;
@@ -144,7 +144,7 @@ public class CustomIDMCredentialTestCase extends AbstractJPADeploymentTestCase {
                                 AbstractAttributeType.class, 
                                 AccountTypeEntity.class,
                                 AttributedTypeEntity.class,
-                                CredentialAttributeTypeEntity.class,
+                                AbstractCredentialTypeEntity.class,
                                 GroupTypeEntity.class,
                                 IdentityTypeEntity.class,
                                 PartitionTypeEntity.class,

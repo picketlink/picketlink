@@ -25,8 +25,10 @@ import java.util.HashMap;
 import java.util.Map;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
+import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 
@@ -82,7 +84,7 @@ public class EntityMapping {
     }
 
     public Class<?> getOwnerType() {
-        for (Property property: getProperties().values()) {
+        for (Property property : getProperties().values()) {
             if (property.getAnnotatedElement().isAnnotationPresent(OwnerReference.class)) {
                 return property.getJavaClass();
             }
@@ -97,63 +99,91 @@ public class EntityMapping {
                 .addCriteria(new AnnotatedPropertyCriteria(OwnerReference.class))
                 .getFirstResult();
 
-        if (ownerProperty != null) {
-            addProperty(new PropertyMapping() {
+        if (ownerProperty == null) {
+            throw new SecurityConfigurationException("Entity [" + entityType + "] does not have a @OwnerReference annotated field.");
+        }
 
-                @Override
-                public Object getValue(Object instance) {
-                    IdentityManaged identityManaged =
-                            (IdentityManaged) ownerProperty.getJavaClass().getAnnotation(IdentityManaged.class);
+        addProperty(new PropertyMapping() {
 
-                    if (identityManaged != null) {
-                        for (Class<?> ownerType : identityManaged.value()) {
-                            Property<Object> ownerProperty = PropertyQueries
-                                    .createQuery(instance.getClass())
-                                    .addCriteria(new TypedPropertyCriteria(ownerType, true))
-                                    .getFirstResult();
+            @Override
+            public Object getValue(Object instance) {
+                IdentityManaged identityManaged =
+                        (IdentityManaged) ownerProperty.getJavaClass().getAnnotation(IdentityManaged.class);
 
-                            if (ownerProperty != null && !ownerProperty.getJavaClass().equals(instance.getClass())) {
-                                return ownerProperty.getValue(instance);
-                            }
-                        }
-                    }
-
-                    return instance;
-                }
-
-                @Override
-                public void setValue(Object instance, Object value) {
-                    IdentityManaged identityManaged =
-                            (IdentityManaged) ownerProperty.getJavaClass().getAnnotation(IdentityManaged.class);
-
+                if (identityManaged != null) {
                     for (Class<?> ownerType : identityManaged.value()) {
                         Property<Object> ownerProperty = PropertyQueries
                                 .createQuery(instance.getClass())
                                 .addCriteria(new TypedPropertyCriteria(ownerType, true))
                                 .getFirstResult();
 
-                        if (ownerProperty != null && ownerType.isInstance(value)) {
-                            ownerProperty.setValue(instance, value);
-                            return;
+                        if (ownerProperty != null && !ownerProperty.getJavaClass().equals(instance.getClass())) {
+                            return ownerProperty.getValue(instance);
                         }
                     }
                 }
-            }, ownerProperty);
-        }
-    }
 
-    public void addProperty(final Object getterValue, Property property) {
-        addProperty(new PropertyMapping() {
-
-            @Override
-            public Object getValue(Object instance) {
-                return getterValue;
+                return instance;
             }
 
             @Override
             public void setValue(Object instance, Object value) {
+                IdentityManaged identityManaged =
+                        (IdentityManaged) ownerProperty.getJavaClass().getAnnotation(IdentityManaged.class);
+
+                for (Class<?> ownerType : identityManaged.value()) {
+                    Property<Object> ownerProperty = PropertyQueries
+                            .createQuery(instance.getClass())
+                            .addCriteria(new TypedPropertyCriteria(ownerType, true))
+                            .getFirstResult();
+
+                    if (ownerProperty != null && ownerType.isInstance(value)) {
+                        ownerProperty.setValue(instance, value);
+                        return;
+                    }
+                }
             }
-        }, property);
+        }, ownerProperty);
+    }
+
+    public void addProperty(final String propertyName, Property mappedProperty) {
+        addProperty(new PropertyMapping() {
+
+            @Override
+            public String getName() {
+                return propertyName;
+            }
+
+            @Override
+            public Object getValue(Object instance) {
+                if (instance != null) {
+                    Property<Object> property = PropertyQueries
+                            .createQuery(instance.getClass())
+                            .addCriteria(new NamedPropertyCriteria(propertyName))
+                            .getFirstResult();
+
+                    if (property != null) {
+                        return property.getValue(instance);
+                    }
+                }
+
+                return null;
+            }
+
+            @Override
+            public void setValue(Object instance, Object value) {
+                if (instance != null) {
+                    Property<Object> property = PropertyQueries
+                            .createQuery(instance.getClass())
+                            .addCriteria(new NamedPropertyCriteria(propertyName))
+                            .getFirstResult();
+
+                    if (property != null) {
+                        property.setValue(instance, value);
+                    }
+                }
+            }
+        }, mappedProperty);
     }
 
     public boolean supports(Class<?> type) {

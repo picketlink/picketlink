@@ -24,9 +24,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import org.picketlink.idm.credential.storage.EncodedPasswordStorage;
-import org.picketlink.idm.jpa.annotations.AttributeClass;
-import org.picketlink.idm.jpa.annotations.AttributeName;
-import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.jpa.annotations.CredentialClass;
+import org.picketlink.idm.jpa.annotations.CredentialProperty;
 import org.picketlink.idm.jpa.annotations.EffectiveDate;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
@@ -46,15 +45,14 @@ public class PasswordHash implements Serializable {
     @Id @GeneratedValue private long credentialId;
     @ManyToOne @OwnerReference
     IdentityObject identity;
-    @AttributeClass private String credentialClass;
-    @AttributeName private String name;
-    @AttributeValue private String credentialValue;
+    @CredentialClass private String credentialClass;
     @EffectiveDate
     private Date effectiveDate;
     @ExpiryDate
     private Date expiryDate;
-    @ManyToOne
-    private PasswordHash parent;
+    @CredentialProperty(name = "encodedHash") private String passwordEncodedHash;
+
+    @CredentialProperty private String salt;
 
     public long getCredentialId() {
         return credentialId;
@@ -80,14 +78,6 @@ public class PasswordHash implements Serializable {
         this.credentialClass = credentialClass;
     }
 
-    public String getCredentialValue() {
-        return credentialValue;
-    }
-
-    public void setCredentialValue(String credentialValue) {
-        this.credentialValue = credentialValue;
-    }
-
     public Date getEffectiveDate() {
         return effectiveDate;
     }
@@ -104,19 +94,19 @@ public class PasswordHash implements Serializable {
         this.expiryDate = expiryDate;
     }
 
-    public String getName() {
-        return name;
+    public String getPasswordEncodedHash() {
+        return passwordEncodedHash;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setPasswordEncodedHash(String passwordEncodedHash) {
+        this.passwordEncodedHash = passwordEncodedHash;
     }
 
-    public PasswordHash getParent() {
-        return parent;
+    public String getSalt() {
+        return salt;
     }
 
-    public void setParent(PasswordHash parent) {
-        this.parent = parent;
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 }

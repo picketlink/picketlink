@@ -33,7 +33,6 @@ public abstract class AbstractAttributedTypeMapper extends AbstractIdentityManag
         EntityMapping entityMapping = new EntityMapping(managedType, true);
 
         entityMapping.addProperty(getNamedProperty("id", AttributedType.class), getAnnotatedProperty(Identifier.class, entityType));
-        entityMapping.addOwnerProperty(entityType);
 
         for (Property mappedProperty : getAnnotatedProperties(AttributeValue.class, entityType)) {
             AttributeValue attributeValue = mappedProperty.getAnnotatedElement().getAnnotation(AttributeValue.class);
