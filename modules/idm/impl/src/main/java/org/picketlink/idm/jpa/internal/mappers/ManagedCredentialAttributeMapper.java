@@ -23,8 +23,6 @@ import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.EffectiveDate;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
-import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * @author pedroigor
@@ -33,10 +31,8 @@ public class ManagedCredentialAttributeMapper extends AttributeTypeMapper {
 
     @Override
     public boolean supports(Class<?> entityType) {
-        MappedAttribute mappedAttribute = entityType.getAnnotation(MappedAttribute.class);
 
         return  entityType.isAnnotationPresent(ManagedCredential.class)
-                && mappedAttribute != null && isNullOrEmpty(mappedAttribute.value())
                 && getAnnotatedProperty(AttributeName.class, entityType) != null
                 && getAnnotatedProperty(AttributeValue.class, entityType) != null;
     }

@@ -23,13 +23,11 @@ import javax.persistence.ManyToOne;
 import org.picketlink.idm.jpa.annotations.EffectiveDate;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
-import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
 
 /**
  * @author pedroigor
  */
 @ManagedCredential
-@MappedAttribute
 @Entity
 public class CredentialAttributeTypeEntity extends AbstractAttributeType {
 

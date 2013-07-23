@@ -31,7 +31,6 @@ import org.picketlink.idm.jpa.annotations.EffectiveDate;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
-import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
 import org.picketlink.idm.jpa.annotations.entity.SupportedAttributes;
 
 /**
@@ -41,7 +40,6 @@ import org.picketlink.idm.jpa.annotations.entity.SupportedAttributes;
  */
 @Entity
 @ManagedCredential
-@MappedAttribute
 @SupportedAttributes(EncodedPasswordStorage.class)
 public class PasswordHash implements Serializable {
 

@@ -18,12 +18,10 @@
 package org.picketlink.idm.jpa.model.sample.simple;
 
 import javax.persistence.Entity;
-import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
 
 /**
  * @author pedroigor
  */
-@MappedAttribute
 @Entity
 public class AttributeTypeEntity extends AbstractAttributeType {
 

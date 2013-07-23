@@ -21,9 +21,7 @@ import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
-import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
 import org.picketlink.idm.model.Attribute;
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * @author pedroigor
@@ -32,10 +30,7 @@ public class AttributeTypeMapper extends AbstractIdentityManagedMapper {
 
     @Override
     public boolean supports(Class<?> entityType) {
-        MappedAttribute mappedAttribute = entityType.getAnnotation(MappedAttribute.class);
-
         return  !entityType.isAnnotationPresent(ManagedCredential.class)
-                && mappedAttribute != null && isNullOrEmpty(mappedAttribute.value())
                 && getAnnotatedProperty(AttributeName.class, entityType) != null
                 && getAnnotatedProperty(AttributeValue.class, entityType) != null;
     }

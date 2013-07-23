@@ -38,7 +38,6 @@ import org.picketlink.idm.jpa.annotations.entity.SupportedAttributes;
  * @author Shane Bryzak
  */
 @Entity
-@MappedAttribute
 @SupportedAttributes({Object.class})
 public class IdentityObjectAttribute implements Serializable {
     private static final long serialVersionUID = 5375379361556212335L;
