@@ -75,7 +75,7 @@ public class TOTPCredentialTestCase extends AbstractPartitionManagerTestCase {
         identityManager.validateCredentials(credentials);
 
         assertEquals(Status.VALID, credentials.getStatus());
-        assertNotNull(credentials.getValidatedAgent());
+        assertNotNull(credentials.getValidatedAccount());
     }
 
     @Test
@@ -133,7 +133,7 @@ public class TOTPCredentialTestCase extends AbstractPartitionManagerTestCase {
         identityManager.validateCredentials(credentials);
 
         assertEquals(Status.INVALID, credentials.getStatus());
-        assertNull(credentials.getValidatedAgent());
+        assertNull(credentials.getValidatedAccount());
 
         // should fail, trying to use a android token in a iphone device
         credentials.setToken(totp.generate(androidSecret));
@@ -141,7 +141,7 @@ public class TOTPCredentialTestCase extends AbstractPartitionManagerTestCase {
         identityManager.validateCredentials(credentials);
 
         assertEquals(Status.INVALID, credentials.getStatus());
-        assertNull(credentials.getValidatedAgent());
+        assertNull(credentials.getValidatedAccount());
     }
 
     @Test
@@ -229,7 +229,7 @@ public class TOTPCredentialTestCase extends AbstractPartitionManagerTestCase {
         identityManager.validateCredentials(validatingCredential);
 
         assertEquals(Status.INVALID, validatingCredential.getStatus());
-        assertNull(validatingCredential.getValidatedAgent());
+        assertNull(validatingCredential.getValidatedAccount());
     }
 
     @Test
@@ -294,7 +294,7 @@ public class TOTPCredentialTestCase extends AbstractPartitionManagerTestCase {
         identityManager.validateCredentials(credentials);
 
         assertEquals(Status.INVALID, credentials.getStatus());
-        assertNull(credentials.getValidatedAgent());
+        assertNull(credentials.getValidatedAccount());
     }
 
 }

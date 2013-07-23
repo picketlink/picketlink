@@ -72,7 +72,7 @@ public class GoogleAuthenticator extends AbstractSocialAuthenticator {
 
             // Establish security context
             setStatus(AuthenticationStatus.SUCCESS);
-            setAgent(new User(userInfo.getEmail()));
+            setAccount(new User(userInfo.getEmail()));
         }
     }
 

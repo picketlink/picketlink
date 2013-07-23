@@ -18,7 +18,7 @@
 
 package org.picketlink.idm.credential;
 
-import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.Account;
 
 /**
  * Represents the credentials the current user will use to authenticate, in addition to providing information about the current
@@ -70,17 +70,17 @@ public interface Credentials {
          * Indicates that the {@link Agent} which credentials were validated is disabled.
          * </p>
          */
-        AGENT_DISABLED
+        ACCOUNT_DISABLED
     };
 
     /**
      * <p>
-     * Returns the {@link Agent} instance used to validate the credential.
+     * Returns the {@link Account} instance used to validate the credential.
      * </p>
      *
      * @return
      */
-    Agent getValidatedAgent();
+    Account getValidatedAccount();
 
     /**
      * <p>

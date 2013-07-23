@@ -69,8 +69,8 @@ public class DigestCredentialTestCase extends AbstractPartitionManagerTestCase {
         identityManager.validateCredentials(credential);
 
         assertEquals(Status.VALID, credential.getStatus());
-        assertNotNull(credential.getValidatedAgent());
-        assertEquals(user.getId(), credential.getValidatedAgent().getId());
+        assertNotNull(credential.getValidatedAccount());
+        assertEquals(user.getId(), credential.getValidatedAccount().getId());
     }
 
     @Test
@@ -92,7 +92,7 @@ public class DigestCredentialTestCase extends AbstractPartitionManagerTestCase {
         identityManager.validateCredentials(badUserName);
 
         assertEquals(Status.INVALID, badUserName.getStatus());
-        assertNull(badUserName.getValidatedAgent());
+        assertNull(badUserName.getValidatedAccount());
 
         digestPassword = new Digest();
 
@@ -107,7 +107,7 @@ public class DigestCredentialTestCase extends AbstractPartitionManagerTestCase {
         identityManager.validateCredentials(badPassword);
 
         assertEquals(Status.INVALID, badPassword.getStatus());
-        assertNull(badPassword.getValidatedAgent());
+        assertNull(badPassword.getValidatedAccount());
 
     }
     
@@ -223,6 +223,6 @@ public class DigestCredentialTestCase extends AbstractPartitionManagerTestCase {
         
         identityManager.validateCredentials(credential);
         
-        assertEquals(Status.AGENT_DISABLED, credential.getStatus());
+        assertEquals(Status.ACCOUNT_DISABLED, credential.getStatus());
     }
 }

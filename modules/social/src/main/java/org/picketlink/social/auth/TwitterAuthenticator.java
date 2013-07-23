@@ -81,7 +81,7 @@ public class TwitterAuthenticator extends AbstractSocialAuthenticator{
                 principal = new TwitterPrincipal(twitter.verifyCredentials());
 
                 setStatus(AuthenticationStatus.SUCCESS);
-                setAgent(new User(principal.getName()));
+                setAccount(new User(principal.getName()));
                 return;
             } catch (TwitterException e) {
                 throw new AuthenticationException("Twitter Login:",e);
@@ -97,7 +97,7 @@ public class TwitterAuthenticator extends AbstractSocialAuthenticator{
         }
         if(principal != null){
             setStatus(AuthenticationStatus.SUCCESS);
-            setAgent(new User(principal.getName()));
+            setAccount(new User(principal.getName()));
         }
     }
 }

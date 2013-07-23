@@ -96,7 +96,7 @@ public class CustomAuthenticatorCredentialTestCase extends AbstractAuthenticatio
 
                 if ("valid_token".equals(credential.getToken())) {
                     setStatus(AuthenticationStatus.SUCCESS);
-                    setAgent(new User(USER_NAME));
+                    setAccount(new User(USER_NAME));
                 }
             }
 

@@ -29,6 +29,9 @@ public class Role extends AbstractIdentityType {
 
     private String name;
 
+    public Role() {
+    }
+
     public Role(String name) {
         this.name = name;
     }

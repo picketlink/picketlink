@@ -79,6 +79,7 @@ public class ShanesBigSanityCheckTestSuite {
                             context.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, em);
                         }
                     })
+                    .addCredentialHandler(UserPasswordCredentialHandler.class)
                     .supportAllFeatures();
 
         PartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
@@ -367,11 +368,13 @@ public class ShanesBigSanityCheckTestSuite {
         assert "employee".equals(role.getName());
 
         // Confirm that a RoleDetail entity was created
-        assert !em.createQuery(
-                "select r from RoleDetail r where r.identity.id = :id",
+        List<RoleDetail> id = em.createQuery(
+                "select r from RoleDetail r where r.roleName = ?",
                 RoleDetail.class)
-            .setParameter("id", r.getId())
-            .getResultList().isEmpty();
+                .setParameter(1, role.getName())
+                .getResultList();
+
+        assert !id.isEmpty();
 
         em.getTransaction().commit();
     }

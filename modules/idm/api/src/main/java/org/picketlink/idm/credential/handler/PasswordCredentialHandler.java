@@ -32,7 +32,6 @@ import org.picketlink.idm.credential.encoder.SHAPasswordEncoder;
 import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
 import org.picketlink.idm.credential.storage.EncodedPasswordStorage;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 
@@ -95,9 +94,9 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
         UsernamePasswordCredentials usernamePassword = (UsernamePasswordCredentials) credentials;
 
         usernamePassword.setStatus(Status.INVALID);
-        usernamePassword.setValidatedAgent(null);
+        usernamePassword.setValidatedAccount(null);
 
-        Agent agent = getAgent(context, usernamePassword.getUsername());
+        Account agent = getAccount(context, usernamePassword.getUsername());
 
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
@@ -113,14 +112,14 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
 
                         if (matches) {
                             usernamePassword.setStatus(Status.VALID);
-                            usernamePassword.setValidatedAgent(agent);
+                            usernamePassword.setValidatedAccount(agent);
                         }
                     } else {
                         usernamePassword.setStatus(Status.EXPIRED);
                     }
                 }
             } else {
-                usernamePassword.setStatus(Status.AGENT_DISABLED);
+                usernamePassword.setStatus(Status.ACCOUNT_DISABLED);
             }
         }
     }

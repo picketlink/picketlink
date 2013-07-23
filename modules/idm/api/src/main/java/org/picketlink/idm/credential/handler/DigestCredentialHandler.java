@@ -66,10 +66,10 @@ public class DigestCredentialHandler<S,V,U>
         DigestCredentials digestCredential = (DigestCredentials) credentials;
 
         digestCredential.setStatus(Status.INVALID);
-        digestCredential.setValidatedAgent(null);
+        digestCredential.setValidatedAccount(null);
 
         Digest digest = digestCredential.getDigest();
-        Agent agent = getAgent(context, digest.getUsername());
+        Agent agent = getAccount(context, digest.getUsername());
 
         if (agent != null) {
             if (agent.isEnabled()) {
@@ -106,11 +106,11 @@ public class DigestCredentialHandler<S,V,U>
                     digestCredential.setStatus(Status.EXPIRED);
                 }
             } else {
-                digestCredential.setStatus(Status.AGENT_DISABLED);
+                digestCredential.setStatus(Status.ACCOUNT_DISABLED);
             }
 
             if (digestCredential.getStatus().equals(Status.VALID)) {
-                digestCredential.setValidatedAgent(agent);
+                digestCredential.setValidatedAccount(agent);
             }
         }
     }

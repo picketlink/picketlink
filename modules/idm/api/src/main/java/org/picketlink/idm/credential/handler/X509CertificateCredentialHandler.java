@@ -51,10 +51,10 @@ public class X509CertificateCredentialHandler<S,V,U>
     @Override
     public void validate(IdentityContext context, X509CertificateCredentials credentials,
             CredentialStore<?> store) {
-        Agent agent = getAgent(context, credentials.getUsername());
+        Agent agent = getAccount(context, credentials.getUsername());
 
         credentials.setStatus(Status.INVALID);
-        credentials.setValidatedAgent(null);
+        credentials.setValidatedAccount(null);
 
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
@@ -84,11 +84,11 @@ public class X509CertificateCredentialHandler<S,V,U>
 
                 if (isValid) {
                     credentials.setStatus(Status.VALID);
-                    credentials.setValidatedAgent(agent);
+                    credentials.setValidatedAccount(agent);
                 }
 
             } else {
-                credentials.setStatus(Status.AGENT_DISABLED);
+                credentials.setStatus(Status.ACCOUNT_DISABLED);
             }
         }
     }

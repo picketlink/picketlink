@@ -64,7 +64,7 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
         identityManager.validateCredentials(credential);
 
         assertEquals(Status.VALID, credential.getStatus());
-        assertNotNull(credential.getValidatedAgent());
+        assertNotNull(credential.getValidatedAccount());
     }
 
     @Test
@@ -82,7 +82,7 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
         identityManager.validateCredentials(badUserName);
 
         assertEquals(Status.INVALID, badUserName.getStatus());
-        assertNull(badUserName.getValidatedAgent());
+        assertNull(badUserName.getValidatedAccount());
 
         UsernamePasswordCredentials badPassword = new UsernamePasswordCredentials();
 
@@ -94,7 +94,7 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
         identityManager.validateCredentials(badPassword);
 
         assertEquals(Status.INVALID, badPassword.getStatus());
-        assertNull(badPassword.getValidatedAgent());
+        assertNull(badPassword.getValidatedAccount());
 
     }
 
@@ -236,6 +236,6 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
 
         identityManager.validateCredentials(credential);
 
-        assertEquals(Status.AGENT_DISABLED, credential.getStatus());
+        assertEquals(Status.ACCOUNT_DISABLED, credential.getStatus());
     }
 }

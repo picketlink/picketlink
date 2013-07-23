@@ -175,7 +175,7 @@ public class CustomIDMCredentialTestCase extends AbstractJPADeploymentTestCase {
 
             credential.setStatus(INVALID);
 
-            Agent agent = getAgent(context, credential.getUserName());
+            Agent agent = getAccount(context, credential.getUserName());
 
             if (agent != null) {
                 MyCredentialStorage storage = store.retrieveCurrentCredential(context, agent, MyCredentialStorage.class);
@@ -184,7 +184,7 @@ public class CustomIDMCredentialTestCase extends AbstractJPADeploymentTestCase {
 
                 if ("valid_token".equals(credential.getToken())) {
                     credential.setStatus(VALID);
-                    credential.setValidatedAgent(agent);
+                    credential.setValidatedAccount(agent);
                 }
             }
         }

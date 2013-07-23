@@ -104,7 +104,7 @@ public abstract class AbstractIdentityStore<C extends IdentityStoreConfiguration
         Class<? extends CredentialHandler> credentialHandler = null;
 
         if (credentialHandler == null) {
-            for (Class<? extends CredentialHandler> handlerClass : this.credentialHandlers.keySet()) {
+            for (Class<? extends CredentialHandler> handlerClass : getConfig().getCredentialHandlers()) {
                 if (handlerClass.isAnnotationPresent(SupportsCredentials.class)) {
                     for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).value()) {
                         if (cls.isAssignableFrom(credentials.getClass())) {

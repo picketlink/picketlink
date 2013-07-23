@@ -84,7 +84,7 @@ public class FacebookAuthenticator extends AbstractSocialAuthenticator {
         }
         if(principal != null){
             setStatus(AuthenticationStatus.SUCCESS);
-            setAgent(new User(principal.getName()));
+            setAccount(new User(principal.getName()));
         }
     }
 

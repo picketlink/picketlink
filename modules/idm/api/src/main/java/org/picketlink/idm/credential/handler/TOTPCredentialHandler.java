@@ -80,7 +80,7 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
 
             String device = getDevice(credentials.getDevice());
 
-            List<OTPCredentialStorage> storedCredentials = store.retrieveCredentials(context, credentials.getValidatedAgent(), OTPCredentialStorage.class);
+            List<OTPCredentialStorage> storedCredentials = store.retrieveCredentials(context, credentials.getValidatedAccount(), OTPCredentialStorage.class);
 
             for (OTPCredentialStorage storedCredential : storedCredentials) {
                 if (storedCredential.getDevice().equals(device)
@@ -101,7 +101,7 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
 
         if (!isValid) {
             credentials.setStatus(Status.INVALID);
-            credentials.setValidatedAgent(null);
+            credentials.setValidatedAccount(null);
         }
     }
 

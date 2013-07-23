@@ -18,6 +18,12 @@
 
 package org.picketlink.internal;
 
+import java.io.Serializable;
+import javax.enterprise.context.SessionScoped;
+import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.inject.Inject;
+import javax.inject.Named;
 import org.picketlink.Identity;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.AuthenticationException;
@@ -37,15 +43,7 @@ import org.picketlink.authentication.event.PreLoggedOutEvent;
 import org.picketlink.authentication.internal.IdmAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.permission.internal.PermissionMapper;
-
-import javax.enterprise.context.SessionScoped;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.inject.Inject;
-import javax.inject.Named;
-import java.io.Serializable;
 
 /**
  * Default Identity implementation
@@ -101,15 +99,15 @@ public class DefaultIdentity implements Identity
                 throw new UserAlreadyLoggedInException("active agent: " + this.account.toString());
             }
 
-            Agent validatedAgent = authenticate();
+            Account validatedAccount = authenticate();
 
-            if (validatedAgent != null) 
+            if (validatedAccount != null)
             {
-                if (!validatedAgent.isEnabled()) {
-                    throw new LockedAccountException("Agent [" + validatedAgent.getLoginName() + "] is disabled.");
+                if (!validatedAccount.isEnabled()) {
+                    throw new LockedAccountException("Agent [" + validatedAccount + "] is disabled.");
                 }
 
-                handleSuccessfulLoginAttempt(validatedAgent); 
+                handleSuccessfulLoginAttempt(validatedAccount);
                 return AuthenticationResult.SUCCESS;
             }
 
@@ -147,9 +145,9 @@ public class DefaultIdentity implements Identity
         beanManager.fireEvent(new LoginFailedEvent(e));
     }
 
-    protected Agent authenticate() throws AuthenticationException 
+    protected Account authenticate() throws AuthenticationException
     {
-        Agent validatedAgent = null;
+        Account validatedAccount = null;
 
         if (authenticating) 
         {
@@ -181,7 +179,7 @@ public class DefaultIdentity implements Identity
 
             if (authenticator.getStatus() == AuthenticationStatus.SUCCESS)
             {
-                validatedAgent = authenticator.getAgent();
+                validatedAccount = authenticator.getAccount();
                 postAuthenticate(authenticator);
             } 
         } 
@@ -196,7 +194,7 @@ public class DefaultIdentity implements Identity
             authenticating = false;
         }
 
-        return validatedAgent;
+        return validatedAccount;
     }
 
     protected void postAuthenticate(Authenticator authenticator)

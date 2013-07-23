@@ -53,9 +53,9 @@ public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
     public void validate(IdentityContext context, UsernamePasswordCredentials usernamePassword,
             LDAPIdentityStore identityStore) {
         usernamePassword.setStatus(Status.INVALID);
-        usernamePassword.setValidatedAgent(null);
+        usernamePassword.setValidatedAccount(null);
 
-        Agent agent = getAgent(context, usernamePassword.getUsername());
+        Agent agent = getAccount(context, usernamePassword.getUsername());
 
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
@@ -67,11 +67,11 @@ public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
                 boolean isValid = ldapIdentityStore.getOperationManager().authenticate(bindingDN, new String(password));
 
                 if (isValid) {
-                    usernamePassword.setValidatedAgent(agent);
+                    usernamePassword.setValidatedAccount(agent);
                     usernamePassword.setStatus(Status.VALID);
                 }
             } else {
-                usernamePassword.setStatus(Status.AGENT_DISABLED);
+                usernamePassword.setStatus(Status.ACCOUNT_DISABLED);
             }
         }
     }

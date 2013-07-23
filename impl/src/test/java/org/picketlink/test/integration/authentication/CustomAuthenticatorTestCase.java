@@ -93,7 +93,7 @@ public class CustomAuthenticatorTestCase extends AbstractAuthenticatorTestCase {
             if (this.credentials.getCredential() != null && this.credentials.getUserId() != null) {
                 if (this.credentials.getUserId().equals("john") && this.credentials.getPassword().equals("mypasswd")) {
                     setStatus(AuthenticationStatus.SUCCESS);
-                    setAgent(this.users.get(this.credentials.getUserId()));
+                    setAccount(this.users.get(this.credentials.getUserId()));
                 }
             }
 

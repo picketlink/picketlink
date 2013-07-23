@@ -62,7 +62,7 @@ public class CertificateCredentialTestCase extends AbstractPartitionManagerTestC
         identityManager.validateCredentials(credential);
 
         assertEquals(Status.VALID, credential.getStatus());
-        assertNotNull(credential.getValidatedAgent());
+        assertNotNull(credential.getValidatedAccount());
     }
 
     @Test
@@ -78,7 +78,7 @@ public class CertificateCredentialTestCase extends AbstractPartitionManagerTestC
         identityManager.validateCredentials(credential);
 
         assertEquals(Status.VALID, credential.getStatus());
-        assertNotNull(credential.getValidatedAgent());
+        assertNotNull(credential.getValidatedAccount());
     }
 
     @Test
@@ -99,7 +99,7 @@ public class CertificateCredentialTestCase extends AbstractPartitionManagerTestC
         identityManager.validateCredentials(badCredential);
 
         assertEquals(Status.INVALID, badCredential.getStatus());
-        assertNull(badCredential.getValidatedAgent());
+        assertNull(badCredential.getValidatedAccount());
     }
     
     @Test
@@ -121,7 +121,7 @@ public class CertificateCredentialTestCase extends AbstractPartitionManagerTestC
         
         identityManager.validateCredentials(credential);
         
-        assertEquals(Status.AGENT_DISABLED, credential.getStatus());
+        assertEquals(Status.ACCOUNT_DISABLED, credential.getStatus());
     }
 
     private X509Certificate getTestingCertificate(String fromTextFile) {
