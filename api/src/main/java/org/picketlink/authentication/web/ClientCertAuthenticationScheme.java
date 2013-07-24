@@ -19,6 +19,7 @@ package org.picketlink.authentication.web;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.picketlink.credential.DefaultLoginCredentials;
@@ -35,6 +36,10 @@ import org.picketlink.idm.credential.X509CertificateCredentials;
 public class ClientCertAuthenticationScheme implements HTTPAuthenticationScheme {
 
     public static final String X509_CLIENT_CERT_REQUEST_ATTRIBUTE = "javax.servlet.request.X509Certificate";
+
+    public ClientCertAuthenticationScheme(FilterConfig config) {
+
+    }
 
     @Override
     public void extractCredential(HttpServletRequest request, DefaultLoginCredentials creds) {

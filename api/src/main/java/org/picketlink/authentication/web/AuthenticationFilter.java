@@ -37,55 +37,40 @@ import org.picketlink.Identity;
 import org.picketlink.credential.DefaultLoginCredentials;
 
 /**
+ * <p>This filter provides an authentication entry point for web applications using different
+ * HTTP Authentication Schemes such as FORM, BASIC, DIGEST and CLIENT-CERT.</p>
+ *
  * @author Shane Bryzak
  * @author Pedro Igor
  */
 @ApplicationScoped
 public class AuthenticationFilter implements Filter {
 
-    public static final String DEFAULT_REALM_NAME = "PicketLink Default Realm";
-
-    public static final String REALM_NAME_INIT_PARAM = "realmName";
     public static final String AUTH_TYPE_INIT_PARAM = "authType";
-    public static final String FORM_LOGIN_PAGE_INIT_PARAM = "form-login-page";
-    public static final String FORM_ERROR_PAGE_INIT_PARAM = "form-error-page";
-
     public static final String UNPROTECTED_METHODS_INIT_PARAM = "unprotectedMethods";
-
+    private final Map<AuthType, Class<? extends HTTPAuthenticationScheme>> authenticationSchemes;
+    private final Set<String> unprotectedMethods;
     @Inject
     private Instance<Identity> identityInstance;
-
     @Inject
     private Instance<DefaultLoginCredentials> credentialsInstance;
+    private HTTPAuthenticationScheme authenticationScheme;
 
-    private Map<AuthType, HTTPAuthenticationScheme> authenticationSchemes = new HashMap<AuthType, HTTPAuthenticationScheme>();
+    public AuthenticationFilter() {
+        this.authenticationSchemes = new HashMap<AuthType, Class<? extends HTTPAuthenticationScheme>>();
 
-    private Set<String> unprotectedMethods = new HashSet<String>();
+        // supported authentication scheme types
+        this.authenticationSchemes.put(AuthType.DIGEST, DigestAuthenticationScheme.class);
+        this.authenticationSchemes.put(AuthType.BASIC, BasicAuthenticationScheme.class);
+        this.authenticationSchemes.put(AuthType.FORM, FormAuthenticationScheme.class);
+        this.authenticationSchemes.put(AuthType.CLIENT_CERT, ClientCertAuthenticationScheme.class);
 
-    public enum AuthType {
-        BASIC, DIGEST, FORM, CLIENT_CERT
+        this.unprotectedMethods = new HashSet<String>();
     }
-
-    private AuthType authType = AuthType.BASIC;
-    private String realm = DEFAULT_REALM_NAME;
 
     @Override
     public void init(FilterConfig config) throws ServletException {
-        String providedRealm = config.getInitParameter(REALM_NAME_INIT_PARAM);
-
-        if (providedRealm != null) {
-            this.realm = providedRealm;
-        }
-
-        setAuthType(config.getInitParameter(AUTH_TYPE_INIT_PARAM));
-
-        String formLoginPage = config.getInitParameter(FORM_LOGIN_PAGE_INIT_PARAM);
-        String formErrorPage = config.getInitParameter(FORM_ERROR_PAGE_INIT_PARAM);
-
-        this.authenticationSchemes.put(AuthType.DIGEST, new DigestAuthenticationScheme(this.realm));
-        this.authenticationSchemes.put(AuthType.BASIC, new BasicAuthenticationScheme(this.realm));
-        this.authenticationSchemes.put(AuthType.FORM, new FormAuthenticationScheme(this.realm, formLoginPage, formErrorPage));
-        this.authenticationSchemes.put(AuthType.CLIENT_CERT, new ClientCertAuthenticationScheme());
+        initAuthenticationScheme(config);
 
         String unprotectedMethodsInitParam = config.getInitParameter(UNPROTECTED_METHODS_INIT_PARAM);
 
@@ -114,41 +99,29 @@ public class AuthenticationFilter implements Filter {
             // Force session creation
             request.getSession();
 
-            Identity identity;
+            Identity identity = getIdentity();
+            DefaultLoginCredentials creds = getCredentials();
 
-            try {
-                identity = identityInstance.get();
-            } catch (Exception e) {
-                throw new ServletException("Identity not found - please ensure that the Identity component is created on startup.",
-                        e);
-            }
-
-            DefaultLoginCredentials creds;
-
-            try {
-                creds = credentialsInstance.get();
-            } catch (Exception e) {
-                throw new ServletException(
-                        "DefaultLoginCredentials not found - please ensure that the DefaultLoginCredentials component is created on startup.",
-                        e);
-            }
-
-            HTTPAuthenticationScheme authenticationScheme = this.authenticationSchemes.get(this.authType);
+            boolean continueAfterAuthentication = true;
 
             if (!identity.isLoggedIn()) {
-                authenticationScheme.extractCredential(request, creds);
+                this.authenticationScheme.extractCredential(request, creds);
 
                 if (creds.getCredential() != null) {
                     identity.login();
                 }
+
+                if (identity.isLoggedIn()) {
+                    continueAfterAuthentication = this.authenticationScheme.postAuthentication(request, response);
+                }
             }
 
             if (identity.isLoggedIn()) {
-                if(authenticationScheme.postAuthentication(request,response)) {
+                if (continueAfterAuthentication) {
                     chain.doFilter(servletRequest, servletResponse);
                 }
             } else {
-                authenticationScheme.challengeClient(request, response);
+                this.authenticationScheme.challengeClient(request, response);
             }
         } else {
             chain.doFilter(request, response);
@@ -160,20 +133,72 @@ public class AuthenticationFilter implements Filter {
 
     }
 
-    private void setAuthType(String value) {
-        if (value == null) {
+    private void initAuthenticationScheme(FilterConfig config) {
+        String authTypeName = config.getInitParameter(AUTH_TYPE_INIT_PARAM);
+
+        if (authTypeName == null) {
             throw new IllegalArgumentException("Null authentication type provided.");
         }
 
+        AuthType authType;
+
         try {
-            this.authType = AuthType.valueOf(value);
+            authType = AuthType.valueOf(authTypeName.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Unsupported authentication type. Possible values are: BASIC, FORM and DIGEST.", e);
+            throw new IllegalArgumentException("Unsupported authentication type. Possible values are: [" + AuthType.values() + ".", e);
+        }
+
+        Class<? extends HTTPAuthenticationScheme> authenticationScheme = this.authenticationSchemes.get(authType);
+
+        if (authenticationScheme == null) {
+            throw new IllegalArgumentException("Authentication type of [" + authType + "] does not match a HTTPAuthenticationScheme type.");
+        }
+
+        try {
+            this.authenticationScheme = authenticationScheme.getConstructor(FilterConfig.class).newInstance(config);
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not create authentication scheme instance [" + authenticationScheme + "].", e);
+        }
+    }
+
+    private DefaultLoginCredentials getCredentials() {
+        if (this.credentialsInstance.isUnsatisfied()) {
+            throw new IllegalStateException(
+                    "DefaultLoginCredentials not found - please ensure that the DefaultLoginCredentials component is created on startup.");
+        } else if (this.credentialsInstance.isAmbiguous()) {
+            throw new IllegalStateException(
+                    "DefaultLoginCredentials is ambiguous. Make sure you have a single @RequestScoped instance.");
+        }
+
+        try {
+            return credentialsInstance.get();
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not retrieve credentials.", e);
+        }
+    }
+
+    private Identity getIdentity() throws ServletException {
+        if (this.identityInstance.isUnsatisfied()) {
+            throw new IllegalStateException(
+                    "Identity not found.");
+        } else if (this.identityInstance.isAmbiguous()) {
+            throw new IllegalStateException(
+                    "Identity is ambiguous.");
+        }
+
+        try {
+            return identityInstance.get();
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not retrieve Identity.", e);
         }
     }
 
     private boolean isProtected(HttpServletRequest request) {
         return !this.unprotectedMethods.contains(request.getMethod().toUpperCase());
+    }
+
+    public enum AuthType {
+        BASIC, DIGEST, FORM, CLIENT_CERT
     }
 
 }

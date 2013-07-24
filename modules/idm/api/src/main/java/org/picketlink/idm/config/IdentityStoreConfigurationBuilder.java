@@ -235,6 +235,10 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
 
         for (Class<? extends AttributedType> supportedType: configuration.getSupportedTypes().keySet()) {
             supportType(supportedType);
+
+            if (Relationship.class.isAssignableFrom(supportedType)) {
+                supportGlobalRelationship((Class<? extends Relationship>) supportedType);
+            }
         }
 
         for (Class<? extends AttributedType> unsupportedType: configuration.getUnsupportedTypes().keySet()) {

@@ -23,6 +23,7 @@
 package org.picketlink.authentication.web;
 
 import java.io.IOException;
+import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.picketlink.common.util.Base64;
@@ -37,10 +38,17 @@ import org.picketlink.credential.DefaultLoginCredentials;
  */
 public class BasicAuthenticationScheme implements HTTPAuthenticationScheme {
 
-    private String realm;
+    public static final String REALM_NAME_INIT_PARAM = "realmName";
+    public static final String DEFAULT_REALM_NAME = "PicketLink Default Realm";
 
-    public BasicAuthenticationScheme(String realm) {
-        this.realm = realm;
+    private String realm = DEFAULT_REALM_NAME;
+
+    public BasicAuthenticationScheme(FilterConfig config) {
+        String providedRealm = config.getInitParameter(REALM_NAME_INIT_PARAM);
+
+        if (providedRealm != null) {
+            this.realm = providedRealm;
+        }
     }
 
     @Override

@@ -16,11 +16,11 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.picketlink.Identity;
 import org.picketlink.authentication.web.AuthenticationFilter;
+import org.picketlink.authentication.web.DigestAuthenticationScheme;
 import org.picketlink.authentication.web.support.HTTPDigestUtil;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.credential.Digest;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.contains;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.never;
@@ -77,7 +77,7 @@ public class DigestAuthenticationSchemeTestCase {
     public void testChallengeClient() throws Exception {
         filter.doFilter(request, response, filterChain);
 
-        verify(response).setHeader(eq("WWW-Authenticate"), startsWith("Digest realm=\"" + AuthenticationFilter.DEFAULT_REALM_NAME + "\""));
+        verify(response).setHeader(eq("WWW-Authenticate"), startsWith("Digest realm=\"" + DigestAuthenticationScheme.DEFAULT_REALM_NAME + "\""));
         verify(response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
         verify(identity, never()).login();
     }
@@ -140,7 +140,7 @@ public class DigestAuthenticationSchemeTestCase {
 
         verify(credentials, never()).setCredential(any(Digest.class));
         verify(identity, never()).login();
-        verify(response).setHeader(eq("WWW-Authenticate"), startsWith("Digest realm=\"" + AuthenticationFilter.DEFAULT_REALM_NAME + "\""));
+        verify(response).setHeader(eq("WWW-Authenticate"), startsWith("Digest realm=\"" + DigestAuthenticationScheme.DEFAULT_REALM_NAME + "\""));
         verify(response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
     }
 
@@ -148,7 +148,7 @@ public class DigestAuthenticationSchemeTestCase {
     public void testProvidedRealmName() throws Exception {
         String realmName = "My Realm";
 
-        when(config.getInitParameter(AuthenticationFilter.REALM_NAME_INIT_PARAM)).thenReturn(realmName);
+        when(config.getInitParameter(DigestAuthenticationScheme.REALM_NAME_INIT_PARAM)).thenReturn(realmName);
 
         filter.init(config);
         filter.doFilter(request, response, filterChain);

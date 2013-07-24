@@ -17,16 +17,16 @@
  */
 package org.picketlink.authentication.web;
 
-import org.picketlink.authentication.web.support.RequestCache;
-import org.picketlink.authentication.web.support.SavedRequest;
-import org.picketlink.credential.DefaultLoginCredentials;
-
+import java.io.IOException;
+import javax.servlet.FilterConfig;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
+import org.picketlink.authentication.web.support.RequestCache;
+import org.picketlink.authentication.web.support.SavedRequest;
+import org.picketlink.credential.DefaultLoginCredentials;
 
 /**
  * An implementation of {@link HTTPAuthenticationScheme} that supports the Servlet Specification
@@ -35,9 +35,12 @@ import java.io.IOException;
  * @since June 06, 2013
  */
 public class FormAuthenticationScheme implements HTTPAuthenticationScheme{
+
+    public static final String FORM_LOGIN_PAGE_INIT_PARAM = "form-login-page";
+    public static final String FORM_ERROR_PAGE_INIT_PARAM = "form-error-page";
+
     private RequestCache requestCache = new RequestCache();
 
-    private final String realm;
     private final String formLoginPage;
     private final String formErrorPage;
 
@@ -51,9 +54,21 @@ public class FormAuthenticationScheme implements HTTPAuthenticationScheme{
 
     public static final String STATE = "STATE";
 
-    public FormAuthenticationScheme(String realm, String formLoginPage, String formErrorPage){
-        this.realm = realm;
+    public FormAuthenticationScheme(FilterConfig config) {
+        String formLoginPage = config.getInitParameter(FORM_LOGIN_PAGE_INIT_PARAM);
+
+        if (formLoginPage == null) {
+            formLoginPage = "/login.jsp";
+        }
+
         this.formLoginPage = formLoginPage;
+
+        String formErrorPage = config.getInitParameter(FORM_ERROR_PAGE_INIT_PARAM);
+
+        if (formErrorPage == null) {
+            formErrorPage = "/loginError.jsp";
+        }
+
         this.formErrorPage = formErrorPage;
     }
     @Override
