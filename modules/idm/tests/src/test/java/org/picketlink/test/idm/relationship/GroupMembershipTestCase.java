@@ -29,6 +29,7 @@ import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
@@ -122,17 +123,17 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        relationshipManager.addToGroup(someUser, someGroup);
+        IdentityLocator.addToGroup(relationshipManager, someUser, someGroup);
 
-        assertTrue(relationshipManager.isMember(someUser, someGroup));
+        assertTrue(IdentityLocator.isMember(relationshipManager, someUser, someGroup));
 
         Group someAnotherGroup = createGroup("someAnotherGroup", null);
 
-        assertFalse(relationshipManager.isMember(someUser, someAnotherGroup));
+        assertFalse(IdentityLocator.isMember(relationshipManager, someUser, someAnotherGroup));
 
-        relationshipManager.addToGroup(someUser, someAnotherGroup);
+        IdentityLocator.addToGroup(relationshipManager, someUser, someAnotherGroup);
 
-        assertTrue(relationshipManager.isMember(someUser, someAnotherGroup));
+        assertTrue(IdentityLocator.isMember(relationshipManager, someUser, someAnotherGroup));
     }
 
     @Test
@@ -146,16 +147,16 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         IdentityManager identityManager = getIdentityManager();
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        relationshipManager.addToGroup(someUser, groupB);
+        IdentityLocator.addToGroup(relationshipManager, someUser, groupB);
 
-        assertTrue(relationshipManager.isMember(someUser, groupA));
-        assertTrue(relationshipManager.isMember(someUser, groupB));
+        assertTrue(IdentityLocator.isMember(relationshipManager, someUser, groupA));
+        assertTrue(IdentityLocator.isMember(relationshipManager, someUser, groupB));
 
         identityManager.remove(groupB);
         identityManager.remove(groupA);
         
         // group testing path is /a/b 
-        assertFalse(relationshipManager.isMember(someUser, groupB));
+        assertFalse(IdentityLocator.isMember(relationshipManager, someUser, groupB));
         
         groupA = createGroup("a", null);
         
@@ -163,12 +164,12 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         
         Group groupC = createGroupWithParent("c", groupB);
 
-        relationshipManager.addToGroup(someUser, groupC);
+        IdentityLocator.addToGroup(relationshipManager, someUser, groupC);
         
         // group testing path is /a/b/c
-        assertTrue(relationshipManager.isMember(someUser, groupA));
-        assertTrue(relationshipManager.isMember(someUser, groupB));
-        assertTrue(relationshipManager.isMember(someUser, groupC));
+        assertTrue(IdentityLocator.isMember(relationshipManager, someUser, groupA));
+        assertTrue(IdentityLocator.isMember(relationshipManager, someUser, groupB));
+        assertTrue(IdentityLocator.isMember(relationshipManager, someUser, groupC));
 
         identityManager.remove(groupC);
         identityManager.remove(groupB);
@@ -187,22 +188,22 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         Group anotherGroupB = createGroupWithParent("b", qaGroup);
         
         // group testing paths are: /a/b/c/QA Group/b and /a/b/c/d
-        relationshipManager.addToGroup(someUser, anotherGroupB);
+        IdentityLocator.addToGroup(relationshipManager, someUser, anotherGroupB);
 
-        assertTrue(relationshipManager.isMember(someUser, anotherGroupB));
-        assertTrue(relationshipManager.isMember(someUser, groupA));
-        assertTrue(relationshipManager.isMember(someUser, groupB));
-        assertTrue(relationshipManager.isMember(someUser, groupC));
-        assertTrue(relationshipManager.isMember(someUser, qaGroup));
-        assertFalse(relationshipManager.isMember(someUser, groupD));
+        assertTrue(IdentityLocator.isMember(relationshipManager, someUser, anotherGroupB));
+        assertTrue(IdentityLocator.isMember(relationshipManager, someUser, groupA));
+        assertTrue(IdentityLocator.isMember(relationshipManager, someUser, groupB));
+        assertTrue(IdentityLocator.isMember(relationshipManager, someUser, groupC));
+        assertTrue(IdentityLocator.isMember(relationshipManager, someUser, qaGroup));
+        assertFalse(IdentityLocator.isMember(relationshipManager, someUser, groupD));
 
-        relationshipManager.removeFromGroup(someUser, anotherGroupB);
-        relationshipManager.addToGroup(someUser, groupD);
+        IdentityLocator.removeFromGroup(relationshipManager, someUser, anotherGroupB);
+        IdentityLocator.addToGroup(relationshipManager, someUser, groupD);
         
-        assertTrue(relationshipManager.isMember(someUser, groupA));
-        assertTrue(relationshipManager.isMember(someUser, groupB));
-        assertTrue(relationshipManager.isMember(someUser, groupD));
-        assertFalse(relationshipManager.isMember(someUser, anotherGroupB));
+        assertTrue(IdentityLocator.isMember(relationshipManager, someUser, groupA));
+        assertTrue(IdentityLocator.isMember(relationshipManager, someUser, groupB));
+        assertTrue(IdentityLocator.isMember(relationshipManager, someUser, groupD));
+        assertFalse(IdentityLocator.isMember(relationshipManager, someUser, anotherGroupB));
     }
 
     @Test
@@ -213,11 +214,11 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         IdentityManager identityManager = getIdentityManager();
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        relationshipManager.addToGroup(someUser, someGroup);
+        IdentityLocator.addToGroup(relationshipManager, someUser, someGroup);
         
         identityManager.remove(someUser);
         
-        assertFalse(relationshipManager.isMember(someUser, someGroup));
+        assertFalse(IdentityLocator.isMember(relationshipManager, someUser, someGroup));
     }
 
     @Test
@@ -229,20 +230,20 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         IdentityManager identityManager = getIdentityManager();
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        relationshipManager.addToGroup(someUser, someGroup);
-        relationshipManager.addToGroup(someUser, someAnotherGroup);
+        IdentityLocator.addToGroup(relationshipManager, someUser, someGroup);
+        IdentityLocator.addToGroup(relationshipManager, someUser, someAnotherGroup);
 
-        assertTrue(relationshipManager.isMember(someUser, someGroup));
-        assertTrue(relationshipManager.isMember(someUser, someAnotherGroup));
+        assertTrue(IdentityLocator.isMember(relationshipManager, someUser, someGroup));
+        assertTrue(IdentityLocator.isMember(relationshipManager, someUser, someAnotherGroup));
 
-        relationshipManager.removeFromGroup(someUser, someGroup);
+        IdentityLocator.removeFromGroup(relationshipManager, someUser, someGroup);
 
-        assertFalse(relationshipManager.isMember(someUser, someGroup));
-        assertTrue(relationshipManager.isMember(someUser, someAnotherGroup));
+        assertFalse(IdentityLocator.isMember(relationshipManager, someUser, someGroup));
+        assertTrue(IdentityLocator.isMember(relationshipManager, someUser, someAnotherGroup));
 
-        relationshipManager.removeFromGroup(someUser, someAnotherGroup);
+        IdentityLocator.removeFromGroup(relationshipManager, someUser, someAnotherGroup);
 
-        assertFalse(relationshipManager.isMember(someUser, someAnotherGroup));
+        assertFalse(IdentityLocator.isMember(relationshipManager, someUser, someAnotherGroup));
     }
 
     @Test
@@ -365,7 +366,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         assertFalse(contains(result, "someAnotherGroup"));
         assertFalse(contains(result, "someImportantGroup"));
 
-        relationshipManager.addToGroup(user, someGroup);
+        IdentityLocator.addToGroup(relationshipManager, user, someGroup);
 
         query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
@@ -378,7 +379,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         assertFalse(contains(result, "someAnotherGroup"));
         assertFalse(contains(result, "someImportantGroup"));
 
-        relationshipManager.addToGroup(user, someAnotherGroup);
+        IdentityLocator.addToGroup(relationshipManager, user, someAnotherGroup);
 
         query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
@@ -391,7 +392,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         assertTrue(contains(result, "someAnotherGroup"));
         assertFalse(contains(result, "someImportantGroup"));
 
-        relationshipManager.addToGroup(user, someImportantGroup);
+        IdentityLocator.addToGroup(relationshipManager, user, someImportantGroup);
 
         query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 

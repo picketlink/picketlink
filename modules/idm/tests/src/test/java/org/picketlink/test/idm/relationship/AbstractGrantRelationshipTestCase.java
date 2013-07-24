@@ -25,6 +25,7 @@ import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Grant;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
@@ -65,18 +66,18 @@ public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
         IdentityManager identityManager = getIdentityManager();
 
-        relationshipManager.grantRole(someAgent, someRole);
+        IdentityLocator.grantRole(relationshipManager, someAgent, someRole);
 
-        assertTrue(relationshipManager.hasRole(someAgent, someRole));
+        assertTrue(IdentityLocator.hasRole(relationshipManager, someAgent, someRole));
 
         Role someAnotherRole = createRole("someAnotherRole");
 
-        assertFalse(relationshipManager.hasRole(someAgent, someAnotherRole));
+        assertFalse(IdentityLocator.hasRole(relationshipManager, someAgent, someAnotherRole));
 
-        relationshipManager.grantRole(someAgent, someAnotherRole);
+        IdentityLocator.grantRole(relationshipManager, someAgent, someAnotherRole);
 
-        assertTrue(relationshipManager.hasRole(someAgent, someAnotherRole));
-        assertTrue(relationshipManager.hasRole(someAgent, someRole));
+        assertTrue(IdentityLocator.hasRole(relationshipManager, someAgent, someAnotherRole));
+        assertTrue(IdentityLocator.hasRole(relationshipManager, someAgent, someRole));
     }
 
     /**
@@ -96,20 +97,20 @@ public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
         IdentityManager identityManager = getIdentityManager();
 
-        relationshipManager.grantRole(someAgent, someRole);
-        relationshipManager.grantRole(someAgent, someAnotherRole);
+        IdentityLocator.grantRole(relationshipManager, someAgent, someRole);
+        IdentityLocator.grantRole(relationshipManager, someAgent, someAnotherRole);
 
-        assertTrue(relationshipManager.hasRole(someAgent, someRole));
-        assertTrue(relationshipManager.hasRole(someAgent, someAnotherRole));
+        assertTrue(IdentityLocator.hasRole(relationshipManager, someAgent, someRole));
+        assertTrue(IdentityLocator.hasRole(relationshipManager, someAgent, someAnotherRole));
 
-        relationshipManager.revokeRole(someAgent, someRole);
+        IdentityLocator.revokeRole(relationshipManager, someAgent, someRole);
 
-        assertFalse(relationshipManager.hasRole(someAgent, someRole));
-        assertTrue(relationshipManager.hasRole(someAgent, someAnotherRole));
+        assertFalse(IdentityLocator.hasRole(relationshipManager, someAgent, someRole));
+        assertTrue(IdentityLocator.hasRole(relationshipManager, someAgent, someAnotherRole));
 
-        relationshipManager.revokeRole(someAgent, someAnotherRole);
+        IdentityLocator.revokeRole(relationshipManager, someAgent, someAnotherRole);
 
-        assertFalse(relationshipManager.hasRole(someAgent, someAnotherRole));
+        assertFalse(IdentityLocator.hasRole(relationshipManager, someAgent, someAnotherRole));
     }
     
     /**
@@ -140,7 +141,7 @@ public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> 
         assertFalse(contains(result, "someAnotherRole"));
         assertFalse(contains(result, "someImportantRole"));
 
-        relationshipManager.grantRole(user, someRole);
+        IdentityLocator.grantRole(relationshipManager, user, someRole);
         
         query = relationshipManager.createRelationshipQuery(Grant.class);
         
@@ -153,7 +154,7 @@ public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> 
         assertFalse(contains(result, "someAnotherRole"));
         assertFalse(contains(result, "someImportantRole"));
 
-        relationshipManager.grantRole(user, someAnotherRole);
+        IdentityLocator.grantRole(relationshipManager, user, someAnotherRole);
 
         query = relationshipManager.createRelationshipQuery(Grant.class);
         
@@ -166,7 +167,7 @@ public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> 
         assertTrue(contains(result, "someAnotherRole"));
         assertFalse(contains(result, "someImportantRole"));
 
-        relationshipManager.grantRole(user, someImportantRole);
+        IdentityLocator.grantRole(relationshipManager, user, someImportantRole);
         
         query = relationshipManager.createRelationshipQuery(Grant.class);
         

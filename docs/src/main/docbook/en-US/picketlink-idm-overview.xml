@@ -1,0 +1,1455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="../" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+         xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <title>Identity Management - Overview</title>
+
+    <section>
+      <title>Introduction</title>
+      
+      <para>
+        PicketLink's Identity Management (IDM) features provide a rich and extensible API for managing the identities (such as users, 
+        groups and roles) of your applications and services.  It also supports a flexible system for identity partitioning, allowing
+        it to be used as a complete security solution in simple web applications and as an Identity Provider (IDP) in more complex 
+        multi-domain scenarios.
+      </para>
+      
+      <para>
+        The Identity Management features of PicketLink are primarily accessed via the following three interfaces:
+      </para>
+      
+      <itemizedlist>
+        <listitem>
+          <para>
+            <code>PartitionManager</code> is used to manage identity <emphasis>partitions</emphasis>, which are essentially
+            a <emphasis>container</emphasis> for a set of identity objects.  The <code>PartitionManager</code> interface provides
+            a set of CRUD methods for creating, reading, updating and deleting partitions, as well as methods for creating an
+            <code>IdentityManager</code> or <code>RelationshipManager</code>.  A typical application with basic security requirements
+            may not need to access this class directly.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <code>IdentityManager</code> is used to manage <emphasis>identity objects</emphasis> within the scope of a partition.  
+            Some examples of identity objects are users, groups and roles, although PicketLink is not limited to just these.
+            Besides providing the standard set of CRUD methods for managing and finding identity objects, the 
+            <code>IdentityManager</code> interface also defines methods for managing credentials and for creating identity
+            queries which may be used to locate identities by their properties and attributes.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <code>RelationshipManager</code> is used to manage <emphasis>relationships</emphasis> - a relationship is a typed
+            association between two or more identities, with each identity having a definitive meaning within the relationship.
+            Some examples of relationships that you may already be familiar with are group memberships (where a user is a member of
+            a particular group) or role grants (where a user is assigned to a role to afford them a certain set of privileges).
+            The <code>RelationshipManager</code> provides CRUD methods for managing relationships, and also for creating a relationship
+            query which may be used to locate relationships between identities based on the relationship type and participating identity
+            object/s.
+          </para>
+        </listitem>
+      </itemizedlist>
+        
+      <note>
+        <para>
+          In case you are wondering why a separate <code>RelationshipManager</code> interface is required for managing relationships
+          between identites, it is because PicketLink supports relationships between identities belonging to separate partitions; 
+          therefore the scope of a <code>RelationshipManager</code> instance is not constrained to a single partition in the same way
+          as the <code>IdentityManager</code>.
+        </para>
+      </note>
+      
+      <para>
+        Interaction with the backend store that provides the persistent identity state is performed by configuring one or more
+        <code>IdentityStore</code>s.  PicketLink provides a few built-in <code>IdentityStore</code> implementations for storing
+        identity state in a database, file system or LDAP directory server, and it is possible to provide your own custom
+        implementation to support storing your application's identity data in other backends, or extend the built-in implementations
+        to override their default behaviour.
+      </para>
+      
+      <mediaobject>
+        <imageobject role="fo">
+          <imagedata fileref="diagrams/identity_manager_stores.png" align="center" scalefit="1"/>
+        </imageobject>
+        <imageobject role="html">
+          <imagedata fileref="diagrams/identity_manager_stores.png" align="center"/>
+        </imageobject>
+      </mediaobject> 
+      
+    </section>
+    
+    <section>
+      <title>Getting Started in 5 Minutes</title>
+      
+      <para>
+        If you'd like to get up and running with IDM quickly, the good news is that PicketLink will provide a default configuration 
+        that stores your identity data on the file system if no other configuration is available.  This means that if you 
+        have the PicketLink libraries in your project, you can simply inject the <code>IdentityManager</code> bean into your own 
+        classes and start using it immediately:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[@Inject IdentityManager identityManager;]]></programlisting>
+      
+      <para>
+        Once you have injected the <code>IdentityManager</code> you can begin creating users, groups and roles for your 
+        application:  
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[User user = new User("jane");
+user.setFirstName("Jane");
+user.setLastName("Doe");
+identityManager.add(user);
+
+Group group = new Group("employees");
+identityManager.add(group);
+
+Role admin = new Role("admin");
+identityManager.add(admin);]]></programlisting>
+    </section>
+    
+    <section>
+      <title>Identity Model</title>
+      
+      <para>
+        PicketLink provides a sample identity model that consists of a number of core interfaces which define the fundamental identity 
+        types found in a typical application.  The following class diagram shows the classes and interfaces
+        in the <code>org.picketlink.idm.model.sample</code> package that form the base identity model.
+      </para>
+      
+      <mediaobject>
+        <imageobject role="fo">
+          <imagedata fileref="diagrams/identitymodel.png" align="center" scalefit="1"/>
+        </imageobject>
+        <imageobject role="html">
+          <imagedata fileref="diagrams/identitymodel.png" align="center"/>
+        </imageobject>
+      </mediaobject>      
+      
+      <itemizedlist>
+        <listitem>
+          <para>
+            <code>AttributedType</code> is the base interface for the identity model.  It declares a number of methods for
+            managing a set of attribute values, plus <code>getId()</code> and <code>setId()</code> methods for setting a 
+            unique UUID value.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>
+            <code>Attribute</code> is used to represent an attribute value.  An attribute has a name and a (generically typed) value,
+            and may be marked as read-only.  Attribute values that are expensive to load (such as large binary data) may be lazy-loaded; 
+            the <code>isLoaded()</code> method may be used to determine whether the Attribute has been loaded or not.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>
+            <code>IdentityType</code> is the base interface for Identity objects.  It declares properties that indicate whether the
+            identity object is enabled or not, optional created and expiry dates, plus methods to read and set the owning 
+            <code>Partition</code>.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>
+            <code>Agent</code> represents a unique entity that may access the services secured by PicketLink.  In contrast to a user
+            which represents a human, <code>Agent</code> is intended to represent a third party non-human (i.e. machine to machine) 
+            process that may authenticate and interact with your application or services.  It declares methods for reading and setting
+            the <code>Agent</code>'s login name.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>
+            <code>User</code> represents a human user that accesses your application and services.  In addition to the login name
+            property defined by its parent interface <code>Agent</code>, the <code>User</code> interface declares a number of other
+            methods for managing the user's first name, last name and e-mail address.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>
+            <code>Group</code> is used to manage collections of identity types.  Each <code>Group</code> has a name and an optional
+            parent group.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>
+            <code>Role</code> is used in various relationship types to designate authority to another identity type to perform
+            various operations within an application.  For example, a forum application may define a role called 
+            <emphasis>moderator</emphasis> which may be assigned to one or more <code>User</code>s or <code>Group</code>s to indicate 
+            that they are authorized to perform moderator functions.
+          </para>
+        </listitem>
+      </itemizedlist>
+      
+      <section id="idm_architecture_overview">
+        <title>Architectural Overview</title>
+        
+        <para>The following diagram shows the main components that realize PicketLink Identity Management:</para>
+        
+        <mediaobject>
+          <imageobject role="fo">
+            <imagedata fileref="diagrams/idm_architecture_overview.png" align="center" scalefit="1"/>
+          </imageobject>
+          <imageobject role="html">
+            <imagedata fileref="diagrams/idm_architecture_overview.png" align="center"/>
+          </imageobject>
+        </mediaobject>
+        
+        <para>
+          <itemizedlist>
+            <listitem>
+              <para>
+                <code>IdentityConfiguration</code> is the the class responsible for holding all PicketLink configuration options. 
+                This class is usually built using the Configuration Builder API, which we'll cover in the next sections. 
+                Once created and populated with the configuration options, an instance is used to create a <code>IdentityManagerFactory</code>.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <code>IdentityManagerFactory</code> is the class from which <code>IdentityManager</code> instances are created for a specific <emphasis>realm</emphasis>, 
+                considering all configurations provided by a <code>IdentityConfiguration</code> instance. 
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <code>SecurityContextFactory</code> is an interface that provides methods for creating <code>SecurityContext</code> instances. This component knows how to properly create and prepare 
+                the context that will be propagated during identity management operations.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <code>SecurityContext</code> is the class that holds context data that will be used during the execution of identity management operations. 
+                Once created, the context is used to create <code>IdentityStore</code> instances and to invoke their methods.
+              </para>
+              <para>
+                This component allows to share data between the <code>IdentityManager</code> and <code>IdentityStore</code> instances. 
+                And also provides direct access for some IDM subsystems such as: event handling, caching and so on.
+              </para>
+              <para>
+                Beyond that, this component is critical when access to external resources are required, such as the current <code>EntityManager</code> when using a JPA-based store.
+              </para>
+              <para> 
+                <emphasis>Each <code>IdentityManager</code> instance is associated with a single <code>SecurityContext</code>.</emphasis>     
+              </para>
+            </listitem>
+        	<listitem>
+              <para>
+                <code>StoreFactory</code> is an interface that provides methods for creating <code>IdentityStore</code> instances. 
+                Instances are created considering the <emphasis>Feature Set</emphasis> supported by each identity store and also the current <code>SecurityContext</code> instance.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <code>IdentityStore</code> is an interface that provides a contract for implementations that store data using a specific repository such as: LDAP, databases, file system, etc.
+              </para>
+              <para>
+                It is a critical component as it provides all the necessary logic about how to store data.
+              </para>
+       	    </listitem>
+            <listitem>
+              <para>
+                <code>IdentityManager</code> is an interface that provides a simple access for all identity management operations using one or more of the configured identity stores.
+              </para>
+              <para>
+                All functionality provided by PicketLink is available from this interface, from where applications will interact most of the time.
+              </para>
+            </listitem>
+          </itemizedlist>
+        </para>
+        
+        <para>
+          For most use cases, users will only work with the <code>IdentityManagerFactory</code> and <code>IdentityManager</code> classes. 
+          Only advanced use cases may require a deep knowledge about other components in order to customize the default behaviour/implementation to suit a specific requirement.
+        </para>
+        
+        <para>
+          The diagram below shows an overview about how a specific identity management operation is realized:
+        </para>
+        
+        <mediaobject>
+          <imageobject role="fo">
+            <imagedata fileref="diagrams/idm_operation_execution.png" align="center" scalefit="1"/>
+          </imageobject>
+          <imageobject role="html">
+            <imagedata fileref="diagrams/idm_operation_execution.png" align="center"/>
+          </imageobject>
+        </mediaobject>
+        
+        <para>
+          <itemizedlist>
+            <listitem>
+              <para>
+              	<emphasis>1</emphasis> - The <emphasis>Application</emphasis> creates an <code>IdentityManagerFactory</code> instance from a previously created <code>IdentityConfiguration</code>. 
+                At this point, the factory reads the configuration and bootstraps the identity management ecosystem. 
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              	<emphasis>1.1</emphasis> - The <code>IdentityManagerFactory</code> initializes the <code>SecurityContextFactory</code>. 
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              	<emphasis>1.2</emphasis> - The <code>IdentityManagerFactory</code> initializes the <code>StoreFactory</code>. 
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              	<emphasis>2</emphasis> - With a fully initialized <code>IdentityManagerFactory</code> instance, the <emphasis>Application</emphasis> is able to create <code>IdentityManager</code> instances and execute
+                operations. <code>IdentityManager</code> instances are created for a specific <emphasis>realm</emphasis>, in this specific case we're 
+                creating an instance using the default realm. 
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              	<emphasis>2.1 and 2.1.1</emphasis> - An <code>IdentityManager</code> instance is always associated with a <code>SecurityContext</code>. 
+              	The <code>SecurityContext</code> is created and set into the <code>IdentityManager</code> instance.
+                The same security context is used during the entire lifecycle of the <code>IdentityManager</code>, it will be used to share state with the underlying identity stores
+                and provide access to external resources (if necessary) in order to execute operations.
+              </para>
+              <para>
+                At this time, the <code>IdentityManager</code> is also configured to hold a reference to the <code>StoreFactory</code> 
+                in order to execute the operations against the underlying/configured <code>IdentityStore</code> instances.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              	<emphasis>3</emphasis> - Now the application holds a reference to the <code>IdentityManager</code> instance and it is ready to 
+              	perform identity management operations (eg.: add an user, queries, validate credentials, etc).
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              	<emphasis>3.1 and 3.1.1</emphasis> - But before executing the operations, the <code>IdentityManager</code> needs to obtain from the <code>StoreFactory</code> the <code>IdentityStore</code> instance 
+                that should be used to execute a specific operation. Identity stores are selected by examining the configuration to see which store configuration supports a 
+                specific operation or feature. 
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              	<emphasis>3.2</emphasis> - Now that the <code>IdentityManager</code> have selected which <code>IdentityStore</code> instance should be used, this last is invoked in order to process the operation.  
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              	<emphasis>3.2.1</emphasis> - Usually, during the execution of an operation, the <code>IdentityStore</code> uses the current <code>SecurityContext</code>. 
+                The <code>SecurityContext</code> can hold some state that may be useful during the execution (eg.: the JPA store uses the security context to gain access to the current <code>EntityManager</code> instance)
+                and also provide access for some IDM internal services like event handling, caching, etc.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              	<emphasis>3.2.2</emphasis> - Finally, the <code>IdentityStore</code> executes the operation and persist or retrieve identity data from the underlying repository.
+              </para>
+            </listitem>
+          </itemizedlist>
+        </para>
+        <para>
+          PicketLink IDM design is quite flexible and allows you to configure or even customize most of the behaviours described above.
+          As stated earlier, most use cases require minimal knowledge about these details and the default implementation should be enough to satisfy the majority of requirements.
+        </para>
+      </section>
+    </section>
+   
+    <section>
+      <title>Using the IdentityManager</title>
+      
+      <para>
+        The <code>org.picketlink.idm.IdentityManager</code> interface provides access to the bulk of the IDM features supported by PicketLink.
+        To get access to the <code>IdentityManager</code> depends on which environment you are using. The following two
+        sections describe how to access the <code>IdentityManager</code> in both Java EE and Java SE environments.
+      </para>
+      
+      <section>
+        <title>Accessing the <code>IdentityManager</code> in Java EE</title>
+        
+        <para>
+          In a Java EE environment, PicketLink provides a producer method for <code>IdentityManager</code>, 
+          so getting a reference to it is as simply as injecting it into your beans:
+        </para>
+      
+        <programlisting language="JAVA"><![CDATA[@Inject IdentityManager identityManager;]]></programlisting>
+        
+        <section>
+          <title>Configuring the Application Realm</title>
+          <para>
+            By default, an <code>IdentityManager</code> for the <emphasis>default</emphasis> realm will be injected.  If the application
+            should use a realm other than the default, then this must be configured via a producer method with the <code>@PicketLink</code>
+            qualifier.  The following code shows an example of a configuration bean that sets the application realm to <emphasis>acme</emphasis>:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[@ApplicationScoped
+public class RealmConfiguration {
+    private Realm applicationRealm;
+  
+    @Inject IdentityManagerFactory factory;
+  
+    @Init
+    public void init() {
+        applicationRealm = factory.getRealm("acme");
+    }
+
+    @Produces
+    @PicketLink
+    public Realm getApplicationRealm() {
+      return applicationRealm;
+    }
+}]]></programlisting>
+        </section>
+  
+      </section>
+      
+      <section>
+        <title>Accessing the <code>IdentityManager</code> in Java SE</title>
+        
+        <para>
+        
+        </para>
+      </section>
+    </section>
+    
+    <section>
+      <title>Managing Users, Groups and Roles</title>
+      
+      <para>
+        PicketLink IDM provides a number of basic implementations of the identity model interfaces for convenience, in the
+        <code>org.picketlink.idm.model</code> package.  The following sections provide examples that show these 
+        implementations in action.
+      </para>
+  
+      <section>
+        <title>Managing Users</title>
+        
+        <para>
+          The following code example demonstrates how to create a new user with the following properties:
+        </para>
+        
+        <itemizedlist>
+          <listitem>Login name - <emphasis>jsmith</emphasis></listitem>
+          <listitem>First name - <emphasis>John</emphasis></listitem>
+          <listitem>Last name - <emphasis>Smith</emphasis></listitem>
+          <listitem>E-mail - <emphasis>jsmith@acme.com</emphasis></listitem>
+        </itemizedlist> 
+        
+        <programlisting language="JAVA"><![CDATA[  User user = new SimpleUser("jsmith");
+  user.setFirstName("John");
+  user.setLastName("Smith");
+  user.setEmail("jsmith@acme.com");
+  identityManager.add(user);]]></programlisting>
+  
+        <para>
+          Once the <code>User</code> is created, it's possible to look it up using its login name:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  User user = identityManager.getUser("jsmith");]]></programlisting>
+        
+        <para>
+          User properties can also be modified after the User has already been created.  The following example demonstrates how
+          to change the e-mail address of the user we created above:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  User user = identityManager.getUser("jsmith");
+  user.setEmail("john@smith.com");
+  identityManager.update(user);]]></programlisting>
+  
+        <para>
+          Users may also be deleted.  The following example demonstrates how to delete the user previously created:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  User user = identityManager.getUser("jsmith");
+  identityManager.remove("jsmith");]]></programlisting>
+        
+      </section>
+      
+      <section>
+        <title>Managing Groups</title>
+        
+        <para>
+          The following example demonstrates how to create a new group called <emphasis>employees</emphasis>:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  Group employees = new SimpleGroup("employees");]]></programlisting>
+        
+        <para>
+          It is also possible to assign a parent group when creating a group.  The following example demonstrates how
+          to create a new group called <emphasis>managers</emphasis>, using the <emphasis>employees</emphasis> group 
+          created in the previous example as the parent group:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  Group managers = new SimpleGroup("managers", employees);]]></programlisting>
+        
+        <para>
+          To lookup an existing <code>Group</code>, the <code>getGroup()</code> method may be used.  If the group name
+          is unique, it can be passed as a single parameter:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  Group employees = identityManager.getGroup("employees");]]></programlisting>
+        
+        <para>
+          If the group name is not unique, the parent group must be passed as the second parameter (although it can still be
+          provided if the group name is unique):
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  Group managers = identityManager.getGroup("managers", employees);]]></programlisting>
+        
+        <para>
+          It is also possible to modify a <code>Group</code>'s name and other properties (besides its parent) after it has
+          been created.  The following example demonstrates how to disable the "employees" group we created above:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  Group employees = identityManager.getGroup("employees");
+  employees.setEnabled(false);
+  identityManager.update(employees);]]></programlisting>
+        
+        <para>
+          To remove an existing group, we can use the <code>remove()</code> method:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  Group employees = identityManager.getGroup("employees");
+  identityManager.remove(employees);]]></programlisting>
+
+      </section>
+    </section>
+    
+    <section>
+      <title>Managing Relationships</title>
+      
+      <para>
+        Relationships are used to model <emphasis>typed associations</emphasis> between two or more identities.  All 
+        concrete relationship types must implement the marker interface <code>org.picketlink.idm.model.Relationship</code>:
+      </para>
+      
+      <mediaobject>
+        <imageobject role="fo">
+          <imagedata fileref="diagrams/relationshipclassdiagram.png" align="center" scalefit="1"/>
+        </imageobject>
+        <imageobject role="html">
+          <imagedata fileref="diagrams/relationshipclassdiagram.png" align="center"/>
+        </imageobject>
+      </mediaobject> 
+                    
+      <para>
+        The <code>IdentityManager</code> interface provides three standard methods for managing relationships:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[  void add(Relationship relationship);
+  void update(Relationship relationship);
+  void remove(Relationship relationship);]]></programlisting>
+      
+      <itemizedlist>
+        <listitem>
+          <para>
+            The <code>add()</code> method is used to create a new relationship.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>
+            The <code>update()</code> method is used to update an existing relationship.
+          </para>
+          
+          <note>
+            <para>
+              Please note that the identities that participate in a relationship cannot be updated themselves, 
+              however the attribute values of the relationship can be updated.  If you absolutely need to modify
+              the identities of a relationship, then delete the relationship and create it again.
+            </para>
+          </note>
+        </listitem>
+        
+        <listitem>
+          <para>
+            The <code>remove()</code> method is used to remove an existing relationship.
+          </para>
+        </listitem>
+      </itemizedlist>
+      
+      <note>
+        <para>
+          To search for existing relationships between identity objects, use the Relationship Query API described later
+          in this chapter.
+        </para>
+      </note>
+      
+      <para>
+        Besides the above methods, <code>IdentityManager</code> also provides a number of convenience methods for
+        managing many of the built-in relationship types.  See the next section for more details.
+      </para>
+            
+      <section>
+        <title>Built In Relationship Types</title>
+        
+        <para>
+          PicketLink provides a number of built-in relationship types, designed to address the most common requirements
+          of a typical application.  The following sections describe the built-in relationships and how they are intended
+          to be used.  Every built-in relationship type extends the <code>AbstractAttributedType</code> abstract class,
+          which provides the basic methods for setting a unique identifier value and managing a set of attribute values:
+        </para>
+        
+        <mediaobject>
+          <imageobject role="fo">
+            <imagedata fileref="diagrams/abstractattributedtype.png" align="center" scalefit="1"/>
+          </imageobject>
+          <imageobject role="html">
+            <imagedata fileref="diagrams/abstractattributedtype.png" align="center"/>
+          </imageobject>
+        </mediaobject> 
+        
+        <para>
+          What this means in practical terms, is that every single relationship is assigned and can be identified by, a unique 
+          identifier value.  Also, arbitrary attribute values may be set for all relationship types, which is useful if you 
+          require additional metadata or any other type of information to be stored with a relationship.
+        </para>
+        
+        <section>
+          <title>Application Roles</title>
+          
+          <para>
+            Application roles are represented by the <code>Grant</code> relationship, which is used to assign application-wide
+            privileges to a <code>User</code> or <code>Agent</code>.
+          </para>
+          
+          <mediaobject>
+            <imageobject role="fo">
+              <imagedata fileref="diagrams/grant.png" align="center" scalefit="1"/>
+            </imageobject>
+            <imageobject role="html">
+              <imagedata fileref="diagrams/grant.png" align="center"/>
+            </imageobject>
+          </mediaobject> 
+          
+          <para>
+            The <code>IdentityManager</code> interface provides methods for directly granting a role.  Here's a simple example:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[  User bob = identityManager.getUser("bob");
+  Role superuser = identityManager.getRole("superuser");
+  identityManager.grantRole(bob, superuser);]]></programlisting>
+          
+          <para>
+            The above code is equivalent to the following:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[  User bob = identityManager.getUser("bob");
+  Role superuser = identityManager.getRole("superuser");
+  Grant grant = new Grant(bob, superuser);
+  identityManager.add(grant);]]></programlisting>
+  
+          <para>
+            A granted role can also be revoked using the <code>revokeRole()</code> method:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[  User bob = identityManager.getUser("bob");
+  Role superuser = identityManager.getRole("superuser");
+  identityManager.revokeRole(bob, superuser);]]></programlisting>
+  
+          <para>
+            To check whether an identity has a specific role granted to them, we can use the <code>hasRole()</code> method:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[  User bob = identityManager.getUser("bob");
+  Role superuser = identityManager.getRole("superuser");
+  boolean isBobASuperUser = identityManager.hasRole(bob, superuser);]]></programlisting>
+        </section>
+        
+        <section>
+          <title>Groups and Group Roles</title>
+          
+          <para>
+            The <code>GroupMembership</code> and <code>GroupRole</code> relationships are used to represent a user's membership
+            within a <code>Group</code>, and a user's role for a group, respectively.
+          </para>
+          
+          <mediaobject>
+            <imageobject role="fo">
+              <imagedata fileref="diagrams/grouprole.png" align="center" scalefit="1"/>
+            </imageobject>
+            <imageobject role="html">
+              <imagedata fileref="diagrams/grouprole.png" align="center"/>
+            </imageobject>
+          </mediaobject>  
+          
+          <note>
+            <para>
+              While the <code>GroupRole</code> relationship type extends <code>GroupMembership</code>, it does 
+              <emphasis>not</emphasis> mean that a member of a <code>GroupRole</code> automatically receives 
+              <code>GroupMembership</code> membership also - these are two distinct relationship types with
+              different semantics.
+            </para>
+          </note>                              
+          
+          <para>
+            A <code>Group</code> is typically used to form logical collections of users.  Within an organisation, groups are 
+            often used to mirror the organisation's structure.  For example, a corporate structure might consist of a sales
+            department, administration, management, etc.  This structure can be modelled in PicketLink by creating corresponding
+            groups such as <emphasis>sales</emphasis>, <emphasis>administration</emphasis>, and so forth.  Users (who would represent 
+            the employees in a corporate structure) may then be assigned group memberships corresponding to their place within 
+            the company's organisational structure.  For example, an employee who works in the sales department 
+            may be assigned to the <emphasis>sales</emphasis> group.
+            Specific application privileges can then be blanket assigned to the <emphasis>sales</emphasis> group, and anyone who 
+            is a member of the group is free to access the application's features that require those privileges.
+          </para>
+         
+          <para>
+            The <code>GroupRole</code> relationship type should be used when it is intended for an identity to perform a specific
+            role for a group, but not be an actual member of the group itself.  For example, an administrator of a group of doctors
+            may not be a doctor themselves, but have an administrative role to perform for that group.  If the intent is for 
+            an individual identity to both be a member of a group <emphasis>and</emphasis> have an assigned role in that group 
+            also, then the identity should have both <code>GroupRole</code> and <code>GroupMembership</code> relationships for 
+            that group.
+          </para>          
+          
+          <para>
+            Let's start by looking at a simple example - we'll begin by making the assumption that our organization is
+            structured in the following way:
+          </para>
+          
+          <mediaobject>
+            <imageobject role="fo">
+              <imagedata fileref="diagrams/example_group_structure.png" align="center" scalefit="1"/>
+            </imageobject>
+            <imageobject role="html">
+              <imagedata fileref="diagrams/example_group_structure.png" align="center"/>
+            </imageobject>
+          </mediaobject>            
+          
+          <para>
+            The following code demonstrates how we would create the hypothetical <emphasis>Sales</emphasis> group which 
+            is displayed at the head of the above organisational chart:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[  Group sales = new SimpleGroup("Sales");
+  identityManager.add(sales);]]></programlisting>
+  
+          <para>
+            We can then proceed to create its subgroups:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[identityManager.add(new SimpleGroup("North America", sales);
+identityManager.add(new SimpleGroup("EMEA", sales);
+identityManager.add(new SimpleGroup("Asia", sales);
+// and so forth]]></programlisting>          
+
+          <para>
+            The second parameter of the <code>SimpleGroup()</code> constructor is used to specify the group's parent group.
+            This allows us to create a hierarchical group structure, which can be used to mirror either a simple or complex 
+            personnel structure of an organisation.  Let's now take a look at how we assign users to these groups.
+          </para>
+          
+          <para>
+            The following code demonstrates how to assign an <emphasis>administrator</emphasis> group role for the
+            <emphasis>Northeast</emphasis> sales group to user <emphasis>jsmith</emphasis>.  The 
+            <emphasis>administrator</emphasis> group role may be used to grant certain users the privilege to modify
+            permissions and roles for that group:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[Role admin = identityManager.getRole("administrator");
+User user = identityManager.getUser("jsmith");
+Group group = identityManager.getGroup("Northeast");
+identityManager.grantGroupRole(user, admin, group);]]></programlisting>
+
+          <para>
+            A group role can be revoked using the <code>revokeGroupRole()</code> method:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[identityManager.revokeGroupRole(user, admin, group);]]></programlisting>
+  
+          <para>
+            To test whether a user has a particular group role, you can use the <code>hasGroupRole()</code> method:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[boolean isUserAGroupAdmin = identityManager.hasGroupRole(user, admin, group);]]></programlisting> 
+
+          <para>
+            Next, let's look at some examples of how to work with simple group memberships. 
+            The following code demonstrates how we assign sales staff <emphasis>rbrown</emphasis> to the 
+            <emphasis>Northeast</emphasis> sales group:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[User user = identityManager.getUser("rbrown");
+Group group = identityManager.getGroup("Northeast");
+identityManager.addToGroup(user, group);]]></programlisting>          
+          
+          <para>
+            A <code>User</code> may also be a member of more than one <code>Group</code>; there are no built-in limitations on 
+            the number of groups that a <code>User</code> may be a member of.  
+          </para>
+          
+          <para>
+            We can use the <code>removeFromGroup()</code> method to remove the same user from the group:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[identityManager.removeFromGroup(user, group);]]></programlisting>
+  
+          <para>
+            To check whether a user is the member of a group we can use the <code>isMember()</code> method:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[boolean isUserAMember = identityManager.isMember(user, group);]]></programlisting>
+ 
+          <para>
+            Relationships can also be created via the <code>add()</code> method.  The following code is equivalent
+            to assigning a group role via the <code>grantGroupRole()</code> method shown above:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[Role admin = identityManager.getRole("administrator");
+User user = identityManager.getUser("jsmith");
+Group group = identityManager.getGroup("Northeast");
+GroupRole groupRole = new GroupRole(user, group, admin);
+identityManager.add(groupRole);]]></programlisting>
+        </section>
+        
+      </section>
+      
+      <section>
+        <title>Creating Custom Relationships</title>
+        
+        <para>
+          One of the strengths of PicketLink is its ability to support custom relationship types.  This extensibility allows you, the
+          developer to create specific relationship types between two or more identities to address the domain-specific requirements
+          of your own application.  
+        </para>
+        
+        <note>
+          <para>
+            Please note that custom relationship types are not supported by all <code>IdentityStore</code> implementations - 
+            see the Identity Store section above for more information.
+          </para>
+        </note>
+        
+        <para>
+          To create a custom relationship type, we start by creating a new class that implements the <code>Relationship</code> interface.
+          To save time, we also extend the <code>AbstractAttributedType</code> abstract class which takes care of the identifier and
+          attribute management methods for us:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  public class Authorization extends AbstractAttributedType implements Relationship {
+        
+  }]]></programlisting>
+        
+        <para>
+          The next step is to define which identities participate in the relationship.  Once we create our identity property methods,
+          we also need to annotate them with the <code>org.picketlink.idm.model.annotation.RelationshipIdentity</code> annotation.  
+          This is done by creating a property for each identity type.
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  private User user;
+  private Agent application;
+  
+  @RelationshipIdentity
+  public User getUser() {
+    return user;
+  }
+  
+  public void setUser(User user) {
+    this.user = user;
+  }
+  
+  @RelationshipIdentity
+  public Agent getApplication() {
+    return application;
+  }
+  
+  public void setApplication(Agent application) {
+    this.application = application;
+  }]]></programlisting>
+          
+          <code>
+            We can also define some attribute properties, using the <code>@RelationshipAttribute</code> annotation:
+          </code>
+          
+          <programlisting language="JAVA"><![CDATA[  private String accessToken;
+  
+  @RelationshipAttribute
+  public String getAccessToken() {
+    return accessToken;
+  }
+  
+  public void setAccessToken(String accessToken) {
+    this.accessToken = accessToken;
+  }]]></programlisting>
+      </section>
+      
+    </section>
+    
+    <section>
+      <title>Authentication</title>
+      
+      <note>
+        <para>
+          While the IDM module of PicketLink provides authentication features, for common use cases involving standard username and
+          password based authentication in a Java EE environment, PicketLink provides a more streamlined method
+          of authentication.  Please refer to the authentication chapter of this documentation for more information.
+        </para>
+      </note>
+      
+      <para>
+        PicketLink IDM provides an authentication subsystem that allows user credentials to be validated thereby confirming
+        that an authenticating user is who they claim to be.  The <code>IdentityManager</code> interface provides a single
+        method for performing credential validation, as follows:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[void validateCredentials(Credentials credentials);]]></programlisting>
+      
+      <para>
+        The <code>validateCredentials()</code> method accepts a single <code>Credentials</code> parameter, which should
+        contain all of the state required to determine who is attempting to authenticate, and the credential (such as a
+        password, certificate, etc) that they are authenticating with.  Let's take a look at the <code>Credentials</code>
+        interface:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[public interface Credentials {
+    public enum Status {
+        UNVALIDATED, IN_PROGRESS, INVALID, VALID, EXPIRED
+    };
+
+   Agent getValidatedAgent();
+   
+   Status getStatus();
+   
+   void invalidate();
+}]]></programlisting>
+
+      <itemizedlist>
+        <listitem>
+          <para>
+            The <code>Status</code> enum defines the following values, which reflect the various credential states:
+          </para>
+          <itemizedlist>
+            <listitem>
+              <para>
+                <code>UNVALIDATED</code> - The credential is yet to be validated.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <code>IN_PROGRESS</code> - The credential is in the process of being validated.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <code>INVALID</code> - The credential has been validated unsuccessfully
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <code>VALID</code> - The credential has been validated successfully
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <code>EXPIRED</code> - The credential has expired
+              </para>
+            </listitem>
+          </itemizedlist>
+        </listitem>
+        <listitem>
+          <para>
+            <code>getValidatedAgent()</code> - If the credential was successfully validated, this method returns the
+            <code>Agent</code> object representing the validated user.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <code>getStatus()</code> - Returns the current status of the credential, i.e. one of the above enum values.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <code>invalidate()</code> - Invalidate the credential.  Implementations of <code>Credential</code> should use
+            this method to clean up internal credential state.
+          </para>
+        </listitem>
+      </itemizedlist>
+
+      <para>
+        Let's take a look at a concrete example - <code>UsernamePasswordCredentials</code> is a <code>Credentials</code>
+        implementation that supports traditional username/password-based authentication:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[public class UsernamePasswordCredentials extends AbstractBaseCredentials {
+
+    private String username;
+
+    private Password password;
+
+    public UsernamePasswordCredentials() { }
+
+    public UsernamePasswordCredentials(String userName, Password password) {
+        this.username = userName;
+        this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public UsernamePasswordCredentials setUsername(String username) {
+        this.username = username;
+        return this;
+    }
+
+    public Password getPassword() {
+        return password;
+    }
+
+    public UsernamePasswordCredentials setPassword(Password password) {
+        this.password = password;
+        return this;
+    }
+
+    @Override
+    public void invalidate() {
+        setStatus(Status.INVALID);
+        password.clear();
+    }
+}]]></programlisting>
+
+      <para>
+        The first thing we may notice about the above code is that the <code>UsernamePasswordCredentials</code> class extends
+        <code>AbstractBaseCredentials</code>.  This abstract base class implements the basic functionality required by the 
+        <code>Credentials</code> interface.  Next, we can see that two fields are defined; <code>username</code> and <code>password</code>.
+        These fields are used to hold the username and password state, and can be set either via the constructor,
+        or by their associated setter methods.  Finally, we can also see that the <code>invalidate()</code> method sets the status to
+        <code>INVALID</code>, and also clears the password value.
+      </para>
+      
+      <para>
+        Let's take a look at an example of the above classes in action.  The following code demonstrates how we would authenticate
+        a user with a username of "john" and a password of "abcde":
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[Credentials creds = new UsernamePasswordCredentials("john",
+    new Password("abcde"));
+identityManager.validate(creds);
+if (Status.VALID.equals(creds.getStatus())) {
+  // authentication was successful
+}]]></programlisting>
+    
+      <para>
+        We can also test if the credentials that were provided have expired (if an expiry date was set).  In this case we might
+        redirect the user to a form where they can enter a new password.
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[Credentials creds = new UsernamePasswordCredentials("john",
+    new Password("abcde"));
+identityManager.validate(creds);
+if (Status.EXPIRED.equals(creds.getStatus())) {
+  // password has expired, redirect the user to a password change screen
+}]]></programlisting>
+      
+    </section>
+
+    <section>
+      <title>Managing Credentials</title>
+      
+      <para>
+        Updating user credentials is even easier than validating them.  The <code>IdentityManager</code> interface provides the following
+        two methods for updating credentials:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[void updateCredential(Agent agent, Object credential);
+void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate);]]></programlisting>
+
+      <para>
+        Both of these methods essentially do the same thing; they update a credential value for a specified <code>Agent</code>
+        (or <code>User</code>).  The second overloaded method however also accepts <code>effectiveDate</code> and <code>expiryDate</code> 
+        parameters, which allow some temporal control over when the credential will be valid.  Use cases for this feature 
+        include implementing a strict password expiry policy (by providing an expiry date), or creating a new account that might not 
+        become active until a date in the future (by providing an effective date).  Invoking the first overloaded method will
+        store the credential with an effective date of the current date and time, and no expiry date.
+      </para>
+
+      <note>      
+        <para>
+          One important point to note is that the <code>credential</code> parameter is of type <code>java.lang.Object</code>.  Since
+          credentials can come in all shapes and sizes (and may even be defined by third party libraries), there is no common base 
+          interface for credential implementations to extend.  To support this type of flexibility in an extensible way, PicketLink 
+          provides an SPI that allows custom credential handlers to be configured that override or extend the default credential 
+          handling logic.  Please see the next section for more information on how this SPI may be used.
+        </para>
+      </note>
+      
+      <para>
+        PicketLink provides built-in support for the following credential types:
+      </para>
+      
+      <warning>
+        <para>
+          Not all built-in <code>IdentityStore</code> implementations support all credential types.  For example, since the
+          <code>LDAPIdentityStore</code> is backed by an LDAP directory server, only password credentials are supported.  The
+          following table lists the built-in <code>IdentityStore</code> implementations that support each credential type.
+        </para>
+      </warning>
+      
+      <table>
+        <title>Built-in credential types</title>
+        
+        <tgroup cols="3" align="left">
+          <thead>
+            <row>
+              <entry>Credential type</entry>
+              <entry>Description</entry>
+              <entry>Supported by</entry>
+            </row>
+          </thead>
+          <tbody valign="top">
+            <row>
+              <entry><code>org.picketlink.idm.credential.Digest</code></entry>
+              <entry>Used for digest-based authentication</entry>
+              <entry>
+                <code>JPAIdentityStore</code>
+                <code>FileBasedIdentityStore</code>
+              </entry>
+            </row>
+            <row>
+              <entry><code>org.picketlink.idm.credential.Password</code></entry>
+              <entry>A standard text-based password</entry>
+              <entry>
+                <code>JPAIdentityStore</code>
+                <code>FileBasedIdentityStore</code>
+                <code>LDAPIdentityStore</code>
+              </entry>
+            </row>
+            <row>
+              <entry><code>java.security.cert.X509Certificate</code></entry>
+              <entry>Used for X509 certificate based authentication</entry>
+              <entry>
+                <code>JPAIdentityStore</code>
+                <code>FileBasedIdentityStore</code>             
+              </entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+           
+      <para>
+        Let's take a look at a couple of examples.  Here's some code demonstrating how a password can be assigned
+        to user "jsmith":
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[User user = identityManager.getUser("jsmith");
+identityManager.updateCredential(user, new Password("abcd1234"));]]></programlisting>
+
+      <para>
+        This example creates a digest and assigns it to user "jdoe":
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[User user = identityManager.getUser("jdoe");
+Digest digest = new Digest();
+digest.setRealm("default");
+digest.setUsername(user.getLoginName());
+digest.setPassword("abcd1234");        
+identityManager.updateCredential(user, digest);]]></programlisting>
+      
+    </section>
+    
+    <section>
+      <title>Credential Handlers</title>
+      
+      <para>
+        For <code>IdentityStore</code> implementations that support multiple credential types, PicketLink provides
+        an optional SPI to allow the default credential handling logic to be easily customized and extended. To get
+        a better picture of the overall workings of the Credential Handler SPI, let's take a look at the sequence
+        of events during the credential validation process when validating a username and password against
+        <code>JPAIdentityStore</code>:
+      </para>
+      
+      <mediaobject>
+        <imageobject role="fo">
+          <imagedata fileref="diagrams/username_password_validation.png" align="center" scalefit="1"/>
+        </imageobject>
+        <imageobject role="html">
+          <imagedata fileref="diagrams/username_password_validation.png" align="center"/>
+        </imageobject>
+      </mediaobject>       
+      
+     <itemizedlist>
+        <listitem>
+          <para>
+            <emphasis>1</emphasis> -
+            The user (or some other code) first invokes the <code>validateCredentials()</code> method on <code>IdentityManager</code>,
+            passing in the <code>Credentials</code> instance to validate.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis>1.1</emphasis> -
+            After looking up the correct <code>IdentityStore</code> (i.e. the one that has been configured to validate credentials)
+            the <code>IdentityManager</code> invokes the store's <code>validateCredentials()</code> method, passing in the
+            <code>SecurityContext</code> and the credentials to validate.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <emphasis>1.1.1</emphasis> - 
+            In <code>JPAIdentityStore</code>'s implementation of the <code>validateCredentials()</code> method, the 
+            <code>SecurityContext</code> is used to look up the <code>CredentialHandler</code> implementation that has been 
+            configured to process validation requests for usernames and passwords, which is then stored in a local variable
+            called <code>handler</code>.
+          </para>
+        </listitem>
+        <listitem>                
+          <para>
+            <emphasis>1.1.2</emphasis> -
+            The <code>validate()</code> method is invoked on the <code>CredentialHandler</code>, passing in the security context,
+            the credentials value and a reference back to the identity store.  The reference to the identity store is important
+            as the credential handler may require it to invoke certain methods upon the store to validate the credentials.
+          </para>
+        </listitem>
+      </itemizedlist>           
+      
+      <para>
+        The <code>CredentialHandler</code> interface declares three methods, as follows:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[public interface CredentialHandler {
+    void setup(IdentityStore<?> identityStore);
+
+    void validate(SecurityContext context, Credentials credentials, 
+                  IdentityStore<?> identityStore);
+
+    void update(SecurityContext context, Agent agent, Object credential, 
+                IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate);
+
+}]]></programlisting>
+
+      <para>
+        The <code>setup()</code> method is called once, when the <code>CredentialHandler</code> instance is first created. 
+        Credential handler instantiation is controlled by the <code>CredentialHandlerFactory</code>, which creates a single
+        instance of each <code>CredentialHandler</code> implementation to service all credential requests for that handler.
+        Each <code>CredentialHandler</code> implementation must declare the types of credentials that it is capable of supporting,
+        which is done by annotating the implementation class with the <code>@SupportsCredentials</code> annotation like so:
+      </para>
+    
+      <programlisting language="JAVA"><![CDATA[@SupportsCredentials({ UsernamePasswordCredentials.class, Password.class })
+public class PasswordCredentialHandler implements CredentialHandler {]]></programlisting>
+  
+      <para>
+        Since the <code>validate()</code> and <code>update()</code> methods receive different parameter types (<code>validate()</code>
+        takes a <code>Credentials</code> parameter value while <code>update()</code> takes an <code>Object</code> that represents
+        a single credential value), the <code>@SupportsCredentials</code> annotation must contain a complete list of all types supported
+        by that handler.
+      </para>
+      
+      <para>
+        Similarly, if the <code>IdentityStore</code> implementation makes use of the credential handler SPI then it also must declare
+        which credential handlers support that identity store.  This is done using the <code>@CredentialHandlers</code> annotation; 
+        for example, the following code shows how <code>JPAIdentityStore</code> is configured to be capable of handling credential
+        requests for usernames and passwords, X509 certificates and digest-based authentication:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[@CredentialHandlers({ PasswordCredentialHandler.class,
+          X509CertificateCredentialHandler.class, DigestCredentialHandler.class })
+public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfiguration>, 
+                                         CredentialStore {]]></programlisting>
+                                         
+      <section>
+        <title>The CredentialStore interface</title>
+        
+        <para>
+          For <code>IdentityStore</code> implementations that support multiple credential types (such as <code>JPAIdentityStore</code>
+          and <code>FileBasedIdentityStore</code>), the implementation may choose to also implement the <code>CredentialStore</code>
+          interface to simplify the interaction between the <code>CredentialHandler</code> and the <code>IdentityStore</code>.  The
+          <code>CredentialStore</code> interface declares methods for storing and retrieving credential values within an identity
+          store, as follows:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[public interface CredentialStore {
+   void storeCredential(SecurityContext context, Agent agent, 
+                        CredentialStorage storage);
+   <T extends CredentialStorage> T retrieveCurrentCredential(SecurityContext context, 
+                                                 Agent agent, Class<T> storageClass);
+   <T extends CredentialStorage> List<T> retrieveCredentials(SecurityContext context, 
+                                                 Agent agent, Class<T> storageClass);
+}]]></programlisting>
+
+        <para>
+          The <code>CredentialStorage</code> interface is quite simple and only declares two methods, <code>getEffectiveDate()</code>
+          and <code>getExpiryDate()</code>:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[public interface CredentialStorage {
+   @Stored Date getEffectiveDate();
+   @Stored Date getExpiryDate();
+}]]></programlisting>
+
+        <para>
+          The most important thing to note above is the usage of the <code>@Stored</code> annotation.  This annotation is used to
+          mark the properties of the <code>CredentialStorage</code> implementation that should be persisted.  The only requirement
+          for any property values that are marked as <code>@Stored</code> is that they are serializable (i.e. they implement the
+          <code>java.io.Serializable</code> interface).  The <code>@Stored</code> annotation may be placed on either the getter 
+          method or the field variable itself.  Here's an example of one of a <code>CredentialStorage</code> implementation that
+          is built into PicketLink - <code>EncodedPasswordStorage</code> is used to store a password hash and salt value:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[public class EncodedPasswordStorage implements CredentialStorage {
+
+    private Date effectiveDate;
+    private Date expiryDate;
+    private String encodedHash;
+    private String salt;
+
+    @Override @Stored
+    public Date getEffectiveDate() {
+        return effectiveDate;
+    }
+
+    public void setEffectiveDate(Date effectiveDate) {
+        this.effectiveDate = effectiveDate;
+    }
+
+    @Override @Stored
+    public Date getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(Date expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
+    @Stored
+    public String getEncodedHash() {
+        return encodedHash;
+    }
+
+    public void setEncodedHash(String encodedHash) {
+        this.encodedHash = encodedHash;
+    }
+
+    @Stored
+    public String getSalt() {
+        return this.salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
+
+}]]></programlisting>
+      
+      </section>
+
+    </section>
+    
+    <section>
+      <title>Built-in Credential Handlers</title>
+     
+      <para>
+        This section describes each of the built-in credential handlers, and any configuration parameters that may be set for them.
+        Specific credential handler options can be set when creating a new <code>IdentityConfiguration</code>.  Configured options 
+        are always specific to a particular identity store configuration, allowing different options to be specified between two or
+        more identity stores.  The <code>IdentityStoreConfiguration</code> interface provides a method called
+        <code>getCredentialHandlersConfig()</code> that provides access to a <code>Map</code> which allows configuration options
+        to be set for the identity store's credential handlers:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[public interface IdentityStoreConfiguration {
+    Map<String, Object> getCredentialHandlerProperties();
+}]]></programlisting>
+
+      <para>
+        To gain access to the <code>IdentityStoreConfiguration</code> object before PicketLink is initialized, there are a couple of
+        options.  The first option is to provide an <code>IdentityConfiguration</code> object itself via a producer method.
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[
+      
+      ]]></programlisting>
+
+      <section>
+        <title></title>
+        
+        <para>
+        
+        </para>
+      </section>
+
+    </section>
+    
+    <section>
+      <title>Advanced Topics</title>
+      
+      <section>
+        <title>Multi Realm Support</title>
+        
+        <para>
+          PicketLink has been designed from the ground up to support a system of <emphasis>partitioning</emphasis>, allowing the
+          users, groups and roles of an application to be divided into <emphasis>Realms</emphasis> and <emphasis>Tiers</emphasis>.
+        </para>
+             
+        <mediaobject>
+          <imageobject role="fo">
+            <imagedata fileref="diagrams/realm_tier.png" align="center" scalefit="1"/>
+          </imageobject>
+          <imageobject role="html">
+            <imagedata fileref="diagrams/realm_tier.png" align="center"/>
+          </imageobject>
+        </mediaobject>   
+        
+        <para>
+          A <emphasis>Realm</emphasis> is used to define a discrete set of users, groups and roles.  A typical use case for realms
+          is the segregation of corporate user accounts within a multi-tenant application, although it is not limited this use case only.
+          As all identity management operations must be performed within the context of an <emphasis>active partition</emphasis>, 
+          PicketLink defines the concept of a <emphasis>default realm</emphasis> which becomes the active partition if no other 
+          partition has been specified.
+        </para>
+        
+        <para>
+          A <emphasis>Tier</emphasis> is a more restrictive type of partition than a realm, as it only allows groups and roles to be 
+          defined (but not users).  A Tier may be used to define a set of application-specific groups and roles, which may then be 
+          assigned to groups within the same Tier, or to users and groups within a separate Realm.
+        </para>
+        
+        <para>
+          In terms of API, both the <code>Realm</code> and <code>Tier</code> classes implement the <code>Partition</code> interface,
+          as shown in the following class diagram:
+        </para>
+        
+        <mediaobject>
+          <imageobject role="fo">
+            <imagedata fileref="diagrams/partition.png" align="center" scalefit="1"/>
+          </imageobject>
+          <imageobject role="html">
+            <imagedata fileref="diagrams/partition.png" align="center"/>
+          </imageobject>
+        </mediaobject> 
+        
+        <para>
+          Selecting the specific partition that the identity management operations are performed in is controlled by specifying 
+          the partition when creating the <code>IdentityManager</code> via the <code>IdentityManagerFactory</code>'s overloaded 
+          <code>createIdentityManager()</code> methods:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  IdentityManager createIdentityManager();
+    IdentityManager createIdentityManager(Partition partition);]]></programlisting>
+    
+        <para>
+          The first method (without parameters) will create an <code>IdentityManager</code> instance for the default realm.  The
+          second parameter allows a <code>Partition</code> object to be specified.  Once the <code>IdentityManager</code> has been
+          created, any identity management methods invoked on it will be performed within the selected partition.  To look up the 
+          partition object, the <code>IdentityManagerFactory</code> provides two additional methods:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  Realm getRealm(String id);
+    Tier getTier(String id);]]></programlisting>
+    
+        <para>
+          Here's an example demonstrating how a new user called "bob" is created in a realm called <emphasis>acme</emphasis>:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  Realm acme = identityManagerFactory.getRealm("acme");
+    IdentityManager im = identityManagerFactory.createIdentityManager(acme);
+    im.add(new SimpleUser("bob"));]]></programlisting>
+        
+      </section>      
+      
+    </section>
+
+</chapter>

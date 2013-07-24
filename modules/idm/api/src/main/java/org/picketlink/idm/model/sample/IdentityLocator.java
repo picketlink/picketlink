@@ -23,7 +23,11 @@ import java.util.List;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.model.Account;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.RelationshipQuery;
 
 /**
  * This class provides a number of static convenience methods for looking up identities from the sample
@@ -162,5 +166,177 @@ public class IdentityLocator {
         }
 
         return getGroup(identityManager, new Group(groupName, parent).getPath());
+    }
+
+    // Relationship management
+
+    /**
+     * <p>
+     * Checks if the given {@link IdentityType} is a member of a specific {@link Group}.
+     * </p>
+     *
+     * @param identityType Must be a {@link Agent} or {@link Group} instance.
+     * @param group
+     * @return true if the {@link IdentityType} is a member of the provided {@link Group}.
+     */
+    public static boolean isMember(RelationshipManager relationshipManager, IdentityType identity, Group group) {
+        RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
+
+        query.setParameter(GroupMembership.MEMBER, identity);
+
+        List<GroupMembership> result = query.getResultList();
+
+        for (GroupMembership membership: result) {
+            if (membership.getGroup().getId().equals(group.getId())) {
+                return true;
+            }
+
+            if (membership.getGroup().getPath().startsWith(group.getPath())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * <p>
+     * Adds the given {@link Agent} as a member of the provided {@link Group}.
+     * </p>
+     *
+     * @param agent
+     * @param group
+     */
+    public static void addToGroup(RelationshipManager relationshipManager, Account member, Group group) {
+        relationshipManager.add(new GroupMembership(member, group));
+    }
+
+    /**
+     * <p>
+     * Removes the given {@link Agent} from the provided {@link Group}.
+     * </p>
+     *
+     * @param member
+     * @param group
+     */
+    public static void removeFromGroup(RelationshipManager relationshipManager, Account member, Group group) {
+        RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery( GroupMembership.class);
+        query.setParameter(GroupMembership.MEMBER, member);
+        query.setParameter(GroupMembership.GROUP, group);
+
+        for (GroupMembership membership : query.getResultList()) {
+            relationshipManager.remove(membership);
+        }
+    }
+
+    /**
+     * <p>
+     * Checks if the given {@link IdentityType}, {@link Role} and {@link Group} instances maps to a {@link GroupRole}
+     * relationship.
+     * </p>
+     *
+     * @param assignee
+     * @param role
+     * @param group
+     * @return
+     */
+    public static boolean hasGroupRole(RelationshipManager relationshipManager, IdentityType assignee, Role role, Group group) {
+        RelationshipQuery<GroupRole> query = relationshipManager.createRelationshipQuery(GroupRole.class);
+
+        query.setParameter(GroupRole.ASSIGNEE, assignee);
+        query.setParameter(GroupRole.ROLE, role);
+
+        List<GroupRole> result = query.getResultList();
+
+        for (GroupRole membership: result) {
+            if (membership.getGroup().getId().equals(group.getId())) {
+                return true;
+            }
+
+            if (group.getPath().startsWith(membership.getGroup().getPath())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * <p>
+     * Creates a {@link GroupRole} relationship for the given {@link IdentityType}, {@link Role} and {@link Group} instances.
+     * </p>
+     *
+     * @param assignee
+     * @param role
+     * @param group
+     */
+    public static void grantGroupRole(RelationshipManager relationshipManager, IdentityType assignee, Role role, Group group) {
+        relationshipManager.add(new GroupRole(assignee, group, role));
+    }
+
+    /**
+     * <p>
+     * Revokes a {@link GroupRole} relationship for the given {@link IdentityType}, {@link Role} and {@link Group} instances.
+     * </p>
+     *
+     * @param assignee
+     * @param role
+     * @param group
+     */
+    public static void revokeGroupRole(RelationshipManager relationshipManager, IdentityType assignee, Role role, Group group) {
+        RelationshipQuery<GroupRole> query = relationshipManager.createRelationshipQuery(GroupRole.class);
+        query.setParameter(GroupRole.ASSIGNEE, assignee);
+        query.setParameter(GroupRole.GROUP, group);
+        query.setParameter(GroupRole.ROLE, role);
+        for (GroupRole groupRole : query.getResultList()) {
+            relationshipManager.remove(groupRole);
+        }
+    }
+
+    /**
+     * <p>
+     * Checks if the given {@link Role} is granted to the provided {@link IdentityType}.
+     * </p>
+     *
+     * @param identityType
+     * @param role
+     * @return
+     */
+    public static boolean hasRole(RelationshipManager relationshipManager, IdentityType assignee, Role role) {
+        RelationshipQuery<Grant> query = relationshipManager.createRelationshipQuery(Grant.class);
+
+        query.setParameter(Grant.ASSIGNEE, assignee);
+        query.setParameter(GroupRole.ROLE, role);
+
+        return !query.getResultList().isEmpty();
+    }
+
+    /**
+     * <p>
+     * Grants the given {@link Role} to the provided {@link IdentityType}.
+     * </p>
+     *
+     * @param identityType
+     * @param role
+     */
+    public static void grantRole(RelationshipManager relationshipManager, IdentityType assignee, Role role) {
+        relationshipManager.add(new Grant(assignee, role));
+    }
+
+    /**
+     * <p>
+     * Revokes the given {@link Role} from the provided {@link IdentityType}.
+     * </p>
+     *
+     * @param identityType
+     * @param role
+     */
+    public static void revokeRole(RelationshipManager relationshipManager, IdentityType assignee, Role role) {
+        RelationshipQuery<Grant> query = relationshipManager.createRelationshipQuery(Grant.class);
+        query.setParameter(Grant.ASSIGNEE, assignee);
+        query.setParameter(GroupRole.ROLE, role);
+        for (Grant grant : query.getResultList()) {
+            relationshipManager.remove(grant);
+        }
     }
 }

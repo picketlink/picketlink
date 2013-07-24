@@ -31,6 +31,7 @@ import org.picketlink.idm.model.sample.Grant;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.GroupRole;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
@@ -113,8 +114,8 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        relationshipManager.addToGroup(agentType, administratorGroup);
-        relationshipManager.addToGroup(someAgent, administratorGroup);
+        IdentityLocator.addToGroup(relationshipManager, agentType, administratorGroup);
+        IdentityLocator.addToGroup(relationshipManager, someAgent, administratorGroup);
 
         RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
@@ -127,7 +128,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         assertTrue(containsMembership(result, agentType));
         assertTrue(containsMembership(result, someAgent));
 
-        relationshipManager.addToGroup(agentType, someGroup);
+        IdentityLocator.addToGroup(relationshipManager, agentType, someGroup);
 
         query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
@@ -150,8 +151,8 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        relationshipManager.grantRole(agentType, administratorRole);
-        relationshipManager.grantRole(someAgent, administratorRole);
+        IdentityLocator.grantRole(relationshipManager, agentType, administratorRole);
+        IdentityLocator.grantRole(relationshipManager, someAgent, administratorRole);
 
         RelationshipQuery<Grant> query = relationshipManager.createRelationshipQuery(Grant.class);
 
@@ -164,7 +165,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         assertTrue(containsGrant(result, agentType));
         assertTrue(containsGrant(result, someAgent));
 
-        relationshipManager.grantRole(agentType, someRole);
+        IdentityLocator.grantRole(relationshipManager, agentType, someRole);
 
         query = relationshipManager.createRelationshipQuery(Grant.class);
 
@@ -204,7 +205,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         assertTrue(result.isEmpty());
 
-        relationshipManager.grantGroupRole(agentType, managerRole, salesGroup);
+        IdentityLocator.grantGroupRole(relationshipManager, agentType, managerRole, salesGroup);
 
         query = relationshipManager.createRelationshipQuery(GroupRole.class);
 
@@ -242,7 +243,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         assertTrue(result.isEmpty());
 
-        relationshipManager.addToGroup(agentType, administratorGroup);
+        IdentityLocator.addToGroup(relationshipManager, agentType, administratorGroup);
 
         query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
@@ -277,7 +278,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         assertTrue(result.isEmpty());
 
-        relationshipManager.grantRole(agentType, administratorRole);
+        IdentityLocator.grantRole(relationshipManager, agentType, administratorRole);
 
         query = relationshipManager.createRelationshipQuery(Grant.class);
 
@@ -307,8 +308,8 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        relationshipManager.addToGroup(agentType, administratorGroup);
-        relationshipManager.addToGroup(someAgent, administratorGroup);
+        IdentityLocator.addToGroup(relationshipManager, agentType, administratorGroup);
+        IdentityLocator.addToGroup(relationshipManager, someAgent, administratorGroup);
 
         RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
@@ -320,7 +321,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         assertTrue(containsMembership(result, agentType));
         assertTrue(containsMembership(result, someAgent));
 
-        relationshipManager.addToGroup(agentType, someGroup);
+        IdentityLocator.addToGroup(relationshipManager, agentType, someGroup);
 
         query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
@@ -351,8 +352,8 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        relationshipManager.grantRole(agentType, administratorRole);
-        relationshipManager.grantRole(someAgent, administratorRole);
+        IdentityLocator.grantRole(relationshipManager, agentType, administratorRole);
+        IdentityLocator.grantRole(relationshipManager, someAgent, administratorRole);
 
         RelationshipQuery<Grant> query = relationshipManager.createRelationshipQuery(Grant.class);
 
@@ -364,7 +365,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         assertTrue(containsGrant(result, agentType));
         assertTrue(containsGrant(result, someAgent));
 
-        relationshipManager.grantRole(agentType, someRole);
+        IdentityLocator.grantRole(relationshipManager, agentType, someRole);
 
         query = relationshipManager.createRelationshipQuery(Grant.class);
 

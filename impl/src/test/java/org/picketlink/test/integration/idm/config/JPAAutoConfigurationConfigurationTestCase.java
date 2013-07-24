@@ -37,6 +37,7 @@ import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.AbstractJPADeploymentTestCase;
@@ -96,13 +97,13 @@ public class JPAAutoConfigurationConfigurationTestCase extends AbstractJPADeploy
 
         this.identityManager.add(qaGroup);
 
-        this.relationshipManager.grantRole(john, tester);
-        this.relationshipManager.addToGroup(john, qaGroup);
-        this.relationshipManager.grantGroupRole(john, tester, qaGroup);
+        IdentityLocator.grantRole(relationshipManager, john, tester);
+        IdentityLocator.addToGroup(relationshipManager, john, qaGroup);
+        IdentityLocator.grantGroupRole(relationshipManager, john, tester, qaGroup);
 
-        assertTrue(this.relationshipManager.hasRole(john, tester));
-        assertTrue(this.relationshipManager.isMember(john, qaGroup));
-        assertTrue(this.relationshipManager.hasGroupRole(john, tester, qaGroup));
+        assertTrue(IdentityLocator.hasRole(relationshipManager, john, tester));
+        assertTrue(IdentityLocator.isMember(relationshipManager, john, qaGroup));
+        assertTrue(IdentityLocator.hasGroupRole(relationshipManager, john, tester, qaGroup));
     }
  
     @ApplicationScoped

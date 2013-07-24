@@ -26,6 +26,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Grant;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
@@ -128,7 +129,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         assertFalse(containsGrant(result, someAnotherRole));
         assertFalse(containsGrant(result, someImportantRole));
 
-        relationshipManager.grantRole(user, someRole);
+        IdentityLocator.grantRole(relationshipManager, user, someRole);
 
         query = relationshipManager.createRelationshipQuery(Grant.class);
 
@@ -141,7 +142,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         assertFalse(containsGrant(result, someAnotherRole));
         assertFalse(containsGrant(result, someImportantRole));
 
-        relationshipManager.grantRole(user, someAnotherRole);
+        IdentityLocator.grantRole(relationshipManager, user, someAnotherRole);
 
         query = relationshipManager.createRelationshipQuery(Grant.class);
 
@@ -154,7 +155,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         assertTrue(containsGrant(result, someAnotherRole));
         assertFalse(containsGrant(result, someImportantRole));
 
-        relationshipManager.grantRole(user, someImportantRole);
+        IdentityLocator.grantRole(relationshipManager, user, someImportantRole);
 
         query = relationshipManager.createRelationshipQuery(Grant.class);
 
@@ -167,7 +168,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         assertTrue(containsGrant(result, someAnotherRole));
         assertTrue(containsGrant(result, someImportantRole));
 
-        relationshipManager.revokeRole(user, someRole);
+        IdentityLocator.revokeRole(relationshipManager, user, someRole);
 
         query.setParameter(Grant.ASSIGNEE, user);
 

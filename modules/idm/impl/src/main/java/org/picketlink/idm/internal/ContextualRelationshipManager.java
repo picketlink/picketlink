@@ -17,23 +17,14 @@
  */
 package org.picketlink.idm.internal;
 
-import java.util.List;
 import org.picketlink.idm.IdGenerator;
-import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.event.EventBridge;
-import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.sample.Grant;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.GroupMembership;
-import org.picketlink.idm.model.sample.GroupRole;
-import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.StoreSelector;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * Default implementation for RelationshipManager.
@@ -54,7 +45,7 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
 
 
     @Override
-    public void add(Relationship relationship) throws IdentityManagementException {
+    public void add(Relationship relationship) {
         storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.create).add(this, relationship);
     }
 
@@ -66,106 +57,6 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
     @Override
     public void remove(Relationship relationship) {
         storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.delete).remove(this, relationship);
-    }
-
-    @Override
-    public boolean isMember(IdentityType identity, Group group) {
-        RelationshipQuery<GroupMembership> query = createRelationshipQuery(GroupMembership.class);
-
-        query.setParameter(GroupMembership.MEMBER, identity);
-
-        List<GroupMembership> result = query.getResultList();
-
-        for (GroupMembership membership: result) {
-            if (membership.getGroup().getId().equals(group.getId())) {
-                return true;
-            }
-
-            if (membership.getGroup().getPath().startsWith(group.getPath())) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    @Override
-    public void addToGroup(Account member, Group group) {
-        add(new GroupMembership(member, group));
-    }
-
-    @Override
-    public void removeFromGroup(Account member, Group group) {
-        RelationshipQuery<GroupMembership> query = createRelationshipQuery( GroupMembership.class);
-        query.setParameter(GroupMembership.MEMBER, member);
-        query.setParameter(GroupMembership.GROUP, group);
-
-        for (GroupMembership membership : query.getResultList()) {
-            remove(membership);
-        }
-    }
-
-    @Override
-    public boolean hasGroupRole(IdentityType assignee, Role role, Group group) {
-        RelationshipQuery<GroupRole> query = createRelationshipQuery(GroupRole.class);
-
-        query.setParameter(GroupRole.ASSIGNEE, assignee);
-        query.setParameter(GroupRole.ROLE, role);
-
-        List<GroupRole> result = query.getResultList();
-
-        for (GroupRole membership: result) {
-            if (membership.getGroup().getId().equals(group.getId())) {
-                return true;
-            }
-
-            if (group.getPath().startsWith(membership.getGroup().getPath())) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    @Override
-    public void grantGroupRole(IdentityType assignee, Role role, Group group) {
-        add(new GroupRole(assignee, group, role));
-    }
-
-    @Override
-    public void revokeGroupRole(IdentityType assignee, Role role, Group group) {
-        RelationshipQuery<GroupRole> query = createRelationshipQuery(GroupRole.class);
-        query.setParameter(GroupRole.ASSIGNEE, assignee);
-        query.setParameter(GroupRole.GROUP, group);
-        query.setParameter(GroupRole.ROLE, role);
-        for (GroupRole groupRole : query.getResultList()) {
-            remove(groupRole);
-        }
-    }
-
-    @Override
-    public boolean hasRole(IdentityType assignee, Role role) {
-        RelationshipQuery<Grant> query = createRelationshipQuery(Grant.class);
-
-        query.setParameter(Grant.ASSIGNEE, assignee);
-        query.setParameter(GroupRole.ROLE, role);
-
-        return !query.getResultList().isEmpty();
-    }
-
-    @Override
-    public void grantRole(IdentityType assignee, Role role) {
-        add(new Grant(assignee, role));
-    }
-
-    @Override
-    public void revokeRole(IdentityType assignee, Role role) {
-        RelationshipQuery<Grant> query = createRelationshipQuery(Grant.class);
-        query.setParameter(Grant.ASSIGNEE, assignee);
-        query.setParameter(GroupRole.ROLE, role);
-        for (Grant grant : query.getResultList()) {
-            remove(grant);
-        }
     }
 
     @Override

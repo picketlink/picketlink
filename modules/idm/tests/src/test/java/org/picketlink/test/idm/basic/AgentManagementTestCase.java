@@ -27,6 +27,7 @@ import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Grant;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
+import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.query.RelationshipQuery;
@@ -113,8 +114,8 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        relationshipManager.grantRole(anotherAgent, role);
-        relationshipManager.addToGroup(anotherAgent, group);
+        IdentityLocator.grantRole(relationshipManager, anotherAgent, role);
+        IdentityLocator.addToGroup(relationshipManager, anotherAgent, group);
 
         RelationshipQuery<?> relationshipQuery = relationshipManager.createRelationshipQuery(Grant.class);
 

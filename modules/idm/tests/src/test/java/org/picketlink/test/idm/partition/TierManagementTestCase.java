@@ -281,45 +281,45 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        relationshipManager.grantRole(john, IdentityLocator.getRole(applicationA, roleAName));
-        relationshipManager.grantRole(bill, IdentityLocator.getRole(applicationB, roleBName));
-        relationshipManager.grantRole(mary, IdentityLocator.getRole(applicationC, roleCName));
+        IdentityLocator.grantRole(relationshipManager, john, IdentityLocator.getRole(applicationA, roleAName));
+        IdentityLocator.grantRole(relationshipManager, bill, IdentityLocator.getRole(applicationB, roleBName));
+        IdentityLocator.grantRole(relationshipManager, mary, IdentityLocator.getRole(applicationC, roleCName));
 
-        assertTrue(relationshipManager.hasRole(john, IdentityLocator.getRole(applicationA, roleAName)));
-        assertFalse(relationshipManager.hasRole(john, IdentityLocator.getRole(applicationB, roleBName)));
-        assertFalse(relationshipManager.hasRole(john, IdentityLocator.getRole(applicationC, roleCName)));
+        assertTrue(IdentityLocator.hasRole(relationshipManager, john, IdentityLocator.getRole(applicationA, roleAName)));
+        assertFalse(IdentityLocator.hasRole(relationshipManager, john, IdentityLocator.getRole(applicationB, roleBName)));
+        assertFalse(IdentityLocator.hasRole(relationshipManager, john, IdentityLocator.getRole(applicationC, roleCName)));
 
-        assertTrue(relationshipManager.hasRole(bill, IdentityLocator.getRole(applicationB, roleBName)));
-        assertFalse(relationshipManager.hasRole(bill, IdentityLocator.getRole(applicationA, roleAName)));
-        assertFalse(relationshipManager.hasRole(bill, IdentityLocator.getRole(applicationC, roleCName)));
+        assertTrue(IdentityLocator.hasRole(relationshipManager, bill, IdentityLocator.getRole(applicationB, roleBName)));
+        assertFalse(IdentityLocator.hasRole(relationshipManager, bill, IdentityLocator.getRole(applicationA, roleAName)));
+        assertFalse(IdentityLocator.hasRole(relationshipManager, bill, IdentityLocator.getRole(applicationC, roleCName)));
 
-        assertTrue(relationshipManager.hasRole(mary, IdentityLocator.getRole(applicationC, roleCName)));
-        assertFalse(relationshipManager.hasRole(mary, IdentityLocator.getRole(applicationA, roleAName)));
-        assertFalse(relationshipManager.hasRole(mary, IdentityLocator.getRole(applicationB, roleBName)));
+        assertTrue(IdentityLocator.hasRole(relationshipManager, mary, IdentityLocator.getRole(applicationC, roleCName)));
+        assertFalse(IdentityLocator.hasRole(relationshipManager, mary, IdentityLocator.getRole(applicationA, roleAName)));
+        assertFalse(IdentityLocator.hasRole(relationshipManager, mary, IdentityLocator.getRole(applicationB, roleBName)));
 
-        relationshipManager.grantRole(john, IdentityLocator.getRole(applicationB, roleBName));
+        IdentityLocator.grantRole(relationshipManager, john, IdentityLocator.getRole(applicationB, roleBName));
 
-        assertTrue(relationshipManager.hasRole(john, IdentityLocator.getRole(applicationA, roleAName)));
-        assertTrue(relationshipManager.hasRole(john, IdentityLocator.getRole(applicationB, roleBName)));
-        assertFalse(relationshipManager.hasRole(john, IdentityLocator.getRole(applicationC, roleCName)));
+        assertTrue(IdentityLocator.hasRole(relationshipManager, john, IdentityLocator.getRole(applicationA, roleAName)));
+        assertTrue(IdentityLocator.hasRole(relationshipManager, john, IdentityLocator.getRole(applicationB, roleBName)));
+        assertFalse(IdentityLocator.hasRole(relationshipManager, john, IdentityLocator.getRole(applicationC, roleCName)));
 
         applicationA.remove(IdentityLocator.getRole(applicationA, roleAName));
 
         assertNull(IdentityLocator.getRole(applicationA, roleAName));
-        assertTrue(relationshipManager.hasRole(bill, IdentityLocator.getRole(applicationB, roleBName)));
-        assertTrue(relationshipManager.hasRole(mary, IdentityLocator.getRole(applicationC, roleCName)));
+        assertTrue(IdentityLocator.hasRole(relationshipManager, bill, IdentityLocator.getRole(applicationB, roleBName)));
+        assertTrue(IdentityLocator.hasRole(relationshipManager, mary, IdentityLocator.getRole(applicationC, roleCName)));
 
-        relationshipManager.revokeRole(bill, IdentityLocator.getRole(applicationB, roleBName));
+        IdentityLocator.revokeRole(relationshipManager, bill, IdentityLocator.getRole(applicationB, roleBName));
 
-        assertFalse(relationshipManager.hasRole(bill, IdentityLocator.getRole(applicationB, roleBName)));
-        assertTrue(relationshipManager.hasRole(mary, IdentityLocator.getRole(applicationC, roleCName)));
+        assertFalse(IdentityLocator.hasRole(relationshipManager, bill, IdentityLocator.getRole(applicationB, roleBName)));
+        assertTrue(IdentityLocator.hasRole(relationshipManager, mary, IdentityLocator.getRole(applicationC, roleCName)));
 
         acmeRealm.remove(john);
         acmeRealm.remove(bill);
         acmeRealm.remove(mary);
 
-        assertFalse(relationshipManager.hasRole(bill, IdentityLocator.getRole(applicationB, roleBName)));
-        assertFalse(relationshipManager.hasRole(mary, IdentityLocator.getRole(applicationC, roleCName)));
+        assertFalse(IdentityLocator.hasRole(relationshipManager, bill, IdentityLocator.getRole(applicationB, roleBName)));
+        assertFalse(IdentityLocator.hasRole(relationshipManager, mary, IdentityLocator.getRole(applicationC, roleCName)));
     }
 
     @Test
@@ -348,23 +348,23 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        relationshipManager.addToGroup(john, IdentityLocator.getGroup(applicationA, "Group A"));
+        IdentityLocator.addToGroup(relationshipManager, john, IdentityLocator.getGroup(applicationA, "Group A"));
 
-        relationshipManager.addToGroup(bill, IdentityLocator.getGroup(applicationB, "Group B"));
+        IdentityLocator.addToGroup(relationshipManager, bill, IdentityLocator.getGroup(applicationB, "Group B"));
 
-        relationshipManager.addToGroup(mary, IdentityLocator.getGroup(applicationC, "Group C"));
+        IdentityLocator.addToGroup(relationshipManager, mary, IdentityLocator.getGroup(applicationC, "Group C"));
 
-        assertTrue(relationshipManager.isMember(john, IdentityLocator.getGroup(applicationA, "Group A")));
-        assertFalse(relationshipManager.isMember(john, IdentityLocator.getGroup(applicationB, "Group B")));
-        assertFalse(relationshipManager.isMember(john, IdentityLocator.getGroup(applicationC, "Group C")));
+        assertTrue(IdentityLocator.isMember(relationshipManager, john, IdentityLocator.getGroup(applicationA, "Group A")));
+        assertFalse(IdentityLocator.isMember(relationshipManager, john, IdentityLocator.getGroup(applicationB, "Group B")));
+        assertFalse(IdentityLocator.isMember(relationshipManager, john, IdentityLocator.getGroup(applicationC, "Group C")));
 
-        assertTrue(relationshipManager.isMember(bill, IdentityLocator.getGroup(applicationB, "Group B")));
-        assertFalse(relationshipManager.isMember(bill, IdentityLocator.getGroup(applicationA, "Group A")));
-        assertFalse(relationshipManager.isMember(bill, IdentityLocator.getGroup(applicationC, "Group C")));
+        assertTrue(IdentityLocator.isMember(relationshipManager, bill, IdentityLocator.getGroup(applicationB, "Group B")));
+        assertFalse(IdentityLocator.isMember(relationshipManager, bill, IdentityLocator.getGroup(applicationA, "Group A")));
+        assertFalse(IdentityLocator.isMember(relationshipManager, bill, IdentityLocator.getGroup(applicationC, "Group C")));
 
-        assertTrue(relationshipManager.isMember(mary, IdentityLocator.getGroup(applicationC, "Group C")));
-        assertFalse(relationshipManager.isMember(mary, IdentityLocator.getGroup(applicationA, "Group A")));
-        assertFalse(relationshipManager.isMember(mary, IdentityLocator.getGroup(applicationB, "Group B")));
+        assertTrue(IdentityLocator.isMember(relationshipManager, mary, IdentityLocator.getGroup(applicationC, "Group C")));
+        assertFalse(IdentityLocator.isMember(relationshipManager, mary, IdentityLocator.getGroup(applicationA, "Group A")));
+        assertFalse(IdentityLocator.isMember(relationshipManager, mary, IdentityLocator.getGroup(applicationB, "Group B")));
     }
 
     @Test

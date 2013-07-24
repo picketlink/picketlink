@@ -105,7 +105,7 @@ public abstract class AbstractEndpointTestCase extends EmbeddedWebServerBase {
 
             RelationshipManager relationshipManager = partitionManager.createRelationshipManager();
 
-            relationshipManager.grantRole(admin, roleAdmin);
+            IdentityLocator.grantRole(relationshipManager, admin, roleAdmin);
 
             Group group = new Group("SomeGroup");
             group.setAttribute(new Attribute<String>("ID", "jboss"));

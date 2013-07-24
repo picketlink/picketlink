@@ -17,11 +17,7 @@
  */
 package org.picketlink.idm;
 
-import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.query.RelationshipQuery;
 
 /**
@@ -31,8 +27,6 @@ import org.picketlink.idm.query.RelationshipQuery;
  */
 public interface RelationshipManager {
 
-    // Relationship management
-
     /**
      * <p>
      * Adds the given {@link Relationship} instance to the configured identity store.
@@ -41,7 +35,7 @@ public interface RelationshipManager {
      * @param relationship
      * @throws IdentityManagementException If cannot add the provided {@link Relationship} instance.
      */
-    void add(Relationship relationship) throws IdentityManagementException;
+    void add(Relationship relationship);
 
     /**
      * <p>
@@ -64,104 +58,6 @@ public interface RelationshipManager {
      * @throws IdentityManagementException If cannot remove the provided {@link Relationship} instance.
      */
     void remove(Relationship relationship);
-
-    /**
-     * <p>
-     * Checks if the given {@link IdentityType} is a member of a specific {@link Group}.
-     * </p>
-     *
-     * @param identityType Must be a {@link Agent} or {@link Group} instance.
-     * @param group
-     * @return true if the {@link IdentityType} is a member of the provided {@link Group}.
-     */
-    boolean isMember(IdentityType identityType, Group group);
-
-    /**
-     * <p>
-     * Adds the given {@link Agent} as a member of the provided {@link Group}.
-     * </p>
-     *
-     * @param agent
-     * @param group
-     */
-    void addToGroup(Account identity, Group group);
-
-    /**
-     * <p>
-     * Removes the given {@link Agent} from the provided {@link Group}.
-     * </p>
-     *
-     * @param member
-     * @param group
-     */
-    void removeFromGroup(Account member, Group group);
-
-    /**
-     * <p>
-     * Checks if the given {@link IdentityType}, {@link Role} and {@link Group} instances maps to a {@link GroupRole}
-     * relationship.
-     * </p>
-     *
-     * @param assignee
-     * @param role
-     * @param group
-     * @return
-     */
-    boolean hasGroupRole(IdentityType assignee, Role role, Group group);
-
-    /**
-     * <p>
-     * Creates a {@link GroupRole} relationship for the given {@link IdentityType}, {@link Role} and {@link Group} instances.
-     * </p>
-     *
-     * @param assignee
-     * @param role
-     * @param group
-     */
-    void grantGroupRole(IdentityType assignee, Role role, Group group);
-
-    /**
-     * <p>
-     * Revokes a {@link GroupRole} relationship for the given {@link IdentityType}, {@link Role} and {@link Group} instances.
-     * </p>
-     *
-     * @param assignee
-     * @param role
-     * @param group
-     */
-    void revokeGroupRole(IdentityType assignee, Role role, Group group);
-
-    /**
-     * <p>
-     * Checks if the given {@link Role} is granted to the provided {@link IdentityType}.
-     * </p>
-     *
-     * @param identityType
-     * @param role
-     * @return
-     */
-    boolean hasRole(IdentityType identityType, Role role);
-
-
-    /**
-     * <p>
-     * Grants the given {@link Role} to the provided {@link IdentityType}.
-     * </p>
-     *
-     * @param identityType
-     * @param role
-     */
-    void grantRole(IdentityType identityType, Role role);
-
-    /**
-     * <p>
-     * Revokes the given {@link Role} from the provided {@link IdentityType}.
-     * </p>
-     *
-     * @param identityType
-     * @param role
-     */
-    void revokeRole(IdentityType identityType, Role role);
 
     /**
      * <p>

@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="../" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+         xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <title>Identity Management - Configuration</title>
+
+    <section>
+      <title>Configuration</title>
+    
+      <section>
+        <title>Architectural Overview</title>
+          
+        <para>
+          Configuration in PicketLink is in essence quite simple; an <code>IdentityConfiguration</code> object must first 
+          be created to hold the PicketLink configuration options.  Once all configuration options have been set, you just create a 
+          <code>IdentityManagerFactory</code> instance passing the previously created configuration.            
+          The <code>IdentityManagerFactory</code> can then be used to create <code>IdentityManager</code> instances 
+          via the <code>createIdentityManager()</code> method.  
+        </para>          
+          
+        <mediaobject>
+          <imageobject role="fo">
+            <imagedata fileref="diagrams/architecture.png" align="center" scalefit="1"/>
+          </imageobject>
+          <imageobject role="html">
+            <imagedata fileref="diagrams/architecture.png" align="center"/>
+          </imageobject>
+        </mediaobject>
+
+        <para>
+          The <code>IdentityConfiguration</code> is usually created using a Configuration Builder API, which provides a rich and fluent API for every single aspect of PicketLink configuration.
+        </para>
+
+        <note>
+          <para>
+            For now, all configuration is set programmatically using the Configuration Builder API only. Later versions will also support a declarative configuration in a form of XML documents.   
+          </para>
+        </note>
+
+        <para>
+          Each <code>IdentityManager</code> instance has its own <emphasis>security context</emphasis>, represented by
+          the <code>SecurityContext</code> class.  The security context contains temporary state which is maintained 
+          for one or more identity management operations within the scope of a single realm or tier.  The 
+          <code>IdentityManager</code> (and its associated <code>SecurityContext</code>) is typically modelled as a
+          request-scoped object (for environments which support such a paradigm, such as a servlet container), or alternatively
+          as an actor within the scope of a transaction.  In the latter case, the underlying resources being 
+          utilised by the configured identity stores (such as a JPA <code>EntityManager</code>) would participate in 
+          the active transaction, and changes made as a result of any identity management operations would either be 
+          committed or rolled back as appropriate for the logic of the encapsulating business method.
+        </para>
+            
+        <para>
+          The following sections describe various ways that configuration may be performed in different environments.
+        </para>
+      </section>
+      
+      <section>
+        <title>Programmatic Configuration</title>
+      
+        <para>
+          Configuration for Identity Management can be defined programmatically using the Configuration Builder API. The aim of this API is to make it easier to chain coding
+          of configuration options in order to speed up the coding itself and make the configuration more <emphasis>readable</emphasis>.
+        </para>
+        <para>        
+          Let's assume that you want to quick start with PicketLink Identity Management features using a file-based Identity Store. 
+          First, a fresh instance of <code>IdentityConfiguration</code> is created using the <code>IdentityConfigurationBuilder</code> helper object, 
+          where we choose which identity store we want to use (in this case a file-based store) and any other configuration option, if necessary. 
+          Finally, we use the configuration to create a <code>IdentityManagerFactory</code> from where we can create <code>IdentityManager</code> instances and start to perform Identity Management operations: 
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+        
+builder
+  .stores()
+  .file()
+  .supportAllFeatures();
+
+IdentityConfiguration configuration = builder.build();
+
+IdentityManagerFactory identityManagerFactory = new IdentityManagerFactory(configuration);
+
+IdentityManager identityManager = identityManagerFactory.createIdentityManager();
+
+User user = new SimpleUser("john");
+
+identityManager.add(user);]]></programlisting>
+
+        <section>
+          <title>IdentityConfigurationBuilder for Programmatic Configuration</title>
+
+          <para>
+            The <code>IdentityConfigurationBuilder</code> is the entry point for PicketLink configuration. 
+            It is a very simple class with some meaningful methods for all supported configuration options.
+          </para>
+            
+          <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .stores() // supported identity stores configuration
+    .file() 
+      // file-based identity store configuration
+    .jpa()
+      // JPA-based identity store configuration
+    .ldap()
+      // LDAP-based identity store configuration
+  .contextFactory(...); // for custom SecurityContextFactory implementations]]></programlisting>
+
+          <para>In the next sections we'll cover each supported Identity Store and their specific configuration.</para>
+        </section>
+      </section>
+
+      <section id="idm_security_context_configuration">
+        <title>Security Context Configuration</title>
+      
+        <para>
+          The <code>SecurityContext</code> plays an important role in the PicketLink IDM achitecture. As discussed in the <link linkend='idm_architecture_overview'>Architectural Overview</link>, 
+          it is strongly used during the execution of operations. It carries very sensitive and contextual information for a specific operation and provides access for some of the 
+          IDM underlying services such as caching, event handling, UUID generator for <code>IdentityTpe</code> and <code>Relationship</code> instances, among others.  
+        </para>
+        <para>
+        	Operations are always executed by a specific <code>IdentityStore</code> in order to persist or store identity data using a specific repository (eg.: LDAP, databases, filesystem, etc). 
+        	When executing a operation the identity store must be able to:
+        </para>
+        <para>
+          <itemizedlist>
+            <listitem>
+              <para>
+             		Access the current <code>Partition</code>. All operations are executed for a specific <code>Realm</code> or <code>Tier</code>
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+             		Access the current <code>IdentityManager</code> instance, from which the operation was executed.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+             		Access the <emphasis>Event Handling API</emphasis> in order to fire events such as when an user is created, updated, etc.  
+              </para>
+            </listitem>
+						<listitem>
+              <para>
+             		Access the <emphasis>Caching API</emphasis> in order to cache identity data and increase performance.  
+              </para>
+            </listitem>
+						<listitem>
+              <para>
+             		Access the <emphasis>Credential Handler API</emphasis> in order to be able to update and validate credentials.  
+              </para>
+            </listitem>
+						<listitem>
+              <para>
+             		Access to external resources, provided before the operation is executed and initialized by a <code>ContextInitializer</code>.    
+              </para>
+            </listitem>
+          </itemizedlist>
+        </para>
+        <section>
+        	<title>Initializing the SecurityContext</title>
+          <para>
+          	Sometimes you may need to provide additional configuration or even references for external resources before the operation is executed by an identity store.
+          	An example is how you tell to the<code>JPAIdentityStore</code> which <code>EntityManager</code> instance should be used. 
+        	  When executing an operation, the <code>JPAIdentityStore</code> must be able to access the current <code>EntityManager</code> to persist or retrieve data from the database.
+        	  You need someway to populate the <code>SecurityContext</code> with such information. When you're configuring an identity store, there is a configuration option
+        	  that allows you to provide a <code>ContextInitializer</code> implementation.
+          </para>
+       	  <programlisting language="JAVA"><![CDATA[public interface ContextInitializer {    
+    void initContextForStore(SecurityContext context, IdentityStore<?> store);
+}]]></programlisting>
+				  <para>
+				  	The method <code>initContextForStore</code> will be invoked for every single operation and before its execution by the identity store. 
+			  		It can be implemented to provide all the necessary logic to initialize and populate the <code>SecurityContext</code> for a specific <code>IdentityStore</code>.
+		  		</para>
+	  			<para>
+  					The configuration is also very simple, you just need to provide the following configuration:
+				  </para>
+       	  <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .stores()
+    .file()
+      .addContextInitializer(new MySecurityContextInitializer());  
+}]]></programlisting>
+				  <para>You can provide multiple initializers.</para>
+				  <note>
+					  <para>
+						  Remember that initializers are executed for every single operation. 
+						  Also, the same instance is used between operations which means your implementation should be <quote>stateless</quote>. 
+						  You should be careful about the implementation in order to not impact performance, concurrency or introduce unexpected behaviors.
+					  </para>
+				  </note>
+				</section>
+        <section>
+        	<title>Configuring how SecurityContext instances are created</title>
+        	<para>
+        		<code>SecurityContext</code> instances are created by the <code>SecurityContextFactory</code>. If for some reason you need to change how <code>SecurityContext</code> instances are created,
+        		you can provide an implementation of this interface and configure it as follows:  
+        	</para>
+       	  <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .stores()
+    .contextFactory(mew MySecurityContextFactory());  
+}]]></programlisting>
+
+				</section>
+      </section>
+      
+      <section>
+        <title>Identity Store Feature Set</title>
+      
+        <para>
+          When configuring identity stores you must tell which features and operations should be executed by them. Features and operations are a key concept if you want to mix stores in order to execute
+          operations against different repositories.
+        </para>
+        <para>
+        	PicketLink provides a Java <code>enum</code>, called <code>FeatureGroup</code>, in which are defined all supported features. The table bellow summarize them:  
+        </para>
+        <table>
+          <title>Identity class fields</title>
+          <tgroup cols="2" align="left">
+            <thead>
+              <row>
+                <entry>Feature</entry>
+              </row>
+            </thead>
+            <tbody>
+              <row>
+                <entry><code>FeatureGroup.agent</code></entry>
+              </row>
+              <row>
+                <entry><code>FeatureGroup.user</code></entry>
+              </row>
+              <row>
+                <entry><code>FeatureGroup.role</code></entry>
+              </row>
+              <row>
+                <entry><code>FeatureGroup.group</code></entry>
+              </row>
+              <row>
+                <entry><code>FeatureGroup.relationship</code></entry>
+              </row>
+              <row>
+                <entry><code>FeatureGroup.credential</code></entry>
+              </row>
+              <row>
+                <entry><code>FeatureGroup.realm</code></entry>
+              </row>
+              <row>
+                <entry><code>FeatureGroup.tier</code></entry>
+              </row>
+      		  </tbody>
+      	  </tgroup>
+        </table>
+        <para>
+        	The features are a determinant factor when choosing an identity store to execute a specific operation. For example, if an identity store is configured with <code>FeatureGroup.user</code> we're saying
+        	that all <code>User</code> operations should be executed by this identity store. The same goes for <code>FeatureGroup.credential</code>, we're just saying that credentials can also be updated and validated using 
+        	the identity store.
+        </para>
+        <para>
+        	Beside that, provide only the feature is not enough. We must also tell the identity store which operations are supported by a feature. For example, we can configure a identity store to support only
+        	read operations for users, which is very common when using the LDAP identity store against a read-only tree. Operations are also defined by an <code>enum</code>, called <code>FeatureOperation</code>, as follows:    
+        </para>
+        <table>
+          <title>Identity class fields</title>
+          <tgroup cols="2" align="left">
+            <thead>
+              <row>
+                <entry>Operation</entry>
+              </row>
+            </thead>
+            <tbody>
+              <row>
+                <entry><code>Featureoperation.create</code></entry>
+              </row>
+              <row>
+                <entry><code>Featureoperation.read</code></entry>
+              </row>
+              <row>
+                <entry><code>Featureoperation.update</code></entry>
+              </row>
+              <row>
+                <entry><code>Featureoperation.delete</code></entry>
+              </row>
+              <row>
+                <entry><code>Featureoperation.validate</code></entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table>
+        <para>
+        	During the configuration you can provide which features and operations should be supported using the <ns:emphasis>Configuration API</ns:emphasis>. You don't need to be forced to specify them individually,
+        	if you want to support all features and operations for a particular identity store you can use:
+        </para>
+     	  <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .stores()
+    .file()
+      .supportAllFeatures();  
+}]]></programlisting>
+				<para>
+					For a more granular configuration you can also use:
+				</para>
+     	  <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .stores()
+    .file()
+      .supportFeature(
+      	FeatureGroup.agent, 
+      	FeatureGroup.user, 
+      	FeatureGroup.role, 
+      	FeatureGroup.group)  
+}]]></programlisting>
+			<para>
+				The configuration above defines the features individually. In this case the configured features are also supporting all operations. If you want to specify which operation should be supported by a feature you can use:
+			</para>
+   	  <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .stores()
+    .file()
+      .supportFeature(FeatureGroup.agent, FeatureOperation.read)
+      .supportFeature(FeatureGroup.user, FeatureOperation.read))
+      .supportFeature(FeatureGroup.role, FeatureOperation.create))
+      .supportFeature(FeatureGroup.role, FeatureOperation.read))
+      .supportFeature(FeatureGroup.role, FeatureOperation.update))
+      .supportFeature(FeatureGroup.role, FeatureOperation.delete))  
+      .supportFeature(FeatureGroup.group, FeatureOperation.create))
+      .supportFeature(FeatureGroup.group, FeatureOperation.read))
+      .supportFeature(FeatureGroup.group, FeatureOperation.update))
+      .supportFeature(FeatureGroup.group, FeatureOperation.delete))  
+}]]></programlisting>
+			<para>
+				For a more complex configuration evolving multiple identity stores with a different feature set, look at the example bellow:
+			</para>
+   	  <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .stores()
+    .ldap()
+      .supportFeature(FeatureGroup.agent)
+      .supportFeature(FeatureGroup.user)
+      .supportFeature(FeatureGroup.credential)
+    .jpa()
+      .supportFeature(FeatureGroup.role)
+      .supportFeature(FeatureGroup.group)
+      .supportFeature(FeatureGroup.relationship)
+}]]></programlisting>
+			<para>
+				The configuration above shows how to use LDAP to store only agents, users and credentials and database for roles, groups and relationships.
+			</para>
+			<note>
+				<para>
+					Remember that identity stores must have their features and operations configured. If you don't provide them you won't be able to build the configuration.
+				</para>
+			</note>
+      </section>
+    </section>            
+</chapter>

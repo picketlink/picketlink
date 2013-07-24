@@ -244,13 +244,13 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        relationshipManager.grantRole(defaultRealmUser, defaultRealmRole);
-        relationshipManager.addToGroup(defaultRealmUser, defaultRealmGroup);
-        relationshipManager.grantGroupRole(defaultRealmUser, defaultRealmRole, defaultRealmGroup);
+        IdentityLocator.grantRole(relationshipManager, defaultRealmUser, defaultRealmRole);
+        IdentityLocator.addToGroup(relationshipManager, defaultRealmUser, defaultRealmGroup);
+        IdentityLocator.grantGroupRole(relationshipManager, defaultRealmUser, defaultRealmRole, defaultRealmGroup);
 
-        assertTrue(relationshipManager.hasRole(defaultRealmUser, defaultRealmRole));
-        assertTrue(relationshipManager.isMember(defaultRealmUser, defaultRealmGroup));
-        assertTrue(relationshipManager.hasGroupRole(defaultRealmUser, defaultRealmRole, defaultRealmGroup));
+        assertTrue(IdentityLocator.hasRole(relationshipManager, defaultRealmUser, defaultRealmRole));
+        assertTrue(IdentityLocator.isMember(relationshipManager, defaultRealmUser, defaultRealmGroup));
+        assertTrue(IdentityLocator.hasGroupRole(relationshipManager, defaultRealmUser, defaultRealmRole, defaultRealmGroup));
 
         Realm realm = getPartitionManager().getPartition(Realm.class, TESTING_REALM_NAME);
 
@@ -258,22 +258,22 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         Role testingRealmRole = createRole("testingRealmRole", realm);
         Group testingRealmGroup = createGroup("testingRealmGroup", null, realm);
 
-        relationshipManager.grantRole(testingRealmUser, testingRealmRole);
-        relationshipManager.addToGroup(testingRealmUser, testingRealmGroup);
-        relationshipManager.grantGroupRole(testingRealmUser, testingRealmRole, testingRealmGroup);
+        IdentityLocator.grantRole(relationshipManager, testingRealmUser, testingRealmRole);
+        IdentityLocator.addToGroup(relationshipManager, testingRealmUser, testingRealmGroup);
+        IdentityLocator.grantGroupRole(relationshipManager, testingRealmUser, testingRealmRole, testingRealmGroup);
 
-        assertTrue(relationshipManager.hasRole(testingRealmUser, testingRealmRole));
-        assertTrue(relationshipManager.isMember(testingRealmUser, testingRealmGroup));
-        assertTrue(relationshipManager.hasGroupRole(testingRealmUser, testingRealmRole, testingRealmGroup));
+        assertTrue(IdentityLocator.hasRole(relationshipManager, testingRealmUser, testingRealmRole));
+        assertTrue(IdentityLocator.isMember(relationshipManager, testingRealmUser, testingRealmGroup));
+        assertTrue(IdentityLocator.hasGroupRole(relationshipManager, testingRealmUser, testingRealmRole, testingRealmGroup));
 
-        assertFalse(relationshipManager.hasRole(defaultRealmUser, testingRealmRole));
-        assertFalse(relationshipManager.hasRole(testingRealmUser, defaultRealmRole));
+        assertFalse(IdentityLocator.hasRole(relationshipManager, defaultRealmUser, testingRealmRole));
+        assertFalse(IdentityLocator.hasRole(relationshipManager, testingRealmUser, defaultRealmRole));
 
-        assertFalse(relationshipManager.isMember(defaultRealmUser, testingRealmGroup));
-        assertFalse(relationshipManager.isMember(testingRealmUser, defaultRealmGroup));
+        assertFalse(IdentityLocator.isMember(relationshipManager, defaultRealmUser, testingRealmGroup));
+        assertFalse(IdentityLocator.isMember(relationshipManager, testingRealmUser, defaultRealmGroup));
 
-        assertFalse(relationshipManager.hasGroupRole(defaultRealmUser, testingRealmRole, defaultRealmGroup));
-        assertFalse(relationshipManager.hasGroupRole(testingRealmUser, defaultRealmRole, testingRealmGroup));
+        assertFalse(IdentityLocator.hasGroupRole(relationshipManager, defaultRealmUser, testingRealmRole, defaultRealmGroup));
+        assertFalse(IdentityLocator.hasGroupRole(relationshipManager, testingRealmUser, defaultRealmRole, testingRealmGroup));
     }
 
 }
