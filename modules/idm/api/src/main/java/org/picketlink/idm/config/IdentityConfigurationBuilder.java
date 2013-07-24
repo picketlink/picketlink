@@ -81,6 +81,15 @@ public class IdentityConfigurationBuilder extends Builder<List<IdentityConfigura
         return create();
     }
 
+    /**
+     * <p>Indicates if any configuration was already provided for this instance.</p>
+     *
+     * @return
+     */
+    public boolean isConfigured() {
+        return !this.namedIdentityConfigurationBuilders.isEmpty();
+    }
+
     @Override
     protected void validate() throws SecurityConfigurationException {
         if (this.namedIdentityConfigurationBuilders.isEmpty()) {

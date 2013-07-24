@@ -47,24 +47,20 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
      * <p>{@link AttributedType} types are supported by this configuration.</p>
      */
     private final Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes;
-
     /**
      * <p>{@link AttributedType} types are not supported by this configuration.
      * This allows us to trim any type that we don't want to support off the hierarchy tree</p>
      */
     private final Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes;
-
     /**
      * <p>{@link ContextInitializer} instances that should be used to initialize the
      * {@link org.picketlink.idm.spi.IdentityContext} before invoking an identity store operation.</p>
      */
     private final List<ContextInitializer> contextInitializers;
-
     /**
      * <p>Configuration properties for {@CredentialHandler}.</p>
      */
     private final Map<String, Object> credentialHandlerProperties;
-
     /**
      * <p>Additional {@link CredentialHandler} types supported by this configuration.</p>
      */
@@ -127,10 +123,12 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
     public List<Class<? extends CredentialHandler>> getCredentialHandlers() {
         List<Class<? extends CredentialHandler>> supportedCredentialHandlers = new ArrayList<Class<? extends CredentialHandler>>(this.credentialHandlers);
 
-        CredentialHandlers credentialHandlers = getIdentityStoreType().getAnnotation(CredentialHandlers.class);
+        if (getIdentityStoreType() != null) {
+            CredentialHandlers credentialHandlers = getIdentityStoreType().getAnnotation(CredentialHandlers.class);
 
-        if (credentialHandlers != null) {
-            supportedCredentialHandlers.addAll(Arrays.asList(credentialHandlers.value()));
+            if (credentialHandlers != null) {
+                supportedCredentialHandlers.addAll(Arrays.asList(credentialHandlers.value()));
+            }
         }
 
         return supportedCredentialHandlers;
@@ -163,7 +161,18 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
         this.identityStoreType = identityStoreType;
     }
 
-    protected Map<Class<? extends AttributedType>, Set<IdentityOperation>> getSupportedTypes() {
+    @Override
+    public Map<Class<? extends AttributedType>, Set<IdentityOperation>> getSupportedTypes() {
         return this.supportedTypes;
+    }
+
+    @Override
+    public Map<Class<? extends AttributedType>, Set<IdentityOperation>> getUnsupportedTypes() {
+        return this.unsupportedTypes;
+    }
+
+    @Override
+    public List<ContextInitializer> getContextInitializers() {
+        return this.contextInitializers;
     }
 }

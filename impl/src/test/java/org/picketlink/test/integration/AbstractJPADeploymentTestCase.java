@@ -23,7 +23,6 @@
 package org.picketlink.test.integration;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -31,8 +30,11 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.picketlink.annotations.PicketLink;
+import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.model.Partition;
 
 /**
  * <p>
@@ -42,17 +44,17 @@ import org.picketlink.annotations.PicketLink;
  * As Arquillian Weld container does not provide a good support to JPA, test cases can rely on this base class in order to
  * use JPA with Weld deployments.
  * </p>
- * 
+ *
  * @author Pedro Igor
- * 
  */
 public abstract class AbstractJPADeploymentTestCase extends AbstractArquillianTestCase {
 
     private static EntityManagerFactory emf;
 
+    private static EntityManager entityManager;
+
     @Inject
-    @PicketLink
-    private EntityManager entityManager;
+    private PartitionManager partitionManager;
 
     public static WebArchive createDeployment(Class<?>... toAdd) {
         WebArchive archive = ArchiveUtils.create(toAdd);
@@ -62,16 +64,17 @@ public abstract class AbstractJPADeploymentTestCase extends AbstractArquillianTe
         return archive;
     }
 
-    @Before
-    public void onBefore() throws Exception {
+    @BeforeClass
+    public static void onBeforeClass() {
         emf = Persistence.createEntityManagerFactory("jpa-store-default-schema");
-        this.entityManager.getTransaction().begin();
+        entityManager = emf.createEntityManager();
+        entityManager.getTransaction().begin();
     }
 
-    @After
-    public void onAfter() {
-        this.entityManager.getTransaction().commit();
-        this.entityManager.close();
+    @AfterClass
+    public static void onAfterClass() {
+        entityManager.getTransaction().commit();
+        entityManager.close();
         emf.close();
     }
 
@@ -80,10 +83,16 @@ public abstract class AbstractJPADeploymentTestCase extends AbstractArquillianTe
 
         @PicketLink
         @Produces
-        @RequestScoped
         public EntityManager produceEntityManager() {
-            return emf.createEntityManager();
+            return entityManager;
 
         }
     }
+
+    private void createPartitionIfNecessary(Partition partition) {
+        if (this.partitionManager.getPartition(partition.getClass(), partition.getName()) == null) {
+            this.partitionManager.add(partition);
+        }
+    }
+
 }

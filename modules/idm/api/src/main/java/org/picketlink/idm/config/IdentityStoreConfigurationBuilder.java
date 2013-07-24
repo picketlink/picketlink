@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
@@ -225,6 +224,27 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
 
     @Override
     protected Builder<T> readFrom(T configuration) {
+        for (Class<? extends CredentialHandler> credentialHandler: configuration.getCredentialHandlers()) {
+            addCredentialHandler(credentialHandler);
+        }
+
+        for (String credentialProperty: configuration.getCredentialHandlerProperties().keySet()) {
+            Object value = configuration.getCredentialHandlerProperties().get(credentialProperty);
+            setCredentialHandlerProperty(credentialProperty, value);
+        }
+
+        for (Class<? extends AttributedType> supportedType: configuration.getSupportedTypes().keySet()) {
+            supportType(supportedType);
+        }
+
+        for (Class<? extends AttributedType> unsupportedType: configuration.getUnsupportedTypes().keySet()) {
+            unsupportType(unsupportedType);
+        }
+
+        for (ContextInitializer contextInitializer :  configuration.getContextInitializers()) {
+            addContextInitializer(contextInitializer);
+        }
+
         return this;
     }
 

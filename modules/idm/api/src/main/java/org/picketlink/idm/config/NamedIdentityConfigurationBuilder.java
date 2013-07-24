@@ -57,6 +57,7 @@ public class NamedIdentityConfigurationBuilder extends AbstractIdentityConfigura
 
     @Override
     protected Builder<IdentityConfiguration> readFrom(IdentityConfiguration configuration) {
-        return null;  //TODO: Implement readFrom
+        this.identityStoresConfigurationBuilder.readFrom(configuration.getStoreConfiguration());
+        return this;
     }
 }

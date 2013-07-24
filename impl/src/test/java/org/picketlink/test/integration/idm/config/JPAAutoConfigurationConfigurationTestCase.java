@@ -31,6 +31,7 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.picketlink.IdentityConfigurationEvent;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
@@ -40,6 +41,7 @@ import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.AbstractJPADeploymentTestCase;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.picketlink.test.integration.ArchiveUtils.addDependency;
 import static org.picketlink.test.integration.ArchiveUtils.getCurrentProjectVersion;
 
@@ -55,11 +57,14 @@ public class JPAAutoConfigurationConfigurationTestCase extends AbstractJPADeploy
     @Inject
     private IdentityManager identityManager;
 
+    @Inject
+    private RelationshipManager relationshipManager;
+
     @Deployment
     public static WebArchive createDeployment() {
         WebArchive archive = createDeployment(JPAAutoConfigurationConfigurationTestCase.class, JPAStoreConfigurationObserver.class);
         
-        addDependency(archive, "org.picketlink:picketlink-idm-schema:" + getCurrentProjectVersion());
+        addDependency(archive, "org.picketlink:picketlink-idm-simple-schema:" + getCurrentProjectVersion());
         
         return archive;
     }
@@ -75,8 +80,6 @@ public class JPAAutoConfigurationConfigurationTestCase extends AbstractJPADeploy
         IdentityStoreConfiguration identityStoreConfiguration = configuredStores.get(0);
         
         assertEquals(JPAIdentityStoreConfiguration.class, identityStoreConfiguration.getClass());
-        
-        this.identityManager.add(new User("john"));
     }
 
     @Test
@@ -93,13 +96,13 @@ public class JPAAutoConfigurationConfigurationTestCase extends AbstractJPADeploy
 
         this.identityManager.add(qaGroup);
 
-//        this.identityManager.grantRole(john, tester);
-//        this.identityManager.addToGroup(john, qaGroup);
-//        this.identityManager.grantGroupRole(john, tester, qaGroup);
-//
-//        assertTrue(this.identityManager.hasRole(john, tester));
-//        assertTrue(this.identityManager.isMember(john, qaGroup));
-//        assertTrue(this.identityManager.hasGroupRole(john, tester, qaGroup));
+        this.relationshipManager.grantRole(john, tester);
+        this.relationshipManager.addToGroup(john, qaGroup);
+        this.relationshipManager.grantGroupRole(john, tester, qaGroup);
+
+        assertTrue(this.relationshipManager.hasRole(john, tester));
+        assertTrue(this.relationshipManager.isMember(john, qaGroup));
+        assertTrue(this.relationshipManager.hasGroupRole(john, tester, qaGroup));
     }
  
     @ApplicationScoped

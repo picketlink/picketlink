@@ -113,19 +113,6 @@ public abstract class AbstractAuthenticatorTestCase extends AbstractArquillianTe
         this.identity.login();
     }
 
-    @Test(expected = UnexpectedCredentialException.class)
-    public void failUnexpectedCredential() {
-        this.credentials.setUserId(USER_NAME);
-        this.credentials.setPassword(USER_PASSWORD);
-
-        this.identity.login();
-
-        this.credentials.setUserId("invalidId");
-
-        // should throw the exception. trying to login with a different credential.
-        this.identity.login();
-    }
-
     @Test(expected = LockedAccountException.class)
     public void failLockedAccount() {
         User john = doLockUserAccount();

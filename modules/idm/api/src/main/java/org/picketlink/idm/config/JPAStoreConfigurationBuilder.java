@@ -59,6 +59,11 @@ public class JPAStoreConfigurationBuilder extends
     @Override
     protected JPAStoreConfigurationBuilder readFrom(JPAIdentityStoreConfiguration configuration) {
         super.readFrom(configuration);
+
+        for (Class<?> entityType: configuration.getEntityTypes()) {
+            mappedEntity(entityType);
+        }
+
         return this;
     }
 

@@ -28,16 +28,19 @@ import javax.inject.Inject;
 import org.picketlink.IdentityConfigurationEvent;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.internal.DefaultPartitionManager;
+import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.internal.EEJPAContextInitializer;
 import org.picketlink.internal.EESecurityContextFactory;
 import org.picketlink.internal.IdentityStoreAutoConfiguration;
 import org.picketlink.internal.SecuredIdentityManager;
-import org.picketlink.internal.util.Strings;
 
 /**
  * 
@@ -63,9 +66,9 @@ public class IdentityManagerProducer {
     @Inject
     IdentityStoreAutoConfiguration autoConfig;
 
-    @Inject @PicketLink Instance<Realm> defaultRealm;
+    @Inject @PicketLink Instance<Partition> defaultPartition;
 
-    private DefaultPartitionManager factory;
+    private PartitionManager partitionManager;
 
     @Inject
     public void init() {
@@ -83,12 +86,15 @@ public class IdentityManagerProducer {
 
         this.identityConfigEvent.fire(new IdentityConfigurationEvent(builder));
 
-        // TODO we need a method on builder to determine whether a configuration exists
-        //if (builder.stores().isEmpty()) {
+        if (!builder.isConfigured()) {
             loadAutoConfig(builder);
-        //}
 
-        this.factory = new DefaultPartitionManager(builder.build());
+            this.partitionManager = new DefaultPartitionManager(builder.build());
+        } else {
+            this.partitionManager = new DefaultPartitionManager(builder.build());
+        }
+
+        this.partitionManager.add(new Realm(Realm.DEFAULT_REALM), DEFAULT_CONFIGURATION_NAME);
     }
 
     private void loadAutoConfig(IdentityConfigurationBuilder builder) {
@@ -100,28 +106,36 @@ public class IdentityManagerProducer {
                     .jpa()
                         .mappedEntity(entities)
                         .addContextInitializer(this.jpaContextInitializer)
+                        .supportGlobalRelationship(Relationship.class)
                         .supportAllFeatures();
         } else {
             builder.named(DEFAULT_CONFIGURATION_NAME)
                 .stores()
                     .file()
+                        .supportGlobalRelationship(Relationship.class)
                         .supportAllFeatures();
         }
     }
 
     @Produces
-    public DefaultPartitionManager createIdentityManagerFactory() {
-        return factory;
+    public PartitionManager createIdentityManagerFactory() {
+        return partitionManager;
     }
 
     @Produces
     @Dependent
     public IdentityManager createIdentityManager() {
-        if (defaultRealm.isUnsatisfied() || Strings.isEmpty(defaultRealm.get().getId())) {
-            return new SecuredIdentityManager(this.factory.createIdentityManager());
+        if (defaultPartition.isUnsatisfied() || defaultPartition.get() == null) {
+            return new SecuredIdentityManager(this.partitionManager.createIdentityManager());
         } else {
-            return new SecuredIdentityManager(this.factory.createIdentityManager(defaultRealm.get()));
+            return new SecuredIdentityManager(this.partitionManager.createIdentityManager(defaultPartition.get()));
         }
+    }
+
+    @Produces
+    @Dependent
+    public RelationshipManager createRelationshipManager() {
+        return this.partitionManager.createRelationshipManager();
     }
 
 }

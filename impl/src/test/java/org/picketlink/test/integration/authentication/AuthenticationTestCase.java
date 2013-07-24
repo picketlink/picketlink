@@ -19,11 +19,7 @@ package org.picketlink.test.integration.authentication;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.Before;
 import org.junit.Test;
-import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.model.sample.Agent;
-import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.test.integration.ArchiveUtils;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -34,49 +30,28 @@ import static org.junit.Assert.assertNull;
 /**
  * @author pedroigor
  */
-public class AgentAuthenticationTestCase extends AbstractAuthenticationTestCase {
-
-    public static final String AGENT_NAME = "Some Agent";
+public class AuthenticationTestCase extends AbstractAuthenticationTestCase {
 
     @Deployment
     public static WebArchive createDeployment() {
-        return ArchiveUtils.create(AgentAuthenticationTestCase.class);
-    }
-
-    @Override
-    @Before
-    public void onSetup() {
-        Agent agent = IdentityLocator.getAgent(super.identityManager, USER_NAME);
-
-        if (agent == null) {
-            agent = new Agent(AGENT_NAME);
-            this.identityManager.add(agent);
-        }
-
-        agent.setEnabled(true);
-
-        this.identityManager.update(agent);
-
-        Password password = new Password(USER_PASSWORD);
-
-        this.identityManager.updateCredential(agent, password);
+        return ArchiveUtils.create(AuthenticationTestCase.class);
     }
 
     @Test
     public void testSuccessfulAuthentication() {
-        super.credentials.setUserId(AGENT_NAME);
+        super.credentials.setUserId(USER_NAME);
         super.credentials.setPassword(USER_PASSWORD);
 
         super.identity.login();
 
         assertTrue(super.identity.isLoggedIn());
         assertNotNull(super.identity.getAccount());
-        assertEquals(AGENT_NAME, ((Agent) super.identity.getAccount()).getLoginName());
+        assertEquals(super.currentAccount, super.identity.getAccount());
     }
 
     @Test
     public void testUnSuccessfulAuthentication() {
-        super.credentials.setUserId(AGENT_NAME);
+        super.credentials.setUserId(USER_NAME);
         super.credentials.setPassword("bad_passwd");
 
         super.identity.login();

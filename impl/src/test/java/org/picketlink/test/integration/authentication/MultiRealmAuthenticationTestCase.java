@@ -36,10 +36,11 @@ import org.picketlink.Identity;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.internal.DefaultPartitionManager;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.User;
@@ -74,7 +75,7 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
     private Instance<IdentityManager> identityManagerInstance;
     
     @Inject
-    private DefaultPartitionManager identityManagerFactory;
+    private PartitionManager partitionManager;
 
     @Inject
     private DefaultLoginCredentials credentials;
@@ -88,7 +89,9 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
     }
 
     @Before
-    public void onFinish() {
+    public void onSetup() {
+        createPartitionIfNecessary(new Realm(STAGING_REALM_NAME));
+        createPartitionIfNecessary(new Realm(TESTING_REALM_NAME));
         this.identity.logout();
     }
 
@@ -101,7 +104,7 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
 
         identityManager.add(user);
 
-        assertEquals(Realm.DEFAULT_REALM, user.getPartition().getId());
+        assertEquals(Realm.DEFAULT_REALM, user.getPartition().getName());
 
         assertLogin(user, identityManager);
     }
@@ -117,7 +120,7 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
 
         identityManager.add(user);
 
-        assertEquals(STAGING_REALM_NAME, user.getPartition().getId());
+        assertEquals(STAGING_REALM_NAME, user.getPartition().getName());
 
         assertLogin(user, identityManager);
     }
@@ -133,7 +136,7 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
 
         identityManager.add(user);
 
-        assertEquals(TESTING_REALM_NAME, user.getPartition().getId());
+        assertEquals(TESTING_REALM_NAME, user.getPartition().getName());
 
         assertLogin(user, identityManager);
     }
@@ -147,17 +150,17 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
 
         User user = IdentityLocator.getUser(identityManager, USER_NAME);
 
-        assertEquals(TESTING_REALM_NAME, user.getPartition().getId());
+        assertEquals(TESTING_REALM_NAME, user.getPartition().getName());
 
         this.credentials.setUserId(user.getLoginName());
-        this.credentials.setPassword(buildUserPassword(this.identityManagerFactory.getPartition(Realm.class, Realm.DEFAULT_REALM)));
+        this.credentials.setPassword(buildUserPassword(this.partitionManager.getPartition(Realm.class, Realm.DEFAULT_REALM)));
 
         this.identity.login();
 
         // should fail. The provided password is configured for john when using the default realm.
         assertFalse(this.identity.isLoggedIn());
 
-        this.credentials.setPassword(buildUserPassword(this.identityManagerFactory.getPartition(Realm.class, TESTING_REALM_NAME)));
+        this.credentials.setPassword(buildUserPassword(this.partitionManager.getPartition(Realm.class, TESTING_REALM_NAME)));
 
         this.identity.login();
 
@@ -193,18 +196,18 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
     public static class RealmSelector {
 
         @Inject
-        private DefaultPartitionManager identityManagerFactory;
+        private PartitionManager partitionManager;
 
         private String realmName;
 
         @Produces
         @PicketLink
-        public Realm select() {
+        public Partition select() {
             if (this.realmName == null) {
                 this.realmName = Realm.DEFAULT_REALM;
             }
 
-            return this.identityManagerFactory.getPartition(Realm.class, this.realmName);
+            return this.partitionManager.getPartition(Realm.class, this.realmName);
         }
 
         void setRealmName(String realmName) {
@@ -225,4 +228,11 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
         }
 
     }
+
+    private void createPartitionIfNecessary(Partition partition) {
+        if (this.partitionManager.getPartition(partition.getClass(), partition.getName()) == null) {
+            this.partitionManager.add(partition);
+        }
+    }
+
 }

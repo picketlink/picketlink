@@ -4,7 +4,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AnnotatedType;
@@ -45,7 +44,7 @@ public class IdentityStoreAutoConfiguration implements Extension {
 
         while (!cls.equals(Object.class)) {
             for (Annotation a : cls.getAnnotations()) {
-                if (a.getClass().getName().startsWith(JPA_ANNOTATION_PACKAGE)) {
+                if (a.annotationType().getName().startsWith(JPA_ANNOTATION_PACKAGE)) {
                     return true;
                 }
             }
@@ -53,7 +52,7 @@ public class IdentityStoreAutoConfiguration implements Extension {
             // No class annotation was found, check the fields
             for (Field f : cls.getDeclaredFields()) {
                 for (Annotation a : f.getAnnotations()) {
-                    if (a.getClass().getName().startsWith(JPA_ANNOTATION_PACKAGE)) {
+                    if (a.annotationType().getName().startsWith(JPA_ANNOTATION_PACKAGE)) {
                         return true;
                     }
                 }

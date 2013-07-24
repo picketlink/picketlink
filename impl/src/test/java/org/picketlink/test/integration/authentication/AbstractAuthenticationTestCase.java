@@ -30,9 +30,10 @@ import org.picketlink.authentication.internal.IdmAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.model.sample.IdentityLocator;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.AbstractArquillianTestCase;
+import static org.picketlink.idm.model.sample.IdentityLocator.getUser;
 
 /**
  * <p>
@@ -44,7 +45,7 @@ import org.picketlink.test.integration.AbstractArquillianTestCase;
  */
 public abstract class AbstractAuthenticationTestCase extends AbstractArquillianTestCase {
 
-    protected static final String USER_NAME = "john";
+    protected static final String USER_NAME = "currentAccount";
     protected static final String USER_PASSWORD = "mypasswd";
 
     @Inject
@@ -56,22 +57,24 @@ public abstract class AbstractAuthenticationTestCase extends AbstractArquillianT
     @Inject
     protected IdentityManager identityManager;
 
+    protected Account currentAccount;
+
     @Before
     public void onSetup() {
-        User john = IdentityLocator.getUser(this.identityManager, USER_NAME);
+        this.currentAccount = getUser(this.identityManager, USER_NAME);
 
-        if (john == null) {
-            john = new User(USER_NAME);
-            this.identityManager.add(john);
+        if (this.currentAccount == null) {
+            this.currentAccount = new User(USER_NAME);
+            this.identityManager.add(this.currentAccount);
         }
 
-        john.setEnabled(true);
+        this.currentAccount.setEnabled(true);
 
-        this.identityManager.update(john);
+        this.identityManager.update(this.currentAccount);
 
         Password password = new Password(USER_PASSWORD);
 
-        this.identityManager.updateCredential(john, password);
+        this.identityManager.updateCredential(this.currentAccount, password);
     }
 
     @After

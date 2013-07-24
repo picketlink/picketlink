@@ -24,6 +24,7 @@ package org.picketlink.test.integration;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.junit.runner.RunWith;
+import org.picketlink.idm.model.Partition;
 
 /**
  * <p>Base class for integration tests using Arquillian.</p>

@@ -17,12 +17,9 @@
  */
 package org.picketlink.idm.internal;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
@@ -44,6 +41,7 @@ import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreSelector;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Default implementation of the IdentityManager interface.
