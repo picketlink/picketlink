@@ -27,7 +27,7 @@ public class NamedIdentityConfigurationBuilder extends AbstractIdentityConfigura
     private final IdentityStoresConfigurationBuilder identityStoresConfigurationBuilder;
     private String name = "default";
 
-    protected NamedIdentityConfigurationBuilder(String name, IdentityConfigurationChildBuilder builder) {
+    protected NamedIdentityConfigurationBuilder(String name, IdentityConfigurationBuilder builder) {
         super(builder);
         this.identityStoresConfigurationBuilder = new IdentityStoresConfigurationBuilder(this);
 
@@ -42,7 +42,8 @@ public class NamedIdentityConfigurationBuilder extends AbstractIdentityConfigura
 
     @Override
     protected IdentityConfiguration create() {
-        return new IdentityConfiguration(this.name, this.identityStoresConfigurationBuilder.create(),
+        return new IdentityConfiguration(this.name,
+                this.identityStoresConfigurationBuilder.create(),
                 new RelationshipPolicy(this.identityStoresConfigurationBuilder.getSelfRelationships(), this.identityStoresConfigurationBuilder.getGlobalRelationships()));
     }
 

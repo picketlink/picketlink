@@ -77,6 +77,8 @@ import static org.picketlink.idm.util.IDMUtil.toSet;
  */
 public class DefaultPartitionManager implements PartitionManager, StoreSelector {
 
+    private static final long serialVersionUID = 1L;
+
     private static final String DEFAULT_CONFIGURATION_NAME = "default";
 
     /**
@@ -118,6 +120,14 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     public DefaultPartitionManager(Collection<IdentityConfiguration> configurations) {
+        this(configurations, null, null);
+    }
+
+    public DefaultPartitionManager(Collection <IdentityConfiguration> configurations, EventBridge eventBridge) {
+        this(configurations, eventBridge, null);
+    }
+
+    public DefaultPartitionManager(Collection <IdentityConfiguration> configurations, EventBridge eventBridge, IdGenerator idGenerator) {
         LOGGER.identityManagerBootstrapping();
 
         if (configurations == null || configurations.isEmpty()) {

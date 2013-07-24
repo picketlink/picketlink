@@ -37,8 +37,8 @@ import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.internal.CDIEventBridge;
 import org.picketlink.internal.EEJPAContextInitializer;
-import org.picketlink.internal.EESecurityContextFactory;
 import org.picketlink.internal.IdentityStoreAutoConfiguration;
 import org.picketlink.internal.SecuredIdentityManager;
 
@@ -52,21 +52,23 @@ public class IdentityManagerProducer {
     private static final String DEFAULT_CONFIGURATION_NAME = "default";
 
     @Inject
-    Instance<IdentityConfiguration> identityConfigInstance;
+    private Instance<IdentityConfiguration> identityConfigInstance;
 
     @Inject
-    Event<IdentityConfigurationEvent> identityConfigEvent;
+    private Event<IdentityConfigurationEvent> identityConfigEvent;
 
     @Inject
-    EESecurityContextFactory icf;
+    private EEJPAContextInitializer jpaContextInitializer;
 
     @Inject
-    EEJPAContextInitializer jpaContextInitializer;
+    private CDIEventBridge eventBridge;
 
     @Inject
-    IdentityStoreAutoConfiguration autoConfig;
+    private IdentityStoreAutoConfiguration autoConfig;
 
-    @Inject @PicketLink Instance<Partition> defaultPartition;
+    @Inject
+    @PicketLink
+    private  Instance<Partition> defaultPartition;
 
     private PartitionManager partitionManager;
 
@@ -88,11 +90,9 @@ public class IdentityManagerProducer {
 
         if (!builder.isConfigured()) {
             loadAutoConfig(builder);
-
-            this.partitionManager = new DefaultPartitionManager(builder.build());
-        } else {
-            this.partitionManager = new DefaultPartitionManager(builder.build());
         }
+
+        this.partitionManager = new DefaultPartitionManager(builder.buildAll(), this.eventBridge);
 
         this.partitionManager.add(new Realm(Realm.DEFAULT_REALM), DEFAULT_CONFIGURATION_NAME);
     }
@@ -118,7 +118,7 @@ public class IdentityManagerProducer {
     }
 
     @Produces
-    public PartitionManager createIdentityManagerFactory() {
+    public PartitionManager createPartitionManager() {
         return partitionManager;
     }
 

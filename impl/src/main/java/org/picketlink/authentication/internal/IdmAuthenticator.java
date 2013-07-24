@@ -50,7 +50,7 @@ public class IdmAuthenticator extends BaseAuthenticator {
             setStatus(AuthenticationStatus.SUCCESS);
             setAccount(creds.getValidatedAccount());
         } else if (Credentials.Status.ACCOUNT_DISABLED.equals(creds.getStatus())) {
-            throw new LockedAccountException("Agent [" + this.credentials.getUserId() + "] is disabled.");
+            throw new LockedAccountException("Account [" + this.credentials.getUserId() + "] is disabled.");
         }
     }
 

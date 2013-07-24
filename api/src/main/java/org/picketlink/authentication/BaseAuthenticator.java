@@ -19,7 +19,6 @@
 package org.picketlink.authentication;
 
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.sample.Agent;
 
 /**
  * Abstract base class that Authenticator implementations can extend for convenience. 
@@ -30,7 +29,7 @@ import org.picketlink.idm.model.sample.Agent;
 public abstract class BaseAuthenticator implements Authenticator
 {
     private AuthenticationStatus status = AuthenticationStatus.FAILURE;
-    private Account agent;
+    private Account account;
 
     @Override
     public AuthenticationStatus getStatus()
@@ -43,15 +42,15 @@ public abstract class BaseAuthenticator implements Authenticator
         this.status = status;
     }
 
-    protected void setAccount(Account agent)
+    protected void setAccount(Account account)
     {
-        this.agent = agent;
+        this.account = account;
     }
 
     @Override
     public Account getAccount()
     {
-        return agent;
+        return account;
     }
 
     @Override

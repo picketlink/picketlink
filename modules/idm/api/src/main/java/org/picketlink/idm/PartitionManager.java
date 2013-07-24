@@ -17,6 +17,7 @@
  */
 package org.picketlink.idm;
 
+import java.io.Serializable;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.model.Partition;
 
@@ -25,7 +26,7 @@ import org.picketlink.idm.model.Partition;
  *
  * @author Shane Bryzak
  */
-public interface PartitionManager {
+public interface PartitionManager extends Serializable {
 
     /**
      * Creates an IdentityManager instance for the default partition

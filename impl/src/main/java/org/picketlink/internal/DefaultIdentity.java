@@ -104,7 +104,7 @@ public class DefaultIdentity implements Identity
             if (validatedAccount != null)
             {
                 if (!validatedAccount.isEnabled()) {
-                    throw new LockedAccountException("Agent [" + validatedAccount + "] is disabled.");
+                    throw new LockedAccountException("Account [" + validatedAccount + "] is disabled.");
                 }
 
                 handleSuccessfulLoginAttempt(validatedAccount);

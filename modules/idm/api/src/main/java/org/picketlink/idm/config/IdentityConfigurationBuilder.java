@@ -24,6 +24,7 @@ package org.picketlink.idm.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.picketlink.idm.event.EventBridge;
 
 /**
  * <p>
@@ -35,6 +36,7 @@ import java.util.List;
 public class IdentityConfigurationBuilder extends Builder<List<IdentityConfiguration>> implements IdentityConfigurationChildBuilder {
 
     private final List<NamedIdentityConfigurationBuilder> namedIdentityConfigurationBuilders;
+    private EventBridge eventBridge;
 
     public IdentityConfigurationBuilder() {
         this.namedIdentityConfigurationBuilders = new ArrayList<NamedIdentityConfigurationBuilder>();
@@ -132,4 +134,5 @@ public class IdentityConfigurationBuilder extends Builder<List<IdentityConfigura
 
         return this;
     }
+
 }
