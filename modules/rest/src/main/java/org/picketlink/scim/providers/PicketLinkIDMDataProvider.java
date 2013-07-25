@@ -31,7 +31,7 @@ import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.IdentityLocator;
+import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
@@ -122,7 +122,7 @@ public class PicketLinkIDMDataProvider implements DataProvider {
         }
         identityManager.add(simpleUser);
 
-        User storedUser = IdentityLocator.getUser(identityManager, user.getDisplayName());
+        User storedUser = SampleModel.getUser(identityManager, user.getDisplayName());
         String id = storedUser.getId();
 
         return id;
@@ -134,7 +134,7 @@ public class PicketLinkIDMDataProvider implements DataProvider {
         Group simpleGroup = new Group(group.getDisplayName());
         identityManager.add(simpleGroup);
 
-        Group storedGroup = IdentityLocator.getGroup(identityManager, group.getDisplayName());
+        Group storedGroup = SampleModel.getGroup(identityManager, group.getDisplayName());
         String id = storedGroup.getId();
 
         return id;

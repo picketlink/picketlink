@@ -17,10 +17,7 @@
  */
 package org.picketlink.idm.model.sample;
 
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
-
 import java.util.List;
-
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
@@ -28,6 +25,7 @@ import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * This class provides a number of static convenience methods for looking up identities from the sample
@@ -35,7 +33,7 @@ import org.picketlink.idm.query.RelationshipQuery;
  *
  * @author Shane Bryzak
  */
-public class IdentityLocator {
+public class SampleModel {
 
     /**
      * <p>

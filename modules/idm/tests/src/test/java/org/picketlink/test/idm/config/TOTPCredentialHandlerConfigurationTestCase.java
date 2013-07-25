@@ -44,7 +44,7 @@ import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_ALGORITHM;
 import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_DELAY_WINDOW;
 import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_INTERVAL_SECONDS;
 import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_NUMBER_DIGITS;
-import static org.picketlink.idm.model.sample.IdentityLocator.getUser;
+import static org.picketlink.idm.model.sample.SampleModel.getUser;
 
 /**
  * <p>Some tests for the configuration of the encoding when using the {@link org.picketlink.idm.credential.handler.PasswordCredentialHandler}.</p>

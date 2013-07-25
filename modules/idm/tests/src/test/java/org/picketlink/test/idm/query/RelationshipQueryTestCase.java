@@ -28,7 +28,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.IdentityLocator;
+import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
@@ -59,9 +59,9 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityLocator.grantRole(relationshipManager, user, role);
-        IdentityLocator.grantGroupRole(relationshipManager, user, role, group);
-        IdentityLocator.addToGroup(relationshipManager, user, group);
+        SampleModel.grantRole(relationshipManager, user, role);
+        SampleModel.grantGroupRole(relationshipManager, user, role, group);
+        SampleModel.addToGroup(relationshipManager, user, group);
 
         RelationshipQuery<Relationship> query = relationshipManager.createRelationshipQuery(Relationship.class);
 

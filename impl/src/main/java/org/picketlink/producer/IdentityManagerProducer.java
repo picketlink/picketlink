@@ -35,7 +35,6 @@ import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.internal.CDIEventBridge;
 import org.picketlink.internal.EEJPAContextInitializer;
@@ -106,13 +105,11 @@ public class IdentityManagerProducer {
                     .jpa()
                         .mappedEntity(entities)
                         .addContextInitializer(this.jpaContextInitializer)
-                        .supportGlobalRelationship(Relationship.class)
                         .supportAllFeatures();
         } else {
             builder.named(DEFAULT_CONFIGURATION_NAME)
                 .stores()
                     .file()
-                        .supportGlobalRelationship(Relationship.class)
                         .supportAllFeatures();
         }
     }

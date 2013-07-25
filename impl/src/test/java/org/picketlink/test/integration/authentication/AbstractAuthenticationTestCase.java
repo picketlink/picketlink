@@ -33,7 +33,7 @@ import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.AbstractArquillianTestCase;
-import static org.picketlink.idm.model.sample.IdentityLocator.getUser;
+import static org.picketlink.idm.model.sample.SampleModel.getUser;
 
 /**
  * <p>
@@ -45,19 +45,19 @@ import static org.picketlink.idm.model.sample.IdentityLocator.getUser;
  */
 public abstract class AbstractAuthenticationTestCase extends AbstractArquillianTestCase {
 
-    protected static final String USER_NAME = "currentAccount";
+    protected static final String USER_NAME = "john";
     protected static final String USER_PASSWORD = "mypasswd";
 
     @Inject
-    protected Identity identity;
+    private Identity identity;
 
     @Inject
-    protected DefaultLoginCredentials credentials;
+    private DefaultLoginCredentials credentials;
 
     @Inject
-    protected IdentityManager identityManager;
+    private IdentityManager identityManager;
 
-    protected Account currentAccount;
+    private Account currentAccount;
 
     @Before
     public void onSetup() {
@@ -82,4 +82,19 @@ public abstract class AbstractAuthenticationTestCase extends AbstractArquillianT
         this.identity.logout();
     }
 
+    protected Account getCurrentAccount() {
+        return this.currentAccount;
+    }
+
+    protected Identity getIdentity() {
+        return this.identity;
+    }
+
+    protected DefaultLoginCredentials getCredentials() {
+        return this.credentials;
+    }
+
+    protected IdentityManager getIdentityManager() {
+        return this.identityManager;
+    }
 }

@@ -31,7 +31,7 @@ import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.sample.Grant;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
-import org.picketlink.idm.model.sample.IdentityLocator;
+import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
@@ -148,8 +148,8 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        IdentityLocator.grantRole(relationshipManager, anotherUser, role);
-        IdentityLocator.addToGroup(relationshipManager, anotherUser, group);
+        SampleModel.grantRole(relationshipManager, anotherUser, role);
+        SampleModel.addToGroup(relationshipManager, anotherUser, group);
 
         RelationshipQuery<?> relationshipQuery = relationshipManager.createRelationshipQuery(Grant.class);
 

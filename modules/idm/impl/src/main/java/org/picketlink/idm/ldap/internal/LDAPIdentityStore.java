@@ -699,20 +699,21 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
             while (ldapAttributes.hasMore()) {
                 javax.naming.directory.Attribute ldapAttribute = ldapAttributes.next();
+                Object value = ldapAttribute.get();
 
                 if (ldapAttribute.getID().equals(LDAPConstants.ENTRY_UUID)) {
-                    attributedType.setId(ldapAttribute.get().toString());
-                }
+                    attributedType.setId(value.toString());
+                } else {
+                    List<Property<Object>> properties = PropertyQueries
+                            .createQuery(attributedType.getClass())
+                            .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class)).getResultList();
 
-                List<Property<String>> properties = PropertyQueries
-                        .<String>createQuery(attributedType.getClass())
-                        .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class)).getResultList();
+                    for (Property property : properties) {
+                        String ldapAttributeName = mappingConfig.getMappedProperties().get(property.getName());
 
-                for (Property<String> property : properties) {
-                    String ldapAttributeName = mappingConfig.getMappedProperties().get(property.getName());
-
-                    if (ldapAttributeName != null && ldapAttributeName.equals(ldapAttribute.getID())) {
-                        property.setValue(attributedType, ldapAttribute.get().toString());
+                        if (ldapAttributeName != null && ldapAttributeName.equals(ldapAttribute.getID())) {
+                            property.setValue(attributedType, value);
+                        }
                     }
                 }
             }

@@ -24,11 +24,9 @@ package org.picketlink.test.integration.authentication;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.Before;
 import org.junit.Test;
-import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.model.sample.IdentityLocator;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.Identity;
+import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.test.integration.ArchiveUtils;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -46,35 +44,22 @@ public class LogoutTestCase extends AbstractAuthenticationTestCase {
         return ArchiveUtils.create(LogoutTestCase.class);
     }
     
-    @Before
-    public void onSetup() {
-        User john = IdentityLocator.getUser(this.identityManager, USER_NAME);
-
-        if (john == null) {
-            john = new User(USER_NAME);
-            this.identityManager.add(john);
-        }
-
-        john.setEnabled(true);
-
-        this.identityManager.update(john);
-
-        Password password = new Password(USER_PASSWORD);
-
-        this.identityManager.updateCredential(john, password);
-    }
-    
     @Test
     public void testLogout() throws Exception {
-        super.credentials.setUserId(USER_NAME);
-        super.credentials.setPassword(USER_PASSWORD);
-        super.identity.login();
+        DefaultLoginCredentials credentials = getCredentials();
+
+        credentials.setUserId(USER_NAME);
+        credentials.setPassword(USER_PASSWORD);
+
+        Identity identity = getIdentity();
+
+        identity.login();
         
-        assertTrue(super.identity.isLoggedIn());
+        assertTrue(identity.isLoggedIn());
         
-        super.identity.logout();
+        identity.logout();
         
-        assertFalse(super.identity.isLoggedIn());
-        assertNull(super.identity.getAccount());
+        assertFalse(identity.isLoggedIn());
+        assertNull(identity.getAccount());
     }
 }

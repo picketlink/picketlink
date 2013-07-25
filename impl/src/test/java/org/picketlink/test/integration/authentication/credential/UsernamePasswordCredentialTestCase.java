@@ -20,15 +20,12 @@ package org.picketlink.test.integration.authentication.credential;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
-import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.model.sample.Agent;
-import org.picketlink.idm.model.sample.IdentityLocator;
+import org.picketlink.Identity;
+import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.test.integration.ArchiveUtils;
 import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -43,37 +40,49 @@ public class UsernamePasswordCredentialTestCase extends AbstractAuthenticationTe
 
     @Test
     public void testSuccessfullAuthentication() {
-        updateUsernamePasswordCredential();
+        DefaultLoginCredentials credentials = getCredentials();
 
-        super.credentials.setUserId(USER_NAME);
-        super.credentials.setPassword(USER_PASSWORD);
-        super.identity.login();
+        credentials.setUserId(USER_NAME);
+        credentials.setPassword(USER_PASSWORD);
 
-        assertTrue(super.identity.isLoggedIn());
-        assertNotNull(super.identity.getAccount());
-        assertEquals(USER_NAME, ((Agent) super.identity.getAccount()).getLoginName());
+        Identity identity = getIdentity();
+
+        identity.login();
+
+        assertTrue(identity.isLoggedIn());
+        assertEquals(getCurrentAccount(), identity.getAccount());
     }
 
     @Test
     public void testUnsuccessfullAuthentication() {
-        updateUsernamePasswordCredential();
+        DefaultLoginCredentials credentials = getCredentials();
 
-        super.credentials.setUserId("bad_user");
-        super.credentials.setPassword(USER_PASSWORD);
-        super.identity.login();
+        credentials.setUserId("bad_user");
+        credentials.setPassword(USER_PASSWORD);
 
-        assertFalse(super.identity.isLoggedIn());
+        Identity identity = getIdentity();
 
-        super.credentials.setUserId(USER_NAME);
-        super.credentials.setPassword("bad_password");
-        super.identity.login();
+        identity.login();
 
-        assertFalse(super.identity.isLoggedIn());
-        assertNull(super.identity.getAccount());
+        assertFalse(identity.isLoggedIn());
+
+        credentials.setUserId(USER_NAME);
+        credentials.setPassword("bad_password");
+
+        identity.login();
+
+        assertFalse(identity.isLoggedIn());
     }
 
-    private void updateUsernamePasswordCredential() {
-        super.identityManager.updateCredential(IdentityLocator.getUser(super.identityManager, USER_NAME), new Password(USER_PASSWORD));
+    @Test(expected = IllegalArgumentException.class)
+    public void failNullPassword() {
+        // should throw the exception. password can not be null.
+        getCredentials().setPassword(null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void failNullUserId() {
+        // should throw the exception. user id can not be null.
+        getCredentials().setUserId(null);
+    }
 }

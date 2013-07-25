@@ -25,7 +25,7 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
-import org.picketlink.idm.model.sample.IdentityLocator;
+import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
@@ -79,17 +79,17 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractPa
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        IdentityLocator.addToGroup(relationshipManager, someAgent, someGroup);
+        SampleModel.addToGroup(relationshipManager, someAgent, someGroup);
 
-        assertTrue(IdentityLocator.isMember(relationshipManager, someAgent, someGroup));
+        assertTrue(SampleModel.isMember(relationshipManager, someAgent, someGroup));
 
         Group someAnotherGroup = createGroup("someAnotherGroup");
 
-        assertFalse(IdentityLocator.isMember(relationshipManager, someAgent, someAnotherGroup));
+        assertFalse(SampleModel.isMember(relationshipManager, someAgent, someAnotherGroup));
 
-        IdentityLocator.addToGroup(relationshipManager, someAgent, someAnotherGroup);
+        SampleModel.addToGroup(relationshipManager, someAgent, someAnotherGroup);
 
-        assertTrue(IdentityLocator.isMember(relationshipManager, someAgent, someAnotherGroup));
+        assertTrue(SampleModel.isMember(relationshipManager, someAgent, someAnotherGroup));
     }
 
     /**
@@ -107,19 +107,19 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractPa
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        IdentityLocator.addToGroup(relationshipManager, someAgent, someGroup);
-        IdentityLocator.addToGroup(relationshipManager, someAgent, someAnotherGroup);
+        SampleModel.addToGroup(relationshipManager, someAgent, someGroup);
+        SampleModel.addToGroup(relationshipManager, someAgent, someAnotherGroup);
 
-        assertTrue(IdentityLocator.isMember(relationshipManager, someAgent, someGroup));
-        assertTrue(IdentityLocator.isMember(relationshipManager, someAgent, someAnotherGroup));
+        assertTrue(SampleModel.isMember(relationshipManager, someAgent, someGroup));
+        assertTrue(SampleModel.isMember(relationshipManager, someAgent, someAnotherGroup));
 
-        IdentityLocator.removeFromGroup(relationshipManager, someAgent, someGroup);
+        SampleModel.removeFromGroup(relationshipManager, someAgent, someGroup);
 
-        assertFalse(IdentityLocator.isMember(relationshipManager, someAgent, someGroup));
+        assertFalse(SampleModel.isMember(relationshipManager, someAgent, someGroup));
 
-        IdentityLocator.removeFromGroup(relationshipManager, someAgent, someAnotherGroup);
+        SampleModel.removeFromGroup(relationshipManager, someAgent, someAnotherGroup);
 
-        assertFalse(IdentityLocator.isMember(relationshipManager, someAgent, someAnotherGroup));
+        assertFalse(SampleModel.isMember(relationshipManager, someAgent, someAnotherGroup));
     }
     
     /**
@@ -149,7 +149,7 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractPa
         assertFalse(contains(result, "someAnotherGroup"));
         assertFalse(contains(result, "someImportantGroup"));
 
-        IdentityLocator.addToGroup(relationshipManager, user, someGroup);
+        SampleModel.addToGroup(relationshipManager, user, someGroup);
         
         query = relationshipManager.createRelationshipQuery(GroupMembership.class);
         
@@ -162,7 +162,7 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractPa
         assertFalse(contains(result, "someAnotherGroup"));
         assertFalse(contains(result, "someImportantGroup"));
 
-        IdentityLocator.addToGroup(relationshipManager, user, someAnotherGroup);
+        SampleModel.addToGroup(relationshipManager, user, someAnotherGroup);
 
         query = relationshipManager.createRelationshipQuery(GroupMembership.class);
         
@@ -175,7 +175,7 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractPa
         assertTrue(contains(result, "someAnotherGroup"));
         assertFalse(contains(result, "someImportantGroup"));
 
-        IdentityLocator.addToGroup(relationshipManager, user, someImportantGroup);
+        SampleModel.addToGroup(relationshipManager, user, someImportantGroup);
         
         query = relationshipManager.createRelationshipQuery(GroupMembership.class);
         

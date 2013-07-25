@@ -37,12 +37,17 @@ import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.AbstractJPADeploymentTestCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.picketlink.idm.model.sample.SampleModel.addToGroup;
+import static org.picketlink.idm.model.sample.SampleModel.grantGroupRole;
+import static org.picketlink.idm.model.sample.SampleModel.grantRole;
+import static org.picketlink.idm.model.sample.SampleModel.hasGroupRole;
+import static org.picketlink.idm.model.sample.SampleModel.hasRole;
+import static org.picketlink.idm.model.sample.SampleModel.isMember;
 import static org.picketlink.test.integration.ArchiveUtils.addDependency;
 import static org.picketlink.test.integration.ArchiveUtils.getCurrentProjectVersion;
 
@@ -50,10 +55,10 @@ import static org.picketlink.test.integration.ArchiveUtils.getCurrentProjectVers
  * @author Pedro Igor
  *
  */
-public class JPAAutoConfigurationConfigurationTestCase extends AbstractJPADeploymentTestCase {
+public class JPAAutoConfigurationTestCase extends AbstractJPADeploymentTestCase {
     
     @Inject
-    private JPAStoreConfigurationObserver configurationObserver;
+    private JPAAutoConfigurationObserver configurationObserver;
 
     @Inject
     private IdentityManager identityManager;
@@ -63,7 +68,7 @@ public class JPAAutoConfigurationConfigurationTestCase extends AbstractJPADeploy
 
     @Deployment
     public static WebArchive createDeployment() {
-        WebArchive archive = createDeployment(JPAAutoConfigurationConfigurationTestCase.class, JPAStoreConfigurationObserver.class);
+        WebArchive archive = createDeployment(JPAAutoConfigurationTestCase.class);
         
         addDependency(archive, "org.picketlink:picketlink-idm-simple-schema:" + getCurrentProjectVersion());
         
@@ -84,7 +89,7 @@ public class JPAAutoConfigurationConfigurationTestCase extends AbstractJPADeploy
     }
 
     @Test
-    public void testBasicFeatures() throws Exception {
+    public void testIdentityManagementOperations() throws Exception {
         User john = new User("john");
 
         this.identityManager.add(john);
@@ -97,17 +102,17 @@ public class JPAAutoConfigurationConfigurationTestCase extends AbstractJPADeploy
 
         this.identityManager.add(qaGroup);
 
-        IdentityLocator.grantRole(relationshipManager, john, tester);
-        IdentityLocator.addToGroup(relationshipManager, john, qaGroup);
-        IdentityLocator.grantGroupRole(relationshipManager, john, tester, qaGroup);
+        grantRole(relationshipManager, john, tester);
+        addToGroup(relationshipManager, john, qaGroup);
+        grantGroupRole(relationshipManager, john, tester, qaGroup);
 
-        assertTrue(IdentityLocator.hasRole(relationshipManager, john, tester));
-        assertTrue(IdentityLocator.isMember(relationshipManager, john, qaGroup));
-        assertTrue(IdentityLocator.hasGroupRole(relationshipManager, john, tester, qaGroup));
+        assertTrue(hasRole(relationshipManager, john, tester));
+        assertTrue(isMember(relationshipManager, john, qaGroup));
+        assertTrue(hasGroupRole(relationshipManager, john, tester, qaGroup));
     }
  
     @ApplicationScoped
-    public static class JPAStoreConfigurationObserver {
+    public static class JPAAutoConfigurationObserver {
         
         private IdentityConfigurationBuilder identityConfigurationBuilder;
 

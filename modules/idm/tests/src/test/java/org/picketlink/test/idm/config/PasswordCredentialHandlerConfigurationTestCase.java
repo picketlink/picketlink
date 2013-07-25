@@ -46,7 +46,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.picketlink.idm.credential.handler.PasswordCredentialHandler.PASSWORD_ENCODER;
-import static org.picketlink.idm.model.sample.IdentityLocator.getUser;
+import static org.picketlink.idm.model.sample.SampleModel.getUser;
 
 /**
  * <p>Some tests for the configuration of the encoding when using the {@link PasswordCredentialHandler}.</p>

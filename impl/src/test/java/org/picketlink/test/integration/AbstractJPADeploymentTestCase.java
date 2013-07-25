@@ -89,10 +89,4 @@ public abstract class AbstractJPADeploymentTestCase extends AbstractArquillianTe
         }
     }
 
-    private void createPartitionIfNecessary(Partition partition) {
-        if (this.partitionManager.getPartition(partition.getClass(), partition.getName()) == null) {
-            this.partitionManager.add(partition);
-        }
-    }
-
 }

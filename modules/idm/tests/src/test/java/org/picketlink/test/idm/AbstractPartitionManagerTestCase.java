@@ -35,7 +35,7 @@ import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.IdentityLocator;
+import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
@@ -90,7 +90,7 @@ public abstract class AbstractPartitionManagerTestCase {
     }
 
     protected User createUser(String userName) {
-        User user = IdentityLocator.getUser(getIdentityManager(), userName);
+        User user = SampleModel.getUser(getIdentityManager(), userName);
 
         if (user != null) {
             getIdentityManager().remove(user);
@@ -105,7 +105,7 @@ public abstract class AbstractPartitionManagerTestCase {
     protected User createUser(String userName, Partition partition) {
         IdentityManager identityManager = getIdentityManagerForPartition(partition);
 
-        User user = IdentityLocator.getUser(identityManager, userName);
+        User user = SampleModel.getUser(identityManager, userName);
 
         if (user != null) {
             identityManager.remove(user);
@@ -118,11 +118,11 @@ public abstract class AbstractPartitionManagerTestCase {
     }
 
     protected User getUser(String userName) {
-        return IdentityLocator.getUser(getIdentityManager(), userName);
+        return SampleModel.getUser(getIdentityManager(), userName);
     }
 
     protected Agent createAgent(String loginName) {
-        Agent agent = IdentityLocator.getAgent(getIdentityManager(), loginName);
+        Agent agent = SampleModel.getAgent(getIdentityManager(), loginName);
 
         if (agent != null) {
             getIdentityManager().remove(agent);
@@ -139,7 +139,7 @@ public abstract class AbstractPartitionManagerTestCase {
     protected Agent createAgent(String loginName, Partition partition) {
         IdentityManager identityManager = getIdentityManagerForPartition(partition);
 
-        Agent agent = IdentityLocator.getAgent(identityManager, loginName);
+        Agent agent = SampleModel.getAgent(identityManager, loginName);
 
         if (agent != null) {
             identityManager.remove(agent);
@@ -162,11 +162,11 @@ public abstract class AbstractPartitionManagerTestCase {
     }
 
     protected Agent getAgent(String loginName) {
-        return IdentityLocator.getAgent(getIdentityManager(), loginName);
+        return SampleModel.getAgent(getIdentityManager(), loginName);
     }
 
     protected Role createRole(String name) {
-        Role role = IdentityLocator.getRole(getIdentityManager(), name);
+        Role role = SampleModel.getRole(getIdentityManager(), name);
 
         if (role != null) {
             getIdentityManager().remove(role);
@@ -182,7 +182,7 @@ public abstract class AbstractPartitionManagerTestCase {
     protected Role createRole(String name, Partition partition) {
         IdentityManager identityManager = getIdentityManagerForPartition(partition);
 
-        Role role = IdentityLocator.getRole(identityManager, name);
+        Role role = SampleModel.getRole(identityManager, name);
 
         if (role != null) {
             identityManager.remove(role);
@@ -196,7 +196,7 @@ public abstract class AbstractPartitionManagerTestCase {
     }
 
     protected Role getRole(String name) {
-        return IdentityLocator.getRole(getIdentityManager(), name);
+        return SampleModel.getRole(getIdentityManager(), name);
     }
 
     protected Group createGroupWithParent(String name, Group parentGroup) {
@@ -206,7 +206,7 @@ public abstract class AbstractPartitionManagerTestCase {
             path = parentGroup.getPath() + "/" + name;
         }
 
-        Group group = IdentityLocator.getGroup(getIdentityManager(), path);
+        Group group = SampleModel.getGroup(getIdentityManager(), path);
 
         if (group != null) {
             getIdentityManager().remove(group);
@@ -227,7 +227,7 @@ public abstract class AbstractPartitionManagerTestCase {
     }
 
     protected Group createGroup(String name, String parentGroupName) {
-        Group parentGroup = IdentityLocator.getGroup(getIdentityManager(), parentGroupName);
+        Group parentGroup = SampleModel.getGroup(getIdentityManager(), parentGroupName);
 
         String path = name;
 
@@ -239,7 +239,7 @@ public abstract class AbstractPartitionManagerTestCase {
             }
         }
 
-        Group group = IdentityLocator.getGroup(getIdentityManager(), path);
+        Group group = SampleModel.getGroup(getIdentityManager(), path);
 
         if (group != null) {
             getIdentityManager().remove(group);
@@ -275,7 +275,7 @@ public abstract class AbstractPartitionManagerTestCase {
 
     protected Group createGroup(String name, String parentGroupName, Partition partition) {
         IdentityManager identityManager = getIdentityManagerForPartition(partition);
-        Group parentGroup = IdentityLocator.getGroup(identityManager, parentGroupName);
+        Group parentGroup = SampleModel.getGroup(identityManager, parentGroupName);
 
         if (parentGroup != null && parentGroupName != null) {
             identityManager.remove(parentGroup);
@@ -287,7 +287,7 @@ public abstract class AbstractPartitionManagerTestCase {
             identityManager.add(parentGroup);
         }
 
-        Group group = IdentityLocator.getGroup(identityManager, name);
+        Group group = SampleModel.getGroup(identityManager, name);
 
         if (group != null) {
             identityManager.remove(group);
@@ -308,11 +308,11 @@ public abstract class AbstractPartitionManagerTestCase {
     }
 
     protected Group getGroup(String name) {
-        return IdentityLocator.getGroup(getIdentityManager(), name);
+        return SampleModel.getGroup(getIdentityManager(), name);
     }
 
     protected Group getGroup(String name, Group parent) {
-        return IdentityLocator.getGroup(getIdentityManager(), name, parent);
+        return SampleModel.getGroup(getIdentityManager(), name, parent);
     }
 
     @Rule

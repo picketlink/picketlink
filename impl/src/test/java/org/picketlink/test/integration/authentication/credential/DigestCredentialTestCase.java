@@ -20,17 +20,16 @@ package org.picketlink.test.integration.authentication.credential;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
+import org.picketlink.Identity;
+import org.picketlink.credential.DefaultLoginCredentials;
+import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.util.DigestUtil;
-import org.picketlink.idm.model.sample.Agent;
-import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.test.integration.ArchiveUtils;
 import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -53,12 +52,16 @@ public class DigestCredentialTestCase extends AbstractAuthenticationTestCase {
         credential.setRealm(Realm.DEFAULT_REALM);
         credential.setDigest(DigestUtil.calculateA1(USER_NAME, Realm.DEFAULT_REALM, USER_PASSWORD.toCharArray()));
 
-        super.credentials.setCredential(credential);
-        super.identity.login();
+        DefaultLoginCredentials credentials = getCredentials();
 
-        assertTrue(super.identity.isLoggedIn());
-        assertNotNull(super.identity.getAccount());
-        assertEquals(USER_NAME, ((Agent) super.identity.getAccount()).getLoginName());
+        credentials.setCredential(credential);
+
+        Identity identity = getIdentity();
+
+        identity.login();
+
+        assertTrue(identity.isLoggedIn());
+        assertEquals(getCurrentAccount(), identity.getAccount());
     }
 
     @Test
@@ -71,29 +74,33 @@ public class DigestCredentialTestCase extends AbstractAuthenticationTestCase {
         credential.setRealm("Another Realm");
         credential.setDigest(DigestUtil.calculateA1(USER_NAME, Realm.DEFAULT_REALM, USER_PASSWORD.toCharArray()));
 
-        super.credentials.setCredential(credential);
-        super.identity.login();
+        DefaultLoginCredentials credentials = getCredentials();
 
-        assertFalse(super.identity.isLoggedIn());
+        credentials.setCredential(credential);
+
+        Identity identity = getIdentity();
+
+        identity.login();
+
+        assertFalse(identity.isLoggedIn());
 
         credential.setUsername(USER_NAME);
         credential.setRealm(Realm.DEFAULT_REALM);
         credential.setDigest(DigestUtil.calculateA1(USER_NAME, Realm.DEFAULT_REALM, "bad_password".toCharArray()));
+        credentials.setCredential(credential);
 
-        super.credentials.setCredential(credential);
-        super.identity.login();
+        identity.login();
 
-        assertFalse(super.identity.isLoggedIn());
+        assertFalse(identity.isLoggedIn());
 
         credential.setUsername(USER_NAME);
         credential.setRealm(Realm.DEFAULT_REALM);
         credential.setDigest(DigestUtil.calculateA1("bad_username", Realm.DEFAULT_REALM, USER_PASSWORD.toCharArray()));
+        credentials.setCredential(credential);
 
-        super.credentials.setCredential(credential);
-        super.identity.login();
+        identity.login();
 
-        assertFalse(super.identity.isLoggedIn());
-        assertNull(super.identity.getAccount());
+        assertFalse(identity.isLoggedIn());
     }
 
     private void updateDigestCredential() {
@@ -103,7 +110,9 @@ public class DigestCredentialTestCase extends AbstractAuthenticationTestCase {
         credential.setUsername(USER_NAME);
         credential.setPassword(USER_PASSWORD);
 
-        super.identityManager.updateCredential(IdentityLocator.getUser(super.identityManager, USER_NAME), credential);
+        IdentityManager identityManager = getIdentityManager();
+
+        identityManager.updateCredential(getCurrentAccount(), credential);
     }
 
 }

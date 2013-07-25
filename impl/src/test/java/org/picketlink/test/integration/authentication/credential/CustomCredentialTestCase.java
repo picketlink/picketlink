@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
+import org.picketlink.Identity;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.BaseAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
@@ -36,8 +37,6 @@ import org.picketlink.test.integration.ArchiveUtils;
 import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -49,34 +48,40 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Pedro Igor
  */
-public class CustomAuthenticatorCredentialTestCase extends AbstractAuthenticationTestCase {
+public class CustomCredentialTestCase extends AbstractAuthenticationTestCase {
 
-    @Inject
-    @PicketLink
-    private CustomAuthenticator authenticator;
+    public static final String VALID_TOKEN = "valid_token";
 
     @Deployment
     public static WebArchive createDeployment() {
-        return ArchiveUtils.create(CustomAuthenticatorCredentialTestCase.class, CustomAuthenticator.class);
+        return ArchiveUtils.create(CustomCredentialTestCase.class);
     }
 
     @Test
     public void testSuccessfulAuthentication() throws Exception {
-        super.credentials.setCredential(new MyCredential("valid_token"));
-        super.identity.login();
+        DefaultLoginCredentials credentials = getCredentials();
 
-        assertTrue(super.identity.isLoggedIn());
-        assertNotNull(super.identity.getAccount());
-        assertEquals(USER_NAME, ((Agent) super.identity.getAccount()).getLoginName());
+        credentials.setCredential(new MyCredential(VALID_TOKEN));
+
+        Identity identity = getIdentity();
+
+        identity.login();
+
+        assertTrue(identity.isLoggedIn());
+        assertEquals(USER_NAME, ((Agent) identity.getAccount()).getLoginName());
     }
 
     @Test
     public void testUnsuccessfulAuthentication() throws Exception {
-        super.credentials.setCredential(new MyCredential("invalid_token"));
-        super.identity.login();
+        DefaultLoginCredentials credentials = getCredentials();
 
-        assertFalse(super.identity.isLoggedIn());
-        assertNull(super.identity.getAccount());
+        credentials.setCredential(new MyCredential("invalid_token"));
+
+        Identity identity = getIdentity();
+
+        identity.login();
+
+        assertFalse(identity.isLoggedIn());
     }
 
     @RequestScoped
@@ -85,7 +90,6 @@ public class CustomAuthenticatorCredentialTestCase extends AbstractAuthenticatio
 
         @Inject
         private DefaultLoginCredentials credentials;
-        private boolean authenticationPerformed;
 
         @Override
         public void authenticate() {
@@ -94,23 +98,17 @@ public class CustomAuthenticatorCredentialTestCase extends AbstractAuthenticatio
             if (isCredentialSupported()) {
                 MyCredential credential = (MyCredential) this.credentials.getCredential();
 
-                if ("valid_token".equals(credential.getToken())) {
+                if (VALID_TOKEN.equals(credential.getToken())) {
                     setStatus(AuthenticationStatus.SUCCESS);
                     setAccount(new User(USER_NAME));
                 }
             }
-
-            this.authenticationPerformed = true;
         }
 
         private boolean isCredentialSupported() {
-            return this.credentials.getCredential() != null && MyCredential.class.equals(this.credentials.getCredential().getClass());
+            return this.credentials.getCredential() != null
+                    && MyCredential.class.equals(this.credentials.getCredential().getClass());
         }
-
-        boolean isAuthenticationPerformed() {
-            return this.authenticationPerformed;
-        }
-
     }
 
     public static class MyCredential {

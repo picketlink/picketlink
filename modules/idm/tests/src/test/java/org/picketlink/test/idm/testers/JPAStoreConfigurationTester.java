@@ -37,6 +37,7 @@ import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity;
 import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.test.idm.basic.CustomAccountTestCase;
 
 /**
  * @author pedroigor
@@ -59,6 +60,7 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
                         .mappedEntity(
                                 AttributedTypeEntity.class,
                                 AccountTypeEntity.class,
+                                CustomAccountTestCase.MyCustomAccountEntity.class,
                                 RoleTypeEntity.class,
                                 GroupTypeEntity.class,
                                 IdentityTypeEntity.class,

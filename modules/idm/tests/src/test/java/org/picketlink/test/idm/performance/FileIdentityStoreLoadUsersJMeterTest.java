@@ -30,7 +30,7 @@ import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
-import org.picketlink.idm.model.sample.IdentityLocator;
+import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.User;
 
 /**
@@ -87,7 +87,7 @@ public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerCli
             
             identityManager.add(user);
 
-            success = user.getId() != null && IdentityLocator.getUser(identityManager, loginName) != null;
+            success = user.getId() != null && SampleModel.getUser(identityManager, loginName) != null;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

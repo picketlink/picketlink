@@ -21,18 +21,17 @@ import java.util.Calendar;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
+import org.picketlink.Identity;
+import org.picketlink.credential.DefaultLoginCredentials;
+import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.TOTPCredential;
 import org.picketlink.idm.credential.TOTPCredentials;
 import org.picketlink.idm.credential.util.TimeBasedOTP;
-import org.picketlink.idm.model.sample.Agent;
-import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.test.integration.ArchiveUtils;
 import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -61,12 +60,16 @@ public class TOTPCredentialTestCase extends AbstractAuthenticationTestCase {
 
         credentials.setToken(totp.generate(USER_TOTP_SECRET));
 
-        super.credentials.setCredential(credentials);
-        super.identity.login();
+        DefaultLoginCredentials credentials1 = getCredentials();
 
-        assertTrue(super.identity.isLoggedIn());
-        assertNotNull(super.identity.getAccount());
-        assertEquals(USER_NAME, ((Agent) super.identity.getAccount()).getLoginName());
+        credentials1.setCredential(credentials);
+
+        Identity identity = getIdentity();
+
+        identity.login();
+
+        assertTrue(identity.isLoggedIn());
+        assertEquals(getCurrentAccount(), identity.getAccount());
     }
 
     @Test
@@ -88,17 +91,23 @@ public class TOTPCredentialTestCase extends AbstractAuthenticationTestCase {
 
         credentials.setToken(totp.generate(USER_TOTP_SECRET));
 
-        super.credentials.setCredential(credentials);
-        super.identity.login();
+        DefaultLoginCredentials credentials1 = getCredentials();
 
-        assertFalse(super.identity.isLoggedIn());
-        assertNull(super.identity.getAccount());
+        credentials1.setCredential(credentials);
+
+        Identity identity = getIdentity();
+
+        identity.login();
+
+        assertFalse(identity.isLoggedIn());
     }
 
     private void updateTOTPCredential() {
         TOTPCredential credential = new TOTPCredential(USER_PASSWORD, USER_TOTP_SECRET);
 
-        super.identityManager.updateCredential(IdentityLocator.getUser(super.identityManager, USER_NAME), credential);
+        IdentityManager identityManager = getIdentityManager();
+
+        identityManager.updateCredential(getCurrentAccount(), credential);
     }
 
 }

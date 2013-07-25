@@ -28,7 +28,7 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
-import org.picketlink.idm.model.sample.IdentityLocator;
+import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
@@ -123,7 +123,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         assertFalse(containsMembership(result, someAnotherGroup));
         assertFalse(containsMembership(result, someImportantGroup));
 
-        IdentityLocator.addToGroup(relationshipManager, user, someGroup);
+        SampleModel.addToGroup(relationshipManager, user, someGroup);
 
         query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
@@ -136,7 +136,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         assertFalse(containsMembership(result, someAnotherGroup));
         assertFalse(containsMembership(result, someImportantGroup));
 
-        IdentityLocator.addToGroup(relationshipManager, user, someAnotherGroup);
+        SampleModel.addToGroup(relationshipManager, user, someAnotherGroup);
 
         query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
@@ -149,7 +149,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         assertTrue(containsMembership(result, someAnotherGroup));
         assertFalse(containsMembership(result, someImportantGroup));
 
-        IdentityLocator.addToGroup(relationshipManager, user, someImportantGroup);
+        SampleModel.addToGroup(relationshipManager, user, someImportantGroup);
 
         query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 

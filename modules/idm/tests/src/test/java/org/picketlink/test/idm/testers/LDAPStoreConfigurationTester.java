@@ -27,6 +27,7 @@ import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
+import org.picketlink.test.idm.basic.CustomAccountTestCase;
 import org.picketlink.test.idm.util.LDAPEmbeddedServer;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CREATE_TIMESTAMP;
@@ -85,11 +86,11 @@ public class LDAPStoreConfigurationTester implements IdentityConfigurationTester
                             .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
                             .parentMembershipAttributeName("member")
                             .parentMapping("QA Group", "ou=QA,dc=jboss,dc=org")
-//                        .mapping(CustomAccountTestCase.MyCustomAccount.class)
-//                            .baseDN("ou=CustomTypes,dc=jboss,dc=org")
-//                            .objectClasses("device")
-//                            .attribute("someIdentifier", CN, true)
-//                            .attribute("someAttribute", "description")
+                        .mapping(CustomAccountTestCase.MyCustomAccount.class)
+                            .baseDN("ou=CustomTypes,dc=jboss,dc=org")
+                            .objectClasses("device")
+                            .attribute("loginName", CN, true)
+                            .attribute("loginAttempts", "description")
                         .mappingRelationship(Grant.class)
                             .forMapping(Role.class)
                             .attribute("assignee", "member")

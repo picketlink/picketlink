@@ -31,6 +31,7 @@ import javax.inject.Inject;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
+import org.picketlink.Identity;
 import org.picketlink.authentication.LockedAccountException;
 import org.picketlink.authentication.UserAlreadyLoggedInException;
 import org.picketlink.authentication.event.AlreadyLoggedInEvent;
@@ -41,12 +42,14 @@ import org.picketlink.authentication.event.PostAuthenticateEvent;
 import org.picketlink.authentication.event.PostLoggedOutEvent;
 import org.picketlink.authentication.event.PreAuthenticateEvent;
 import org.picketlink.authentication.event.PreLoggedOutEvent;
-import org.picketlink.idm.model.sample.IdentityLocator;
+import org.picketlink.credential.DefaultLoginCredentials;
+import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.ArchiveUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
+import static org.picketlink.idm.model.sample.SampleModel.getUser;
 
 /**
  * <p>
@@ -73,9 +76,14 @@ public class AuthenticationEventHandlingTestCase extends AbstractAuthenticationT
         Listener loggedInAuthenticationListener = this.observer.addListener(LoggedInEvent.class);
         Listener postAuthenticationListener = this.observer.addListener(PostAuthenticateEvent.class);
 
-        super.credentials.setUserId(USER_NAME);
-        super.credentials.setPassword(USER_PASSWORD);
-        super.identity.login();
+        DefaultLoginCredentials credentials = getCredentials();
+
+        credentials.setUserId(USER_NAME);
+        credentials.setPassword(USER_PASSWORD);
+
+        Identity identity = getIdentity();
+
+        identity.login();
 
         assertEquals(0, preAuthenticationListener.getExecutionIndex());
         assertEquals(1, postAuthenticationListener.getExecutionIndex());
@@ -88,9 +96,14 @@ public class AuthenticationEventHandlingTestCase extends AbstractAuthenticationT
         Listener loginFailedAuthenticationListener = this.observer.addListener(LoginFailedEvent.class);
         Listener postAuthenticationListener = this.observer.addListener(PostAuthenticateEvent.class);
 
-        this.credentials.setUserId(USER_NAME);
-        this.credentials.setPassword("badpassword");
-        super.identity.login();
+        DefaultLoginCredentials credentials = getCredentials();
+
+        credentials.setUserId(USER_NAME);
+        credentials.setPassword("badpassword");
+
+        Identity identity = getIdentity();
+
+        identity.login();
 
         assertEquals(0, preAuthenticationListener.getExecutionIndex());
         assertEquals(1, loginFailedAuthenticationListener.getExecutionIndex());
@@ -99,16 +112,21 @@ public class AuthenticationEventHandlingTestCase extends AbstractAuthenticationT
 
     @Test
     public void testAlreadyLoggedInEvent() throws Exception {
-        super.credentials.setUserId(USER_NAME);
-        super.credentials.setPassword(USER_PASSWORD);
-        super.identity.login();
+        DefaultLoginCredentials credentials = getCredentials();
+
+        credentials.setUserId(USER_NAME);
+        credentials.setPassword(USER_PASSWORD);
+
+        Identity identity = getIdentity();
+
+        identity.login();
 
         Listener preAuthenticationListener = this.observer.addListener(PreAuthenticateEvent.class);
         Listener alreadyLoggedInAuthenticationListener = this.observer.addListener(AlreadyLoggedInEvent.class);
         Listener postAuthenticationListener = this.observer.addListener(PostAuthenticateEvent.class);
 
         try {
-            super.identity.login();
+            identity.login();
             fail();
         } catch (UserAlreadyLoggedInException e) {
         }
@@ -124,16 +142,24 @@ public class AuthenticationEventHandlingTestCase extends AbstractAuthenticationT
         Listener lockedAccountListener = this.observer.addListener(LockedAccountEvent.class);
         Listener postAuthenticationListener = this.observer.addListener(PostAuthenticateEvent.class);
 
-        User user = IdentityLocator.getUser(super.identityManager, USER_NAME);
+        IdentityManager identityManager = getIdentityManager();
+
+        User user = getUser(identityManager, USER_NAME);
 
         user.setEnabled(false);
 
-        super.identityManager.update(user);
+        identityManager.update(user);
 
         try {
-            super.credentials.setUserId(USER_NAME);
-            super.credentials.setPassword(USER_PASSWORD);
-            super.identity.login();
+            DefaultLoginCredentials credentials = getCredentials();
+
+            credentials.setUserId(USER_NAME);
+            credentials.setPassword(USER_PASSWORD);
+
+            Identity identity = getIdentity();
+
+            identity.login();
+
             fail();
         } catch (LockedAccountException e) {
         }
@@ -148,10 +174,15 @@ public class AuthenticationEventHandlingTestCase extends AbstractAuthenticationT
         Listener preLoggedOutListener = this.observer.addListener(PreLoggedOutEvent.class);
         Listener postLoggedOutListener = this.observer.addListener(PostLoggedOutEvent.class);
 
-        super.credentials.setUserId(USER_NAME);
-        super.credentials.setPassword(USER_PASSWORD);
-        super.identity.login();
-        super.identity.logout();
+        DefaultLoginCredentials credentials = getCredentials();
+
+        credentials.setUserId(USER_NAME);
+        credentials.setPassword(USER_PASSWORD);
+
+        Identity identity = getIdentity();
+
+        identity.login();
+        identity.logout();
 
         assertEquals(0, preLoggedOutListener.getExecutionIndex());
         assertEquals(1, postLoggedOutListener.getExecutionIndex());

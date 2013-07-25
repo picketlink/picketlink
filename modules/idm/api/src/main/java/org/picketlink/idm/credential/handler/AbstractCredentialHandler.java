@@ -21,7 +21,7 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.AbstractBaseCredentials;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.sample.IdentityLocator;
+import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 
@@ -34,10 +34,10 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>,V ext
     protected <A extends Account> A getAccount(IdentityContext context, String loginName) {
         IdentityManager identityManager = getIdentityManager(context);
 
-        A agent = (A) IdentityLocator.getAgent(identityManager, loginName);
+        A agent = (A) SampleModel.getAgent(identityManager, loginName);
 
         if (agent == null) {
-            agent = (A) IdentityLocator.getUser(identityManager, loginName);
+            agent = (A) SampleModel.getUser(identityManager, loginName);
         }
 
         return agent;

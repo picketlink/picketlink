@@ -166,6 +166,7 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
     public S supportAllFeatures() {
         supportType(getDefaultIdentityModelClasses());
         supportCredentials(true);
+        supportGlobalRelationship(Relationship.class);
 
         return (S) this;
     }

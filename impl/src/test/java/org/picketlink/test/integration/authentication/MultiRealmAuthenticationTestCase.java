@@ -41,7 +41,6 @@ import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.sample.IdentityLocator;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.integration.AbstractArquillianTestCase;
@@ -49,6 +48,7 @@ import org.picketlink.test.integration.ArchiveUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.picketlink.idm.model.sample.SampleModel.getUser;
 
 /**
  * <p>
@@ -148,7 +148,7 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
 
         IdentityManager identityManager = this.identityManagerInstance.get();
 
-        User user = IdentityLocator.getUser(identityManager, USER_NAME);
+        User user = getUser(identityManager, USER_NAME);
 
         assertEquals(TESTING_REALM_NAME, user.getPartition().getName());
 
@@ -189,7 +189,7 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
      * @return
      */
     private String buildUserPassword(Realm realm) {
-        return USER_NAME + realm.getId();
+        return USER_NAME + realm.getName();
     }
 
     @RequestScoped

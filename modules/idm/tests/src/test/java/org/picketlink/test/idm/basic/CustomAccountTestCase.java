@@ -19,9 +19,12 @@ package org.picketlink.test.idm.basic;
 
 import java.util.Date;
 import java.util.List;
-import org.junit.Ignore;
+import javax.persistence.Entity;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
 import org.picketlink.idm.model.AbstractIdentityType;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
@@ -30,7 +33,9 @@ import org.picketlink.idm.model.annotation.Unique;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.test.idm.IgnoreTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -40,7 +45,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author pedroigor
  */
-@Ignore
+@IgnoreTester(LDAPStoreConfigurationTester.class)
 public class CustomAccountTestCase extends AbstractIdentityTypeTestCase<CustomAccountTestCase.MyCustomAccount> {
 
     public static final String LOGIN_NAME = "bob";
@@ -80,8 +85,6 @@ public class CustomAccountTestCase extends AbstractIdentityTypeTestCase<CustomAc
     public void testUpdate() throws Exception {
         MyCustomAccount customIdentityType = createIdentityType();
 
-        assertNotNull(customIdentityType.getId());
-
         IdentityManager identityManager = getIdentityManager();
 
         identityManager.update(customIdentityType);
@@ -94,6 +97,28 @@ public class CustomAccountTestCase extends AbstractIdentityTypeTestCase<CustomAc
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
+    }
+
+    @Test
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    public void testUpdateFormalAttributes() throws Exception {
+        MyCustomAccount customIdentityType = createIdentityType();
+
+        IdentityManager identityManager = getIdentityManager();
+
+        customIdentityType.setLoginAttempts(10);
+
+        identityManager.update(customIdentityType);
+
+        IdentityQuery<MyCustomAccount> query = getIdentityManager().createIdentityQuery(MyCustomAccount.class);
+
+        query.setParameter(IdentityType.ID, customIdentityType.getId());
+
+        List<MyCustomAccount> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals(Integer.valueOf(10), result.get(0).getLoginAttempts());
     }
 
     @Override
@@ -136,16 +161,43 @@ public class CustomAccountTestCase extends AbstractIdentityTypeTestCase<CustomAc
 
         public static final QueryParameter LOGIN_NAME = QUERY_ATTRIBUTE.byName("loginName");
 
-        @AttributeProperty
-        @Unique
         private String loginName;
 
+        private Integer loginAttempts;
+
+        @AttributeProperty
+        @Unique
         public String getLoginName() {
             return loginName;
         }
 
         public void setLoginName(String loginName) {
             this.loginName = loginName;
+        }
+
+        @AttributeProperty
+        public Integer getLoginAttempts() {
+            return this.loginAttempts;
+        }
+
+        public void setLoginAttempts(Integer loginAttempts) {
+            this.loginAttempts = loginAttempts;
+        }
+    }
+
+    @IdentityManaged (MyCustomAccount.class)
+    @Entity
+    public static class MyCustomAccountEntity extends AccountTypeEntity {
+
+        @AttributeValue
+        private Integer loginAttempts;
+
+        public Integer getLoginAttempts() {
+            return this.loginAttempts;
+        }
+
+        public void setLoginAttempts(Integer loginAttempts) {
+            this.loginAttempts = loginAttempts;
         }
     }
 

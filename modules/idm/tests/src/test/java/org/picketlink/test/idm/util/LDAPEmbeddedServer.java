@@ -51,6 +51,7 @@ public class LDAPEmbeddedServer extends AbstractLDAPTest {
     public static final String GROUP_DN_SUFFIX = "ou=Groups,dc=jboss,dc=org";
     public static final String USER_DN_SUFFIX = "ou=People,dc=jboss,dc=org";
     public static final String AGENT_DN_SUFFIX = "ou=Agent,dc=jboss,dc=org";
+    public static final String CUSTOM_ACCOUNT_DN_SUFFIX = "ou=CustomAccount,dc=jboss,dc=org";
 
     public static final String CONNECTION_PROPERTIES = "config/ldap-connection.properties";
 

@@ -46,41 +46,41 @@ import static org.junit.Assert.assertEquals;
 public class DefaultConfigurationTestCase extends AbstractArquillianTestCase {
 
     @Inject
-    private ConfigurationObserver configurationObserver;
-    
+    private DefaultConfigurationObserver configurationObserver;
+
     @Inject
     private IdentityManager identityManager;
-    
+
     @Deployment
     public static WebArchive createDeployment() {
-        return ArchiveUtils.create(DefaultConfigurationTestCase.class, ConfigurationObserver.class);
+        return ArchiveUtils.create(DefaultConfigurationTestCase.class);
     }
     
     @Test
     public void testDefaultConfiguration() throws Exception {
         IdentityConfiguration identityConfiguration = this.configurationObserver.getIdentityConfigurationBuilder().build();
-        
+
         List<? extends IdentityStoreConfiguration> configuredStores = identityConfiguration.getStoreConfiguration();
-        
+
         assertEquals(1, configuredStores.size());
-        
+
         IdentityStoreConfiguration identityStoreConfiguration = configuredStores.get(0);
-        
+
         assertEquals(FileIdentityStoreConfiguration.class, identityStoreConfiguration.getClass());
     }
- 
+
     @ApplicationScoped
-    public static class ConfigurationObserver {
-        
+    public static class DefaultConfigurationObserver {
+
         private IdentityConfigurationBuilder identityConfigurationBuilder;
 
         public void observeIdentityConfigurationEvent(@Observes IdentityConfigurationEvent event) {
             this.identityConfigurationBuilder = event.getConfig();
         }
-        
+
         public IdentityConfigurationBuilder getIdentityConfigurationBuilder() {
             return this.identityConfigurationBuilder;
         }
     }
-    
+
 }
