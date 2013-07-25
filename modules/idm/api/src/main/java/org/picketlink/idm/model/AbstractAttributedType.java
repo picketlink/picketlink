@@ -20,8 +20,11 @@ package org.picketlink.idm.model;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import static java.util.Collections.unmodifiableCollection;
+import static java.util.Collections.unmodifiableMap;
 
 /**
  * Abstract base class for all AttributedType implementations
@@ -59,7 +62,11 @@ public abstract class AbstractAttributedType implements AttributedType {
     }
 
     public Collection<Attribute<? extends Serializable>> getAttributes() {
-        return java.util.Collections.unmodifiableCollection(attributes.values());
+        return unmodifiableCollection(attributes.values());
+    }
+
+    public Map<String, Attribute<? extends Serializable>> getAttributesMap() {
+        return unmodifiableMap(attributes);
     }
 
     @Override
