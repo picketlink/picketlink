@@ -34,6 +34,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.picketlink.Identity;
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.credential.DefaultLoginCredentials;
 
 /**
@@ -48,8 +49,12 @@ public class AuthenticationFilter implements Filter {
 
     public static final String AUTH_TYPE_INIT_PARAM = "authType";
     public static final String UNPROTECTED_METHODS_INIT_PARAM = "unprotectedMethods";
+    public static final String FORCE_REAUTHENTICATION_INIT_PARAM = "forceReAuthentication";
+
     private final Map<AuthType, Class<? extends HTTPAuthenticationScheme>> authenticationSchemes;
     private final Set<String> unprotectedMethods;
+    private boolean forceReAuthentication;
+
     @Inject
     private Instance<Identity> identityInstance;
     @Inject
@@ -83,6 +88,14 @@ public class AuthenticationFilter implements Filter {
                 this.unprotectedMethods.add(unprotectedMethodsInitParam.trim().toUpperCase());
             }
         }
+
+        String forceReAuthentication = config.getInitParameter(FORCE_REAUTHENTICATION_INIT_PARAM);
+
+        if (StringUtil.isNullOrEmpty(forceReAuthentication)) {
+            forceReAuthentication = "false";
+        }
+
+        this.forceReAuthentication = Boolean.valueOf(forceReAuthentication);
     }
 
     @Override
@@ -94,30 +107,26 @@ public class AuthenticationFilter implements Filter {
 
         final HttpServletRequest request = (HttpServletRequest) servletRequest;
         final HttpServletResponse response = (HttpServletResponse) servletResponse;
+        Identity identity = getIdentity();
 
-        if (isProtected(request)) {
+        DefaultLoginCredentials creds = extractCredentials(request);
+        Object credential = creds.getCredential();
+
+        if (credential != null && this.forceReAuthentication) {
+            identity.logout();
+            creds.setCredential(credential);
+        }
+
+        if (isProtected(request) && !identity.isLoggedIn()) {
             // Force session creation
             request.getSession();
 
-            Identity identity = getIdentity();
-            DefaultLoginCredentials creds = getCredentials();
-
-            boolean continueAfterAuthentication = true;
-
-            if (!identity.isLoggedIn()) {
-                this.authenticationScheme.extractCredential(request, creds);
-
-                if (creds.getCredential() != null) {
-                    identity.login();
-                }
-
-                if (identity.isLoggedIn()) {
-                    continueAfterAuthentication = this.authenticationScheme.postAuthentication(request, response);
-                }
+            if (credential != null) {
+                identity.login();
             }
 
             if (identity.isLoggedIn()) {
-                if (continueAfterAuthentication) {
+                if (this.authenticationScheme.postAuthentication(request, response)) {
                     chain.doFilter(servletRequest, servletResponse);
                 }
             } else {
@@ -159,6 +168,14 @@ public class AuthenticationFilter implements Filter {
         } catch (Exception e) {
             throw new IllegalStateException("Could not create authentication scheme instance [" + authenticationScheme + "].", e);
         }
+    }
+
+    private DefaultLoginCredentials extractCredentials(HttpServletRequest request) {
+        DefaultLoginCredentials creds = getCredentials();
+
+        this.authenticationScheme.extractCredential(request, creds);
+
+        return creds;
     }
 
     private DefaultLoginCredentials getCredentials() {
