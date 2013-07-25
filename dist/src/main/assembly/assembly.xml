@@ -45,7 +45,7 @@
             <include>org.picketlink:picketlink-impl</include>
             <include>org.picketlink:picketlink-idm-api</include>
             <include>org.picketlink:picketlink-idm-impl</include>
-            <include>org.picketlink:picketlink-idm-schema</include>
+            <include>org.picketlink:picketlink-idm-simple-schema</include>
             <include>org.picketlink:picketlink-common</include>
          </includes>
          <excludes>
@@ -119,7 +119,7 @@
             <include>org.picketlink:picketlink-impl:*:sources</include>
             <include>org.picketlink:picketlink-idm-api:*:sources</include>
             <include>org.picketlink:picketlink-idm-impl:*:sources</include>
-            <include>org.picketlink:picketlink-idm-schema:*:sources</include>
+            <include>org.picketlink:picketlink-idm-simple-schema:*:sources</include>
          </includes>
          <unpackOptions>
             <excludes>
