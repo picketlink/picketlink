@@ -104,7 +104,17 @@ public class LDAPMappingConfigurationBuilder extends
 
     @Override
     protected Builder<LDAPMappingConfiguration> readFrom(LDAPMappingConfiguration fromConfiguration) {
-        return null;  //TODO: Implement readFrom
+        this.mappedClass = fromConfiguration.getMappedClass();
+        this.objectClasses.addAll(fromConfiguration.getObjectClasses());
+        this.baseDN = fromConfiguration.getBaseDN();
+        this.idPropertyName = fromConfiguration.getIdProperty().getName();
+        this.mappedProperties.putAll(fromConfiguration.getMappedProperties());
+        this.readOnlyAttributes.addAll(fromConfiguration.getReadOnlyAttributes());
+        this.parentMapping.putAll(fromConfiguration.getParentMapping());
+        this.relatedAttributedType = fromConfiguration.getRelatedAttributedType();
+        this.parentMembershipAttributeName = fromConfiguration.getParentMembershipAttributeName();
+
+        return this;
     }
 
     public LDAPMappingConfigurationBuilder objectClasses(String... objectClasses) {
@@ -135,10 +145,6 @@ public class LDAPMappingConfigurationBuilder extends
 
     public LDAPMappingConfigurationBuilder mapping(Class<? extends AttributedType> attributedType) {
         return this.ldapStoreBuilder.mapping(attributedType);
-    }
-
-    public LDAPMappingConfigurationBuilder mappingRelationship(Class<? extends Relationship> relationshipClass) {
-        return this.ldapStoreBuilder.mappingRelationship(relationshipClass);
     }
 
     public LDAPMappingConfigurationBuilder baseDN(String baseDN) {

@@ -187,10 +187,6 @@ public class OAuthResourceFilter implements Filter {
                                 .bindDN(properties.getProperty("bindDN"))
                                 .bindCredential(properties.getProperty("bindCredential"))
                                 .url(properties.getProperty("ldapURL"))
-                                .userDNSuffix(properties.getProperty("userDNSuffix"))
-                                .roleDNSuffix(properties.getProperty("roleDNSuffix"))
-                                .agentDNSuffix(properties.getProperty("agentDNSuffix"))
-                                .groupDNSuffix(properties.getProperty("groupDNSuffix"))
                                 .supportAllFeatures();
 
                 DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.build());

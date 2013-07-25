@@ -38,9 +38,6 @@ import org.picketlink.idm.spi.ContextInitializer;
 public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfiguration {
 
     private String ldapURL;
-    private String userDNSuffix;
-    private String roleDNSuffix;
-    private String groupDNSuffix;
     private String factoryName = "com.sun.jndi.ldap.LdapCtxFactory";
     private String authType = "simple";
     private String protocol;
@@ -50,7 +47,6 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
     private boolean isActiveDirectory = false;
     private Properties additionalProperties = new Properties();
 
-    private String agentDNSuffix;
     private String baseDN;
     private final Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig;
 
@@ -59,10 +55,6 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             String bindDN,
             String bindCredential,
             String baseDN,
-            String agentDNSuffix,
-            String userDNSuffix,
-            String roleDNSuffix,
-            String groupDNSuffix,
             Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig, Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
             List<ContextInitializer> contextInitializers,
@@ -73,10 +65,6 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         this.bindDN = bindDN;
         this.bindCredential = bindCredential;
         this.baseDN = baseDN;
-        this.agentDNSuffix = agentDNSuffix;
-        this.userDNSuffix = userDNSuffix;
-        this.roleDNSuffix = roleDNSuffix;
-        this.groupDNSuffix = groupDNSuffix;
         this.mappingConfig = mappingConfig;
     }
 
@@ -92,18 +80,6 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         return this.ldapURL;
     }
 
-    public String getUserDNSuffix() {
-        return this.userDNSuffix;
-    }
-
-    public String getRoleDNSuffix() {
-        return this.roleDNSuffix;
-    }
-
-    public String getGroupDNSuffix() {
-        return this.groupDNSuffix;
-    }
-
     public String getFactoryName() {
         return this.factoryName;
     }
@@ -114,6 +90,10 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
 
     public String getProtocol() {
         return this.protocol;
+    }
+
+    public String getBaseDN() {
+        return this.baseDN;
     }
 
     public String getBindDN() {
@@ -132,12 +112,8 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         return this.additionalProperties;
     }
 
-    public String getAgentDNSuffix() {
-        return this.agentDNSuffix;
-    }
-
-    public String getBaseDN() {
-        return this.baseDN;
+    public Map<Class<? extends AttributedType>, LDAPMappingConfiguration> getMappingConfig() {
+        return this.mappingConfig;
     }
 
     public Class<? extends AttributedType> getSupportedTypeByBaseDN(String baseDN) {

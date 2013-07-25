@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Relationship;
 
 /**
  * @author Pedro Igor
@@ -39,10 +38,6 @@ public class LDAPStoreConfigurationBuilder extends
 
     private String url;
     private String baseDN;
-    private String agentDNSuffix;
-    private String userDNSuffix;
-    private String roleDNSuffix;
-    private String groupDNSuffix;
     private String bindDN;
     private String bindCredential;
     private Set<LDAPMappingConfigurationBuilder> mappingBuilders = new HashSet<LDAPMappingConfigurationBuilder>();
@@ -58,26 +53,6 @@ public class LDAPStoreConfigurationBuilder extends
 
     public LDAPStoreConfigurationBuilder baseDN(String baseDN) {
         this.baseDN = baseDN;
-        return this;
-    }
-
-    public LDAPStoreConfigurationBuilder agentDNSuffix(String agentDNSuffix) {
-        this.agentDNSuffix = agentDNSuffix;
-        return this;
-    }
-
-    public LDAPStoreConfigurationBuilder userDNSuffix(String userDNSuffix) {
-        this.userDNSuffix = userDNSuffix;
-        return this;
-    }
-
-    public LDAPStoreConfigurationBuilder roleDNSuffix(String roleDNSuffix) {
-        this.roleDNSuffix = roleDNSuffix;
-        return this;
-    }
-
-    public LDAPStoreConfigurationBuilder groupDNSuffix(String groupDNSuffix) {
-        this.groupDNSuffix = groupDNSuffix;
         return this;
     }
 
@@ -101,14 +76,6 @@ public class LDAPStoreConfigurationBuilder extends
         return ldapMappingConfigurationBuilder;
     }
 
-    public LDAPMappingConfigurationBuilder mappingRelationship(Class<? extends Relationship> relationshipClass) {
-        LDAPMappingConfigurationBuilder ldapMappingConfigurationBuilder = new LDAPMappingConfigurationBuilder(relationshipClass, this);
-
-        this.mappingBuilders.add(ldapMappingConfigurationBuilder);
-
-        return ldapMappingConfigurationBuilder;
-    }
-
     @Override
     protected LDAPIdentityStoreConfiguration create() {
         Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig = new HashMap<Class<? extends AttributedType>, LDAPMappingConfiguration>();
@@ -124,10 +91,6 @@ public class LDAPStoreConfigurationBuilder extends
                 this.bindDN,
                 this.bindCredential,
                 this.baseDN,
-                this.agentDNSuffix,
-                this.userDNSuffix,
-                this.roleDNSuffix,
-                this.groupDNSuffix,
                 mappingConfig,
                 getSupportedTypes(),
                 getUnsupportedTypes(),
@@ -151,14 +114,16 @@ public class LDAPStoreConfigurationBuilder extends
     protected LDAPStoreConfigurationBuilder readFrom(LDAPIdentityStoreConfiguration configuration) {
         super.readFrom(configuration);
 
-        this.agentDNSuffix = configuration.getAgentDNSuffix();
         this.baseDN = configuration.getBaseDN();
         this.bindCredential = configuration.getBindCredential();
         this.bindDN = configuration.getBindDN();
-        this.groupDNSuffix = configuration.getGroupDNSuffix();
-        this.roleDNSuffix = configuration.getRoleDNSuffix();
         this.url = configuration.getLdapURL();
-        this.userDNSuffix = configuration.getUserDNSuffix();
+
+        for (Class<? extends AttributedType> attributedType: configuration.getMappingConfig().keySet()) {
+            LDAPMappingConfiguration mappingConfiguration = configuration.getMappingConfig().get(attributedType);
+
+            mapping(attributedType).readFrom(mappingConfiguration);
+        }
 
         return this;
     }
