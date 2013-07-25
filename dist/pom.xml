@@ -103,7 +103,7 @@
 
       <dependency>
          <groupId>org.picketlink</groupId>
-         <artifactId>picketlink-idm-schema</artifactId>
+         <artifactId>picketlink-idm-simple-schema</artifactId>
          <version>${project.version}</version>
          <classifier>sources</classifier>
       </dependency>
