@@ -29,6 +29,8 @@ import org.picketlink.idm.model.sample.Role;
 @Entity
 public class RoleTypeEntity extends IdentityTypeEntity {
 
+    private static final long serialVersionUID = -1111674876657091722L;
+
     @AttributeValue
     private String name;
 

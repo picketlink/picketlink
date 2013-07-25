@@ -31,6 +31,8 @@ import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
 @Entity
 public class DigestCredentialTypeEntity extends AbstractCredentialTypeEntity {
 
+    private static final long serialVersionUID = 8582138093637065019L;
+
     @CredentialProperty (name = "realm")
     private String digestRealm;
 

@@ -31,6 +31,8 @@ import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
 @Entity
 public class OTPCredentialTypeEntity extends AbstractCredentialTypeEntity {
 
+    private static final long serialVersionUID = 2178549213245407363L;
+
     @CredentialProperty (name = "secretKey")
     private String totpSecretKey;
 

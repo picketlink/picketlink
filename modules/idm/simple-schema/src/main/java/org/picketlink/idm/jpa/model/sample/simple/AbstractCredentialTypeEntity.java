@@ -35,6 +35,8 @@ import org.picketlink.idm.jpa.annotations.OwnerReference;
 @MappedSuperclass
 public abstract class AbstractCredentialTypeEntity implements Serializable {
 
+    private static final long serialVersionUID = -8032908635337756851L;
+
     @Id
     @GeneratedValue
     private Long id;

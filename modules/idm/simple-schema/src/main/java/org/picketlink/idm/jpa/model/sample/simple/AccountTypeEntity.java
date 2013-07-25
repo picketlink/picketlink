@@ -30,6 +30,8 @@ import org.picketlink.idm.model.sample.User;
 @Entity
 public class AccountTypeEntity extends IdentityTypeEntity {
 
+    private static final long serialVersionUID = -6121193632745759231L;
+
     @AttributeValue
     private String loginName;
 

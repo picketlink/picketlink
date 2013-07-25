@@ -31,6 +31,8 @@ import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
 @Entity
 public class PasswordCredentialTypeEntity extends AbstractCredentialTypeEntity {
 
+    private static final long serialVersionUID = -1073369096518010570L;
+
     @CredentialProperty (name = "encodedHash")
     private String passwordEncodedHash;
 

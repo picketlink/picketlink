@@ -30,6 +30,8 @@ import org.picketlink.idm.model.sample.Group;
 @Entity
 public class GroupTypeEntity extends IdentityTypeEntity {
 
+    private static final long serialVersionUID = 158403858486164771L;
+
     @AttributeValue
     private String name;
 
