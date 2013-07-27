@@ -15,15 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.test.integration.authentication.credential;
+package org.picketlink.test.authentication.credential;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.picketlink.Identity;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.test.integration.ArchiveUtils;
-import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
+import org.picketlink.test.authentication.AbstractAuthenticationTestCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -34,8 +33,8 @@ import static org.junit.Assert.assertTrue;
 public class UsernamePasswordCredentialTestCase extends AbstractAuthenticationTestCase {
 
     @Deployment
-    public static WebArchive createDeployment() {
-        return ArchiveUtils.create(UsernamePasswordCredentialTestCase.class);
+    public static WebArchive deploy() {
+        return deploy(UsernamePasswordCredentialTestCase.class);
     }
 
     @Test
@@ -50,7 +49,7 @@ public class UsernamePasswordCredentialTestCase extends AbstractAuthenticationTe
         identity.login();
 
         assertTrue(identity.isLoggedIn());
-        assertEquals(getCurrentAccount(), identity.getAccount());
+        assertEquals(getAccount(), identity.getAccount());
     }
 
     @Test

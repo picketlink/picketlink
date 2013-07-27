@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.integration.idm.config;
+package org.picketlink.test.idm.config;
 
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
@@ -39,7 +39,7 @@ import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.test.integration.AbstractJPADeploymentTestCase;
+import org.picketlink.test.AbstractJPADeploymentTestCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.picketlink.idm.model.sample.SampleModel.addToGroup;
@@ -48,8 +48,6 @@ import static org.picketlink.idm.model.sample.SampleModel.grantRole;
 import static org.picketlink.idm.model.sample.SampleModel.hasGroupRole;
 import static org.picketlink.idm.model.sample.SampleModel.hasRole;
 import static org.picketlink.idm.model.sample.SampleModel.isMember;
-import static org.picketlink.test.integration.ArchiveUtils.addDependency;
-import static org.picketlink.test.integration.ArchiveUtils.getCurrentProjectVersion;
 
 /**
  * @author Pedro Igor
@@ -67,29 +65,22 @@ public class JPAAutoConfigurationTestCase extends AbstractJPADeploymentTestCase 
     private RelationshipManager relationshipManager;
 
     @Deployment
-    public static WebArchive createDeployment() {
-        WebArchive archive = createDeployment(JPAAutoConfigurationTestCase.class);
-        
-        addDependency(archive, "org.picketlink:picketlink-idm-simple-schema:" + getCurrentProjectVersion());
-        
-        return archive;
+    public static WebArchive deploy() {
+        return deploy(JPAAutoConfigurationTestCase.class);
     }
     
     @Test
-    public void testConfiguration() throws Exception {
-        IdentityConfiguration identityConfiguration = this.configurationObserver.getIdentityConfigurationBuilder().build();
-        
-        List<? extends IdentityStoreConfiguration> configuredStores = identityConfiguration.getStoreConfiguration();
-        
-        assertEquals(1, configuredStores.size());
-        
-        IdentityStoreConfiguration identityStoreConfiguration = configuredStores.get(0);
-        
-        assertEquals(JPAIdentityStoreConfiguration.class, identityStoreConfiguration.getClass());
-    }
-
-    @Test
     public void testIdentityManagementOperations() throws Exception {
+        IdentityConfiguration identityConfiguration = this.configurationObserver.getIdentityConfigurationBuilder().build();
+
+        List<? extends IdentityStoreConfiguration> configuredStores = identityConfiguration.getStoreConfiguration();
+
+        assertEquals(1, configuredStores.size());
+
+        IdentityStoreConfiguration identityStoreConfiguration = configuredStores.get(0);
+
+        assertEquals(JPAIdentityStoreConfiguration.class, identityStoreConfiguration.getClass());
+
         User john = new User("john");
 
         this.identityManager.add(john);
@@ -110,7 +101,7 @@ public class JPAAutoConfigurationTestCase extends AbstractJPADeploymentTestCase 
         assertTrue(isMember(relationshipManager, john, qaGroup));
         assertTrue(hasGroupRole(relationshipManager, john, tester, qaGroup));
     }
- 
+
     @ApplicationScoped
     public static class JPAAutoConfigurationObserver {
         

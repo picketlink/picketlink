@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.integration.idm.config;
+package org.picketlink.test.idm.config;
 
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
@@ -35,8 +35,8 @@ import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.test.integration.AbstractArquillianTestCase;
-import org.picketlink.test.integration.ArchiveUtils;
+import org.picketlink.test.AbstractArquillianTestCase;
+import org.picketlink.test.util.ArchiveUtils;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -52,8 +52,8 @@ public class DefaultConfigurationTestCase extends AbstractArquillianTestCase {
     private IdentityManager identityManager;
 
     @Deployment
-    public static WebArchive createDeployment() {
-        return ArchiveUtils.create(DefaultConfigurationTestCase.class);
+    public static WebArchive deploy() {
+        return ArchiveUtils.create(DefaultConfigurationTestCase.class, AbstractArquillianTestCase.class);
     }
     
     @Test

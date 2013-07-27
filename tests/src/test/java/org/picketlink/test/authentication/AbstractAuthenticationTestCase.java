@@ -20,9 +20,13 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.integration.authentication;
+package org.picketlink.test.authentication;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import javax.inject.Inject;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.After;
 import org.junit.Before;
 import org.picketlink.Identity;
@@ -32,7 +36,8 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.test.integration.AbstractArquillianTestCase;
+import org.picketlink.test.AbstractArquillianTestCase;
+import org.picketlink.test.util.ArchiveUtils;
 import static org.picketlink.idm.model.sample.SampleModel.getUser;
 
 /**
@@ -57,24 +62,33 @@ public abstract class AbstractAuthenticationTestCase extends AbstractArquillianT
     @Inject
     private IdentityManager identityManager;
 
-    private Account currentAccount;
+    public static WebArchive deploy(Class... classesToAdd) {
+        List<Class> classes = new ArrayList<Class>();
+
+        classes.add(AbstractAuthenticationTestCase.class);
+        classes.add(AbstractArquillianTestCase.class);
+        classes.addAll(Arrays.asList(classesToAdd));
+
+        return ArchiveUtils.create(classes.toArray(new Class[classes.size()]));
+    }
 
     @Before
     public void onSetup() {
-        this.currentAccount = getUser(this.identityManager, USER_NAME);
+        User user = getUser(this.identityManager, USER_NAME);
 
-        if (this.currentAccount == null) {
-            this.currentAccount = new User(USER_NAME);
-            this.identityManager.add(this.currentAccount);
+        if (user == null) {
+            user = new User("john");
+
+            this.identityManager.add(user);
+
+            Password password = new Password("mypasswd");
+
+            this.identityManager.updateCredential(user, password);
         }
 
-        this.currentAccount.setEnabled(true);
+        user.setEnabled(true);
 
-        this.identityManager.update(this.currentAccount);
-
-        Password password = new Password(USER_PASSWORD);
-
-        this.identityManager.updateCredential(this.currentAccount, password);
+        this.identityManager.update(user);
     }
 
     @After
@@ -82,8 +96,8 @@ public abstract class AbstractAuthenticationTestCase extends AbstractArquillianT
         this.identity.logout();
     }
 
-    protected Account getCurrentAccount() {
-        return this.currentAccount;
+    protected Account getAccount() {
+        return getUser(this.identityManager, USER_NAME);
     }
 
     protected Identity getIdentity() {
@@ -97,4 +111,5 @@ public abstract class AbstractAuthenticationTestCase extends AbstractArquillianT
     protected IdentityManager getIdentityManager() {
         return this.identityManager;
     }
+
 }

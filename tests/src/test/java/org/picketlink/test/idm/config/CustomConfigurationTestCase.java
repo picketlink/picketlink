@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.test.integration.idm.config;
+package org.picketlink.test.idm.config;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -42,25 +42,19 @@ import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.internal.EEJPAContextInitializer;
-import org.picketlink.test.integration.AbstractJPADeploymentTestCase;
-import static org.picketlink.test.integration.ArchiveUtils.addDependency;
-import static org.picketlink.test.integration.ArchiveUtils.getCurrentProjectVersion;
+import org.picketlink.test.AbstractJPADeploymentTestCase;
 
 /**
  * @author pedroigor
  */
-public class CustomConfigurationTestCase extends AbstractJPADeploymentTestCase  {
+public class CustomConfigurationTestCase extends AbstractJPADeploymentTestCase {
 
     @Inject
     private PartitionManager partitionManager;
 
     @Deployment
-    public static WebArchive createDeployment() {
-        WebArchive archive = createDeployment(CustomConfigurationTestCase.class);
-
-        addDependency(archive, "org.picketlink:picketlink-idm-simple-schema:" + getCurrentProjectVersion());
-
-        return archive;
+    public static WebArchive deploy() {
+        return deploy(CustomConfigurationTestCase.class);
     }
 
     @Test
@@ -74,12 +68,12 @@ public class CustomConfigurationTestCase extends AbstractJPADeploymentTestCase  
     }
 
     @ApplicationScoped
-    public static class CustomConfigurationObserver {
+    public static class IDMConfiguration {
 
         @Inject
         private EEJPAContextInitializer contextInitializer;
 
-        public void observeIdentityConfigurationEvent(@Observes IdentityConfigurationEvent event) {
+        public void observeIdentityConfigurationEvent(@Observes IdentityConfigurationEvent event) throws Exception {
             IdentityConfigurationBuilder builder = event.getConfig();
 
             builder

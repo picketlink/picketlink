@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.integration.authentication;
+package org.picketlink.test.authentication;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,6 @@ import org.picketlink.authentication.event.PreLoggedOutEvent;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.test.integration.ArchiveUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
@@ -66,8 +65,8 @@ public class AuthenticationEventHandlingTestCase extends AbstractAuthenticationT
     private EventExecutionObserver observer;
 
     @Deployment
-    public static WebArchive createDeployment() {
-        return ArchiveUtils.create(AuthenticationEventHandlingTestCase.class, EventExecutionObserver.class, Listener.class);
+    public static WebArchive deploy() {
+        return deploy(AuthenticationEventHandlingTestCase.class);
     }
 
     @Test

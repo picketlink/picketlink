@@ -20,19 +20,45 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.integration;
+package org.picketlink.test.authentication;
 
-import org.jboss.arquillian.junit.Arquillian;
-import org.junit.runner.RunWith;
-import org.picketlink.idm.model.Partition;
+import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.Test;
+import org.picketlink.Identity;
+import org.picketlink.credential.DefaultLoginCredentials;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 
 /**
- * <p>Base class for integration tests using Arquillian.</p>
- * 
  * @author Pedro Igor
  *
  */
-@RunWith (Arquillian.class)
-public abstract class AbstractArquillianTestCase {
+public class LogoutTestCase extends AbstractAuthenticationTestCase {
 
+    @Deployment
+    public static WebArchive deploy() {
+        return deploy(LogoutTestCase.class);
+    }
+    
+    @Test
+    public void testLogout() throws Exception {
+        DefaultLoginCredentials credentials = getCredentials();
+
+        credentials.setUserId(USER_NAME);
+        credentials.setPassword(USER_PASSWORD);
+
+        Identity identity = getIdentity();
+
+        identity.login();
+        
+        assertTrue(identity.isLoggedIn());
+        
+        identity.logout();
+        
+        assertFalse(identity.isLoggedIn());
+        assertNull(identity.getAccount());
+    }
 }

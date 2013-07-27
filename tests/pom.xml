@@ -17,6 +17,8 @@
     <properties>
         <htmlunit.version>2.4</htmlunit.version>
         <jboss.as7.version>7.2.0.Final</jboss.as7.version>
+        <jboss.as7.dist.version>7.2.0.Alpha1-redhat-4</jboss.as7.dist.version>
+        <integration.tests.containers.dir>${basedir}/target/integration-tests/</integration.tests.containers.dir>
     </properties>
 
     <dependencyManagement>
@@ -69,6 +71,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.picketlink</groupId>
+            <artifactId>picketlink-idm-simple-schema</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.jboss.spec.javax.ejb</groupId>
             <artifactId>jboss-ejb-api_3.1_spec</artifactId>
             <scope>test</scope>
@@ -116,9 +124,9 @@
 
     <profiles>
         <profile>
-            <id>jbossas7</id>
+            <id>jbossas7-managed</id>
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <activeByDefault>true</activeByDefault>
             </activation>
             <dependencies>
                 <dependency>
@@ -131,9 +139,37 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>2.1</version>
+                        <executions>
+                            <execution>
+                                <id>unpack</id>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.jboss.as</groupId>
+                                            <artifactId>jboss-as-dist</artifactId>
+                                            <version>${jboss.as7.dist.version}</version>
+                                            <type>zip</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${integration.tests.containers.dir}</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <systemProperties>
+                                <project.version>${project.version}</project.version>
+                                <jboss.home>${integration.tests.containers.dir}/jboss-eap-6.1</jboss.home>
                                 <arquillian.launch>jboss-as-7</arquillian.launch>
                             </systemProperties>
                         </configuration>
@@ -165,6 +201,7 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <systemProperties>
+                                <project.version>${project.version}</project.version>
                                 <arquillian.launch>jboss-as-7</arquillian.launch>
                             </systemProperties>
                         </configuration>
@@ -173,4 +210,17 @@
             </build>
         </profile>
     </profiles>
+
+    <repositories>
+        <repository>
+            <id>earlyaccess.repository.jboss.org</id>
+            <name>JBoss EarlyAccess Repository</name>
+            <layout>default</layout>
+            <url>http://maven.repository.redhat.com/earlyaccess/all/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
 </project>

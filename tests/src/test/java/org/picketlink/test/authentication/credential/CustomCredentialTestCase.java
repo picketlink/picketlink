@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.integration.authentication.credential;
+package org.picketlink.test.authentication.credential;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -33,8 +33,7 @@ import org.picketlink.authentication.BaseAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.test.integration.ArchiveUtils;
-import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
+import org.picketlink.test.authentication.AbstractAuthenticationTestCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -53,8 +52,8 @@ public class CustomCredentialTestCase extends AbstractAuthenticationTestCase {
     public static final String VALID_TOKEN = "valid_token";
 
     @Deployment
-    public static WebArchive createDeployment() {
-        return ArchiveUtils.create(CustomCredentialTestCase.class);
+    public static WebArchive deploy() {
+        return deploy(CustomCredentialTestCase.class);
     }
 
     @Test

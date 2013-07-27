@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.integration.authentication;
+package org.picketlink.test.authentication;
 
 import java.net.Authenticator;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -32,7 +32,6 @@ import org.picketlink.authentication.UserAlreadyLoggedInException;
 import org.picketlink.authentication.internal.IdmAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.model.Account;
-import org.picketlink.test.integration.ArchiveUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -50,8 +49,8 @@ import static org.picketlink.Identity.AuthenticationResult;
 public class DefaultAuthenticationTestCase extends AbstractAuthenticationTestCase {
 
     @Deployment
-    public static WebArchive createDeployment() {
-        return ArchiveUtils.create(DefaultAuthenticationTestCase.class);
+    public static WebArchive deploy() {
+        return deploy(DefaultAuthenticationTestCase.class);
     }
     
     @Test
@@ -68,7 +67,7 @@ public class DefaultAuthenticationTestCase extends AbstractAuthenticationTestCas
         assertEquals(AuthenticationResult.SUCCESS, status);
         assertTrue(identity.isLoggedIn());
 
-        assertEquals(getCurrentAccount(), identity.getAccount());
+        assertEquals(getAccount(), identity.getAccount());
     }
 
     @Test
@@ -114,7 +113,7 @@ public class DefaultAuthenticationTestCase extends AbstractAuthenticationTestCas
 
     @Test(expected = LockedAccountException.class)
     public void failLockedAccount() {
-        Account account = getCurrentAccount();
+        Account account = getAccount();
 
         account.setEnabled(false);
 

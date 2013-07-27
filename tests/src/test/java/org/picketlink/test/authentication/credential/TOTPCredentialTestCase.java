@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.test.integration.authentication.credential;
+package org.picketlink.test.authentication.credential;
 
 import java.util.Calendar;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -28,8 +28,7 @@ import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.TOTPCredential;
 import org.picketlink.idm.credential.TOTPCredentials;
 import org.picketlink.idm.credential.util.TimeBasedOTP;
-import org.picketlink.test.integration.ArchiveUtils;
-import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
+import org.picketlink.test.authentication.AbstractAuthenticationTestCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -43,8 +42,8 @@ public class TOTPCredentialTestCase extends AbstractAuthenticationTestCase {
     public static final String USER_PASSWORD = "passwd";
 
     @Deployment
-    public static WebArchive createDeployment() {
-        return ArchiveUtils.create(TOTPCredentialTestCase.class);
+    public static WebArchive deploy() {
+        return deploy(TOTPCredentialTestCase.class);
     }
 
     @Test
@@ -69,7 +68,7 @@ public class TOTPCredentialTestCase extends AbstractAuthenticationTestCase {
         identity.login();
 
         assertTrue(identity.isLoggedIn());
-        assertEquals(getCurrentAccount(), identity.getAccount());
+        assertEquals(getAccount(), identity.getAccount());
     }
 
     @Test
@@ -107,7 +106,7 @@ public class TOTPCredentialTestCase extends AbstractAuthenticationTestCase {
 
         IdentityManager identityManager = getIdentityManager();
 
-        identityManager.updateCredential(getCurrentAccount(), credential);
+        identityManager.updateCredential(getAccount(), credential);
     }
 
 }

@@ -22,21 +22,19 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.DependencyResolvers;
 import org.jboss.shrinkwrap.resolver.api.maven.MavenDependencyResolver;
-import org.junit.runner.RunWith;
+import org.picketlink.test.AbstractArquillianTestCase;
 import static org.picketlink.test.util.ArchiveUtils.create;
 
 /**
  * @author pedroigor
  */
-@RunWith(Arquillian.class)
-public abstract class AbstractAuthenticationSchemeTestCase {
+public abstract class AbstractAuthenticationSchemeTestCase extends AbstractArquillianTestCase {
 
     @ArquillianResource
     private URL contextPath;

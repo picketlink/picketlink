@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.test.integration.authentication.credential;
+package org.picketlink.test.authentication.credential;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -26,8 +26,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.util.DigestUtil;
 import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.test.integration.ArchiveUtils;
-import org.picketlink.test.integration.authentication.AbstractAuthenticationTestCase;
+import org.picketlink.test.authentication.AbstractAuthenticationTestCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -38,8 +37,8 @@ import static org.junit.Assert.assertTrue;
 public class DigestCredentialTestCase extends AbstractAuthenticationTestCase {
 
     @Deployment
-    public static WebArchive createDeployment() {
-        return ArchiveUtils.create(DigestCredentialTestCase.class);
+    public static WebArchive deploy() {
+        return deploy(DigestCredentialTestCase.class);
     }
 
     @Test
@@ -61,7 +60,7 @@ public class DigestCredentialTestCase extends AbstractAuthenticationTestCase {
         identity.login();
 
         assertTrue(identity.isLoggedIn());
-        assertEquals(getCurrentAccount(), identity.getAccount());
+        assertEquals(getAccount(), identity.getAccount());
     }
 
     @Test
@@ -112,7 +111,7 @@ public class DigestCredentialTestCase extends AbstractAuthenticationTestCase {
 
         IdentityManager identityManager = getIdentityManager();
 
-        identityManager.updateCredential(getCurrentAccount(), credential);
+        identityManager.updateCredential(getAccount(), credential);
     }
 
 }

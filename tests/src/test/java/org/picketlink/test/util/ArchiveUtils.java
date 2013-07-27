@@ -53,13 +53,9 @@ public class ArchiveUtils {
     public static WebArchive create(String name, Class<?>... classesToAdd) {
         WebArchive archive = ShrinkWrap
                 .create(WebArchive.class, name)
-                .addAsWebInfResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"))
-                .addAsLibraries(
-                        DependencyResolvers
-                                .use(MavenDependencyResolver.class)
-                                .loadMetadataFromPom("pom.xml")
-                                .artifact("org.picketlink:picketlink-impl:" + getCurrentProjectVersion())
-                                .resolveAs(JavaArchive.class));
+                .addAsWebInfResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"));
+
+        addDependency(archive, "org.picketlink:picketlink-impl:" + getCurrentProjectVersion());
 
         if (classesToAdd != null) {
             for (Class<?> classToAdd : classesToAdd) {
@@ -68,6 +64,16 @@ public class ArchiveUtils {
         }
 
         return archive;
+    }
+
+    public static void addDependency(WebArchive archive, String gav) {
+        archive.addAsLibraries(
+                DependencyResolvers
+                        .use(MavenDependencyResolver.class)
+                        .loadMetadataFromPom("pom.xml")
+                        .artifact(gav)
+                        .resolveAs(JavaArchive.class)
+        );
     }
 
     /**

@@ -20,8 +20,10 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.integration.authentication;
+package org.picketlink.test.authentication;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Instance;
@@ -43,8 +45,8 @@ import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.test.integration.AbstractArquillianTestCase;
-import org.picketlink.test.integration.ArchiveUtils;
+import org.picketlink.test.AbstractArquillianTestCase;
+import org.picketlink.test.util.ArchiveUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -84,8 +86,14 @@ public class MultiRealmAuthenticationTestCase extends AbstractArquillianTestCase
     private Identity identity;
 
     @Deployment
-    public static WebArchive createDeployment() {
-        return ArchiveUtils.create(MultiRealmAuthenticationTestCase.class, Resources.class, RealmSelector.class);
+    public static WebArchive deploy() {
+        List<Class> classes = new ArrayList<Class>();
+
+        classes.add(MultiRealmAuthenticationTestCase.class);
+        classes.add(AbstractAuthenticationTestCase.class);
+        classes.add(AbstractArquillianTestCase.class);
+
+        return ArchiveUtils.create(classes.toArray(new Class[classes.size()]));
     }
 
     @Before

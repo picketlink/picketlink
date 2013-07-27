@@ -22,7 +22,6 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
 import com.gargoylesoftware.htmlunit.WebResponse;
 import java.io.File;
-import java.net.URL;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import org.apache.commons.httpclient.HttpStatus;
@@ -39,17 +38,11 @@ import static org.junit.Assert.assertEquals;
  */
 public class ClientCertAuthenticationSchemeTestCase extends AbstractAuthenticationSchemeTestCase {
 
-    @Deployment (testable = false)
+    @Deployment(testable = false)
     public static Archive<?> deploy() {
         WebArchive archive = deploy("authc-filter-client-cert-web.xml", MockClientCertAuthenticationFilter.class);
 
-        URL resource = ClientCertAuthenticationSchemeTestCase.class.getResource("/cert/servercert.txt");
-
-        File resource1 = new File(resource.getFile());
-
-        if (resource1.exists()) {
-            archive.addAsResource(resource1);
-        }
+        archive.addAsResource(new File(ClientCertAuthenticationSchemeTestCase.class.getResource("/cert/servercert.txt").getFile()));
 
         return archive;
     }
