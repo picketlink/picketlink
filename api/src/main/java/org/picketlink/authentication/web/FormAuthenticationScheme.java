@@ -87,9 +87,10 @@ public class FormAuthenticationScheme implements HTTPAuthenticationScheme{
         if(sessionState == null || STATES.BEFORE_LOGIN.toString().equals(sessionState)){
             //Save current request
             requestCache.saveRequest(request);
-            forwardToLoginPage(request,response);
             session.setAttribute(STATE,STATES.SHOW_LOGIN_PAGE.toString());
         }
+
+        forwardToLoginPage(request,response);
     }
 
     @Override
@@ -119,6 +120,7 @@ public class FormAuthenticationScheme implements HTTPAuthenticationScheme{
             throw new RuntimeException(e);
         }
     }
+
     private void forwardToErrorPage(HttpServletRequest request, HttpServletResponse response){
         RequestDispatcher rd = request.getRequestDispatcher(formErrorPage);
         try {
