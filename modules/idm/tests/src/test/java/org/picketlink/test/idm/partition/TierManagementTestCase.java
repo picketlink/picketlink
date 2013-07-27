@@ -62,7 +62,7 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
             getPartitionManager().remove(tier);
         }
 
-        getPartitionManager().add(tier, "default");
+        getPartitionManager().add(tier);
 
         return tier;
     }
