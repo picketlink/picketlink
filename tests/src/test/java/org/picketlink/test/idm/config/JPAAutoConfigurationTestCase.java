@@ -70,7 +70,7 @@ public class JPAAutoConfigurationTestCase extends AbstractJPADeploymentTestCase 
     }
     
     @Test
-    public void testIdentityManagementOperations() throws Exception {
+    public void testConfiguration() throws Exception {
         IdentityConfiguration identityConfiguration = this.configurationObserver.getIdentityConfigurationBuilder().build();
 
         List<? extends IdentityStoreConfiguration> configuredStores = identityConfiguration.getStoreConfiguration();

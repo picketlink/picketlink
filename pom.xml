@@ -57,7 +57,7 @@
 
       <module>api</module>
       <module>impl</module>
-      <!--<module>tests</module>-->
+      <module>tests</module>
 
       <module>modules/federation</module>
       <module>modules/social</module>
