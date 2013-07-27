@@ -61,6 +61,14 @@ public abstract class AbstractPartitionTestCase<T extends Partition> extends Abs
         assertEquals(name, partition.getName());
     }
 
+    @Test (expected = IdentityManagementException.class)
+    public void failCreateWithInvalidConfigurationName() {
+        T partition = createPartition();
+
+        partition.setId(null);
+
+        getPartitionManager().add(partition, "invalid_config_name");
+    }
     @Test
     public void testRemove() {
         T partition = createPartition();
