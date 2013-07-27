@@ -21,33 +21,41 @@ import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
 import com.gargoylesoftware.htmlunit.WebResponse;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.NameValuePair;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.asset.StringAsset;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
-import org.picketlink.authentication.web.support.HTTPDigestUtil;
-import org.picketlink.idm.credential.Digest;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author pedroigor
  */
-public class DigestAuthenticationSchemeTestCase extends AbstractAuthenticationSchemeTestCase {
+public class FormAuthenticationSchemeTestCase extends AbstractAuthenticationSchemeTestCase {
 
     @Deployment (testable = false)
     public static Archive<?> deploy() {
-        return deploy("authc-filter-digest-web.xml");
+        WebArchive archive = deploy("authc-filter-form-web.xml");
+
+        archive.add(new StringAsset("Login Page"), "login.jsp");
+        archive.add(new StringAsset("Login Error Page"), "loginError.jsp");
+
+        return archive;
     }
 
     @Test
     public void testNotProtectedResource() throws Exception {
         WebClient client = new WebClient();
-        WebResponse webResponse = client.loadWebResponse(new WebRequestSettings(getContextPath()));
+        WebResponse response = client.loadWebResponse(new WebRequestSettings(getContextPath()));
 
-        assertEquals(HttpStatus.SC_OK, webResponse.getStatusCode());
-        assertEquals("Index Page", webResponse.getContentAsString());
+        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+        assertEquals("Index Page", response.getContentAsString());
     }
 
     @Test
@@ -68,12 +76,8 @@ public class DigestAuthenticationSchemeTestCase extends AbstractAuthenticationSc
         WebRequestSettings request = new WebRequestSettings(getProtectedResourceURL());
         WebResponse response = client.loadWebResponse(request);
 
-        assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getStatusCode());
-
-        String authenticateHeader = response.getResponseHeaderValue("WWW-Authenticate");
-
-        assertNotNull(authenticateHeader);
-        assertTrue(authenticateHeader.contains("Digest realm=\"Test Realm\""));
+        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+        assertEquals("Login Page", response.getContentAsString());
 
         prepareAuthenticationRequest(request, response, "john", "passwd");
 
@@ -101,48 +105,30 @@ public class DigestAuthenticationSchemeTestCase extends AbstractAuthenticationSc
         WebRequestSettings request = new WebRequestSettings(getProtectedResourceURL());
         WebResponse response = client.loadWebResponse(request);
 
-        assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getStatusCode());
+        assertEquals("Login Page", response.getContentAsString());
+
         prepareAuthenticationRequest(request, response, "john", "bad_passwd");
 
         response = client.loadWebResponse(request);
 
-        assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getStatusCode());
+        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+
     }
 
-    private void prepareAuthenticationRequest(WebRequestSettings request, WebResponse response, String john, String passwd) {
-        String authenticateHeader = response.getResponseHeaderValue("WWW-Authenticate");
+    private void prepareAuthenticationRequest(WebRequestSettings request, WebResponse response, String userName, String password) {
+        ArrayList<NameValuePair> parameters = new ArrayList<NameValuePair>();
 
-        String[] challengeTokens = HTTPDigestUtil.quoteTokenize(authenticateHeader.toString().replace("Digest ", ""));
-        Digest clientDigest = HTTPDigestUtil.digest(challengeTokens);
+        parameters.add(new NameValuePair("j_username", userName));
+        parameters.add(new NameValuePair("j_password", password));
 
-        request.addAdditionalHeader("Authorization", buildAuthorizationHeader(clientDigest, john, passwd));
-    }
+        request.setHttpMethod(HttpMethod.POST);
+        request.setRequestParameters(parameters);
 
-    private String buildAuthorizationHeader(Digest digest, String userName, String password) {
-        String clientResponse = null;
-
-        digest.setUsername(userName);
-        digest.setMethod("GET");
-        digest.setUri("/test/protected/");
-        digest.setNonce(digest.getNonce());
-        digest.setClientNonce(digest.getNonce());
-        digest.setNonceCount("00001");
-
-        clientResponse = HTTPDigestUtil.clientResponseValue(digest, password.toCharArray());
-
-        StringBuilder str = new StringBuilder();
-
-        str.append("Digest ")
-                .append("username=\"").append(digest.getUsername()).append("\",")
-                .append("realm=\"").append(digest.getRealm()).append("\",")
-                .append("nonce=\"").append(digest.getNonce()).append("\",")
-                .append("cnonce=\"").append(digest.getClientNonce()).append("\",")
-                .append("uri=\"").append(digest.getUri()).append("\",")
-                .append("qop=").append(digest.getQop()).append(",")
-                .append("nc=").append(digest.getNonceCount()).append(",")
-                .append("response=\"").append(clientResponse).append("\"");
-
-        return str.toString();
+        try {
+            request.setUrl(new URL(getProtectedResourceURL() + "/j_security_check"));
+        } catch (MalformedURLException e) {
+            fail(e.getMessage());
+        }
     }
 
 }

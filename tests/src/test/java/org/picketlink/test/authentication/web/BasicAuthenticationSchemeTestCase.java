@@ -17,37 +17,142 @@
  */
 package org.picketlink.test.authentication.web;
 
+import com.gargoylesoftware.htmlunit.HttpMethod;
+import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
 import com.gargoylesoftware.htmlunit.WebResponse;
 import org.apache.commons.httpclient.HttpStatus;
 import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.shrinkwrap.api.Archive;
+import org.junit.Test;
 import org.picketlink.common.util.Base64;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author pedroigor
  */
 public class BasicAuthenticationSchemeTestCase extends AbstractAuthenticationSchemeTestCase {
 
-    @Deployment (testable = false)
-    public static Archive<?> deploy() {
-        return deploy("authc-filter-basic-web.xml");
+    @Deployment (name = "default", testable = false)
+    public static Archive<?> deployDefault() {
+        return deploy("default.war", "authc-filter-basic-web.xml");
     }
 
-    void doPrepareForAuthentication(WebRequestSettings request, WebResponse response) {
-        addAuthorizationHeader(request, response, "john", "passwd");
+    @Deployment (name = "force-reauthentication", testable = false)
+    public static Archive<?> deployWithReauthentication() {
+        return deploy("force-reauthentication.war", "authc-filter-basic-reauthc-web.xml");
     }
 
-    @Override
-    void doPrepareForInvalidAuthentication(WebRequestSettings request, WebResponse response) {
-        addAuthorizationHeader(request, response, "john", "bad_passwd");
+    @Test
+    @OperateOnDeployment("default")
+    public void testNotProtectedResource() throws Exception {
+        WebClient client = new WebClient();
+        WebResponse response = client.loadWebResponse(new WebRequestSettings(getContextPath()));
+
+        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+        assertEquals("Index Page", response.getContentAsString());
     }
 
-    private void addAuthorizationHeader(WebRequestSettings request, WebResponse response, String john, String passwd) {
+    @Test
+    @OperateOnDeployment("default")
+    public void testUnprotectedMethod() throws Exception {
+        WebClient client = new WebClient();
+        WebRequestSettings request = new WebRequestSettings(getProtectedResourceURL());
+
+        request.setHttpMethod(HttpMethod.OPTIONS);
+
+        WebResponse response = client.loadWebResponse(request);
+
+        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+    }
+
+    @Test
+    @OperateOnDeployment("default")
+    public void testSuccessfulAuthentication() throws Exception {
+        WebClient client = new WebClient();
+        WebRequestSettings request = new WebRequestSettings(getProtectedResourceURL());
+        WebResponse response = client.loadWebResponse(request);
+
         assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getStatusCode());
-        assertEquals("Basic realm=\"Test Realm\"", response.getResponseHeaderValue("WWW-Authenticate"));
 
+        String authenticateHeader = response.getResponseHeaderValue("WWW-Authenticate");
+
+        assertNotNull(authenticateHeader);
+        assertTrue(authenticateHeader.contains("Basic realm=\"Test Realm\""));
+
+        prepareAuthenticationRequest(request, "john", "passwd");
+
+        response = client.loadWebResponse(request);
+
+        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+        assertEquals("Protected Page", response.getContentAsString());
+
+        request.setUrl(getContextPath());
+        response = client.loadWebResponse(request);
+
+        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+        assertEquals("Index Page", response.getContentAsString());
+
+        request.setUrl(getProtectedResourceURL());
+        response = client.loadWebResponse(request);
+
+        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+        assertEquals("Protected Page", response.getContentAsString());
+    }
+
+    @Test
+    @OperateOnDeployment("default")
+    public void testUnsuccessfulAuthentication() throws Exception {
+        WebClient client = new WebClient();
+        WebRequestSettings request = new WebRequestSettings(getProtectedResourceURL());
+        WebResponse response = client.loadWebResponse(request);
+
+        prepareAuthenticationRequest(request, "john", "bad_passwd");
+
+        response = client.loadWebResponse(request);
+
+        assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getStatusCode());
+    }
+
+    @Test
+    @OperateOnDeployment("force-reauthentication")
+    public void testReAuthentication() throws Exception {
+        WebClient client = new WebClient();
+        WebRequestSettings request = new WebRequestSettings(getProtectedResourceURL());
+        WebResponse response = client.loadWebResponse(request);
+
+        assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getStatusCode());
+
+        String authenticateHeader = response.getResponseHeaderValue("WWW-Authenticate");
+
+        assertNotNull(authenticateHeader);
+        assertTrue(authenticateHeader.contains("Basic realm=\"Test Realm\""));
+
+        prepareAuthenticationRequest(request, "john", "passwd");
+
+        response = client.loadWebResponse(request);
+
+        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+        assertEquals("Protected Page", response.getContentAsString());
+
+        request.setUrl(getContextPath());
+        response = client.loadWebResponse(request);
+
+        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+        assertEquals("Index Page", response.getContentAsString());
+
+        prepareAuthenticationRequest(request, "john", "bad_passwd");
+
+        request.setUrl(getProtectedResourceURL());
+        response = client.loadWebResponse(request);
+
+        assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getStatusCode());
+    }
+
+    private void prepareAuthenticationRequest(WebRequestSettings request, String john, String passwd) {
         request.addAdditionalHeader("Authorization", new String("Basic " + Base64.encodeBytes(String.valueOf(john + ":" + passwd).getBytes())));
     }
 }

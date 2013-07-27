@@ -53,6 +53,11 @@ public class Resources {
         digestCredential.setPassword("passwd");
 
         this.identityManager.updateCredential(user, digestCredential);
+
+        user = new User("jbid test");
+
+        this.identityManager.add(user);
+
     }
 
 }

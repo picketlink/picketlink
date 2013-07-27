@@ -47,8 +47,12 @@ import org.jboss.shrinkwrap.resolver.api.maven.MavenDependencyResolver;
 public class ArchiveUtils {
 
     public static WebArchive create(Class<?>... classesToAdd) {
+        return create("test.war", classesToAdd);
+    }
+
+    public static WebArchive create(String name, Class<?>... classesToAdd) {
         WebArchive archive = ShrinkWrap
-                .create(WebArchive.class, "test.war")
+                .create(WebArchive.class, name)
                 .addAsWebInfResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"))
                 .addAsLibraries(
                         DependencyResolvers

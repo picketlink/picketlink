@@ -17,25 +17,19 @@
  */
 package org.picketlink.test.authentication.web;
 
-import com.gargoylesoftware.htmlunit.HttpMethod;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebRequestSettings;
-import com.gargoylesoftware.htmlunit.WebResponse;
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.apache.commons.httpclient.HttpStatus;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
-import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.DependencyResolvers;
 import org.jboss.shrinkwrap.resolver.api.maven.MavenDependencyResolver;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.picketlink.common.util.Base64;
-import static org.junit.Assert.assertEquals;
 import static org.picketlink.test.util.ArchiveUtils.create;
 
 /**
@@ -47,8 +41,13 @@ public abstract class AbstractAuthenticationSchemeTestCase {
     @ArquillianResource
     private URL contextPath;
 
-    public static Archive<?> deploy(String webXml) {
-        WebArchive archive = create(Resources.class);
+    public static WebArchive deploy(String name , String webXml, Class<?>... classesToAdd) {
+        List<Class<?>> classes = new ArrayList<Class<?>>();
+
+        classes.add(Resources.class);
+        classes.addAll(Arrays.asList(classesToAdd));
+
+        WebArchive archive = create(name, classes.toArray(new Class[classes.size()]));
 
         archive.addAsLibraries(
                 DependencyResolvers.use(MavenDependencyResolver.class)
@@ -63,98 +62,15 @@ public abstract class AbstractAuthenticationSchemeTestCase {
         return archive;
     }
 
-    @Test
-    public void testNotProtectedResource() throws Exception {
-        WebClient client = new WebClient();
-        WebResponse webResponse = client.loadWebResponse(new WebRequestSettings(this.contextPath));
-
-        assertEquals(HttpStatus.SC_OK, webResponse.getStatusCode());
-        assertEquals("Index Page", webResponse.getContentAsString());
+    public static WebArchive deploy(String webXml, Class<?>... classesToAdd) {
+        return deploy("test.war", webXml, classesToAdd);
     }
 
-    @Test
-    public void testProtectedResource() throws Exception {
-        WebClient client = new WebClient();
-        WebResponse response = client.loadWebResponse(new WebRequestSettings(getProtectedResourceURL()));
-
-        assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getStatusCode());
+    protected URL getProtectedResourceURL() throws MalformedURLException {
+        return new URL(getContextPath() + "/protected/");
     }
 
-    @Test
-    public void testUnprotectedMethod() throws Exception {
-        WebClient client = new WebClient();
-        WebRequestSettings request = new WebRequestSettings(getProtectedResourceURL());
-
-        request.setHttpMethod(HttpMethod.OPTIONS);
-
-        WebResponse response = client.loadWebResponse(request);
-
-        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+    protected URL getContextPath() {
+        return this.contextPath;
     }
-
-    @Test
-    public void testSuccessfulAuthentication() throws Exception {
-        WebClient client = new WebClient();
-        WebRequestSettings request = new WebRequestSettings(new URL(this.contextPath + "/protected"));
-        WebResponse response = client.loadWebResponse(request);
-
-        doPrepareForAuthentication(request, response);
-
-        response = client.loadWebResponse(request);
-
-        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
-        assertEquals("Protected Page", response.getContentAsString());
-
-        request.setUrl(this.contextPath);
-        response = client.loadWebResponse(request);
-
-        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
-        assertEquals("Index Page", response.getContentAsString());
-
-        request.setUrl(getProtectedResourceURL());
-        response = client.loadWebResponse(request);
-
-        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
-        assertEquals("Protected Page", response.getContentAsString());
-    }
-
-    abstract void doPrepareForAuthentication(WebRequestSettings request, WebResponse response);
-    abstract void doPrepareForInvalidAuthentication(WebRequestSettings request, WebResponse response);
-
-    @Test
-    public void testUnsuccessfulAuthentication() throws Exception {
-        WebClient client = new WebClient();
-        WebRequestSettings request = new WebRequestSettings(new URL(this.contextPath + "/protected"));
-        WebResponse response = client.loadWebResponse(request);
-
-        doPrepareForInvalidAuthentication(request, response);
-
-        response = client.loadWebResponse(request);
-
-        assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getStatusCode());
-    }
-
-    @Test
-    public void testWithoutReAuthenticationUserAlreadyAuthenticated() throws Exception {
-        WebClient client = new WebClient();
-        WebRequestSettings request = new WebRequestSettings(new URL(this.contextPath + "/protected"));
-        WebResponse response = client.loadWebResponse(request);
-
-        doPrepareForAuthentication(request, response);
-
-        response = client.loadWebResponse(request);
-
-        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
-
-        request.addAdditionalHeader("Authorization", new String("Basic " + Base64.encodeBytes("john:bad_passwd".getBytes())));
-
-        response = client.loadWebResponse(request);
-
-        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
-    }
-
-    private URL getProtectedResourceURL() throws MalformedURLException {
-        return new URL(this.contextPath + "/protected/");
-    }
-
 }
