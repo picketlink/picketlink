@@ -2,33 +2,64 @@
 
   <!-- Start of IDM configuration -->
   <PicketLinkIDM>
-    <IdentityManager ClassName="org.picketlink.idm.internal.DefaultIdentityManager" />
-    <StoreFactory ClassName="org.picketlink.idm.internal.DefaultStoreSelector" />
+    <named value="SIMPLE_LDAP_STORE_CONFIG">
+      <stores>
+        <ldap>
+          <baseDN value="dc=jboss,dc=org" />
+          <bindDN value="uid=admin,ou=system" />
+          <bindCredential value="secret" />
+          <url value="ldap://localhost:10389" />
+          <supportType value="org.picketlink.idm.model.IdentityType" />
+          <supportGlobalRelationship
+              value1="org.picketlink.idm.model.sample.Grant"
+              value2="org.picketlink.idm.model.sample.GroupMembership" />
 
-    <IdentityStoreInvocationContextFactory ClassName="org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory">
-      <CredentialHandlerFactory ClassName="org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory" />
-      <IdentityCache ClassName="org.picketlink.idm.DefaultIdentityCache" />
-      <IdGenerator ClassName="org.picketlink.idm.internal.DefaultIdGenerator" />
-    </IdentityStoreInvocationContextFactory>
+          <mapping value="org.picketlink.idm.model.sample.Agent">
+            <baseDN value="ou=Agent,dc=jboss,dc=org" />
+            <objectClasses value="account" />
+            <attribute propertyName="loginName" ldapAttributeName="uid" identifier="true" />
+            <readOnlyAttribute propertyName="createdDate" ldapAttributeName="createTimeStamp" />
+          </mapping>
 
-    <IdentityConfiguration>
-      <IdentityStoreConfiguration ClassName="org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration">
-        <Property Name="baseDN">dc=jboss,dc=org</Property>
-        <Property Name="bindDN">uid=admin,ou=system</Property>
-        <Property Name="bindCredential">secret</Property>
-        <Property Name="ldapURL">ldap://localhost:10389</Property>
-        <Property Name="userDNSuffix">ou=People,dc=jboss,dc=org</Property>
-        <Property Name="roleDNSuffix">ou=Roles,dc=jboss,dc=org</Property>
-        <Property Name="groupDNSuffix">ou=Groups,dc=jboss,dc=org</Property>
-        <Property Name="agentDNSuffix">ou=Agent,dc=jboss,dc=org</Property>
-        <!--<Property Name="additionalProperties">
-          <Object ClassName="java.util.Properties">
-            <Property Name="property1">Value1</Property>
-            <Property Name="property2">Value2</Property>
-          </Object>
-        </Property>-->
-      </IdentityStoreConfiguration>
-    </IdentityConfiguration>
+          <mapping value="org.picketlink.idm.model.sample.User">
+            <baseDN value="ou=People,dc=jboss,dc=org" />
+            <objectClasses value1="inetOrgPerson" value2="organizationalPerson" />
+            <attribute propertyName="loginName" ldapAttributeName="uid" identifier="true" />
+            <attribute propertyName="firstName" ldapAttributeName="cn" />
+            <attribute propertyName="lastName" ldapAttributeName="sn" />
+            <attribute propertyName="email" ldapAttributeName="mail" />
+            <readOnlyAttribute propertyName="createdDate" ldapAttributeName="createTimeStamp" />
+          </mapping>
+
+          <mapping value="org.picketlink.idm.model.sample.Role">
+            <baseDN value="ou=Roles,dc=jboss,dc=org" />
+            <objectClasses value="groupOfNames" />
+            <attribute propertyName="name" ldapAttributeName="cn" identifier="true" />
+            <readOnlyAttribute propertyName="createdDate" ldapAttributeName="createTimeStamp" />
+          </mapping>
+
+          <mapping value="org.picketlink.idm.model.sample.Group">
+            <baseDN value="ou=Groups,dc=jboss,dc=org" />
+            <objectClasses value="groupOfNames" />
+            <attribute propertyName="name" ldapAttributeName="cn" identifier="true" />
+            <readOnlyAttribute propertyName="createdDate" ldapAttributeName="createTimeStamp" />
+            <parentMembershipAttributeName value="member" />
+            <parentMapping parentId="QA Group" baseDN="ou=QA,dc=jboss,dc=org" />
+          </mapping>
+
+          <mapping value="org.picketlink.idm.model.sample.Grant">
+            <forMapping value="org.picketlink.idm.model.sample.Role" />
+            <attribute propertyName="assignee" ldapAttributeName="member"  />
+          </mapping>
+
+          <mapping value="org.picketlink.idm.model.sample.GroupMembership">
+            <forMapping value="org.picketlink.idm.model.sample.Group" />
+            <attribute propertyName="member" ldapAttributeName="member"  />
+          </mapping>
+
+        </ldap>
+      </stores>
+    </named>
   </PicketLinkIDM>
 
 </PicketLink>

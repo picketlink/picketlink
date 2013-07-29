@@ -16,25 +16,23 @@
  * limitations under the License.
  */
 
-package org.picketlink.config.idm;
+package org.picketlink.idm.config.annotation;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Type with configuration of IDM
- *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class IDMType {
+@Target({PARAMETER})
+@Documented
+@Retention(RUNTIME)
+public @interface ParameterConfigID {
 
-    private List<ConfigBuilderMethodType> builderMethods = new LinkedList<ConfigBuilderMethodType>();
+    String name();
 
-    public void addConfigBuilderMethod(ConfigBuilderMethodType configBuilderMethod) {
-        this.builderMethods.add(configBuilderMethod);
-    }
-
-    public List<ConfigBuilderMethodType> getBuilderMethods() {
-        return builderMethods;
-    }
 }

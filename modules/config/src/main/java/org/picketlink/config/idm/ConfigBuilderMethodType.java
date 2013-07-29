@@ -18,23 +18,29 @@
 
 package org.picketlink.config.idm;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collections;
+import java.util.Map;
 
 /**
- * Type with configuration of IDM
+ * This entry represents one method call to IDM Configuration builder
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class IDMType {
+public class ConfigBuilderMethodType {
 
-    private List<ConfigBuilderMethodType> builderMethods = new LinkedList<ConfigBuilderMethodType>();
+    private final String methodId;
 
-    public void addConfigBuilderMethod(ConfigBuilderMethodType configBuilderMethod) {
-        this.builderMethods.add(configBuilderMethod);
+    private final Map<String, String> methodParameters;
+
+    public ConfigBuilderMethodType(String methodId, Map<String, String> methodParameters) {
+        this.methodId = methodId;
+        this.methodParameters = Collections.unmodifiableMap(methodParameters);
+    }
+    public String getMethodId() {
+        return methodId;
     }
 
-    public List<ConfigBuilderMethodType> getBuilderMethods() {
-        return builderMethods;
+    public Map<String, String> getMethodParameters() {
+        return methodParameters;
     }
 }

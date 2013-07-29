@@ -16,12 +16,22 @@
  * limitations under the License.
  */
 
-package org.picketlink.config.idm;
+package org.picketlink.idm.config.annotation;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Custom object type
- *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class ObjectType extends StoreConfigurationType {
+@Target({METHOD})
+@Documented
+@Retention(RUNTIME)
+public @interface MethodConfigID {
+
+    String name();
 }

@@ -30,6 +30,7 @@ import java.util.Set;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.idm.config.annotation.ParameterConfigID;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.AttributeProperty;
@@ -122,18 +123,22 @@ public class LDAPMappingConfigurationBuilder extends
         return this;
     }
 
-    public LDAPMappingConfigurationBuilder attribute(String propertyName, String ldapAttributeName) {
+    public LDAPMappingConfigurationBuilder attribute(@ParameterConfigID(name="propertyName") String propertyName,
+                                                     @ParameterConfigID(name="ldapAttributeName") String ldapAttributeName) {
         this.mappedProperties.put(propertyName, ldapAttributeName);
         return this;
     }
 
-    public LDAPMappingConfigurationBuilder readOnlyAttribute(String propertyName, String ldapAttributeName) {
+    public LDAPMappingConfigurationBuilder readOnlyAttribute(@ParameterConfigID(name="propertyName") String propertyName,
+                                                             @ParameterConfigID(name="ldapAttributeName") String ldapAttributeName) {
         this.mappedProperties.put(propertyName, ldapAttributeName);
         this.readOnlyAttributes.add(propertyName);
         return this;
     }
 
-    public LDAPMappingConfigurationBuilder attribute(String propertyName, String ldapAttributeName, boolean identifier) {
+    public LDAPMappingConfigurationBuilder attribute(@ParameterConfigID(name="propertyName") String propertyName,
+                                                     @ParameterConfigID(name="ldapAttributeName") String ldapAttributeName,
+                                                     @ParameterConfigID(name="identifier") boolean identifier) {
         attribute(propertyName, ldapAttributeName);
 
         if (identifier) {

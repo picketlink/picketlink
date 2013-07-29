@@ -18,10 +18,7 @@
 
 package org.picketlink.config.idm.resolver;
 
-import org.picketlink.config.idm.ObjectType;
-
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -37,11 +34,7 @@ public class PropertyResolverMapper {
     private static final PropertyResolverMapper INSTANCE = initInstance();
 
     // Default resolver for all types, which are configured in XML as simple String
-    private final PropertyResolver<Object> DEFAULT_PRIMITIVE_RESOLVER = new PrimitivePropertyResolver.PropertyEditorDelegateResolver();
-
-    // Default resolver for all types, which are configured in XML as 'Object'
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private final PropertyResolver<Object> DEFAULT_OBJECT_RESOLVER = new ObjectTypeResolver();
+    private final PropertyResolver<Object> DEFAULT_PRIMITIVE_RESOLVER = new PrimitivePropertyResolver.PropertyEditorDelegateResolver<Object>();
 
     // Map from types to resolvers. Key is java type. Value is resolver
     @SuppressWarnings("rawtypes")
@@ -57,7 +50,6 @@ public class PropertyResolverMapper {
         // Fill map with basic resolver types here. User can add his own resolvers
         instance.addPropertyResolver(String.class, new PrimitivePropertyResolver.StringResolver());
         instance.addPropertyResolver(Class.class, new PrimitivePropertyResolver.ClassResolver());
-        instance.addPropertyResolver(Properties.class, new JavaPropertiesResolver());
 
         return instance;
     }
@@ -76,21 +68,16 @@ public class PropertyResolverMapper {
     }
 
     @SuppressWarnings("unchecked")
-    public <V> V resolveProperty(Object configurationType, Class<V> clazz) {
+    public <V> V resolveProperty(Object configurationValue, Class<V> clazz) {
         // Find resolver in mapping first
         PropertyResolver<V> propertyResolver = propertyResolvers.get(clazz);
 
         if (propertyResolver == null) {
-            if (configurationType instanceof String) {
-                // Default resolver for simple types
-                propertyResolver = (PropertyResolver<V>)DEFAULT_PRIMITIVE_RESOLVER;
-            } else if (configurationType instanceof ObjectType) {
-                // Default resolver for compound (Object) types
-                propertyResolver = (PropertyResolver<V>)DEFAULT_OBJECT_RESOLVER;
-            }
+            // Default resolver for simple types
+            propertyResolver = (PropertyResolver<V>)DEFAULT_PRIMITIVE_RESOLVER;
         }
 
         // Use resolver to find correct property
-        return propertyResolver.resolveProperty(configurationType, clazz);
+        return propertyResolver.resolveProperty(configurationValue, clazz);
     }
 }

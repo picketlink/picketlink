@@ -79,13 +79,9 @@ public class PicketLinkConfigParser extends AbstractParser {
                 STSType sts = (STSType) samlConfigParser.parse(xmlEventReader);
                 picketLinkType.setStsType(sts);
             } else if (IDMConfigParser.ROOT_ELEMENT.equals(tag)) {
-                try {
-                    IDMConfigParser parser = new IDMConfigParser();
-                    IDMType idmType = (IDMType) parser.parse(xmlEventReader);
-                    picketLinkType.setIdmType(idmType);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                IDMConfigParser parser = new IDMConfigParser();
+                IDMType idmType = (IDMType) parser.parse(xmlEventReader);
+                picketLinkType.setIdmType(idmType);
             }
             // avoid infinite loop if unknown element is found
             else {
