@@ -93,7 +93,7 @@ public class IdentityManagerProducer {
 
         this.partitionManager = new DefaultPartitionManager(builder.buildAll(), this.eventBridge);
 
-        this.partitionManager.add(new Realm(Realm.DEFAULT_REALM), DEFAULT_CONFIGURATION_NAME);
+        this.partitionManager.add(new Realm(Realm.DEFAULT_REALM));
     }
 
     private void loadAutoConfig(IdentityConfigurationBuilder builder) {
