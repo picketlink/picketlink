@@ -19,7 +19,6 @@ package org.picketlink.test.idm.testers;
 
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
-import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.sample.Realm;
 
 /**
@@ -38,7 +37,6 @@ public class FileStoreConfigurationTester implements IdentityConfigurationTester
                 .stores()
                     .file()
                     .preserveState(false)
-                    .supportGlobalRelationship(Relationship.class)
                     .supportAllFeatures();
 
         DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
@@ -57,11 +55,5 @@ public class FileStoreConfigurationTester implements IdentityConfigurationTester
     @Override
     public void afterTest() {
     }
-
-    @Override
-    public void commit() {
-
-    }
-
 
 }

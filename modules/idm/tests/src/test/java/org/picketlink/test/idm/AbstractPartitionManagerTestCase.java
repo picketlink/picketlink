@@ -35,8 +35,8 @@ import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import static org.junit.runners.Parameterized.Parameters;
@@ -349,4 +349,7 @@ public abstract class AbstractPartitionManagerTestCase {
         }
     };
 
+    public IdentityConfigurationTester getVisitor() {
+        return visitor;
+    }
 }

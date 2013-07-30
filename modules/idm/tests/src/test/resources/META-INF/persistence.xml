@@ -18,6 +18,10 @@
         <class>org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity</class>
         <class>org.picketlink.idm.jpa.model.sample.simple.OTPCredentialTypeEntity</class>
         <class>org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity</class>
+        <class>org.picketlink.test.idm.partition.CustomPartitionEntity</class>
+        <class>org.picketlink.test.idm.basic.MyCustomAccountEntity</class>
+
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>
             <property name="hibernate.connection.url" value="jdbc:h2:mem:test"/>
@@ -26,6 +30,38 @@
             <property name="hibernate.connection.password" value=""/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
             <property name="hibernate.show_sql" value="false" />
+            <property name="hibernate.format_sql" value="true" />
+        </properties>
+    </persistence-unit>
+
+    <persistence-unit name="complex-schema-tests-pu" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.PersonAddress</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.UserAccount</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.Employee</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.Customer</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.OrganizationUnit</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.Country</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.Application</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.Company</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.Email</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.Person</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.Phone</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.UserAttribute</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.CompanyAttribute</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.ApplicationUser</class>
+
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
+            <property name="hibernate.connection.url" value="jdbc:h2:mem:test"/>
+            <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
+            <property name="hibernate.connection.username" value="sa"/>
+            <property name="hibernate.connection.password" value=""/>
+            <property name="hibernate.hbm2ddl.auto" value="create-drop" />
+            <property name="hibernate.show_sql" value="true" />
             <property name="hibernate.format_sql" value="true" />
         </properties>
     </persistence-unit>
@@ -56,7 +92,9 @@
         <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.UserContact</class>
         <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.UserDetail</class>
         <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.UserEmail</class>
-        
+
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
         <properties>
             <property name="hibernate.connection.url" value="jdbc:h2:mem:test"/>
             <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>

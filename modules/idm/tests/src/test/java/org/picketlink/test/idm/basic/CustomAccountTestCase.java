@@ -185,20 +185,4 @@ public class CustomAccountTestCase extends AbstractIdentityTypeTestCase<CustomAc
         }
     }
 
-    @IdentityManaged (MyCustomAccount.class)
-    @Entity
-    public static class MyCustomAccountEntity extends AccountTypeEntity {
-
-        @AttributeValue
-        private Integer loginAttempts;
-
-        public Integer getLoginAttempts() {
-            return this.loginAttempts;
-        }
-
-        public void setLoginAttempts(Integer loginAttempts) {
-            this.loginAttempts = loginAttempts;
-        }
-    }
-
 }

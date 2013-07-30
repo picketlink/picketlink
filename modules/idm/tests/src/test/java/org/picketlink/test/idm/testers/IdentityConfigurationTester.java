@@ -11,6 +11,4 @@ public interface IdentityConfigurationTester {
     void afterTest();
 
     PartitionManager getPartitionManager();
-
-    void commit();
 }

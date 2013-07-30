@@ -37,7 +37,8 @@ import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity;
 import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.test.idm.basic.CustomAccountTestCase;
+import org.picketlink.test.idm.basic.MyCustomAccountEntity;
+import org.picketlink.test.idm.partition.CustomPartitionEntity;
 
 /**
  * @author pedroigor
@@ -60,7 +61,7 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
                         .mappedEntity(
                                 AttributedTypeEntity.class,
                                 AccountTypeEntity.class,
-                                CustomAccountTestCase.MyCustomAccountEntity.class,
+                                MyCustomAccountEntity.class,
                                 RoleTypeEntity.class,
                                 GroupTypeEntity.class,
                                 IdentityTypeEntity.class,
@@ -71,7 +72,8 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
                                 DigestCredentialTypeEntity.class,
                                 X509CredentialTypeEntity.class,
                                 OTPCredentialTypeEntity.class,
-                                AttributeTypeEntity.class
+                                AttributeTypeEntity.class,
+                                CustomPartitionEntity.class
                         )
                         .supportGlobalRelationship(org.picketlink.idm.model.Relationship.class)
                         .addContextInitializer(new JPAContextInitializer(null) {
@@ -103,8 +105,4 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
         this.emf.close();
     }
 
-    @Override
-    public void commit() {
-        this.entityManager.getTransaction().commit();
-    }
 }

@@ -20,7 +20,6 @@ package org.picketlink.test.idm.partition;
 
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.AbstractPartition;
@@ -35,7 +34,6 @@ import static org.junit.Assert.assertNotNull;
  * @author Pedro Silva
  *
  */
-@Ignore
 public class CustomPartitionTestCase extends AbstractPartitionTestCase<CustomPartitionTestCase.CustomPartition> {
 
     public static final String CUSTOM_PARTITION_NAME = "Custom Partition";
@@ -52,7 +50,7 @@ public class CustomPartitionTestCase extends AbstractPartitionTestCase<CustomPar
             getPartitionManager().remove(customPartition);
         }
 
-        getPartitionManager().add(customPartition, "default");
+        getPartitionManager().add(customPartition);
 
         return customPartition;
     }
