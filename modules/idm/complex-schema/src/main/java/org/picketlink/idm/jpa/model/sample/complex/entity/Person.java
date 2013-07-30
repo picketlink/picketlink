@@ -18,17 +18,22 @@
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
+import static javax.persistence.CascadeType.ALL;
 
 /**
  * @author pedroigor
  */
 @Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Person implements Serializable {
 
     @Id
@@ -39,13 +44,13 @@ public class Person implements Serializable {
     private String lastName;
     private Date birthDate;
 
-    @OneToMany
-    private List<Address> address;
+    @OneToMany (mappedBy = "person", cascade = ALL)
+    private List<PersonAddress> address;
 
-    @OneToMany
+    @OneToMany (mappedBy = "person")
     private List<Email> emails;
 
-    @OneToMany
+    @OneToMany (mappedBy = "person")
     private List<Phone> phones;
 
     public Long getId() {
@@ -54,6 +59,54 @@ public class Person implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public Date getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(Date birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public List<PersonAddress> getAddress() {
+        return address;
+    }
+
+    public void setAddress(List<PersonAddress> address) {
+        this.address = address;
+    }
+
+    public List<Email> getEmails() {
+        return emails;
+    }
+
+    public void setEmails(List<Email> emails) {
+        this.emails = emails;
+    }
+
+    public List<Phone> getPhones() {
+        return phones;
+    }
+
+    public void setPhones(List<Phone> phones) {
+        this.phones = phones;
     }
 
     @Override
@@ -76,5 +129,15 @@ public class Person implements Serializable {
         int result = getId() != null ? getId().hashCode() : 0;
         result = 31 * result + (getId() != null ? getId().hashCode() : 0);
         return result;
+    }
+
+    public void addAddress(PersonAddress address) {
+        if (this.address == null) {
+            this.address = new ArrayList<PersonAddress>();
+        }
+
+        address.setPerson(this);
+
+        this.address.add(address);
     }
 }

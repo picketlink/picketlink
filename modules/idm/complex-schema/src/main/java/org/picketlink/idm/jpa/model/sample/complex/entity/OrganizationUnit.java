@@ -27,19 +27,24 @@ import javax.persistence.ManyToOne;
  * @author pedroigor
  */
 @Entity
-public class Phone implements Serializable {
-
-    private static final long serialVersionUID = -1183323836855243481L;
+public class OrganizationUnit implements Serializable {
 
     @Id
     @GeneratedValue
     private Long id;
 
     @ManyToOne
-    private Person person;
+    private OrganizationUnit parent;
 
-    private String type;
-    private String number;
+    private String name;
+
+    public OrganizationUnit() {
+        this(null);
+    }
+
+    public OrganizationUnit(String name) {
+        this.name = name;
+    }
 
     public Long getId() {
         return id;
@@ -49,28 +54,20 @@ public class Phone implements Serializable {
         this.id = id;
     }
 
-    public Person getPerson() {
-        return person;
+    public String getName() {
+        return name;
     }
 
-    public void setPerson(Person person) {
-        this.person = person;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getType() {
-        return type;
+    public OrganizationUnit getParent() {
+        return parent;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getNumber() {
-        return number;
-    }
-
-    public void setNumber(String number) {
-        this.number = number;
+    public void setParent(OrganizationUnit parent) {
+        this.parent = parent;
     }
 
     @Override
@@ -83,7 +80,7 @@ public class Phone implements Serializable {
             return false;
         }
 
-        Phone other = (Phone) obj;
+        OrganizationUnit other = (OrganizationUnit) obj;
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }
@@ -94,4 +91,5 @@ public class Phone implements Serializable {
         result = 31 * result + (getId() != null ? getId().hashCode() : 0);
         return result;
     }
+
 }

@@ -19,33 +19,36 @@ package org.picketlink.idm.jpa.model.sample.complex.entity;
 
 import java.io.Serializable;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import org.picketlink.idm.jpa.annotations.Identifier;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+import org.picketlink.idm.jpa.model.sample.complex.User;
 
 /**
  * @author pedroigor
  */
+@IdentityManaged (User.class)
 @Entity
-public class Phone implements Serializable {
+public class ApplicationUser implements Serializable {
 
-    private static final long serialVersionUID = -1183323836855243481L;
-
+    @Identifier
     @Id
-    @GeneratedValue
-    private Long id;
+    private String id;
 
     @ManyToOne
     private Person person;
 
-    private String type;
-    private String number;
+    @ManyToOne
+    @OwnerReference
+    private Application application;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -57,41 +60,11 @@ public class Phone implements Serializable {
         this.person = person;
     }
 
-    public String getType() {
-        return type;
+    public Application getApplication() {
+        return application;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getNumber() {
-        return number;
-    }
-
-    public void setNumber(String number) {
-        this.number = number;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-
-        if (!getClass().isInstance(obj)) {
-            return false;
-        }
-
-        Phone other = (Phone) obj;
-
-        return getId() != null && other.getId() != null && getId().equals(other.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        int result = getId() != null ? getId().hashCode() : 0;
-        result = 31 * result + (getId() != null ? getId().hashCode() : 0);
-        return result;
+    public void setApplication(Application application) {
+        this.application = application;
     }
 }

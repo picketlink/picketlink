@@ -15,10 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.idm.jpa.model.sample.complex.entity;
+package org.picketlink.idm.jpa.model.sample.complex;
+
+import org.picketlink.idm.model.AbstractIdentityType;
+import org.picketlink.idm.model.Account;
 
 /**
  * @author pedroigor
  */
-public class Role {
+public class Application extends AbstractIdentityType implements Account {
+
+    private String name;
+
+    public Application() {
+        this(null);
+    }
+
+    public Application(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

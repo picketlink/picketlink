@@ -17,8 +17,25 @@
  */
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+
 /**
  * @author pedroigor
  */
-public class Group {
+@Entity
+public class Employee extends Person {
+
+    private static final long serialVersionUID = -6032781665709810197L;
+
+    @ManyToOne
+    private OrganizationUnit organizationUnit;
+
+    public OrganizationUnit getOrganizationUnit() {
+        return organizationUnit;
+    }
+
+    public void setOrganizationUnit(OrganizationUnit organizationUnit) {
+        this.organizationUnit = organizationUnit;
+    }
 }

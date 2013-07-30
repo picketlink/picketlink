@@ -15,17 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.idm.jpa.model.sample.complex.entity;
+package org.picketlink.idm.jpa.model.sample.complex;
 
-import javax.persistence.ManyToOne;
+import org.picketlink.idm.model.AbstractPartition;
 
 /**
  * @author pedroigor
  */
-public class User {
+public class Company extends AbstractPartition {
 
-    @ManyToOne
-    private Person person;
-
-    private String loginName;
+    public Company() {
+        this(null);
+    }
+    public Company(String name) {
+        super(name);
+    }
 }

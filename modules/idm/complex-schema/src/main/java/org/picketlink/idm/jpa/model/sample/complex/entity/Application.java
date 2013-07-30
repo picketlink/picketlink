@@ -19,42 +19,49 @@ package org.picketlink.idm.jpa.model.sample.complex.entity;
 
 import java.io.Serializable;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.jpa.annotations.Identifier;
+import org.picketlink.idm.jpa.annotations.IdentityClass;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 
 /**
  * @author pedroigor
  */
+@IdentityManaged (org.picketlink.idm.jpa.model.sample.complex.Application.class)
 @Entity
-public class Phone implements Serializable {
+public class Application implements Serializable {
 
-    private static final long serialVersionUID = -1183323836855243481L;
+    private static final long serialVersionUID = -7492810322246834638L;
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @Identifier
+    private String id;
 
-    @ManyToOne
-    private Person person;
-
+    @IdentityClass
     private String type;
-    private String number;
 
-    public Long getId() {
+    @AttributeValue
+    private String name;
+
+    @OwnerReference
+    private Company company;
+
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Person getPerson() {
-        return person;
+    public String getName() {
+        return name;
     }
 
-    public void setPerson(Person person) {
-        this.person = person;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getType() {
@@ -65,12 +72,12 @@ public class Phone implements Serializable {
         this.type = type;
     }
 
-    public String getNumber() {
-        return number;
+    public Company getCompany() {
+        return company;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
+    public void setCompany(Company company) {
+        this.company = company;
     }
 
     @Override
@@ -83,7 +90,7 @@ public class Phone implements Serializable {
             return false;
         }
 
-        Phone other = (Phone) obj;
+        Application other = (Application) obj;
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }
@@ -94,4 +101,5 @@ public class Phone implements Serializable {
         result = 31 * result + (getId() != null ? getId().hashCode() : 0);
         return result;
     }
+
 }

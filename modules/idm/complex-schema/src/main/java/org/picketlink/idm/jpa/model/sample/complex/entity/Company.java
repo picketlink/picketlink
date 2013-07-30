@@ -19,42 +19,55 @@ package org.picketlink.idm.jpa.model.sample.complex.entity;
 
 import java.io.Serializable;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import org.picketlink.idm.jpa.annotations.Identifier;
+import org.picketlink.idm.jpa.annotations.PartitionClass;
+import org.picketlink.idm.jpa.annotations.PartitionName;
+import org.picketlink.idm.jpa.annotations.entity.ConfigurationName;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 
 /**
  * @author pedroigor
  */
 @Entity
-public class Phone implements Serializable {
-
-    private static final long serialVersionUID = -1183323836855243481L;
+@IdentityManaged(org.picketlink.idm.jpa.model.sample.complex.Company.class)
+public class Company implements Serializable {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @Identifier
+    private String id;
 
-    @ManyToOne
-    private Person person;
+    @PartitionName
+    private String name;
 
+    @PartitionClass
     private String type;
-    private String number;
 
-    public Long getId() {
+    @ConfigurationName
+    private String configurationName;
+
+    public Company() {
+        this(null);
+    }
+
+    public Company(String name) {
+        this.name = name;
+    }
+
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Person getPerson() {
-        return person;
+    public String getName() {
+        return name;
     }
 
-    public void setPerson(Person person) {
-        this.person = person;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getType() {
@@ -65,12 +78,12 @@ public class Phone implements Serializable {
         this.type = type;
     }
 
-    public String getNumber() {
-        return number;
+    public String getConfigurationName() {
+        return configurationName;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
+    public void setConfigurationName(String configurationName) {
+        this.configurationName = configurationName;
     }
 
     @Override
@@ -83,7 +96,7 @@ public class Phone implements Serializable {
             return false;
         }
 
-        Phone other = (Phone) obj;
+        Application other = (Application) obj;
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }
@@ -94,4 +107,5 @@ public class Phone implements Serializable {
         result = 31 * result + (getId() != null ? getId().hashCode() : 0);
         return result;
     }
+
 }

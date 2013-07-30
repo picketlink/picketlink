@@ -17,6 +17,8 @@
  */
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
+import java.io.Serializable;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -24,7 +26,8 @@ import javax.persistence.ManyToOne;
 /**
  * @author pedroigor
  */
-public class Email {
+@Entity
+public class Email implements Serializable {
 
     @Id
     @GeneratedValue
@@ -33,7 +36,8 @@ public class Email {
     @ManyToOne
     private Person person;
 
-    private String name;
+    private String address;
+    private boolean primaryEmail;
 
     public Long getId() {
         return id;
@@ -51,12 +55,20 @@ public class Email {
         this.person = person;
     }
 
-    public String getName() {
-        return name;
+    public boolean isPrimaryEmail() {
+        return primaryEmail;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setPrimaryEmail(boolean primary) {
+        this.primaryEmail = primary;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     @Override

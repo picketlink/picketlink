@@ -27,9 +27,9 @@ import javax.persistence.ManyToOne;
  * @author pedroigor
  */
 @Entity
-public class Phone implements Serializable {
+public class PersonAddress implements Serializable {
 
-    private static final long serialVersionUID = -1183323836855243481L;
+    private static final long serialVersionUID = -7853573986900909424L;
 
     @Id
     @GeneratedValue
@@ -39,7 +39,15 @@ public class Phone implements Serializable {
     private Person person;
 
     private String type;
-    private String number;
+    private boolean primaryAddress;
+    private String unitNumber;
+    private String streetNumber;
+    private String streetName;
+    private String zip;
+    private String city;
+
+    @ManyToOne
+    private Country country;
 
     public Long getId() {
         return id;
@@ -65,12 +73,60 @@ public class Phone implements Serializable {
         this.type = type;
     }
 
-    public String getNumber() {
-        return number;
+    public boolean isPrimaryAddress() {
+        return primaryAddress;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
+    public void setPrimaryAddress(boolean primaryAddress) {
+        this.primaryAddress = primaryAddress;
+    }
+
+    public String getUnitNumber() {
+        return unitNumber;
+    }
+
+    public void setUnitNumber(String unitNumber) {
+        this.unitNumber = unitNumber;
+    }
+
+    public String getStreetNumber() {
+        return streetNumber;
+    }
+
+    public void setStreetNumber(String streetNumber) {
+        this.streetNumber = streetNumber;
+    }
+
+    public String getStreetName() {
+        return streetName;
+    }
+
+    public void setStreetName(String streetName) {
+        this.streetName = streetName;
+    }
+
+    public String getZip() {
+        return zip;
+    }
+
+    public void setZip(String zip) {
+        this.zip = zip;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public Country getCountry() {
+        return country;
+    }
+
+    public void setCountry(Country country) {
+        this.country = country;
     }
 
     @Override
@@ -83,7 +139,7 @@ public class Phone implements Serializable {
             return false;
         }
 
-        Phone other = (Phone) obj;
+        PersonAddress other = (PersonAddress) obj;
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }

@@ -18,34 +18,40 @@
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import org.picketlink.idm.jpa.annotations.AttributeClass;
+import org.picketlink.idm.jpa.annotations.AttributeName;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
 
 /**
  * @author pedroigor
  */
 @Entity
-public class Address implements Serializable {
+public class CompanyAttribute implements Serializable {
 
-    private static final long serialVersionUID = -7853573986900909424L;
+    private static final long serialVersionUID = 5255050503622214581L;
 
     @Id
     @GeneratedValue
     private Long id;
 
+    @OwnerReference
     @ManyToOne
-    private Person person;
+    private Company owner;
 
-    private String unitNumber;
-    private String streetNumber;
-    private String streetName;
-    private String zip;
-    private String city;
+    @AttributeClass
+    private String typeName;
 
-    @ManyToOne
-    private Country country;
+    @AttributeName
+    private String name;
+
+    @AttributeValue
+    @Column(length = 1024) private String value;
 
     public Long getId() {
         return id;
@@ -55,60 +61,36 @@ public class Address implements Serializable {
         this.id = id;
     }
 
-    public Person getPerson() {
-        return person;
+    public Company getOwner() {
+        return owner;
     }
 
-    public void setPerson(Person person) {
-        this.person = person;
+    public void setOwner(Company owner) {
+        this.owner = owner;
     }
 
-    public String getUnitNumber() {
-        return unitNumber;
+    public String getTypeName() {
+        return typeName;
     }
 
-    public void setUnitNumber(String unitNumber) {
-        this.unitNumber = unitNumber;
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
 
-    public String getStreetNumber() {
-        return streetNumber;
+    public String getName() {
+        return name;
     }
 
-    public void setStreetNumber(String streetNumber) {
-        this.streetNumber = streetNumber;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getStreetName() {
-        return streetName;
+    public String getValue() {
+        return value;
     }
 
-    public void setStreetName(String streetName) {
-        this.streetName = streetName;
-    }
-
-    public String getZip() {
-        return zip;
-    }
-
-    public void setZip(String zip) {
-        this.zip = zip;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public Country getCountry() {
-        return country;
-    }
-
-    public void setCountry(Country country) {
-        this.country = country;
+    public void setValue(String value) {
+        this.value = value;
     }
 
     @Override
@@ -121,7 +103,7 @@ public class Address implements Serializable {
             return false;
         }
 
-        Address other = (Address) obj;
+        CompanyAttribute other = (CompanyAttribute) obj;
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }
@@ -132,4 +114,5 @@ public class Address implements Serializable {
         result = 31 * result + (getId() != null ? getId().hashCode() : 0);
         return result;
     }
+
 }
