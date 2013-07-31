@@ -27,7 +27,7 @@ import javax.persistence.ManyToOne;
  * @author pedroigor
  */
 @Entity
-public class PersonAddress implements Serializable {
+public class Address implements Serializable {
 
     private static final long serialVersionUID = -7853573986900909424L;
 
@@ -139,7 +139,7 @@ public class PersonAddress implements Serializable {
             return false;
         }
 
-        PersonAddress other = (PersonAddress) obj;
+        Address other = (Address) obj;
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }

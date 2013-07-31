@@ -17,12 +17,6 @@
  */
 package org.picketlink.idm.jpa.internal.mappers;
 
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Member;
-import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
@@ -32,7 +26,14 @@ import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 
-import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Member;
+import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.picketlink.common.properties.query.TypedPropertyCriteria.*;
 
 /**
  * @author pedroigor
@@ -55,7 +56,9 @@ public class EntityMapping {
     }
 
     public void addProperty(Property property, Property mappedProperty) {
-        this.properties.put(property, mappedProperty);
+        if (mappedProperty != null) {
+            this.properties.put(property, mappedProperty);
+        }
     }
 
     public void addTypeProperty(Property property) {

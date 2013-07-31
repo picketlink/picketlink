@@ -17,17 +17,19 @@
  */
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
-import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import java.io.Serializable;
 
 /**
  * @author pedroigor
  */
 @Entity
 public class Phone implements Serializable {
+
+    public static enum Type {HOME, WORK, MOBILE}
 
     private static final long serialVersionUID = -1183323836855243481L;
 
@@ -38,8 +40,16 @@ public class Phone implements Serializable {
     @ManyToOne
     private Person person;
 
-    private String type;
+    private Type type = Type.WORK;
     private String number;
+
+    public Phone() {
+        this(null);
+    }
+
+    public Phone(String number) {
+        this.number = number;
+    }
 
     public Long getId() {
         return id;
@@ -57,11 +67,11 @@ public class Phone implements Serializable {
         this.person = person;
     }
 
-    public String getType() {
+    public Type getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Type type) {
         this.type = type;
     }
 

@@ -17,11 +17,11 @@
  */
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
-import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import java.io.Serializable;
 
 /**
  * @author pedroigor
@@ -32,6 +32,9 @@ public class OrganizationUnit implements Serializable {
     @Id
     @GeneratedValue
     private Long id;
+
+    @ManyToOne
+    private Company company;
 
     @ManyToOne
     private OrganizationUnit parent;
@@ -60,6 +63,14 @@ public class OrganizationUnit implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(final Company company) {
+        this.company = company;
     }
 
     public OrganizationUnit getParent() {

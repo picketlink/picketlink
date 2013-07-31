@@ -17,25 +17,25 @@
  */
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
-import java.io.Serializable;
-import java.util.Date;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.CreationDate;
-import org.picketlink.idm.jpa.annotations.Enabled;
-import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.jpa.model.sample.complex.User;
+import org.picketlink.idm.model.IdentityType;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @author pedroigor
  */
-@IdentityManaged (User.class)
+@IdentityManaged ({User.class, IdentityType.class})
 @Entity
 public class UserAccount implements Serializable {
 
@@ -48,14 +48,8 @@ public class UserAccount implements Serializable {
     @IdentityClass
     private String type;
 
-    @Enabled
-    private boolean active;
-
     @CreationDate
     private Date creationDate;
-
-    @ExpiryDate
-    private Date expirationDate;
 
     @ManyToOne
     @AttributeValue
@@ -100,28 +94,12 @@ public class UserAccount implements Serializable {
         this.userName = userName;
     }
 
-    public Date getExpirationDate() {
-        return expirationDate;
-    }
-
-    public void setExpirationDate(Date expirationDate) {
-        this.expirationDate = expirationDate;
-    }
-
     public Date getCreationDate() {
         return creationDate;
     }
 
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 
     public Company getCompany() {
