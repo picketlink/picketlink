@@ -17,14 +17,6 @@
  */
 package org.picketlink.idm.jpa.internal.mappers;
 
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.Id;
-import javax.persistence.Query;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
@@ -38,8 +30,18 @@ import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
-import static java.util.Map.Entry;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Id;
+import javax.persistence.Query;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+import static java.util.Map.*;
+import static org.picketlink.idm.IDMMessages.*;
 
 /**
  * <p>This class holds all the mapping configuration for a specific JPA Entity and their corresponding IDM model classes.
@@ -355,7 +357,11 @@ public class EntityMapper {
                 }
             }
         } else {
-            entityInstance = entityManager.find(getEntityType(), attributedType.getId());
+            try {
+                entityInstance = entityManager.find(getEntityType(), attributedType.getId());
+            } catch (Exception e) {
+
+            }
 
             if (entityInstance == null) {
                 try {
