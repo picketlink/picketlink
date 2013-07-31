@@ -17,20 +17,6 @@
  */
 package org.picketlink.idm.ldap.internal;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.SearchResult;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
@@ -57,18 +43,28 @@ import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
-import static java.util.Map.Entry;
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.COMMA;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CREATE_TIMESTAMP;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.EQUAL;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.GROUP_OF_NAMES;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.SPACE_STRING;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.SearchResult;
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+
+import static java.util.Map.*;
+import static org.picketlink.common.properties.query.TypedPropertyCriteria.*;
+import static org.picketlink.common.util.StringUtil.*;
+import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.*;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.*;
 
 /**
  * An IdentityStore implementation backed by an LDAP directory
@@ -252,7 +248,8 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
             Property<AttributedType> property = PropertyQueries
                     .<AttributedType>createQuery(relationship.getClass())
-                    .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType(), true)).getSingleResult();
+                    .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType()))
+                    .getSingleResult();
 
             AttributedType relationalAttributedType = property.getValue(relationship);
 
@@ -465,10 +462,12 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                     List<Property<AttributedType>> properties = PropertyQueries
                             .<AttributedType>createQuery(query.getRelationshipClass())
-                            .addCriteria(new TypedPropertyCriteria(IdentityType.class, true)).getResultList();
+                            .addCriteria(new TypedPropertyCriteria(IdentityType.class, MatchOption.SUB_TYPE))
+                            .getResultList();
                     Property<AttributedType> rootProperty = PropertyQueries
                             .<AttributedType>createQuery(query.getRelationshipClass())
-                            .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType(), true)).getSingleResult();
+                            .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType()))
+                            .getSingleResult();
 
                     while (search.hasMore()) {
                         SearchResult next = search.next();
@@ -546,7 +545,8 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                     Property<AttributedType> property = PropertyQueries
                             .<AttributedType>createQuery(query.getRelationshipClass())
-                            .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType(), true)).getSingleResult();
+                            .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType()))
+                            .getSingleResult();
 
                     while (search.hasMore()) {
                         SearchResult next = search.next();
@@ -643,7 +643,8 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
         Property<AttributedType> property = PropertyQueries
                 .<AttributedType>createQuery(relationship.getClass())
-                .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType(), true)).getSingleResult();
+                .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType()))
+                .getSingleResult();
 
         AttributedType relationalAttributedType = property.getValue(relationship);
 
