@@ -23,7 +23,9 @@ import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import org.picketlink.idm.jpa.annotations.PartitionClass;
+
+import static org.picketlink.common.util.StringUtil.*;
 
 /**
  * @author pedroigor
@@ -40,6 +42,9 @@ public class AttributedValueMapper extends AbstractIdentityManagedMapper {
                 .getResultList().isEmpty()
                 && PropertyQueries.<String>createQuery(entityType)
                 .addCriteria(new AnnotatedPropertyCriteria(IdentityClass.class))
+                .getResultList().isEmpty()
+                && PropertyQueries.<String>createQuery(entityType)
+                .addCriteria(new AnnotatedPropertyCriteria(PartitionClass.class))
                 .getResultList().isEmpty();
     }
 
