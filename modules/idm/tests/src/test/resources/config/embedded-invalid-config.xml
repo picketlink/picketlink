@@ -6,9 +6,7 @@
     <named value="SIMPLE_FILE_STORE_CONFIG">
       <stores>
         <file>
-          <preserveState value="false" />
-          <supportGlobalRelationship value="org.picketlink.idm.model.Relationship" />
-          <supportAllFeatures />
+          <somethingBad value="false" />
         </file>
       </stores>
     </named>

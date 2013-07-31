@@ -26,6 +26,8 @@ import org.junit.Test;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.SecurityConfigurationException;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * <p>
  * Test case for the Configuration API.
@@ -63,7 +65,7 @@ public class ConfigurationTestCase {
                 .stores()
                     .file()
                         .supportAllFeatures()
-            .named("default")
+            .named("anotherName")
                 .stores()
                     .file()
                         .supportAllFeatures();
@@ -71,8 +73,8 @@ public class ConfigurationTestCase {
         builder.build();
     }
 
-    @Test (expected = SecurityConfigurationException.class)
-    public void failMultipleConfigurationWithSameName() {
+    @Test
+    public void testMoreNamedCalls() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
@@ -85,7 +87,7 @@ public class ConfigurationTestCase {
                     .file()
                         .supportAllFeatures();
 
-        builder.buildAll();
+        assertEquals(builder.buildAll().size(), 1);
     }
 
 }

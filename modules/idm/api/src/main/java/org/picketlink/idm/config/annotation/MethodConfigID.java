@@ -16,26 +16,27 @@
  * limitations under the License.
  */
 
-package org.picketlink.config.idm;
+package org.picketlink.idm.config.annotation;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Type with configuration of IDM
+ * Annotation can be used for {@link org.picketlink.idm.config.Builder} methods. It represents how will be particular method
+ * identified in configuration (For example in XML configuration).
+ *
+ * If this annotation is not present, the configID of method will be the name of this method
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class IDMType {
+@Target({METHOD})
+@Documented
+@Retention(RUNTIME)
+public @interface MethodConfigID {
 
-    private List<ConfigBuilderMethodType> builderMethods = new LinkedList<ConfigBuilderMethodType>();
-
-    public void addConfigBuilderMethod(ConfigBuilderMethodType configBuilderMethod) {
-        this.builderMethods.add(configBuilderMethod);
-    }
-
-    public List<ConfigBuilderMethodType> getBuilderMethods() {
-        return Collections.unmodifiableList(builderMethods);
-    }
+    String name();
 }

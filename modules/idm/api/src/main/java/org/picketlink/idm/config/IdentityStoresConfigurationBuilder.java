@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.picketlink.idm.IDMMessages;
+import org.picketlink.idm.config.annotation.MethodConfigID;
+import org.picketlink.idm.config.annotation.ParameterConfigID;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Relationship;
 
@@ -81,8 +83,10 @@ public class IdentityStoresConfigurationBuilder
      * @param <T>
      * @return
      */
+    @MethodConfigID(name="customIdentityStore")
     public <T extends IdentityStoreConfigurationBuilder<?, ?>> T add(
-            Class<? extends IdentityStoreConfiguration> identityStoreConfiguration, Class<T> builder) {
+            @ParameterConfigID(name="identityStoreConfigurationClass") Class<? extends IdentityStoreConfiguration> identityStoreConfiguration,
+            @ParameterConfigID(name="builderClass") Class<T> builder) {
         this.supportedStoreBuilders.put(identityStoreConfiguration, builder);
         return forIdentityStoreConfig(identityStoreConfiguration, true);
     }
