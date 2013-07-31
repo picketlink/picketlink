@@ -1,0 +1,22 @@
+<PicketLink xmlns="urn:picketlink:identity-federation:config:2.1">
+
+  <!-- Start of IDM configuration -->
+  <PicketLinkIDM>
+
+    <named value="default">
+      <stores>
+        <customIdentityStore
+             identityStoreConfigurationClass="org.picketlink.test.idm.config.CustomIdentityStoreTestCase$MyIdentityStoreConfiguration"
+             builderClass="org.picketlink.test.idm.config.CustomIdentityStoreTestCase$MyIdentityStoreConfigurationBuilder">
+
+          <!-- Custom MethodInvocationContext type needs to be added to resolvers. See testcase -->
+          <methodInvocationContext value="does not matter" />
+          <supportAllFeatures />
+        </customIdentityStore>
+      </stores>
+    </named>
+
+  </PicketLinkIDM>
+
+</PicketLink>
+

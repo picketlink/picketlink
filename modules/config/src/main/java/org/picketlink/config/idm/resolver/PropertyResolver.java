@@ -30,11 +30,10 @@ public interface PropertyResolver<V> {
      * Resolve property value from configuration (usually XML configuration) to real property value, which will be used
      * in IDM configuration
      *
-     * @param configurationType object from XML configuration. Type of this object is usually {@link String} (for simple text value of XML property)
-     *    or {@link org.picketlink.identity.federation.core.config.idm.ObjectType} (for property value containing "Object" element with other properties
+     * @param configurationValue object from XML configuration. Type of this object is usually {@link String} (for simple text value of XML property)
      * @param propertyClass type of property to return
-     * @return real value of property, which will be used in XML configuration
+     * @return real value of property, which will be used in IDM configuration
      */
-    V resolveProperty(Object configurationType, Class<V> propertyClass);
+    V resolveProperty(Object configurationValue, Class<V> propertyClass);
 
 }

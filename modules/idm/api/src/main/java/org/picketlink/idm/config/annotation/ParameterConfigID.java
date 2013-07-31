@@ -16,12 +16,28 @@
  * limitations under the License.
  */
 
-package org.picketlink.config.idm;
+package org.picketlink.idm.config.annotation;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Custom object type
+ * Annotation can be used for parameters in {@link org.picketlink.idm.config.Builder} methods. It represents how will be
+ * particular parameter identified in configuration (For example in XML configuration).
+ *
+ * If this annotation is not present, the configID of parameter will be the name of this parameter
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class ObjectType extends StoreConfigurationType {
+@Target({PARAMETER})
+@Documented
+@Retention(RUNTIME)
+public @interface ParameterConfigID {
+
+    String name();
+
 }

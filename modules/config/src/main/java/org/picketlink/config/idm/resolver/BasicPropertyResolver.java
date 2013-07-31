@@ -19,8 +19,8 @@
 package org.picketlink.config.idm.resolver;
 
 import org.picketlink.common.reflection.Reflections;
-import org.picketlink.config.idm.ObjectType;
-import org.picketlink.config.idm.XMLBasedIdentityManagerProvider;
+import org.picketlink.common.reflection.Types;
+import org.picketlink.config.idm.XMLConfigurationProvider;
 import org.picketlink.idm.config.SecurityConfigurationException;
 
 import java.beans.PropertyEditor;
@@ -31,18 +31,40 @@ import java.beans.PropertyEditorManager;
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public abstract class PrimitivePropertyResolver<V> extends BasePropertyResolver<V> {
+public abstract class BasicPropertyResolver<V> implements  PropertyResolver<V> {
 
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected V resolvePropertyFromObjectType(ObjectType objectType) {
-        throw new SecurityConfigurationException("Not implemented");
+    public V resolveProperty(Object propertyValueFromConfiguration, Class<V> propertyClass) {
+        if (propertyValueFromConfiguration instanceof String) {
+            String stringValue = (String)propertyValueFromConfiguration;
+
+            // Handle null cases
+            if ("null".equals(stringValue)) {
+                return null;
+            }
+
+            return resolvePropertyFromString(stringValue, propertyClass);
+        } else {
+            throw new SecurityConfigurationException("Unknown type of propertyValue: " + propertyValueFromConfiguration);
+        }
     }
+
+    /**
+     * Should be overriden for resolvers, which are able to map simple String to expected java type
+     *
+     * @param stringPropertyValue property value from XML configuration
+     * @param propertyClass type of property to return
+     * @return value of configuration type resolved from stringPropertyValue parameter
+     */
+    protected abstract V resolvePropertyFromString(String stringPropertyValue, Class<V> propertyClass);
 
     /**
      * String resolver simply return passed value
      */
-    public static class StringResolver extends PrimitivePropertyResolver<String> {
+    public static class StringResolver extends BasicPropertyResolver<String> {
 
         @Override
         protected String resolvePropertyFromString(String propertyValue, Class<String> propertyClass) {
@@ -55,12 +77,13 @@ public abstract class PrimitivePropertyResolver<V> extends BasePropertyResolver<
      * Class resolver will try to create class from passed String
      */
     @SuppressWarnings("rawtypes")
-    public static class ClassResolver extends PrimitivePropertyResolver<Class> {
+    public static class ClassResolver extends BasicPropertyResolver<Class> {
+
         @Override
         protected Class resolvePropertyFromString(String propertyValue, Class<Class> propertyClass) {
             try {
                 // Property value represents className, TODO: classloader's list should be probably configurable
-                return Reflections.classForName(propertyValue, XMLBasedIdentityManagerProvider.IDM_CLASSLOADER);
+                return Reflections.classForName(propertyValue, XMLConfigurationProvider.IDM_CLASSLOADERS);
             } catch (ClassNotFoundException cnfe) {
                 throw new SecurityConfigurationException(cnfe);
             }
@@ -70,12 +93,13 @@ public abstract class PrimitivePropertyResolver<V> extends BasePropertyResolver<
     /**
      * Resolver for primitive java types. It delegate the work to JDK {@link PropertyEditor} API
      */
-    public static class PropertyEditorDelegateResolver extends PrimitivePropertyResolver<Object> {
+    public static class PropertyEditorDelegateResolver<V> extends BasicPropertyResolver<V> {
 
         @Override
-        protected Object resolvePropertyFromString(String propertyValue, Class<Object> propertyClass) {
+        protected V resolvePropertyFromString(String propertyValue, Class<V> propertyClass) {
             PropertyEditor propertyEditor = PropertyEditorManager.findEditor(propertyClass);
             propertyEditor.setAsText(propertyValue);
+            propertyClass = (Class<V>)Types.boxedClass(propertyClass);
             return propertyClass.cast(propertyEditor.getValue());
         }
     }

@@ -60,55 +60,25 @@
 
   <!-- Start of IDM configuration -->
   <PicketLinkIDM>
-    <IdentityManager ClassName="org.picketlink.idm.internal.DefaultIdentityManager" />
-    <StoreFactory ClassName="org.picketlink.idm.internal.DefaultStoreSelector" />
-
-    <IdentityStoreInvocationContextFactory ClassName="org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory">
-      <EntityManagerFactory ClassName="org.picketlink.idm.DefaultEntityManagerFactory" /> <!-- Class doesn't exists atm -->
-
-      <!-- Should be those mandatory? Maybe we can left default impls if not provided here... -->
-      <EventBridge ClassName="org.picketlink.idm.internal.NullEventBridge" /> <!-- Class doesn't exists atm -->
-      <CredentialHandlerFactory ClassName="org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory" />
-      <IdentityCache ClassName="org.picketlink.idm.DefaultIdentityCache" />
-      <IdGenerator ClassName="${property.id.generator::org.picketlink.idm.internal.DefaultIdGenerator}" />
-    </IdentityStoreInvocationContextFactory>
-
-    <IdentityConfiguration>
-      <IdentityStoreConfiguration ClassName="org.picketlink.idm.ldap.internal.LDAPConfiguration">
-        <Property Name="bindDN">uid=admin,ou=system</Property>
-        <Property Name="bindCredential">secret</Property>
-        <Property Name="ldapURL">ldap://localhost:10389</Property>
-        <Property Name="userDNSuffix">ou=People,dc=jboss,dc=org</Property>
-        <Property Name="roleDNSuffix">ou=Roles,dc=jboss,dc=org</Property>
-        <Property Name="groupDNSuffix">ou=Groups,dc=jboss,dc=org</Property>
-        <Property Name="activeDirectory">false</Property>
-        <Property Name="additionalProperties">
-          <Object ClassName="java.util.Properties">
-            <Property Name="property1">Value1</Property>
-            <Property Name="property2">Value2</Property>
-          </Object>
-        </Property>
-      </IdentityStoreConfiguration>
-
-      <!-- More store configurations can be provided... -->
-      <IdentityStoreConfiguration ClassName="org.picketlink.idm.file.internal.FileIdentityStoreConfiguration">
-        <Property Name="dataSource">
-          <Object ClassName="org.picketlink.idm.file.internal.FileDataSource">
-            <Property Name="workingDir">/tmp/example</Property>
-            <Property Name="alwaysCreateFiles">true</Property>
-          </Object>
-        </Property>
-      </IdentityStoreConfiguration>
-
-      <!-- JPAIdentityStoreConfiguration -->
-      <IdentityStoreConfiguration ClassName="org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration">
-        <Property Name="identityClass">${property.existing::org.picketlink.idm.jpa.schema.IdentityObjecttttt}</Property>
-        <Property Name="relationshipClass">${property.nonexisting::org.picketlink.idm.jpa.schema.RelationshipObject}</Property>
-        <Property Name="partitionClass">org.picketlink.idm.jpa.schema.PartitionObject</Property>
-        <Property Name="identityTypeUser">USERRR</Property>
-      </IdentityStoreConfiguration>
-
-    </IdentityConfiguration>
+    <named value="SIMPLE_LDAP_STORE_CONFIG">
+      <stores>
+        <ldap>
+          <baseDN value="BASE_DN - value" />
+          <bindDN value="uid=admin,ou=system" />
+          <bindCredential value="secret" />
+          <mapping value="org.pickeltink.idm.Agent">
+            <baseDN value="some_Agent_dn_suffix" />
+            <objectClasses value1="account" />
+            <attribute propertyName="loginName" ldapAttributeName="UID" identifier="true" />
+          </mapping>
+          <mapping value="org.pickeltink.idm.Agent">
+            <baseDN value="some_Agent_dn_suffix" />
+            <objectClasses value1="account" />
+            <attribute propertyName="loginName" ldapAttributeName="UID" identifier="true" />
+          </mapping>
+        </ldap>
+      </stores>
+    </named>
   </PicketLinkIDM>
 
 </PicketLink>
