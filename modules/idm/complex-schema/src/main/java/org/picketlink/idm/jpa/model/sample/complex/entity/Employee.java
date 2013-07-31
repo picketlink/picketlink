@@ -31,6 +31,14 @@ public class Employee extends Person {
     @ManyToOne
     private OrganizationUnit organizationUnit;
 
+    public Employee() {
+        this(null);
+    }
+
+    public Employee(OrganizationUnit organizationUnit) {
+        this.organizationUnit = organizationUnit;
+    }
+
     public OrganizationUnit getOrganizationUnit() {
         return organizationUnit;
     }

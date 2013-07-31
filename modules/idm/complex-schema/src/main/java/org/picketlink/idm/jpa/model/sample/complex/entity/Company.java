@@ -17,14 +17,16 @@
  */
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
-import java.io.Serializable;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
 import org.picketlink.idm.jpa.annotations.PartitionName;
 import org.picketlink.idm.jpa.annotations.entity.ConfigurationName;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import java.io.Serializable;
 
 /**
  * @author pedroigor
@@ -45,6 +47,9 @@ public class Company implements Serializable {
 
     @ConfigurationName
     private String configurationName;
+
+    @AttributeValue
+    private String domain;
 
     public Company() {
         this(null);
@@ -84,6 +89,14 @@ public class Company implements Serializable {
 
     public void setConfigurationName(String configurationName) {
         this.configurationName = configurationName;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(final String domain) {
+        this.domain = domain;
     }
 
     @Override

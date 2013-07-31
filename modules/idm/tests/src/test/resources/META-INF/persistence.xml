@@ -37,8 +37,9 @@
     <persistence-unit name="complex-schema-tests-pu" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.ejb.HibernatePersistence</provider>
 
-        <class>org.picketlink.idm.jpa.model.sample.complex.entity.PersonAddress</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.Address</class>
         <class>org.picketlink.idm.jpa.model.sample.complex.entity.UserAccount</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.UserAccountControl</class>
         <class>org.picketlink.idm.jpa.model.sample.complex.entity.Employee</class>
         <class>org.picketlink.idm.jpa.model.sample.complex.entity.Customer</class>
         <class>org.picketlink.idm.jpa.model.sample.complex.entity.OrganizationUnit</class>

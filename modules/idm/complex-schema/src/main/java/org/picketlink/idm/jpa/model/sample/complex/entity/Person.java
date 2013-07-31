@@ -17,17 +17,18 @@
  */
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
-import static javax.persistence.CascadeType.ALL;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import static javax.persistence.CascadeType.*;
 
 /**
  * @author pedroigor
@@ -45,12 +46,12 @@ public class Person implements Serializable {
     private Date birthDate;
 
     @OneToMany (mappedBy = "person", cascade = ALL)
-    private List<PersonAddress> address;
+    private List<Address> address;
 
-    @OneToMany (mappedBy = "person")
+    @OneToMany (mappedBy = "person", cascade = ALL)
     private List<Email> emails;
 
-    @OneToMany (mappedBy = "person")
+    @OneToMany (mappedBy = "person", cascade = ALL)
     private List<Phone> phones;
 
     public Long getId() {
@@ -85,11 +86,11 @@ public class Person implements Serializable {
         this.birthDate = birthDate;
     }
 
-    public List<PersonAddress> getAddress() {
+    public List<Address> getAddress() {
         return address;
     }
 
-    public void setAddress(List<PersonAddress> address) {
+    public void setAddress(List<Address> address) {
         this.address = address;
     }
 
@@ -131,13 +132,33 @@ public class Person implements Serializable {
         return result;
     }
 
-    public void addAddress(PersonAddress address) {
+    public void addAddress(Address address) {
         if (this.address == null) {
-            this.address = new ArrayList<PersonAddress>();
+            this.address = new ArrayList<Address>();
         }
 
         address.setPerson(this);
 
         this.address.add(address);
+    }
+
+    public void addEmail(Email email) {
+        if (this.emails == null) {
+            this.emails = new ArrayList<Email>();
+        }
+
+        email.setPerson(this);
+
+        this.emails.add(email);
+    }
+
+    public void addPhone(final Phone phone) {
+        if (this.phones == null) {
+            this.phones = new ArrayList<Phone>();
+        }
+
+        phone.setPerson(this);
+
+        this.phones.add(phone);
     }
 }
