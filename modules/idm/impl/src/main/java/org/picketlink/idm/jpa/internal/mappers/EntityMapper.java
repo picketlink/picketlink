@@ -357,7 +357,11 @@ public class EntityMapper {
                 }
             }
         } else {
-            entityInstance = entityManager.find(getEntityType(), attributedType.getId());
+            try {
+                entityInstance = entityManager.find(getEntityType(), attributedType.getId());
+            } catch (Exception e) {
+
+            }
 
             if (entityInstance == null) {
                 try {

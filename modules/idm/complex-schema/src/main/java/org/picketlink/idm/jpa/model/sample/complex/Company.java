@@ -24,10 +24,20 @@ import org.picketlink.idm.model.AbstractPartition;
  */
 public class Company extends AbstractPartition {
 
+    private String domain;
+
     public Company() {
         this(null);
     }
     public Company(String name) {
         super(name);
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(final String domain) {
+        this.domain = domain;
     }
 }

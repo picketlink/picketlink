@@ -17,24 +17,26 @@
  */
 package org.picketlink.test.idm.testers;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
+import org.picketlink.idm.jpa.model.sample.complex.entity.Address;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Application;
-import org.picketlink.idm.jpa.model.sample.complex.entity.CompanyAttribute;
 import org.picketlink.idm.jpa.model.sample.complex.entity.ApplicationUser;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Company;
+import org.picketlink.idm.jpa.model.sample.complex.entity.CompanyAttribute;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Country;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Email;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Employee;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Person;
-import org.picketlink.idm.jpa.model.sample.complex.entity.PersonAddress;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Phone;
 import org.picketlink.idm.jpa.model.sample.complex.entity.UserAccount;
+import org.picketlink.idm.jpa.model.sample.complex.entity.UserAccountControl;
 import org.picketlink.idm.jpa.model.sample.complex.entity.UserAttribute;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
 /**
  * @author pedroigor
@@ -56,7 +58,8 @@ public class JPAStoreComplexSchemaConfigurationTester implements IdentityConfigu
                     .jpa()
                         .mappedEntity(
                                 Person.class,
-                                PersonAddress.class,
+                                Employee.class,
+                                Address.class,
                                 Application.class,
                                 Company.class,
                                 Country.class,
@@ -66,6 +69,7 @@ public class JPAStoreComplexSchemaConfigurationTester implements IdentityConfigu
                                 UserAttribute.class,
                                 CompanyAttribute.class,
                                 UserAccount.class,
+                                UserAccountControl.class,
                                 ApplicationUser.class
                         )
                         .addContextInitializer(new JPAContextInitializer(null) {

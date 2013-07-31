@@ -20,13 +20,19 @@ package org.picketlink.idm.jpa.model.sample.complex;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Person;
 import org.picketlink.idm.model.AbstractIdentityType;
 import org.picketlink.idm.model.Account;
+import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.model.annotation.Unique;
 
 /**
  * @author pedroigor
  */
 public class User extends AbstractIdentityType implements Account {
 
+    @Unique
+    @AttributeProperty
     private String userName;
+
+    @AttributeProperty
     private Person person;
 
     public User() {

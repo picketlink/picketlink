@@ -17,11 +17,11 @@
  */
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
-import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import java.io.Serializable;
 
 /**
  * @author pedroigor
@@ -38,6 +38,14 @@ public class Email implements Serializable {
 
     private String address;
     private boolean primaryEmail;
+
+    public Email() {
+        this(null);
+    }
+
+    public Email(String address) {
+        this.address = address;
+    }
 
     public Long getId() {
         return id;
