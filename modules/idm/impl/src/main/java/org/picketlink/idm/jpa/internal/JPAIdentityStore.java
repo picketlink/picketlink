@@ -18,20 +18,6 @@
 
 package org.picketlink.idm.jpa.internal;
 
-import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
@@ -75,8 +61,25 @@ import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.PartitionStore;
-import static java.util.Map.Entry;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+import static java.util.Map.*;
+import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
+import static org.picketlink.idm.IDMMessages.*;
 
 /**
  * Implementation of IdentityStore that stores its state in a relational database. This is a lightweight object that is
@@ -107,7 +110,11 @@ public class JPAIdentityStore
         super.setup(config);
 
         for (Class<?> entityType : config.getEntityTypes()) {
-            this.entityMappers.add(new EntityMapper(entityType, this));
+            EntityMapper entityMapper = new EntityMapper(entityType, this);
+
+            if (!entityMapper.getEntityMappings().isEmpty()) {
+                this.entityMappers.add(entityMapper);
+            }
         }
     }
 
@@ -863,7 +870,7 @@ public class JPAIdentityStore
         Object ownerEntity = getAttributedTypeEntity(relationship, entityManager);
 
         List<Property<IdentityType>> props = PropertyQueries.<IdentityType>createQuery(relationship.getClass())
-                .addCriteria(new TypedPropertyCriteria(IdentityType.class, true)).getResultList();
+                .addCriteria(new TypedPropertyCriteria(IdentityType.class, MatchOption.SUB_TYPE)).getResultList();
 
         for (Property<IdentityType> prop : props) {
             Object relationshipIdentity = null;

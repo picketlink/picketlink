@@ -18,15 +18,6 @@
 
 package org.picketlink.idm.file.internal;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
@@ -57,9 +48,21 @@ import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.PartitionStore;
-import static java.util.Map.Entry;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.credential.util.CredentialUtils.getCurrentCredential;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static java.util.Map.*;
+import static org.picketlink.common.properties.query.TypedPropertyCriteria.*;
+import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.idm.credential.util.CredentialUtils.*;
 
 /**
  * <p>
@@ -487,7 +490,7 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
 
             PropertyQuery<Serializable> identityPropertiesQuery = PropertyQueries.createQuery(relationship.getClass());
 
-            identityPropertiesQuery.addCriteria(new TypedPropertyCriteria(IdentityType.class, true));
+            identityPropertiesQuery.addCriteria(new TypedPropertyCriteria(IdentityType.class, MatchOption.SUB_TYPE));
 
             for (Property<Serializable> property : identityPropertiesQuery.getResultList()) {
                 property.setValue(clonedRelationship, property.getValue(relationship));

@@ -32,6 +32,8 @@ import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 
+import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
+
 /**
  * @author pedroigor
  */
@@ -114,7 +116,7 @@ public class EntityMapping {
                     for (Class<?> ownerType : identityManaged.value()) {
                         Property<Object> ownerProperty = PropertyQueries
                                 .createQuery(instance.getClass())
-                                .addCriteria(new TypedPropertyCriteria(ownerType, true))
+                                .addCriteria(new TypedPropertyCriteria(ownerType, MatchOption.ALL))
                                 .getFirstResult();
 
                         if (ownerProperty != null && !ownerProperty.getJavaClass().equals(instance.getClass())) {
@@ -134,7 +136,7 @@ public class EntityMapping {
                 for (Class<?> ownerType : identityManaged.value()) {
                     Property<Object> ownerProperty = PropertyQueries
                             .createQuery(instance.getClass())
-                            .addCriteria(new TypedPropertyCriteria(ownerType, true))
+                            .addCriteria(new TypedPropertyCriteria(ownerType, MatchOption.ALL))
                             .getFirstResult();
 
                     if (ownerProperty != null && ownerType.isInstance(value)) {
