@@ -45,6 +45,12 @@ public class XMLConfigurationProvider {
 
     public static final ClassLoader[] IDM_CLASSLOADERS = { IdentityManager.class.getClassLoader(), XMLConfigurationProvider.class.getClassLoader() };
 
+    /**
+     * Create and initialize IdentityConfigurationBuilder and fill it with content from XML configuration
+     *
+     * @param inputStream stream with XML configuration
+     * @return initialized builder
+     */
     public IdentityConfigurationBuilder readIDMConfiguration(InputStream inputStream) {
         IDMType idmConfiguration = parseIDMConfiguration(inputStream);
         return readIDMConfigurationFromIDMType(idmConfiguration);
@@ -104,15 +110,14 @@ public class XMLConfigurationProvider {
                     if (paramsCount == requiredParamsCount) {
                         return candidate;
                         // Otherwise if last parameter is array (varargs), we can have more parameters provided from configuration
-                    } else if (requiredParamsCount > paramsCount && paramsCount >= 1 && params[paramsCount-1].isArray()) {
+                    } else if (requiredParamsCount+1 >= paramsCount && paramsCount >= 1 && params[paramsCount-1].isArray()) {
                         return candidate;
                     }
                 }
             }
         }
 
-        // TODO: logging
-        throw new IllegalStateException("Not found method " + methodId + " with required params " + methodParams + " on object " + builderClass);
+        throw new SecurityConfigurationException("Not found method " + methodId + " with required params " + methodParams + " on object " + builderClass);
     }
 
     protected Object[] getMethodParameters(Method builderMethod, Map<String, String> unparsedParameters) {
@@ -132,12 +137,10 @@ public class XMLConfigurationProvider {
 
             String unparsedParamValue = unparsedParameters.get(paramName);
             if (unparsedParamValue == null) {
-                // TODO
-                throw new IllegalArgumentException("No value found for parameter " + paramName + " in params " + unparsedParameters);
+                throw new SecurityConfigurationException("No value found for parameter " + paramName + " in params " + unparsedParameters);
             }
             if (paramIndex >= paramTypes.length) {
-                // TODO
-                throw new IllegalArgumentException("Index too big. paramName: " + paramName + ", paramIndex: " + paramIndex + ", paramTypes length: " + paramTypes.length);
+                throw new SecurityConfigurationException("Index too big. paramName: " + paramName + ", paramIndex: " + paramIndex + ", paramTypes length: " + paramTypes.length);
             }
 
             Class<?> expectedParamType = paramTypes[paramIndex];
@@ -189,7 +192,7 @@ public class XMLConfigurationProvider {
      * Example: For method like:
      * public String test2(@ParameterConfigID(name="firstArg") String firstArg, @ParameterConfigID(name="secondArg") String secondArg, Object... lastArgs);
      *
-     * The result will be map(("firstArg"->0),("secondArg"->1))
+     * The result will be map(("firstArg" -> 0),("secondArg" -> 1))
      *
      */
     private Map<String, Integer> getParamConfigIdAnnotationIndexes(Method builderMethod) {
@@ -209,6 +212,18 @@ public class XMLConfigurationProvider {
         return paramConfigAnnotationIndexes;
     }
 
+    /**
+     * Convert parameters to be passed to varargs method, so that last parameter will be array.
+     *
+     * Example: We have method myMethod(String param1, Integer param2, String... param3), which means that expectedParamsLength=3 and arrayType=String.class
+     * and we have params array like {"String1", 23, "String2", "String3"} .
+     * Then result will be array like {"String1", 23 {"String2", "String3"}}
+     *
+     * @param params params from XML configuration
+     * @param expectedParamsLength length of result array (Declared number of method parameters)
+     * @param arrayType Type of one item in varargs array
+     * @return converted array with last parameter as array (this last parameter represents varargs argument)
+     */
     private Object[] varargsConvert(Object[] params, int expectedParamsLength, Class<?> arrayType) {
         Object[] result = new Object[expectedParamsLength];
         int normalParamsLength = expectedParamsLength - 1;

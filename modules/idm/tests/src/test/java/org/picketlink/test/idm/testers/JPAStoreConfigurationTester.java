@@ -105,4 +105,9 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
         this.emf.close();
     }
 
+    // Useful for subclasses
+    protected EntityManager getEntityManager() {
+        return entityManager;
+    }
+
 }

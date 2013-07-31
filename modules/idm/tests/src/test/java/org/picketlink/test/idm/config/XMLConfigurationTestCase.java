@@ -30,6 +30,7 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPMappingConfiguration;
+import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.jpa.model.sample.simple.DigestCredentialTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.GroupTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity;
@@ -151,7 +152,7 @@ public class XMLConfigurationTestCase {
 
     @Test
     public void testParseCustomConfiguration() throws ParsingException {
-        // First we need to register custom Resolver for MethodInvocationContext type, used in custom config
+        // First we need to register custom Resolver for MethodInvocationContext type, used in custom config (or alternative is to add it programmatically to builder later)
         final CustomIdentityStoreTestCase.MethodInvocationContext methodInvocationContext = new CustomIdentityStoreTestCase.MethodInvocationContext();
 
         PropertyResolverMapper.getInstance().addPropertyResolver(CustomIdentityStoreTestCase.MethodInvocationContext.class,
@@ -175,6 +176,11 @@ public class XMLConfigurationTestCase {
         CustomIdentityStoreTestCase.MyIdentityStoreConfiguration myStoreConfig = (CustomIdentityStoreTestCase.MyIdentityStoreConfiguration)config.getStoreConfiguration().get(0);
 
         assertEquals(methodInvocationContext, myStoreConfig.getMethodInvocationContext());
+    }
+
+    @Test (expected = SecurityConfigurationException.class)
+    public void testInvalidConfiguration() throws ParsingException {
+        buildFromFile("config/embedded-invalid-config.xml");
     }
 
     private List<IdentityConfiguration> buildFromFile(String configFilePath) {

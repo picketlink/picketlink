@@ -32,7 +32,7 @@ public interface PropertyResolver<V> {
      *
      * @param configurationValue object from XML configuration. Type of this object is usually {@link String} (for simple text value of XML property)
      * @param propertyClass type of property to return
-     * @return real value of property, which will be used in XML configuration
+     * @return real value of property, which will be used in IDM configuration
      */
     V resolveProperty(Object configurationValue, Class<V> propertyClass);
 

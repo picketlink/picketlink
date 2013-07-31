@@ -1,0 +1,17 @@
+<PicketLink xmlns="urn:picketlink:identity-federation:config:2.1">
+
+  <!-- Start of IDM configuration -->
+  <PicketLinkIDM>
+
+    <named value="SIMPLE_FILE_STORE_CONFIG">
+      <stores>
+        <file>
+          <somethingBad value="false" />
+        </file>
+      </stores>
+    </named>
+
+  </PicketLinkIDM>
+
+</PicketLink>
+

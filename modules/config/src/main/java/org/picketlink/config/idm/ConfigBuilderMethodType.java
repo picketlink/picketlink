@@ -28,6 +28,7 @@ import java.util.Map;
  */
 public class ConfigBuilderMethodType {
 
+    // methodId is either method name or value of MethodConfigID annotation
     private final String methodId;
 
     private final Map<String, String> methodParameters;
