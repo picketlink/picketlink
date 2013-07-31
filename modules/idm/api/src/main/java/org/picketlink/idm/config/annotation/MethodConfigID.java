@@ -26,6 +26,11 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
+ * Annotation can be used for {@link org.picketlink.idm.config.Builder} methods. It represents how will be particular method
+ * identified in configuration (For example in XML configuration).
+ *
+ * If this annotation is not present, the configID of method will be the name of this method
+ *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 @Target({METHOD})

@@ -26,6 +26,11 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
+ * Annotation can be used for parameters in {@link org.picketlink.idm.config.Builder} methods. It represents how will be
+ * particular parameter identified in configuration (For example in XML configuration).
+ *
+ * If this annotation is not present, the configID of parameter will be the name of this parameter
+ *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 @Target({PARAMETER})

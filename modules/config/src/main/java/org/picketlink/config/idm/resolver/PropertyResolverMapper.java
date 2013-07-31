@@ -34,7 +34,7 @@ public class PropertyResolverMapper {
     private static final PropertyResolverMapper INSTANCE = initInstance();
 
     // Default resolver for all types, which are configured in XML as simple String
-    private final PropertyResolver<Object> DEFAULT_PRIMITIVE_RESOLVER = new PrimitivePropertyResolver.PropertyEditorDelegateResolver<Object>();
+    private final PropertyResolver<Object> DEFAULT_PRIMITIVE_RESOLVER = new BasicPropertyResolver.PropertyEditorDelegateResolver<Object>();
 
     // Map from types to resolvers. Key is java type. Value is resolver
     @SuppressWarnings("rawtypes")
@@ -48,8 +48,8 @@ public class PropertyResolverMapper {
         PropertyResolverMapper instance = new PropertyResolverMapper();
 
         // Fill map with basic resolver types here. User can add his own resolvers
-        instance.addPropertyResolver(String.class, new PrimitivePropertyResolver.StringResolver());
-        instance.addPropertyResolver(Class.class, new PrimitivePropertyResolver.ClassResolver());
+        instance.addPropertyResolver(String.class, new BasicPropertyResolver.StringResolver());
+        instance.addPropertyResolver(Class.class, new BasicPropertyResolver.ClassResolver());
 
         return instance;
     }

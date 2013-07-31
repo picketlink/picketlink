@@ -31,7 +31,7 @@ import java.beans.PropertyEditorManager;
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public abstract class PrimitivePropertyResolver<V> implements  PropertyResolver<V> {
+public abstract class BasicPropertyResolver<V> implements  PropertyResolver<V> {
 
     /**
      * {@inheritDoc}
@@ -64,7 +64,7 @@ public abstract class PrimitivePropertyResolver<V> implements  PropertyResolver<
     /**
      * String resolver simply return passed value
      */
-    public static class StringResolver extends PrimitivePropertyResolver<String> {
+    public static class StringResolver extends BasicPropertyResolver<String> {
 
         @Override
         protected String resolvePropertyFromString(String propertyValue, Class<String> propertyClass) {
@@ -77,7 +77,7 @@ public abstract class PrimitivePropertyResolver<V> implements  PropertyResolver<
      * Class resolver will try to create class from passed String
      */
     @SuppressWarnings("rawtypes")
-    public static class ClassResolver extends PrimitivePropertyResolver<Class> {
+    public static class ClassResolver extends BasicPropertyResolver<Class> {
 
         @Override
         protected Class resolvePropertyFromString(String propertyValue, Class<Class> propertyClass) {
@@ -93,7 +93,7 @@ public abstract class PrimitivePropertyResolver<V> implements  PropertyResolver<
     /**
      * Resolver for primitive java types. It delegate the work to JDK {@link PropertyEditor} API
      */
-    public static class PropertyEditorDelegateResolver<V> extends PrimitivePropertyResolver<V> {
+    public static class PropertyEditorDelegateResolver<V> extends BasicPropertyResolver<V> {
 
         @Override
         protected V resolvePropertyFromString(String propertyValue, Class<V> propertyClass) {

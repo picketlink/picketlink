@@ -23,6 +23,7 @@ import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.config.PicketLinkConfigParser;
 import org.picketlink.config.federation.IDPType;
 import org.picketlink.config.federation.PicketLinkType;
+import org.picketlink.config.idm.ConfigBuilderMethodType;
 import org.picketlink.config.idm.IDMType;
 import org.picketlink.config.idm.XMLConfigurationProvider;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
@@ -42,7 +43,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Test for parsing of IDM configuration in picketlink.xml file
+ * Test for parsing of IDM configuration in picketlink.xml file.
+ * It just tests parsing (more complex test is XMLConfigurationTestCase in idm/tests module)
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
@@ -70,48 +72,17 @@ public class IDMConfigParserTestCase {
         IDMType idmType = picketlink.getIdmType();
         assertNotNull(idmType);
 
+        assertTrue(idmType.getBuilderMethods().size() > 9);
+        ConfigBuilderMethodType named = idmType.getBuilderMethods().get(0);
+        ConfigBuilderMethodType bindCredential = idmType.getBuilderMethods().get(5);
+        ConfigBuilderMethodType attribute = idmType.getBuilderMethods().get(9);
 
-        /*assertEquals("org.picketlink.idm.internal.DefaultIdentityManager", idmType.getIdentityManagerClass());
-        assertEquals("org.picketlink.idm.internal.DefaultStoreSelector", idmType.getStoreFactoryClass());
-        IdentityStoreInvocationContextFactoryType invStoreInvocationContextFactoryType = idmType.getIdentityStoreInvocationContextFactory();
-        assertEquals("org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory", invStoreInvocationContextFactoryType.getClassName());
-        assertEquals("org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory", invStoreInvocationContextFactoryType.getCredentialHandlerFactoryClass());
-        assertEquals("org.picketlink.idm.DefaultEntityManagerFactory", invStoreInvocationContextFactoryType.getEntityManagerFactoryClass());
-        assertEquals("org.picketlink.idm.internal.NullEventBridge", invStoreInvocationContextFactoryType.getEventBridgeClass());
-        assertEquals("org.picketlink.idm.DefaultIdentityCache", invStoreInvocationContextFactoryType.getIdentityCacheClass());
-        assertEquals("org.picketlink.idm.internal.DefaultIdGenerator", invStoreInvocationContextFactoryType.getIdGeneratorClass());
-
-        StoreConfigurationType partitionStore = idmType.getIdentityConfigurationType().getPartitionStoreConfiguration();
-        assertNull(partitionStore);
-
-        List<StoreConfigurationType> identityStoreConfigs = idmType.getIdentityConfigurationType().getIdentityStoreConfigurations();
-        assertEquals(3, identityStoreConfigs.size());
-        StoreConfigurationType ldapConfig = identityStoreConfigs.get(0);
-        StoreConfigurationType fileConfig = identityStoreConfigs.get(1);
-        StoreConfigurationType jpaConfig = identityStoreConfigs.get(2);
-
-        assertEquals("org.picketlink.idm.ldap.internal.LDAPConfiguration", ldapConfig.getClassName());
-        assertEquals(8, ldapConfig.getAllProperties().keySet().size());
-        assertEquals("uid=admin,ou=system", ldapConfig.getProperty("bindDN"));
-        assertEquals("ldap://localhost:10389", ldapConfig.getProperty("ldapURL"));
-        assertEquals("ou=Groups,dc=jboss,dc=org", ldapConfig.getProperty("groupDNSuffix"));
-        assertNull(ldapConfig.getProperty("property3"));
-        assertEquals("false", ldapConfig.getProperty("activeDirectory"));
-        ObjectType additionalProps = (ObjectType)ldapConfig.getProperty("additionalProperties");
-        assertEquals("java.util.Properties", additionalProps.getClassName());
-        assertEquals("Value1", additionalProps.getProperty("property1"));
-        assertEquals("Value2", additionalProps.getProperty("property2"));
-
-        assertEquals(1, fileConfig.getAllProperties().keySet().size());
-        ObjectType fileDatasource =  (ObjectType)fileConfig.getProperty("dataSource");
-        assertEquals("/tmp/example", fileDatasource.getProperty("workingDir"));
-        assertEquals("true", fileDatasource.getProperty("alwaysCreateFiles"));
-
-        assertEquals("org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration", jpaConfig.getClassName());
-        assertEquals(4, jpaConfig.getAllProperties().keySet().size());
-        assertEquals("org.picketlink.idm.jpa.schema.IdentityObject", jpaConfig.getProperty("identityClass"));
-        assertEquals("org.picketlink.idm.jpa.schema.RelationshipObject", jpaConfig.getProperty("relationshipClass"));
-        assertEquals("USERRR", jpaConfig.getProperty("identityTypeUser"));
-        */
+        assertEquals("named", named.getMethodId());
+        assertEquals("SIMPLE_LDAP_STORE_CONFIG", named.getMethodParameters().get("value"));
+        assertEquals("bindCredential", bindCredential.getMethodId());
+        assertEquals("secret", bindCredential.getMethodParameters().get("value"));
+        assertEquals("attribute", attribute.getMethodId());
+        assertNull(attribute.getMethodParameters().get("value"));
+        assertEquals("UID", attribute.getMethodParameters().get("ldapAttributeName"));
     }
 }

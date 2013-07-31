@@ -21,6 +21,8 @@ package org.picketlink.test.idm.config;
 import org.junit.Test;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.config.idm.XMLConfigurationProvider;
+import org.picketlink.config.idm.resolver.BasicPropertyResolver;
+import org.picketlink.config.idm.resolver.PropertyResolverMapper;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
@@ -41,7 +43,6 @@ import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
-import org.picketlink.test.idm.basic.CustomAccountTestCase;
 import org.picketlink.test.idm.basic.MyCustomAccountEntity;
 
 import java.io.InputStream;
@@ -146,6 +147,34 @@ public class XMLConfigurationTestCase {
         assertTrue(entityTypes.contains(PartitionTypeEntity.class));
         assertTrue(entityTypes.contains(MyCustomAccountEntity.class));
         assertTrue(entityTypes.contains(GroupTypeEntity.class));
+    }
+
+    @Test
+    public void testParseCustomConfiguration() throws ParsingException {
+        // First we need to register custom Resolver for MethodInvocationContext type, used in custom config
+        final CustomIdentityStoreTestCase.MethodInvocationContext methodInvocationContext = new CustomIdentityStoreTestCase.MethodInvocationContext();
+
+        PropertyResolverMapper.getInstance().addPropertyResolver(CustomIdentityStoreTestCase.MethodInvocationContext.class,
+                new BasicPropertyResolver<CustomIdentityStoreTestCase.MethodInvocationContext>() {
+
+                    @Override
+                    protected CustomIdentityStoreTestCase.MethodInvocationContext resolvePropertyFromString(String stringPropertyValue, Class<CustomIdentityStoreTestCase.MethodInvocationContext> propertyClass) {
+                        return methodInvocationContext;
+                    }
+                });
+
+        List<IdentityConfiguration> configs = buildFromFile("config/embedded-custom-config.xml");
+        assertEquals(configs.size(), 1);
+        IdentityConfiguration config = configs.get(0);
+        assertEquals("default", config.getName());
+
+        assertTrue(config.getRelationshipPolicy().isGlobalRelationshipSupported(Relationship.class));
+
+        assertEquals(config.getStoreConfiguration().size(), 1);
+        assertTrue(config.getStoreConfiguration().get(0) instanceof CustomIdentityStoreTestCase.MyIdentityStoreConfiguration);
+        CustomIdentityStoreTestCase.MyIdentityStoreConfiguration myStoreConfig = (CustomIdentityStoreTestCase.MyIdentityStoreConfiguration)config.getStoreConfiguration().get(0);
+
+        assertEquals(methodInvocationContext, myStoreConfig.getMethodInvocationContext());
     }
 
     private List<IdentityConfiguration> buildFromFile(String configFilePath) {
