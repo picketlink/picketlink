@@ -401,7 +401,20 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
                             }
                         } else if (AttributeParameter.class.isInstance(queryParameter) && values != null) {
                             AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
-                            match = matchAttribute(storedRelationship.getEntry(), attributeParameter.getName(), values);
+
+                            Property<Serializable> property = PropertyQueries.<Serializable>createQuery(query.getRelationshipClass())
+                                    .addCriteria(new NamedPropertyCriteria(attributeParameter.getName()))
+                                    .getFirstResult();
+
+                            if (property != null) {
+                                Serializable value = property.getValue(storedRelationship.getEntry());
+
+                                if (value != null) {
+                                    match = value.equals(values[0]);
+                                }
+                            } else {
+                                match = matchAttribute(storedRelationship.getEntry(), attributeParameter.getName(), values);
+                            }
                         }
 
                         if (!match) {
