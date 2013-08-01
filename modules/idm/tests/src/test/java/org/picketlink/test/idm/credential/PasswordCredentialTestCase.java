@@ -18,9 +18,8 @@
 
 package org.picketlink.test.idm.credential;
 
-import java.util.Calendar;
-import java.util.Date;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
@@ -30,9 +29,11 @@ import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.IgnoreTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+
+import java.util.Calendar;
+import java.util.Date;
+
+import static org.junit.Assert.*;
 
 /**
  * <p>
@@ -117,7 +118,7 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
     }
 
     @Test
-    @IgnoreTester (LDAPStoreConfigurationTester.class)
+    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testExpiration() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");

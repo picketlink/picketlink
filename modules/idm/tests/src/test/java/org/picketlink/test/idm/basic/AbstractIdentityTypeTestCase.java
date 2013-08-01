@@ -18,10 +18,6 @@
 
 package org.picketlink.test.idm.basic;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -31,6 +27,12 @@ import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.IgnoreTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNull;
@@ -59,9 +61,9 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         assertTrue(enabledIdentityType.isEnabled());
 
         IdentityManager identityManager = getIdentityManager();
-        
+
         enabledIdentityType.setEnabled(false);
-        
+
         identityManager.update(enabledIdentityType);
 
         T disabledIdentityType = getIdentityType();
@@ -108,9 +110,9 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         Date expirationDate = new Date();
 
         IdentityManager identityManager = getIdentityManager();
-        
+
         validIdentityType.setExpirationDate(expirationDate);
-        
+
         identityManager.update(validIdentityType);
 
         T expiredIdentityType = getIdentityType();
@@ -125,9 +127,9 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         T storedIdentityType = createIdentityType();
 
         IdentityManager identityManager = getIdentityManager();
-        
+
         storedIdentityType.setAttribute(new Attribute<String>("one-valued", "1"));
-        
+
         identityManager.update(storedIdentityType);
 
         T updatedIdentityType = getIdentityType();
@@ -144,9 +146,9 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         T storedIdentityType = createIdentityType();
 
         IdentityManager identityManager = getIdentityManager();
-        
+
         storedIdentityType.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
-        
+
         identityManager.update(storedIdentityType);
 
         T updatedIdentityType = getIdentityType();
@@ -186,7 +188,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         assertNotNull(updatedIdentityType.<String> getAttribute("Question1Answer"));
         assertNotNull(updatedIdentityType.<String> getAttribute("Question2"));
         assertNotNull(updatedIdentityType.<String> getAttribute("Question2Answer"));
-        
+
         assertEquals("2", updatedIdentityType.<String> getAttribute("QuestionTotal").getValue());
         assertEquals("What is favorite toy?", updatedIdentityType.<String> getAttribute("Question1").getValue());
         assertEquals("Gum", updatedIdentityType.<String> getAttribute("Question1Answer").getValue());
@@ -214,7 +216,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         T updatedIdentityType = getIdentityType();
 
         assertNotNull(updatedIdentityType.<Integer[]>getAttribute("Values"));
-        
+
         Integer[] retrievedVal = updatedIdentityType.<Integer[]>getAttribute("Values").getValue();
 
         for (Integer value: retrievedVal) {

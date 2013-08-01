@@ -17,33 +17,16 @@
  */
 package org.picketlink.idm.jpa.model.sample.complex;
 
-import org.picketlink.idm.model.AbstractIdentityType;
-import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.annotation.AttributeProperty;
-import org.picketlink.idm.model.annotation.Unique;
-
 /**
  * @author pedroigor
  */
-public class Application extends AbstractIdentityType implements Account {
+public class CustomerUser extends AbstractUser {
 
-    @Unique
-    @AttributeProperty
-    private String name;
-
-    public Application() {
-        this(null);
+    public CustomerUser() {
+        super(null);
     }
 
-    public Application(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public CustomerUser(final String userName) {
+        super(userName);
     }
 }

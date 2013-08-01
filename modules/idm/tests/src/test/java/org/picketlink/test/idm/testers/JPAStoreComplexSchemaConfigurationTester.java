@@ -22,14 +22,18 @@ import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Address;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Application;
-import org.picketlink.idm.jpa.model.sample.complex.entity.ApplicationUser;
+import org.picketlink.idm.jpa.model.sample.complex.entity.ApplicationAttribute;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Company;
 import org.picketlink.idm.jpa.model.sample.complex.entity.CompanyAttribute;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Country;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Email;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Employee;
+import org.picketlink.idm.jpa.model.sample.complex.entity.OrganizationUnit;
+import org.picketlink.idm.jpa.model.sample.complex.entity.OrganizationUnitAttribute;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Person;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Phone;
+import org.picketlink.idm.jpa.model.sample.complex.entity.RelationshipIdentityTypeEntity;
+import org.picketlink.idm.jpa.model.sample.complex.entity.RelationshipTypeEntity;
 import org.picketlink.idm.jpa.model.sample.complex.entity.UserAccount;
 import org.picketlink.idm.jpa.model.sample.complex.entity.UserAccountControl;
 import org.picketlink.idm.jpa.model.sample.complex.entity.UserAttribute;
@@ -61,6 +65,7 @@ public class JPAStoreComplexSchemaConfigurationTester implements IdentityConfigu
                                 Employee.class,
                                 Address.class,
                                 Application.class,
+                                ApplicationAttribute.class,
                                 Company.class,
                                 Country.class,
                                 Email.class,
@@ -70,7 +75,10 @@ public class JPAStoreComplexSchemaConfigurationTester implements IdentityConfigu
                                 CompanyAttribute.class,
                                 UserAccount.class,
                                 UserAccountControl.class,
-                                ApplicationUser.class
+                                OrganizationUnit.class,
+                                OrganizationUnitAttribute.class,
+                                RelationshipTypeEntity.class,
+                                RelationshipIdentityTypeEntity.class
                         )
                         .addContextInitializer(new JPAContextInitializer(null) {
                             @Override

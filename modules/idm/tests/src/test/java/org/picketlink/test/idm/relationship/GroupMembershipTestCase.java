@@ -18,8 +18,6 @@
 
 package org.picketlink.test.idm.relationship;
 
-import java.io.Serializable;
-import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
@@ -36,9 +34,11 @@ import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.IgnoreTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+
+import java.io.Serializable;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * <p>
