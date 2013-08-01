@@ -65,9 +65,7 @@ import static org.picketlink.idm.IDMMessages.*;
 import static org.picketlink.idm.credential.util.CredentialUtils.*;
 
 /**
- * <p>
- * File based {@link IdentityStore} implementation.
- * </p>
+ * <p> File based {@link IdentityStore} implementation. </p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
@@ -341,66 +339,80 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
 
     @Override
     public <T extends Relationship> List<T> fetchQueryResults(IdentityContext context, RelationshipQuery<T> query) {
-        List<FileRelationship> relationships = new ArrayList<FileRelationship>();
+        List<T> result = new ArrayList<T>();
         Class<T> typeToSearch = query.getRelationshipClass();
+        Object[] idParameter = query.getParameter(Relationship.ID);
 
-        if (Relationship.class.equals(typeToSearch)) {
+        if (idParameter != null && idParameter.length > 0) {
+            String id = idParameter[0].toString();
+
             for (Map<String, FileRelationship> partitionRelationships : this.fileDataSource.getRelationships().values()) {
-                relationships.addAll(partitionRelationships.values());
+                FileRelationship storedRelationship = partitionRelationships.get(id);
+
+                if (storedRelationship != null && typeToSearch.isAssignableFrom(storedRelationship.getEntry().getClass())) {
+                    result.add((T) cloneAttributedType(context, storedRelationship.getEntry()));
+                    return result;
+                }
             }
         } else {
-            Map<String, FileRelationship> typedRelationship = this.fileDataSource.getRelationships().get(
-                    typeToSearch.getName());
+            List<FileRelationship> relationships = new ArrayList<FileRelationship>();
 
-            if (typedRelationship != null) {
-                relationships.addAll(typedRelationship.values());
-            }
-        }
+            if (Relationship.class.equals(typeToSearch)) {
+                for (Map<String, FileRelationship> partitionRelationships : this.fileDataSource.getRelationships().values()) {
+                    relationships.addAll(partitionRelationships.values());
+                }
+            } else {
+                Map<String, FileRelationship> typedRelationship = this.fileDataSource.getRelationships().get(
+                        typeToSearch.getName());
 
-        List<T> result = new ArrayList<T>();
-
-        for (FileRelationship storedRelationship : relationships) {
-            boolean match = false;
-
-            if (typeToSearch.isInstance(storedRelationship.getEntry())) {
-                for (Entry<QueryParameter, Object[]> entry : query.getParameters().entrySet()) {
-                    QueryParameter queryParameter = entry.getKey();
-                    Object[] values = entry.getValue();
-
-                    if (Relationship.IDENTITY.equals(queryParameter)) {
-                        int valuesMathCount = values.length;
-
-                        for (Object object : values) {
-                            IdentityType identityType = (IdentityType) object;
-
-                            if (storedRelationship.hasIdentityType(identityType.getId())) {
-                                valuesMathCount--;
-                            }
-                        }
-
-                        match = valuesMathCount <= 0;
-                    } else if (queryParameter instanceof RelationshipQueryParameter) {
-                        RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) queryParameter;
-
-                        for (Object value : values) {
-                            IdentityType identityType = (IdentityType) value;
-                            String identityTypeId = storedRelationship.getIdentityTypeId(identityTypeParameter.getName());
-
-                            match = identityTypeId != null && identityTypeId.equals(identityType.getId());
-                        }
-                    } else if (AttributeParameter.class.isInstance(queryParameter) && values != null) {
-                        AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
-                        match = matchAttribute(storedRelationship.getEntry(), attributeParameter.getName(), values);
-                    }
-
-                    if (!match) {
-                        break;
-                    }
+                if (typedRelationship != null) {
+                    relationships.addAll(typedRelationship.values());
                 }
             }
 
-            if (match) {
-                result.add((T) cloneAttributedType(context, storedRelationship.getEntry()));
+            for (FileRelationship storedRelationship : relationships) {
+                boolean match = false;
+
+                if (typeToSearch.isInstance(storedRelationship.getEntry())) {
+                    for (Entry<QueryParameter, Object[]> entry : query.getParameters().entrySet()) {
+                        QueryParameter queryParameter = entry.getKey();
+                        Object[] values = entry.getValue();
+
+                        if (Relationship.IDENTITY.equals(queryParameter)) {
+                            int valuesMathCount = values.length;
+
+                            for (Object object : values) {
+                                IdentityType identityType = (IdentityType) object;
+
+                                if (storedRelationship.hasIdentityType(identityType.getId())) {
+                                    valuesMathCount--;
+                                }
+                            }
+
+                            match = valuesMathCount <= 0;
+                        } else if (queryParameter instanceof RelationshipQueryParameter) {
+                            RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) queryParameter;
+
+                            for (Object value : values) {
+                                IdentityType identityType = (IdentityType) value;
+                                String identityTypeId = storedRelationship.getIdentityTypeId(identityTypeParameter.getName());
+
+                                match = identityTypeId != null && identityTypeId.equals(identityType.getId());
+                            }
+                        } else if (AttributeParameter.class.isInstance(queryParameter) && values != null) {
+                            AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
+                            match = matchAttribute(storedRelationship.getEntry(), attributeParameter.getName(), values);
+                        }
+
+                        if (!match) {
+                            break;
+                        }
+                    }
+                }
+
+                if (match) {
+                    result.add((T) cloneAttributedType(context, storedRelationship.getEntry()));
+                }
             }
         }
 
