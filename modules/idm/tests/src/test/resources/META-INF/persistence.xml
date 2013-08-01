@@ -10,6 +10,7 @@
         <class>org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity</class>
         <class>org.picketlink.idm.jpa.model.sample.simple.GroupTypeEntity</class>
         <class>org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity</class>
+        <class>org.picketlink.test.idm.relationship.CustomRelationshipTypeEntity</class>
         <class>org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity</class>
         <class>org.picketlink.idm.jpa.model.sample.simple.RelationshipIdentityTypeEntity</class>
         <class>org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity</class>
@@ -65,7 +66,7 @@
             <property name="hibernate.connection.username" value="sa"/>
             <property name="hibernate.connection.password" value=""/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
-            <property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.show_sql" value="false" />
             <property name="hibernate.format_sql" value="true" />
         </properties>
     </persistence-unit>
