@@ -168,9 +168,10 @@ public class EntityMapper {
                 if (this.store.isMappedType(mappedProperty.getJavaClass())) {
                     for (EntityMapper entityMapper : getEntityMappers()) {
                         if (mappedProperty.getJavaClass().equals(entityMapper.getEntityType())) {
-                            AttributedType attributedType1 = (AttributedType) value;
+                            AttributedType referencedType = (AttributedType) value;
 
-                            mappedProperty.setValue(entityInstance, entityManager.find(mappedProperty.getJavaClass(), attributedType1.getId()));
+                            mappedProperty.setValue(entityInstance, this.store.getOwnerEntity(referencedType,
+                                    mappedProperty, entityManager));
                         }
                     }
                 } else {
@@ -188,6 +189,20 @@ public class EntityMapper {
         P attributedType = null;
 
         if (entityInstance != null) {
+            if (!getEntityType().equals(entityInstance.getClass()) && !getEntityType().isAssignableFrom(entityInstance
+                    .getClass())) {
+                EntityMapper entityMapper = this.store.getMapperForEntity(entityInstance.getClass());
+
+                Entry<Property, Property> property = entityMapper.getProperty(OwnerReference.class);
+
+                if (property == null) {
+                    throw new IdentityManagementException("Entity instance is not a " + getEntityType() + " or does " +
+                            "not have a owner reference to this type.");
+                }
+
+                entityInstance = property.getValue().getValue(entityInstance);
+            }
+
             try {
                 attributedType =
                         (P) Class.forName(getTypeProperty().getValue(entityInstance).toString()).newInstance();
@@ -261,9 +276,23 @@ public class EntityMapper {
                                                  Class<? extends Annotation> annotation) {
         EntityMapping entityMapping = getMappingsFor(attributedType);
 
-        for (Entry<Property, Property> property : entityMapping.getProperties().entrySet()) {
-            if (property.getValue().getAnnotatedElement().isAnnotationPresent(annotation)) {
-                return property;
+        if (entityMapping != null) {
+            for (Entry<Property, Property> property : entityMapping.getProperties().entrySet()) {
+                if (property.getValue().getAnnotatedElement().isAnnotationPresent(annotation)) {
+                    return property;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public Entry<Property, Property> getProperty(Class<? extends Annotation> annotation) {
+        for (EntityMapping entityMapping : getEntityMappings()) {
+            for (Entry<Property, Property> property : entityMapping.getProperties().entrySet()) {
+                if (property.getValue().getAnnotatedElement().isAnnotationPresent(annotation)) {
+                    return property;
+                }
             }
         }
 
@@ -415,11 +444,10 @@ public class EntityMapper {
 
                         if (mappedPropertyValue != null) {
                             if (this.store.isMappedType(mappedProperty.getJavaClass())) {
-                                for (EntityMapper entityMapper : getEntityMappers()) {
-                                    if (mappedProperty.getJavaClass().equals(entityMapper.getEntityType())) {
-                                        property.setValue(attributedType, entityMapper.createType(mappedPropertyValue, entityManager));
-                                    }
-                                }
+                                EntityMapper entityMapper = this.store.getOwnerMapperForEntity(mappedProperty
+                                        .getJavaClass());
+
+                                property.setValue(attributedType, entityMapper.createType(mappedPropertyValue, entityManager));
                             } else {
                                 property.setValue(attributedType, mappedPropertyValue);
                             }
