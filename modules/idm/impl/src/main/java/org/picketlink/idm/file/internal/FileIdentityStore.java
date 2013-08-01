@@ -371,7 +371,7 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
             }
 
             for (FileRelationship storedRelationship : relationships) {
-                boolean match = false;
+                boolean match = query.getParameters().isEmpty();
 
                 if (typeToSearch.isInstance(storedRelationship.getEntry())) {
                     for (Entry<QueryParameter, Object[]> entry : query.getParameters().entrySet()) {
