@@ -17,22 +17,44 @@
  */
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
+import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+import org.picketlink.idm.jpa.model.sample.complex.EmployeeUser;
+
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 /**
  * @author pedroigor
  */
+@IdentityManaged (EmployeeUser.class)
 @Entity
 public class Employee extends Person {
 
     private static final long serialVersionUID = -6032781665709810197L;
 
+    @AttributeValue (name = "employeeId")
+    private String internalId;
+
     @ManyToOne
     private OrganizationUnit organizationUnit;
 
+    @OwnerReference
+    @OneToOne
+    private UserAccount userAccount;
+
     public Employee() {
         this(null);
+    }
+
+    public String getInternalId() {
+        return internalId;
+    }
+
+    public void setInternalId(final String internalId) {
+        this.internalId = internalId;
     }
 
     public Employee(OrganizationUnit organizationUnit) {
@@ -45,5 +67,13 @@ public class Employee extends Person {
 
     public void setOrganizationUnit(OrganizationUnit organizationUnit) {
         this.organizationUnit = organizationUnit;
+    }
+
+    public UserAccount getUserAccount() {
+        return userAccount;
+    }
+
+    public void setUserAccount(final UserAccount userAccount) {
+        this.userAccount = userAccount;
     }
 }

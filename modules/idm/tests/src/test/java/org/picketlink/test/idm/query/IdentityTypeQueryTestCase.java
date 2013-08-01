@@ -18,7 +18,6 @@
 
 package org.picketlink.test.idm.query;
 
-import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.IdentityType;
@@ -33,8 +32,10 @@ import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.IgnoreTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+
+import java.util.List;
+
+import static junit.framework.Assert.*;
 
 /**
  * <p>

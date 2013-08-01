@@ -17,13 +17,12 @@
  */
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
-import org.picketlink.idm.jpa.annotations.AttributeValue;
-import org.picketlink.idm.jpa.annotations.Identifier;
-import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
-import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
+import org.picketlink.idm.jpa.annotations.RelationshipMember;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import java.io.Serializable;
@@ -31,56 +30,56 @@ import java.io.Serializable;
 /**
  * @author pedroigor
  */
-@IdentityManaged (org.picketlink.idm.jpa.model.sample.complex.Application.class)
 @Entity
-public class Application implements Serializable {
+public class RelationshipIdentityTypeEntity implements Serializable {
 
-    private static final long serialVersionUID = -7492810322246834638L;
+    private static final long serialVersionUID = -3619372498444894118L;
 
     @Id
-    @Identifier
-    private String id;
+    @GeneratedValue
+    private Long id;
 
-    @IdentityClass
-    private String type;
+    @RelationshipDescriptor
+    private String descriptor;
 
-    @AttributeValue
-    private String name;
+    @RelationshipMember
+    @ManyToOne
+    private RelationshipIdentityTypeEntity identityType;
 
     @OwnerReference
     @ManyToOne
-    private Company company;
+    private RelationshipTypeEntity owner;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getDescriptor() {
+        return descriptor;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setDescriptor(String descriptor) {
+        this.descriptor = descriptor;
     }
 
-    public String getType() {
-        return type;
+    public RelationshipIdentityTypeEntity getIdentityType() {
+        return identityType;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setIdentityType(RelationshipIdentityTypeEntity identityType) {
+        this.identityType = identityType;
     }
 
-    public Company getCompany() {
-        return company;
+    public RelationshipTypeEntity getOwner() {
+        return owner;
     }
 
-    public void setCompany(Company company) {
-        this.company = company;
+    public void setOwner(RelationshipTypeEntity owner) {
+        this.owner = owner;
     }
 
     @Override
@@ -93,7 +92,7 @@ public class Application implements Serializable {
             return false;
         }
 
-        Application other = (Application) obj;
+        RelationshipIdentityTypeEntity other = (RelationshipIdentityTypeEntity) obj;
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }
@@ -104,5 +103,4 @@ public class Application implements Serializable {
         result = 31 * result + (getId() != null ? getId().hashCode() : 0);
         return result;
     }
-
 }

@@ -43,15 +43,18 @@
         <class>org.picketlink.idm.jpa.model.sample.complex.entity.Employee</class>
         <class>org.picketlink.idm.jpa.model.sample.complex.entity.Customer</class>
         <class>org.picketlink.idm.jpa.model.sample.complex.entity.OrganizationUnit</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.OrganizationUnitAttribute</class>
         <class>org.picketlink.idm.jpa.model.sample.complex.entity.Country</class>
         <class>org.picketlink.idm.jpa.model.sample.complex.entity.Application</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.ApplicationAttribute</class>
         <class>org.picketlink.idm.jpa.model.sample.complex.entity.Company</class>
         <class>org.picketlink.idm.jpa.model.sample.complex.entity.Email</class>
         <class>org.picketlink.idm.jpa.model.sample.complex.entity.Person</class>
         <class>org.picketlink.idm.jpa.model.sample.complex.entity.Phone</class>
         <class>org.picketlink.idm.jpa.model.sample.complex.entity.UserAttribute</class>
         <class>org.picketlink.idm.jpa.model.sample.complex.entity.CompanyAttribute</class>
-        <class>org.picketlink.idm.jpa.model.sample.complex.entity.ApplicationUser</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.RelationshipTypeEntity</class>
+        <class>org.picketlink.idm.jpa.model.sample.complex.entity.RelationshipIdentityTypeEntity</class>
 
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

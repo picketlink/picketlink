@@ -78,12 +78,13 @@ import java.util.Date;
 import java.util.List;
 
 import static java.util.Map.*;
-import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
+import static org.picketlink.common.properties.query.TypedPropertyCriteria.*;
 import static org.picketlink.idm.IDMMessages.*;
 
 /**
  * Implementation of IdentityStore that stores its state in a relational database. This is a lightweight object that is
- * generally created once per request, and is provided references to a (heavyweight) configuration and invocation context.
+ * generally created once per request, and is provided references to a (heavyweight) configuration and invocation
+ * context.
  *
  * @author Shane Bryzak
  * @author Pedro Silva
@@ -258,132 +259,152 @@ public class JPAIdentityStore
 
     @Override
     public <V extends IdentityType> List<V> fetchQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
-        EntityMapper rootMapper = getRootMapper(identityQuery.getIdentityType());
+        List<V> result = new ArrayList<V>();
         EntityManager entityManager = getEntityManager(context);
 
-        CriteriaBuilder qb = entityManager.getCriteriaBuilder();
-        CriteriaQuery cq = qb.createQuery(rootMapper.getEntityType());
-        List<Predicate> predicates = new ArrayList<Predicate>();
-        Root<?> from = cq.from(rootMapper.getEntityType());
+        if (identityQuery.getParameter(IdentityType.ID) != null) {
+            Object[] parameter = identityQuery.getParameter(IdentityType.ID);
 
-        Partition partition = context.getPartition();
+            if (parameter.length > 0) {
+                for (EntityMapper mapper : this.entityMappers) {
+                    if (mapper.isRoot()) {
+                        EntityMapping mapping = mapper.getMappingsFor(identityQuery.getIdentityType());
 
-        if (identityQuery.getParameter(IdentityType.PARTITION) != null) {
-            partition = (Partition) identityQuery.getParameter(IdentityType.PARTITION)[0];
-        }
+                        if (mapping != null) {
+                            Object entity = entityManager.find(mapper.getEntityType(), parameter[0]);
 
-        EntityMapping rootMapping = rootMapper.getMappingsFor(identityQuery.getIdentityType());
-        EntityMapper partitionRootMapper = getRootMapper(partition.getClass());
-
-        for (Property ownerProperty : rootMapping.getProperties().keySet()) {
-            Property mappedOwnerProperty = rootMapping.getProperties().get(ownerProperty);
-
-            if (mappedOwnerProperty.getJavaClass().equals(partitionRootMapper.getEntityType())) {
-                Join<Object, Object> join = from.join(mappedOwnerProperty.getName());
-                predicates.add(qb.equal(join, entityManager.find(partitionRootMapper.getEntityType(), partition.getId())));
-            }
-        }
-
-        if (!IdentityType.class.equals(identityQuery.getIdentityType())) {
-            Entry<Property, Property> property = rootMapper.getProperty(identityQuery.getIdentityType(), IdentityClass.class);
-            predicates.add(qb.equal(from.get(property.getValue().getName()), identityQuery.getIdentityType().getName()));
-        }
-
-        for (QueryParameter queryParameter : identityQuery.getParameters().keySet()) {
-            if (IdentityType.PARTITION.equals(queryParameter)) {
-                continue;
-            }
-
-            if (AttributeParameter.class.isInstance(queryParameter)) {
-                AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
-                Object[] parameterValues = identityQuery.getParameter(attributeParameter);
-                EntityMapper parameterEntityMapper =
-                        getEntityMapperForProperty(identityQuery.getIdentityType(), attributeParameter.getName());
-
-                if (parameterEntityMapper != null) {
-                    Root<?> propertyEntityJoin = from;
-
-                    Entry<Property, Property> ownerProperty = parameterEntityMapper.getProperty(identityQuery.getIdentityType(), OwnerReference.class);
-
-                    if (ownerProperty.getValue().getJavaClass().equals(rootMapper.getEntityType())) {
-                        propertyEntityJoin = cq.from(parameterEntityMapper.getEntityType());
-                        predicates.add(qb.and(qb.equal(from, propertyEntityJoin)));
-                    }
-
-                    Object parameterValue = parameterValues[0];
-
-                    Property mappedProperty = (Property) parameterEntityMapper.getProperty(identityQuery.getIdentityType(), attributeParameter.getName()).getValue();
-
-                    if (IdentityType.CREATED_AFTER.equals(queryParameter) || IdentityType.EXPIRY_AFTER.equals(queryParameter)) {
-                        predicates.add(qb.greaterThanOrEqualTo(propertyEntityJoin.<Date>get(mappedProperty.getName()), (Date) parameterValue));
-                    } else if (IdentityType.CREATED_BEFORE.equals(queryParameter) || IdentityType.EXPIRY_BEFORE.equals(queryParameter)) {
-                        predicates.add(qb.lessThanOrEqualTo(propertyEntityJoin.<Date>get(mappedProperty.getName()), (Date) parameterValue));
-                    } else {
-                        if (isMappedType(mappedProperty.getJavaClass())) {
-                            AttributedType ownerType = (AttributedType) parameterValue;
-
-                            if (ownerType != null) {
-                                parameterValue = entityManager.find(mappedProperty.getJavaClass(), ownerType.getId());
+                            if (entity != null && entity.getClass().equals(mapper.getEntityType())) {
+                                result.add(mapper.<V>createType(entity, entityManager));
+                                return result;
                             }
                         }
-
-                        predicates.add(qb.equal(propertyEntityJoin.get(mappedProperty.getName()), parameterValue));
                     }
-                } else {
-                    String[] valuesToSearch = new String[parameterValues.length];
-
-                    for (int i = 0; i < parameterValues.length; i++) {
-                        valuesToSearch[i] = Base64.encodeObject((Serializable) parameterValues[i]);
-                    }
-
-                    EntityMapper attributeMapper = getRootMapper(Attribute.class);
-
-                    Class<?> attributeEntityClass = attributeMapper.getEntityType();
-                    Property attributeNameProperty = attributeMapper.getProperty(Attribute.class, AttributeName.class).getValue();
-                    Property attributeValueProperty = attributeMapper.getProperty(Attribute.class, AttributeValue.class).getValue();
-                    Property ownerProperty = attributeMapper.getProperty(Attribute.class, OwnerReference.class).getValue();
-
-                    Subquery<?> subquery = cq.subquery(attributeEntityClass);
-                    Root fromProject = subquery.from(attributeEntityClass);
-                    subquery.select(fromProject.get(ownerProperty.getName()));
-
-                    Predicate conjunction = qb.conjunction();
-
-                    conjunction.getExpressions().add(
-                            qb.equal(
-                                    fromProject.get(attributeNameProperty.getName()),
-                                    attributeParameter.getName()));
-                    conjunction.getExpressions().add(
-                            (fromProject.get(attributeValueProperty.getName())
-                                    .in((Object[]) valuesToSearch)));
-
-                    subquery.where(conjunction);
-
-                    subquery.groupBy(subquery.getSelection()).having(
-                            qb.equal(qb.count(subquery.getSelection()), valuesToSearch.length));
-
-                    predicates.add(qb.in(from).value(subquery));
                 }
             }
-        }
+        } else {
+            EntityMapper rootMapper = getRootMapper(identityQuery.getIdentityType());
+            CriteriaBuilder qb = entityManager.getCriteriaBuilder();
+            CriteriaQuery cq = qb.createQuery(rootMapper.getEntityType());
+            List<Predicate> predicates = new ArrayList<Predicate>();
+            Root<?> from = cq.from(rootMapper.getEntityType());
 
-        cq.select(from);
-        cq.where(predicates.toArray(new Predicate[predicates.size()]));
+            Partition partition = context.getPartition();
 
-        Query query = entityManager.createQuery(cq);
-
-        if (identityQuery.getLimit() > 0) {
-            query.setMaxResults(identityQuery.getLimit());
-
-            if (identityQuery.getOffset() > 0) {
-                query.setFirstResult(identityQuery.getOffset());
+            if (identityQuery.getParameter(IdentityType.PARTITION) != null) {
+                partition = (Partition) identityQuery.getParameter(IdentityType.PARTITION)[0];
             }
-        }
 
-        List<V> result = new ArrayList<V>();
+            EntityMapping rootMapping = rootMapper.getMappingsFor(identityQuery.getIdentityType());
+            EntityMapper partitionRootMapper = getRootMapper(partition.getClass());
 
-        for (Object entity : query.getResultList()) {
-            result.add(rootMapper.<V>createType(entity, entityManager));
+            for (Property ownerProperty : rootMapping.getProperties().keySet()) {
+                Property mappedOwnerProperty = rootMapping.getProperties().get(ownerProperty);
+
+                if (mappedOwnerProperty.getJavaClass().equals(partitionRootMapper.getEntityType())) {
+                    Join<Object, Object> join = from.join(mappedOwnerProperty.getName());
+                    predicates.add(qb.equal(join, entityManager.find(partitionRootMapper.getEntityType(), partition.getId())));
+                }
+            }
+
+            if (!IdentityType.class.equals(identityQuery.getIdentityType())) {
+                Entry<Property, Property> property = rootMapper.getProperty(identityQuery.getIdentityType(), IdentityClass.class);
+                predicates.add(qb.equal(from.get(property.getValue().getName()), identityQuery.getIdentityType().getName()));
+            }
+
+            for (QueryParameter queryParameter : identityQuery.getParameters().keySet()) {
+                if (IdentityType.PARTITION.equals(queryParameter)) {
+                    continue;
+                }
+
+                if (AttributeParameter.class.isInstance(queryParameter)) {
+                    AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
+                    Object[] parameterValues = identityQuery.getParameter(attributeParameter);
+                    EntityMapper parameterEntityMapper =
+                            getEntityMapperForProperty(identityQuery.getIdentityType(), attributeParameter.getName());
+
+                    if (parameterEntityMapper != null) {
+                        Root<?> propertyEntityJoin = from;
+
+                        Entry<Property, Property> ownerProperty = parameterEntityMapper.getProperty(identityQuery.getIdentityType(), OwnerReference.class);
+
+                        if (ownerProperty.getValue().getJavaClass().equals(rootMapper.getEntityType())) {
+                            propertyEntityJoin = cq.from(parameterEntityMapper.getEntityType());
+                            predicates.add(qb.and(qb.equal(from, propertyEntityJoin)));
+                        }
+
+                        Object parameterValue = parameterValues[0];
+
+                        Property mappedProperty = (Property) parameterEntityMapper.getProperty(identityQuery.getIdentityType(), attributeParameter.getName()).getValue();
+
+                        if (IdentityType.CREATED_AFTER.equals(queryParameter) || IdentityType.EXPIRY_AFTER.equals(queryParameter)) {
+                            predicates.add(qb.greaterThanOrEqualTo(propertyEntityJoin.<Date>get(mappedProperty.getName()), (Date) parameterValue));
+                        } else if (IdentityType.CREATED_BEFORE.equals(queryParameter) || IdentityType.EXPIRY_BEFORE.equals(queryParameter)) {
+                            predicates.add(qb.lessThanOrEqualTo(propertyEntityJoin.<Date>get(mappedProperty.getName()), (Date) parameterValue));
+                        } else {
+                            if (isMappedType(mappedProperty.getJavaClass())) {
+                                AttributedType ownerType = (AttributedType) parameterValue;
+
+                                if (ownerType != null) {
+                                    parameterValue = entityManager.find(mappedProperty.getJavaClass(), ownerType.getId());
+                                }
+                            }
+
+                            predicates.add(qb.equal(propertyEntityJoin.get(mappedProperty.getName()), parameterValue));
+                        }
+                    } else {
+                        String[] valuesToSearch = new String[parameterValues.length];
+
+                        for (int i = 0; i < parameterValues.length; i++) {
+                            valuesToSearch[i] = Base64.encodeObject((Serializable) parameterValues[i]);
+                        }
+
+                        EntityMapper attributeMapper = getRootMapper(Attribute.class);
+
+                        Class<?> attributeEntityClass = attributeMapper.getEntityType();
+                        Property attributeNameProperty = attributeMapper.getProperty(Attribute.class, AttributeName.class).getValue();
+                        Property attributeValueProperty = attributeMapper.getProperty(Attribute.class, AttributeValue.class).getValue();
+                        Property ownerProperty = attributeMapper.getProperty(Attribute.class, OwnerReference.class).getValue();
+
+                        Subquery<?> subquery = cq.subquery(attributeEntityClass);
+                        Root fromProject = subquery.from(attributeEntityClass);
+                        subquery.select(fromProject.get(ownerProperty.getName()));
+
+                        Predicate conjunction = qb.conjunction();
+
+                        conjunction.getExpressions().add(
+                                qb.equal(
+                                        fromProject.get(attributeNameProperty.getName()),
+                                        attributeParameter.getName()));
+                        conjunction.getExpressions().add(
+                                (fromProject.get(attributeValueProperty.getName())
+                                        .in((Object[]) valuesToSearch)));
+
+                        subquery.where(conjunction);
+
+                        subquery.groupBy(subquery.getSelection()).having(
+                                qb.equal(qb.count(subquery.getSelection()), valuesToSearch.length));
+
+                        predicates.add(qb.in(from).value(subquery));
+                    }
+                }
+            }
+
+            cq.select(from);
+            cq.where(predicates.toArray(new Predicate[predicates.size()]));
+
+            Query query = entityManager.createQuery(cq);
+
+            if (identityQuery.getLimit() > 0) {
+                query.setMaxResults(identityQuery.getLimit());
+
+                if (identityQuery.getOffset() > 0) {
+                    query.setFirstResult(identityQuery.getOffset());
+                }
+            }
+
+            for (Object entity : query.getResultList()) {
+                result.add(rootMapper.<V>createType(entity, entityManager));
+            }
         }
 
         return result;
@@ -1130,7 +1151,7 @@ public class JPAIdentityStore
         List storages = new ArrayList();
         Class<CredentialStorage> storageClass = CredentialStorage.class;
 
-        for (EntityMapper attributeMapper: getEntityMappers()) {
+        for (EntityMapper attributeMapper : getEntityMappers()) {
             if (attributeMapper.getEntityType().isAnnotationPresent(ManagedCredential.class)) {
 
                 Property identityTypeProperty = attributeMapper.getProperty(storageClass, OwnerReference.class).getValue();
