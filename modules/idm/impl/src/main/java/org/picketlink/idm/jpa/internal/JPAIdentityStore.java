@@ -329,7 +329,8 @@ public class JPAIdentityStore
 
                         if (ownerProperty.getValue().getJavaClass().equals(rootMapper.getEntityType())) {
                             propertyEntityJoin = cq.from(parameterEntityMapper.getEntityType());
-                            predicates.add(qb.and(qb.equal(from, propertyEntityJoin)));
+                            predicates.add(qb.and(qb.equal(propertyEntityJoin.get(ownerProperty.getValue()
+                                    .getName()), from)));
                         }
 
                         Object parameterValue = parameterValues[0];
@@ -430,7 +431,7 @@ public class JPAIdentityStore
     public <V extends Relationship> List<V> fetchQueryResults(IdentityContext context, RelationshipQuery<V> query) {
         List<V> queryResult = new ArrayList<V>();
 
-        EntityManager em = getEntityManager(context);
+        EntityManager entityManager = getEntityManager(context);
 
         List result = new ArrayList();
 
@@ -453,21 +454,21 @@ public class JPAIdentityStore
             }
         } else {
             EntityMapper entityMapper = getRootMapper(query.getRelationshipClass());
-            CriteriaBuilder builder = em.getCriteriaBuilder();
-            CriteriaQuery<?> criteria = builder.createQuery(getConfig().getRelationshipMapping().getEntityClass());
-            Root<?> root = criteria.from(getConfig().getRelationshipMapping().getEntityClass());
+            CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+            CriteriaQuery<?> cq = cb.createQuery(getConfig().getRelationshipMapping().getEntityClass());
+            Root from = cq.from(getConfig().getRelationshipMapping().getEntityClass());
 
             List<Predicate> predicates = new ArrayList<Predicate>();
 
             if (!Relationship.class.equals(query.getRelationshipClass())) {
-                predicates.add(builder.equal(root.get(getConfig().getRelationshipMapping().getRelationshipClass().getName()),
+                predicates.add(cb.equal(from.get(getConfig().getRelationshipMapping().getRelationshipClass().getName()),
                         query.getRelationshipClass().getName()));
             }
 
             Object[] idParameter = query.getParameter(Relationship.ID);
 
             if (idParameter != null && idParameter.length > 0) {
-                predicates.add(builder.equal(root.get(entityMapper.getIdProperty().getName()),
+                predicates.add(cb.equal(from.get(entityMapper.getIdProperty().getName()),
                         idParameter[0]));
             } else {
                 Property<Object> identityProperty = getConfig().getRelationshipIdentityMapping().getRelationshipMember();
@@ -492,14 +493,14 @@ public class JPAIdentityStore
                             identityTypeIdentifiers.add(identityType.getId());
                         }
 
-                        Subquery<?> subquery = criteria.subquery(getConfig().getRelationshipIdentityMapping().getEntityClass());
+                        Subquery<?> subquery = cq.subquery(getConfig().getRelationshipIdentityMapping().getEntityClass());
                         Root fromRelationshipIdentityType = subquery.from(getConfig().getRelationshipIdentityMapping().getEntityClass());
                         subquery.select(fromRelationshipIdentityType.get(relationshipProperty.getName()));
 
-                        Predicate conjunction = builder.conjunction();
+                        Predicate conjunction = cb.conjunction();
 
                         conjunction.getExpressions().add(
-                                builder.equal(fromRelationshipIdentityType.get(descriptorProperty.getName()),
+                                cb.equal(fromRelationshipIdentityType.get(descriptorProperty.getName()),
                                         identityTypeParameter.getName()));
 
                         if (identityProperty.getJavaClass().equals(String.class)) {
@@ -510,7 +511,7 @@ public class JPAIdentityStore
                             List<Object> entities = new ArrayList<Object>();
 
                             for (String id : identityTypeIdentifiers) {
-                                entities.add(em.find(identityProperty.getJavaClass(), id));
+                                entities.add(entityManager.find(identityProperty.getJavaClass(), id));
                             }
 
                             conjunction.getExpressions().add(join.in(entities));
@@ -518,53 +519,82 @@ public class JPAIdentityStore
 
                         subquery.where(conjunction);
 
-                        predicates.add(builder.in(root).value(subquery));
-                    }
+                        predicates.add(cb.in(from).value(subquery));
+                    } else if (AttributeParameter.class.equals(entry.getKey().getClass())) {
+                        AttributeParameter attributeParameter = (AttributeParameter) entry.getKey();
+                        Object[] parameterValues = entry.getValue();
+                        EntityMapper parameterEntityMapper =
+                                getEntityMapperForProperty(query.getRelationshipClass(), attributeParameter.getName());
 
-                    if (AttributeParameter.class.equals(entry.getKey().getClass())) {
-                        AttributeParameter customParameter = (AttributeParameter) entry.getKey();
-                        Object[] attributeValues = entry.getValue();
+                        if (parameterEntityMapper != null) {
+                            Root<?> propertyEntityJoin = from;
 
-                        String[] valuesToSearch = new String[attributeValues.length];
+                            Entry<Property, Property> ownerProperty = parameterEntityMapper.getProperty(query
+                                    .getRelationshipClass(), OwnerReference.class);
 
-                        for (int i = 0; i < attributeValues.length; i++) {
-                            valuesToSearch[i] = Base64.encodeObject((Serializable) attributeValues[i]);
+                            if (ownerProperty.getValue().getJavaClass().equals(entityMapper.getEntityType())) {
+                                propertyEntityJoin = cq.from(parameterEntityMapper.getEntityType());
+                                predicates.add(cb.and(cb.equal(propertyEntityJoin.get(ownerProperty.getValue()
+                                        .getName()), from)));
+                            }
+
+                            Object parameterValue = parameterValues[0];
+
+                            Property mappedProperty = (Property) parameterEntityMapper.getProperty(query
+                                    .getRelationshipClass(), attributeParameter.getName()).getValue();
+
+                            if (isMappedType(mappedProperty.getJavaClass())) {
+                                AttributedType ownerType = (AttributedType) parameterValue;
+
+                                if (ownerType != null) {
+                                    parameterValue = entityManager.find(mappedProperty.getJavaClass(), ownerType.getId());
+                                }
+                            }
+
+                            predicates.add(cb.equal(propertyEntityJoin.get(mappedProperty.getName()), parameterValue));
+                        } else {
+                            String[] valuesToSearch = new String[parameterValues.length];
+
+                            for (int i = 0; i < parameterValues.length; i++) {
+                                valuesToSearch[i] = Base64.encodeObject((Serializable) parameterValues[i]);
+                            }
+
+                            EntityMapper attributeMapper = getRootMapper(Attribute.class);
+
+                            Class<?> attributeEntityClass = attributeMapper.getEntityType();
+                            Property attributeNameProperty = attributeMapper.getProperty(Attribute.class, AttributeName.class).getValue();
+                            Property attributeValueProperty = attributeMapper.getProperty(Attribute.class, AttributeValue.class).getValue();
+                            Property ownerProperty = attributeMapper.getProperty(Attribute.class, OwnerReference.class).getValue();
+
+                            Subquery<?> subquery = cq.subquery(attributeEntityClass);
+                            Root fromProject = subquery.from(attributeEntityClass);
+                            subquery.select(fromProject.get(ownerProperty.getName()));
+
+                            Predicate conjunction = cb.conjunction();
+
+                            conjunction.getExpressions().add(
+                                    cb.equal(
+                                            fromProject.get(attributeNameProperty.getName()),
+                                            attributeParameter.getName()));
+                            conjunction.getExpressions().add(
+                                    (fromProject.get(attributeValueProperty.getName())
+                                            .in((Object[]) valuesToSearch)));
+
+                            subquery.where(conjunction);
+
+                            subquery.groupBy(subquery.getSelection()).having(
+                                    cb.equal(cb.count(subquery.getSelection()), valuesToSearch.length));
+
+                            predicates.add(cb.in(from).value(subquery));
                         }
-
-                        EntityMapper attributeMapper = getRootMapper(Attribute.class);
-
-                        Class<?> attributeEntityClass = attributeMapper.getEntityType();
-                        Property attributeNameProperty = attributeMapper.getProperty(Attribute.class, AttributeName.class).getValue();
-                        Property attributeValueProperty = attributeMapper.getProperty(Attribute.class, AttributeValue.class).getValue();
-                        Property ownerProperty = attributeMapper.getProperty(Attribute.class, OwnerReference.class).getValue();
-
-                        Subquery<?> subquery = criteria.subquery(attributeEntityClass);
-                        Root fromProject = subquery.from(attributeEntityClass);
-                        subquery.select(fromProject.get(ownerProperty.getName()));
-
-                        Predicate conjunction = builder.conjunction();
-
-                        conjunction.getExpressions().add(
-                                builder.equal(
-                                        fromProject.get(attributeNameProperty.getName()),
-                                        customParameter.getName()));
-                        conjunction.getExpressions().add(
-                                (fromProject.get(attributeValueProperty.getName())
-                                        .in((Object[]) valuesToSearch)));
-
-                        subquery.where(conjunction);
-
-                        subquery.groupBy(subquery.getSelection()).having(
-                                builder.equal(builder.count(subquery.getSelection()), valuesToSearch.length));
-
-                        predicates.add(builder.in(root).value(subquery));
                     }
                 }
             }
 
-            criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+            cq.select(from);
+            cq.where(predicates.toArray(new Predicate[predicates.size()]));
 
-            result = em.createQuery(criteria).getResultList();
+            result = entityManager.createQuery(cq).getResultList();
         }
 
         for (Object relationshipObject : result) {
