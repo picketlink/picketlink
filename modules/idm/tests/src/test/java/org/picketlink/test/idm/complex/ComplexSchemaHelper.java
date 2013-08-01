@@ -215,10 +215,10 @@ public class ComplexSchemaHelper {
         organizationUnit.setParent(parent);
         organizationUnit.setCompany(company);
 
-        organizationUnit.setId(String.valueOf(new Random().nextLong()));
-
         if (entityManager != null) {
             this.entityManager.persist(organizationUnit);
+        } else {
+            organizationUnit.setId(new Random().nextLong());
         }
 
         return organizationUnit;

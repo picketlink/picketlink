@@ -17,10 +17,12 @@
  */
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
+import org.picketlink.idm.jpa.annotations.AttributeClass;
+import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
-import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -30,35 +32,27 @@ import java.io.Serializable;
 /**
  * @author pedroigor
  */
-@IdentityManaged (org.picketlink.idm.jpa.model.sample.complex.OrganizationUnit.class)
 @Entity
-public class OrganizationUnit implements Serializable {
+public class RelationshipAttribute implements Serializable {
+
+    private static final long serialVersionUID = 5255050503622214581L;
 
     @Id
     @GeneratedValue
     private Long id;
 
-    @ManyToOne
-    @AttributeValue
-    private OrganizationUnit parent;
-
-    @AttributeValue
-    private String name;
-
     @OwnerReference
     @ManyToOne
-    private IdentityObject identityObject;
+    private RelationshipTypeEntity owner;
 
-    @ManyToOne
-    private Company company;
+    @AttributeClass
+    private String typeName;
 
-    public OrganizationUnit() {
-        this(null);
-    }
+    @AttributeName
+    private String name;
 
-    public OrganizationUnit(String name) {
-        this.name = name;
-    }
+    @AttributeValue
+    @Column(length = 1024) private String value;
 
     public Long getId() {
         return id;
@@ -66,6 +60,22 @@ public class OrganizationUnit implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public RelationshipTypeEntity getOwner() {
+        return owner;
+    }
+
+    public void setOwner(RelationshipTypeEntity owner) {
+        this.owner = owner;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
 
     public String getName() {
@@ -76,28 +86,12 @@ public class OrganizationUnit implements Serializable {
         this.name = name;
     }
 
-    public OrganizationUnit getParent() {
-        return parent;
+    public String getValue() {
+        return value;
     }
 
-    public void setParent(OrganizationUnit parent) {
-        this.parent = parent;
-    }
-
-    public Company getCompany() {
-        return company;
-    }
-
-    public void setCompany(final Company company) {
-        this.company = company;
-    }
-
-    public IdentityObject getIdentityObject() {
-        return identityObject;
-    }
-
-    public void setIdentityObject(final IdentityObject identityObject) {
-        this.identityObject = identityObject;
+    public void setValue(String value) {
+        this.value = value;
     }
 
     @Override
@@ -110,7 +104,7 @@ public class OrganizationUnit implements Serializable {
             return false;
         }
 
-        OrganizationUnit other = (OrganizationUnit) obj;
+        RelationshipAttribute other = (RelationshipAttribute) obj;
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }

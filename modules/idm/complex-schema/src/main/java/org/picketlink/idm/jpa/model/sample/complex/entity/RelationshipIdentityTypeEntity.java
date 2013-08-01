@@ -44,7 +44,7 @@ public class RelationshipIdentityTypeEntity implements Serializable {
 
     @RelationshipMember
     @ManyToOne
-    private RelationshipIdentityTypeEntity identityType;
+    private IdentityObject identityType;
 
     @OwnerReference
     @ManyToOne
@@ -66,11 +66,11 @@ public class RelationshipIdentityTypeEntity implements Serializable {
         this.descriptor = descriptor;
     }
 
-    public RelationshipIdentityTypeEntity getIdentityType() {
+    public IdentityObject getIdentityType() {
         return identityType;
     }
 
-    public void setIdentityType(RelationshipIdentityTypeEntity identityType) {
+    public void setIdentityType(IdentityObject identityType) {
         this.identityType = identityType;
     }
 

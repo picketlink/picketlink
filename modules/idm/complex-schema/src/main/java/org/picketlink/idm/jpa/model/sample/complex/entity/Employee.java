@@ -43,7 +43,7 @@ public class Employee extends Person {
 
     @OwnerReference
     @OneToOne
-    private UserAccount userAccount;
+    private IdentityObject IdentityObject;
 
     public Employee() {
         this(null);
@@ -69,11 +69,11 @@ public class Employee extends Person {
         this.organizationUnit = organizationUnit;
     }
 
-    public UserAccount getUserAccount() {
-        return userAccount;
+    public IdentityObject getUserAccount() {
+        return IdentityObject;
     }
 
-    public void setUserAccount(final UserAccount userAccount) {
-        this.userAccount = userAccount;
+    public void setUserAccount(final IdentityObject userAccount) {
+        this.IdentityObject = userAccount;
     }
 }

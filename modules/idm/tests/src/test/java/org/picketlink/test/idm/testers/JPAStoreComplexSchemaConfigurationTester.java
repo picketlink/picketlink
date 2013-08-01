@@ -23,15 +23,18 @@ import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Address;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Application;
 import org.picketlink.idm.jpa.model.sample.complex.entity.ApplicationAttribute;
+import org.picketlink.idm.jpa.model.sample.complex.entity.ApplicationAuthorization;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Company;
 import org.picketlink.idm.jpa.model.sample.complex.entity.CompanyAttribute;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Country;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Email;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Employee;
+import org.picketlink.idm.jpa.model.sample.complex.entity.IdentityObject;
 import org.picketlink.idm.jpa.model.sample.complex.entity.OrganizationUnit;
 import org.picketlink.idm.jpa.model.sample.complex.entity.OrganizationUnitAttribute;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Person;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Phone;
+import org.picketlink.idm.jpa.model.sample.complex.entity.RelationshipAttribute;
 import org.picketlink.idm.jpa.model.sample.complex.entity.RelationshipIdentityTypeEntity;
 import org.picketlink.idm.jpa.model.sample.complex.entity.RelationshipTypeEntity;
 import org.picketlink.idm.jpa.model.sample.complex.entity.UserAccount;
@@ -78,7 +81,10 @@ public class JPAStoreComplexSchemaConfigurationTester implements IdentityConfigu
                                 OrganizationUnit.class,
                                 OrganizationUnitAttribute.class,
                                 RelationshipTypeEntity.class,
-                                RelationshipIdentityTypeEntity.class
+                                RelationshipIdentityTypeEntity.class,
+                                ApplicationAuthorization.class,
+                                RelationshipAttribute.class,
+                                IdentityObject.class
                         )
                         .addContextInitializer(new JPAContextInitializer(null) {
                             @Override

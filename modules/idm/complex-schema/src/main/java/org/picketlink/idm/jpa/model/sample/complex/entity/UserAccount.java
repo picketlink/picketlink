@@ -18,18 +18,16 @@
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
 import org.picketlink.idm.jpa.annotations.AttributeValue;
-import org.picketlink.idm.jpa.annotations.CreationDate;
-import org.picketlink.idm.jpa.annotations.Identifier;
-import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.jpa.model.sample.complex.EmployeeUser;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * @author pedroigor
@@ -40,15 +38,9 @@ public class UserAccount implements Serializable {
 
     private static final long serialVersionUID = 1021647558840635982L;
 
-    @Identifier
     @Id
-    private String id;
-
-    @IdentityClass
-    private String type;
-
-    @CreationDate
-    private Date creationDate;
+    @GeneratedValue
+    private Long id;
 
     @ManyToOne
     @AttributeValue
@@ -58,23 +50,15 @@ public class UserAccount implements Serializable {
     private String userName;
 
     @OwnerReference
-    @ManyToOne
-    private Company company;
+    @OneToOne
+    private IdentityObject identityObject;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(final Long id) {
         this.id = id;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public Person getPerson() {
@@ -93,19 +77,11 @@ public class UserAccount implements Serializable {
         this.userName = userName;
     }
 
-    public Date getCreationDate() {
-        return creationDate;
+    public IdentityObject getIdentityObject() {
+        return identityObject;
     }
 
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public Company getCompany() {
-        return company;
-    }
-
-    public void setCompany(Company company) {
-        this.company = company;
+    public void setIdentityObject(final IdentityObject identityObject) {
+        this.identityObject = identityObject;
     }
 }

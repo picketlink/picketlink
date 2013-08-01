@@ -10,7 +10,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  */
@@ -22,12 +21,6 @@ public class UserAccountControl implements Serializable {
     @GeneratedValue
     private Long id;
 
-    @AttributeValue (name = "enabled")
-    private boolean active;
-
-    @AttributeValue
-    private Date expirationDate;
-
     @AttributeValue
     private Integer failedLoginCount;
 
@@ -36,7 +29,7 @@ public class UserAccountControl implements Serializable {
 
     @OwnerReference
     @ManyToOne
-    private UserAccount account;
+    private IdentityObject account;
 
     public Long getId() {
         return id;
@@ -44,22 +37,6 @@ public class UserAccountControl implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(final boolean active) {
-        this.active = active;
-    }
-
-    public Date getExpirationDate() {
-        return expirationDate;
-    }
-
-    public void setExpirationDate(final Date expirationDate) {
-        this.expirationDate = expirationDate;
     }
 
     public Integer getFailedLoginCount() {
@@ -78,11 +55,11 @@ public class UserAccountControl implements Serializable {
         this.loginCount = loginCount;
     }
 
-    public UserAccount getAccount() {
+    public IdentityObject getAccount() {
         return account;
     }
 
-    public void setAccount(final UserAccount account) {
+    public void setAccount(final IdentityObject account) {
         this.account = account;
     }
 

@@ -18,12 +18,11 @@
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
 import org.picketlink.idm.jpa.annotations.AttributeValue;
-import org.picketlink.idm.jpa.annotations.Identifier;
-import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import java.io.Serializable;
@@ -38,24 +37,21 @@ public class Application implements Serializable {
     private static final long serialVersionUID = -7492810322246834638L;
 
     @Id
-    @Identifier
-    private String id;
-
-    @IdentityClass
-    private String type;
+    @GeneratedValue
+    private Long id;
 
     @AttributeValue
     private String name;
 
     @OwnerReference
     @ManyToOne
-    private Company company;
+    private IdentityObject identityObject;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -67,20 +63,12 @@ public class Application implements Serializable {
         this.name = name;
     }
 
-    public String getType() {
-        return type;
+    public IdentityObject getIdentityObject() {
+        return identityObject;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public Company getCompany() {
-        return company;
-    }
-
-    public void setCompany(Company company) {
-        this.company = company;
+    public void setIdentityObject(final IdentityObject identityObject) {
+        this.identityObject = identityObject;
     }
 
     @Override
