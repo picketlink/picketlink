@@ -44,10 +44,9 @@ import static java.util.Map.*;
 import static org.picketlink.idm.IDMMessages.*;
 
 /**
- * <p>This class holds all the mapping configuration for a specific JPA Entity and their corresponding IDM model classes.
- * A specific JPA entity can be mapped to and from different IDM model classes.
- * </p>
- * <p>Each {@link EntityMapping} holds the specific mapping for a IDM model type.</p>
+ * <p>This class holds all the mapping configuration for a specific JPA Entity and their corresponding IDM model
+ * classes. A specific JPA entity can be mapped to and from different IDM model classes. </p> <p>Each {@link
+ * EntityMapping} holds the specific mapping for a IDM model type.</p>
  *
  * @author pedroigor
  */
@@ -290,7 +289,7 @@ public class EntityMapper {
             }
         }
 
-        throw new IdentityManagementException("No mappings found for type [" + attributedType + "].");
+        return null;
     }
 
     public boolean isRoot() {
@@ -357,10 +356,18 @@ public class EntityMapper {
                 }
             }
         } else {
-            try {
+            if (isRoot()) {
                 entityInstance = entityManager.find(getEntityType(), attributedType.getId());
-            } catch (Exception e) {
+            } else {
+                List associatedEntities = getAssociatedEntities(attributedType, this, entityManager);
 
+                if (!associatedEntities.isEmpty()) {
+                    if (associatedEntities.size() > 1) {
+                        throw new IdentityManagementException("Unexpected associated references count.");
+                    }
+
+                    entityInstance = associatedEntities.get(0);
+                }
             }
 
             if (entityInstance == null) {

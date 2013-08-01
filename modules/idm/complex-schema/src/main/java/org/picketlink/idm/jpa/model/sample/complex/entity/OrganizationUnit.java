@@ -17,28 +17,45 @@
  */
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
+import org.picketlink.idm.jpa.annotations.AttributeValue;
+import org.picketlink.idm.jpa.annotations.CreationDate;
+import org.picketlink.idm.jpa.annotations.Identifier;
+import org.picketlink.idm.jpa.annotations.IdentityClass;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @author pedroigor
  */
+@IdentityManaged (org.picketlink.idm.jpa.model.sample.complex.OrganizationUnit.class)
 @Entity
 public class OrganizationUnit implements Serializable {
 
+    @Identifier
     @Id
-    @GeneratedValue
-    private Long id;
+    private String id;
+
+    @IdentityClass
+    private String type;
+
+    @CreationDate
+    private Date creationDate;
 
     @ManyToOne
+    @OwnerReference
     private Company company;
 
     @ManyToOne
+    @AttributeValue
     private OrganizationUnit parent;
 
+    @AttributeValue
     private String name;
 
     public OrganizationUnit() {
@@ -49,11 +66,11 @@ public class OrganizationUnit implements Serializable {
         this.name = name;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -79,6 +96,22 @@ public class OrganizationUnit implements Serializable {
 
     public void setParent(OrganizationUnit parent) {
         this.parent = parent;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(final String type) {
+        this.type = type;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(final Date creationDate) {
+        this.creationDate = creationDate;
     }
 
     @Override

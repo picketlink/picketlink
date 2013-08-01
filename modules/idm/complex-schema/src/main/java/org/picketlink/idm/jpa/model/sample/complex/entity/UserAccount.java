@@ -23,8 +23,7 @@ import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
-import org.picketlink.idm.jpa.model.sample.complex.User;
-import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.jpa.model.sample.complex.EmployeeUser;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -35,7 +34,7 @@ import java.util.Date;
 /**
  * @author pedroigor
  */
-@IdentityManaged ({User.class, IdentityType.class})
+@IdentityManaged ({EmployeeUser.class})
 @Entity
 public class UserAccount implements Serializable {
 

@@ -3,7 +3,7 @@ package org.picketlink.idm.jpa.model.sample.complex.entity;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
-import org.picketlink.idm.jpa.model.sample.complex.User;
+import org.picketlink.idm.jpa.model.sample.complex.EmployeeUser;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,7 +14,7 @@ import java.util.Date;
 
 /**
  */
-@IdentityManaged (User.class)
+@IdentityManaged (EmployeeUser.class)
 @Entity
 public class UserAccountControl implements Serializable {
 
@@ -27,6 +27,12 @@ public class UserAccountControl implements Serializable {
 
     @AttributeValue
     private Date expirationDate;
+
+    @AttributeValue
+    private Integer failedLoginCount;
+
+    @AttributeValue
+    private Integer loginCount;
 
     @OwnerReference
     @ManyToOne
@@ -54,6 +60,22 @@ public class UserAccountControl implements Serializable {
 
     public void setExpirationDate(final Date expirationDate) {
         this.expirationDate = expirationDate;
+    }
+
+    public Integer getFailedLoginCount() {
+        return failedLoginCount;
+    }
+
+    public void setFailedLoginCount(final Integer failedLoginCount) {
+        this.failedLoginCount = failedLoginCount;
+    }
+
+    public Integer getLoginCount() {
+        return loginCount;
+    }
+
+    public void setLoginCount(final Integer loginCount) {
+        this.loginCount = loginCount;
     }
 
     public UserAccount getAccount() {

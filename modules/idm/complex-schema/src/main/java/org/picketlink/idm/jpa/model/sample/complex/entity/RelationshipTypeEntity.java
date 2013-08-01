@@ -17,70 +17,45 @@
  */
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
-import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.Identifier;
-import org.picketlink.idm.jpa.annotations.IdentityClass;
-import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.RelationshipClass;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+import org.picketlink.idm.model.Relationship;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import java.io.Serializable;
 
 /**
  * @author pedroigor
  */
-@IdentityManaged (org.picketlink.idm.jpa.model.sample.complex.Application.class)
+@IdentityManaged (Relationship.class)
 @Entity
-public class Application implements Serializable {
+public class RelationshipTypeEntity implements Serializable {
 
-    private static final long serialVersionUID = -7492810322246834638L;
+    private static final long serialVersionUID = 3385382005786114745L;
 
     @Id
     @Identifier
     private String id;
 
-    @IdentityClass
-    private String type;
-
-    @AttributeValue
-    private String name;
-
-    @OwnerReference
-    @ManyToOne
-    private Company company;
-
     public String getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(String id) {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    @RelationshipClass
+    private String typeName;
+
+    public String getTypeName() {
+        return this.typeName;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public Company getCompany() {
-        return company;
-    }
-
-    public void setCompany(Company company) {
-        this.company = company;
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
 
     @Override
@@ -93,7 +68,7 @@ public class Application implements Serializable {
             return false;
         }
 
-        Application other = (Application) obj;
+        RelationshipTypeEntity other = (RelationshipTypeEntity) obj;
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }

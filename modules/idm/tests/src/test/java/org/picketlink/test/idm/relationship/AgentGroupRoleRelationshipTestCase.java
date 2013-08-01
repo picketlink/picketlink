@@ -25,12 +25,13 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupRole;
-import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.IgnoreTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 

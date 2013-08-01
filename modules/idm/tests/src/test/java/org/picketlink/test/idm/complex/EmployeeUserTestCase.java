@@ -2,7 +2,7 @@ package org.picketlink.test.idm.complex;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.jpa.model.sample.complex.User;
+import org.picketlink.idm.jpa.model.sample.complex.EmployeeUser;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Employee;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.IgnoreTester;
@@ -11,6 +11,7 @@ import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -18,7 +19,7 @@ import static org.junit.Assert.*;
 /**
  */
 @IgnoreTester({LDAPStoreConfigurationTester.class, JPAStoreConfigurationTester.class})
-public class EmployeeUserTestCase extends AbstractIdentityTypeTestCase<User> {
+public class EmployeeUserTestCase extends AbstractIdentityTypeTestCase<EmployeeUser> {
 
     private ComplexSchemaHelper helper;
 
@@ -33,62 +34,113 @@ public class EmployeeUserTestCase extends AbstractIdentityTypeTestCase<User> {
     }
 
     @Override
-    protected User createIdentityType() {
-        User user = this.helper.createEmployeeUser("Chuck", "Norris", "chuck", this.helper.getSecurityOrgUnit());
+    protected EmployeeUser createIdentityType() {
+        EmployeeUser EmployeeUser = this.helper.createEmployeeEmployeeUser("Chuck", "Norris", "chuck", this.helper.getSecurityOrgUnit());
 
-        getIdentityManager().add(user);
+        getIdentityManager().add(EmployeeUser);
 
-        return user;
-    }
-
-    @Test
-    public void testCreate() {
-        User user = createIdentityType();
-
-        User storedUser = getIdentityType();
-
-        assertNotNull(storedUser);
-        assertEquals(storedUser.getUserName(), user.getUserName());
-        assertEquals(storedUser.getPerson().getId(), user.getPerson().getId());
-        assertEquals(storedUser.getPerson().getFirstName(), user.getPerson().getFirstName());
-        assertEquals(storedUser.getPerson().getLastName(), user.getPerson().getLastName());
-        assertEquals(storedUser.getPerson().getBirthDate(), user.getPerson().getBirthDate());
-
-        assertEquals(1, user.getPerson().getAddress().size());
-        assertEquals(storedUser.getPerson().getAddress().get(0).getCity(), user.getPerson().getAddress().get(0).getCity());
-        assertEquals(storedUser.getPerson().getAddress().get(0).getCity(), user.getPerson().getAddress().get(0).getCity());
-        assertEquals(storedUser.getPerson().getAddress().get(0).getCountry(), user.getPerson().getAddress().get(0).getCountry());
-        assertEquals(storedUser.getPerson().getAddress().get(0).getStreetName(), user.getPerson().getAddress().get(0).getStreetName());
-        assertEquals(storedUser.getPerson().getAddress().get(0).getStreetNumber(), user.getPerson().getAddress().get(0).getStreetNumber());
-        assertEquals(storedUser.getPerson().getAddress().get(0).getType(), user.getPerson().getAddress().get(0).getType());
-        assertEquals(storedUser.getPerson().getAddress().get(0).getUnitNumber(), user.getPerson().getAddress().get(0).getUnitNumber());
-        assertEquals(storedUser.getPerson().getAddress().get(0).getZip(), user.getPerson().getAddress().get(0).getZip());
-
-        assertEquals(1, user.getPerson().getEmails().size());
-        assertEquals(storedUser.getPerson().getEmails().get(0).getAddress(), user.getPerson().getEmails().get(0).getAddress());
-        assertEquals(storedUser.getPerson().getEmails().get(0).isPrimaryEmail(), user.getPerson().getEmails().get(0).isPrimaryEmail());
-
-        assertEquals(1, user.getPerson().getPhones().size());
-        assertEquals(storedUser.getPerson().getPhones().get(0).getNumber(), user.getPerson().getPhones().get(0).getNumber());
-        assertEquals(storedUser.getPerson().getPhones().get(0).getType(), user.getPerson().getPhones().get(0).getType());
-
-        assertEquals(Employee.class, storedUser.getPerson().getClass());
-        assertNotNull(((Employee) storedUser.getPerson()).getOrganizationUnit());
-        assertEquals(((Employee) storedUser.getPerson()).getOrganizationUnit(), ((Employee) user.getPerson()).getOrganizationUnit());
-        assertEquals(((Employee) storedUser.getPerson()).getOrganizationUnit().getParent(), this.helper.getTechnologyOrgUnit());
+        return EmployeeUser;
     }
 
     @Override
-    protected User getIdentityType() {
-        IdentityQuery<User> query = this.helper.getIdentityManager().createIdentityQuery(User.class);
+    protected EmployeeUser getIdentityType() {
+        IdentityQuery<EmployeeUser> query = this.helper.getIdentityManager().createIdentityQuery(EmployeeUser.class);
 
-        query.setParameter(User.QUERY_ATTRIBUTE.byName("userName"), "chuck");
+        query.setParameter(EmployeeUser.QUERY_ATTRIBUTE.byName("userName"), "chuck");
 
-        List<User> result = query.getResultList();
+        List<EmployeeUser> result = query.getResultList();
 
         assertEquals(1, result.size());
 
         return result.get(0);
+    }
+
+    @Test
+    public void testCreate() {
+        EmployeeUser employeeUser = createIdentityType();
+
+        EmployeeUser storedEmployeeUser = getIdentityType();
+
+        assertNotNull(storedEmployeeUser);
+        assertEquals(storedEmployeeUser.getUserName(), employeeUser.getUserName());
+        assertEquals(storedEmployeeUser.getPerson().getId(), employeeUser.getPerson().getId());
+        assertEquals(storedEmployeeUser.getPerson().getFirstName(), employeeUser.getPerson().getFirstName());
+        assertEquals(storedEmployeeUser.getPerson().getLastName(), employeeUser.getPerson().getLastName());
+        assertEquals(storedEmployeeUser.getPerson().getBirthDate(), employeeUser.getPerson().getBirthDate());
+
+        assertEquals(1, employeeUser.getPerson().getAddress().size());
+        assertEquals(storedEmployeeUser.getPerson().getAddress().get(0).getCity(), employeeUser.getPerson().getAddress().get(0).getCity());
+        assertEquals(storedEmployeeUser.getPerson().getAddress().get(0).getCity(), employeeUser.getPerson().getAddress().get(0).getCity());
+        assertEquals(storedEmployeeUser.getPerson().getAddress().get(0).getCountry(), employeeUser.getPerson().getAddress().get(0).getCountry());
+        assertEquals(storedEmployeeUser.getPerson().getAddress().get(0).getStreetName(), employeeUser.getPerson().getAddress().get(0).getStreetName());
+        assertEquals(storedEmployeeUser.getPerson().getAddress().get(0).getStreetNumber(), employeeUser.getPerson().getAddress().get(0).getStreetNumber());
+        assertEquals(storedEmployeeUser.getPerson().getAddress().get(0).getType(), employeeUser.getPerson().getAddress().get(0).getType());
+        assertEquals(storedEmployeeUser.getPerson().getAddress().get(0).getUnitNumber(), employeeUser.getPerson().getAddress().get(0).getUnitNumber());
+        assertEquals(storedEmployeeUser.getPerson().getAddress().get(0).getZip(), employeeUser.getPerson().getAddress().get(0).getZip());
+
+        assertEquals(1, employeeUser.getPerson().getEmails().size());
+        assertEquals(storedEmployeeUser.getPerson().getEmails().get(0).getAddress(), employeeUser.getPerson().getEmails().get(0).getAddress());
+        assertEquals(storedEmployeeUser.getPerson().getEmails().get(0).isPrimaryEmail(), employeeUser.getPerson().getEmails().get(0).isPrimaryEmail());
+
+        assertEquals(1, employeeUser.getPerson().getPhones().size());
+        assertEquals(storedEmployeeUser.getPerson().getPhones().get(0).getNumber(), employeeUser.getPerson().getPhones().get(0).getNumber());
+        assertEquals(storedEmployeeUser.getPerson().getPhones().get(0).getType(), employeeUser.getPerson().getPhones().get(0).getType());
+
+        assertEquals(Employee.class, storedEmployeeUser.getPerson().getClass());
+        assertNotNull(((Employee) storedEmployeeUser.getPerson()).getOrganizationUnit());
+        assertEquals(((Employee) storedEmployeeUser.getPerson()).getOrganizationUnit(), ((Employee) employeeUser.getPerson()).getOrganizationUnit());
+        assertEquals(((Employee) storedEmployeeUser.getPerson()).getOrganizationUnit().getParent(), this.helper.getTechnologyOrgUnit());
+    }
+
+    @Test
+    public void testUpdate() {
+        EmployeeUser employeeUser = createIdentityType();
+
+        employeeUser.getPerson().setFirstName("Changed FirstName");
+
+        IdentityManager identityManager = getIdentityManager();
+
+        identityManager.update(employeeUser);
+
+        EmployeeUser storedEmployeeUser = getIdentityType();
+
+        assertEquals(employeeUser.getPerson().getFirstName(), storedEmployeeUser.getPerson().getFirstName());
+        assertEquals(employeeUser.getPerson().getLastName(), storedEmployeeUser.getPerson().getLastName());
+        assertEquals(employeeUser.getPerson().getBirthDate(), storedEmployeeUser.getPerson().getBirthDate());
+
+        employeeUser.setEmployeeId("RH000000000");
+
+        identityManager.update(employeeUser);
+
+        storedEmployeeUser = getIdentityType();
+
+        assertEquals(employeeUser.getEmployeeId(), storedEmployeeUser.getEmployeeId());
+
+        this.helper.addAddress(employeeUser.getPerson(), "Another City");
+
+        identityManager.update(employeeUser);
+
+        storedEmployeeUser = getIdentityType();
+
+        assertEquals(2, employeeUser.getPerson().getAddress().size());
+
+        employeeUser.setExpirationDate(new Date());
+
+        identityManager.update(employeeUser);
+
+        storedEmployeeUser = getIdentityType();
+
+        assertNotNull(storedEmployeeUser.getExpirationDate());
+
+        employeeUser.setLoginCount(10);
+        employeeUser.setFailedLoginCount(3);
+
+        identityManager.update(employeeUser);
+
+        storedEmployeeUser = getIdentityType();
+
+        assertEquals(employeeUser.getFailedLoginCount(), storedEmployeeUser.getFailedLoginCount());
+        assertEquals(employeeUser.getLoginCount(), storedEmployeeUser.getLoginCount());
     }
 
     @Override
