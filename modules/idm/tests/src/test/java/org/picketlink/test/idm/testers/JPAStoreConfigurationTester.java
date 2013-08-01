@@ -17,9 +17,6 @@
  */
 package org.picketlink.test.idm.testers;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
@@ -39,6 +36,11 @@ import org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.test.idm.basic.MyCustomAccountEntity;
 import org.picketlink.test.idm.partition.CustomPartitionEntity;
+import org.picketlink.test.idm.relationship.CustomRelationshipTypeEntity;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
 /**
  * @author pedroigor
@@ -65,6 +67,7 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
                                 RoleTypeEntity.class,
                                 GroupTypeEntity.class,
                                 IdentityTypeEntity.class,
+                                CustomRelationshipTypeEntity.class,
                                 RelationshipTypeEntity.class,
                                 RelationshipIdentityTypeEntity.class,
                                 PartitionTypeEntity.class,
