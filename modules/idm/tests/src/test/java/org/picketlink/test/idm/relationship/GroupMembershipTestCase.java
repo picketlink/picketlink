@@ -248,65 +248,6 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
     @Test
     @IgnoreTester(LDAPStoreConfigurationTester.class)
-    public void testFindByAttributes() throws Exception {
-        User someUser = createUser();
-        Group someGroup = createGroup();
-
-        GroupMembership groupMembership = new GroupMembership(someUser, someGroup);
-
-        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
-
-        relationshipManager.add(groupMembership);
-
-        RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
-
-        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute1"), "1");
-
-        List<GroupMembership> result = query.getResultList();
-
-        Assert.assertTrue(result.isEmpty());
-
-        groupMembership.setAttribute(new Attribute<String>("attribute1", "1"));
-        groupMembership.setAttribute(new Attribute<String[]>("attribute2", new String[] { "1", "2", "3" }));
-
-        relationshipManager.update(groupMembership);
-
-        result = query.getResultList();
-
-        Assert.assertEquals(1, result.size());
-
-        groupMembership = result.get(0);
-
-        Assert.assertEquals(someUser.getId(), groupMembership.getMember().getId());
-        Assert.assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
-
-        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
-
-        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute1"), "2");
-
-        result = query.getResultList();
-
-        Assert.assertTrue(result.isEmpty());
-        
-        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
-
-        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute3"), "2");
-
-        result = query.getResultList();
-
-        Assert.assertTrue(result.isEmpty());
-        
-        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
-
-        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute2"), "1", "2", "3");
-
-        result = query.getResultList();
-
-        Assert.assertFalse(result.isEmpty());
-    }
-    
-    @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testLargeAttributeValue() throws Exception {
         User someUser = createUser();
         Group someGroup = createGroup();

@@ -432,7 +432,7 @@ public class JPAIdentityStore
 
         EntityManager em = getEntityManager(context);
 
-        List<?> result = new ArrayList<Object>();
+        List result = new ArrayList();
 
         Object[] identityParameterValues = query.getParameter(Relationship.IDENTITY);
 
@@ -452,106 +452,115 @@ public class JPAIdentityStore
                 result = findIdentityTypeRelationships(context, identityId);
             }
         } else {
+            EntityMapper entityMapper = getRootMapper(query.getRelationshipClass());
             CriteriaBuilder builder = em.getCriteriaBuilder();
             CriteriaQuery<?> criteria = builder.createQuery(getConfig().getRelationshipMapping().getEntityClass());
             Root<?> root = criteria.from(getConfig().getRelationshipMapping().getEntityClass());
 
             List<Predicate> predicates = new ArrayList<Predicate>();
 
-            predicates.add(builder.equal(root.get(getConfig().getRelationshipMapping().getRelationshipClass().getName()),
-                    query.getRelationshipClass().getName()));
-
-            Property<Object> identityProperty = getConfig().getRelationshipIdentityMapping().getRelationshipMember();
-            Property<String> descriptorProperty = getConfig().getRelationshipIdentityMapping().getRelationshipDescriptor();
-            Property<Object> relationshipProperty = getConfig().getRelationshipIdentityMapping().getRelationshipOwner();
-
-            for (Entry<QueryParameter, Object[]> entry : query.getParameters().entrySet()) {
-                QueryParameter queryParameter = entry.getKey();
-                Object[] values = entry.getValue();
-
-                if (queryParameter instanceof RelationshipQueryParameter) {
-                    RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) entry.getKey();
-                    List<String> identityTypeIdentifiers = new ArrayList<String>();
-
-                    for (Object object : values) {
-                        IdentityType identityType = (IdentityType) object;
-
-                        if (identityType == null) {
-                            return queryResult;
-                        }
-
-                        identityTypeIdentifiers.add(identityType.getId());
-                    }
-
-                    Subquery<?> subquery = criteria.subquery(getConfig().getRelationshipIdentityMapping().getEntityClass());
-                    Root fromRelationshipIdentityType = subquery.from(getConfig().getRelationshipIdentityMapping().getEntityClass());
-                    subquery.select(fromRelationshipIdentityType.get(relationshipProperty.getName()));
-
-                    Predicate conjunction = builder.conjunction();
-
-                    conjunction.getExpressions().add(
-                            builder.equal(fromRelationshipIdentityType.get(descriptorProperty.getName()),
-                                    identityTypeParameter.getName()));
-
-                    if (identityProperty.getJavaClass().equals(String.class)) {
-                        conjunction.getExpressions().add(fromRelationshipIdentityType.get(identityProperty.getName()).in(identityTypeIdentifiers));
-                    } else {
-                        Join join = fromRelationshipIdentityType.join(identityProperty.getName());
-
-                        List<Object> entities = new ArrayList<Object>();
-
-                        for (String id : identityTypeIdentifiers) {
-                            entities.add(em.find(identityProperty.getJavaClass(), id));
-                        }
-
-                        conjunction.getExpressions().add(join.in(entities));
-                    }
-
-                    subquery.where(conjunction);
-
-                    predicates.add(builder.in(root).value(subquery));
-                }
-
-                if (AttributeParameter.class.equals(entry.getKey().getClass())) {
-                    AttributeParameter customParameter = (AttributeParameter) entry.getKey();
-                    Object[] attributeValues = entry.getValue();
-
-                    String[] valuesToSearch = new String[attributeValues.length];
-
-                    for (int i = 0; i < attributeValues.length; i++) {
-                        valuesToSearch[i] = Base64.encodeObject((Serializable) attributeValues[i]);
-                    }
-
-                    EntityMapper attributeMapper = getRootMapper(Attribute.class);
-
-                    Class<?> attributeEntityClass = attributeMapper.getEntityType();
-                    Property attributeNameProperty = attributeMapper.getProperty(Attribute.class, AttributeName.class).getValue();
-                    Property attributeValueProperty = attributeMapper.getProperty(Attribute.class, AttributeValue.class).getValue();
-                    Property ownerProperty = attributeMapper.getProperty(Attribute.class, OwnerReference.class).getValue();
-
-                    Subquery<?> subquery = criteria.subquery(attributeEntityClass);
-                    Root fromProject = subquery.from(attributeEntityClass);
-                    subquery.select(fromProject.get(ownerProperty.getName()));
-
-                    Predicate conjunction = builder.conjunction();
-
-                    conjunction.getExpressions().add(
-                            builder.equal(
-                                    fromProject.get(attributeNameProperty.getName()),
-                                    customParameter.getName()));
-                    conjunction.getExpressions().add(
-                            (fromProject.get(attributeValueProperty.getName())
-                                    .in((Object[]) valuesToSearch)));
-
-                    subquery.where(conjunction);
-
-                    subquery.groupBy(subquery.getSelection()).having(
-                            builder.equal(builder.count(subquery.getSelection()), valuesToSearch.length));
-
-                    predicates.add(builder.in(root).value(subquery));
-                }
+            if (!Relationship.class.equals(query.getRelationshipClass())) {
+                predicates.add(builder.equal(root.get(getConfig().getRelationshipMapping().getRelationshipClass().getName()),
+                        query.getRelationshipClass().getName()));
             }
 
+            Object[] idParameter = query.getParameter(Relationship.ID);
+
+            if (idParameter != null && idParameter.length > 0) {
+                predicates.add(builder.equal(root.get(entityMapper.getIdProperty().getName()),
+                        idParameter[0]));
+            } else {
+                Property<Object> identityProperty = getConfig().getRelationshipIdentityMapping().getRelationshipMember();
+                Property<String> descriptorProperty = getConfig().getRelationshipIdentityMapping().getRelationshipDescriptor();
+                Property<Object> relationshipProperty = getConfig().getRelationshipIdentityMapping().getRelationshipOwner();
+
+                for (Entry<QueryParameter, Object[]> entry : query.getParameters().entrySet()) {
+                    QueryParameter queryParameter = entry.getKey();
+                    Object[] values = entry.getValue();
+
+                    if (queryParameter instanceof RelationshipQueryParameter) {
+                        RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) entry.getKey();
+                        List<String> identityTypeIdentifiers = new ArrayList<String>();
+
+                        for (Object object : values) {
+                            IdentityType identityType = (IdentityType) object;
+
+                            if (identityType == null) {
+                                return queryResult;
+                            }
+
+                            identityTypeIdentifiers.add(identityType.getId());
+                        }
+
+                        Subquery<?> subquery = criteria.subquery(getConfig().getRelationshipIdentityMapping().getEntityClass());
+                        Root fromRelationshipIdentityType = subquery.from(getConfig().getRelationshipIdentityMapping().getEntityClass());
+                        subquery.select(fromRelationshipIdentityType.get(relationshipProperty.getName()));
+
+                        Predicate conjunction = builder.conjunction();
+
+                        conjunction.getExpressions().add(
+                                builder.equal(fromRelationshipIdentityType.get(descriptorProperty.getName()),
+                                        identityTypeParameter.getName()));
+
+                        if (identityProperty.getJavaClass().equals(String.class)) {
+                            conjunction.getExpressions().add(fromRelationshipIdentityType.get(identityProperty.getName()).in(identityTypeIdentifiers));
+                        } else {
+                            Join join = fromRelationshipIdentityType.join(identityProperty.getName());
+
+                            List<Object> entities = new ArrayList<Object>();
+
+                            for (String id : identityTypeIdentifiers) {
+                                entities.add(em.find(identityProperty.getJavaClass(), id));
+                            }
+
+                            conjunction.getExpressions().add(join.in(entities));
+                        }
+
+                        subquery.where(conjunction);
+
+                        predicates.add(builder.in(root).value(subquery));
+                    }
+
+                    if (AttributeParameter.class.equals(entry.getKey().getClass())) {
+                        AttributeParameter customParameter = (AttributeParameter) entry.getKey();
+                        Object[] attributeValues = entry.getValue();
+
+                        String[] valuesToSearch = new String[attributeValues.length];
+
+                        for (int i = 0; i < attributeValues.length; i++) {
+                            valuesToSearch[i] = Base64.encodeObject((Serializable) attributeValues[i]);
+                        }
+
+                        EntityMapper attributeMapper = getRootMapper(Attribute.class);
+
+                        Class<?> attributeEntityClass = attributeMapper.getEntityType();
+                        Property attributeNameProperty = attributeMapper.getProperty(Attribute.class, AttributeName.class).getValue();
+                        Property attributeValueProperty = attributeMapper.getProperty(Attribute.class, AttributeValue.class).getValue();
+                        Property ownerProperty = attributeMapper.getProperty(Attribute.class, OwnerReference.class).getValue();
+
+                        Subquery<?> subquery = criteria.subquery(attributeEntityClass);
+                        Root fromProject = subquery.from(attributeEntityClass);
+                        subquery.select(fromProject.get(ownerProperty.getName()));
+
+                        Predicate conjunction = builder.conjunction();
+
+                        conjunction.getExpressions().add(
+                                builder.equal(
+                                        fromProject.get(attributeNameProperty.getName()),
+                                        customParameter.getName()));
+                        conjunction.getExpressions().add(
+                                (fromProject.get(attributeValueProperty.getName())
+                                        .in((Object[]) valuesToSearch)));
+
+                        subquery.where(conjunction);
+
+                        subquery.groupBy(subquery.getSelection()).having(
+                                builder.equal(builder.count(subquery.getSelection()), valuesToSearch.length));
+
+                        predicates.add(builder.in(root).value(subquery));
+                    }
+                }
+            }
 
             criteria.where(predicates.toArray(new Predicate[predicates.size()]));
 
