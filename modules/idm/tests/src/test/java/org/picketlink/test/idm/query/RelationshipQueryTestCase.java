@@ -282,5 +282,24 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
         assertEquals(1, result.size());
         assertEquals(relationship.getId(), result.get(0).getId());
         assertEquals(relationship.getAttributeB(), result.get(0).getAttributeB());
+
+        query = relationshipManager.createRelationshipQuery(CustomRelationship.class);
+
+        query.setParameter(CustomRelationship.QUERY_ATTRIBUTE.byName("attributeC"), false);
+
+        result = query.getResultList();
+
+        assertTrue(result.isEmpty());
+
+        query = relationshipManager.createRelationshipQuery(CustomRelationship.class);
+
+        query.setParameter(CustomRelationship.QUERY_ATTRIBUTE.byName("attributeC"), true);
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals(relationship.getId(), result.get(0).getId());
+        assertEquals(relationship.isAttributeC(), result.get(0).isAttributeC());
     }
 }
