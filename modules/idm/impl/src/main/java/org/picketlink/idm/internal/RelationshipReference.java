@@ -74,6 +74,6 @@ public final class RelationshipReference extends AbstractAttributedType implemen
     }
 
     public static String formatId(final IdentityType identityType) {
-        return identityType.getPartition().getId() + ID_SEPARATOR + identityType.getId();
+        return identityType.getPartition().getName() + ID_SEPARATOR + identityType.getId();
     }
 }
