@@ -3,7 +3,9 @@ package org.picketlink.idm.jpa.model.sample.complex.entity;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+import org.picketlink.idm.jpa.model.sample.complex.CustomerUser;
 import org.picketlink.idm.jpa.model.sample.complex.EmployeeUser;
+import org.picketlink.idm.model.Account;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,7 +15,7 @@ import java.io.Serializable;
 
 /**
  */
-@IdentityManaged (EmployeeUser.class)
+@IdentityManaged ({EmployeeUser.class, CustomerUser.class})
 @Entity
 public class UserAccountControl implements Serializable {
 

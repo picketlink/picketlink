@@ -49,9 +49,19 @@ public class CompanyTestCase extends AbstractPartitionTestCase<Company> {
     protected Company createPartition() {
         Company company = new Company("Acme");
 
+        company.setDomain("acme.com");
+
         getPartitionManager().add(company);
 
         return company;
+    }
+
+    @Test
+    public void testCreate() {
+        Company company = createPartition();
+        Company storedCompany = getPartitionManager().getPartition(Company.class, company.getName());
+
+        assertEquals("acme.com", storedCompany.getDomain());
     }
 
     @Test

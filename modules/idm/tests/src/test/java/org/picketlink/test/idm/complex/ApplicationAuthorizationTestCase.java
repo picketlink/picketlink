@@ -62,11 +62,9 @@ public class ApplicationAuthorizationTestCase extends AbstractPartitionManagerTe
 
     @Test
     public void testCreate() throws Exception {
-        EmployeeUser user = this.helper.createEmployeeEmployeeUser("Chuck", "Norris", "chuck", this.helper.getSecurityOrgUnit());
+        EmployeeUser user = this.helper.createEmployeeUser("Chuck", "Norris", "chuck", this.helper.getSecurityOrgUnit());
 
         IdentityManager identityManager = getIdentityManager();
-
-        identityManager.add(user);
 
         Application application = new Application("Employee Manager");
 
@@ -98,11 +96,9 @@ public class ApplicationAuthorizationTestCase extends AbstractPartitionManagerTe
 
     @Test
     public void testFindByIdentity() throws Exception {
-        EmployeeUser chuck = this.helper.createEmployeeEmployeeUser("Chuck", "Norris", "chuck", this.helper.getSecurityOrgUnit());
+        EmployeeUser chuck = this.helper.createEmployeeUser("Chuck", "Norris", "chuck", this.helper.getSecurityOrgUnit());
 
         IdentityManager identityManager = getIdentityManager();
-
-        identityManager.add(chuck);
 
         Application application = new Application("Employee Manager");
 
@@ -125,10 +121,8 @@ public class ApplicationAuthorizationTestCase extends AbstractPartitionManagerTe
         assertEquals(chuck.getId(), result.get(0).getAccount().getId());
         assertEquals(chuckAuthorization.getApplication().getId(), result.get(0).getApplication().getId());
 
-        EmployeeUser mary = this.helper.createEmployeeEmployeeUser("Mary", "Anne", "mary",
+        EmployeeUser mary = this.helper.createEmployeeUser("Mary", "Anne", "mary",
                 this.helper.getSecurityOrgUnit());
-
-        identityManager.add(mary);
 
         ApplicationAuthorization maryAuthorization = new ApplicationAuthorization();
 
@@ -155,11 +149,9 @@ public class ApplicationAuthorizationTestCase extends AbstractPartitionManagerTe
 
     @Test
     public void testExpiration() throws Exception {
-        EmployeeUser user = this.helper.createEmployeeEmployeeUser("Chuck", "Norris", "chuck", this.helper.getSecurityOrgUnit());
+        EmployeeUser user = this.helper.createEmployeeUser("Chuck", "Norris", "chuck", this.helper.getSecurityOrgUnit());
 
         IdentityManager identityManager = getIdentityManager();
-
-        identityManager.add(user);
 
         Application application = new Application("Employee Manager");
 

@@ -17,11 +17,15 @@
  */
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+import org.picketlink.idm.jpa.model.sample.complex.CustomerUser;
+
 import javax.persistence.Entity;
 
 /**
  * @author pedroigor
  */
+@IdentityManaged (CustomerUser.class)
 @Entity
 public class Customer extends Person {
 

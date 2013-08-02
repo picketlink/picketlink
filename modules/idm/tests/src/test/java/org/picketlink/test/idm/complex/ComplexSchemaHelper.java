@@ -20,16 +20,22 @@ package org.picketlink.test.idm.complex;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.jpa.model.sample.complex.Application;
+import org.picketlink.idm.jpa.model.sample.complex.ApplicationAuthorization;
 import org.picketlink.idm.jpa.model.sample.complex.Company;
+import org.picketlink.idm.jpa.model.sample.complex.CustomerUser;
 import org.picketlink.idm.jpa.model.sample.complex.EmployeeUser;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Address;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Country;
+import org.picketlink.idm.jpa.model.sample.complex.entity.Customer;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Email;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Employee;
 import org.picketlink.idm.jpa.model.sample.complex.entity.OrganizationUnit;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Person;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Phone;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreComplexSchemaConfigurationTester;
 
@@ -46,7 +52,7 @@ import static org.junit.Assert.*;
 public class ComplexSchemaHelper {
 
     private IdentityManager identityManager;
-    private PartitionManager partitionManager;
+    private final PartitionManager partitionManager;
     private Country country;
     private EntityManager entityManager;
 
@@ -59,8 +65,20 @@ public class ComplexSchemaHelper {
     private OrganizationUnit executiveOrgUnit;
     private OrganizationUnit securityOrgUnit;
 
+    public ComplexSchemaHelper(IdentityConfigurationTester visitor) {
+        this (null, null, visitor);
+    }
+
     public ComplexSchemaHelper(String company, String domain, IdentityConfigurationTester visitor) {
-        this.partitionManager = visitor.getPartitionManager();
+        this(company, domain, visitor, null);
+    }
+
+    public ComplexSchemaHelper(String company, String domain, IdentityConfigurationTester visitor, PartitionManager partitionManager) {
+        if (partitionManager != null) {
+            this.partitionManager = partitionManager;
+        } else {
+            this.partitionManager = visitor.getPartitionManager();
+        }
         this.country = new Country("Brazil");
 
         if (JPAStoreComplexSchemaConfigurationTester.class.isInstance(visitor)) {
@@ -74,27 +92,29 @@ public class ComplexSchemaHelper {
             this.country.setId(1l);
         }
 
-        this.company = createCompany(company, domain);
-        this.identityManager = this.partitionManager.createIdentityManager(this.company);
+        if (company != null) {
+            this.company = createCompany(company, domain);
+        }
     }
+
 
     @Test
     public void testEmployeeUser() {
-        EmployeeUser john = createEmployeeEmployeeUser("John", "Smith", "john", this.executiveOrgUnit);
-        EmployeeUser mary = createEmployeeEmployeeUser("Mary", "Anne", "mary", this.financeOrgUnit);
-        EmployeeUser ayrton = createEmployeeEmployeeUser("Ayrton", "Senna", "ayrton", this.lawOrgUnit);
-        EmployeeUser francisco = createEmployeeEmployeeUser("Francisco", "Miller", "francisco", this.humanResourceOrgUnit);
-        EmployeeUser steve = createEmployeeEmployeeUser("Steve", "Taylor", "steve", this.technologyOrgUnit);
-        EmployeeUser chuck = createEmployeeEmployeeUser("Chuck", "Norris", "chuck", this.securityOrgUnit);
+        EmployeeUser john = createEmployeeUser("John", "Smith", "john", this.executiveOrgUnit);
+        EmployeeUser mary = createEmployeeUser("Mary", "Anne", "mary", this.financeOrgUnit);
+        EmployeeUser ayrton = createEmployeeUser("Ayrton", "Senna", "ayrton", this.lawOrgUnit);
+        EmployeeUser francisco = createEmployeeUser("Francisco", "Miller", "francisco", this.humanResourceOrgUnit);
+        EmployeeUser steve = createEmployeeUser("Steve", "Taylor", "steve", this.technologyOrgUnit);
+        EmployeeUser chuck = createEmployeeUser("Chuck", "Norris", "chuck", this.securityOrgUnit);
 
-        identityManager.add(john);
-        identityManager.add(mary);
-        identityManager.add(ayrton);
-        identityManager.add(francisco);
-        identityManager.add(steve);
-        identityManager.add(chuck);
+        getIdentityManager().add(john);
+        getIdentityManager().add(mary);
+        getIdentityManager().add(ayrton);
+        getIdentityManager().add(francisco);
+        getIdentityManager().add(steve);
+        getIdentityManager().add(chuck);
 
-        IdentityQuery<EmployeeUser> query = identityManager.createIdentityQuery(EmployeeUser.class);
+        IdentityQuery<EmployeeUser> query = getIdentityManager().createIdentityQuery(EmployeeUser.class);
 
         query.setParameter(EmployeeUser.QUERY_ATTRIBUTE.byName("userName"), chuck.getUserName());
 
@@ -135,8 +155,12 @@ public class ComplexSchemaHelper {
         assertEquals(((Employee) EmployeeUser.getPerson()).getOrganizationUnit().getParent(), this.technologyOrgUnit);
     }
 
-    public EmployeeUser createEmployeeEmployeeUser(final String firstName, final String lastName, final String EmployeeUserName,
-                                   final OrganizationUnit executiveOrgUnit1) {
+    public IdentityManager getIdentityManager() {
+        return this.partitionManager.createIdentityManager(this.company);
+    }
+
+    public EmployeeUser createEmployeeUser(final String firstName, final String lastName, final String userName,
+                                           final OrganizationUnit executiveOrgUnit1) {
         Employee person = new Employee(executiveOrgUnit1);
 
         person.setFirstName(firstName);
@@ -145,7 +169,7 @@ public class ComplexSchemaHelper {
 
         addAddress(person, "Barbacena");
 
-        Email email = new Email(EmployeeUserName + "@" + this.company.getDomain());
+        Email email = new Email(userName + "@" + this.company.getDomain());
 
         person.addEmail(email);
 
@@ -159,11 +183,21 @@ public class ComplexSchemaHelper {
             person.setId(new Random().nextLong());
         }
 
-        EmployeeUser EmployeeUser = new EmployeeUser(EmployeeUserName);
+        EmployeeUser user = new EmployeeUser(userName);
 
-        EmployeeUser.setPerson(person);
+        user.setPerson(person);
 
-        return EmployeeUser;
+        getIdentityManager().add(user);
+
+        return user;
+    }
+
+    public Application createApplication(String name) {
+        Application application = new Application(name);
+
+        getIdentityManager().add(application);
+
+        return application;
     }
 
     public void addAddress(Person person, String city) {
@@ -232,7 +266,80 @@ public class ComplexSchemaHelper {
         return technologyOrgUnit;
     }
 
-    public IdentityManager getIdentityManager() {
-        return identityManager;
+    public OrganizationUnit getFinanceOrgUnit() {
+        return financeOrgUnit;
+    }
+
+    public OrganizationUnit getLawOrgUnit() {
+        return lawOrgUnit;
+    }
+
+    public OrganizationUnit getHumanResourceOrgUnit() {
+        return humanResourceOrgUnit;
+    }
+
+    public OrganizationUnit getExecutiveOrgUnit() {
+        return executiveOrgUnit;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public ApplicationAuthorization authorizeApplication(final EmployeeUser user, final Application application) {
+        ApplicationAuthorization authorization = new ApplicationAuthorization();
+
+        authorization.setApplication(application);
+        authorization.setAccount(user);
+
+        getRelationshipManager().add(authorization);
+
+        return authorization;
+    }
+
+    public boolean isAuthorized(EmployeeUser user, Application application) {
+        RelationshipQuery<ApplicationAuthorization> query = getRelationshipManager().createRelationshipQuery(ApplicationAuthorization
+                .class);
+
+        query.setParameter(ApplicationAuthorization.ACCOUNT, user);
+        query.setParameter(ApplicationAuthorization.APPLICATION, application);
+
+        return !query.getResultList().isEmpty();
+    }
+
+    private RelationshipManager getRelationshipManager() {
+        return this.partitionManager.createRelationshipManager();
+    }
+
+    public CustomerUser createCustomerUser(final String firstName, final String lastName, final String userName) {
+        Customer person = new Customer();
+
+        person.setFirstName(firstName);
+        person.setLastName(lastName);
+        person.setBirthDate(new Date());
+
+        addAddress(person, "Barbacena");
+
+        Email email = new Email(userName + "@" + this.company.getDomain());
+
+        person.addEmail(email);
+
+        Phone phone = new Phone("555-555-555");
+
+        person.addPhone(phone);
+
+        if (entityManager != null) {
+            this.entityManager.persist(person);
+        } else {
+            person.setId(new Random().nextLong());
+        }
+
+        CustomerUser user = new CustomerUser(userName);
+
+        user.setPerson(person);
+
+        getIdentityManager().add(user);
+
+        return user;
     }
 }

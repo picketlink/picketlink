@@ -27,6 +27,7 @@ import org.picketlink.idm.jpa.model.sample.complex.entity.ApplicationAuthorizati
 import org.picketlink.idm.jpa.model.sample.complex.entity.Company;
 import org.picketlink.idm.jpa.model.sample.complex.entity.CompanyAttribute;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Country;
+import org.picketlink.idm.jpa.model.sample.complex.entity.Customer;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Email;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Employee;
 import org.picketlink.idm.jpa.model.sample.complex.entity.IdentityObject;
@@ -66,6 +67,7 @@ public class JPAStoreComplexSchemaConfigurationTester implements IdentityConfigu
                         .mappedEntity(
                                 Person.class,
                                 Employee.class,
+                                Customer.class,
                                 Address.class,
                                 Application.class,
                                 ApplicationAttribute.class,

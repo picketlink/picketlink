@@ -18,12 +18,14 @@
 package org.picketlink.idm.jpa.model.sample.complex;
 
 import org.picketlink.idm.model.AbstractPartition;
+import org.picketlink.idm.model.annotation.AttributeProperty;
 
 /**
  * @author pedroigor
  */
 public class Company extends AbstractPartition {
 
+    @AttributeProperty
     private String domain;
 
     public Company() {

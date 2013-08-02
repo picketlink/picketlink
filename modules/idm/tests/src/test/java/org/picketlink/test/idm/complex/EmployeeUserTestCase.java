@@ -35,11 +35,7 @@ public class EmployeeUserTestCase extends AbstractIdentityTypeTestCase<EmployeeU
 
     @Override
     protected EmployeeUser createIdentityType() {
-        EmployeeUser EmployeeUser = this.helper.createEmployeeEmployeeUser("Chuck", "Norris", "chuck", this.helper.getSecurityOrgUnit());
-
-        getIdentityManager().add(EmployeeUser);
-
-        return EmployeeUser;
+        return createEmployeeUser("Chuck", "Norris", "chuck");
     }
 
     @Override
@@ -143,8 +139,40 @@ public class EmployeeUserTestCase extends AbstractIdentityTypeTestCase<EmployeeU
         assertEquals(employeeUser.getLoginCount(), storedEmployeeUser.getLoginCount());
     }
 
+    @Test
+    public void testFindByPerson() {
+        EmployeeUser chuck = createIdentityType();
+
+        IdentityManager identityManager = getIdentityManager();
+
+        IdentityQuery<EmployeeUser> query = identityManager.createIdentityQuery(EmployeeUser.class);
+
+        query.setParameter(EmployeeUser.QUERY_ATTRIBUTE.byName("person"), chuck.getPerson());
+
+        List<EmployeeUser> result = query.getResultList();
+
+        assertEquals(1, result.size());
+        assertEquals(chuck.getId(), result.get(0).getId());
+
+        EmployeeUser mary = createEmployeeUser("Mary", "Anne", "mary");
+
+        query = identityManager.createIdentityQuery(EmployeeUser.class);
+
+        query.setParameter(EmployeeUser.QUERY_ATTRIBUTE.byName("person"), mary.getPerson());
+
+        result = query.getResultList();
+
+        assertEquals(1, result.size());
+        assertEquals(mary.getId(), result.get(0).getId());
+    }
+
     @Override
     public IdentityManager getIdentityManager() {
         return this.helper.getIdentityManager();
+    }
+
+    public EmployeeUser createEmployeeUser(String firstName, String lastName, String userName) {
+        return this.helper.createEmployeeUser(firstName, lastName, userName,
+                this.helper.getSecurityOrgUnit());
     }
 }
