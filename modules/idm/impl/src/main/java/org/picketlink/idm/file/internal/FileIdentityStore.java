@@ -239,7 +239,6 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
 
         Object[] ids = identityQuery.getParameter(IdentityType.ID);
 
-        // if we have a ID parameter just get the an instance directly
         if (ids != null && ids.length > 0) {
             if (ids[0] != null) {
                 AbstractFileAttributedType fileAttributedType = filePartition.getIdentityTypes().get(ids[0]);
@@ -252,15 +251,12 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
             for (FileIdentityType storedIdentityType : filePartition.getIdentityTypes().values()) {
                 IdentityType storedEntry = (IdentityType) storedIdentityType.getEntry();
 
-                if (!IdentityType.class.isInstance(storedEntry)) {
+                if (!IdentityType.class.isInstance(storedEntry) ||
+                        !identityQuery.getIdentityType().isAssignableFrom(storedEntry.getClass())) {
                     continue;
                 }
 
-                if (!identityQuery.getIdentityType().isAssignableFrom(storedEntry.getClass())) {
-                    continue;
-                }
-
-                boolean match = true;
+                boolean match = identityQuery.getParameters().isEmpty();
 
                 for (Entry<QueryParameter, Object[]> entry : identityQuery.getParameters().entrySet()) {
                     QueryParameter queryParameter = entry.getKey();
@@ -268,8 +264,6 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
                     if (AttributeParameter.class.isInstance(queryParameter)) {
                         AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
                         String attributeParameterName = attributeParameter.getName();
-
-                        match = false;
 
                         Property<Serializable> property = PropertyQueries.<Serializable>createQuery(identityQuery.getIdentityType())
                                 .addCriteria(new NamedPropertyCriteria(attributeParameterName))
