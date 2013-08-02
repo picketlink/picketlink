@@ -5,7 +5,6 @@ import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.jpa.model.sample.complex.CustomerUser;
 import org.picketlink.idm.jpa.model.sample.complex.EmployeeUser;
-import org.picketlink.idm.model.Account;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
