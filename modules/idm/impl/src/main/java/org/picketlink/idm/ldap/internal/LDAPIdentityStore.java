@@ -35,7 +35,6 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.AttributeProperty;
-import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.query.AttributeParameter;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
@@ -196,7 +195,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
             try {
                 search = this.operationManager.search(getBaseDN(attributedType), "(" + getBindingName(attributedType) + ")");
-                populateAttributedType(search.next(), attributedType);
+                populateAttributedType(context, search.next(), attributedType);
             } catch (NamingException ne) {
                 throw new IdentityManagementException("Could not add AttributedType [" + attributedType + "].", ne);
             } finally {
@@ -330,7 +329,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
             try {
                 while (resultNamingEnumeration.hasMore()) {
-                    results.add((V) populateAttributedType(resultNamingEnumeration.next(), null));
+                    results.add((V) populateAttributedType(context, resultNamingEnumeration.next(), null));
                 }
             } catch (NamingException ne) {
                 throw new IdentityManagementException(ne);
@@ -397,7 +396,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 search = this.operationManager.search(baseDN, filter.toString());
 
                 while (search.hasMore()) {
-                    V type = (V) populateAttributedType(search.next(), null);
+                    V type = (V) populateAttributedType(context, search.next(), null);
 
                     if (type != null) {
                         results.add(type);
@@ -495,7 +494,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                                                     V relationship = query.getRelationshipClass().newInstance();
 
-                                                    rootProperty.setValue(relationship, populateAttributedType(next, null));
+                                                    rootProperty.setValue(relationship, populateAttributedType(context, next, null));
                                                     property.setValue(relationship, relType);
 
                                                     results.add(relationship);
@@ -510,7 +509,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                                                 if (!isNullOrEmpty(member.trim())) {
                                                     V relationship = query.getRelationshipClass().newInstance();
 
-                                                    rootProperty.setValue(relationship, populateAttributedType(next, null));
+                                                    rootProperty.setValue(relationship, populateAttributedType(context, next, null));
 
                                                     String baseDN = member.substring(member.indexOf(",") + 1);
                                                     String dn = member.substring(0, member.indexOf(","));
@@ -521,7 +520,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                                                         throw new IdentityManagementException("Associated entry does not exists [" + member + "].");
                                                     }
 
-                                                    property.setValue(relationship, populateAttributedType(result.next(), null));
+                                                    property.setValue(relationship, populateAttributedType(context, result.next(), null));
 
                                                     results.add(relationship);
                                                 }
@@ -574,7 +573,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                                     }
 
 
-                                    AttributedType ownerRelType = populateAttributedType(next, null);
+                                    AttributedType ownerRelType = populateAttributedType(context, next, null);
 
                                     if (property.getJavaClass().isAssignableFrom(ownerRelType.getClass())) {
                                         V relationship = query.getRelationshipClass().newInstance();
@@ -583,7 +582,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                                         SearchResult member = result.next();
 
-                                        AttributedType relType = populateAttributedType(member, null);
+                                        AttributedType relType = populateAttributedType(context, member, null);
 
                                         if (associatedProperty.getJavaClass().isAssignableFrom(relType.getClass())) {
                                             associatedProperty.setValue(relationship, relType);
@@ -685,7 +684,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         }
     }
 
-    private AttributedType populateAttributedType(SearchResult searchResult, AttributedType attributedType) {
+    private AttributedType populateAttributedType(final IdentityContext context, SearchResult searchResult, AttributedType attributedType) {
         try {
             String nameInNamespace = searchResult.getNameInNamespace();
             String entryDN = nameInNamespace.substring(nameInNamespace.indexOf(COMMA) + 1);
@@ -726,7 +725,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                 identityType.setCreatedDate(parseLDAPDate(createdTimestamp));
 
-                identityType.setPartition(new Realm(Realm.DEFAULT_REALM));
+                identityType.setPartition(context.getPartition());
             }
 
             if (mappingConfig.getParentMembershipAttributeName() != null) {
@@ -750,7 +749,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                         Class<? extends AttributedType> baseDNType = getConfig().getSupportedTypeByBaseDN(baseDN);
 
                         if (parentProperty.getJavaClass().isAssignableFrom(baseDNType)) {
-                            parentProperty.setValue(attributedType, populateAttributedType(next, null));
+                            parentProperty.setValue(attributedType, populateAttributedType(context, next, null));
                         }
                     }
                 }
