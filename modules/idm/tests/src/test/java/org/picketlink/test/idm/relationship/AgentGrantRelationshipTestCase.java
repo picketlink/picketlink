@@ -21,7 +21,12 @@ package org.picketlink.test.idm.relationship;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.User;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
 
 /**
  * <p>
@@ -30,6 +35,8 @@ import org.picketlink.test.idm.testers.IdentityConfigurationTester;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
+@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
+        LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
 public class AgentGrantRelationshipTestCase extends AbstractGrantRelationshipTestCase<Agent> {
 
     public AgentGrantRelationshipTestCase(IdentityConfigurationTester builder) {

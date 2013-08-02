@@ -8,10 +8,9 @@ import org.picketlink.idm.jpa.model.sample.complex.Application;
 import org.picketlink.idm.jpa.model.sample.complex.Company;
 import org.picketlink.idm.jpa.model.sample.complex.EmployeeUser;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.JPAStoreComplexSchemaConfigurationTester;
 
 import java.util.List;
 
@@ -21,7 +20,7 @@ import static org.junit.Assert.*;
  *
  * @author pedroigor
  */
-@IgnoreTester({LDAPStoreConfigurationTester.class, JPAStoreConfigurationTester.class})
+@Configuration(include = JPAStoreComplexSchemaConfigurationTester.class)
 public class MultiPartitionTestCase extends AbstractPartitionManagerTestCase {
 
     private ComplexSchemaHelper wayneHelper;

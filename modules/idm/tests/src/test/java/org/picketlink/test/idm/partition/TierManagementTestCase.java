@@ -23,17 +23,16 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.model.sample.User;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+
+import static org.junit.Assert.*;
 
 /**
  * <p>
@@ -43,6 +42,7 @@ import static org.junit.Assert.fail;
  * @author Pedro Silva
  * 
  */
+@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class})
 public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
     private static final String DEFAULT_TIER_NAME = "Default Tier";

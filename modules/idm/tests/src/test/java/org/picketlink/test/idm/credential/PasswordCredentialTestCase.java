@@ -19,15 +19,16 @@
 package org.picketlink.test.idm.credential;
 
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 
 import java.util.Calendar;
@@ -43,6 +44,8 @@ import static org.junit.Assert.*;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
+@Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
+        LDAPStoreConfigurationTester.class})
 public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase {
 
     public PasswordCredentialTestCase(IdentityConfigurationTester builder) {
@@ -118,7 +121,7 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
     }
 
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = LDAPStoreConfigurationTester.class)
     public void testExpiration() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
@@ -214,7 +217,7 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
     }
 
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = LDAPStoreConfigurationTester.class)
     public void testUserDisabled() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");

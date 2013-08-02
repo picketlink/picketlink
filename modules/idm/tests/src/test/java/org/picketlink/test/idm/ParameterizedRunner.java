@@ -19,23 +19,18 @@ import java.util.List;
 import static org.junit.runners.Parameterized.*;
 
 /**
- * <p>
- * The custom runner <code>Parameterized</code> implements parameterized tests.
- * When running a parameterized test class, instances are created for the
- * cross-product of the test methods and the test data elements.
- * </p>
- *
- * For example, to test a Fibonacci function, write:
- *
+ * <p> The custom runner <code>Parameterized</code> implements parameterized tests. When running a parameterized test
+ * class, instances are created for the cross-product of the test methods and the test data elements. </p> <p/> For
+ * example, to test a Fibonacci function, write: <p/>
  * <pre>
  * &#064;RunWith(Parameterized.class)
  * public class FibonacciTest {
  * 	&#064;Parameters
  * 	public static List&lt;Object[]&gt; data() {
  * 		return Arrays.asList(new Object[][] {
- * 			{ 0, 0 }, { 1, 1 }, { 2, 1 }, { 3, 2 }, { 4, 3 }, { 5, 5 }, { 6, 8 }
- * 		});
- * 	}
+ *            { 0, 0 }, { 1, 1 }, { 2, 1 }, { 3, 2 }, { 4, 3 }, { 5, 5 }, { 6, 8 }
+ *        });
+ *    }
  *
  * 	private int fInput;
  *
@@ -44,21 +39,18 @@ import static org.junit.runners.Parameterized.*;
  * 	public FibonacciTest(int input, int expected) {
  * 		fInput= input;
  * 		fExpected= expected;
- * 	}
+ *    }
  *
  * 	&#064;Test
  * 	public void test() {
  * 		assertEquals(fExpected, Fibonacci.compute(fInput));
- * 	}
+ *    }
  * }
  * </pre>
- *
- * <p>
- * Each instance of <code>FibonacciTest</code> will be constructed using the
- * two-argument constructor and the data values in the
- * <code>&#064;Parameters</code> method.
- * </p>
- */public class ParameterizedRunner extends Suite {
+ * <p/> <p> Each instance of <code>FibonacciTest</code> will be constructed using the two-argument constructor and the
+ * data values in the <code>&#064;Parameters</code> method. </p>
+ */
+public class ParameterizedRunner extends Suite {
 
     private class TestClassRunnerForParameters extends
             BlockJUnit4ClassRunner {
@@ -69,28 +61,46 @@ import static org.junit.runners.Parameterized.*;
         TestClassRunnerForParameters(Class<?> type,
                                      List<Object[]> parameterList, int i) throws InitializationError {
             super(type);
-            fParameterList= parameterList;
-            fParameterSetNumber= i;
+            fParameterList = parameterList;
+            fParameterSetNumber = i;
         }
 
         @Override
         protected void runChild(final FrameworkMethod method, final RunNotifier notifier) {
             List<Class<?>> ignoredList = new ArrayList<Class<?>>();
 
-            IgnoreTester ignoreTester = method.getAnnotation(IgnoreTester.class);
+            Configuration typeConfiguration = getTestClass().getJavaClass().getAnnotation(Configuration.class);
 
-            if (ignoreTester != null) {
-                ignoredList.addAll(Arrays.asList(ignoreTester.value()));
+            if (typeConfiguration != null) {
+                ignoredList.addAll(Arrays.asList(typeConfiguration.exclude()));
             }
 
-            ignoreTester = getTestClass().getJavaClass().getAnnotation(IgnoreTester.class);
+            Object currentConfig = fParameterList.get(fParameterSetNumber)[0];
 
-            if (ignoreTester != null) {
-                ignoredList.addAll(Arrays.asList(ignoreTester.value()));
+            if (typeConfiguration != null && typeConfiguration.include().length > 0) {
+                boolean includeConfig = false;
+
+                for (Class<?> config : typeConfiguration.include()) {
+                    if (config.equals(currentConfig.getClass())) {
+                        includeConfig = true;
+                        break;
+                    }
+                }
+
+                if (!includeConfig) {
+                    notifier.fireTestIgnored(describeChild(method));
+                    return;
+                }
             }
 
-            for (Class<?> testerType: ignoredList) {
-                if (testerType.equals(fParameterList.get(fParameterSetNumber)[0].getClass())) {
+            Configuration methodConfiguration = method.getAnnotation(Configuration.class);
+
+            if (methodConfiguration != null) {
+                ignoredList.addAll(Arrays.asList(methodConfiguration.exclude()));
+            }
+
+            for (Class<?> testerType : ignoredList) {
+                if (testerType.equals(currentConfig.getClass())) {
                     notifier.fireTestIgnored(describeChild(method));
                     return;
                 }
@@ -143,15 +153,15 @@ import static org.junit.runners.Parameterized.*;
         }
     }
 
-    private final ArrayList<Runner> runners= new ArrayList<Runner>();
+    private final ArrayList<Runner> runners = new ArrayList<Runner>();
 
     /**
      * Only called reflectively. Do not use programmatically.
      */
     public ParameterizedRunner(Class<?> klass) throws Throwable {
         super(klass, Collections.<Runner>emptyList());
-        List<Object[]> parametersList= getParametersList(getTestClass());
-        for (int i= 0; i < parametersList.size(); i++)
+        List<Object[]> parametersList = getParametersList(getTestClass());
+        for (int i = 0; i < parametersList.size(); i++)
             runners.add(new TestClassRunnerForParameters(getTestClass().getJavaClass(),
                     parametersList, i));
     }
@@ -170,10 +180,10 @@ import static org.junit.runners.Parameterized.*;
 
     private FrameworkMethod getParametersMethod(TestClass testClass)
             throws Exception {
-        List<FrameworkMethod> methods= testClass
+        List<FrameworkMethod> methods = testClass
                 .getAnnotatedMethods(Parameters.class);
         for (FrameworkMethod each : methods) {
-            int modifiers= each.getMethod().getModifiers();
+            int modifiers = each.getMethod().getModifiers();
             if (Modifier.isStatic(modifiers) && Modifier.isPublic(modifiers))
                 return each;
         }

@@ -35,9 +35,12 @@ import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
 
 import java.util.List;
 
@@ -50,6 +53,8 @@ import static junit.framework.Assert.*;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
+@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
+        LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
 public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTestCase<T> {
 
     public AgentQueryTestCase(IdentityConfigurationTester builder) {
@@ -187,7 +192,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
      * @throws Exception
      */
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = LDAPStoreConfigurationTester.class)
     public void testFindBySingleGroupRole() throws Exception {
         T agentType = createIdentityType("someUser", null);
         Group salesGroup = createGroup("Sales", null);

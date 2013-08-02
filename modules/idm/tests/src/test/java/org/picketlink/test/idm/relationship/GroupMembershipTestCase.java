@@ -24,16 +24,18 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
 
 import java.io.Serializable;
 import java.util.List;
@@ -48,6 +50,8 @@ import static org.junit.Assert.*;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
+@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
+        LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
 public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
     public GroupMembershipTestCase(IdentityConfigurationTester builder) {
@@ -76,7 +80,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
     }
 
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = LDAPStoreConfigurationTester.class)
     public void testUpdate() throws Exception {
         User someUser = createUser();
         Group someGroup = createGroup();
@@ -137,6 +141,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
     }
 
     @Test
+    @Configuration(exclude = MixedLDAPJPAStoreConfigurationTester.class)
     public void testAddUserToParentGroup() throws Exception {
         User someUser = createUser("someUser");
         Group groupB = createGroup("b", "a");
@@ -247,7 +252,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
     }
 
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = LDAPStoreConfigurationTester.class)
     public void testLargeAttributeValue() throws Exception {
         User someUser = createUser();
         Group someGroup = createGroup();

@@ -30,9 +30,12 @@ import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
 
 import java.util.Date;
 
@@ -46,6 +49,9 @@ import static org.junit.Assert.*;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
+
+@Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
+        LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
 public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent> {
 
     public AgentManagementTestCase(IdentityConfigurationTester builder) {
@@ -70,7 +76,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
     }
 
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
     public void testUpdate() throws Exception {
         Agent storedAgent = createIdentityType();
 

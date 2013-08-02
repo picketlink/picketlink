@@ -5,11 +5,10 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.jpa.model.sample.complex.EmployeeUser;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Employee;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.basic.AbstractIdentityTypeTestCase;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.JPAStoreComplexSchemaConfigurationTester;
 
 import java.util.Date;
 import java.util.List;
@@ -18,7 +17,7 @@ import static org.junit.Assert.*;
 
 /**
  */
-@IgnoreTester({LDAPStoreConfigurationTester.class, JPAStoreConfigurationTester.class})
+@Configuration(include = JPAStoreComplexSchemaConfigurationTester.class)
 public class EmployeeUserTestCase extends AbstractIdentityTypeTestCase<EmployeeUser> {
 
     private ComplexSchemaHelper helper;

@@ -31,9 +31,11 @@ import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
 
 import java.util.List;
 
@@ -47,7 +49,8 @@ import static org.junit.Assert.*;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-@IgnoreTester(LDAPStoreConfigurationTester.class)
+@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
+        MixedLDAPJPAStoreConfigurationTester.class})
 public class CustomRelationshipTestCase extends AbstractPartitionManagerTestCase {
 
     public CustomRelationshipTestCase(IdentityConfigurationTester builder) {
@@ -122,8 +125,6 @@ public class CustomRelationshipTestCase extends AbstractPartitionManagerTestCase
     @Test
     public void testFormalAttributes() throws Exception {
         CustomRelationship relationship = new CustomRelationship();
-
-        IdentityManager identityManager = getIdentityManager();
 
         User user = createUser("user");
 

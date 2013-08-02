@@ -22,39 +22,21 @@ import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreComplexSchemaConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
 
 /**
  * @author pedroigor
  */
 public class IdentityConfigurationTestFactory {
 
-    /**
-     * <p>Simple configuration using a single filebased store.</p>
-     *
-     * @return
-     */
     public static IdentityConfigurationTester[] getConfigurations() {
         return new IdentityConfigurationTester[] {
-                buildSimpleJPAStoreConfig(),
-                buildSimpleFileStoreConfig(),
-                buildSimpleLDAPStoreConfig()
+                new JPAStoreConfigurationTester(),
+                new FileStoreConfigurationTester(),
+                new LDAPStoreConfigurationTester(),
+                new JPAStoreComplexSchemaConfigurationTester(),
+                new MixedLDAPJPAStoreConfigurationTester()
         };
-    }
-
-    private static IdentityConfigurationTester buildSimpleFileStoreConfig() {
-        return new FileStoreConfigurationTester();
-    }
-
-    private static IdentityConfigurationTester buildSimpleLDAPStoreConfig() {
-        return new LDAPStoreConfigurationTester();
-    }
-
-    private static IdentityConfigurationTester buildSimpleJPAStoreConfig() {
-        return new JPAStoreConfigurationTester();
-    }
-
-    private static IdentityConfigurationTester buildComplexSchemaJPAStoreConfig() {
-        return new JPAStoreComplexSchemaConfigurationTester();
     }
 
 }

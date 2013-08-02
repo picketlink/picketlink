@@ -27,9 +27,10 @@ import org.picketlink.idm.model.annotation.Unique;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 
 import java.util.Date;
 import java.util.List;
@@ -39,7 +40,7 @@ import static org.junit.Assert.*;
 /**
  * @author pedroigor
  */
-@IgnoreTester(LDAPStoreConfigurationTester.class)
+@Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class})
 public class CustomAccountTestCase extends AbstractIdentityTypeTestCase<CustomAccountTestCase.MyCustomAccount> {
 
     public static final String LOGIN_NAME = "bob";

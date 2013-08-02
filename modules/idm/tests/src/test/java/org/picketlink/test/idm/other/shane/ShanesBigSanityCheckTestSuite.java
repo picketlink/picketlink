@@ -89,7 +89,7 @@ public class ShanesBigSanityCheckTestSuite {
         r.setAttribute(new Attribute<String>("foo", "bar"));
         partitionManager.add(r, "default");
 
-        // Assert that the attribute value was set
+        // Assert that the attribute exclude was set
         r = partitionManager.<Realm>getPartition(Realm.class, Realm.DEFAULT_REALM);
         assert "bar".equals(r.getAttribute("foo").getValue());
 
@@ -100,16 +100,16 @@ public class ShanesBigSanityCheckTestSuite {
             .setParameter("attributeName", "foo")
             .getSingleResult();
 
-        // Assert that the attribute value is stored as a String
-//        assert "bar".equals(pa.getAttributeValue()); attribute value is serialized
+        // Assert that the attribute exclude is stored as a String
+//        assert "bar".equals(pa.getAttributeValue()); attribute exclude is serialized
 
-        // Update the attribute value
+        // Update the attribute exclude
         r.setAttribute(new Attribute<String>("foo", "222"));
         partitionManager.update(r);
 
         // Lookup the realm again
         r = partitionManager.<Realm>getPartition(Realm.class, Realm.DEFAULT_REALM);
-        // Assert that the attribute value was updated
+        // Assert that the attribute exclude was updated
         assert "222".equals(r.getAttribute("foo").getValue());
 
         // Delete the attribute
@@ -117,7 +117,7 @@ public class ShanesBigSanityCheckTestSuite {
         partitionManager.update(r);
 
         r = partitionManager.<Realm>getPartition(Realm.class, Realm.DEFAULT_REALM);
-        // Confirm the attribute value was deleted
+        // Confirm the attribute exclude was deleted
         assert r.getAttribute("foo") == null;
 
         // Create a new user
@@ -161,7 +161,7 @@ public class ShanesBigSanityCheckTestSuite {
 //            .setParameter("attributeName", "SSN")
 //            .getSingleResult();
 //
-//        // Confirm the attribute string value is stored as text
+//        // Confirm the attribute string exclude is stored as text
 //        assert "123-456-7890".equals(attr.getAttributeValue());
 
         // Create a random size byte array at least 512 bytes in size and populate it
@@ -178,10 +178,10 @@ public class ShanesBigSanityCheckTestSuite {
         // Lookup the user again
         u = identityManager.lookupIdentityById(User.class, u.getId());
 
-        // Confirm the binary value was correctly set
+        // Confirm the binary exclude was correctly set
         assert Arrays.equals(binaryData,  u.<byte[]>getAttribute("profilePhoto").getValue());
 
-        // Confirm that the binary value was persisted in the correct table
+        // Confirm that the binary exclude was persisted in the correct table
         assert !em.createQuery(
                 "select a from IdentityObjectAttribute a where a.identity.id = :id and a.attributeName = :attributeName",
                 IdentityObjectAttribute.class)

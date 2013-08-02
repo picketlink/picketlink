@@ -27,10 +27,9 @@ import org.picketlink.idm.jpa.model.sample.complex.Company;
 import org.picketlink.idm.jpa.model.sample.complex.EmployeeUser;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.JPAStoreComplexSchemaConfigurationTester;
 
 import java.util.Date;
 import java.util.List;
@@ -45,7 +44,7 @@ import static org.junit.Assert.*;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@IgnoreTester({LDAPStoreConfigurationTester.class, JPAStoreConfigurationTester.class})
+@Configuration(include = JPAStoreComplexSchemaConfigurationTester.class)
 public class ApplicationAuthorizationTestCase extends AbstractPartitionManagerTestCase {
 
     private ComplexSchemaHelper helper;

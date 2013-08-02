@@ -26,9 +26,10 @@ import org.picketlink.idm.credential.TOTPCredentials;
 import org.picketlink.idm.credential.util.TimeBasedOTP;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 
 import java.util.Calendar;
 
@@ -43,7 +44,7 @@ import static org.picketlink.idm.credential.Credentials.*;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@IgnoreTester({LDAPStoreConfigurationTester.class})
+@Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class})
 public class TOTPCredentialTestCase extends AbstractPartitionManagerTestCase {
 
     public static final String DEFAULT_TOTP_SECRET = "my_secret";

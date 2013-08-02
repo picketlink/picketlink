@@ -26,9 +26,10 @@ import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.util.DigestUtil;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -43,7 +44,7 @@ import static org.junit.Assert.*;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-@IgnoreTester({LDAPStoreConfigurationTester.class})
+@Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class})
 public class DigestCredentialTestCase extends AbstractPartitionManagerTestCase {
 
     public DigestCredentialTestCase(IdentityConfigurationTester builder) {

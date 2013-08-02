@@ -29,9 +29,11 @@ import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
 
 import java.util.List;
 
@@ -44,7 +46,8 @@ import static junit.framework.Assert.*;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@IgnoreTester(LDAPStoreConfigurationTester.class)
+@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
+        MixedLDAPJPAStoreConfigurationTester.class})
 public class IdentityTypeQueryTestCase extends AbstractPartitionManagerTestCase {
 
     public IdentityTypeQueryTestCase(IdentityConfigurationTester builder) {
@@ -52,6 +55,7 @@ public class IdentityTypeQueryTestCase extends AbstractPartitionManagerTestCase 
     }
 
     @Test
+    @Configuration (exclude = MixedLDAPJPAStoreConfigurationTester.class)
     public void testFindByDifferentRealms() {
         IdentityManager identityManager = getIdentityManager();
 
@@ -121,6 +125,7 @@ public class IdentityTypeQueryTestCase extends AbstractPartitionManagerTestCase 
     }
 
     @Test
+    @Configuration (exclude = MixedLDAPJPAStoreConfigurationTester.class)
     public void testFindByDifferentTiers() {
         getPartitionManager().add(new Tier("Application A"));
 

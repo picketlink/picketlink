@@ -23,9 +23,7 @@ import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -38,7 +36,6 @@ import static org.junit.Assert.*;
  *
  * @author pedroigor
  */
-@IgnoreTester({LDAPStoreConfigurationTester.class})
 public abstract class AbstractPartitionTestCase<T extends Partition> extends AbstractPartitionManagerTestCase {
 
     public AbstractPartitionTestCase(IdentityConfigurationTester builder) {

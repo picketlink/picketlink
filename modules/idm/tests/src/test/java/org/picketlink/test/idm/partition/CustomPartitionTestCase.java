@@ -18,14 +18,18 @@
 
 package org.picketlink.test.idm.partition;
 
-import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.AbstractPartition;
 import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * <p>Test case for the custom partitions.</p>
@@ -33,6 +37,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Pedro Silva
  *
  */
+@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class})
 public class CustomPartitionTestCase extends AbstractPartitionTestCase<CustomPartitionTestCase.CustomPartition> {
 
     public static final String CUSTOM_PARTITION_NAME = "Custom Partition";

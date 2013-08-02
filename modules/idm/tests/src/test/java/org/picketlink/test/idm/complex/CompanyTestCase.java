@@ -22,11 +22,10 @@ import org.junit.Test;
 import org.picketlink.idm.jpa.model.sample.complex.Company;
 import org.picketlink.idm.jpa.model.sample.complex.SecurityPolicy;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.partition.AbstractPartitionTestCase;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.JPAStoreComplexSchemaConfigurationTester;
 
 import static org.junit.Assert.*;
 
@@ -38,7 +37,7 @@ import static org.junit.Assert.*;
  * @author Pedro Silva
  *
  */
-@IgnoreTester({LDAPStoreConfigurationTester.class, JPAStoreConfigurationTester.class})
+@Configuration(include = JPAStoreComplexSchemaConfigurationTester.class)
 public class CompanyTestCase extends AbstractPartitionTestCase<Company> {
 
     public CompanyTestCase(IdentityConfigurationTester builder) {
