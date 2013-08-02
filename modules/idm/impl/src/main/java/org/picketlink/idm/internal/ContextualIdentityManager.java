@@ -17,9 +17,6 @@
  */
 package org.picketlink.idm.internal;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
@@ -27,6 +24,7 @@ import org.picketlink.common.properties.query.PropertyQuery;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.storage.CredentialStorage;
@@ -35,13 +33,20 @@ import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.Unique;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreSelector;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+
+import static org.picketlink.idm.IDMMessages.*;
 
 /**
  * Default implementation of the IdentityManager interface.
@@ -58,12 +63,14 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
 public class ContextualIdentityManager extends AbstractIdentityContext implements IdentityManager {
 
     private final StoreSelector storeSelector;
+    private final RelationshipManager relationshipManager;
 
     public ContextualIdentityManager(Partition partition, EventBridge eventBridge, IdGenerator idGenerator,
-                                     StoreSelector storeSelector) {
+                                     StoreSelector storeSelector, RelationshipManager relationshipManager) {
         super(partition, eventBridge, idGenerator);
         this.storeSelector = storeSelector;
         setParameter(IDENTITY_MANAGER_CTX_PARAMETER, this);
+        this.relationshipManager = relationshipManager;
     }
 
     @Override
@@ -99,6 +106,14 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
         checkIfIdentityTypeExists(identityType);
 
         try {
+            RelationshipQuery<Relationship> query = this.relationshipManager.createRelationshipQuery(Relationship.class);
+
+            query.setParameter(Relationship.IDENTITY, identityType);
+
+            for (Relationship relationship: query.getResultList()) {
+                this.relationshipManager.remove(relationship);
+            }
+
             storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, IdentityType.class, IdentityOperation.delete)
                     .remove(this, identityType);
         } catch (Exception e) {

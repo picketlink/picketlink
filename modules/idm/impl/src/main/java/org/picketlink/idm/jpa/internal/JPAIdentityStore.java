@@ -34,6 +34,7 @@ import org.picketlink.idm.credential.handler.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.credential.storage.annotations.Stored;
 import org.picketlink.idm.internal.AbstractIdentityStore;
+import org.picketlink.idm.internal.RelationshipReference;
 import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
@@ -80,6 +81,7 @@ import java.util.List;
 import static java.util.Map.*;
 import static org.picketlink.common.properties.query.TypedPropertyCriteria.*;
 import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.*;
 
 /**
  * Implementation of IdentityStore that stores its state in a relational database. This is a lightweight object that is
@@ -159,7 +161,7 @@ public class JPAIdentityStore
                 entityManager.remove(child);
             }
         } else if (IdentityType.class.isInstance(attributedType)) {
-            removeRelationships(context, attributedType);
+            removeRelationships(context, (IdentityType) attributedType);
             removeCredentials(context, attributedType, entityManager);
         }
 
@@ -261,28 +263,19 @@ public class JPAIdentityStore
     public <V extends IdentityType> List<V> fetchQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
         List<V> result = new ArrayList<V>();
         EntityManager entityManager = getEntityManager(context);
+        EntityMapper rootMapper = getRootMapper(identityQuery.getIdentityType());
 
         if (identityQuery.getParameter(IdentityType.ID) != null) {
             Object[] parameter = identityQuery.getParameter(IdentityType.ID);
 
             if (parameter.length > 0) {
-                for (EntityMapper mapper : this.entityMappers) {
-                    if (mapper.isRoot()) {
-                        EntityMapping mapping = mapper.getMappingsFor(identityQuery.getIdentityType());
+                Object entity = entityManager.find(rootMapper.getEntityType(), parameter[0]);
 
-                        if (mapping != null) {
-                            Object entity = entityManager.find(mapper.getEntityType(), parameter[0]);
-
-                            if (entity != null && entity.getClass().equals(mapper.getEntityType())) {
-                                result.add(mapper.<V>createType(entity, entityManager));
-                                return result;
-                            }
-                        }
-                    }
+                if (entity != null) {
+                    result.add(rootMapper.<V>createType(entity, entityManager));
                 }
             }
         } else {
-            EntityMapper rootMapper = getRootMapper(identityQuery.getIdentityType());
             CriteriaBuilder qb = entityManager.getCriteriaBuilder();
             CriteriaQuery cq = qb.createQuery(rootMapper.getEntityType());
             List<Predicate> predicates = new ArrayList<Predicate>();
@@ -294,16 +287,11 @@ public class JPAIdentityStore
                 partition = (Partition) identityQuery.getParameter(IdentityType.PARTITION)[0];
             }
 
-            EntityMapping rootMapping = rootMapper.getMappingsFor(identityQuery.getIdentityType());
-            EntityMapper partitionRootMapper = getRootMapper(partition.getClass());
+            Entry<Property, Property> partitionProperty = rootMapper.getProperty(OwnerReference.class);
 
-            for (Property ownerProperty : rootMapping.getProperties().keySet()) {
-                Property mappedOwnerProperty = rootMapping.getProperties().get(ownerProperty);
-
-                if (mappedOwnerProperty.getJavaClass().equals(partitionRootMapper.getEntityType())) {
-                    Join<Object, Object> join = from.join(mappedOwnerProperty.getName());
-                    predicates.add(qb.equal(join, entityManager.find(partitionRootMapper.getEntityType(), partition.getId())));
-                }
+            if (partitionProperty != null) {
+                Join<Object, Object> join = from.join(partitionProperty.getValue().getName());
+                predicates.add(qb.equal(join, entityManager.find(partitionProperty.getValue().getJavaClass(), partition.getId())));
             }
 
             if (!IdentityType.class.equals(identityQuery.getIdentityType())) {
@@ -439,18 +427,11 @@ public class JPAIdentityStore
 
         if (identityParameterValues != null) {
             for (Object parameterValue : identityParameterValues) {
-                String identityId = null;
-
-                if (String.class.isInstance(parameterValue)) {
-                    identityId = (String) parameterValue;
-                } else if (IdentityType.class.isInstance(parameterValue)) {
-                    IdentityType identityType = (IdentityType) parameterValue;
-                    identityId = identityType.getId();
+                if (IdentityType.class.isInstance(parameterValue)) {
+                    result = findIdentityTypeRelationships(context, (IdentityType) parameterValue);
                 } else {
                     throw MESSAGES.queryUnsupportedParameterValue("Relationship.IDENTITY", parameterValue);
                 }
-
-                result = findIdentityTypeRelationships(context, identityId);
             }
         } else {
             EntityMapper entityMapper = getRootMapper(query.getRelationshipClass());
@@ -471,10 +452,6 @@ public class JPAIdentityStore
                 predicates.add(cb.equal(from.get(entityMapper.getIdProperty().getName()),
                         idParameter[0]));
             } else {
-                Property<Object> identityProperty = getConfig().getRelationshipIdentityMapping().getRelationshipMember();
-                Property<String> descriptorProperty = getConfig().getRelationshipIdentityMapping().getRelationshipDescriptor();
-                Property<Object> relationshipProperty = getConfig().getRelationshipIdentityMapping().getRelationshipOwner();
-
                 for (Entry<QueryParameter, Object[]> entry : query.getParameters().entrySet()) {
                     QueryParameter queryParameter = entry.getKey();
                     Object[] values = entry.getValue();
@@ -490,18 +467,28 @@ public class JPAIdentityStore
                                 return queryResult;
                             }
 
-                            identityTypeIdentifiers.add(identityType.getId());
+                            if (getConfig().supportsType(identityType.getClass(), IdentityOperation.create)) {
+                                identityTypeIdentifiers.add(identityType.getId());
+                            } else {
+                                identityTypeIdentifiers.add(RelationshipReference.formatId(identityType));
+                            }
                         }
+
+                        Property<Object> relationshipProperty = getConfig().getRelationshipIdentityMapping().getRelationshipOwner();
 
                         Subquery<?> subquery = cq.subquery(getConfig().getRelationshipIdentityMapping().getEntityClass());
                         Root fromRelationshipIdentityType = subquery.from(getConfig().getRelationshipIdentityMapping().getEntityClass());
                         subquery.select(fromRelationshipIdentityType.get(relationshipProperty.getName()));
+
+                        Property<String> descriptorProperty = getConfig().getRelationshipIdentityMapping().getRelationshipDescriptor();
 
                         Predicate conjunction = cb.conjunction();
 
                         conjunction.getExpressions().add(
                                 cb.equal(fromRelationshipIdentityType.get(descriptorProperty.getName()),
                                         identityTypeParameter.getName()));
+
+                        Property<Object> identityProperty = getConfig().getRelationshipIdentityMapping().getRelationshipMember();
 
                         if (identityProperty.getJavaClass().equals(String.class)) {
                             conjunction.getExpressions().add(fromRelationshipIdentityType.get(identityProperty.getName()).in(identityTypeIdentifiers));
@@ -646,7 +633,7 @@ public class JPAIdentityStore
     }
 
     public Object getOwnerEntity(final AttributedType attributedType, final Property ownerProperty,
-                            final EntityManager entityManager) {
+                                 final EntityManager entityManager) {
         EntityMapper attributedTypeMapper = getRootMapper(attributedType.getClass());
 
         Object entity = null;
@@ -736,7 +723,7 @@ public class JPAIdentityStore
         return null;
     }
 
-    private List<?> findIdentityTypeRelationships(IdentityContext context, String identityTypeId) {
+    private List<?> findIdentityTypeRelationships(IdentityContext context, IdentityType identityType) {
         EntityManager em = getEntityManager(context);
 
         CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -746,9 +733,11 @@ public class JPAIdentityStore
         Property<Object> identityTypeProperty = getConfig().getRelationshipIdentityMapping().getRelationshipMember();
 
         if (identityTypeProperty.getJavaClass().equals(String.class)) {
-            criteria.where(builder.equal(root.get(identityTypeProperty.getName()), identityTypeId));
+            criteria.where(builder.equal(root.get(identityTypeProperty.getName()),
+                    RelationshipReference.formatId(identityType)));
         } else {
-            criteria.where(builder.equal(root.get(identityTypeProperty.getName()), em.find(identityTypeProperty.getJavaClass(), identityTypeId)));
+            criteria.where(builder.equal(root.get(identityTypeProperty.getName()),
+                    em.find(identityTypeProperty.getJavaClass(), identityType.getId())));
         }
 
         List<Object> relationships = new ArrayList<Object>();
@@ -774,29 +763,39 @@ public class JPAIdentityStore
 
         List<?> identities = findChildRelationships(context, relationshipType);
 
+        boolean supportsType = getConfig().supportsType(IdentityType.class, IdentityOperation.create);
+
+        RelationshipReference reference = null;
+
+        if (!supportsType) {
+            reference = new RelationshipReference(relationshipType);
+        }
+
         for (Object object : identities) {
             String descriptor = descriptorProperty.getValue(object).toString();
 
-            List<Property<Object>> identityTypeProperty = PropertyQueries.createQuery(relationshipType.getClass())
-                    .addCriteria(new NamedPropertyCriteria(descriptor)).getResultList();
-
-            Object identityTypeEntity = null;
+            Property<Object> identityTypeProperty = PropertyQueries.createQuery(relationshipType.getClass())
+                    .addCriteria(new NamedPropertyCriteria(descriptor)).getSingleResult();
             IdentityType identityType = null;
 
-            if (identityProperty.getJavaClass().equals(String.class)) {
-                identityTypeEntity = entityManager.find(identityProperty.getJavaClass(), identityProperty.getValue(object).toString());
+            Object identityTypeEntity = identityProperty.getValue(object);
+
+            if (!supportsType) {
+                reference.addIdentityTypeReference(descriptor, identityTypeEntity.toString());
             } else {
-                identityTypeEntity = identityProperty.getValue(object);
+                EntityMapper entityMapper = getRootMapperForEntity(identityTypeEntity.getClass());
+
+                identityType = entityMapper.createType(identityTypeEntity, entityManager);
             }
 
-            EntityMapper entityMapper = getRootMapperForEntity(identityTypeEntity.getClass());
-
-            identityType = entityMapper.createType(identityTypeEntity, entityManager);
-
-            identityTypeProperty.get(0).setValue(relationshipType, identityType);
+            identityTypeProperty.setValue(relationshipType, identityType);
         }
 
-        return relationshipType;
+        if (reference != null) {
+            return (T) reference;
+        } else {
+            return relationshipType;
+        }
     }
 
     private List<?> findChildRelationships(IdentityContext context, Relationship relationship) {
@@ -816,11 +815,11 @@ public class JPAIdentityStore
         return em.createQuery(criteria).getResultList();
     }
 
-    private void removeRelationships(IdentityContext context, AttributedType attributedType) {
+    private void removeRelationships(IdentityContext context, IdentityType identityType) {
         // First we build a list of all the relationships that the specified identity
         // is participating in
         if (getConfig().getRelationshipMapping().getRelationshipClass() != null) {
-            List<?> relationshipsToRemove = findIdentityTypeRelationships(context, attributedType.getId());
+            List<?> relationshipsToRemove = findIdentityTypeRelationships(context, identityType);
 
             // Now that we have the list, we can iterate through and remove the records
             for (Object relationship : relationshipsToRemove) {
@@ -993,11 +992,16 @@ public class JPAIdentityStore
             if (identityType != null) {
                 Property<Object> identityTypeProperty = getConfig().getRelationshipIdentityMapping().getRelationshipMember();
 
-                if (identityTypeProperty.getJavaClass().equals(String.class)) {
-                    identityTypeProperty.setValue(relationshipIdentity,
-                            identityType.getId());
-                } else {
+                if (getConfig().supportsType(identityType.getClass(), IdentityOperation.create)) {
                     identityTypeProperty.setValue(relationshipIdentity, getAttributedTypeEntity(identityType, entityManager));
+                } else {
+                    if (!String.class.equals(identityTypeProperty.getJavaClass())) {
+                        throw new IdentityManagementException("This store does not support type [" + identityType
+                                .getClass() + "]. @RelationshipMember should reference a String field to store " +
+                                "only ids.");
+                    }
+
+                    identityTypeProperty.setValue(relationshipIdentity,RelationshipReference.formatId(identityType));
                 }
 
                 getConfig().getRelationshipIdentityMapping().getRelationshipDescriptor().setValue(relationshipIdentity,
@@ -1242,12 +1246,15 @@ public class JPAIdentityStore
         predicates.add(conjunction);
 
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-
         criteria.orderBy(builder.desc(root.get(effectiveProperty.getName())));
 
         Object lastCredential = null;
 
-        List<?> result = entityManager.createQuery(criteria).getResultList();
+        Query query = entityManager.createQuery(criteria);
+
+        query.setMaxResults(1);
+
+        List<?> result = query.getResultList();
 
         if (!result.isEmpty()) {
             lastCredential = result.get(0);
