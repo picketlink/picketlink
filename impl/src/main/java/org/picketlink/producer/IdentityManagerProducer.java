@@ -21,6 +21,7 @@ package org.picketlink.producer;
 import java.util.Arrays;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
@@ -67,7 +68,7 @@ public class IdentityManagerProducer {
 
     @Inject
     @PicketLink
-    private  Instance<Partition> defaultPartition;
+    private Instance<Partition> defaultPartition;
 
     private PartitionManager partitionManager;
 
@@ -120,7 +121,7 @@ public class IdentityManagerProducer {
     }
 
     @Produces
-    @Dependent
+    @RequestScoped
     public IdentityManager createIdentityManager() {
         if (defaultPartition.isUnsatisfied() || defaultPartition.get() == null) {
             return new SecuredIdentityManager(this.partitionManager.createIdentityManager());
@@ -130,7 +131,7 @@ public class IdentityManagerProducer {
     }
 
     @Produces
-    @Dependent
+    @RequestScoped
     public RelationshipManager createRelationshipManager() {
         return this.partitionManager.createRelationshipManager();
     }
