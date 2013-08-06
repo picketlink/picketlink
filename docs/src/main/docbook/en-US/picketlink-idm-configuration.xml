@@ -57,7 +57,7 @@
         </para>
       </section>
       
-      <section>
+      <section id="programmatic_configuration">
         <title>Programmatic Configuration</title>
       
         <para>
@@ -359,6 +359,104 @@ builder
 					Remember that identity stores must have their features and operations configured. If you don't provide them you won't be able to build the configuration.
 				</para>
 			</note>
+      </section>
+
+      <section id="idm_configuration_from_xml_file">
+        <title>IDM configuration from XML file</title>
+        <para>Actually it's possible to configure IDM with XML configuration. This possibility is good especially in case when
+          you want Picketlink IDM to be part of bigger system and your users won't have a possibility to change source code and
+          so they can't configure it programmatically with the Builder API. So they will just need to change the configuration in
+          XML file instead of doing some changes directly in source code.
+        </para>
+        <section>
+          <title>Unified XML configuration</title>
+          <para>
+            Whole Picketlink project provides unified format of configuration file, so that you can configure <link linkend='federation_overview'>federation</link>
+            and IDM in same file.
+          </para>
+          <programlisting language="XML"><![CDATA[<PicketLink xmlns="urn:picketlink:identity-federation:config:2.1">
+
+  <PicketLinkIDP xmlns="urn:picketlink:identity-federation:config:1.0"
+                 ServerEnvironment="tomcat" BindingType="POST" SupportsSignatures="true">
+    <!-- SAML2 IDP configuration is here -->
+  </PicketLinkIDP>
+
+  <Handlers xmlns="urn:picketlink:identity-federation:handler:config:2.1">
+     <!-- Configuration of SAML2 handlers is here -->
+  </Handlers>
+
+  <PicketLinkSTS xmlns="urn:picketlink:identity-federation:config:1.0"
+                 STSName="Test STS" TokenTimeout="7200" EncryptToken="true">
+    <!-- Configuration of Picketlink STS is here -->
+  </PicketlinkSTS>
+
+  <PicketLinkIDM>
+    <!-- IDM configuration is here -->
+  </PicketLinkIDM>
+
+</PicketLink>]]></programlisting>
+          <para>Note that if you don't want to use Picketlink Federation, you can omit it's configuration and use just IDM.</para>
+        </section>
+        <section>
+          <title>XML configuration format</title>
+          <para>
+            XML configuration is leveraging <link linkend='programmatic_configuration'>Builder API</link> and Java reflection during
+            it's parsing, so names of XML elements are actually same like names of particular Builder methods.
+          </para>
+          <para>
+            For example, let's assume that you want to use <code>FileIdentityStore</code> and your programmatic configuration looks like this:
+          </para>
+          <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+    .named(SIMPLE_FILE_STORE_CONFIG)
+        .stores()
+            .file()
+            .preserveState(false)
+            .supportGlobalRelationship(Relationship.class)
+            .supportAllFeatures();]]></programlisting>
+          <para>Same XML configuration to configure IDM with <code>FileIdentityStore</code> will look like this:</para>
+          <programlisting language="XML"><![CDATA[<PicketLink xmlns="urn:picketlink:identity-federation:config:2.1">
+
+  <PicketLinkIDM>
+
+    <named value="SIMPLE_FILE_STORE_CONFIG">
+      <stores>
+        <file>
+          <preserveState value="false" />
+          <supportGlobalRelationship value="org.picketlink.idm.model.Relationship" />
+          <supportAllFeatures />
+        </file>
+      </stores>
+    </named>
+
+  </PicketLinkIDM>
+
+</PicketLink>]]></programlisting>
+          <para>You can take a look at <ulink url="https://github.com/picketlink/picketlink/tree/master/modules/idm/tests/src/test/resources/config">testsuite</ulink>
+            to see more examples.
+          </para>
+        </section>
+        <section>
+          <title>Bootstrap IDM from XML file</title>
+          <para>
+            So to initialize Picketlink IDM from XML you can use the code like this:
+          </para>
+          <programlisting language="JAVA"><![CDATA[// Replace with your own configuration file
+String configFilePath = "config/embedded-file-config.xml";
+
+ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+InputStream configStream = tcl.getResourceAsStream(configFilePath);
+XMLConfigurationProvider xmlConfigurationProvider = new XMLConfigurationProvider();
+IdentityConfigurationBuilder idmConfigBuilder =
+  xmlConfigurationProvider.readIDMConfiguration(configStream);]]></programlisting>
+          <para>
+            Now you can bootstrap IDM from <code>idmConfigBuilder</code> in same way, like it's done in
+            <link linkend='programmatic_configuration'>Programmatic Configuration</link>. Note that you can initialize builder
+            from XML file and then you can do some additional programmatic configuration. For example, you may need to programmatically
+            add <code>JPAContextInitializer</code> in case that you are using JPA, because you will need access to JPA <code>EntityManager</code>.
+          </para>
+        </section>
       </section>
     </section>            
 </chapter>
