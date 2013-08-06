@@ -22,6 +22,7 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.sample.User;
@@ -34,17 +35,19 @@ import org.picketlink.idm.model.sample.User;
 public class Resources {
 
     @Inject
-    private IdentityManager identityManager;
+    private PartitionManager partitionManager;
 
     @PostConstruct
     public void create() {
+        IdentityManager identityManager = partitionManager.createIdentityManager();
+
         User user = new User("john");
 
-        this.identityManager.add(user);
+        identityManager.add(user);
 
         Password password = new Password("passwd");
 
-        this.identityManager.updateCredential(user, password);
+        identityManager.updateCredential(user, password);
 
         Digest digestCredential = new Digest();
 
@@ -52,11 +55,11 @@ public class Resources {
         digestCredential.setUsername(user.getLoginName());
         digestCredential.setPassword("passwd");
 
-        this.identityManager.updateCredential(user, digestCredential);
+        identityManager.updateCredential(user, digestCredential);
 
         user = new User("jbid test");
 
-        this.identityManager.add(user);
+        identityManager.add(user);
 
     }
 
