@@ -22,10 +22,6 @@
 
 package org.picketlink.test.idm.config;
 
-import java.util.List;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
@@ -35,9 +31,16 @@ import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.test.AbstractArquillianTestCase;
 import org.picketlink.test.util.ArchiveUtils;
-import static org.junit.Assert.assertEquals;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Pedro Igor
@@ -58,6 +61,8 @@ public class DefaultConfigurationTestCase extends AbstractArquillianTestCase {
     
     @Test
     public void testDefaultConfiguration() throws Exception {
+        this.identityManager.lookupIdentityById(IdentityType.class, "1");
+
         IdentityConfiguration identityConfiguration = this.configurationObserver.getIdentityConfigurationBuilder().build();
 
         List<? extends IdentityStoreConfiguration> configuredStores = identityConfiguration.getStoreConfiguration();

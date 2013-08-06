@@ -71,16 +71,6 @@ public class JPAAutoConfigurationTestCase extends AbstractJPADeploymentTestCase 
     
     @Test
     public void testConfiguration() throws Exception {
-        IdentityConfiguration identityConfiguration = this.configurationObserver.getIdentityConfigurationBuilder().build();
-
-        List<? extends IdentityStoreConfiguration> configuredStores = identityConfiguration.getStoreConfiguration();
-
-        assertEquals(1, configuredStores.size());
-
-        IdentityStoreConfiguration identityStoreConfiguration = configuredStores.get(0);
-
-        assertEquals(JPAIdentityStoreConfiguration.class, identityStoreConfiguration.getClass());
-
         User john = new User("john");
 
         this.identityManager.add(john);
@@ -100,6 +90,16 @@ public class JPAAutoConfigurationTestCase extends AbstractJPADeploymentTestCase 
         assertTrue(hasRole(relationshipManager, john, tester));
         assertTrue(isMember(relationshipManager, john, qaGroup));
         assertTrue(hasGroupRole(relationshipManager, john, tester, qaGroup));
+
+        IdentityConfiguration identityConfiguration = this.configurationObserver.getIdentityConfigurationBuilder().build();
+
+        List<? extends IdentityStoreConfiguration> configuredStores = identityConfiguration.getStoreConfiguration();
+
+        assertEquals(1, configuredStores.size());
+
+        IdentityStoreConfiguration identityStoreConfiguration = configuredStores.get(0);
+
+        assertEquals(JPAIdentityStoreConfiguration.class, identityStoreConfiguration.getClass());
     }
 
     @ApplicationScoped
