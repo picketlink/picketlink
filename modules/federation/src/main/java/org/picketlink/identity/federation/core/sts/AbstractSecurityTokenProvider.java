@@ -25,6 +25,7 @@ import org.picketlink.identity.federation.core.sts.registry.DefaultTokenRegistry
 import org.picketlink.identity.federation.core.sts.registry.FileBasedRevocationRegistry;
 import org.picketlink.identity.federation.core.sts.registry.FileBasedTokenRegistry;
 import org.picketlink.identity.federation.core.sts.registry.JPABasedRevocationRegistry;
+import org.picketlink.identity.federation.core.sts.registry.JPABasedTokenRegistry;
 import org.picketlink.identity.federation.core.sts.registry.RevocationRegistry;
 import org.picketlink.identity.federation.core.sts.registry.SecurityTokenRegistry;
 
@@ -45,6 +46,8 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
 
     protected static final String TOKEN_REGISTRY_FILE = "TokenRegistryFile";
 
+    protected static final String TOKEN_REGISTRY_JPA_CONFIG = "TokenRegistryJPAConfig";
+    
     protected static final String REVOCATION_REGISTRY = "RevocationRegistry";
 
     protected static final String REVOCATION_REGISTRY_FILE = "RevocationRegistryFile";
@@ -76,6 +79,14 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
                     this.tokenRegistry = new FileBasedTokenRegistry(tokenRegistryFile);
                 else
                     this.tokenRegistry = new FileBasedTokenRegistry();
+            }
+            // another option is to use the default JPA registry to store the tokens.
+            else if ("JPA".equalsIgnoreCase(tokenRegistryOption)) {
+                String configuration = this.properties.get(TOKEN_REGISTRY_JPA_CONFIG);
+                if (configuration != null)
+                    this.tokenRegistry = new JPABasedTokenRegistry(configuration);
+                else
+                    this.tokenRegistry = new JPABasedTokenRegistry();
             }
             // the user has specified its own registry implementation class.
             else {
