@@ -33,6 +33,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Calendar;
+import java.util.Date;
 
 import static org.junit.Assert.*;
 
@@ -123,6 +125,36 @@ public class CertificateCredentialTestCase extends AbstractPartitionManagerTestC
         identityManager.validateCredentials(credential);
         
         assertEquals(Status.ACCOUNT_DISABLED, credential.getStatus());
+    }
+
+    @Test
+    public void testResetCredential() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        X509Certificate clientCert = getTestingCertificate("servercert.txt");
+        X509CertificateCredentials credential = new X509CertificateCredentials(clientCert);
+
+        User user = createUser(credential.getUsername());
+
+        Calendar expirationDate = Calendar.getInstance();
+
+        expirationDate.add(Calendar.MINUTE, -1);
+
+        identityManager.updateCredential(user, clientCert, new Date(), expirationDate.getTime());
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.EXPIRED, credential.getStatus());
+
+        X509Certificate badCert = getTestingCertificate("servercert2.txt");
+        X509CertificateCredentials badCredential = new X509CertificateCredentials(badCert);
+
+        identityManager.validateCredentials(badCredential);
+
+        assertEquals(Status.INVALID, badCredential.getStatus());
+
+        identityManager.updateCredential(user, clientCert);
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.VALID, credential.getStatus());
     }
 
     private X509Certificate getTestingCertificate(String fromTextFile) {

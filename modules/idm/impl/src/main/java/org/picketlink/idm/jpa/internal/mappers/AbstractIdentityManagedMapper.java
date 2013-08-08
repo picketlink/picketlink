@@ -17,10 +17,13 @@
  */
 package org.picketlink.idm.jpa.internal.mappers;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.model.AttributedType;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.picketlink.idm.IDMMessages.*;
 
 /**
  * @author pedroigor
@@ -32,6 +35,10 @@ public abstract class AbstractIdentityManagedMapper extends AbstractModelMapper 
         ArrayList<EntityMapping> mappings = new ArrayList<EntityMapping>();
 
         IdentityManaged identityManaged = entityType.getAnnotation(IdentityManaged.class);
+
+        if (identityManaged == null) {
+            throw MESSAGES.jpaConfigRequiredMappingAnnotation(entityType, IdentityManaged.class);
+        }
 
         Class<? extends AttributedType>[] supportedTypes = null;
 

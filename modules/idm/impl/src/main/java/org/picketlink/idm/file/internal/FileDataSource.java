@@ -18,6 +18,9 @@
 
 package org.picketlink.idm.file.internal;
 
+import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.config.FileIdentityStoreConfiguration;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,12 +34,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.config.FileIdentityStoreConfiguration;
-import static org.picketlink.idm.IDMLogger.LOGGER;
-import static org.picketlink.idm.file.internal.FileUtils.createFileIfNotExists;
-import static org.picketlink.idm.file.internal.FileUtils.delete;
-import static org.picketlink.idm.file.internal.FileUtils.readObject;
+
+import static org.picketlink.idm.IDMLogger.*;
+import static org.picketlink.idm.file.internal.FileUtils.*;
 
 /**
  * @author Pedro Silva
@@ -57,6 +57,7 @@ public class FileDataSource {
     private static final String PARTITIONS_FILE_NAME = "pl-idm-partitions.db";
     private static final String IDENTITY_TYPES__FILE_NAME = "pl-idm-identity-types.db";
     private static final String ATTRIBUTED_TYPES__FILE_NAME = "pl-idm-attributed-types.db";
+    private static final String ATTRIBUTES_FILE_NAME = "pl-idm-attributes.db";
     private static final String RELATIONSHIPS_FILE_NAME = "pl-idm-relationships.db";
     private static final String CREDENTIALS_FILE_NAME = "pl-idm-credentials.db";
 
@@ -77,6 +78,14 @@ public class FileDataSource {
      * </p>
      */
     private Map<String, Map<String, FileRelationship>> relationships;
+
+    /**
+     * <p>
+     * Holds all stored {@link FileAttribute} instances loaded from the filesystem. This {@link Map} is also used to persist
+     * information to the filesystem.
+     * </p>
+     */
+    private Map<String, FileAttribute> attributes;
 
     /**
      * <p>
@@ -101,6 +110,10 @@ public class FileDataSource {
         return this.relationships;
     }
 
+    Map<String, FileAttribute> getAttributes() {
+        return attributes;
+    }
+
     public Map<String, FileAttributedType> getAttributedTypes() {
         return this.attributedTypes;
     }
@@ -120,6 +133,10 @@ public class FileDataSource {
 
     void flushRelationships() {
         flush(RELATIONSHIPS_FILE_NAME, getRelationships());
+    }
+
+    void flushAttributes() {
+        flush(ATTRIBUTES_FILE_NAME, getAttributes());
     }
 
     void flushAttributedTypes() {
@@ -171,6 +188,15 @@ public class FileDataSource {
         }
 
         this.relationships = relationships;
+
+        Map<String, FileAttribute> attributes =
+                readObject(createFileIfNotExists(getWorkingDirFile(ATTRIBUTES_FILE_NAME)));
+
+        if (attributes == null) {
+            attributes = new ConcurrentHashMap<String, FileAttribute>();
+        }
+
+        this.attributes = attributes;
 
         Map<String, FileAttributedType> attrubtedTypes =
                 readObject(createFileIfNotExists(getWorkingDirFile(ATTRIBUTED_TYPES__FILE_NAME)));

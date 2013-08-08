@@ -30,7 +30,6 @@ import org.picketlink.idm.credential.handler.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.internal.AbstractIdentityStore;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
@@ -49,7 +48,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchResult;
-import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -379,7 +377,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
             try {
                 String baseDN = getConfig().getBaseDN();
 
-                // this is can increase performance, because queries are executed considering a specific base dn for a type.
+                // this can increase performance, because queries are executed considering a specific base dn for a type.
                 // But certain types have a hierarchy, so we need to consider all their DNs. For now, let`s use the base DN.
 //                if (ldapEntryConfig != null) {
 //                    baseDN = ldapEntryConfig.getBaseDN();
@@ -605,21 +603,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
     @Override
     public <V extends Relationship> int countQueryResults(IdentityContext context, RelationshipQuery<V> query) {
         return 0;  //TODO: Implement countQueryResults
-    }
-
-    @Override
-    public void setAttribute(IdentityContext context, AttributedType type, Attribute<? extends Serializable> attribute) {
-        //TODO: Implement setAttribute
-    }
-
-    @Override
-    public <V extends Serializable> Attribute<V> getAttribute(IdentityContext context, AttributedType type, String attributeName) {
-        return null;  //TODO: Implement getAttribute
-    }
-
-    @Override
-    public void removeAttribute(IdentityContext context, AttributedType type, String attributeName) {
-        //TODO: Implement removeAttribute
     }
 
     @Override

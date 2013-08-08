@@ -20,6 +20,7 @@ package org.picketlink.idm.jpa.internal.mappers;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
@@ -62,9 +63,11 @@ public class AttributedValueMapper extends AbstractIdentityManagedMapper {
 
             Property property = getNamedProperty(propertyName, managedType);
 
-            if (property != null) {
-                entityMapping.addProperty(property, mappedProperty);
+            if (property == null) {
+                throw IDMMessages.MESSAGES.jpaConfigMappedPropertyNotFound(entityType, propertyName, managedType);
             }
+
+            entityMapping.addProperty(property, mappedProperty);
         }
 
         entityMapping.addOwnerProperty(entityType);

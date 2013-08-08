@@ -45,6 +45,7 @@ import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.RelationshipQueryParameter;
+import org.picketlink.idm.spi.AttributeStore;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.PartitionStore;
@@ -71,7 +72,9 @@ import static org.picketlink.idm.credential.util.CredentialUtils.*;
  */
 @CredentialHandlers({PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class, TOTPCredentialHandler.class})
 public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreConfiguration>
-        implements PartitionStore<FileIdentityStoreConfiguration>, CredentialStore<FileIdentityStoreConfiguration> {
+        implements PartitionStore<FileIdentityStoreConfiguration>,
+        CredentialStore<FileIdentityStoreConfiguration>,
+        AttributeStore<FileIdentityStoreConfiguration> {
 
     private FileDataSource fileDataSource;
 
@@ -180,9 +183,21 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
     @Override
     public <P extends Partition> P get(IdentityContext identityContext, Class<P> partitionClass, String name) {
         try {
-            return (P) resolve(partitionClass, name).getEntry();
+            return (P) cloneAttributedType(identityContext, (P) resolve(partitionClass, name).getEntry());
         } catch (IdentityManagementException ime) {
             //just ignore if not found.
+        }
+
+        return null;
+    }
+
+    @Override
+    public <P extends Partition> P lookupById(final IdentityContext context, final Class<P> partitionClass,
+                                              final String id) {
+        FilePartition filePartition = this.fileDataSource.getPartitions().get(id);
+
+        if (filePartition != null) {
+            return (P) cloneAttributedType(context, filePartition.getEntry());
         }
 
         return null;
@@ -288,6 +303,7 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
                                 }
                             }
                         } else {
+                            loadAttributes(context, storedEntry);
                             match = matchAttribute(storedEntry, attributeParameterName, parameterValues);
                         }
 
@@ -407,6 +423,7 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
                                     match = value.equals(values[0]);
                                 }
                             } else {
+                                loadAttributes(context, storedRelationship.getEntry());
                                 match = matchAttribute(storedRelationship.getEntry(), attributeParameter.getName(), values);
                             }
                         }
@@ -433,17 +450,63 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
 
     @Override
     public void setAttribute(IdentityContext context, AttributedType type, Attribute<? extends Serializable> attribute) {
-        //TODO: Implement setAttribute
+        FileAttribute fileAttribute = getFileAttribute(type);
+
+        if (fileAttribute == null) {
+            fileAttribute = new FileAttribute(type);
+        }
+
+        removeAttribute(context, type, attribute.getName());
+        fileAttribute.getEntry().add(attribute);
+
+        this.fileDataSource.getAttributes().put(type.getId(), fileAttribute);
+        this.fileDataSource.flushAttributes();
+    }
+
+    private FileAttribute getFileAttribute(final AttributedType type) {
+        return this.fileDataSource.getAttributes().get(type.getId());
     }
 
     @Override
     public <V extends Serializable> Attribute<V> getAttribute(IdentityContext context, AttributedType type, String attributeName) {
-        return null;  //TODO: Implement getAttribute
+        FileAttribute fileAttribute = getFileAttribute(type);
+
+        if (fileAttribute != null) {
+            for (Attribute<? extends Serializable> attribute: fileAttribute.getEntry()) {
+                if (attribute.getName().equals(attributeName)) {
+                    return (Attribute<V>) attribute;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public void loadAttributes(IdentityContext context, AttributedType attributedType) {
+        FileAttribute fileAttribute = getFileAttribute(attributedType);
+
+        if (fileAttribute != null) {
+            for (Attribute<? extends Serializable> attribute: fileAttribute.getEntry()) {
+                attributedType.setAttribute(attribute);
+            }
+        }
     }
 
     @Override
     public void removeAttribute(IdentityContext context, AttributedType type, String attributeName) {
-        //TODO: Implement removeAttribute
+        FileAttribute fileAttribute = getFileAttribute(type);
+
+        if (fileAttribute != null) {
+            for (Attribute<? extends Serializable> attribute: new ArrayList<Attribute<? extends Serializable>>
+                    (fileAttribute.getEntry())) {
+                if (attribute.getName().equals(attributeName)) {
+                    fileAttribute.getEntry().remove(attribute);
+                }
+            }
+        }
+
+        this.fileDataSource.flushAttributes();
     }
 
     <T extends Relationship> T convertToRelationship(IdentityContext context, FileRelationship fileRelationship) {
@@ -488,9 +551,9 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
             property.setValue(clonedAttributedType, property.getValue(attributedType));
         }
 
-        for (Attribute<? extends Serializable> attribute : attributedType.getAttributes()) {
-            clonedAttributedType.setAttribute(attribute);
-        }
+//        for (Attribute<? extends Serializable> attribute : attributedType.getAttributes()) {
+//            clonedAttributedType.setAttribute(attribute);
+//        }
 
         if (IdentityType.class.isInstance(attributedType)) {
             IdentityType identityType = (IdentityType) attributedType;

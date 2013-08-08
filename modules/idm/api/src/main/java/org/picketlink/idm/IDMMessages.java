@@ -22,7 +22,6 @@
 
 package org.picketlink.idm;
 
-import java.io.UnsupportedEncodingException;
 import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
@@ -39,7 +38,11 @@ import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityStore;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
+
+import java.io.UnsupportedEncodingException;
+import java.lang.annotation.Annotation;
+
+import static org.picketlink.idm.config.IdentityStoreConfiguration.*;
 
 /**
  * <p>
@@ -147,6 +150,13 @@ public interface IDMMessages {
 
     @Message(id = 50, value = "Error initializing JpaIdentityStore - no entity classes configured.")
     SecurityConfigurationException jpaConfigNoEntityClassesProvided();
+
+    @Message(id = 51, value = "Entity [%s] must have a field annotated with %s.")
+    SecurityConfigurationException jpaConfigRequiredMappingAnnotation(Class<?> entityType,
+                                                                      Class<? extends Annotation> annotationType);
+
+    @Message(id = 52, value = "Mapped attribute [%s.%s] does not map to any field for type [%s].")
+    SecurityConfigurationException jpaConfigMappedPropertyNotFound(final Class<?> entityType, String propertyName, Class<?> type);
 
     @Message(id = 63, value = "Could not create context.")
     IdentityManagementException ldapCouldNotCreateContext(@Cause Throwable e);

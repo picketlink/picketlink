@@ -42,7 +42,7 @@
     <class>org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity</class>
     <class>org.picketlink.test.idm.relationship.RelationshipIdentityTypeReferenceEntity</class>
     <class>org.picketlink.test.idm.relationship.CustomRelationshipTypeEntity</class>
-    <class>org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity</class>
+    <class>org.picketlink.test.idm.basic.AttributeReferenceTypeEntity</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

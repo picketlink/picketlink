@@ -20,8 +20,6 @@ package org.picketlink.test.idm.testers;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
-import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
-import org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.AttributedTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
 import org.picketlink.idm.model.IdentityType;
@@ -30,6 +28,7 @@ import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
+import org.picketlink.test.idm.basic.AttributeReferenceTypeEntity;
 import org.picketlink.test.idm.relationship.CustomRelationshipTypeEntity;
 import org.picketlink.test.idm.relationship.RelationshipIdentityTypeReferenceEntity;
 import org.picketlink.test.idm.util.LDAPEmbeddedServer;
@@ -64,11 +63,10 @@ public class MixedLDAPJPAStoreConfigurationTester implements IdentityConfigurati
                     .jpa()
                         .mappedEntity(
                                 AttributedTypeEntity.class,
-                                AccountTypeEntity.class,
                                 RelationshipTypeEntity.class,
                                 RelationshipIdentityTypeReferenceEntity.class,
                                 CustomRelationshipTypeEntity.class,
-                                AttributeTypeEntity.class
+                                AttributeReferenceTypeEntity.class
                         )
                         .addContextInitializer(new JPAContextInitializer(null) {
                             @Override
@@ -77,6 +75,7 @@ public class MixedLDAPJPAStoreConfigurationTester implements IdentityConfigurati
                             }
                         })
                         .supportGlobalRelationship(Relationship.class)
+                        .supportAttributes(true)
             .named(SIMPLE_LDAP_STORE_CONFIG)
                 .stores()
                     .ldap()
@@ -108,6 +107,7 @@ public class MixedLDAPJPAStoreConfigurationTester implements IdentityConfigurati
                             .objectClasses(GROUP_OF_NAMES)
                             .attribute("name", CN, true)
                             .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
+                            .parentMembershipAttributeName("member")
                             .parentMapping("QA Group", "ou=QA,dc=jboss,dc=org");
 
         return new DefaultPartitionManager(builder.buildAll());

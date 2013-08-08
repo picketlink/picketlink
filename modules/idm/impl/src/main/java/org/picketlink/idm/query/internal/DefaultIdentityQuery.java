@@ -19,11 +19,14 @@
 package org.picketlink.idm.query.internal;
 
 import org.picketlink.idm.IDMMessages;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
-import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.AttributeStore;
 import org.picketlink.idm.spi.IdentityContext;
+import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.StoreSelector;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -35,9 +38,8 @@ import java.util.Set;
 /**
  * Default IdentityQuery implementation.
  *
- * @author Shane Bryzak
- *
  * @param <T>
+ * @author Shane Bryzak
  */
 public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQuery<T> {
 
@@ -45,15 +47,19 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     private final IdentityContext context;
     private final IdentityStore<?> identityStore;
     private final Class<T> identityType;
+    private final StoreSelector storeSelector;
     private int offset;
     private int limit;
     private QueryParameter[] sortParameters;
     private boolean sortAscending = true;
 
-    public DefaultIdentityQuery(IdentityContext context, Class<T> identityType, IdentityStore<?> identityStore) {
+    public DefaultIdentityQuery(IdentityContext context, Class<T> identityType, StoreSelector storeSelector) {
         this.context = context;
-        this.identityStore = identityStore;
+        this.storeSelector = storeSelector;
         this.identityType = identityType;
+        this.identityStore = this.storeSelector.getStoreForIdentityOperation(
+                context, IdentityStore.class, identityType, IdentityStoreConfiguration.IdentityOperation.read);
+
     }
 
     @Override
@@ -130,6 +136,14 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
 
         try {
             result = this.identityStore.fetchQueryResults(context, this);
+
+            AttributeStore<?> attributeStore = this.storeSelector.getStoreForAttributeOperation(context);
+
+            if (attributeStore != null) {
+                for (T identityType : result) {
+                    attributeStore.loadAttributes(context, identityType);
+                }
+            }
         } catch (Exception e) {
             throw IDMMessages.MESSAGES.identityTypeQueryFailed(this, e);
         }

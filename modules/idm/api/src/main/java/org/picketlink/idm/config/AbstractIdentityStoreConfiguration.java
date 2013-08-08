@@ -18,11 +18,6 @@
 
 package org.picketlink.idm.config;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.credential.handler.annotations.CredentialHandlers;
 import org.picketlink.idm.model.AttributedType;
@@ -30,11 +25,17 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
-import static java.util.Collections.unmodifiableList;
-import static java.util.Collections.unmodifiableMap;
-import static org.picketlink.idm.IDMLogger.LOGGER;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.util.IDMUtil.isTypeOperationSupported;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static java.util.Collections.*;
+import static org.picketlink.idm.IDMLogger.*;
+import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.idm.util.IDMUtil.*;
 
 /**
  * <p>Base class for {@link IdentityStoreConfiguration} implementations.</p>
@@ -66,18 +67,21 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
      */
     private final List<Class<? extends CredentialHandler>> credentialHandlers;
     private Class<? extends IdentityStore> identityStoreType;
+    private final boolean supportsAttribute;
 
     protected AbstractIdentityStoreConfiguration(
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
-            List<Class<? extends CredentialHandler>> credentialHandlers) {
+            List<Class<? extends CredentialHandler>> credentialHandlers,
+            boolean supportsAttribute) {
         this.supportedTypes = unmodifiableMap(supportedTypes);
         this.unsupportedTypes = unmodifiableMap(unsupportedTypes);
         this.contextInitializers = unmodifiableList(contextInitializers);
         this.credentialHandlerProperties = unmodifiableMap(credentialHandlerProperties);
         this.credentialHandlers = unmodifiableList(credentialHandlers);
+        this.supportsAttribute = supportsAttribute;
     }
 
     @Override
@@ -174,5 +178,10 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
     @Override
     public List<ContextInitializer> getContextInitializers() {
         return this.contextInitializers;
+    }
+
+    @Override
+    public boolean supportsAttribute() {
+        return this.supportsAttribute;
     }
 }

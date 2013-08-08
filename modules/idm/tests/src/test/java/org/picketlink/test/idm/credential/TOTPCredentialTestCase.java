@@ -32,6 +32,7 @@ import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import static org.junit.Assert.*;
 import static org.picketlink.idm.credential.Credentials.*;
@@ -296,6 +297,44 @@ public class TOTPCredentialTestCase extends AbstractPartitionManagerTestCase {
 
         assertEquals(Status.INVALID, credentials.getStatus());
         assertNull(credentials.getValidatedAccount());
+    }
+
+    @Test
+    public void testResetPassword() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = createUser("someUser");
+        TOTPCredential credential = new TOTPCredential(DEFAULT_PASSWORD, DEFAULT_TOTP_SECRET);
+
+        Calendar expirationDate = Calendar.getInstance();
+
+        expirationDate.add(Calendar.MINUTE, -5);
+
+        identityManager.updateCredential(user, credential, new Date(), expirationDate.getTime());
+
+        TOTPCredentials credentials = new TOTPCredentials();
+
+        credentials.setUsername(user.getLoginName());
+        credentials.setPassword(new Password(DEFAULT_PASSWORD));
+
+        TimeBasedOTP totp = new TimeBasedOTP();
+
+        String token = totp.generate(DEFAULT_TOTP_SECRET);
+
+        credentials.setToken(token);
+
+        identityManager.validateCredentials(credentials);
+
+        assertEquals(Status.EXPIRED, credentials.getStatus());
+
+        credentials.setUsername(user.getLoginName());
+        credentials.setPassword(new Password(DEFAULT_PASSWORD));
+
+        credentials.setToken("12345678");
+
+        identityManager.validateCredentials(credentials);
+
+        assertEquals(Status.INVALID, credentials.getStatus());
+
     }
 
 }

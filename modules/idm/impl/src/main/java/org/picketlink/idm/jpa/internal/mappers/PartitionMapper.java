@@ -20,11 +20,11 @@ package org.picketlink.idm.jpa.internal.mappers;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
-import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
 import org.picketlink.idm.jpa.annotations.PartitionName;
 import org.picketlink.idm.jpa.annotations.entity.ConfigurationName;
-import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+
+import static org.picketlink.idm.IDMMessages.*;
 
 /**
  * @author pedroigor
@@ -33,19 +33,10 @@ public class PartitionMapper extends AbstractAttributedTypeMapper {
 
     @Override
     public boolean supports(Class<?> entityType) {
-        if (entityType.isAnnotationPresent(IdentityManaged.class)) {
-            Property<Object> result = PropertyQueries.createQuery(entityType)
-                    .addCriteria(new AnnotatedPropertyCriteria(PartitionClass.class)).getFirstResult();
-
-            if (result != null) {
-                if (!result.getJavaClass().equals(String.class)) {
-                    throw new SecurityConfigurationException("Partition entities should be mapped with String valued @PartitionClass property.");
-                }
-                return true;
-            }
-        }
-
-        return false;
+        return PropertyQueries
+                .createQuery(entityType)
+                .addCriteria(new AnnotatedPropertyCriteria(PartitionClass.class))
+                .getFirstResult() != null;
     }
 
     @Override
@@ -53,15 +44,22 @@ public class PartitionMapper extends AbstractAttributedTypeMapper {
         EntityMapping entityMapping = super.configure(managedType, entityType);
 
         entityMapping.addTypeProperty(getAnnotatedProperty(PartitionClass.class, entityType));
-        entityMapping.addProperty(getNamedProperty("name", managedType), getAnnotatedProperty(PartitionName.class, entityType));
+
+        Property nameProperty = getAnnotatedProperty(PartitionName.class, entityType);
+
+        if (nameProperty == null) {
+            throw MESSAGES.jpaConfigRequiredMappingAnnotation(entityType, PartitionName.class);
+        }
+
+        entityMapping.addProperty(getNamedProperty("name", managedType), nameProperty);
 
         Property configurationNameProperty = getAnnotatedProperty(ConfigurationName.class, entityType);
 
         if (configurationNameProperty == null) {
-            throw new SecurityConfigurationException("No property annotated with @ConfiguredName for entity [" + entityType + "].");
+            throw MESSAGES.jpaConfigRequiredMappingAnnotation(entityType, ConfigurationName.class);
         }
 
-        entityMapping.addMappedProperty(configurationNameProperty);
+        entityMapping.addNotNullMappedProperty(configurationNameProperty);
 
         return entityMapping;
     }

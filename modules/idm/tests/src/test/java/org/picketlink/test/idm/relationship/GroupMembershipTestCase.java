@@ -18,7 +18,6 @@
 
 package org.picketlink.test.idm.relationship;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
@@ -71,12 +70,12 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         List<GroupMembership> result = getGroupMembership(someUser, someGroup);
 
-        Assert.assertEquals(1, result.size());
+        assertEquals(1, result.size());
 
         groupMembership = result.get(0);
 
-        Assert.assertEquals(someUser.getId(), groupMembership.getMember().getId());
-        Assert.assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
+        assertEquals(someUser.getId(), groupMembership.getMember().getId());
+        assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
     }
 
     @Test
@@ -93,12 +92,12 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         List<GroupMembership> result = getGroupMembership(someUser, someGroup);
 
-        Assert.assertEquals(1, result.size());
+        assertEquals(1, result.size());
 
         groupMembership = result.get(0);
 
-        Assert.assertEquals(someUser.getId(), groupMembership.getMember().getId());
-        Assert.assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
+        assertEquals(someUser.getId(), groupMembership.getMember().getId());
+        assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
 
         groupMembership.setAttribute(new Attribute<String>("attribute1", "1"));
         groupMembership.setAttribute(new Attribute<String[]>("attribute2", new String[] { "1", "2", "3" }));
@@ -107,17 +106,17 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         result = getGroupMembership(someUser, someGroup);
 
-        Assert.assertEquals(1, result.size());
+        assertEquals(1, result.size());
 
         groupMembership = result.get(0);
 
-        Assert.assertEquals(someUser.getId(), groupMembership.getMember().getId());
-        Assert.assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
-        Assert.assertNotNull(groupMembership.getAttribute("attribute1"));
-        Assert.assertNotNull(groupMembership.getAttribute("attribute2"));
+        assertEquals(someUser.getId(), groupMembership.getMember().getId());
+        assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
+        assertNotNull(groupMembership.getAttribute("attribute1"));
+        assertNotNull(groupMembership.getAttribute("attribute2"));
 
-        Assert.assertEquals("1", groupMembership.getAttribute("attribute1").getValue());
-        Assert.assertEquals(3, groupMembership.<String[]> getAttribute("attribute2").getValue().length);
+        assertEquals("1", groupMembership.getAttribute("attribute1").getValue());
+        assertEquals(3, groupMembership.<String[]> getAttribute("attribute2").getValue().length);
     }
 
     @Test
@@ -141,7 +140,6 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
     }
 
     @Test
-    @Configuration(exclude = MixedLDAPJPAStoreConfigurationTester.class)
     public void testAddUserToParentGroup() throws Exception {
         User someUser = createUser("someUser");
         Group groupB = createGroup("b", "a");

@@ -22,6 +22,13 @@
 
 package org.picketlink.idm.config;
 
+import org.picketlink.idm.credential.handler.CredentialHandler;
+import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.spi.ContextInitializer;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,16 +36,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.picketlink.idm.credential.handler.CredentialHandler;
-import org.picketlink.idm.model.AttributedType;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.spi.ContextInitializer;
-import static java.util.Collections.unmodifiableList;
-import static java.util.Collections.unmodifiableMap;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
+
+import static java.util.Collections.*;
+import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.*;
 
 /**
  * <p>Base class for {@link IdentityStoreConfigurationBuilder} implementations.</p>
@@ -58,6 +59,7 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
     private final List<ContextInitializer> contextInitializers;
     private final IdentityStoresConfigurationBuilder identityStoresConfigurationBuilder;
     private boolean supportCredentials;
+    private boolean supportAttributes;
 
     protected IdentityStoreConfigurationBuilder(IdentityStoresConfigurationBuilder builder) {
         super(builder);
@@ -167,6 +169,7 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
         supportType(getDefaultIdentityModelClasses());
         supportCredentials(true);
         supportGlobalRelationship(Relationship.class);
+        supportAttributes(true);
 
         return (S) this;
     }
@@ -213,6 +216,17 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
      */
     public S supportCredentials(boolean supportCredentials) {
         this.supportCredentials = supportCredentials;
+        return (S) this;
+    }
+
+    /**
+     * <p>Enable/Disable attribute support</p>
+     *
+     * @param supportAttributes
+     * @return
+     */
+    public S supportAttributes(boolean supportAttributes) {
+        this.supportAttributes = supportAttributes;
         return (S) this;
     }
 
@@ -279,6 +293,10 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
 
     protected Set<Class<? extends Relationship>> getSelfRelationshipTypes() {
         return this.selfRelationshipTypes;
+    }
+
+    protected boolean isSupportAttributes() {
+        return supportAttributes;
     }
 
     private static Class<? extends AttributedType>[] getDefaultIdentityModelClasses() {

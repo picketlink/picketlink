@@ -32,6 +32,8 @@ public interface PartitionStore<T extends IdentityStoreConfiguration> extends Id
 
     <P extends Partition> P get(IdentityContext identityContext, Class<P> partitionClass, String name);
 
+    <P extends Partition> P lookupById(final IdentityContext context, final Class<P> partitionClass, String id);
+
     void add(IdentityContext identityContext, Partition partition, String configurationName);
 
     void update(IdentityContext identityContext, Partition partition);

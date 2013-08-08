@@ -44,6 +44,8 @@ public interface IdentityStoreConfiguration {
 
     Map<Class<? extends AttributedType>, Set<IdentityOperation>> getSupportedTypes();
 
+    boolean supportsAttribute();
+
     /**
      * <p>Supported operations for @{AttributedType} types.</p>
      */

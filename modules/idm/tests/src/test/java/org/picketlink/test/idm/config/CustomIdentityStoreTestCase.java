@@ -22,13 +22,6 @@
 
 package org.picketlink.test.idm.config;
 
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
@@ -41,12 +34,10 @@ import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
@@ -54,8 +45,15 @@ import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.PartitionStore;
-import static junit.framework.Assert.assertEquals;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static junit.framework.Assert.*;
 
 /**
  *
@@ -79,8 +77,6 @@ public class CustomIdentityStoreTestCase {
                         .supportAllFeatures();
 
         PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
-
-        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
 
         IdentityManager identityManager = partitionManager.createIdentityManager();
         
@@ -126,7 +122,8 @@ public class CustomIdentityStoreTestCase {
         private MethodInvocationContext methodInvocationContext;
 
         protected MyIdentityStoreConfiguration(Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes, Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes, List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties, List<Class<? extends CredentialHandler>> credentialHandlers) {
-            super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers);
+            super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties,
+                    credentialHandlers, false);
         }
 
         @Override
@@ -146,9 +143,15 @@ public class CustomIdentityStoreTestCase {
         public MethodInvocationContext getMethodInvocationContext() {
             return this.methodInvocationContext;
         }
+
+        @Override
+        public boolean supportsPartition() {
+            return false;
+        }
     }
 
-    public static class MyIdentityStore implements PartitionStore<MyIdentityStoreConfiguration>, CredentialStore<MyIdentityStoreConfiguration> {
+    public static class MyIdentityStore implements IdentityStore<MyIdentityStoreConfiguration>,
+            CredentialStore<MyIdentityStoreConfiguration> {
 
         private MyIdentityStoreConfiguration config;
         private final Map<String, Partition> partitions = new HashMap<String, Partition>();
@@ -204,25 +207,6 @@ public class CustomIdentityStoreTestCase {
         }
 
         @Override
-        public void setAttribute(IdentityContext context, AttributedType attributedType, Attribute<? extends Serializable> attribute) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public <V extends Serializable> Attribute<V> getAttribute(IdentityContext context, AttributedType attributedType,
-                String attributeName) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public void removeAttribute(IdentityContext context, AttributedType attributedType, String attributeName) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
         public void validateCredentials(IdentityContext context, Credentials credentials) {
             // TODO Auto-generated method stub
 
@@ -253,32 +237,6 @@ public class CustomIdentityStoreTestCase {
                 Class<T> storageClass) {
             // TODO Auto-generated method stub
             return null;
-        }
-
-        @Override
-        public String getConfigurationName(IdentityContext identityContext, Partition partition) {
-            return "default";  //TODO: Implement getConfigurationName
-        }
-
-        @Override
-        public <P extends Partition> P get(IdentityContext identityContext, Class<P> partitionClass, String name) {
-            return (P) this.partitions.get(name);
-        }
-
-        @Override
-        public void add(IdentityContext identityContext, Partition partition, String configurationName) {
-            partition.setId(identityContext.getIdGenerator().generate());
-            this.partitions.put(partition.getName(), partition);
-        }
-
-        @Override
-        public void update(IdentityContext identityContext, Partition partition) {
-            //TODO: Implement update
-        }
-
-        @Override
-        public void remove(IdentityContext identityContext, Partition partition) {
-            //TODO: Implement remove
         }
     }
 

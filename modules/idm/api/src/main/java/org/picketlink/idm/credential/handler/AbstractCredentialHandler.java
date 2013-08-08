@@ -20,28 +20,69 @@ package org.picketlink.idm.credential.handler;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.AbstractBaseCredentials;
+import org.picketlink.idm.credential.storage.CredentialStorage;
+import org.picketlink.idm.credential.util.CredentialUtils;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 
+import static org.picketlink.idm.credential.Credentials.Status;
+import static org.picketlink.idm.model.sample.SampleModel.*;
+
 /**
+ * <p>Base class for {@link CredentialHandler} implementations.</p>
+ *
  * @author pedroigor
  */
-public abstract class AbstractCredentialHandler<S extends IdentityStore<?>,V extends AbstractBaseCredentials,U>
+public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V extends AbstractBaseCredentials, U>
         implements CredentialHandler<S, V, U> {
 
-    protected <A extends Account> A getAccount(IdentityContext context, String loginName) {
+    protected Account getAccount(IdentityContext context, String loginName) {
         IdentityManager identityManager = getIdentityManager(context);
 
-        A agent = (A) SampleModel.getAgent(identityManager, loginName);
+        Account agent = getAgent(identityManager, loginName);
 
         if (agent == null) {
-            agent = (A) SampleModel.getUser(identityManager, loginName);
+            agent = getUser(identityManager, loginName);
         }
 
         return agent;
     }
+
+    @Override
+    public void validate(final IdentityContext context, final V credentials, final S store) {
+        credentials.setStatus(Status.INVALID);
+
+        Account account = getAccount(context, credentials);
+
+        if (account != null) {
+            if (account.isEnabled()) {
+                CredentialStorage credentialStorage = getCredentialStorage(context, account, credentials, store);
+
+                if (validateCredential(credentialStorage, credentials)) {
+                    if (credentialStorage != null && CredentialUtils.isCredentialExpired(credentialStorage)) {
+                        credentials.setStatus(Status.EXPIRED);
+                    } else if (Status.INVALID.equals(credentials.getStatus())) {
+                        credentials.setStatus(Status.VALID);
+                    }
+                }
+            } else {
+                credentials.setStatus(Status.ACCOUNT_DISABLED);
+            }
+        }
+
+        credentials.setValidatedAccount(null);
+
+        if (Status.VALID.equals(credentials.getStatus())) {
+            credentials.setValidatedAccount(account);
+        }
+    }
+
+    protected abstract boolean validateCredential(final CredentialStorage credentialStorage, final V credentials);
+    protected abstract Account getAccount(final IdentityContext context, final V credentials);
+    protected abstract CredentialStorage getCredentialStorage(final IdentityContext context, final Account account,
+                                                      final V credentials,
+                                                     final S store);
 
     protected IdentityManager getIdentityManager(IdentityContext context) {
         IdentityManager identityManager = context.getParameter(IdentityManager.IDENTITY_MANAGER_CTX_PARAMETER);

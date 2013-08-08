@@ -17,16 +17,17 @@
  */
 package org.picketlink.idm.config;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * A {@link AbstractIdentityStoreConfiguration} for the LDAP store.
@@ -60,7 +61,8 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
             List<Class<? extends CredentialHandler>> credentialHandlers) {
-        super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers);
+        super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers,
+         false       );
         this.ldapURL = url;
         this.bindDN = bindDN;
         this.bindCredential = bindCredential;
@@ -152,5 +154,10 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         }
 
         return result;
+    }
+
+    @Override
+    public boolean supportsPartition() {
+        return false;
     }
 }

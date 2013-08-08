@@ -152,6 +152,53 @@ public class DigestCredentialTestCase extends AbstractPartitionManagerTestCase {
 
         assertEquals(Status.VALID, credential.getStatus());
     }
+
+    @Test
+    public void testResetCredential() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = createUser("someUser");
+        Digest digest = new Digest();
+
+        digest.setRealm("pl-idm");
+        digest.setUsername(user.getLoginName());
+        digest.setPassword("somePassword");
+
+        Calendar expirationDate = Calendar.getInstance();
+
+        expirationDate.add(Calendar.MINUTE, -1);
+
+        identityManager.updateCredential(user, digest, new Date(), expirationDate.getTime());
+
+        DigestCredentials credential = new DigestCredentials(digest);
+
+        digest.setDigest(DigestUtil.calculateA1(user.getLoginName(), digest.getRealm(), digest.getPassword().toCharArray()));
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.EXPIRED, credential.getStatus());
+
+        digest.setDigest(DigestUtil.calculateA1(user.getLoginName(), digest.getRealm(), "bad_password".toCharArray()));
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.INVALID, credential.getStatus());
+
+        Digest newPassword = new Digest();
+
+        newPassword.setRealm("pl-idm");
+        newPassword.setUsername(user.getLoginName());
+        newPassword.setPassword("someNewPassword");
+
+        identityManager.updateCredential(user, newPassword);
+
+        credential = new DigestCredentials(newPassword);
+
+        newPassword.setDigest(DigestUtil.calculateA1(user.getLoginName(), newPassword.getRealm(), newPassword.getPassword().toCharArray()));
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.VALID, credential.getStatus());
+    }
     
     @Test
     public void testMultipleRealms() throws Exception {

@@ -155,6 +155,45 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
     }
 
     @Test
+    @Configuration(exclude = LDAPStoreConfigurationTester.class)
+    public void testResetPassword() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = createUser("someUser");
+        Password plainTextPassword = new Password("updated_password".toCharArray());
+
+        Calendar expirationDate = Calendar.getInstance();
+
+        expirationDate.add(Calendar.MINUTE, -5);
+
+        identityManager.updateCredential(user, plainTextPassword, new Date(), expirationDate.getTime());
+        UsernamePasswordCredentials credential = new UsernamePasswordCredentials();
+
+        credential.setUsername(user.getLoginName());
+        credential.setPassword(plainTextPassword);
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.EXPIRED, credential.getStatus());
+
+        credential.setUsername(user.getLoginName());
+        credential.setPassword(new Password("bad_password"));
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.INVALID, credential.getStatus());
+
+        Password newPassword = new Password("new_password".toCharArray());
+
+        identityManager.updateCredential(user, newPassword);
+
+        credential = new UsernamePasswordCredentials(user.getLoginName(), newPassword);
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.VALID, credential.getStatus());
+    }
+
+    @Test
     public void testUpdatePassword() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");

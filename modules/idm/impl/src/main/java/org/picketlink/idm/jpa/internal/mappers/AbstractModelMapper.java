@@ -26,6 +26,7 @@ import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.config.SecurityConfigurationException;
 
 /**
  * @author pedroigor
@@ -49,7 +50,7 @@ public abstract class AbstractModelMapper implements ModelMapper {
         }
     }
 
-    protected abstract List<EntityMapping> doCreateMapping(Class<?> entityType);
+    protected abstract List<EntityMapping> doCreateMapping(Class<?> entityType) throws SecurityConfigurationException;
 
     protected Property getAnnotatedProperty(Class<? extends Annotation> annotationType, Class<?> type) {
         return PropertyQueries.<String>createQuery(type)

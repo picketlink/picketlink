@@ -17,9 +17,11 @@
  */
 package org.picketlink.idm.jpa.internal.mappers;
 
-import org.picketlink.idm.jpa.annotations.AttributeName;
-import org.picketlink.idm.jpa.annotations.AttributeValue;
-import org.picketlink.idm.model.Attribute;
+import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
+import org.picketlink.idm.jpa.annotations.RelationshipMember;
+import org.picketlink.idm.model.Relationship;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,28 +29,30 @@ import java.util.List;
 /**
  * @author pedroigor
  */
-public class AttributeTypeMapper extends AbstractModelMapper {
+public class RelationshipIdentityMapper extends AbstractModelMapper {
 
     @Override
     public boolean supports(Class<?> entityType) {
-        return  getAnnotatedProperty(AttributeName.class, entityType) != null
-                && getAnnotatedProperty(AttributeValue.class, entityType) != null;
+        return PropertyQueries.<String>createQuery(entityType)
+                .addCriteria(new AnnotatedPropertyCriteria(RelationshipDescriptor.class))
+                .getFirstResult() != null
+               && PropertyQueries.<String>createQuery(entityType)
+                .addCriteria(new AnnotatedPropertyCriteria(RelationshipMember.class))
+                .getFirstResult() != null;
     }
 
     @Override
     protected List<EntityMapping> doCreateMapping(final Class<?> entityType) {
         List<EntityMapping> mappings = new ArrayList<EntityMapping>();
 
-        EntityMapping entityMapping = new EntityMapping(Attribute.class);
+        EntityMapping entityMapping = new EntityMapping(Relationship.class);
 
-        entityMapping.addProperty(getNamedProperty("name", Attribute.class), getAnnotatedProperty(AttributeName.class, entityType));
-        entityMapping.addProperty(getNamedProperty("value", Attribute.class), getAnnotatedProperty(AttributeValue.class, entityType));
-
+        entityMapping.addMappedProperty(getAnnotatedProperty(RelationshipDescriptor.class, entityType));
+        entityMapping.addMappedProperty(getAnnotatedProperty(RelationshipMember.class, entityType));
         entityMapping.addOwnerProperty(entityType);
 
         mappings.add(entityMapping);
 
         return mappings;
     }
-
 }

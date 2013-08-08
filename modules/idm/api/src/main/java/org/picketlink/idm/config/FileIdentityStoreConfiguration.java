@@ -18,13 +18,13 @@
 
 package org.picketlink.idm.config;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.spi.ContextInitializer;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <p>Configuration class for the File-based {@link org.picketlink.idm.spi.IdentityStore} implementation.</p>
@@ -48,8 +48,10 @@ public class FileIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
-            List<Class<? extends CredentialHandler>> credentialHandlers) {
-        super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers);
+            List<Class<? extends CredentialHandler>> credentialHandlers,
+            boolean supportsAttribute) {
+        super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers,
+         supportsAttribute);
         this.workingDir = workingDir;
         this.alwaysCreateFiles = !preserveState;
         this.asyncWrite = asyncWrite;

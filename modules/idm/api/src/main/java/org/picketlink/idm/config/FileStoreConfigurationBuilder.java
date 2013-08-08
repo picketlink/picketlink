@@ -96,7 +96,8 @@ public class FileStoreConfigurationBuilder extends
                 getUnsupportedTypes(),
                 getContextInitializers(),
                 getCredentialHandlerProperties(),
-                getCredentialHandlers());
+                getCredentialHandlers(),
+                isSupportAttributes());
     }
 
     @Override

@@ -17,8 +17,11 @@
  */
 package org.picketlink.idm.jpa.internal.mappers;
 
+import org.picketlink.common.properties.Property;
 import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+
+import static org.picketlink.common.util.StringUtil.*;
+import static org.picketlink.idm.IDMMessages.*;
 
 /**
  * @author pedroigor
@@ -34,6 +37,14 @@ public class NamedMappedAttribute extends AbstractIdentityManagedMapper {
     @Override
     public EntityMapping configure(Class<?> supportedType, Class<?> entityType) {
         EntityMapping entityMapping = new EntityMapping(supportedType);
+
+        MappedAttribute mappedAttribute = entityType.getAnnotation(MappedAttribute.class);
+        Property namedProperty = getNamedProperty(mappedAttribute.value(), supportedType);
+
+        if (namedProperty == null) {
+            throw MESSAGES.jpaConfigMappedPropertyNotFound(entityType, mappedAttribute.value(),
+                    supportedType);
+        }
 
         entityMapping.addOwnerProperty(entityType);
 

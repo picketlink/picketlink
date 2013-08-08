@@ -30,6 +30,7 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.idm.spi.AttributeStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreSelector;
@@ -110,6 +111,12 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
                         relationship = (T) reference.getRelationship();
                     }
 
+                    AttributeStore<?> attributeStore = this.storeSelector.getStoreForAttributeOperation(context);
+
+                    if (attributeStore != null) {
+                        attributeStore.loadAttributes(context, relationship);
+                    }
+
                     result.add(relationship);
                 }
             }
@@ -127,9 +134,8 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
             String partitionId = reference.getPartitionId(descriptor);
             String identityTypeId = reference.getIdentityTypeId(descriptor);
 
-            // TODO: can we have a reference to the partition manager
             PartitionManager partitionManager = (PartitionManager) this.storeSelector;
-            Partition partition = partitionManager.getPartition(Partition.class, partitionId);
+            Partition partition = partitionManager.lookupById(Partition.class, partitionId);
 
             if (partition == null) {
                 throw new IdentityManagementException("No partition [" + partitionId + "] found for " +

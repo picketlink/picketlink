@@ -76,7 +76,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
     public void testUpdate() throws Exception {
         Agent storedAgent = createIdentityType();
 
@@ -93,7 +93,6 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
 
         assertNotNull(updatedUser.getAttribute("someAttribute"));
         assertEquals("1", updatedUser.getAttribute("someAttribute").getValue());
-        assertEquals(actualDate, updatedUser.getExpirationDate());
     }
 
     @Test

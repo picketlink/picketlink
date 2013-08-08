@@ -123,7 +123,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
     public void testSetOneValuedAttribute() throws Exception {
         T storedIdentityType = createIdentityType();
 
@@ -142,7 +142,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
     public void testSetMultiValuedAttribute() throws Exception {
         T storedIdentityType = createIdentityType();
 
@@ -168,7 +168,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
     public void testSetMultipleAttributes() throws Exception {
         T storedIdentityType = createIdentityType();
 
@@ -198,7 +198,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
     public void testSetLargeAttributeValue() throws Exception {
         T storedIdentityType = createIdentityType();
 
@@ -226,7 +226,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
     public void testUpdateAttribute() throws Exception {
         T storedIdentityType = createIdentityType();
 
@@ -263,7 +263,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
     public void testGetAllAttributes() throws Exception {
         T storedIdentityType = createIdentityType();
 
@@ -315,7 +315,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
     public void testRemoveAttribute() throws Exception {
         T storedIdentityType = createIdentityType();
 

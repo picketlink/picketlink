@@ -18,14 +18,6 @@
 
 package org.picketlink.producer;
 
-import java.util.Arrays;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
 import org.picketlink.IdentityConfigurationEvent;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.idm.IdentityManager;
@@ -33,6 +25,7 @@ import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Partition;
@@ -42,8 +35,18 @@ import org.picketlink.internal.EEJPAContextInitializer;
 import org.picketlink.internal.IdentityStoreAutoConfiguration;
 import org.picketlink.internal.SecuredIdentityManager;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.picketlink.idm.config.IdentityStoreConfiguration.*;
+
 /**
- * 
  * @author Shane Bryzak
  */
 @ApplicationScoped
@@ -92,9 +95,15 @@ public class IdentityManagerProducer {
             loadAutoConfig(builder);
         }
 
-        this.partitionManager = new DefaultPartitionManager(builder.buildAll(), this.eventBridge);
+        List<IdentityConfiguration> configurations = builder.buildAll();
 
-        this.partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+        this.partitionManager = new DefaultPartitionManager(configurations, this.eventBridge);
+
+        if (isPartitionSupported(configurations)) {
+            if (this.partitionManager.getPartition(Realm.class, Realm.DEFAULT_REALM) == null) {
+                this.partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+            }
+        }
     }
 
     private void loadAutoConfig(IdentityConfigurationBuilder builder) {
@@ -102,16 +111,16 @@ public class IdentityManagerProducer {
             Class<?>[] entities = new Class[this.autoConfig.getEntities().size()];
             this.autoConfig.getEntities().toArray(entities);
             builder.named(DEFAULT_CONFIGURATION_NAME)
-                .stores()
+                    .stores()
                     .jpa()
-                        .mappedEntity(entities)
-                        .addContextInitializer(this.jpaContextInitializer)
-                        .supportAllFeatures();
+                    .mappedEntity(entities)
+                    .addContextInitializer(this.jpaContextInitializer)
+                    .supportAllFeatures();
         } else {
             builder.named(DEFAULT_CONFIGURATION_NAME)
-                .stores()
+                    .stores()
                     .file()
-                        .supportAllFeatures();
+                    .supportAllFeatures();
         }
     }
 
@@ -134,6 +143,19 @@ public class IdentityManagerProducer {
     @RequestScoped
     public RelationshipManager createRelationshipManager() {
         return this.partitionManager.createRelationshipManager();
+    }
+
+    private boolean isPartitionSupported(final List<IdentityConfiguration> configurations) {
+        for (IdentityConfiguration configuration : configurations) {
+            for (IdentityStoreConfiguration storeConfig : configuration.getStoreConfiguration()) {
+                if (storeConfig.supportsPartition()
+                        && storeConfig.supportsType(Realm.class, IdentityOperation.create)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
 }
