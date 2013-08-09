@@ -19,6 +19,8 @@ package org.picketlink.identity.federation.core.wstrust;
 
 import org.apache.xml.security.encryption.EncryptedKey;
 import org.apache.xml.security.encryption.XMLCipher;
+import org.apache.xml.security.keys.KeyInfo;
+import org.apache.xml.security.keys.content.X509Data;
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.WSTrustConstants;
@@ -27,8 +29,10 @@ import org.picketlink.common.exceptions.fed.WSTrustException;
 import org.picketlink.common.util.Base64;
 import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.common.util.SystemPropertiesUtil;
 import org.picketlink.config.federation.STSType;
 import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
+import org.picketlink.identity.federation.core.util.ProvidersUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
@@ -67,9 +71,12 @@ import java.security.Principal;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
+
+import static org.picketlink.common.util.StringUtil.*;
 
 /**
  * <p>
@@ -81,6 +88,21 @@ import java.util.Map;
 public class WSTrustUtil {
 
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+
+        // Set some system properties and Santuario providers. Run this block before any other class initialization.
+        static {
+            ProvidersUtil.ensure();
+            SystemPropertiesUtil.ensure();
+            String keyInfoProp = SystemPropertiesUtil.getSystemProperty("picketlink.encryption.includeKeyInfo", null);
+            if (isNotNull(keyInfoProp)) {
+                includeKeyInfoInEncryptedKey = Boolean.parseBoolean(keyInfoProp);
+            }
+    };
+
+     /**
+      * By default, we include the keyinfo in the EncryptedKey
+      */
+     private static boolean includeKeyInfoInEncryptedKey = true;
 
     /**
      * <p>
@@ -399,7 +421,8 @@ public class WSTrustUtil {
     /**
      * <p>
      * Creates a {@code KeyInfoType} that wraps the specified secret. If the {@code encryptionKey} parameter is not null, the
-     * secret is encrypted using the specified public key before it is set in the {@code KeyInfoType}.
+     * secret is encrypted using the specified public key before it is set in the {@code KeyInfoType}. It also create a
+     * keyinfo with the information about the key used for the encryption
      * </p>
      *
      * @param secret a {@code byte[]} representing the secret (symmetric key).
@@ -408,7 +431,7 @@ public class WSTrustUtil {
      * @return the constructed {@code KeyInfoType} instance.
      * @throws WSTrustException if an error occurs while creating the {@code KeyInfoType} object.
      */
-    public static KeyInfoType createKeyInfo(byte[] secret, PublicKey encryptionKey, URI keyWrapAlgo) throws WSTrustException {
+    public static KeyInfoType createKeyInfo(byte[] secret, PublicKey encryptionKey, URI keyWrapAlgo, X509Certificate cer) throws WSTrustException {
         KeyInfoType keyInfo = null;
 
         // if a public key has been specified, encrypt the secret using the public key.
@@ -418,6 +441,16 @@ public class WSTrustUtil {
                 // TODO: XMLEncryptionUtil should allow for the specification of the key wrap algorithm.
                 EncryptedKey key = XMLEncryptionUtil.encryptKey(document, new SecretKeySpec(secret, "AES"), encryptionKey,
                         secret.length * 8);
+
+                //if certificate is not null provide the information about the key
+                if (cer != null && includeKeyInfoInEncryptedKey == true) {
+                    KeyInfo kiEnc = new KeyInfo(document);
+                    X509Data xData = new X509Data(document);
+                    xData.addIssuerSerial(cer.getIssuerDN().getName(), cer.getSerialNumber());
+                    kiEnc.add(xData);
+                    key.setKeyInfo(kiEnc);
+                }
+
                 Element encryptedKeyElement = XMLCipher.getInstance().martial(key);
                 keyInfo = new KeyInfoType();
                 keyInfo.addContent(encryptedKeyElement);
@@ -429,6 +462,22 @@ public class WSTrustUtil {
         }
         return keyInfo;
     }
+
+    /**
+     * <p>
+     * Creates a {@code KeyInfoType} that wraps the specified secret. If the {@code encryptionKey} parameter is not null, the
+     * secret is encrypted using the specified public key before it is set in the {@code KeyInfoType}.
+     * </p>
+     *
+     * @param secret a {@code byte[]} representing the secret (symmetric key).
+     * @param encryptionKey the {@code PublicKey} that must be used to encrypt the secret.
+     * @param keyWrapAlgo the key wrap algorithm to be used.
+     * @return the constructed {@code KeyInfoType} instance.
+     * @throws WSTrustException if an error occurs while creating the {@code KeyInfoType} object.
+     */
+     public static KeyInfoType createKeyInfo(byte[] secret, PublicKey encryptionKey, URI keyWrapAlgo) throws WSTrustException {
+        return createKeyInfo(secret, encryptionKey, keyWrapAlgo, null);
+     }
 
     /**
      * <p>
