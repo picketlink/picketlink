@@ -22,13 +22,13 @@ import org.picketlink.common.constants.GeneralConstants;
 
 /**
  * Service Provider Type
- *
- * <p>
+ * <p/>
+ * <p/>
  * Java class for SPType complex type.
- *
- * <p>
+ * <p/>
+ * <p/>
  * The following schema fragment specifies the expected content contained within this class.
- *
+ * <p/>
  * <pre>
  * &lt;complexType name="SPType">
  *   &lt;complexContent>
@@ -40,8 +40,6 @@ import org.picketlink.common.constants.GeneralConstants;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class SPType extends ProviderType {
     protected String serviceURL;
@@ -69,17 +67,21 @@ public class SPType extends ProviderType {
     protected boolean idpUsesPostBinding = true;
 
     private String logOutPage = GeneralConstants.LOGOUT_PAGE_NAME;
-    
+
     /**
      * <p>The URL that should be used during a GLO logout. This would usually be an URL from the IDP.</p>
      */
     private String logoutUrl;
 
     /**
+     * The URL used to send a response for an IDP logout request
+     */
+    private String logoutResponseLocation;
+
+    /**
      * Gets the value of the serviceURL property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getServiceURL() {
         return serviceURL;
@@ -89,7 +91,6 @@ public class SPType extends ProviderType {
      * Sets the value of the serviceURL property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setServiceURL(String value) {
         this.serviceURL = value;
@@ -152,16 +153,24 @@ public class SPType extends ProviderType {
     public String getLogOutPage() {
         return this.logOutPage;
     }
-    
+
     public void setLogOutPage(String logOutPage) {
         this.logOutPage = logOutPage;
     }
-    
+
     public String getLogoutUrl() {
         return this.logoutUrl;
     }
-    
+
     public void setLogoutUrl(String logoutUrl) {
         this.logoutUrl = logoutUrl;
+    }
+
+    public String getLogoutResponseLocation() {
+        return logoutResponseLocation;
+    }
+
+    public void setLogoutResponseLocation(String logoutResponseLocation) {
+        this.logoutResponseLocation = logoutResponseLocation;
     }
 }

@@ -58,7 +58,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.picketlink.common.util.StringUtil.isNotNull;
+import static org.picketlink.common.util.StringUtil.*;
 
 /**
  * Utility for configuration
@@ -67,12 +67,12 @@ import static org.picketlink.common.util.StringUtil.isNotNull;
  * @since Nov 13, 2009
  */
 public class CoreConfigUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     /**
      * Given either the IDP Configuration or the SP Configuration, derive the TrustKeyManager
-     * 
+     *
      * @param idpOrSPConfiguration
      * @return
      */
@@ -83,7 +83,7 @@ public class CoreConfigUtil {
 
     /**
      * Once the {@code KeyProviderType} is derived, get the {@code TrustKeyManager}
-     * 
+     *
      * @param keyProvider
      * @return
      */
@@ -106,7 +106,7 @@ public class CoreConfigUtil {
 
     /**
      * Get the validating key
-     * 
+     *
      * @param idpSpConfiguration
      * @param domain
      * @return
@@ -122,7 +122,7 @@ public class CoreConfigUtil {
 
     /**
      * Get the validating key given the trust key manager
-     * 
+     *
      * @param trustKeyManager
      * @param domain
      * @return
@@ -138,8 +138,9 @@ public class CoreConfigUtil {
     }
 
     /**
-     * Given a {@code KeyProviderType}, return the list of auth properties that have been decrypted for any masked password
-     * 
+     * Given a {@code KeyProviderType}, return the list of auth properties that have been decrypted for any masked
+     * password
+     *
      * @param keyProviderType
      * @return
      * @throws GeneralSecurityException
@@ -155,8 +156,9 @@ public class CoreConfigUtil {
     }
 
     /**
-     * Given a {@code TokenProviderType}, return the list of properties that have been decrypted for any masked property value
-     * 
+     * Given a {@code TokenProviderType}, return the list of properties that have been decrypted for any masked property
+     * value
+     *
      * @param tokenProviderType
      * @return
      * @throws GeneralSecurityException
@@ -171,8 +173,9 @@ public class CoreConfigUtil {
     }
 
     /**
-     * Given a {@code ClaimsProcessorType}, return the list of properties that have been decrypted for any masked property value
-     * 
+     * Given a {@code ClaimsProcessorType}, return the list of properties that have been decrypted for any masked
+     * property value
+     *
      * @param claimsProcessorType
      * @return
      * @throws GeneralSecurityException
@@ -187,9 +190,9 @@ public class CoreConfigUtil {
     }
 
     /**
-     * Given a key value list, check if decrypt of any properties is needed. Unless one of the keys is "salt", we cannot figure
-     * out is decrypt is needed
-     * 
+     * Given a key value list, check if decrypt of any properties is needed. Unless one of the keys is "salt", we cannot
+     * figure out is decrypt is needed
+     *
      * @param keyValueList
      * @return
      */
@@ -208,9 +211,9 @@ public class CoreConfigUtil {
     }
 
     /**
-     * Given a key value pair read from PicketLink configuration, ensure that we replace the masked passwords with the decoded
-     * passwords and pass it back
-     * 
+     * Given a key value pair read from PicketLink configuration, ensure that we replace the masked passwords with the
+     * decoded passwords and pass it back
+     *
      * @param keyValueList
      * @return
      * @throws GeneralSecurityException
@@ -279,7 +282,7 @@ public class CoreConfigUtil {
 
     /**
      * Given a metadata {@link EntityDescriptorType}, construct the Service provider configuration
-     * 
+     *
      * @param entityDescriptor
      * @param bindingURI
      * @return
@@ -308,7 +311,7 @@ public class CoreConfigUtil {
 
     /**
      * Given a metadata {@link EntityDescriptorType}, construct the Service provider configuration
-     * 
+     *
      * @param entityDescriptor
      * @param bindingURI
      * @return
@@ -356,6 +359,7 @@ public class CoreConfigUtil {
 
             spType.setIdentityURL(identityURL);
             spType.setLogoutUrl(getLogoutURL(idpSSO, bindingURI));
+            spType.setLogoutResponseLocation(getLogoutResponseLocation(idpSSO, bindingURI));
 
             String serviceURL = getServiceURL(spSSO, bindingURI);
 
@@ -371,7 +375,7 @@ public class CoreConfigUtil {
 
     /**
      * Get the first metadata descriptor for an IDP
-     * 
+     *
      * @param entitiesDescriptor
      * @return
      */
@@ -393,7 +397,7 @@ public class CoreConfigUtil {
 
     /**
      * Get the IDP metadata descriptor from an entity descriptor
-     * 
+     *
      * @param entityDescriptor
      * @return
      */
@@ -413,7 +417,7 @@ public class CoreConfigUtil {
 
     /**
      * Get the SP Descriptor from an entity descriptor
-     * 
+     *
      * @param entityDescriptor
      * @return
      */
@@ -433,7 +437,7 @@ public class CoreConfigUtil {
 
     /**
      * Given a binding uri, get the IDP identity url
-     * 
+     *
      * @param idp
      * @param bindingURI
      * @return
@@ -454,7 +458,7 @@ public class CoreConfigUtil {
 
     /**
      * Given a binding uri, get the IDP identity url
-     * 
+     *
      * @param idp
      * @param bindingURI
      * @return
@@ -474,8 +478,30 @@ public class CoreConfigUtil {
     }
 
     /**
+     * Given a binding uri, get the IDP logout response url (used for global logouts)
+     */
+    public static String getLogoutResponseLocation(IDPSSODescriptorType idp, String bindingURI) {
+        String logoutResponseLocation = null;
+
+        List<EndpointType> endpoints = idp.getSingleLogoutService();
+        for (EndpointType endpoint : endpoints) {
+            if (endpoint.getBinding().toString().equals(bindingURI)) {
+                if (endpoint.getResponseLocation() != null) {
+                    logoutResponseLocation = endpoint.getResponseLocation().toString();
+                } else {
+                    logoutResponseLocation = null;
+                }
+
+                break;
+            }
+
+        }
+        return logoutResponseLocation;
+    }
+
+    /**
      * Get the service url for the SP
-     * 
+     *
      * @param sp
      * @param bindingURI
      * @return
@@ -496,7 +522,7 @@ public class CoreConfigUtil {
 
     /**
      * Get the IDP Type
-     * 
+     *
      * @param idpSSODescriptor
      * @return
      */
@@ -522,12 +548,12 @@ public class CoreConfigUtil {
 
     /**
      * Read metadata from ProviderType
-     * 
+     *
      * @param providerType
      * @param servletContext
      * @return
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public static List<EntityDescriptorType> getMetadataConfiguration(ProviderType providerType, ServletContext servletContext) {
         MetadataProviderType metadataProviderType = providerType.getMetaDataProvider();
 
@@ -569,7 +595,7 @@ public class CoreConfigUtil {
     }
 
     private static void addAllEntityDescriptorsRecursively(List<EntityDescriptorType> resultList,
-            EntitiesDescriptorType entitiesDescriptorType) {
+                                                           EntitiesDescriptorType entitiesDescriptorType) {
         List<Object> entities = entitiesDescriptorType.getEntityDescriptor();
         for (Object o : entities) {
             if (o instanceof EntitiesDescriptorType) {
