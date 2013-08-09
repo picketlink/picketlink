@@ -34,15 +34,15 @@ import static org.picketlink.idm.IDMMessages.*;
  */
 public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfiguration {
 
-    private final List<Class<?>> entityTypes;
+    private final Set<Class<?>> entityTypes;
 
     protected JPAIdentityStoreConfiguration(
-            List<Class<?>> entityTypes,
+            Set<Class<?>> entityTypes,
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
-            List<Class<? extends CredentialHandler>> credentialHandlers,
+            Set<Class<? extends CredentialHandler>> credentialHandlers,
             boolean supportsAttribute) {
         super(supportedTypes, unsupportedTypes, contextInitializers,credentialHandlerProperties, credentialHandlers,
                 supportsAttribute);
@@ -57,7 +57,7 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
     @Override
     protected void initConfig() {  }
 
-    public List<Class<?>> getEntityTypes() {
+    public Set<Class<?>> getEntityTypes() {
         return this.entityTypes;
     }
 

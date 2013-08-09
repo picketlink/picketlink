@@ -99,10 +99,6 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         assertNull(identityManager.lookupIdentityById(identityType.getClass(), "bad_id"));
     }
 
-    protected abstract T createIdentityType();
-
-    protected abstract T getIdentityType();
-
     @Test
     @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
     public void testExpiration() throws Exception {
@@ -268,7 +264,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         T storedIdentityType = createIdentityType();
 
         IdentityManager identityManager = getIdentityManager();
-        
+
         storedIdentityType.setAttribute(new Attribute<String>("QuestionTotal", "2"));
         storedIdentityType.setAttribute(new Attribute<String>("Question1", "What is favorite toy?"));
         storedIdentityType.setAttribute(new Attribute<String>("Question1Answer", "Gum"));
@@ -320,9 +316,9 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         T storedIdentityType = createIdentityType();
 
         IdentityManager identityManager = getIdentityManager();
-        
+
         storedIdentityType.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
-        
+
         identityManager.update(storedIdentityType);
 
         T updatedIdentityType = getIdentityType();
@@ -350,6 +346,9 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
 
         getIdentityManager().add(storedIdentityType);
     }
+
+    protected abstract T createIdentityType();
+    protected abstract T getIdentityType();
 
     private boolean contains(Integer[] result, Integer value) {
         for (Integer resultValue : result) {

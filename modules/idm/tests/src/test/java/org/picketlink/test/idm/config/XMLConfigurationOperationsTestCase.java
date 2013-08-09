@@ -18,13 +18,6 @@
 
 package org.picketlink.test.idm.config;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.persistence.EntityManager;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +29,6 @@ import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
-import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.SampleModel;
@@ -45,12 +37,15 @@ import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.util.JPAContextInitializer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import javax.persistence.EntityManager;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * Test for initialize file,jpa and ldap stores from XML configuration and perform some IDM operations with them

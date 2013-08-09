@@ -49,13 +49,13 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
      */
     private final Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes;
     /**
-     * <p>{@link AttributedType} types are not supported by this configuration.
-     * This allows us to trim any type that we don't want to support off the hierarchy tree</p>
+     * <p>{@link AttributedType} types are not supported by this configuration. This allows us to trim any type that we
+     * don't want to support off the hierarchy tree</p>
      */
     private final Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes;
     /**
-     * <p>{@link ContextInitializer} instances that should be used to initialize the
-     * {@link org.picketlink.idm.spi.IdentityContext} before invoking an identity store operation.</p>
+     * <p>{@link ContextInitializer} instances that should be used to initialize the {@link
+     * org.picketlink.idm.spi.IdentityContext} before invoking an identity store operation.</p>
      */
     private final List<ContextInitializer> contextInitializers;
     /**
@@ -65,22 +65,23 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
     /**
      * <p>Additional {@link CredentialHandler} types supported by this configuration.</p>
      */
-    private final List<Class<? extends CredentialHandler>> credentialHandlers;
+    private final Set<Class<? extends CredentialHandler>> credentialHandlers;
     private Class<? extends IdentityStore> identityStoreType;
     private final boolean supportsAttribute;
+    private List<Class<? extends CredentialHandler>> supportedCredentialHandlers;
 
     protected AbstractIdentityStoreConfiguration(
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
-            List<Class<? extends CredentialHandler>> credentialHandlers,
+            Set<Class<? extends CredentialHandler>> credentialHandlers,
             boolean supportsAttribute) {
         this.supportedTypes = unmodifiableMap(supportedTypes);
         this.unsupportedTypes = unmodifiableMap(unsupportedTypes);
         this.contextInitializers = unmodifiableList(contextInitializers);
+        this.credentialHandlers = unmodifiableSet(credentialHandlers);
         this.credentialHandlerProperties = unmodifiableMap(credentialHandlerProperties);
-        this.credentialHandlers = unmodifiableList(credentialHandlers);
         this.supportsAttribute = supportsAttribute;
     }
 
@@ -125,17 +126,20 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
 
     @Override
     public List<Class<? extends CredentialHandler>> getCredentialHandlers() {
-        List<Class<? extends CredentialHandler>> supportedCredentialHandlers = new ArrayList<Class<? extends CredentialHandler>>(this.credentialHandlers);
+        if (this.supportedCredentialHandlers == null) {
+            this.supportedCredentialHandlers = new ArrayList<Class<? extends CredentialHandler>>(credentialHandlers);
 
-        if (getIdentityStoreType() != null) {
-            CredentialHandlers credentialHandlers = getIdentityStoreType().getAnnotation(CredentialHandlers.class);
+            if (getIdentityStoreType() != null) {
+                CredentialHandlers storeHandlers = getIdentityStoreType().getAnnotation(CredentialHandlers.class);
 
-            if (credentialHandlers != null) {
-                supportedCredentialHandlers.addAll(Arrays.asList(credentialHandlers.value()));
+                if (storeHandlers != null) {
+                    this.supportedCredentialHandlers.addAll(this.supportedCredentialHandlers.size(), Arrays.asList
+                            (storeHandlers.value()));
+                }
             }
         }
 
-        return supportedCredentialHandlers;
+        return this.supportedCredentialHandlers;
     }
 
     @Override

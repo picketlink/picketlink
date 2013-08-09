@@ -1,5 +1,6 @@
 package org.picketlink.idm.jpa.model.sample.complex;
 
+import org.picketlink.idm.jpa.model.sample.complex.entity.Email;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Person;
 import org.picketlink.idm.model.AbstractIdentityType;
 import org.picketlink.idm.model.Account;
@@ -20,6 +21,9 @@ public abstract class AbstractUser extends AbstractIdentityType implements Accou
 
     @AttributeProperty
     private Integer loginCount;
+
+    @AttributeProperty
+    private Email email;
 
     @AttributeProperty
     private Person person;
@@ -50,6 +54,14 @@ public abstract class AbstractUser extends AbstractIdentityType implements Accou
 
     public void setLoginCount(final Integer loginCount) {
         this.loginCount = loginCount;
+    }
+
+    public Email getEmail() {
+        return email;
+    }
+
+    public void setEmail(final Email email) {
+        this.email = email;
     }
 
     public Person getPerson() {

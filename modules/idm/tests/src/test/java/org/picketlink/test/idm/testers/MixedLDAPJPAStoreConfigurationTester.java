@@ -19,8 +19,6 @@ package org.picketlink.test.idm.testers;
 
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
-import org.picketlink.idm.jpa.internal.JPAContextInitializer;
-import org.picketlink.idm.jpa.model.sample.simple.AttributedTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
@@ -31,6 +29,7 @@ import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.basic.AttributeReferenceTypeEntity;
 import org.picketlink.test.idm.relationship.CustomRelationshipTypeEntity;
 import org.picketlink.test.idm.relationship.RelationshipIdentityTypeReferenceEntity;
+import org.picketlink.test.idm.util.JPAContextInitializer;
 import org.picketlink.test.idm.util.LDAPEmbeddedServer;
 
 import javax.persistence.EntityManager;
@@ -62,7 +61,6 @@ public class MixedLDAPJPAStoreConfigurationTester implements IdentityConfigurati
                 .stores()
                     .jpa()
                         .mappedEntity(
-                                AttributedTypeEntity.class,
                                 RelationshipTypeEntity.class,
                                 RelationshipIdentityTypeReferenceEntity.class,
                                 CustomRelationshipTypeEntity.class,

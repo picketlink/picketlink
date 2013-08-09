@@ -121,7 +121,10 @@ public class CustomIdentityStoreTestCase {
 
         private MethodInvocationContext methodInvocationContext;
 
-        protected MyIdentityStoreConfiguration(Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes, Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes, List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties, List<Class<? extends CredentialHandler>> credentialHandlers) {
+        protected MyIdentityStoreConfiguration(Map<Class<? extends AttributedType>,
+                Set<IdentityOperation>> supportedTypes, Map<Class<? extends AttributedType>,
+                Set<IdentityOperation>> unsupportedTypes, List<ContextInitializer> contextInitializers, Map<String,
+                Object> credentialHandlerProperties, Set<Class<? extends CredentialHandler>> credentialHandlers) {
             super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties,
                     credentialHandlers, false);
         }

@@ -17,10 +17,12 @@
  */
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
+import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.jpa.model.sample.complex.CustomerUser;
 
 import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 
 /**
  * @author pedroigor
@@ -29,4 +31,15 @@ import javax.persistence.Entity;
 @Entity
 public class Customer extends Person {
 
+    @OwnerReference
+    @OneToOne
+    private IdentityObject IdentityObject;
+
+    public IdentityObject getIdentityObject() {
+        return IdentityObject;
+    }
+
+    public void setIdentityObject(final IdentityObject identityObject) {
+        IdentityObject = identityObject;
+    }
 }

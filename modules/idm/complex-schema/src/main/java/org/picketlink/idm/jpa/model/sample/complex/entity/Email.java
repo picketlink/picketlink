@@ -17,6 +17,12 @@
  */
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
+import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
+import org.picketlink.idm.jpa.model.sample.complex.CustomerUser;
+import org.picketlink.idm.jpa.model.sample.complex.EmployeeUser;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -26,6 +32,8 @@ import java.io.Serializable;
 /**
  * @author pedroigor
  */
+@IdentityManaged ({CustomerUser.class, EmployeeUser.class})
+@MappedAttribute ("email")
 @Entity
 public class Email implements Serializable {
 
@@ -35,6 +43,10 @@ public class Email implements Serializable {
 
     @ManyToOne
     private Person person;
+
+    @ManyToOne
+    @OwnerReference
+    private UserAccount userAccount;
 
     private String address;
     private boolean primaryEmail;
@@ -61,6 +73,14 @@ public class Email implements Serializable {
 
     public void setPerson(Person person) {
         this.person = person;
+    }
+
+    public UserAccount getUserAccount() {
+        return userAccount;
+    }
+
+    public void setUserAccount(final UserAccount userAccount) {
+        this.userAccount = userAccount;
     }
 
     public boolean isPrimaryEmail() {

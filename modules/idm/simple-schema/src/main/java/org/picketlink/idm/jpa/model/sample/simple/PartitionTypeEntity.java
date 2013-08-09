@@ -17,12 +17,13 @@
  */
 package org.picketlink.idm.jpa.model.sample.simple;
 
-import javax.persistence.Entity;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
-import org.picketlink.idm.jpa.annotations.PartitionName;
 import org.picketlink.idm.jpa.annotations.entity.ConfigurationName;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.model.Partition;
+
+import javax.persistence.Entity;
 
 /**
  * @author pedroigor
@@ -33,7 +34,7 @@ public class PartitionTypeEntity extends AttributedTypeEntity {
 
     private static final long serialVersionUID = -3619372498444894118L;
 
-    @PartitionName
+    @AttributeValue
     private String name;
 
     @PartitionClass

@@ -48,7 +48,7 @@ public class FileIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
-            List<Class<? extends CredentialHandler>> credentialHandlers,
+            Set<Class<? extends CredentialHandler>> credentialHandlers,
             boolean supportsAttribute) {
         super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers,
          supportsAttribute);

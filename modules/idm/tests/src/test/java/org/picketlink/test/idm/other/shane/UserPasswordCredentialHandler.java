@@ -17,12 +17,15 @@
  */
 package org.picketlink.test.idm.other.shane;
 
-import java.util.List;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.handler.PasswordCredentialHandler;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.test.idm.other.shane.model.scenario1.User;
+
+import java.util.List;
 
 /**
  * @author pedroigor
@@ -30,11 +33,11 @@ import org.picketlink.test.idm.other.shane.model.scenario1.User;
 public class UserPasswordCredentialHandler extends PasswordCredentialHandler {
 
     @Override
-    protected User getAccount(IdentityContext context, String loginName) {
+    protected Account getAccount(final IdentityContext context, final UsernamePasswordCredentials credentials) {
         IdentityManager identityManager = getIdentityManager(context);
         IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
 
-        query.setParameter(User.LOGIN_NAME, loginName);
+        query.setParameter(User.LOGIN_NAME, credentials.getUsername());
 
         List<User> result = query.getResultList();
 
@@ -44,4 +47,5 @@ public class UserPasswordCredentialHandler extends PasswordCredentialHandler {
 
         return result.get(0);
     }
+
 }

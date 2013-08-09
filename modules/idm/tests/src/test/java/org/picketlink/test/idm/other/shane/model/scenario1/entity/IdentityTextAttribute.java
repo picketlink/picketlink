@@ -19,6 +19,7 @@ package org.picketlink.test.idm.other.shane.model.scenario1.entity;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -48,7 +49,7 @@ public class IdentityTextAttribute implements Serializable {
     @OwnerReference @ManyToOne private IdentityObject identity;
     @AttributeClass private String attributeClass;
     @AttributeName private String attributeName;
-    @AttributeValue private String attributeValue;
+    @AttributeValue @Column(length = 100000) private String attributeValue;
 
     public Long getAttributeId() {
         return attributeId;

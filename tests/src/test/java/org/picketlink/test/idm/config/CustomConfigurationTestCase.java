@@ -81,7 +81,6 @@ public class CustomConfigurationTestCase extends AbstractJPADeploymentTestCase {
                     .stores()
                         .jpa()
                             .mappedEntity(
-                                    AttributedTypeEntity.class,
                                     AccountTypeEntity.class,
                                     RoleTypeEntity.class,
                                     GroupTypeEntity.class,

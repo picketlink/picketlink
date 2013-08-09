@@ -49,11 +49,9 @@ import org.picketlink.test.idm.basic.MyCustomAccountEntity;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Test for parsing of IDM configuration from XML file and checking that content of builders is as expected
@@ -141,8 +139,8 @@ public class XMLConfigurationTestCase {
         jpaStoreConfig.supportsType(Partition.class, IdentityStoreConfiguration.IdentityOperation.read);
         jpaStoreConfig.supportsType(Relationship.class, IdentityStoreConfiguration.IdentityOperation.read);
 
-        List<Class<?>> entityTypes = jpaStoreConfig.getEntityTypes();
-        assertEquals(entityTypes.size(), 15);
+        Set<Class<?>> entityTypes = jpaStoreConfig.getEntityTypes();
+        assertEquals(entityTypes.size(), 14);
         assertTrue(entityTypes.contains(PasswordCredentialTypeEntity.class));
         assertTrue(entityTypes.contains(DigestCredentialTypeEntity.class));
         assertTrue(entityTypes.contains(PartitionTypeEntity.class));

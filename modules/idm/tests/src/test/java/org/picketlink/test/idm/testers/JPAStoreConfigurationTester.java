@@ -19,10 +19,8 @@ package org.picketlink.test.idm.testers;
 
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
-import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity;
-import org.picketlink.idm.jpa.model.sample.simple.AttributedTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.DigestCredentialTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.GroupTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity;
@@ -37,6 +35,7 @@ import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.test.idm.basic.MyCustomAccountEntity;
 import org.picketlink.test.idm.partition.CustomPartitionEntity;
 import org.picketlink.test.idm.relationship.CustomRelationshipTypeEntity;
+import org.picketlink.test.idm.util.JPAContextInitializer;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -61,22 +60,21 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
                 .stores()
                     .jpa()
                         .mappedEntity(
-                                AttributedTypeEntity.class,
-                                AccountTypeEntity.class,
+                                PartitionTypeEntity.class,
                                 MyCustomAccountEntity.class,
                                 RoleTypeEntity.class,
                                 GroupTypeEntity.class,
                                 IdentityTypeEntity.class,
                                 CustomRelationshipTypeEntity.class,
+                                CustomPartitionEntity.class,
                                 RelationshipTypeEntity.class,
                                 RelationshipIdentityTypeEntity.class,
-                                PartitionTypeEntity.class,
                                 PasswordCredentialTypeEntity.class,
                                 DigestCredentialTypeEntity.class,
                                 X509CredentialTypeEntity.class,
                                 OTPCredentialTypeEntity.class,
                                 AttributeTypeEntity.class,
-                                CustomPartitionEntity.class
+                                AccountTypeEntity.class
                         )
                         .supportGlobalRelationship(org.picketlink.idm.model.Relationship.class)
                         .addContextInitializer(new JPAContextInitializer(null) {

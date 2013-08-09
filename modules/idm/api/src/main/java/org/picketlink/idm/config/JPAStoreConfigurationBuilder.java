@@ -22,9 +22,9 @@
 
 package org.picketlink.idm.config;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -34,7 +34,7 @@ import java.util.List;
 public class JPAStoreConfigurationBuilder extends
         IdentityStoreConfigurationBuilder<JPAIdentityStoreConfiguration, JPAStoreConfigurationBuilder> {
 
-    private final List<Class<?>> mappedEntities = new ArrayList<Class<?>>();
+    private final Set<Class<?>> mappedEntities = new HashSet<Class<?>>();
 
     public JPAStoreConfigurationBuilder(IdentityStoresConfigurationBuilder builder) {
         super(builder);

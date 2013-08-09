@@ -1,7 +1,6 @@
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
 import org.picketlink.idm.jpa.annotations.AttributeValue;
-import org.picketlink.idm.jpa.annotations.CreationDate;
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
@@ -31,7 +30,7 @@ public class IdentityObject implements Serializable {
     @IdentityClass
     private String type;
 
-    @CreationDate
+    @AttributeValue (name = "createdDate")
     private Date creationDate;
 
     @AttributeValue

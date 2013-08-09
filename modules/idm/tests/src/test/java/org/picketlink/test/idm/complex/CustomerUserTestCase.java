@@ -5,6 +5,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.jpa.model.sample.complex.CustomerUser;
 import org.picketlink.idm.jpa.model.sample.complex.EmployeeUser;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Customer;
+import org.picketlink.idm.jpa.model.sample.complex.entity.Email;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.basic.AbstractIdentityTypeTestCase;
@@ -83,6 +84,35 @@ public class CustomerUserTestCase extends AbstractIdentityTypeTestCase<CustomerU
         assertEquals(storedEmployeeUser.getPerson().getPhones().get(0).getType(), customer.getPerson().getPhones().get(0).getType());
 
         assertEquals(Customer.class, storedEmployeeUser.getPerson().getClass());
+    }
+
+    @Test
+    public void testSingleNamedMappedAttribute() {
+        CustomerUser customer = createIdentityType();
+
+        Email email = new Email();
+
+        email.setAddress("user@domain.com");
+        email.setPrimaryEmail(true);
+
+        customer.setEmail(email);
+
+        getIdentityManager().update(customer);
+
+        CustomerUser storedEmployeeUser = getIdentityType();
+
+        assertNotNull(storedEmployeeUser.getEmail());
+        assertEquals(email.getAddress(), storedEmployeeUser.getEmail().getAddress());
+        assertEquals(email.isPrimaryEmail(), storedEmployeeUser.getEmail().isPrimaryEmail());
+
+        email.setPrimaryEmail(false);
+        email.setAddress("changed@domain.com");
+
+        getIdentityManager().update(customer);
+
+        assertNotNull(storedEmployeeUser.getEmail());
+        assertEquals(email.getAddress(), storedEmployeeUser.getEmail().getAddress());
+        assertEquals(email.isPrimaryEmail(), storedEmployeeUser.getEmail().isPrimaryEmail());
     }
 
     @Test

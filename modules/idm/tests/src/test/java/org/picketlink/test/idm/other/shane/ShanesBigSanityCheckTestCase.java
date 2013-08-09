@@ -1,14 +1,5 @@
 package org.picketlink.test.idm.other.shane;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
@@ -36,12 +27,22 @@ import org.picketlink.test.idm.other.shane.model.scenario1.entity.State;
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.StreetType;
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.UserAddress;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+
 /**
  * Shane's broad-spectrum test suite - PLEASE DO NOT TOUCH!!
  *
  * @author Shane Bryzak
  */
-public class ShanesBigSanityCheckTestSuite {
+public class ShanesBigSanityCheckTestCase {
 
     /**
      * This scenario exercises a variety of use cases against a relational database (JPA) identity store

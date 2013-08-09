@@ -20,7 +20,6 @@ package org.picketlink.idm.jpa.model.sample.complex.entity;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
-import org.picketlink.idm.jpa.annotations.PartitionName;
 import org.picketlink.idm.jpa.annotations.entity.ConfigurationName;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 
@@ -39,7 +38,7 @@ public class Company implements Serializable {
     @Identifier
     private String id;
 
-    @PartitionName
+    @AttributeValue
     private String name;
 
     @PartitionClass

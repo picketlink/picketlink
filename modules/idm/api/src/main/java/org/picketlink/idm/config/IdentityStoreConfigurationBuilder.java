@@ -54,7 +54,7 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
     private final Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes;
     private final Set<Class<? extends Relationship>> globalRelationshipTypes;
     private final Set<Class<? extends Relationship>> selfRelationshipTypes;
-    private final List<Class<? extends CredentialHandler>> credentialHandlers;
+    private final Set<Class<? extends CredentialHandler>> credentialHandlers;
     private final Map<String, Object> credentialHandlerProperties;
     private final List<ContextInitializer> contextInitializers;
     private final IdentityStoresConfigurationBuilder identityStoresConfigurationBuilder;
@@ -67,7 +67,7 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
         this.unsupportedTypes = new HashMap<Class<? extends AttributedType>, Set<IdentityOperation>>();
         this.globalRelationshipTypes = new HashSet<Class<? extends Relationship>>();
         this.selfRelationshipTypes = new HashSet<Class<? extends Relationship>>();
-        this.credentialHandlers = new ArrayList<Class<? extends CredentialHandler>>();
+        this.credentialHandlers = new HashSet<Class<? extends CredentialHandler>>();
         this.credentialHandlerProperties = new HashMap<String, Object>();
         this.contextInitializers = new ArrayList<ContextInitializer>();
         this.identityStoresConfigurationBuilder = builder;
@@ -275,8 +275,8 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
         return unmodifiableMap(this.credentialHandlerProperties);
     }
 
-    protected List<Class<? extends CredentialHandler>> getCredentialHandlers() {
-        return unmodifiableList(this.credentialHandlers);
+    protected Set<Class<? extends CredentialHandler>> getCredentialHandlers() {
+        return unmodifiableSet(this.credentialHandlers);
     }
 
     protected Map<Class<? extends AttributedType>, Set<IdentityOperation>> getSupportedTypes() {

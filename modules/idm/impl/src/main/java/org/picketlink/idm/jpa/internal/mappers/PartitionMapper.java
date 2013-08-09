@@ -21,7 +21,6 @@ import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
-import org.picketlink.idm.jpa.annotations.PartitionName;
 import org.picketlink.idm.jpa.annotations.entity.ConfigurationName;
 
 import static org.picketlink.idm.IDMMessages.*;
@@ -44,14 +43,6 @@ public class PartitionMapper extends AbstractAttributedTypeMapper {
         EntityMapping entityMapping = super.configure(managedType, entityType);
 
         entityMapping.addTypeProperty(getAnnotatedProperty(PartitionClass.class, entityType));
-
-        Property nameProperty = getAnnotatedProperty(PartitionName.class, entityType);
-
-        if (nameProperty == null) {
-            throw MESSAGES.jpaConfigRequiredMappingAnnotation(entityType, PartitionName.class);
-        }
-
-        entityMapping.addProperty(getNamedProperty("name", managedType), nameProperty);
 
         Property configurationNameProperty = getAnnotatedProperty(ConfigurationName.class, entityType);
 

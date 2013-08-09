@@ -1,9 +1,5 @@
 package org.picketlink.internal;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.util.HashSet;
-import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AnnotatedType;
@@ -11,6 +7,13 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.persistence.Entity;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.util.HashSet;
+import java.util.Set;
+
+import static java.lang.reflect.Modifier.*;
+import static java.util.Collections.*;
 
 /**
  * Automatic configuration builder for JPAIdentityStore - this CDI extension registers any entity
@@ -24,8 +27,6 @@ public class IdentityStoreAutoConfiguration implements Extension {
 
     private static final String JPA_ANNOTATION_PACKAGE = "org.picketlink.idm.jpa.annotations";
 
-    private boolean configured;
-
     private Set<Class<?>> entities = new HashSet<Class<?>>();
 
     public <X> void processAnnotatedType(@Observes ProcessAnnotatedType<X> event,
@@ -33,9 +34,10 @@ public class IdentityStoreAutoConfiguration implements Extension {
 
         if (event.getAnnotatedType().isAnnotationPresent(Entity.class)) {
             AnnotatedType<X> type = event.getAnnotatedType();
-            if (isIdentityEntity(type.getJavaClass())) {
-                entities.add(type.getJavaClass());
-                configured = true;
+            Class<X> entityType = type.getJavaClass();
+
+            if (!isAbstract(entityType.getModifiers()) && isIdentityEntity(entityType)) {
+                entities.add(entityType);
             }
         }
     }
@@ -66,10 +68,10 @@ public class IdentityStoreAutoConfiguration implements Extension {
     }
 
     public Set<Class<?>> getEntities() {
-        return entities;
+        return unmodifiableSet(this.entities);
     }
 
     public boolean isConfigured() {
-        return this.configured;
+        return !getEntities().isEmpty();
     }
 }

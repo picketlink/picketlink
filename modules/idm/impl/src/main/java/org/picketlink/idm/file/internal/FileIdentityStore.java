@@ -54,6 +54,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -233,6 +234,13 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
         for (FileCredentialStorage fileCredentialStorage : credentials) {
             storedCredentials.add((T) fileCredentialStorage.getEntry());
         }
+
+        Collections.sort(storedCredentials, new Comparator<T>() {
+            @Override
+            public int compare(final T o1, final T o2) {
+                return o2.getEffectiveDate().compareTo(o1.getEffectiveDate());
+            }
+        });
 
         return storedCredentials;
     }

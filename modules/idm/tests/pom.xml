@@ -145,6 +145,11 @@
       <artifactId>ApacheJMeter_java</artifactId>
       <version>2.9</version>
     </dependency>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>5.1.7</version>
+    </dependency>
   </dependencies>
 
   <profiles>
@@ -178,7 +183,7 @@
               </dependency>
               <dependency>
                 <groupId>org.picketlink</groupId>
-                <artifactId>picketlink-idm-schema</artifactId>
+                <artifactId>picketlink-idm-simple-schema</artifactId>
                 <version>${project.version}</version>
               </dependency>
               <dependency>
