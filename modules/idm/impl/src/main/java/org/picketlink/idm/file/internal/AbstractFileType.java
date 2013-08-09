@@ -26,7 +26,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.IDMMessages.*;
 
 /**
  * @author Pedro Silva
@@ -87,7 +87,6 @@ public abstract class AbstractFileType<T> implements Serializable {
             doReadObject(s);
             this.loadedObject = doPopulateEntry(this.properties);
         } catch (Exception e) {
-            System.out.println(this.type);
             throw MESSAGES.unmarshallingError(e);
         }
     }

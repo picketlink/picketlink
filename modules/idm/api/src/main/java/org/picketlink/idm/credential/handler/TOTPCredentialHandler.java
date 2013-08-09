@@ -18,8 +18,6 @@
 
 package org.picketlink.idm.credential.handler;
 
-import java.util.Date;
-import java.util.List;
 import org.picketlink.idm.credential.TOTPCredential;
 import org.picketlink.idm.credential.TOTPCredentials;
 import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
@@ -29,12 +27,13 @@ import org.picketlink.idm.credential.util.TimeBasedOTP;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
-import static org.picketlink.idm.credential.Credentials.Status;
-import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_ALGORITHM;
-import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_DELAY_WINDOW;
-import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_INTERVAL_SECONDS;
-import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_NUMBER_DIGITS;
+
+import java.util.Date;
+import java.util.List;
+
+import static org.picketlink.common.util.StringUtil.*;
+import static org.picketlink.idm.credential.Credentials.*;
+import static org.picketlink.idm.credential.util.TimeBasedOTP.*;
 
 /**
  * <p>
@@ -69,40 +68,42 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
     }
 
     @Override
-    public void validate(IdentityContext context, TOTPCredentials credentials, CredentialStore<?> store) {
+    public void validate(final IdentityContext context, final TOTPCredentials credentials, final CredentialStore<?> store) {
         super.validate(context, credentials, store);
 
-        boolean isValid = false;
-
-        // password is valid, let's validate the token now
-        if (Status.VALID.equals(credentials.getStatus())) {
-            OTPCredentialStorage storage = null;
-
+        if (Status.VALID.equals(credentials.getStatus())
+                || Status.EXPIRED.equals(credentials.getStatus())) {
             String device = getDevice(credentials.getDevice());
 
-            List<OTPCredentialStorage> storedCredentials = store.retrieveCredentials(context, credentials.getValidatedAccount(), OTPCredentialStorage.class);
-
-            for (OTPCredentialStorage storedCredential : storedCredentials) {
-                if (storedCredential.getDevice().equals(device)
-                        && CredentialUtils.isCurrentCredential(storedCredential)) {
-                    if (storage == null || storage.getEffectiveDate().compareTo(storedCredential.getEffectiveDate()) <= 0) {
-                        storage = storedCredential;
-                    }
-                }
-            }
+            OTPCredentialStorage storage = getOTPCredentialStorage(context, credentials, store, device);
 
             if (storage != null) {
                 String secretKey = storage.getSecretKey();
                 String token = credentials.getToken();
 
-                isValid = this.totp.validate(token, secretKey.getBytes());
+                if (!this.totp.validate(token, secretKey.getBytes())) {
+                    credentials.setStatus(Status.INVALID);
+                    credentials.setValidatedAccount(null);
+                }
+            }
+        }
+    }
+
+    private OTPCredentialStorage getOTPCredentialStorage(final IdentityContext context, final TOTPCredentials credentials, final CredentialStore<?> store, final String device) {
+        OTPCredentialStorage storage = null;
+        List<OTPCredentialStorage> storedCredentials =
+                store.retrieveCredentials(context, getAccount(context, credentials.getUsername()), OTPCredentialStorage.class);
+
+        for (OTPCredentialStorage storedCredential : storedCredentials) {
+            if (storedCredential.getDevice().equals(device)
+                    && CredentialUtils.isCurrentCredential(storedCredential)) {
+                if (storage == null || storage.getEffectiveDate().compareTo(storedCredential.getEffectiveDate()) <= 0) {
+                    storage = storedCredential;
+                }
             }
         }
 
-        if (!isValid) {
-            credentials.setStatus(Status.INVALID);
-            credentials.setValidatedAccount(null);
-        }
+        return storage;
     }
 
     @Override

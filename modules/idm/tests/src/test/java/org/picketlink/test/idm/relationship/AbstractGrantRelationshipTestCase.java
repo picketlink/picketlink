@@ -18,20 +18,21 @@
 
 package org.picketlink.test.idm.relationship;
 
-import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Grant;
-import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+
+import java.util.List;
+
+import static junit.framework.Assert.*;
 
 /**
  * <p>
@@ -64,7 +65,6 @@ public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> 
         Role someRole = createRole("someRole");
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
-        IdentityManager identityManager = getIdentityManager();
 
         SampleModel.grantRole(relationshipManager, someAgent, someRole);
 

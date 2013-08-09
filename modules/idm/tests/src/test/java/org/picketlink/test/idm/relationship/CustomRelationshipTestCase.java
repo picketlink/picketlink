@@ -18,24 +18,28 @@
 
 package org.picketlink.test.idm.relationship;
 
-import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.AbstractAttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
+
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * <p>
@@ -45,7 +49,8 @@ import static org.junit.Assert.assertFalse;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-@IgnoreTester(LDAPStoreConfigurationTester.class)
+@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
+        MixedLDAPJPAStoreConfigurationTester.class})
 public class CustomRelationshipTestCase extends AbstractPartitionManagerTestCase {
 
     public CustomRelationshipTestCase(IdentityConfigurationTester builder) {
@@ -117,6 +122,63 @@ public class CustomRelationshipTestCase extends AbstractPartitionManagerTestCase
         assertEquals(relationship.getId(), result.get(0).getId());
     }
 
+    @Test
+    public void testFormalAttributes() throws Exception {
+        CustomRelationship relationship = new CustomRelationship();
+
+        User user = createUser("user");
+
+        relationship.setIdentityTypeA(user);
+
+        Role role = createRole("role");
+
+        relationship.setIdentityTypeB(role);
+
+        Group group = createGroup("group");
+
+        relationship.setIdentityTypeC(group);
+
+        relationship.setAttributeA("Value for A");
+        relationship.setAttributeB(99l);
+        relationship.setAttributeC(true);
+
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
+
+        relationshipManager.add(relationship);
+
+        RelationshipQuery<CustomRelationship> query = relationshipManager.createRelationshipQuery(CustomRelationship.class);
+
+        query.setParameter(CustomRelationship.IDENTITY_TYPE_A, user);
+
+        List<CustomRelationship> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals(relationship.getId(), result.get(0).getId());
+        assertEquals(relationship.getAttributeA(), result.get(0).getAttributeA());
+        assertEquals(relationship.getAttributeB(), result.get(0).getAttributeB());
+        assertEquals(relationship.isAttributeC(), result.get(0).isAttributeC());
+
+        relationship.setAttributeA("Changed Value A");
+        relationship.setAttributeB(76l);
+        relationship.setAttributeC(false);
+
+        relationshipManager.update(relationship);
+
+        query = relationshipManager.createRelationshipQuery(CustomRelationship.class);
+
+        query.setParameter(CustomRelationship.ID, relationship.getId());
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals(relationship.getId(), result.get(0).getId());
+        assertEquals(relationship.getAttributeA(), result.get(0).getAttributeA());
+        assertEquals(relationship.getAttributeB(), result.get(0).getAttributeB());
+        assertEquals(relationship.isAttributeC(), result.get(0).isAttributeC());
+    }
+
     public static class CustomRelationship extends AbstractAttributedType implements Relationship {
 
         private static final long serialVersionUID = 1030652086550754965L;
@@ -149,6 +211,15 @@ public class CustomRelationshipTestCase extends AbstractPartitionManagerTestCase
         private IdentityType identityTypeB;
         private IdentityType identityTypeC;
 
+        @AttributeProperty
+        private String attributeA;
+
+        @AttributeProperty
+        private Long attributeB;
+
+        @AttributeProperty
+        private boolean attributeC;
+
         public IdentityType getIdentityTypeA() {
             return this.identityTypeA;
         }
@@ -173,6 +244,29 @@ public class CustomRelationshipTestCase extends AbstractPartitionManagerTestCase
             this.identityTypeC = identityTypeC;
         }
 
+        public String getAttributeA() {
+            return attributeA;
+        }
+
+        public void setAttributeA(final String attributeA) {
+            this.attributeA = attributeA;
+        }
+
+        public Long getAttributeB() {
+            return attributeB;
+        }
+
+        public void setAttributeB(final Long attributeB) {
+            this.attributeB = attributeB;
+        }
+
+        public boolean isAttributeC() {
+            return attributeC;
+        }
+
+        public void setAttributeC(final boolean attributeC) {
+            this.attributeC = attributeC;
+        }
     }
 
 }

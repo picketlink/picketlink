@@ -38,6 +38,8 @@ public class Address implements Serializable {
     @ManyToOne
     private Person person;
 
+    private String type;
+    private boolean primaryAddress;
     private String unitNumber;
     private String streetNumber;
     private String streetName;
@@ -61,6 +63,22 @@ public class Address implements Serializable {
 
     public void setPerson(Person person) {
         this.person = person;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public boolean isPrimaryAddress() {
+        return primaryAddress;
+    }
+
+    public void setPrimaryAddress(boolean primaryAddress) {
+        this.primaryAddress = primaryAddress;
     }
 
     public String getUnitNumber() {

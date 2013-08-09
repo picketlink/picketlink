@@ -59,7 +59,7 @@ upload_docs() {
     DOCS_DIR="target/$RELEASE_VERSION"
     execute_cmd rm -rf $DOCS_DIR
     execute_cmd mkdir -p $DOCS_DIR
-    execute_cmd unzip dist/target/picketlink-$RELEASE_VERSION.zip picketlink-$RELEASE_VERSION/doc/* -d $DOCS_DIR/.
+    execute_cmd unzip dist/target/picketlink-$RELEASE_VERSION.zip -d $DOCS_DIR/.
     execute_cmd mv $DOCS_DIR/picketlink-$RELEASE_VERSION/doc/api $DOCS_DIR/.
     execute_cmd mv $DOCS_DIR/picketlink-$RELEASE_VERSION/doc/reference $DOCS_DIR/.
     rm -rf $DOCS_DIR/picketlink-$RELEASE_VERSION
@@ -225,6 +225,10 @@ while true; do
 		 ROLLBACK="true"
 		 shift
 		 ;;
+         --upload-docs )
+		 upload_docs
+                 exit 0
+                 ;;
 	 -- ) 
 	     shift; 
 	     break ;;

@@ -30,6 +30,10 @@ import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.internal.DefaultPartitionManager;
+import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.User;
 
@@ -60,6 +64,7 @@ public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerCli
 
     @Override
     public void teardownTest(JavaSamplerContext context) {
+        context.getParameter("");
     }
 
     @Override
@@ -88,6 +93,12 @@ public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerCli
             identityManager.add(user);
 
             success = user.getId() != null && SampleModel.getUser(identityManager, loginName) != null;
+
+            Role role = new Role(loginName);
+
+            identityManager.add(role);
+
+            success = role.getId() != null && SampleModel.getRole(identityManager, loginName) != null;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -99,16 +110,24 @@ public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerCli
     }
 
     private static PartitionManager createPartitionManager() {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+            .named("default")
+                .stores()
+                    .file()
+                        .preserveState(false)
+                        .asyncWrite(true)
+                        .asyncWriteThreadPool(20)
+                        .supportAllFeatures();
+
+        DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
+
+        if (partitionManager.getPartition(Realm.class, Realm.DEFAULT_REALM) == null) {
+            partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+        }
+
         return partitionManager;
-//        IdentityConfiguration configuration = new IdentityConfiguration();
-//
-//        configuration
-//            .fileStore()
-//                .setAlwaysCreateFiles(true)
-//                .addRealm(Realm.DEFAULT_REALM)
-//                .supportAllFeatures();
-//
-//        return configuration.buildIdentityManagerFactory();
     }
 
 }

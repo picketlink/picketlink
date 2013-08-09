@@ -18,16 +18,18 @@
 
 package org.picketlink.test.idm.partition;
 
-import java.util.Arrays;
-import java.util.List;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.AbstractPartition;
 import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * <p>Test case for the custom partitions.</p>
@@ -35,7 +37,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Pedro Silva
  *
  */
-@Ignore
+@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class})
 public class CustomPartitionTestCase extends AbstractPartitionTestCase<CustomPartitionTestCase.CustomPartition> {
 
     public static final String CUSTOM_PARTITION_NAME = "Custom Partition";
@@ -52,7 +54,7 @@ public class CustomPartitionTestCase extends AbstractPartitionTestCase<CustomPar
             getPartitionManager().remove(customPartition);
         }
 
-        getPartitionManager().add(customPartition, "default");
+        getPartitionManager().add(customPartition);
 
         return customPartition;
     }
@@ -73,7 +75,6 @@ public class CustomPartitionTestCase extends AbstractPartitionTestCase<CustomPar
         partition.setAttributeA("Attribute A");
         partition.setAttributeB(100l);
         partition.setAttributeC(90);
-        partition.setAttributeD(Arrays.asList(new String[]{"Value1", "Value2", "Value3"}));
 
         if (partitionManager.getPartition(partition.getClass(), partition.getName()) != null) {
             partitionManager.remove(partition);
@@ -91,6 +92,8 @@ public class CustomPartitionTestCase extends AbstractPartitionTestCase<CustomPar
         assertNotNull(partition.getId());
         assertEquals(name, partition.getName());
         assertEquals("Changed Attribute A", partition.getAttributeA());
+        assertEquals(100l, (long) partition.getAttributeB());
+        assertEquals(90, partition.getAttributeC());
     }
 
     public static class CustomPartition extends AbstractPartition {
@@ -98,7 +101,6 @@ public class CustomPartitionTestCase extends AbstractPartitionTestCase<CustomPar
         private String attributeA;
         private Long attributeB;
         private int attributeC;
-        private List<String> attributeD;
 
         public CustomPartition() {
             super(null);
@@ -135,14 +137,6 @@ public class CustomPartitionTestCase extends AbstractPartitionTestCase<CustomPar
             this.attributeC = attributeC;
         }
 
-        @AttributeProperty
-        public List<String> getAttributeD() {
-            return this.attributeD;
-        }
-
-        public void setAttributeD(List<String> attributeD) {
-            this.attributeD = attributeD;
-        }
     }
 
     private <P extends Object> boolean contains(List<P> list, P value) {

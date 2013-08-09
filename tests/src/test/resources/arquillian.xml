@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<arquillian
+        xmlns="http://jboss.org/schema/arquillian"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
+
+    <defaultProtocol type="Servlet 3.0"/>
+
+    <engine>
+        <!-- Uncomment to export test archives for debug purposes -->
+         <!--<property name="deploymentExportPath">target/</property>-->
+    </engine>
+
+    <container qualifier="jboss-as-7">
+        <configuration>
+            <property name="serverConfig">standalone.xml</property>
+            <property name="outputToConsole">false</property>
+            <property name="allowConnectingToRunningServer">true</property>
+            <property name="javaVmArguments">-Xms128m -Xmx768m -XX:MaxPermSize=256m</property>
+            <property name="managementAddress">127.0.0.1</property>
+
+            <!-- If running in managed mode, the location of the installation -->
+            <property name="jbossHome">${jboss.home}</property>
+        </configuration>
+    </container>
+
+</arquillian>

@@ -17,9 +17,9 @@
  */
 package org.picketlink.idm.credential.storage;
 
-import java.util.Date;
-
 import org.picketlink.idm.credential.storage.annotations.Stored;
+
+import java.util.Date;
 
 /**
  * @author pedroigor

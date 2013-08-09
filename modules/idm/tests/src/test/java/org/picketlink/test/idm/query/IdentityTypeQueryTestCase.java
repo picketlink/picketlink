@@ -18,7 +18,6 @@
 
 package org.picketlink.test.idm.query;
 
-import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.IdentityType;
@@ -30,11 +29,15 @@ import org.picketlink.idm.model.sample.Tier;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
+
+import java.util.List;
+
+import static junit.framework.Assert.*;
 
 /**
  * <p>
@@ -43,7 +46,8 @@ import static junit.framework.Assert.assertTrue;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@IgnoreTester(LDAPStoreConfigurationTester.class)
+@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
+        MixedLDAPJPAStoreConfigurationTester.class})
 public class IdentityTypeQueryTestCase extends AbstractPartitionManagerTestCase {
 
     public IdentityTypeQueryTestCase(IdentityConfigurationTester builder) {
@@ -51,6 +55,7 @@ public class IdentityTypeQueryTestCase extends AbstractPartitionManagerTestCase 
     }
 
     @Test
+    @Configuration (exclude = MixedLDAPJPAStoreConfigurationTester.class)
     public void testFindByDifferentRealms() {
         IdentityManager identityManager = getIdentityManager();
 
@@ -120,6 +125,7 @@ public class IdentityTypeQueryTestCase extends AbstractPartitionManagerTestCase 
     }
 
     @Test
+    @Configuration (exclude = MixedLDAPJPAStoreConfigurationTester.class)
     public void testFindByDifferentTiers() {
         getPartitionManager().add(new Tier("Application A"));
 

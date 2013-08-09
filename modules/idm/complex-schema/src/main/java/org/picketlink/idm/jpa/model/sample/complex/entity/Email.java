@@ -17,14 +17,25 @@
  */
 package org.picketlink.idm.jpa.model.sample.complex.entity;
 
+import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
+import org.picketlink.idm.jpa.model.sample.complex.CustomerUser;
+import org.picketlink.idm.jpa.model.sample.complex.EmployeeUser;
+
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import java.io.Serializable;
 
 /**
  * @author pedroigor
  */
-public class Email {
+@IdentityManaged ({CustomerUser.class, EmployeeUser.class})
+@MappedAttribute ("email")
+@Entity
+public class Email implements Serializable {
 
     @Id
     @GeneratedValue
@@ -33,7 +44,20 @@ public class Email {
     @ManyToOne
     private Person person;
 
-    private String name;
+    @ManyToOne
+    @OwnerReference
+    private UserAccount userAccount;
+
+    private String address;
+    private boolean primaryEmail;
+
+    public Email() {
+        this(null);
+    }
+
+    public Email(String address) {
+        this.address = address;
+    }
 
     public Long getId() {
         return id;
@@ -51,12 +75,28 @@ public class Email {
         this.person = person;
     }
 
-    public String getName() {
-        return name;
+    public UserAccount getUserAccount() {
+        return userAccount;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUserAccount(final UserAccount userAccount) {
+        this.userAccount = userAccount;
+    }
+
+    public boolean isPrimaryEmail() {
+        return primaryEmail;
+    }
+
+    public void setPrimaryEmail(boolean primary) {
+        this.primaryEmail = primary;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     @Override

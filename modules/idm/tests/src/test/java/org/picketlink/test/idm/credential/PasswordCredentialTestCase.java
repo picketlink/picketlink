@@ -18,8 +18,6 @@
 
 package org.picketlink.test.idm.credential;
 
-import java.util.Calendar;
-import java.util.Date;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
@@ -27,12 +25,16 @@ import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+
+import java.util.Calendar;
+import java.util.Date;
+
+import static org.junit.Assert.*;
 
 /**
  * <p>
@@ -42,6 +44,8 @@ import static org.junit.Assert.assertNull;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
+@Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
+        LDAPStoreConfigurationTester.class})
 public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase {
 
     public PasswordCredentialTestCase(IdentityConfigurationTester builder) {
@@ -117,7 +121,7 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
     }
 
     @Test
-    @IgnoreTester (LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = LDAPStoreConfigurationTester.class)
     public void testExpiration() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
@@ -140,6 +144,45 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
         Password newPassword = new Password("new_password".toCharArray());
 
         Thread.sleep(1000);
+
+        identityManager.updateCredential(user, newPassword);
+
+        credential = new UsernamePasswordCredentials(user.getLoginName(), newPassword);
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.VALID, credential.getStatus());
+    }
+
+    @Test
+    @Configuration(exclude = LDAPStoreConfigurationTester.class)
+    public void testResetPassword() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = createUser("someUser");
+        Password plainTextPassword = new Password("updated_password".toCharArray());
+
+        Calendar expirationDate = Calendar.getInstance();
+
+        expirationDate.add(Calendar.MINUTE, -5);
+
+        identityManager.updateCredential(user, plainTextPassword, new Date(), expirationDate.getTime());
+        UsernamePasswordCredentials credential = new UsernamePasswordCredentials();
+
+        credential.setUsername(user.getLoginName());
+        credential.setPassword(plainTextPassword);
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.EXPIRED, credential.getStatus());
+
+        credential.setUsername(user.getLoginName());
+        credential.setPassword(new Password("bad_password"));
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.INVALID, credential.getStatus());
+
+        Password newPassword = new Password("new_password".toCharArray());
 
         identityManager.updateCredential(user, newPassword);
 
@@ -213,7 +256,7 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
     }
 
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = LDAPStoreConfigurationTester.class)
     public void testUserDisabled() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");

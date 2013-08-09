@@ -18,27 +18,28 @@
 
 package org.picketlink.test.idm.relationship;
 
-import java.io.Serializable;
-import java.util.List;
-import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
+
+import java.io.Serializable;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * <p>
@@ -48,6 +49,8 @@ import static org.junit.Assert.assertTrue;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
+@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
+        LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
 public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
     public GroupMembershipTestCase(IdentityConfigurationTester builder) {
@@ -67,16 +70,16 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         List<GroupMembership> result = getGroupMembership(someUser, someGroup);
 
-        Assert.assertEquals(1, result.size());
+        assertEquals(1, result.size());
 
         groupMembership = result.get(0);
 
-        Assert.assertEquals(someUser.getId(), groupMembership.getMember().getId());
-        Assert.assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
+        assertEquals(someUser.getId(), groupMembership.getMember().getId());
+        assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
     }
 
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = LDAPStoreConfigurationTester.class)
     public void testUpdate() throws Exception {
         User someUser = createUser();
         Group someGroup = createGroup();
@@ -89,12 +92,12 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         List<GroupMembership> result = getGroupMembership(someUser, someGroup);
 
-        Assert.assertEquals(1, result.size());
+        assertEquals(1, result.size());
 
         groupMembership = result.get(0);
 
-        Assert.assertEquals(someUser.getId(), groupMembership.getMember().getId());
-        Assert.assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
+        assertEquals(someUser.getId(), groupMembership.getMember().getId());
+        assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
 
         groupMembership.setAttribute(new Attribute<String>("attribute1", "1"));
         groupMembership.setAttribute(new Attribute<String[]>("attribute2", new String[] { "1", "2", "3" }));
@@ -103,17 +106,17 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         result = getGroupMembership(someUser, someGroup);
 
-        Assert.assertEquals(1, result.size());
+        assertEquals(1, result.size());
 
         groupMembership = result.get(0);
 
-        Assert.assertEquals(someUser.getId(), groupMembership.getMember().getId());
-        Assert.assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
-        Assert.assertNotNull(groupMembership.getAttribute("attribute1"));
-        Assert.assertNotNull(groupMembership.getAttribute("attribute2"));
+        assertEquals(someUser.getId(), groupMembership.getMember().getId());
+        assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
+        assertNotNull(groupMembership.getAttribute("attribute1"));
+        assertNotNull(groupMembership.getAttribute("attribute2"));
 
-        Assert.assertEquals("1", groupMembership.getAttribute("attribute1").getValue());
-        Assert.assertEquals(3, groupMembership.<String[]> getAttribute("attribute2").getValue().length);
+        assertEquals("1", groupMembership.getAttribute("attribute1").getValue());
+        assertEquals(3, groupMembership.<String[]> getAttribute("attribute2").getValue().length);
     }
 
     @Test
@@ -247,66 +250,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
     }
 
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
-    public void testFindByAttributes() throws Exception {
-        User someUser = createUser();
-        Group someGroup = createGroup();
-
-        GroupMembership groupMembership = new GroupMembership(someUser, someGroup);
-
-        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
-
-        relationshipManager.add(groupMembership);
-
-        RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
-
-        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute1"), "1");
-
-        List<GroupMembership> result = query.getResultList();
-
-        Assert.assertTrue(result.isEmpty());
-
-        groupMembership.setAttribute(new Attribute<String>("attribute1", "1"));
-        groupMembership.setAttribute(new Attribute<String[]>("attribute2", new String[] { "1", "2", "3" }));
-
-        relationshipManager.update(groupMembership);
-
-        result = query.getResultList();
-
-        Assert.assertEquals(1, result.size());
-
-        groupMembership = result.get(0);
-
-        Assert.assertEquals(someUser.getId(), groupMembership.getMember().getId());
-        Assert.assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
-
-        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
-
-        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute1"), "2");
-
-        result = query.getResultList();
-
-        Assert.assertTrue(result.isEmpty());
-        
-        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
-
-        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute3"), "2");
-
-        result = query.getResultList();
-
-        Assert.assertTrue(result.isEmpty());
-        
-        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
-
-        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute2"), "1", "2", "3");
-
-        result = query.getResultList();
-
-        Assert.assertFalse(result.isEmpty());
-    }
-    
-    @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = LDAPStoreConfigurationTester.class)
     public void testLargeAttributeValue() throws Exception {
         User someUser = createUser();
         Group someGroup = createGroup();

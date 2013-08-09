@@ -17,31 +17,25 @@
  */
 package org.picketlink.test.idm.partition;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collection;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
+
+import static org.junit.Assert.*;
 
 /**
  * <p>Base class for partition management.</p>
  *
  * @author pedroigor
  */
-@IgnoreTester({LDAPStoreConfigurationTester.class})
 public abstract class AbstractPartitionTestCase<T extends Partition> extends AbstractPartitionManagerTestCase {
 
     public AbstractPartitionTestCase(IdentityConfigurationTester builder) {
@@ -61,6 +55,14 @@ public abstract class AbstractPartitionTestCase<T extends Partition> extends Abs
         assertEquals(name, partition.getName());
     }
 
+    @Test (expected = IdentityManagementException.class)
+    public void failCreateWithInvalidConfigurationName() {
+        T partition = createPartition();
+
+        partition.setId(null);
+
+        getPartitionManager().add(partition, "invalid_config_name");
+    }
     @Test
     public void testRemove() {
         T partition = createPartition();

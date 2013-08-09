@@ -17,19 +17,20 @@
  */
 package org.picketlink.test.idm.other.shane.model.scenario1.entity;
 
-import java.io.Serializable;
+import org.picketlink.idm.jpa.annotations.Identifier;
+import org.picketlink.idm.jpa.annotations.RelationshipClass;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-
-import org.picketlink.idm.jpa.annotations.Identifier;
-import org.picketlink.idm.jpa.annotations.RelationshipClass;
+import java.io.Serializable;
 
 /**
  * Root entity bean that defines each identity object
  *
  * @author Shane Bryzak
  */
+@IdentityManaged (org.picketlink.idm.model.Relationship.class)
 @Entity
 public class Relationship implements Serializable {
     private static final long serialVersionUID = 3756417796986661942L;

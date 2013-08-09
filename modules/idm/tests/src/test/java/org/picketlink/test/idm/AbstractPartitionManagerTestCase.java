@@ -17,30 +17,25 @@
  */
 package org.picketlink.test.idm;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.model.Statement;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import static org.junit.runners.Parameterized.Parameters;
-import static org.picketlink.test.idm.IdentityConfigurationTestFactory.getConfigurations;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static org.junit.runners.Parameterized.*;
+import static org.picketlink.test.idm.IdentityConfigurationTestFactory.*;
 
 /**
  * <p>
@@ -49,7 +44,7 @@ import static org.picketlink.test.idm.IdentityConfigurationTestFactory.getConfig
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-@RunWith(Parameterized.class)
+@RunWith(ParameterizedRunner.class)
 public abstract class AbstractPartitionManagerTestCase {
 
     protected final IdentityConfigurationTester visitor;
@@ -315,38 +310,7 @@ public abstract class AbstractPartitionManagerTestCase {
         return SampleModel.getGroup(getIdentityManager(), name, parent);
     }
 
-    @Rule
-    public TestRule watcher = new TestWatcher() {
-
-        @Override
-        public Statement apply(Statement base, Description description) {
-            List<Class<? extends IdentityConfigurationTester>> ignoredList = new ArrayList<Class<? extends IdentityConfigurationTester>>();
-
-            IgnoreTester ignoreTester = description.getAnnotation(IgnoreTester.class);
-
-            if (ignoreTester != null) {
-                ignoredList.addAll(Arrays.asList(ignoreTester.value()));
-            }
-
-            ignoreTester = description.getTestClass().getAnnotation(IgnoreTester.class);
-
-            if (ignoreTester != null) {
-                ignoredList.addAll(Arrays.asList(ignoreTester.value()));
-            }
-
-            for (Class<? extends IdentityConfigurationTester> testerType: ignoredList) {
-                if (testerType.equals(visitor.getClass())) {
-                    return new Statement() {
-                        @Override
-                        public void evaluate() throws Throwable {
-
-                        }
-                    };
-                }
-            }
-
-            return super.apply(base, description);
-        }
-    };
-
+    public IdentityConfigurationTester getVisitor() {
+        return visitor;
+    }
 }

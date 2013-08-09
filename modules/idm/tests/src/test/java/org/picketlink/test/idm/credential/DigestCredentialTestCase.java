@@ -18,8 +18,6 @@
 
 package org.picketlink.test.idm.credential;
 
-import java.util.Calendar;
-import java.util.Date;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
@@ -28,12 +26,15 @@ import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.util.DigestUtil;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+
+import java.util.Calendar;
+import java.util.Date;
+
+import static org.junit.Assert.*;
 
 /**
  * <p>
@@ -43,7 +44,7 @@ import static org.junit.Assert.assertNull;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-@IgnoreTester({LDAPStoreConfigurationTester.class})
+@Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class})
 public class DigestCredentialTestCase extends AbstractPartitionManagerTestCase {
 
     public DigestCredentialTestCase(IdentityConfigurationTester builder) {
@@ -147,6 +148,53 @@ public class DigestCredentialTestCase extends AbstractPartitionManagerTestCase {
         
         newPassword.setDigest(DigestUtil.calculateA1(user.getLoginName(), newPassword.getRealm(), newPassword.getPassword().toCharArray()));
         
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.VALID, credential.getStatus());
+    }
+
+    @Test
+    public void testResetCredential() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = createUser("someUser");
+        Digest digest = new Digest();
+
+        digest.setRealm("pl-idm");
+        digest.setUsername(user.getLoginName());
+        digest.setPassword("somePassword");
+
+        Calendar expirationDate = Calendar.getInstance();
+
+        expirationDate.add(Calendar.MINUTE, -1);
+
+        identityManager.updateCredential(user, digest, new Date(), expirationDate.getTime());
+
+        DigestCredentials credential = new DigestCredentials(digest);
+
+        digest.setDigest(DigestUtil.calculateA1(user.getLoginName(), digest.getRealm(), digest.getPassword().toCharArray()));
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.EXPIRED, credential.getStatus());
+
+        digest.setDigest(DigestUtil.calculateA1(user.getLoginName(), digest.getRealm(), "bad_password".toCharArray()));
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.INVALID, credential.getStatus());
+
+        Digest newPassword = new Digest();
+
+        newPassword.setRealm("pl-idm");
+        newPassword.setUsername(user.getLoginName());
+        newPassword.setPassword("someNewPassword");
+
+        identityManager.updateCredential(user, newPassword);
+
+        credential = new DigestCredentials(newPassword);
+
+        newPassword.setDigest(DigestUtil.calculateA1(user.getLoginName(), newPassword.getRealm(), newPassword.getPassword().toCharArray()));
+
         identityManager.validateCredentials(credential);
 
         assertEquals(Status.VALID, credential.getStatus());

@@ -17,9 +17,10 @@
  */
 package org.picketlink.idm;
 
-import java.io.Serializable;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.model.Partition;
+
+import java.io.Serializable;
 
 /**
  * Provides partition management operations
@@ -59,6 +60,16 @@ public interface PartitionManager extends Serializable {
      * @return
      */
     <T extends Partition> T getPartition(Class<T> partitionClass, String name);
+
+    /**
+     * Return the partition specified by the partition class and identifier.
+     *
+     *
+     * @param partitionClass
+     * @param id
+     * @return
+     */
+    <T extends Partition> T lookupById(final Class<T> partitionClass, String id);
 
     /**
      * Adds a partition to the default configuration

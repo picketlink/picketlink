@@ -22,32 +22,93 @@
 
 package org.picketlink.test.idm.query;
 
-import java.util.List;
 import org.junit.Test;
-import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.sample.Grant;
 import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.SampleModel;
+import org.picketlink.idm.model.sample.GroupMembership;
 import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
+
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.picketlink.test.idm.relationship.CustomRelationshipTestCase.*;
 
 /**
  * @author Pedro Silva
  *
  */
-@IgnoreTester(LDAPStoreConfigurationTester.class)
+@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
+        MixedLDAPJPAStoreConfigurationTester.class})
 public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase {
 
     public RelationshipQueryTestCase(IdentityConfigurationTester builder) {
         super(builder);
+    }
+
+    @Test
+    public void testFindById() throws Exception {
+        User user = createUser("user");
+        Role role = createRole("role");
+        Group group = createGroup("group");
+
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
+
+        Grant grant = new Grant();
+
+        grant.setAssignee(user);
+        grant.setRole(role);
+
+        relationshipManager.add(grant);
+
+        GroupMembership groupMembership = new GroupMembership();
+
+        groupMembership.setGroup(group);
+        groupMembership.setMember(user);
+
+        relationshipManager.add(groupMembership);
+
+        RelationshipQuery<? extends Relationship> query = relationshipManager.createRelationshipQuery(Relationship
+                .class);
+
+        query.setParameter(Relationship.ID, grant.getId());
+
+        List<? extends Relationship> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals(grant.getId(), result.get(0).getId());
+
+        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
+
+        query.setParameter(Relationship.ID, groupMembership.getId());
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals(groupMembership.getId(), result.get(0).getId());
+
+        query = relationshipManager.createRelationshipQuery(Grant.class);
+
+        query.setParameter(Relationship.ID, groupMembership.getId());
+
+        result = query.getResultList();
+
+        assertTrue(result.isEmpty());
     }
 
     @Test
@@ -57,7 +118,6 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
         Group group = createGroup("group");
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
-        IdentityManager identityManager = getIdentityManager();
 
         SampleModel.grantRole(relationshipManager, user, role);
         SampleModel.grantGroupRole(relationshipManager, user, role, group);
@@ -99,5 +159,151 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
         assertFalse(result.isEmpty());
         assertEquals(3, result.size());
     }
-    
+
+    @Test
+    @Configuration(exclude = LDAPStoreConfigurationTester.class)
+    public void testFindByAttributes() throws Exception {
+        User someUser = createUser("someUser");
+        Group someGroup = createGroup("someGroup");
+
+        GroupMembership groupMembership = new GroupMembership(someUser, someGroup);
+
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
+
+        relationshipManager.add(groupMembership);
+
+        RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
+
+        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute1"), "1");
+
+        List<GroupMembership> result = query.getResultList();
+
+        assertTrue(result.isEmpty());
+
+        groupMembership.setAttribute(new Attribute<String>("attribute1", "1"));
+        groupMembership.setAttribute(new Attribute<String[]>("attribute2", new String[] { "1", "2", "3" }));
+
+        relationshipManager.update(groupMembership);
+
+        result = query.getResultList();
+
+        assertEquals(1, result.size());
+        assertEquals(groupMembership.getId(), result.get(0).getId());
+
+        groupMembership = result.get(0);
+
+        assertEquals(someUser.getId(), groupMembership.getMember().getId());
+        assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
+
+        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
+
+        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute1"), "2");
+
+        result = query.getResultList();
+
+        assertTrue(result.isEmpty());
+
+        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
+
+        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute3"), "2");
+
+        result = query.getResultList();
+
+        assertTrue(result.isEmpty());
+
+        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
+
+        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute2"), "1", "2", "3");
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+    }
+
+    @Test
+    public void testFormalAttributes() throws Exception {
+        CustomRelationship relationship = new CustomRelationship();
+
+        User user = createUser("user");
+
+        relationship.setIdentityTypeA(user);
+
+        Role role = createRole("role");
+
+        relationship.setIdentityTypeB(role);
+
+        Group group = createGroup("group");
+
+        relationship.setIdentityTypeC(group);
+
+        relationship.setAttributeA("Value for A");
+        relationship.setAttributeB(99l);
+        relationship.setAttributeC(true);
+
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
+
+        relationshipManager.add(relationship);
+
+        RelationshipQuery<CustomRelationship> query = relationshipManager.createRelationshipQuery(CustomRelationship.class);
+
+        query.setParameter(CustomRelationship.ID, relationship.getId());
+
+        List<CustomRelationship> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals(relationship.getId(), result.get(0).getId());
+        assertEquals(relationship.getAttributeA(), result.get(0).getAttributeA());
+        assertEquals(relationship.getAttributeB(), result.get(0).getAttributeB());
+        assertEquals(relationship.isAttributeC(), result.get(0).isAttributeC());
+
+        query = relationshipManager.createRelationshipQuery(CustomRelationship.class);
+
+        query.setParameter(CustomRelationship.QUERY_ATTRIBUTE.byName("attributeA"), "Value for A");
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals(relationship.getId(), result.get(0).getId());
+        assertEquals(relationship.getAttributeA(), result.get(0).getAttributeA());
+
+        query = relationshipManager.createRelationshipQuery(CustomRelationship.class);
+
+        query.setParameter(CustomRelationship.QUERY_ATTRIBUTE.byName("attributeA"), "Invalid Value for A");
+
+        result = query.getResultList();
+
+        assertTrue(result.isEmpty());
+
+        query = relationshipManager.createRelationshipQuery(CustomRelationship.class);
+
+        query.setParameter(CustomRelationship.QUERY_ATTRIBUTE.byName("attributeB"), 99l);
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals(relationship.getId(), result.get(0).getId());
+        assertEquals(relationship.getAttributeB(), result.get(0).getAttributeB());
+
+        query = relationshipManager.createRelationshipQuery(CustomRelationship.class);
+
+        query.setParameter(CustomRelationship.QUERY_ATTRIBUTE.byName("attributeC"), false);
+
+        result = query.getResultList();
+
+        assertTrue(result.isEmpty());
+
+        query = relationshipManager.createRelationshipQuery(CustomRelationship.class);
+
+        query.setParameter(CustomRelationship.QUERY_ATTRIBUTE.byName("attributeC"), true);
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals(relationship.getId(), result.get(0).getId());
+        assertEquals(relationship.isAttributeC(), result.get(0).isAttributeC());
+    }
 }

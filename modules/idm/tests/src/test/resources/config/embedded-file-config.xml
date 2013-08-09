@@ -3,24 +3,15 @@
   <!-- Start of IDM configuration -->
   <PicketLinkIDM>
 
-    <IdentityConfiguration>
-
-      <IdentityStoreConfiguration ClassName="org.picketlink.idm.file.internal.FileIdentityStoreConfiguration">
-        <Property Name="dataSource">
-            <Object ClassName="org.picketlink.idm.file.internal.FileDataSource">
-            </Object>
-        </Property>
-      </IdentityStoreConfiguration>
-
-      <IdentityStoreConfiguration ClassName="org.picketlink.idm.file.internal.FileIdentityStoreConfiguration">
-        <Property Name="realm">Testing</Property>
-        <Property Name="dataSource">
-          <Object ClassName="org.picketlink.idm.file.internal.FileDataSource">
-          </Object>
-        </Property>
-      </IdentityStoreConfiguration>
-
-    </IdentityConfiguration>
+    <named value="SIMPLE_FILE_STORE_CONFIG">
+      <stores>
+        <file>
+          <preserveState value="false" />
+          <supportGlobalRelationship value="org.picketlink.idm.model.Relationship" />
+          <supportAllFeatures />
+        </file>
+      </stores>
+    </named>
 
   </PicketLinkIDM>
 

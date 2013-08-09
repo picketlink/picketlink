@@ -119,9 +119,4 @@ public class LDAPStoreConfigurationTester implements IdentityConfigurationTester
         }
     }
 
-    @Override
-    public void commit() {
-
-    }
-
 }

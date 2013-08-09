@@ -18,28 +18,37 @@
 
 package org.picketlink.idm.query.internal;
 
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.NamedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.internal.RelationshipReference;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.idm.spi.AttributeStore;
+import org.picketlink.idm.spi.IdentityContext;
+import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.StoreSelector;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.query.QueryParameter;
-import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.idm.spi.IdentityContext;
-import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.StoreSelector;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+
+import static org.picketlink.idm.IDMMessages.*;
 
 /**
  * Default IdentityQuery implementation.
  *
- * @author Shane Bryzak
- *
  * @param <T>
+ * @author Shane Bryzak
  */
 public class DefaultRelationshipQuery<T extends Relationship> implements RelationshipQuery<T> {
 
@@ -93,13 +102,64 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
 
         try {
             for (IdentityStore<?> store : getStores()) {
-                result.addAll(store.fetchQueryResults(context, this));
+                List<T> references = store.fetchQueryResults(context, this);
+
+                for (T relationship : references) {
+                    if (RelationshipReference.class.isInstance(relationship)) {
+                        RelationshipReference reference = (RelationshipReference) relationship;
+                        resolveIdentityTypes(reference);
+                        relationship = (T) reference.getRelationship();
+                    }
+
+                    AttributeStore<?> attributeStore = this.storeSelector.getStoreForAttributeOperation(context);
+
+                    if (attributeStore != null) {
+                        attributeStore.loadAttributes(context, relationship);
+                    }
+
+                    result.add(relationship);
+                }
             }
         } catch (Exception e) {
             throw MESSAGES.relationshipQueryFailed(this, e);
         }
 
         return result;
+    }
+
+    private void resolveIdentityTypes(RelationshipReference reference) {
+        Relationship relationship = reference.getRelationship();
+
+        for (String descriptor : reference.getDescriptors()) {
+            String partitionId = reference.getPartitionId(descriptor);
+            String identityTypeId = reference.getIdentityTypeId(descriptor);
+
+            PartitionManager partitionManager = (PartitionManager) this.storeSelector;
+            Partition partition = partitionManager.lookupById(Partition.class, partitionId);
+
+            if (partition == null) {
+                throw new IdentityManagementException("No partition [" + partitionId + "] found for " +
+                        "referenced IdentityType [" + identityTypeId + "].");
+            }
+
+            IdentityManager identityManager = partitionManager.createIdentityManager(partition);
+
+            IdentityType identityType = identityManager.lookupIdentityById(IdentityType.class, identityTypeId);
+
+            if (identityType == null) {
+                throw new IdentityManagementException("Referenced IdentityType [" + identityTypeId + "] from " +
+                        "" +
+                        "relationship " +
+                        "[" + relationship.getClass() + "] does not exists in any store.");
+            }
+
+            Property<Object> property = PropertyQueries
+                    .createQuery(relationship.getClass())
+                    .addCriteria(new NamedPropertyCriteria(descriptor))
+                    .getSingleResult();
+
+            property.setValue(relationship, identityType);
+        }
     }
 
     @Override

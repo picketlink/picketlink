@@ -17,18 +17,17 @@
  */
 package org.picketlink.idm.jpa.model.sample.simple;
 
-import java.util.Date;
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.ManyToOne;
-import org.picketlink.idm.jpa.annotations.CreationDate;
-import org.picketlink.idm.jpa.annotations.Enabled;
-import org.picketlink.idm.jpa.annotations.ExpiryDate;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.model.IdentityType;
+
+import javax.persistence.Entity;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.ManyToOne;
+import java.util.Date;
 
 /**
  * @author pedroigor
@@ -43,13 +42,13 @@ public class IdentityTypeEntity extends AttributedTypeEntity {
     @IdentityClass
     private String typeName;
 
-    @CreationDate
+    @AttributeValue
     private Date createdDate;
 
-    @ExpiryDate
+    @AttributeValue
     private Date expirationDate;
 
-    @Enabled
+    @AttributeValue
     private boolean enabled;
 
     @OwnerReference

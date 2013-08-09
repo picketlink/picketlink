@@ -1,71 +1,139 @@
 <persistence xmlns="http://java.sun.com/xml/ns/persistence"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
-    version="1.0">
-    <persistence-unit name="jpa-identity-store-tests-pu" transaction-type="RESOURCE_LOCAL">
-        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+             version="1.0">
+  <persistence-unit name="jpa-identity-store-tests-pu" transaction-type="RESOURCE_LOCAL">
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
 
-        <class>org.picketlink.idm.jpa.model.sample.simple.AttributedTypeEntity</class>
-        <class>org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity</class>
-        <class>org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity</class>
-        <class>org.picketlink.idm.jpa.model.sample.simple.GroupTypeEntity</class>
-        <class>org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity</class>
-        <class>org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity</class>
-        <class>org.picketlink.idm.jpa.model.sample.simple.RelationshipIdentityTypeEntity</class>
-        <class>org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity</class>
-        <class>org.picketlink.idm.jpa.model.sample.simple.PasswordCredentialTypeEntity</class>
-        <class>org.picketlink.idm.jpa.model.sample.simple.DigestCredentialTypeEntity</class>
-        <class>org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity</class>
-        <class>org.picketlink.idm.jpa.model.sample.simple.OTPCredentialTypeEntity</class>
-        <class>org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.AttributedTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.GroupTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity</class>
+    <class>org.picketlink.test.idm.relationship.CustomRelationshipTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.RelationshipIdentityTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.PasswordCredentialTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.DigestCredentialTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.OTPCredentialTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity</class>
+    <class>org.picketlink.test.idm.partition.CustomPartitionEntity</class>
+    <class>org.picketlink.test.idm.basic.MyCustomAccountEntity</class>
 
-        <properties>
-            <property name="hibernate.connection.url" value="jdbc:h2:mem:test"/>
-            <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
-            <property name="hibernate.connection.username" value="sa"/>
-            <property name="hibernate.connection.password" value=""/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop" />
-            <property name="hibernate.show_sql" value="false" />
-            <property name="hibernate.format_sql" value="true" />
-        </properties>
-    </persistence-unit>
-    
-    <persistence-unit name="shanes-test-suite-pu" transaction-type="RESOURCE_LOCAL">
-        <provider>org.hibernate.ejb.HibernatePersistence</provider>
-        
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.AccountLogin</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.City</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.ContactType</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.Country</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.EmailType</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.EmployeeContract</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.GroupDetail</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.IdentityObject</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.IdentityObjectAttribute</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.IdentityTextAttribute</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.Partition</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.PartitionAttribute</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.PasswordHash</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.Relationship</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.RelationshipAttribute</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.RelationshipIdentity</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.RoleDetail</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.State</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.StreetType</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.UserAddress</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.UserContact</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.UserDetail</class>
-        <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.UserEmail</class>
-        
-        <properties>
-            <property name="hibernate.connection.url" value="jdbc:h2:mem:test"/>
-            <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
-            <property name="hibernate.connection.username" value="sa"/>
-            <property name="hibernate.connection.password" value=""/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop" />
-            <property name="hibernate.show_sql" value="false" />
-            <property name="hibernate.format_sql" value="true" />
-        </properties>
-    </persistence-unit>    
-    
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+    <properties>
+      <property name="hibernate.connection.url" value="jdbc:h2:mem:test"/>
+      <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
+      <property name="hibernate.connection.username" value="sa"/>
+      <property name="hibernate.connection.password" value=""/>
+      <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+      <property name="hibernate.show_sql" value="false"/>
+      <property name="hibernate.format_sql" value="true"/>
+    </properties>
+  </persistence-unit>
+
+  <persistence-unit name="ldap-jpa-store-test-pu" transaction-type="RESOURCE_LOCAL">
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+
+    <class>org.picketlink.idm.jpa.model.sample.simple.AttributedTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity</class>
+    <class>org.picketlink.test.idm.relationship.RelationshipIdentityTypeReferenceEntity</class>
+    <class>org.picketlink.test.idm.relationship.CustomRelationshipTypeEntity</class>
+    <class>org.picketlink.test.idm.basic.AttributeReferenceTypeEntity</class>
+
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+    <properties>
+      <property name="hibernate.connection.url" value="jdbc:h2:mem:test"/>
+      <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
+      <property name="hibernate.connection.username" value="sa"/>
+      <property name="hibernate.connection.password" value=""/>
+      <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+      <property name="hibernate.show_sql" value="false"/>
+      <property name="hibernate.format_sql" value="true"/>
+    </properties>
+  </persistence-unit>
+
+  <persistence-unit name="complex-schema-tests-pu" transaction-type="RESOURCE_LOCAL">
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.Address</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.UserAccount</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.UserAccountControl</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.Employee</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.Customer</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.OrganizationUnit</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.OrganizationUnitAttribute</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.Country</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.Application</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.ApplicationAttribute</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.Company</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.Email</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.Person</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.Phone</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.UserAttribute</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.CompanyAttribute</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.RelationshipTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.RelationshipIdentityTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.RelationshipAttribute</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.ApplicationAuthorization</class>
+    <class>org.picketlink.idm.jpa.model.sample.complex.entity.IdentityObject</class>
+
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+    <properties>
+      <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
+      <property name="hibernate.connection.url" value="jdbc:h2:mem:test"/>
+      <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
+      <property name="hibernate.connection.username" value="sa"/>
+      <property name="hibernate.connection.password" value=""/>
+      <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+      <property name="hibernate.show_sql" value="false"/>
+      <property name="hibernate.format_sql" value="true"/>
+    </properties>
+  </persistence-unit>
+
+  <persistence-unit name="shanes-test-suite-pu" transaction-type="RESOURCE_LOCAL">
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.AccountLogin</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.City</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.ContactType</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.Country</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.EmailType</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.EmployeeContract</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.GroupDetail</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.IdentityObject</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.IdentityObjectAttribute</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.IdentityTextAttribute</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.Partition</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.PartitionAttribute</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.PasswordHash</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.Relationship</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.RelationshipAttribute</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.RelationshipIdentity</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.RoleDetail</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.State</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.StreetType</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.UserAddress</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.UserContact</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.UserDetail</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario1.entity.UserEmail</class>
+
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+    <properties>
+      <property name="hibernate.connection.url" value="jdbc:h2:mem:test"/>
+      <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
+      <property name="hibernate.connection.username" value="sa"/>
+      <property name="hibernate.connection.password" value=""/>
+      <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+      <property name="hibernate.show_sql" value="false"/>
+      <property name="hibernate.format_sql" value="true"/>
+    </properties>
+  </persistence-unit>
+
 </persistence>

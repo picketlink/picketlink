@@ -18,19 +18,22 @@
 
 package org.picketlink.test.idm.basic;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNull;
@@ -52,16 +55,16 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
     public void testDisable() throws Exception {
         T enabledIdentityType = createIdentityType();
 
         assertTrue(enabledIdentityType.isEnabled());
 
         IdentityManager identityManager = getIdentityManager();
-        
+
         enabledIdentityType.setEnabled(false);
-        
+
         identityManager.update(enabledIdentityType);
 
         T disabledIdentityType = getIdentityType();
@@ -96,21 +99,17 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         assertNull(identityManager.lookupIdentityById(identityType.getClass(), "bad_id"));
     }
 
-    protected abstract T createIdentityType();
-
-    protected abstract T getIdentityType();
-
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
     public void testExpiration() throws Exception {
         T validIdentityType = createIdentityType();
 
         Date expirationDate = new Date();
 
         IdentityManager identityManager = getIdentityManager();
-        
+
         validIdentityType.setExpirationDate(expirationDate);
-        
+
         identityManager.update(validIdentityType);
 
         T expiredIdentityType = getIdentityType();
@@ -120,14 +119,14 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
     public void testSetOneValuedAttribute() throws Exception {
         T storedIdentityType = createIdentityType();
 
         IdentityManager identityManager = getIdentityManager();
-        
+
         storedIdentityType.setAttribute(new Attribute<String>("one-valued", "1"));
-        
+
         identityManager.update(storedIdentityType);
 
         T updatedIdentityType = getIdentityType();
@@ -139,14 +138,14 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
     public void testSetMultiValuedAttribute() throws Exception {
         T storedIdentityType = createIdentityType();
 
         IdentityManager identityManager = getIdentityManager();
-        
+
         storedIdentityType.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
-        
+
         identityManager.update(storedIdentityType);
 
         T updatedIdentityType = getIdentityType();
@@ -165,7 +164,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
     public void testSetMultipleAttributes() throws Exception {
         T storedIdentityType = createIdentityType();
 
@@ -186,7 +185,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         assertNotNull(updatedIdentityType.<String> getAttribute("Question1Answer"));
         assertNotNull(updatedIdentityType.<String> getAttribute("Question2"));
         assertNotNull(updatedIdentityType.<String> getAttribute("Question2Answer"));
-        
+
         assertEquals("2", updatedIdentityType.<String> getAttribute("QuestionTotal").getValue());
         assertEquals("What is favorite toy?", updatedIdentityType.<String> getAttribute("Question1").getValue());
         assertEquals("Gum", updatedIdentityType.<String> getAttribute("Question1Answer").getValue());
@@ -195,7 +194,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
     public void testSetLargeAttributeValue() throws Exception {
         T storedIdentityType = createIdentityType();
 
@@ -214,7 +213,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         T updatedIdentityType = getIdentityType();
 
         assertNotNull(updatedIdentityType.<Integer[]>getAttribute("Values"));
-        
+
         Integer[] retrievedVal = updatedIdentityType.<Integer[]>getAttribute("Values").getValue();
 
         for (Integer value: retrievedVal) {
@@ -223,7 +222,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
     public void testUpdateAttribute() throws Exception {
         T storedIdentityType = createIdentityType();
 
@@ -260,12 +259,12 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
     public void testGetAllAttributes() throws Exception {
         T storedIdentityType = createIdentityType();
 
         IdentityManager identityManager = getIdentityManager();
-        
+
         storedIdentityType.setAttribute(new Attribute<String>("QuestionTotal", "2"));
         storedIdentityType.setAttribute(new Attribute<String>("Question1", "What is favorite toy?"));
         storedIdentityType.setAttribute(new Attribute<String>("Question1Answer", "Gum"));
@@ -312,14 +311,14 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
     public void testRemoveAttribute() throws Exception {
         T storedIdentityType = createIdentityType();
 
         IdentityManager identityManager = getIdentityManager();
-        
+
         storedIdentityType.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
-        
+
         identityManager.update(storedIdentityType);
 
         T updatedIdentityType = getIdentityType();
@@ -347,6 +346,9 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
 
         getIdentityManager().add(storedIdentityType);
     }
+
+    protected abstract T createIdentityType();
+    protected abstract T getIdentityType();
 
     private boolean contains(Integer[] result, Integer value) {
         for (Integer resultValue : result) {

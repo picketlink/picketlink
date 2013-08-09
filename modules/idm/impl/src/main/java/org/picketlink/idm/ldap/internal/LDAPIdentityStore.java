@@ -17,20 +17,6 @@
  */
 package org.picketlink.idm.ldap.internal;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.SearchResult;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
@@ -44,12 +30,10 @@ import org.picketlink.idm.credential.handler.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.internal.AbstractIdentityStore;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.AttributeProperty;
-import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.query.AttributeParameter;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
@@ -57,18 +41,27 @@ import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
-import static java.util.Map.Entry;
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.COMMA;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CREATE_TIMESTAMP;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.EQUAL;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.GROUP_OF_NAMES;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.SPACE_STRING;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.SearchResult;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+
+import static java.util.Map.*;
+import static org.picketlink.common.properties.query.TypedPropertyCriteria.*;
+import static org.picketlink.common.util.StringUtil.*;
+import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.*;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.*;
 
 /**
  * An IdentityStore implementation backed by an LDAP directory
@@ -200,7 +193,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
             try {
                 search = this.operationManager.search(getBaseDN(attributedType), "(" + getBindingName(attributedType) + ")");
-                populateAttributedType(search.next(), attributedType);
+                populateAttributedType(context, search.next(), attributedType);
             } catch (NamingException ne) {
                 throw new IdentityManagementException("Could not add AttributedType [" + attributedType + "].", ne);
             } finally {
@@ -252,7 +245,8 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
             Property<AttributedType> property = PropertyQueries
                     .<AttributedType>createQuery(relationship.getClass())
-                    .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType(), true)).getSingleResult();
+                    .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType()))
+                    .getSingleResult();
 
             AttributedType relationalAttributedType = property.getValue(relationship);
 
@@ -333,7 +327,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
             try {
                 while (resultNamingEnumeration.hasMore()) {
-                    results.add((V) populateAttributedType(resultNamingEnumeration.next(), null));
+                    results.add((V) populateAttributedType(context, resultNamingEnumeration.next(), null));
                 }
             } catch (NamingException ne) {
                 throw new IdentityManagementException(ne);
@@ -383,7 +377,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
             try {
                 String baseDN = getConfig().getBaseDN();
 
-                // this is can increase performance, because queries are executed considering a specific base dn for a type.
+                // this can increase performance, because queries are executed considering a specific base dn for a type.
                 // But certain types have a hierarchy, so we need to consider all their DNs. For now, let`s use the base DN.
 //                if (ldapEntryConfig != null) {
 //                    baseDN = ldapEntryConfig.getBaseDN();
@@ -400,7 +394,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 search = this.operationManager.search(baseDN, filter.toString());
 
                 while (search.hasMore()) {
-                    V type = (V) populateAttributedType(search.next(), null);
+                    V type = (V) populateAttributedType(context, search.next(), null);
 
                     if (type != null) {
                         results.add(type);
@@ -465,10 +459,12 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                     List<Property<AttributedType>> properties = PropertyQueries
                             .<AttributedType>createQuery(query.getRelationshipClass())
-                            .addCriteria(new TypedPropertyCriteria(IdentityType.class, true)).getResultList();
+                            .addCriteria(new TypedPropertyCriteria(IdentityType.class, MatchOption.SUB_TYPE))
+                            .getResultList();
                     Property<AttributedType> rootProperty = PropertyQueries
                             .<AttributedType>createQuery(query.getRelationshipClass())
-                            .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType(), true)).getSingleResult();
+                            .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType()))
+                            .getSingleResult();
 
                     while (search.hasMore()) {
                         SearchResult next = search.next();
@@ -496,7 +492,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                                                     V relationship = query.getRelationshipClass().newInstance();
 
-                                                    rootProperty.setValue(relationship, populateAttributedType(next, null));
+                                                    rootProperty.setValue(relationship, populateAttributedType(context, next, null));
                                                     property.setValue(relationship, relType);
 
                                                     results.add(relationship);
@@ -511,7 +507,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                                                 if (!isNullOrEmpty(member.trim())) {
                                                     V relationship = query.getRelationshipClass().newInstance();
 
-                                                    rootProperty.setValue(relationship, populateAttributedType(next, null));
+                                                    rootProperty.setValue(relationship, populateAttributedType(context, next, null));
 
                                                     String baseDN = member.substring(member.indexOf(",") + 1);
                                                     String dn = member.substring(0, member.indexOf(","));
@@ -522,7 +518,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                                                         throw new IdentityManagementException("Associated entry does not exists [" + member + "].");
                                                     }
 
-                                                    property.setValue(relationship, populateAttributedType(result.next(), null));
+                                                    property.setValue(relationship, populateAttributedType(context, result.next(), null));
 
                                                     results.add(relationship);
                                                 }
@@ -546,7 +542,8 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                     Property<AttributedType> property = PropertyQueries
                             .<AttributedType>createQuery(query.getRelationshipClass())
-                            .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType(), true)).getSingleResult();
+                            .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType()))
+                            .getSingleResult();
 
                     while (search.hasMore()) {
                         SearchResult next = search.next();
@@ -574,7 +571,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                                     }
 
 
-                                    AttributedType ownerRelType = populateAttributedType(next, null);
+                                    AttributedType ownerRelType = populateAttributedType(context, next, null);
 
                                     if (property.getJavaClass().isAssignableFrom(ownerRelType.getClass())) {
                                         V relationship = query.getRelationshipClass().newInstance();
@@ -583,7 +580,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                                         SearchResult member = result.next();
 
-                                        AttributedType relType = populateAttributedType(member, null);
+                                        AttributedType relType = populateAttributedType(context, member, null);
 
                                         if (associatedProperty.getJavaClass().isAssignableFrom(relType.getClass())) {
                                             associatedProperty.setValue(relationship, relType);
@@ -609,21 +606,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
     }
 
     @Override
-    public void setAttribute(IdentityContext context, AttributedType type, Attribute<? extends Serializable> attribute) {
-        //TODO: Implement setAttribute
-    }
-
-    @Override
-    public <V extends Serializable> Attribute<V> getAttribute(IdentityContext context, AttributedType type, String attributeName) {
-        return null;  //TODO: Implement getAttribute
-    }
-
-    @Override
-    public void removeAttribute(IdentityContext context, AttributedType type, String attributeName) {
-        //TODO: Implement removeAttribute
-    }
-
-    @Override
     public void storeCredential(IdentityContext context, Account account, CredentialStorage storage) {
         //TODO: Implement storeCredential
     }
@@ -643,7 +625,8 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
         Property<AttributedType> property = PropertyQueries
                 .<AttributedType>createQuery(relationship.getClass())
-                .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType(), true)).getSingleResult();
+                .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType()))
+                .getSingleResult();
 
         AttributedType relationalAttributedType = property.getValue(relationship);
 
@@ -684,7 +667,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         }
     }
 
-    private AttributedType populateAttributedType(SearchResult searchResult, AttributedType attributedType) {
+    private AttributedType populateAttributedType(final IdentityContext context, SearchResult searchResult, AttributedType attributedType) {
         try {
             String nameInNamespace = searchResult.getNameInNamespace();
             String entryDN = nameInNamespace.substring(nameInNamespace.indexOf(COMMA) + 1);
@@ -725,7 +708,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                 identityType.setCreatedDate(parseLDAPDate(createdTimestamp));
 
-                identityType.setPartition(new Realm(Realm.DEFAULT_REALM));
+                identityType.setPartition(context.getPartition());
             }
 
             if (mappingConfig.getParentMembershipAttributeName() != null) {
@@ -749,7 +732,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                         Class<? extends AttributedType> baseDNType = getConfig().getSupportedTypeByBaseDN(baseDN);
 
                         if (parentProperty.getJavaClass().isAssignableFrom(baseDNType)) {
-                            parentProperty.setValue(attributedType, populateAttributedType(next, null));
+                            parentProperty.setValue(attributedType, populateAttributedType(context, next, null));
                         }
                     }
                 }

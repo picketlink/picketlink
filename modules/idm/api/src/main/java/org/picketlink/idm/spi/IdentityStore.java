@@ -17,18 +17,17 @@
  */
 package org.picketlink.idm.spi;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * IdentityStore representation providing minimal SPI
@@ -87,37 +86,6 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
     <V extends Relationship> List<V> fetchQueryResults(IdentityContext context, RelationshipQuery<V> query);
 
     <V extends Relationship> int countQueryResults(IdentityContext context, RelationshipQuery<V> query);
-
-    // Attributes
-
-    /**
-     * Sets the specified Attribute value for the specified IdentityType
-     *
-     * @param ctx
-     * @param identityType
-     * @param attribute
-     */
-    void setAttribute(IdentityContext context, AttributedType type,
-            Attribute<? extends Serializable> attribute);
-
-    /**
-     * Returns the Attribute value with the specified name, for the specified IdentityType
-     * @param ctx
-     * @param identityType
-     * @param attributeName
-     * @return
-     */
-    <V extends Serializable> Attribute<V> getAttribute(IdentityContext context, AttributedType type,
-            String attributeName);
-
-    /**
-     * Removes the specified Attribute value, for the specified IdentityType
-     *
-     * @param ctx
-     * @param identityType
-     * @param attributeName
-     */
-    void removeAttribute(IdentityContext context, AttributedType type, String attributeName);
 
     // Credentials
 

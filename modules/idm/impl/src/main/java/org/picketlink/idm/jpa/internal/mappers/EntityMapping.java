@@ -17,20 +17,23 @@
  */
 package org.picketlink.idm.jpa.internal.mappers;
 
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.common.properties.query.NamedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.common.properties.query.TypedPropertyCriteria;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.picketlink.common.properties.Property;
-import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
-import org.picketlink.common.properties.query.NamedPropertyCriteria;
-import org.picketlink.common.properties.query.PropertyQueries;
-import org.picketlink.common.properties.query.TypedPropertyCriteria;
-import org.picketlink.idm.config.SecurityConfigurationException;
-import org.picketlink.idm.jpa.annotations.OwnerReference;
-import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+
+import static org.picketlink.common.properties.query.TypedPropertyCriteria.*;
+import static org.picketlink.idm.IDMMessages.*;
 
 /**
  * @author pedroigor
@@ -39,21 +42,17 @@ public class EntityMapping {
 
     private final Map<Property, Property> properties;
     private final Class<?> supportedType;
-    private final boolean rootMapping;
     private Property typeProperty;
 
-    public EntityMapping(Class<?> managedType, boolean rootMapping) {
+    public EntityMapping(Class<?> managedType) {
         this.supportedType = managedType;
-        this.rootMapping = rootMapping;
         this.properties = new HashMap<Property, Property>();
     }
 
-    public EntityMapping(Class<?> supportedType) {
-        this(supportedType, false);
-    }
-
     public void addProperty(Property property, Property mappedProperty) {
-        this.properties.put(property, mappedProperty);
+        if (mappedProperty != null) {
+            this.properties.put(property, mappedProperty);
+        }
     }
 
     public void addTypeProperty(Property property) {
@@ -73,10 +72,6 @@ public class EntityMapping {
 
     public Map<Property, Property> getProperties() {
         return Collections.unmodifiableMap(this.properties);
-    }
-
-    public boolean isRootMapping() {
-        return this.rootMapping;
     }
 
     public Property getTypeProperty() {
@@ -100,7 +95,7 @@ public class EntityMapping {
                 .getFirstResult();
 
         if (ownerProperty == null) {
-            throw new SecurityConfigurationException("Entity [" + entityType + "] does not have a @OwnerReference annotated field.");
+            throw MESSAGES.jpaConfigRequiredMappingAnnotation(entityType, OwnerReference.class);
         }
 
         addProperty(new PropertyMapping() {
@@ -114,7 +109,7 @@ public class EntityMapping {
                     for (Class<?> ownerType : identityManaged.value()) {
                         Property<Object> ownerProperty = PropertyQueries
                                 .createQuery(instance.getClass())
-                                .addCriteria(new TypedPropertyCriteria(ownerType, true))
+                                .addCriteria(new TypedPropertyCriteria(ownerType, MatchOption.ALL))
                                 .getFirstResult();
 
                         if (ownerProperty != null && !ownerProperty.getJavaClass().equals(instance.getClass())) {
@@ -134,7 +129,7 @@ public class EntityMapping {
                 for (Class<?> ownerType : identityManaged.value()) {
                     Property<Object> ownerProperty = PropertyQueries
                             .createQuery(instance.getClass())
-                            .addCriteria(new TypedPropertyCriteria(ownerType, true))
+                            .addCriteria(new TypedPropertyCriteria(ownerType, MatchOption.ALL))
                             .getFirstResult();
 
                     if (ownerProperty != null && ownerType.isInstance(value)) {
@@ -194,11 +189,11 @@ public class EntityMapping {
         return this.supportedType;
     }
 
-    public void addMappedProperty(Property mappedProperty) {
+    public void addMappedProperty(final Property mappedProperty) {
         addProperty(new PropertyMapping() {
             @Override
             public Object getValue(Object instance) {
-                return null;  //TODO: Implement getValue
+                return null;
             }
 
             @Override
@@ -206,6 +201,47 @@ public class EntityMapping {
                 //TODO: Implement setValue
             }
         }, mappedProperty);
+    }
+
+    public void addNotNullMappedProperty(final Property mappedProperty) {
+        addProperty(new PropertyMapping() {
+            @Override
+            public Object getValue(Object instance) {
+                return null;
+            }
+
+            @Override
+            public void setValue(Object instance, Object value) {
+                //TODO: Implement setValue
+            }
+        }, new PropertyMapping() {
+                        @Override
+                        public String getName() {
+                            return mappedProperty.getName();
+                        }
+
+                        @Override
+                        public AnnotatedElement getAnnotatedElement() {
+                            return mappedProperty.getAnnotatedElement();
+                        }
+
+                        @Override
+                        public Class getJavaClass() {
+                            return mappedProperty.getJavaClass();
+                        }
+
+                        @Override
+                        public Object getValue(final Object instance) {
+                            return mappedProperty.getValue(instance);
+                        }
+
+                        @Override
+                        public void setValue(final Object instance, final Object value) {
+                            if (value != null) {
+                                mappedProperty.setValue(instance, value);
+                            }
+                        }
+                    });
     }
 
     private abstract class PropertyMapping implements Property {

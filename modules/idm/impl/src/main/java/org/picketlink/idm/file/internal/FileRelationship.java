@@ -17,13 +17,6 @@
  */
 package org.picketlink.idm.file.internal;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
@@ -31,7 +24,17 @@ import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.AttributeProperty;
-import static java.util.Map.Entry;
+
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static java.util.Map.*;
+import static org.picketlink.common.properties.query.TypedPropertyCriteria.*;
 
 /**
  * @author pedroigor
@@ -59,7 +62,7 @@ public class FileRelationship extends AbstractFileAttributedType<Relationship> {
 
         List<Property<IdentityType>> relationshipIdentityTypes = PropertyQueries
                 .<IdentityType> createQuery(getEntry().getClass())
-                .addCriteria(new TypedPropertyCriteria(IdentityType.class, true)).getResultList();
+                .addCriteria(new TypedPropertyCriteria(IdentityType.class, MatchOption.SUB_TYPE)).getResultList();
 
         for (Property<IdentityType> annotatedProperty : relationshipIdentityTypes) {
             IdentityType identityType = annotatedProperty.getValue(getEntry());

@@ -17,14 +17,6 @@
  */
 package org.picketlink.idm.internal;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.picketlink.idm.DefaultIdGenerator;
 import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.IdGenerator;
@@ -39,6 +31,7 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
+import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
@@ -47,30 +40,40 @@ import org.picketlink.idm.file.internal.FileIdentityStore;
 import org.picketlink.idm.internal.util.RelationshipMetadata;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.IdentityPartition;
 import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.spi.AttributeStore;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.StoreSelector;
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
-import static org.picketlink.idm.IDMLogger.LOGGER;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.util.IDMUtil.isTypeSupported;
-import static org.picketlink.idm.util.IDMUtil.toSet;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static org.picketlink.common.util.StringUtil.*;
+import static org.picketlink.idm.IDMLogger.*;
+import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.idm.util.IDMUtil.*;
 
 /**
- * Provides partition management functionality, and partition-specific {@link IdentityManager} instances.
+ * Provides partition management functionality, and partition-specific {@link IdentityManager} instances. <p/> Before
+ * using this factory you need a valid {@link IdentityConfiguration}, usually created using the {@link
+ * org.picketlink.idm.config.IdentityConfigurationBuilder}. </p>
  * <p/>
- * Before using this factory you need a valid {@link IdentityConfiguration}, usually created using the
- * {@link org.picketlink.idm.config.IdentityConfigurationBuilder}.
- * </p>
- *
  * This class is thread safe, and is intended to be used as an application-scoped component.
  *
  * @author Shane Bryzak
@@ -78,41 +81,34 @@ import static org.picketlink.idm.util.IDMUtil.toSet;
 public class DefaultPartitionManager implements PartitionManager, StoreSelector {
 
     private static final long serialVersionUID = 1L;
-
     private static final String DEFAULT_CONFIGURATION_NAME = "default";
-
-    /**
-     * The event bridge allows events to be "bridged" to an event bus, such as the CDI event bus
-     */
-    private EventBridge eventBridge;
-
-    /**
-     * The ID generator is responsible for generating unique identifier values
-     */
-    private IdGenerator idGenerator;
-
     /**
      * A collection of all identity configurations.  Each configuration has a unique name.
      */
     private final Collection<IdentityConfiguration> configurations;
-
     /**
-     * Each partition is governed by a specific IdentityConfiguration, indicated by this Map.  Every IdentityConfiguration instance
-     * will also be found in the configurations property above.
+     * Each partition is governed by a specific IdentityConfiguration, indicated by this Map.  Every
+     * IdentityConfiguration instance will also be found in the configurations property above.
      */
     private final Map<Partition, IdentityConfiguration> partitionConfigurations = new ConcurrentHashMap<Partition, IdentityConfiguration>();
-
     /**
      * The store instances for each IdentityConfiguration, mapped by their corresponding IdentityStoreConfiguration
      */
     private final Map<IdentityConfiguration, Map<IdentityStoreConfiguration, IdentityStore<?>>> stores;
-
     /**
      * The IdentityConfiguration that is responsible for managing partition CRUD operations.  It is possible for this
      * value to be null, in which case partition management will not be supported.
      */
     private final IdentityConfiguration partitionManagementConfig;
-
+    private final IdentityConfiguration attributeManagementConfig;
+    /**
+     * The event bridge allows events to be "bridged" to an event bus, such as the CDI event bus
+     */
+    private EventBridge eventBridge;
+    /**
+     * The ID generator is responsible for generating unique identifier values
+     */
+    private IdGenerator idGenerator;
     private RelationshipMetadata relationshipMetadata = new RelationshipMetadata();
 
     public DefaultPartitionManager(IdentityConfiguration configuration) {
@@ -123,11 +119,11 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         this(configurations, null, null);
     }
 
-    public DefaultPartitionManager(Collection <IdentityConfiguration> configurations, EventBridge eventBridge) {
+    public DefaultPartitionManager(Collection<IdentityConfiguration> configurations, EventBridge eventBridge) {
         this(configurations, eventBridge, null);
     }
 
-    public DefaultPartitionManager(Collection <IdentityConfiguration> configurations, EventBridge eventBridge, IdGenerator idGenerator) {
+    public DefaultPartitionManager(Collection<IdentityConfiguration> configurations, EventBridge eventBridge, IdGenerator idGenerator) {
         LOGGER.identityManagerBootstrapping();
 
         if (configurations == null || configurations.isEmpty()) {
@@ -151,18 +147,24 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         }
 
         IdentityConfiguration partitionCfg = null;
-        search:
+        IdentityConfiguration attributeCfg = null;
+
         for (IdentityConfiguration config : configurations) {
             for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
-                if (storeConfig.supportsType(Partition.class, IdentityOperation.create)) {
+                if (storeConfig.supportsPartition()) {
                     partitionCfg = config;
-                    break search;
+                }
+
+                if (storeConfig.supportsAttribute()) {
+                    attributeCfg = config;
                 }
             }
         }
+
         // There may be no configuration that supports partition management, in which case the partitionManagementConfig
         // field will be null and partition management operations will not be supported
         this.partitionManagementConfig = partitionCfg;
+        this.attributeManagementConfig = attributeCfg;
 
         Map<IdentityConfiguration, Map<IdentityStoreConfiguration, IdentityStore<?>>> configuredStores =
                 new HashMap<IdentityConfiguration, Map<IdentityStoreConfiguration, IdentityStore<?>>>();
@@ -287,7 +289,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         if (this.partitionManagementConfig != null) {
             storedPartition = getPartition(partition.getClass(), partition.getName());
         } else {
-            storedPartition = new Realm(Realm.DEFAULT_REALM);
+            storedPartition = createDefaultPartition();
         }
 
         if (storedPartition == null) {
@@ -295,7 +297,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         }
 
         try {
-            return new ContextualIdentityManager(storedPartition, eventBridge, idGenerator, this);
+            return new ContextualIdentityManager(storedPartition, eventBridge, idGenerator, this, createRelationshipManager());
         } catch (Exception e) {
             throw MESSAGES.couldNotCreateContextualIdentityManager(storedPartition);
         }
@@ -308,13 +310,49 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     @Override
     public <T extends Partition> T getPartition(Class<T> partitionClass, String name) {
-        checkPartitionManagementSupported();
+        if (partitionManagementConfig == null) {
+            return (T) createDefaultPartition();
+        }
 
         try {
             IdentityContext context = createIdentityContext();
-            return getStoreForPartitionOperation(context).<T>get(context, partitionClass, name);
+            T partition = getStoreForPartitionOperation(context).<T>get(context, partitionClass, name);
+
+            if (partition != null) {
+                AttributeStore<?> attributeStore = getStoreForAttributeOperation(context);
+
+                if (attributeStore != null) {
+                    attributeStore.loadAttributes(context, partition);
+                }
+            }
+
+            return partition;
         } catch (Exception e) {
             throw new IdentityManagementException("Could not load partition for type [" + partitionClass.getName() + "] and name [" + name + "].", e);
+        }
+    }
+
+    @Override
+    public <T extends Partition> T lookupById(final Class<T> partitionClass, final String id) {
+        if (partitionManagementConfig == null) {
+            return (T) createDefaultPartition();
+        }
+
+        try {
+            IdentityContext context = createIdentityContext();
+            T partition = getStoreForPartitionOperation(context).<T>lookupById(context, partitionClass, id);
+
+            if (partition != null) {
+                AttributeStore<?> attributeStore = getStoreForAttributeOperation(context);
+
+                if (attributeStore != null) {
+                    attributeStore.loadAttributes(context, partition);
+                }
+            }
+
+            return partition;
+        } catch (Exception e) {
+            throw new IdentityManagementException("Could not load partition with id [" + id + "].", e);
         }
     }
 
@@ -334,16 +372,26 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             configurationName = getDefaultConfigurationName();
         }
 
-        if (getPartition(partition.getClass(), partition.getName()) != null) {
-            throw MESSAGES.partitionAlreadyExistsWithName(partition.getClass(), partition.getName());
-        }
+        if (getConfigurationByName(configurationName) != null) {
+            if (getPartition(partition.getClass(), partition.getName()) != null) {
+                throw MESSAGES.partitionAlreadyExistsWithName(partition.getClass(), partition.getName());
+            }
 
-        try {
-            IdentityContext context = createIdentityContext();
+            try {
+                IdentityContext context = createIdentityContext();
 
-            getStoreForPartitionOperation(context).add(context, partition, configurationName);
-        } catch (Exception e) {
-            throw new IdentityManagementException("Could not add partition [" + partition + "] using configuration [" + configurationName + "].", e);
+                getStoreForPartitionOperation(context).add(context, partition, configurationName);
+
+                AttributeStore<?> attributeStore = getStoreForAttributeOperation(context);
+
+                if (attributeStore != null) {
+                    for (Attribute<? extends Serializable> attribute : partition.getAttributes()) {
+                        attributeStore.setAttribute(context, partition, attribute);
+                    }
+                }
+            } catch (Exception e) {
+                throw new IdentityManagementException("Could not add partition [" + partition + "] using configuration [" + configurationName + "].", e);
+            }
         }
     }
 
@@ -355,6 +403,22 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         try {
             IdentityContext context = createIdentityContext();
             getStoreForPartitionOperation(context).update(context, partition);
+
+            AttributeStore<?> attributeStore = getStoreForAttributeOperation(context);
+
+            if (attributeStore != null) {
+                Partition storedType = lookupById(partition.getClass(), partition.getId());
+
+                for (Attribute<? extends Serializable> attribute : storedType.getAttributes()) {
+                    if (partition.getAttribute(attribute.getName()) == null) {
+                        attributeStore.removeAttribute(context, partition, attribute.getName());
+                    }
+                }
+
+                for (Attribute<? extends Serializable> attribute : partition.getAttributes()) {
+                    attributeStore.setAttribute(context, partition, attribute);
+                }
+            }
         } catch (Exception e) {
             throw new IdentityManagementException("Could not update partition [" + partition + "].", e);
         }
@@ -367,6 +431,17 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
         try {
             IdentityContext context = createIdentityContext();
+
+            AttributeStore<?> attributeStore = getStoreForAttributeOperation(context);
+
+            if (attributeStore != null) {
+                Partition storedType = lookupById(partition.getClass(), partition.getId());
+
+                for (Attribute<? extends Serializable> attribute : storedType.getAttributes()) {
+                    attributeStore.removeAttribute(context, storedType, attribute.getName());
+                }
+            }
+
             getStoreForPartitionOperation(context).remove(context, partition);
         } catch (Exception e) {
             throw new IdentityManagementException("Could not remove partition [" + partition + "].", e);
@@ -382,20 +457,43 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
         if (this.partitionManagementConfig != null) {
             identityConfiguration = getConfigurationForPartition(context.getPartition());
-        } else {
+        } else if (this.configurations.size() == 1) {
             identityConfiguration = this.configurations.iterator().next();
         }
 
-        for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
+        T identityStore = null;
+
+        if (identityConfiguration == null) {
+            for (IdentityConfiguration configuration : this.configurations) {
+                identityStore = lookupStore(context, configuration, type, operation);
+
+                if (identityStore != null) {
+                    break;
+                }
+            }
+        } else {
+            identityStore = lookupStore(context, identityConfiguration, type, operation);
+        }
+
+        if (identityStore == null) {
+            throw new IdentityManagementException("No IdentityStore found for required type [" + type + "]");
+        }
+
+        return identityStore;
+    }
+
+    public <T extends IdentityStore<?>> T lookupStore(IdentityContext context, IdentityConfiguration configuration,
+                                                      Class<? extends AttributedType> type, IdentityOperation operation) {
+        for (IdentityStoreConfiguration storeConfig : configuration.getStoreConfiguration()) {
             if (storeConfig.supportsType(type, operation)) {
                 @SuppressWarnings("unchecked")
-                T store = (T) stores.get(identityConfiguration).get(storeConfig);
+                T store = (T) stores.get(configuration).get(storeConfig);
                 storeConfig.initializeContext(context, store);
                 return store;
             }
         }
 
-        throw new IdentityManagementException("No IdentityStore found for required type [" + type + "]");
+        return null;
     }
 
     @Override
@@ -472,7 +570,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         } else {
             // This is a multi-partition relationship - use the configuration that supports the global relationship type
             for (Partition partition : partitions) {
-                IdentityConfiguration config  = getConfigurationForPartition(partition);
+                IdentityConfiguration config = getConfigurationForPartition(partition);
                 if (config.getRelationshipPolicy().isGlobalRelationshipSupported(relationshipClass)) {
                     for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
                         if (storeConfig.supportsType(relationshipClass, operation)) {
@@ -480,9 +578,9 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                             storeConfig.initializeContext(context, store);
                         }
                     }
-                 }
-             }
-         }
+                }
+            }
+        }
 
         // If none of the participating partition configurations support the relationship, try to find another configuration
         // that supports the global relationship as a last ditch effort
@@ -505,7 +603,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     @Override
     public Set<IdentityStore<?>> getStoresForRelationshipQuery(IdentityContext context, Class<? extends Relationship> relationshipClass,
-            Set<Partition> partitions) {
+                                                               Set<Partition> partitions) {
         Set<IdentityStore<?>> result = new HashSet<IdentityStore<?>>();
 
         // If _no_ parameters have been specified for the query at all, we return all stores that support the
@@ -513,15 +611,15 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         if (partitions.isEmpty()) {
             for (IdentityConfiguration config : configurations) {
                 if (config.getRelationshipPolicy().isGlobalRelationshipSupported(relationshipClass) ||
-                    config.getRelationshipPolicy().isSelfRelationshipSupported(relationshipClass)) {
-                        for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
-                            if (storeConfig.supportsType(relationshipClass, IdentityOperation.create)) {
-                                IdentityStore<?> store = stores.get(config).get(storeConfig);
-                                storeConfig.initializeContext(context, store);
-                                result.add(store);
-                            }
+                        config.getRelationshipPolicy().isSelfRelationshipSupported(relationshipClass)) {
+                    for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
+                        if (storeConfig.supportsType(relationshipClass, IdentityOperation.create)) {
+                            IdentityStore<?> store = stores.get(config).get(storeConfig);
+                            storeConfig.initializeContext(context, store);
+                            result.add(store);
                         }
                     }
+                }
             }
         } else {
             for (Partition partition : partitions) {
@@ -560,6 +658,28 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         throw new IdentityManagementException("Could not locate PartitionStore");
     }
 
+    @Override
+    public <T extends AttributeStore<?>> T getStoreForAttributeOperation(IdentityContext context) {
+        if (attributeManagementConfig != null) {
+            Map<IdentityStoreConfiguration, IdentityStore<?>> configStores = stores.get(attributeManagementConfig);
+
+            for (IdentityStoreConfiguration cfg : configStores.keySet()) {
+                if (cfg.supportsAttribute()) {
+                    try {
+                        T store = (T) configStores.get(cfg);
+                        cfg.initializeContext(context, store);
+                        return store;
+                    } catch (ClassCastException cce) {
+                        throw new IdentityManagementException("Store [" + configStores.get(cfg) + "] is not a " +
+                                "AttributeStore.");
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     private String getDefaultConfigurationName() {
         // If there is a configuration with the default configuration name, return that name
         for (IdentityConfiguration config : configurations) {
@@ -574,19 +694,21 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     private void checkPartitionManagementSupported() {
         if (partitionManagementConfig == null) {
-//            throw new OperationNotSupportedException(
-//                    "Partition management is not supported by the current configuration", Partition.class, IdentityOperation.create);
+            throw new OperationNotSupportedException(
+                    "Partition management is not supported by the current configuration", Partition.class, IdentityOperation.create);
         }
     }
 
     private void checkSupportedTypes(Partition partition, Class<? extends AttributedType> type) {
-        if (IdentityType.class.isAssignableFrom(type)) {
-            IdentityPartition identityPartition = partition.getClass().getAnnotation(IdentityPartition.class);
+        if (partition != null) {
+            if (IdentityType.class.isAssignableFrom(type)) {
+                IdentityPartition identityPartition = partition.getClass().getAnnotation(IdentityPartition.class);
 
-            if (identityPartition != null
-                    && isTypeSupported((Class<? extends IdentityType>) type, toSet(identityPartition.supportedTypes()),
-                    toSet(identityPartition.unsupportedTypes())) == -1) {
-                throw new IdentityManagementException("Partition [" + partition + "] does not support type [" + type + "].");
+                if (identityPartition != null
+                        && isTypeSupported((Class<? extends IdentityType>) type, toSet(identityPartition.supportedTypes()),
+                        toSet(identityPartition.unsupportedTypes())) == -1) {
+                    throw new IdentityManagementException("Partition [" + partition + "] does not support type [" + type + "].");
+                }
             }
         }
     }
@@ -595,6 +717,14 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         if (getPartition(partition.getClass(), partition.getName()) == null) {
             throw MESSAGES.partitionNotFoundWithName(partition.getClass(), partition.getName());
         }
+    }
+
+    private Partition createDefaultPartition() {
+        Partition storedPartition = new Realm(Realm.DEFAULT_REALM);
+
+        storedPartition.setId(Realm.DEFAULT_REALM);
+
+        return storedPartition;
     }
 
 }

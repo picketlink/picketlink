@@ -68,9 +68,16 @@ public interface StoreSelector {
             Set<Partition> partitions);
 
     /**
-     *
+     * Returns the PartitionStore that manages partitions.
      *
      * @return
      */
     <T extends PartitionStore<?>> T getStoreForPartitionOperation(IdentityContext context);
+
+    /**
+     * Returns the AttributeStore that manages attributes.
+     *
+     * @return
+     */
+    <T extends AttributeStore<?>> T getStoreForAttributeOperation(IdentityContext context);
 }

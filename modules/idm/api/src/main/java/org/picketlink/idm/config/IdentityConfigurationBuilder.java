@@ -23,7 +23,10 @@
 package org.picketlink.idm.config;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.picketlink.idm.event.EventBridge;
 
 /**
@@ -35,11 +38,11 @@ import org.picketlink.idm.event.EventBridge;
  */
 public class IdentityConfigurationBuilder extends Builder<List<IdentityConfiguration>> implements IdentityConfigurationChildBuilder {
 
-    private final List<NamedIdentityConfigurationBuilder> namedIdentityConfigurationBuilders;
+    private final Map<String, NamedIdentityConfigurationBuilder> namedIdentityConfigurationBuilders;
     private EventBridge eventBridge;
 
     public IdentityConfigurationBuilder() {
-        this.namedIdentityConfigurationBuilders = new ArrayList<NamedIdentityConfigurationBuilder>();
+        this.namedIdentityConfigurationBuilders = new LinkedHashMap<String, NamedIdentityConfigurationBuilder>();
     }
 
     /**
@@ -60,9 +63,14 @@ public class IdentityConfigurationBuilder extends Builder<List<IdentityConfigura
      * @return
      */
     public NamedIdentityConfigurationBuilder named(String configurationName) {
+        // Check if config with this name is already here
+        if (this.namedIdentityConfigurationBuilders.containsKey(configurationName)) {
+            return this.namedIdentityConfigurationBuilders.get(configurationName);
+        }
+
         NamedIdentityConfigurationBuilder namedIdentityConfiguration = new NamedIdentityConfigurationBuilder(configurationName, this);
 
-        this.namedIdentityConfigurationBuilders.add(namedIdentityConfiguration);
+        this.namedIdentityConfigurationBuilders.put(configurationName, namedIdentityConfiguration);
 
         return namedIdentityConfiguration;
     }
@@ -98,7 +106,7 @@ public class IdentityConfigurationBuilder extends Builder<List<IdentityConfigura
             throw new SecurityConfigurationException("You must provide at least one configuration.");
         }
 
-        for (NamedIdentityConfigurationBuilder identityConfigBuilder : this.namedIdentityConfigurationBuilders) {
+        for (NamedIdentityConfigurationBuilder identityConfigBuilder : this.namedIdentityConfigurationBuilders.values()) {
             identityConfigBuilder.validate();
         }
     }
@@ -109,7 +117,7 @@ public class IdentityConfigurationBuilder extends Builder<List<IdentityConfigura
 
         List<IdentityConfiguration> configurations = new ArrayList<IdentityConfiguration>();
 
-        for (NamedIdentityConfigurationBuilder identityConfigBuilder : this.namedIdentityConfigurationBuilders) {
+        for (NamedIdentityConfigurationBuilder identityConfigBuilder : this.namedIdentityConfigurationBuilders.values()) {
             IdentityConfiguration configuration = identityConfigBuilder.create();
 
             if (configurations.contains(configuration)) {

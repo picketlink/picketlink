@@ -18,85 +18,80 @@
 
 package org.picketlink.idm.credential.handler;
 
+import org.picketlink.common.util.Base64;
+import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.credential.X509CertificateCredentials;
+import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
+import org.picketlink.idm.credential.storage.CredentialStorage;
+import org.picketlink.idm.credential.storage.X509CertificateStorage;
+import org.picketlink.idm.model.Account;
+import org.picketlink.idm.spi.CredentialStore;
+import org.picketlink.idm.spi.IdentityContext;
+
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
-import org.picketlink.common.util.Base64;
-import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.credential.Credentials.Status;
-import org.picketlink.idm.credential.X509CertificateCredentials;
-import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
-import org.picketlink.idm.credential.storage.X509CertificateStorage;
-import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.sample.Agent;
-import org.picketlink.idm.spi.CredentialStore;
-import org.picketlink.idm.spi.IdentityContext;
 
 /**
- * This particular implementation supports the validation of {@link X509CertificateCredentials}, and updating {@link X509Cert}
- * credentials.
+ * This particular implementation supports the validation of {@link X509CertificateCredentials}, and updating {@link
+ * X509Cert} credentials.
  *
  * @author Shane Bryzak
- * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
+ * @author Pedro Igor
  */
-@SupportsCredentials({ X509CertificateCredentials.class, X509Certificate.class })
-public class X509CertificateCredentialHandler<S,V,U>
-    extends AbstractCredentialHandler<CredentialStore<?>,X509CertificateCredentials, X509Certificate> {
+@SupportsCredentials({X509CertificateCredentials.class, X509Certificate.class})
+public class X509CertificateCredentialHandler<S, V, U>
+        extends AbstractCredentialHandler<CredentialStore<?>, X509CertificateCredentials, X509Certificate> {
 
     @Override
     public void setup(CredentialStore<?> identityStore) {
     }
 
     @Override
-    public void validate(IdentityContext context, X509CertificateCredentials credentials,
-            CredentialStore<?> store) {
-        Agent agent = getAccount(context, credentials.getUsername());
+    protected X509CertificateStorage getCredentialStorage(final IdentityContext context, Account account, final X509CertificateCredentials
+            credentials, final CredentialStore<?> store) {
+        return store.retrieveCurrentCredential(context, account, X509CertificateStorage.class);
+    }
 
-        credentials.setStatus(Status.INVALID);
-        credentials.setValidatedAccount(null);
+    @Override
+    protected boolean validateCredential(final CredentialStorage storage, final X509CertificateCredentials credentials) {
+        X509CertificateStorage certificateStorage = (X509CertificateStorage) storage;
 
-        // If the user for the provided username cannot be found we fail validation
-        if (agent != null) {
-            if (agent.isEnabled()) {
-                boolean isValid = credentials.isTrusted();
+        if (!credentials.isTrusted()) {
+            try {
+                byte[] certBytes = Base64.decode(certificateStorage.getBase64Cert());
+                CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+                X509Certificate storedCert = (X509Certificate) certFactory
+                        .generateCertificate(new ByteArrayInputStream(certBytes));
+                X509Certificate providedCert = credentials.getCertificate();
 
-                if (!credentials.isTrusted()) {
-                    X509CertificateStorage storage = store.retrieveCurrentCredential(context, agent, X509CertificateStorage.class);
-
-                    if (storage != null) {
-                        String base64Cert = storage.getBase64Cert();
-
-                        byte[] certBytes = Base64.decode(base64Cert);
-
-                        try {
-                            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-                            X509Certificate storedCert = (X509Certificate) certFactory
-                                    .generateCertificate(new ByteArrayInputStream(certBytes));
-                            X509Certificate providedCert = credentials.getCertificate();
-
-                            isValid = storedCert.equals(providedCert);
-                        } catch (Exception e) {
-                            throw new IdentityManagementException("Error while checking user's certificate.", e);
-                        }
-                    }
-                }
-
-                if (isValid) {
-                    credentials.setStatus(Status.VALID);
-                    credentials.setValidatedAccount(agent);
-                }
-
-            } else {
-                credentials.setStatus(Status.ACCOUNT_DISABLED);
+                return storedCert.equals(providedCert);
+            } catch (Exception e) {
+                throw new IdentityManagementException("Error while checking user's certificate.", e);
             }
         }
+
+        return true;
+    }
+
+    @Override
+    protected Account getAccount(final IdentityContext context, final X509CertificateCredentials credentials) {
+        return getAccount(context, credentials.getUsername());
     }
 
     @Override
     public void update(IdentityContext context, Account account, X509Certificate cert, CredentialStore<?> store,
-            Date effectiveDate, Date expiryDate) {
+                       Date effectiveDate, Date expiryDate) {
         X509CertificateStorage storage = new X509CertificateStorage(cert);
+
+        if (effectiveDate != null) {
+            storage.setEffectiveDate(effectiveDate);
+        }
+
+        storage.setExpiryDate(expiryDate);
+
         store.storeCredential(context, account, storage);
     }
+
 }

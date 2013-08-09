@@ -18,7 +18,6 @@
 
 package org.picketlink.test.idm.credential;
 
-import java.util.Calendar;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
@@ -27,13 +26,16 @@ import org.picketlink.idm.credential.TOTPCredentials;
 import org.picketlink.idm.credential.util.TimeBasedOTP;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.picketlink.idm.credential.Credentials.Status;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+
+import java.util.Calendar;
+import java.util.Date;
+
+import static org.junit.Assert.*;
+import static org.picketlink.idm.credential.Credentials.*;
 
 /**
  * <p>
@@ -43,7 +45,7 @@ import static org.picketlink.idm.credential.Credentials.Status;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@IgnoreTester({LDAPStoreConfigurationTester.class})
+@Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class})
 public class TOTPCredentialTestCase extends AbstractPartitionManagerTestCase {
 
     public static final String DEFAULT_TOTP_SECRET = "my_secret";
@@ -295,6 +297,44 @@ public class TOTPCredentialTestCase extends AbstractPartitionManagerTestCase {
 
         assertEquals(Status.INVALID, credentials.getStatus());
         assertNull(credentials.getValidatedAccount());
+    }
+
+    @Test
+    public void testResetPassword() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = createUser("someUser");
+        TOTPCredential credential = new TOTPCredential(DEFAULT_PASSWORD, DEFAULT_TOTP_SECRET);
+
+        Calendar expirationDate = Calendar.getInstance();
+
+        expirationDate.add(Calendar.MINUTE, -5);
+
+        identityManager.updateCredential(user, credential, new Date(), expirationDate.getTime());
+
+        TOTPCredentials credentials = new TOTPCredentials();
+
+        credentials.setUsername(user.getLoginName());
+        credentials.setPassword(new Password(DEFAULT_PASSWORD));
+
+        TimeBasedOTP totp = new TimeBasedOTP();
+
+        String token = totp.generate(DEFAULT_TOTP_SECRET);
+
+        credentials.setToken(token);
+
+        identityManager.validateCredentials(credentials);
+
+        assertEquals(Status.EXPIRED, credentials.getStatus());
+
+        credentials.setUsername(user.getLoginName());
+        credentials.setPassword(new Password(DEFAULT_PASSWORD));
+
+        credentials.setToken("12345678");
+
+        identityManager.validateCredentials(credentials);
+
+        assertEquals(Status.INVALID, credentials.getStatus());
+
     }
 
 }

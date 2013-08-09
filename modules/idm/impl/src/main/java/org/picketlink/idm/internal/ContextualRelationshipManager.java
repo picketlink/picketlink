@@ -21,18 +21,22 @@ import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.event.EventBridge;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
+import org.picketlink.idm.spi.AttributeStore;
 import org.picketlink.idm.spi.StoreSelector;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * Default implementation for RelationshipManager.
- *
+ * <p/>
  * This class is not thread-safe!
  *
  * @author Shane Bryzak
- *
  */
 public class ContextualRelationshipManager extends AbstractIdentityContext implements RelationshipManager {
 
@@ -47,15 +51,61 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
     @Override
     public void add(Relationship relationship) {
         storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.create).add(this, relationship);
+
+        AttributeStore<?> attributeStore = storeSelector.getStoreForAttributeOperation(this);
+
+        if (attributeStore != null) {
+            for (Attribute<? extends Serializable> attribute : relationship.getAttributes()) {
+                attributeStore.setAttribute(this, relationship, attribute);
+            }
+        }
     }
 
     @Override
     public void update(Relationship relationship) {
         storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.update).update(this, relationship);
+
+        List<? extends Relationship> result = createRelationshipQuery(relationship.getClass()).setParameter
+                (Relationship.ID, relationship.getId())
+                .getResultList();
+
+        if (!result.isEmpty()) {
+            Relationship storedType = result.get(0);
+
+            AttributeStore<?> attributeStore = storeSelector.getStoreForAttributeOperation(this);
+
+            if (attributeStore != null) {
+                for (Attribute<? extends Serializable> attribute : storedType.getAttributes()) {
+                    if (relationship.getAttribute(attribute.getName()) == null) {
+                        attributeStore.removeAttribute(this, relationship, attribute.getName());
+                    }
+                }
+
+                for (Attribute<? extends Serializable> attribute : relationship.getAttributes()) {
+                    attributeStore.setAttribute(this, relationship, attribute);
+                }
+            }
+        }
     }
 
     @Override
     public void remove(Relationship relationship) {
+        List<? extends Relationship> result = createRelationshipQuery(relationship.getClass()).setParameter
+                (Relationship.ID, relationship.getId())
+                .getResultList();
+
+        if (!result.isEmpty()) {
+            Relationship storedType = result.get(0);
+
+            AttributeStore<?> attributeStore = storeSelector.getStoreForAttributeOperation(this);
+
+            if (attributeStore != null) {
+                for (Attribute<? extends Serializable> attribute : storedType.getAttributes()) {
+                    attributeStore.removeAttribute(this, storedType, attribute.getName());
+                }
+            }
+        }
+
         storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.delete).remove(this, relationship);
     }
 

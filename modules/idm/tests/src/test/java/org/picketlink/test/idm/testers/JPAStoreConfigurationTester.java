@@ -17,15 +17,10 @@
  */
 package org.picketlink.test.idm.testers;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
-import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity;
-import org.picketlink.idm.jpa.model.sample.simple.AttributedTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.DigestCredentialTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.GroupTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity;
@@ -37,7 +32,14 @@ import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity;
 import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.test.idm.basic.CustomAccountTestCase;
+import org.picketlink.test.idm.basic.MyCustomAccountEntity;
+import org.picketlink.test.idm.partition.CustomPartitionEntity;
+import org.picketlink.test.idm.relationship.CustomRelationshipTypeEntity;
+import org.picketlink.test.idm.util.JPAContextInitializer;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
 /**
  * @author pedroigor
@@ -58,20 +60,21 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
                 .stores()
                     .jpa()
                         .mappedEntity(
-                                AttributedTypeEntity.class,
-                                AccountTypeEntity.class,
-                                CustomAccountTestCase.MyCustomAccountEntity.class,
+                                PartitionTypeEntity.class,
+                                MyCustomAccountEntity.class,
                                 RoleTypeEntity.class,
                                 GroupTypeEntity.class,
                                 IdentityTypeEntity.class,
+                                CustomRelationshipTypeEntity.class,
+                                CustomPartitionEntity.class,
                                 RelationshipTypeEntity.class,
                                 RelationshipIdentityTypeEntity.class,
-                                PartitionTypeEntity.class,
                                 PasswordCredentialTypeEntity.class,
                                 DigestCredentialTypeEntity.class,
                                 X509CredentialTypeEntity.class,
                                 OTPCredentialTypeEntity.class,
-                                AttributeTypeEntity.class
+                                AttributeTypeEntity.class,
+                                AccountTypeEntity.class
                         )
                         .supportGlobalRelationship(org.picketlink.idm.model.Relationship.class)
                         .addContextInitializer(new JPAContextInitializer(null) {
@@ -103,8 +106,9 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
         this.emf.close();
     }
 
-    @Override
-    public void commit() {
-        this.entityManager.getTransaction().commit();
+    // Useful for subclasses
+    protected EntityManager getEntityManager() {
+        return entityManager;
     }
+
 }

@@ -18,26 +18,26 @@
 
 package org.picketlink.idm.credential.handler;
 
-import java.util.Date;
-import java.util.List;
 import org.picketlink.common.util.Base64;
 import org.picketlink.common.util.StringUtil;
-import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
+import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.credential.storage.DigestCredentialStorage;
 import org.picketlink.idm.credential.util.DigestUtil;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.credential.util.CredentialUtils.isCurrentCredential;
-import static org.picketlink.idm.credential.util.CredentialUtils.isLastCredentialExpired;
-import static org.picketlink.idm.credential.util.DigestUtil.calculateA2;
-import static org.picketlink.idm.credential.util.DigestUtil.calculateDigest;
+
+import java.util.Date;
+import java.util.List;
+
+import static org.picketlink.common.util.StringUtil.*;
+import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.idm.credential.util.CredentialUtils.*;
+import static org.picketlink.idm.credential.util.DigestUtil.*;
 
 /**
  * <p>
@@ -62,57 +62,46 @@ public class DigestCredentialHandler<S,V,U>
     }
 
     @Override
-    public void validate(IdentityContext context, DigestCredentials credentials, CredentialStore<?> store) {
-        DigestCredentials digestCredential = (DigestCredentials) credentials;
+    protected Account getAccount(final IdentityContext context, final DigestCredentials credentials) {
+        return getAccount(context, credentials.getDigest().getUsername());
+    }
 
-        digestCredential.setStatus(Status.INVALID);
-        digestCredential.setValidatedAccount(null);
+    @Override
+    protected CredentialStorage getCredentialStorage(final IdentityContext context, final Account account, final DigestCredentials credentials, final CredentialStore<?> store) {
+        List<DigestCredentialStorage> storages = store.retrieveCredentials(context, account,
+                DigestCredentialStorage.class);
 
-        Digest digest = digestCredential.getDigest();
-        Agent agent = getAccount(context, digest.getUsername());
-
-        if (agent != null) {
-            if (agent.isEnabled()) {
-                List<DigestCredentialStorage> storages = store.retrieveCredentials(context, agent,
-                        DigestCredentialStorage.class);
-                DigestCredentialStorage currentCredential = null;
-
-                for (DigestCredentialStorage storage : storages) {
-                    if (storage.getRealm().equals(digest.getRealm()) && isCurrentCredential(storage)) {
-                        currentCredential = storage;
-                        break;
-                    }
-                }
-
-                if (currentCredential != null) {
-                    if (digest.getMethod() != null && digest.getUri() != null) {
-                        byte[] storedHA1 = currentCredential.getHa1();
-                        byte[] ha2 = calculateA2(digest.getMethod(), digest.getUri());
-
-                        String calculateDigest = calculateDigest(digest, storedHA1, ha2);
-
-                        if (calculateDigest.equals(digest.getDigest())) {
-                            digestCredential.setStatus(Status.VALID);
-                        }
-                    } else {
-                        String storedDigestPassword = Base64.encodeBytes(currentCredential.getHa1());
-                        String providedDigest = digest.getDigest();
-
-                        if (String.valueOf(storedDigestPassword).equals(providedDigest)) {
-                            digestCredential.setStatus(Status.VALID);
-                        }
-                    }
-                } else if (isLastCredentialExpired(context, agent, store, DigestCredentialStorage.class)) {
-                    digestCredential.setStatus(Status.EXPIRED);
-                }
-            } else {
-                digestCredential.setStatus(Status.ACCOUNT_DISABLED);
-            }
-
-            if (digestCredential.getStatus().equals(Status.VALID)) {
-                digestCredential.setValidatedAccount(agent);
+        for (DigestCredentialStorage storage : storages) {
+            if (storage.getRealm().equals(credentials.getDigest().getRealm()) && isCurrentCredential(storage)) {
+                return storage;
             }
         }
+
+        return null;
+    }
+
+    @Override
+    protected boolean validateCredential(final CredentialStorage credentialStorage, final DigestCredentials credentials) {
+        DigestCredentialStorage currentCredential = (DigestCredentialStorage) credentialStorage;
+        Digest digest = credentials.getDigest();
+
+        if (currentCredential != null) {
+            String providedDigest = digest.getDigest();
+            String expectedDigest = null;
+
+            if (digest.getMethod() != null && digest.getUri() != null) {
+                byte[] storedHA1 = currentCredential.getHa1();
+                byte[] ha2 = calculateA2(digest.getMethod(), digest.getUri());
+
+                expectedDigest = calculateDigest(digest, storedHA1, ha2);
+            } else {
+                expectedDigest = String.valueOf(Base64.encodeBytes(currentCredential.getHa1()));
+            }
+
+            return expectedDigest.equals(providedDigest);
+        }
+
+        return false;
     }
 
     @Override

@@ -18,11 +18,12 @@
 
 package org.picketlink.idm.credential.util;
 
-import java.util.Date;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
+
+import java.util.Date;
 
 /**
  * <p>Utility class with helper methods for the Credential API.</p>
@@ -41,25 +42,15 @@ public final class CredentialUtils {
      * @return
      */
     public static boolean isCurrentCredential(CredentialStorage credential) {
-        boolean isCurrent = true;
-
         Date actualDate = new Date();
 
         if (credential.getEffectiveDate() != null) {
-            if (credential.getEffectiveDate().compareTo(actualDate) > 0) {
-                isCurrent = false;
+            if (credential.getEffectiveDate().compareTo(actualDate) <= 0) {
+                return true;
             }
         }
 
-        if (isCurrent) {
-            if (credential.getExpiryDate() != null) {
-                if (credential.getExpiryDate().compareTo(actualDate) <= 0) {
-                    isCurrent = false;
-                }
-            }
-        }
-
-        return isCurrent;
+        return false;
     }
 
     public static boolean isLastCredentialExpired(IdentityContext context, Account agent, CredentialStore<?> store, Class<? extends CredentialStorage> storageClass) {

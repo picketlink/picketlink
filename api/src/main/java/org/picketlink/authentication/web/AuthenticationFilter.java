@@ -50,11 +50,9 @@ public class AuthenticationFilter implements Filter {
     public static final String AUTH_TYPE_INIT_PARAM = "authType";
     public static final String UNPROTECTED_METHODS_INIT_PARAM = "unprotectedMethods";
     public static final String FORCE_REAUTHENTICATION_INIT_PARAM = "forceReAuthentication";
-
     private final Map<AuthType, Class<? extends HTTPAuthenticationScheme>> authenticationSchemes;
     private final Set<String> unprotectedMethods;
     private boolean forceReAuthentication;
-
     @Inject
     private Instance<Identity> identityInstance;
     @Inject
@@ -110,20 +108,17 @@ public class AuthenticationFilter implements Filter {
         Identity identity = getIdentity();
 
         DefaultLoginCredentials creds = extractCredentials(request);
-        Object credential = creds.getCredential();
 
-        if (credential != null && this.forceReAuthentication) {
+        if (creds.getCredential() != null && this.forceReAuthentication) {
             identity.logout();
-            creds.setCredential(credential);
+            creds = extractCredentials(request);
         }
 
         if (isProtected(request) && !identity.isLoggedIn()) {
             // Force session creation
             request.getSession();
 
-            if (credential != null) {
-                identity.login();
-            }
+            identity.login();
 
             if (identity.isLoggedIn()) {
                 if (this.authenticationScheme.postAuthentication(request, response)) {

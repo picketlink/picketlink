@@ -17,19 +17,18 @@
  */
 package org.picketlink.test.idm.other.shane.model.scenario1.entity;
 
-import java.io.Serializable;
-import java.util.Date;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import org.picketlink.idm.jpa.annotations.CreationDate;
-import org.picketlink.idm.jpa.annotations.Enabled;
-import org.picketlink.idm.jpa.annotations.ExpiryDate;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.model.IdentityType;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Root entity bean that defines each identity object
@@ -43,9 +42,9 @@ public class IdentityObject implements Serializable {
 
     @Id @Identifier private String identityId;
     @IdentityClass private String identityClass;
-    @CreationDate private Date createdDate;
-    @ExpiryDate private Date expirationDate;
-    @Enabled private boolean enabled;
+    @AttributeValue private Date createdDate;
+    @AttributeValue private Date expirationDate;
+    @AttributeValue private boolean enabled;
     @OwnerReference @ManyToOne private Partition partition;
 
     public String getIdentityId() {

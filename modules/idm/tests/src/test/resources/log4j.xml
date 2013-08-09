@@ -26,7 +26,7 @@
     <param name="DatePattern" value="'.'yyyy-MM-dd"/>
 
     <!-- Rollover at the top of each hour
-             <param name="DatePattern" value="'.'yyyy-MM-dd-HH"/>
+             <param name="DatePattern" exclude="'.'yyyy-MM-dd-HH"/>
     -->
 
     <layout class="org.apache.log4j.PatternLayout">

@@ -17,8 +17,9 @@
  */
 package org.picketlink.idm.model;
 
-import java.util.Date;
 import org.picketlink.idm.model.annotation.AttributeProperty;
+
+import java.util.Date;
 
 /**
  * Abstract base class for IdentityType implementations
@@ -45,6 +46,7 @@ public abstract class AbstractIdentityType extends AbstractAttributedType implem
     }
 
     @Override
+    @AttributeProperty
     public Date getExpirationDate() {
         return this.expirationDate;
     }

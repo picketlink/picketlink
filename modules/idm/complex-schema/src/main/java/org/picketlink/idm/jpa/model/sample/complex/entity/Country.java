@@ -36,6 +36,14 @@ public class Country implements Serializable {
 
     private String name;
 
+    public Country() {
+        this(null);
+    }
+
+    public Country(String name) {
+        this.name = name;
+    }
+
     public Long getId() {
         return id;
     }

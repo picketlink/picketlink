@@ -18,51 +18,24 @@
 
 package org.picketlink.config.idm;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Type with configuration of IDM
- *
- * TODO: Move this class to config module. For now it needs to be in federation because needs to be accessible from PicketlinkType class
- * TODO: Add XML config snippet similarly like for other type classes
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 public class IDMType {
 
-    private String identityManagerClass;
-    private String storeFactoryClass;
-    private IdentityStoreInvocationContextFactoryType identityStoreInvocationContextFactory;
+    private List<ConfigBuilderMethodType> builderMethods = new LinkedList<ConfigBuilderMethodType>();
 
-    private IdentityConfigurationType identityConfigurationType;
-
-    public String getIdentityManagerClass() {
-        return identityManagerClass;
+    public void addConfigBuilderMethod(ConfigBuilderMethodType configBuilderMethod) {
+        this.builderMethods.add(configBuilderMethod);
     }
 
-    public void setIdentityManagerClass(String identityManagerClass) {
-        this.identityManagerClass = identityManagerClass;
-    }
-
-    public String getStoreFactoryClass() {
-        return storeFactoryClass;
-    }
-
-    public void setStoreFactoryClass(String storeFactoryClass) {
-        this.storeFactoryClass = storeFactoryClass;
-    }
-
-    public IdentityStoreInvocationContextFactoryType getIdentityStoreInvocationContextFactory() {
-        return identityStoreInvocationContextFactory;
-    }
-
-    public void setIdentityStoreInvocationContextFactory(IdentityStoreInvocationContextFactoryType identityStoreInvocationContextFactory) {
-        this.identityStoreInvocationContextFactory = identityStoreInvocationContextFactory;
-    }
-
-    public IdentityConfigurationType getIdentityConfigurationType() {
-        return identityConfigurationType;
-    }
-
-    public void setIdentityConfigurationType(IdentityConfigurationType identityConfigurationType) {
-        this.identityConfigurationType = identityConfigurationType;
+    public List<ConfigBuilderMethodType> getBuilderMethods() {
+        return Collections.unmodifiableList(builderMethods);
     }
 }

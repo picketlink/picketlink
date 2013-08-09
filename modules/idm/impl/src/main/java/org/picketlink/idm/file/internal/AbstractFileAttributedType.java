@@ -18,22 +18,19 @@
 
 package org.picketlink.idm.file.internal;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.PropertyQuery;
-import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.annotation.AttributeProperty;
+
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Pedro Silva
@@ -67,15 +64,15 @@ public abstract class AbstractFileAttributedType<T extends AttributedType> exten
             property.setValue(attributedType, properties.get(property.getName()));
         }
 
-        if (this.attributes == null) {
-            this.attributes = new HashMap<String, Serializable>();
-        }
-
-        Set<Entry<String, Serializable>> entrySet = this.attributes.entrySet();
-
-        for (Entry<String, Serializable> entry : entrySet) {
-            attributedType.setAttribute(new Attribute<Serializable>(entry.getKey(), entry.getValue()));
-        }
+//        if (this.attributes == null) {
+//            this.attributes = new HashMap<String, Serializable>();
+//        }
+//
+//        Set<Entry<String, Serializable>> entrySet = this.attributes.entrySet();
+//
+//        for (Entry<String, Serializable> entry : entrySet) {
+//            attributedType.setAttribute(new Attribute<Serializable>(entry.getKey(), entry.getValue()));
+//        }
 
         return attributedType;
     }
@@ -97,19 +94,19 @@ public abstract class AbstractFileAttributedType<T extends AttributedType> exten
 
         T attributedType = getEntry();
 
-        Collection<Attribute<? extends Serializable>> typeAttributes = attributedType.getAttributes();
-
-        for (Attribute<? extends Serializable> attribute : typeAttributes) {
-            this.attributes.put(attribute.getName(), attribute.getValue());
-        }
-
-        s.writeObject(this.attributes);
+//        Collection<Attribute<? extends Serializable>> typeAttributes = attributedType.getAttributes();
+//
+//        for (Attribute<? extends Serializable> attribute : typeAttributes) {
+//            this.attributes.put(attribute.getName(), attribute.getValue());
+//        }
+//
+//        s.writeObject(this.attributes);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     protected void doReadObject(ObjectInputStream s) throws Exception {
-        this.attributes = (Map<String, Serializable>) s.readObject();
+//        this.attributes = (Map<String, Serializable>) s.readObject();
     }
 
     private List<Property<Serializable>> getAttributedProperties(T attributedType) {

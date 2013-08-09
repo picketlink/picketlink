@@ -17,14 +17,15 @@
  */
 package org.picketlink.test.idm.other.shane.model.scenario1.entity;
 
-import java.io.Serializable;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
-import org.picketlink.idm.jpa.annotations.PartitionName;
 import org.picketlink.idm.jpa.annotations.entity.ConfigurationName;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import java.io.Serializable;
 
 /**
  * This entity bean contains partition records such as Realms and Tiers
@@ -38,7 +39,7 @@ public class Partition implements Serializable {
 
     @Id @Identifier private String partitionId;
     @PartitionClass private String partitionClass;
-    @PartitionName private String name;
+    @AttributeValue private String name;
     @ConfigurationName private String configurationName;
 
     public String getPartitionId() {

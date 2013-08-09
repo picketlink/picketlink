@@ -17,8 +17,6 @@
  */
 package org.picketlink.idm.jpa.internal.mappers;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
@@ -31,6 +29,11 @@ import org.picketlink.idm.jpa.annotations.EffectiveDate;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.picketlink.idm.IDMMessages.*;
+
 /**
  * @author pedroigor
  */
@@ -42,7 +45,7 @@ public class ManagedCredentialAttributeMapper extends AbstractModelMapper {
     }
 
     @Override
-    public List<EntityMapping> doCreateMapping(Class<?> entityType) {
+    public List<EntityMapping> doCreateMapping(Class<?> entityType) throws SecurityConfigurationException {
         List<EntityMapping> mappings = new ArrayList<EntityMapping>();
 
         Class<? extends CredentialStorage>[] storageTypes = getManagedCredential(entityType).value();
@@ -52,17 +55,32 @@ public class ManagedCredentialAttributeMapper extends AbstractModelMapper {
         }
 
         for (Class<? extends CredentialStorage> storageType : storageTypes) {
-            EntityMapping entityMapping = new EntityMapping(storageType, true);
+            EntityMapping entityMapping = new EntityMapping(storageType);
 
-            Property credentialClassProperty = getAnnotatedProperty(CredentialClass.class, entityType);
+            Property typeProperty = getAnnotatedProperty(CredentialClass.class, entityType);
 
-            if (credentialClassProperty == null) {
-                throw new SecurityConfigurationException("@ManagedCredential entity does not have a @CredentialClass annotated field.");
+            if (typeProperty == null) {
+                throw MESSAGES.jpaConfigRequiredMappingAnnotation(entityType, CredentialClass.class);
             }
 
-            entityMapping.addTypeProperty(credentialClassProperty);
-            entityMapping.addProperty(getNamedProperty("effectiveDate", storageType), getAnnotatedProperty(EffectiveDate.class, entityType));
-            entityMapping.addProperty(getNamedProperty("expiryDate", storageType), getAnnotatedProperty(ExpiryDate.class, entityType));
+            entityMapping.addTypeProperty(typeProperty);
+
+            Property effectiveDate = getAnnotatedProperty(EffectiveDate.class, entityType);
+
+            if (effectiveDate == null) {
+                throw MESSAGES.jpaConfigRequiredMappingAnnotation(entityType, EffectiveDate.class);
+            }
+
+            entityMapping.addProperty(getNamedProperty("effectiveDate", storageType), effectiveDate);
+
+            Property expirationDate = getAnnotatedProperty(ExpiryDate.class, entityType);
+
+            if (expirationDate == null) {
+                throw MESSAGES.jpaConfigRequiredMappingAnnotation(entityType, ExpiryDate.class);
+            }
+
+            entityMapping.addProperty(getNamedProperty("expiryDate", storageType), expirationDate);
+
             entityMapping.addOwnerProperty(entityType);
 
             List<Property<Object>> properties = PropertyQueries

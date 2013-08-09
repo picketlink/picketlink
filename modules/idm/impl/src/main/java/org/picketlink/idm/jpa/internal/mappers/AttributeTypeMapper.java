@@ -17,39 +17,38 @@
  */
 package org.picketlink.idm.jpa.internal.mappers;
 
-import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
-import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
 import org.picketlink.idm.model.Attribute;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author pedroigor
  */
-public class AttributeTypeMapper extends AbstractIdentityManagedMapper {
+public class AttributeTypeMapper extends AbstractModelMapper {
 
     @Override
     public boolean supports(Class<?> entityType) {
-        return  !entityType.isAnnotationPresent(ManagedCredential.class)
-                && getAnnotatedProperty(AttributeName.class, entityType) != null
+        return  getAnnotatedProperty(AttributeName.class, entityType) != null
                 && getAnnotatedProperty(AttributeValue.class, entityType) != null;
     }
 
     @Override
-    public EntityMapping configure(Class<?> managedType, Class<?> entityType) {
-        EntityMapping entityMapping = new EntityMapping(getSupportedAttributeType(managedType), true);
+    protected List<EntityMapping> doCreateMapping(final Class<?> entityType) {
+        List<EntityMapping> mappings = new ArrayList<EntityMapping>();
+
+        EntityMapping entityMapping = new EntityMapping(Attribute.class);
 
         entityMapping.addProperty(getNamedProperty("name", Attribute.class), getAnnotatedProperty(AttributeName.class, entityType));
         entityMapping.addProperty(getNamedProperty("value", Attribute.class), getAnnotatedProperty(AttributeValue.class, entityType));
-        entityMapping.addProperty(getSupportedAttributeType(managedType).getClass().getName(), getAnnotatedProperty(AttributeClass.class, entityType));
 
         entityMapping.addOwnerProperty(entityType);
 
-        return entityMapping;
-    }
+        mappings.add(entityMapping);
 
-    protected Class<?> getSupportedAttributeType(Class<?> managedType) {
-        return Attribute.class;
+        return mappings;
     }
 
 }

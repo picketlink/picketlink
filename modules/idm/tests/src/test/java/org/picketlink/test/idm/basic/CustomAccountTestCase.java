@@ -17,14 +17,8 @@
  */
 package org.picketlink.test.idm.basic;
 
-import java.util.Date;
-import java.util.List;
-import javax.persistence.Entity;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.jpa.annotations.AttributeValue;
-import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
-import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
 import org.picketlink.idm.model.AbstractIdentityType;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
@@ -33,19 +27,20 @@ import org.picketlink.idm.model.annotation.Unique;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+
+import java.util.Date;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * @author pedroigor
  */
-@IgnoreTester(LDAPStoreConfigurationTester.class)
+@Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class})
 public class CustomAccountTestCase extends AbstractIdentityTypeTestCase<CustomAccountTestCase.MyCustomAccount> {
 
     public static final String LOGIN_NAME = "bob";
@@ -99,8 +94,6 @@ public class CustomAccountTestCase extends AbstractIdentityTypeTestCase<CustomAc
         assertEquals(1, result.size());
     }
 
-    @Test
-    @IgnoreTester(LDAPStoreConfigurationTester.class)
     public void testUpdateFormalAttributes() throws Exception {
         MyCustomAccount customIdentityType = createIdentityType();
 
@@ -176,22 +169,6 @@ public class CustomAccountTestCase extends AbstractIdentityTypeTestCase<CustomAc
         }
 
         @AttributeProperty
-        public Integer getLoginAttempts() {
-            return this.loginAttempts;
-        }
-
-        public void setLoginAttempts(Integer loginAttempts) {
-            this.loginAttempts = loginAttempts;
-        }
-    }
-
-    @IdentityManaged (MyCustomAccount.class)
-    @Entity
-    public static class MyCustomAccountEntity extends AccountTypeEntity {
-
-        @AttributeValue
-        private Integer loginAttempts;
-
         public Integer getLoginAttempts() {
             return this.loginAttempts;
         }

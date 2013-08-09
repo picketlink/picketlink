@@ -18,19 +18,22 @@
 
 package org.picketlink.idm.ldap.internal;
 
-import java.util.Date;
+import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.credential.UsernamePasswordCredentials;
+import org.picketlink.idm.credential.handler.CredentialHandler;
+import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
+import org.picketlink.idm.model.Account;
+import org.picketlink.idm.spi.IdentityContext;
+
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
-import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.credential.UsernamePasswordCredentials;
-import org.picketlink.idm.credential.handler.AbstractCredentialHandler;
-import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
-import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.sample.Agent;
-import org.picketlink.idm.spi.IdentityContext;
-import static org.picketlink.idm.credential.Credentials.Status;
+import java.util.Date;
+
+import static org.picketlink.idm.credential.Credentials.*;
+import static org.picketlink.idm.model.sample.SampleModel.*;
 
 /**
  * This particular implementation supports the validation of UsernamePasswordCredentials, and updating PlainTextPassword
@@ -41,7 +44,7 @@ import static org.picketlink.idm.credential.Credentials.Status;
  */
 @SupportsCredentials({ UsernamePasswordCredentials.class, Password.class })
 public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
-    extends AbstractCredentialHandler<LDAPIdentityStore, UsernamePasswordCredentials, Password> {
+    implements CredentialHandler<LDAPIdentityStore, UsernamePasswordCredentials, Password> {
 
     private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
 
@@ -55,7 +58,7 @@ public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
         usernamePassword.setStatus(Status.INVALID);
         usernamePassword.setValidatedAccount(null);
 
-        Agent agent = getAccount(context, usernamePassword.getUsername());
+        Account agent = getAccount(context, usernamePassword.getUsername());
 
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
@@ -63,10 +66,9 @@ public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
                 LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) identityStore;
                 char[] password = usernamePassword.getPassword().getValue();
                 String bindingDN = ldapIdentityStore.getBindingDN(agent);
+                LDAPOperationManager operationManager = ldapIdentityStore.getOperationManager();
 
-                boolean isValid = ldapIdentityStore.getOperationManager().authenticate(bindingDN, new String(password));
-
-                if (isValid) {
+                if (operationManager.authenticate(bindingDN, new String(password))) {
                     usernamePassword.setValidatedAccount(agent);
                     usernamePassword.setStatus(Status.VALID);
                 }
@@ -112,4 +114,25 @@ public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
         }
     }
 
+    protected Account getAccount(IdentityContext context, String loginName) {
+        IdentityManager identityManager = getIdentityManager(context);
+
+        Account agent = getAgent(identityManager, loginName);
+
+        if (agent == null) {
+            agent = getUser(identityManager, loginName);
+        }
+
+        return agent;
+    }
+
+    protected IdentityManager getIdentityManager(IdentityContext context) {
+        IdentityManager identityManager = context.getParameter(IdentityManager.IDENTITY_MANAGER_CTX_PARAMETER);
+
+        if (identityManager == null) {
+            throw new IdentityManagementException("IdentityManager not set into context.");
+        }
+
+        return identityManager;
+    }
 }

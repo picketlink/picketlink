@@ -25,12 +25,15 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Agent;
 import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.GroupRole;
-import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
-import org.picketlink.test.idm.IgnoreTester;
+import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
+
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
@@ -41,7 +44,8 @@ import static org.junit.Assert.assertFalse;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-@IgnoreTester(LDAPStoreConfigurationTester.class)
+@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
+        MixedLDAPJPAStoreConfigurationTester.class})
 public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends AbstractPartitionManagerTestCase {
 
     public AgentGroupRoleRelationshipTestCase(IdentityConfigurationTester builder) {
@@ -113,6 +117,7 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
     }
 
     @Test
+    @Configuration(exclude = MixedLDAPJPAStoreConfigurationTester.class)
     public void testGrantParentGroupRole() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
