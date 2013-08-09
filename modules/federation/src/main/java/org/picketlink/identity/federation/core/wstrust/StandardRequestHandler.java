@@ -17,18 +17,6 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
-import java.net.URI;
-import java.security.KeyPair;
-import java.security.Principal;
-import java.security.PublicKey;
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
-import java.util.List;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import javax.xml.crypto.dsig.DigestMethod;
-import javax.xml.crypto.dsig.SignatureMethod;
-import javax.xml.namespace.QName;
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.WSTrustConstants;
@@ -60,6 +48,19 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.crypto.dsig.DigestMethod;
+import javax.xml.crypto.dsig.SignatureMethod;
+import javax.xml.namespace.QName;
+import java.net.URI;
+import java.security.KeyPair;
+import java.security.Principal;
+import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.List;
 
 /**
  * <p>
@@ -103,6 +104,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
 
         // first try to obtain the security token provider using the applies-to contents.
         AppliesTo appliesTo = request.getAppliesTo();
+        X509Certificate providerCertificate = null;
         PublicKey providerPublicKey = null;
         if (appliesTo != null) {
             String serviceName = WSTrustUtil.parseAppliesTo(appliesTo);
@@ -113,7 +115,11 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                 if (request.getTokenType() == null && tokenTypeFromServiceName != null)
                     request.setTokenType(URI.create(tokenTypeFromServiceName));
 
-                providerPublicKey = this.configuration.getServiceProviderPublicKey(serviceName);
+                providerCertificate = this.configuration.getServiceProviderCertificate(serviceName);
+
+                if(providerCertificate != null) {
+                    providerPublicKey = providerCertificate.getPublicKey();
+                }
 
                 // provider = this.configuration.getProviderForService(serviceName);
                 /*
@@ -207,12 +213,12 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                 } catch (Exception e) {
                     throw logger.wsTrustCombinedSecretKeyError(e);
                 }
-                requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(combinedSecret, providerPublicKey, keyWrapAlgo));
+                requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(combinedSecret, providerPublicKey, keyWrapAlgo, providerCertificate));
             } else {
                 // client secret has not been specified - use the sts secret only.
                 requestedProofToken.add(serverBinarySecret);
                 requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(serverBinarySecret.getValue(), providerPublicKey,
-                        keyWrapAlgo));
+                        keyWrapAlgo, providerCertificate));
             }
         } else if (WSTrustConstants.KEY_TYPE_PUBLIC.equalsIgnoreCase(keyType.toString())) {
             // try to locate the client cert in the keystore using the caller principal as the alias.

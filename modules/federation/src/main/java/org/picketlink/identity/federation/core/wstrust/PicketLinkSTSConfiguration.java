@@ -41,6 +41,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -319,6 +320,41 @@ public class PicketLinkSTSConfiguration implements STSConfiguration {
             }
         }
         return key;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.picketlink.identity.federation.core.wstrust.STSConfiguration#getServiceProviderPublicKey(java.lang.String)
+     */
+    public X509Certificate getServiceProviderCertificate(String serviceName) {
+        X509Certificate x509 = null;
+
+        if (this.trustManager != null) {
+            try {
+                // try using the truststore alias from the service provider metadata.
+                ServiceProviderType provider = this.spMetadata.get(serviceName);
+                if (provider != null && provider.getTruststoreAlias() != null) {
+                    Certificate cer = this.trustManager.getCertificate(provider.getTruststoreAlias());
+
+                    if(cer instanceof X509Certificate) {
+                        x509 = (X509Certificate)cer;
+                    }
+                }
+
+                // if there was no truststore alias or no PKC under that alias, use the KeyProvider mapping.
+                if (x509 == null) {
+                    Certificate cer = this.trustManager.getCertificate(provider.getTruststoreAlias());
+
+                    if(cer instanceof X509Certificate) {
+                        x509 = (X509Certificate)cer;
+                    }
+                }
+            } catch (Exception e) {
+                throw logger.stsPublicKeyError(serviceName, e);
+            }
+        }
+        return x509;
     }
 
     /*
