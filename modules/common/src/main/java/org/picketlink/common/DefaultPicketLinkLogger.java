@@ -51,11 +51,11 @@ import static org.picketlink.common.ErrorCodes.UNKNOWN_TAG;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
+
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
  */
 public class DefaultPicketLinkLogger implements PicketLinkLogger {
 
@@ -2280,12 +2280,12 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
         return new IllegalArgumentException("Cache duration could not be created using '" + timeValue
                 + "'. This value must be an ISO-8601 period or a numeric value representing the duration in milliseconds.");
     }
-    
+
     @Override
     public ConfigurationException samlMetaDataNoIdentityProviderDefined() {
         return new ConfigurationException("No configuration provided for the Identity Provider.");
     }
-    
+
     @Override
     public ConfigurationException samlMetaDataNoServiceProviderDefined() {
         return new ConfigurationException("No configuration provided for the Service Provider.");
@@ -2319,4 +2319,19 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
         error("Error loading AuthorizationManager.", e);
     }
 
+    public IllegalStateException jbdcInitializationError(Throwable throwable) {
+        return new IllegalStateException(throwable);
+    }
+
+    public RuntimeException errorUnmarshallingToken(Throwable e) {
+        return new RuntimeException(e);
+    }
+
+    public RuntimeException runtimeException(String msg, Throwable e) {
+        return new RuntimeException(msg, e);
+    }
+
+    public IllegalStateException datasourceIsNull() {
+        return new IllegalStateException();
+    }
 }
