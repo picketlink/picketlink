@@ -115,6 +115,8 @@ public class SAMLConfigParser extends AbstractParser {
     
     public static final String STRICT_POST_BINDING = "StrictPostBinding";
 
+    public static final String SSL_CLIENT_AUTHENTICATION = "SSLClientAuthentication";
+
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
         StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
 
@@ -214,6 +216,12 @@ public class SAMLConfigParser extends AbstractParser {
         attribute = startElement.getAttributeByName(attributeQName);
         if (attribute != null) {
             idp.setIdentityParticipantStack(StaxParserUtil.getAttributeValue(attribute));
+        }
+
+        attributeQName = new QName("", SSL_CLIENT_AUTHENTICATION);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null) {
+            idp.setSSLClientAuthentication(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));
         }
 
         while (xmlEventReader.hasNext()) {

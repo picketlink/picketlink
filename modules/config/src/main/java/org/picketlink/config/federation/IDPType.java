@@ -24,33 +24,33 @@ package org.picketlink.config.federation;
 import org.picketlink.common.util.StringUtil;
 
 /**
- * 
  * IDP Type defines the configuration for an Identity Provider.
- * 
- * 
- * <p>
+ * <p/>
+ * <p/>
+ * <p/>
  * Java class for IDPType complex type.
- * 
- * <p>
+ * <p/>
+ * <p/>
  * The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p/>
  * <pre>
  * &lt;complexType name="IDPType">
  *   &lt;complexContent>
  *     &lt;extension base="{urn:picketlink:identity-federation:config:1.0}ProviderType">
  *       &lt;sequence>
- *         &lt;element name="Encryption" type="{urn:picketlink:identity-federation:config:1.0}EncryptionType" minOccurs="0"/>
+ *         &lt;element name="Encryption" type="{urn:picketlink:identity-federation:config:1.0}EncryptionType"
+ * minOccurs="0"/>
  *       &lt;/sequence>
  *       &lt;attribute name="AssertionValidity" type="{http://www.w3.org/2001/XMLSchema}long" default="300000" />
- *       &lt;attribute name="RoleGenerator" type="{http://www.w3.org/2001/XMLSchema}string" default="org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator" />
- *       &lt;attribute name="AttributeManager" type="{http://www.w3.org/2001/XMLSchema}string" default="org.picketlink.identity.federation.bindings.tomcat.TomcatAttributeManager" />
+ *       &lt;attribute name="RoleGenerator" type="{http://www.w3.org/2001/XMLSchema}string"
+ * default="org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator" />
+ *       &lt;attribute name="AttributeManager" type="{http://www.w3.org/2001/XMLSchema}string"
+ * default="org.picketlink.identity.federation.bindings.tomcat.TomcatAttributeManager" />
  *       &lt;attribute name="Encrypt" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
  *     &lt;/extension>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
  */
 public class IDPType extends ProviderType {
 
@@ -61,14 +61,19 @@ public class IDPType extends ProviderType {
     protected String attributeManager;
 
     protected Boolean encrypt;
-    
+
     protected String hostedURI;
 
     /**
-     * SAML Web Browser SSO Profile has a requirement that the IDP does not respond back in Redirect Binding. Set this to false
-     * if you want to force the IDP to respond to SPs using the Redirect Binding.
+     * SAML Web Browser SSO Profile has a requirement that the IDP does not respond back in Redirect Binding. Set this
+     * to false if you want to force the IDP to respond to SPs using the Redirect Binding.
      */
     private boolean strictPostBinding = true;
+
+    /**
+     * Tells the IDP if SSL clients should be authenticated.
+     */
+    private boolean sslClientAuthentication = false;
 
     /**
      * If the user wants to set a particular {@link IdentityParticipantStack}
@@ -77,9 +82,8 @@ public class IDPType extends ProviderType {
 
     /**
      * Gets the value of the encryption property.
-     * 
+     *
      * @return possible object is {@link EncryptionType }
-     * 
      */
     public EncryptionType getEncryption() {
         return encryption;
@@ -87,9 +91,8 @@ public class IDPType extends ProviderType {
 
     /**
      * Sets the value of the encryption property.
-     * 
+     *
      * @param value allowed object is {@link EncryptionType }
-     * 
      */
     public void setEncryption(EncryptionType value) {
         this.encryption = value;
@@ -97,9 +100,8 @@ public class IDPType extends ProviderType {
 
     /**
      * Gets the value of the roleGenerator property.
-     * 
+     *
      * @return possible object is {@link String }
-     * 
      */
     public String getRoleGenerator() {
         if (roleGenerator == null) {
@@ -111,9 +113,8 @@ public class IDPType extends ProviderType {
 
     /**
      * Sets the value of the roleGenerator property.
-     * 
+     *
      * @param value allowed object is {@link String }
-     * 
      */
     public void setRoleGenerator(String value) {
         this.roleGenerator = value;
@@ -121,9 +122,8 @@ public class IDPType extends ProviderType {
 
     /**
      * Gets the value of the attributeManager property.
-     * 
+     *
      * @return possible object is {@link String }
-     * 
      */
     public String getAttributeManager() {
         if (attributeManager == null) {
@@ -135,9 +135,8 @@ public class IDPType extends ProviderType {
 
     /**
      * Sets the value of the attributeManager property.
-     * 
+     *
      * @param value allowed object is {@link String }
-     * 
      */
     public void setAttributeManager(String value) {
         this.attributeManager = value;
@@ -145,9 +144,8 @@ public class IDPType extends ProviderType {
 
     /**
      * Gets the value of the encrypt property.
-     * 
+     *
      * @return possible object is {@link Boolean }
-     * 
      */
     public boolean isEncrypt() {
         if (encrypt == null) {
@@ -159,9 +157,8 @@ public class IDPType extends ProviderType {
 
     /**
      * Sets the value of the encrypt property.
-     * 
+     *
      * @param value allowed object is {@link Boolean }
-     * 
      */
     public void setEncrypt(Boolean value) {
         this.encrypt = value;
@@ -169,7 +166,7 @@ public class IDPType extends ProviderType {
 
     /**
      * Gets the value of the encrypt property.
-     * 
+     *
      * @return possible object is {@link String}
      */
     public String getHostedURI() {
@@ -178,7 +175,7 @@ public class IDPType extends ProviderType {
 
     /**
      * Sets the value of the hostedURI property.
-     * 
+     *
      * @param value allowed object is {@link String}
      */
     public void setHostedURI(String hostedURI) {
@@ -187,7 +184,7 @@ public class IDPType extends ProviderType {
 
     /**
      * Import values from another {@link IDPType}
-     * 
+     *
      * @param other
      */
     public void importFrom(IDPType other) {
@@ -207,7 +204,7 @@ public class IDPType extends ProviderType {
 
     /**
      * Sets the value of the strictPostBinding property.
-     * 
+     *
      * @param value allowed object is {@link Boolean }
      */
     public void setStrictPostBinding(boolean strictPostBinding) {
@@ -216,18 +213,35 @@ public class IDPType extends ProviderType {
 
     /**
      * Gets the value of the strictPostBinding property.
-     * 
+     *
      * @return possible object is {@link Boolean }
-     * 
      */
     public boolean isStrictPostBinding() {
         return this.strictPostBinding;
     }
 
     /**
-     * Sets the value of the identityParticipantStack property. The value must be the name of a {@link IdentityParticipantStack}
-     * subclass.
-     * 
+     * Gets the value of the supportsSSL property.
+     *
+     * @return
+     */
+    public boolean isSSLClientAuthentication() {
+        return this.sslClientAuthentication;
+    }
+
+    /**
+     * Sets the value of the supportsSSL property.
+     *
+     * @param sslClientAuthentication
+     */
+    public void setSSLClientAuthentication(boolean sslClientAuthentication) {
+        this.sslClientAuthentication = sslClientAuthentication;
+    }
+
+    /**
+     * Sets the value of the identityParticipantStack property. The value must be the name of a {@link
+     * IdentityParticipantStack} subclass.
+     *
      * @param value allowed object is {@link String }
      */
     public void setIdentityParticipantStack(String identityParticipantStack) {
@@ -236,9 +250,8 @@ public class IDPType extends ProviderType {
 
     /**
      * Gets the value of the identityParticipantStack property.
-     * 
+     *
      * @return possible object is {@link String }
-     * 
      */
     public String getIdentityParticipantStack() {
         return this.identityParticipantStack;
