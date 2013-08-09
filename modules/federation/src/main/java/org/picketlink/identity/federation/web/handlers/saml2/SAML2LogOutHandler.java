@@ -298,13 +298,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             // Status
             StatusType statusType = new StatusType();
             StatusCodeType statusCodeType = new StatusCodeType();
-            statusCodeType.setValue(URI.create(JBossSAMLURIConstants.STATUS_RESPONDER.get()));
-
-            // 2nd level status code
-            StatusCodeType status2ndLevel = new StatusCodeType();
-            status2ndLevel.setValue(URI.create(JBossSAMLURIConstants.STATUS_SUCCESS.get()));
-            statusCodeType.setStatusCode(status2ndLevel);
-
+            statusCodeType.setValue(URI.create(JBossSAMLURIConstants.STATUS_SUCCESS.get()));
             statusType.setStatusCode(statusCodeType);
 
             statusResponse.setStatus(statusType);
@@ -428,19 +422,10 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             StatusCodeType statusCode = statusType.getStatusCode();
             URI statusCodeValueURI = statusCode.getValue();
             boolean success = false;
-            if (statusCodeValueURI != null) {
+            if(statusCodeValueURI != null){
                 String statusCodeValue = statusCodeValueURI.toString();
-                if (JBossSAMLURIConstants.STATUS_SUCCESS.get().equals(statusCodeValue)) {
+                if(JBossSAMLURIConstants.STATUS_SUCCESS.get().equals(statusCodeValue)){
                     success = true;
-                }
-            }
-            if (success) {
-                // we are successfully logged out
-                session.invalidate();
-            } else {
-                StatusCodeType secondLevelstatusCode = statusCode.getStatusCode();
-                if (secondLevelstatusCode != null && secondLevelstatusCode.getValue().toString().equals(JBossSAMLURIConstants.STATUS_SUCCESS.get())) {
-                    // we are successfully logged out
                     session.invalidate();
                 }
             }
@@ -450,7 +435,6 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             SAML2Object samlObject = request.getSAML2Object();
             if (samlObject instanceof LogoutRequestType == false)
                 return;
-
             //get the configuration to handle a logout request from idp and set the correct response location
             SPType spConfiguration = (SPType) getProviderconfig();
 
@@ -474,13 +458,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             // Status
             StatusType statusType = new StatusType();
             StatusCodeType statusCodeType = new StatusCodeType();
-            statusCodeType.setValue(URI.create(JBossSAMLURIConstants.STATUS_RESPONDER.get()));
-
-            // 2nd level status code
-            StatusCodeType status2ndLevel = new StatusCodeType();
-            status2ndLevel.setValue(URI.create(JBossSAMLURIConstants.STATUS_SUCCESS.get()));
-            statusCodeType.setStatusCode(status2ndLevel);
-
+            statusCodeType.setValue(URI.create(JBossSAMLURIConstants.STATUS_SUCCESS.get()));
             statusType.setStatusCode(statusCodeType);
 
             statusResponse.setStatus(statusType);
@@ -490,8 +468,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             statusResponse.setIssuer(request.getIssuer());
 
             String logoutResponseLocation = spConfiguration.getLogoutResponseLocation();
-
-            if (logoutResponseLocation == null) {
+            if(logoutResponseLocation == null) {
                 response.setDestination(logOutRequest.getIssuer().getValue());
             } else {
                 response.setDestination(logoutResponseLocation);
