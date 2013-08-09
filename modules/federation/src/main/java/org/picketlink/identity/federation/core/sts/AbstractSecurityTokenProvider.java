@@ -24,7 +24,10 @@ import org.picketlink.identity.federation.core.sts.registry.DefaultRevocationReg
 import org.picketlink.identity.federation.core.sts.registry.DefaultTokenRegistry;
 import org.picketlink.identity.federation.core.sts.registry.FileBasedRevocationRegistry;
 import org.picketlink.identity.federation.core.sts.registry.FileBasedTokenRegistry;
+import org.picketlink.identity.federation.core.sts.registry.JDBCRevocationRegistry;
+import org.picketlink.identity.federation.core.sts.registry.JDBCTokenRegistry;
 import org.picketlink.identity.federation.core.sts.registry.JPABasedRevocationRegistry;
+import org.picketlink.identity.federation.core.sts.registry.JPABasedTokenRegistry;
 import org.picketlink.identity.federation.core.sts.registry.RevocationRegistry;
 import org.picketlink.identity.federation.core.sts.registry.SecurityTokenRegistry;
 
@@ -38,18 +41,24 @@ import java.util.Map;
  * @since Jan 4, 2011
  */
 public abstract class AbstractSecurityTokenProvider implements SecurityTokenProvider {
-    
+
     protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     protected static final String TOKEN_REGISTRY = "TokenRegistry";
 
     protected static final String TOKEN_REGISTRY_FILE = "TokenRegistryFile";
 
+    protected static final String TOKEN_REGISTRY_JPA = "TokenRegistryJPA";
+
+    protected static final String TOKEN_REGISTRY_JDBC = "TokenRegistryJDBC";
+
     protected static final String REVOCATION_REGISTRY = "RevocationRegistry";
 
     protected static final String REVOCATION_REGISTRY_FILE = "RevocationRegistryFile";
 
     protected static final String REVOCATION_REGISTRY_JPA_CONFIG = "RevocationRegistryJPAConfig";
+
+    protected static final String REVOCATION_REGISTRY_JDBC_CONFIG = "RevocationRegistryJDBCConfig";
 
     protected static final String ATTRIBUTE_PROVIDER = "AttributeProvider";
 
@@ -76,7 +85,20 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
                     this.tokenRegistry = new FileBasedTokenRegistry(tokenRegistryFile);
                 else
                     this.tokenRegistry = new FileBasedTokenRegistry();
+            } else if ("JPA".equalsIgnoreCase(tokenRegistryOption)) {
+                String tokenRegistryjpa = this.properties.get(TOKEN_REGISTRY_JPA);
+                if (tokenRegistryjpa != null)
+                    this.tokenRegistry = new JPABasedTokenRegistry(tokenRegistryjpa);
+                else
+                    this.tokenRegistry = new JPABasedTokenRegistry();
+            } else if ("JDBC".equalsIgnoreCase(tokenRegistryOption)) {
+                String tokenRegistryjdbc = this.properties.get(TOKEN_REGISTRY_JDBC);
+                if (tokenRegistryjdbc != null)
+                    this.tokenRegistry = new JDBCTokenRegistry(tokenRegistryjdbc);
+                else
+                    this.tokenRegistry = new JDBCTokenRegistry();
             }
+
             // the user has specified its own registry implementation class.
             else {
                 try {
@@ -95,14 +117,21 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
                 }
             }
         }
+
         if (this.tokenRegistry == null)
-            tokenRegistry = new DefaultTokenRegistry();
+            tokenRegistry = new
+
+                    DefaultTokenRegistry();
 
         // check if a revocation registry option has been set.
         String registryOption = this.properties.get(REVOCATION_REGISTRY);
-        if (registryOption == null) {
+        if (registryOption == null)
+
+        {
             logger.stsRevocationRegistryNotSpecified();
-        } else {
+        } else
+
+        {
             // if a file is to be used as registry, check if the user has specified the file name.
             if ("FILE".equalsIgnoreCase(registryOption)) {
                 String registryFile = this.properties.get(REVOCATION_REGISTRY_FILE);
@@ -118,6 +147,12 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
                     this.revocationRegistry = new JPABasedRevocationRegistry(configuration);
                 else
                     this.revocationRegistry = new JPABasedRevocationRegistry();
+            } else if ("JDBC".equalsIgnoreCase(registryOption)) {
+                String configuration = this.properties.get(REVOCATION_REGISTRY_JDBC_CONFIG);
+                if (configuration != null)
+                    this.revocationRegistry = new JDBCRevocationRegistry(configuration);
+                else
+                    this.revocationRegistry = new JDBCRevocationRegistry();
             }
             // the user has specified its own registry implementation class.
             else {
@@ -139,6 +174,8 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
         }
 
         if (this.revocationRegistry == null)
-            this.revocationRegistry = new DefaultRevocationRegistry();
+            this.revocationRegistry = new
+
+                    DefaultRevocationRegistry();
     }
 }
