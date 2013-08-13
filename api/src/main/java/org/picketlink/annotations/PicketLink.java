@@ -18,17 +18,24 @@
 
 package org.picketlink.annotations;
 
+import javax.inject.Qualifier;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import javax.inject.Qualifier;
-
 /**
- * This qualifier annotation is used to provide an EntityManager instance to the Identity Management API
- * when access to a database is required for JPAIdentityStore.
- * 
+ * <p>Qualifies a bean, injection or producer field as a PicketLink resource.</p>
+ *
+ * <p>It is usually used to configure a specific behavior for the extensions points provided by PicketLink. You
+ * can use this annotation with types, field or methods. If used in a field or method this usually means
+ * you're producing or injecting a specific PicketLink enabled bean.</p>
+ *
+ * <p>As an example, when using PicketLink IDM backed by a JPA identity store, you must produce a <code>EntityManager</code>
+ * using this annotation.</p>
+ *
+ * <p>Another usage example is when providing a custom {@link org.picketlink.authentication.Authenticator}.</p>
+ *
  * @author Shane Bryzak
  *
  */

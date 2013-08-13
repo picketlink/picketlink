@@ -1,8 +1,8 @@
 package org.picketlink.authentication.internal;
 
-import javax.inject.Inject;
 import org.picketlink.authentication.BaseAuthenticator;
 import org.picketlink.authentication.LockedAccountException;
+import org.picketlink.authentication.UnexpectedCredentialException;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials;
@@ -10,6 +10,8 @@ import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
+
+import javax.inject.Inject;
 
 /**
  * Authenticator that uses the Identity Management API to authenticate.  Assumes that the
@@ -41,7 +43,7 @@ public class IdmAuthenticator extends BaseAuthenticator {
         } else if (isCustomCredential()) {
             creds = (Credentials) credentials.getCredential();
         } else {
-            throw new IllegalArgumentException("Unsupported credential type [" + credentials.getCredential() + "].");
+            throw new UnexpectedCredentialException("Unsupported credential type [" + credentials.getCredential() + "].");
         }
 
         identityManager.validateCredentials(creds);

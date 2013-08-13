@@ -19,8 +19,8 @@
 package org.picketlink.authentication;
 
 /**
- * 
- * 
+ * <p>Thrown during the authentication process to indicate that credentials are not supported or could not be handled.</p>
+ *
  * @author Shane Bryzak
  *
  */

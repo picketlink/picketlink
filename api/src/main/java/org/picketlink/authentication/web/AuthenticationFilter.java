@@ -17,11 +17,10 @@
  */
 package org.picketlink.authentication.web;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import org.picketlink.Identity;
+import org.picketlink.common.util.StringUtil;
+import org.picketlink.credential.DefaultLoginCredentials;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -33,9 +32,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.picketlink.Identity;
-import org.picketlink.common.util.StringUtil;
-import org.picketlink.credential.DefaultLoginCredentials;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <p>This filter provides an authentication entry point for web applications using different
@@ -53,10 +54,13 @@ public class AuthenticationFilter implements Filter {
     private final Map<AuthType, Class<? extends HTTPAuthenticationScheme>> authenticationSchemes;
     private final Set<String> unprotectedMethods;
     private boolean forceReAuthentication;
+
     @Inject
     private Instance<Identity> identityInstance;
+
     @Inject
     private Instance<DefaultLoginCredentials> credentialsInstance;
+
     private HTTPAuthenticationScheme authenticationScheme;
 
     public AuthenticationFilter() {
