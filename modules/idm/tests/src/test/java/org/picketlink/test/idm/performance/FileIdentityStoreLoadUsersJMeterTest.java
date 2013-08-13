@@ -95,8 +95,6 @@ public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerCli
             
             identityManager.add(user);
 
-            user = SampleModel.getUser(identityManager, loginName);
-
             Role role = new Role(loginName);
 
             identityManager.add(role);

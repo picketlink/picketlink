@@ -30,6 +30,7 @@ import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
@@ -44,7 +45,10 @@ import org.picketlink.idm.jpa.model.sample.simple.RelationshipIdentityTypeEntity
 import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity;
+import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.SampleModel;
 import org.picketlink.idm.model.sample.User;
 import org.picketlink.test.idm.basic.MyCustomAccountEntity;
@@ -70,10 +74,6 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
         initializeEntityManager();
 
         partitionManager = createPartitionManager();
-
-        IdentityManager identityManager = partitionManager.createIdentityManager();
-        
-        identityManager.add(new User("testingUser"));
 
         closeEntityManager();
     }
@@ -113,7 +113,7 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
 
         result.sampleStart();
 
-        boolean success = false;
+        boolean success = true;
 
         String loginName = context.getParameter("loginName");
 
@@ -131,10 +131,27 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
             User user = new User(loginName);
 
             IdentityManager identityManager = partitionManager.createIdentityManager();
-            
+
             identityManager.add(user);
 
-            success = user.getId() != null && SampleModel.getUser(identityManager, loginName) != null;
+            Role role = new Role(loginName);
+
+            identityManager.add(role);
+
+            Group group = new Group(loginName);
+
+            identityManager.add(group);
+
+            RelationshipManager relationshipManager = partitionManager.createRelationshipManager();
+
+            SampleModel.grantRole(relationshipManager, user, role);
+            SampleModel.addToGroup(relationshipManager, user, group);
+
+            for (int i = 0;i < 20;i++) {
+                user.setAttribute(new Attribute("Attribute " + user.getLoginName() + i, "Value " + i));
+            }
+
+            identityManager.update(user);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -181,7 +198,9 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
 
             DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
 
-            partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+            if (partitionManager.getPartition(Realm.class, Realm.DEFAULT_REALM) == null) {
+                partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+            }
 
             return partitionManager;
         }
