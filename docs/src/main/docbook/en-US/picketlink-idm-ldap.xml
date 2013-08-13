@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="../" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+         xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns="http://docbook.org/ns/docbook"
+         id="picketlink-idm-ldap">
+  <title>Identity Management - Working with LDAP</title>
+
+      <section>
+        <title>LDAPIdentityStoreConfiguration</title>
+
+        <para>
+          The LDAP identity store allows an LDAP directory server to be used to provide identity state. You can use this store in read-only or write-read mode, depending on your permissions on the server.
+        </para>
+
+        <section>
+          <title>Configuration</title>
+
+          <para>
+            The LDAP identity store can be configured by providing the following configuration:
+          </para>
+
+          <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .stores()
+    .ldap()
+      .baseDN("dc=jboss,dc=org")
+      .bindDN("uid=admin,ou=system")
+      .bindCredential("secret")
+      .url("ldap://localhost:10389")
+      .userDNSuffix("ou=People,dc=jboss,dc=org")
+      .roleDNSuffix("ou=Roles,dc=jboss,dc=org")
+      .groupDNSuffix("ou=Groups,dc=jboss,dc=org")
+      .supportAllFeatures();]]></programlisting>
+
+          <para>
+            The following table describes all configuration options:
+          </para>
+
+          <table>
+            <title>LDAP Configuration Options</title>
+            <tgroup cols="3" align="left">
+              <thead>
+                <row>
+                  <entry>Option</entry>
+                  <entry>Description</entry>
+                  <entry>Required</entry>
+                </row>
+              </thead>
+              <tbody>
+                <row>
+                  <entry><code>baseDN</code></entry>
+                  <entry>Sets the fixed DN of the context from where identity types are stored.</entry>
+                  <entry>Yes</entry>
+                </row>
+                <row>
+                  <entry><code>bindDN</code></entry>
+                  <entry>Sets the the DN used to bind against the ldap server. If you want to perform write operations the DN must have permissions on the agent,user,role and group contexts.</entry>
+                  <entry>Yes</entry>
+                </row>
+                <row>
+                  <entry><code>bindCredential</code></entry>
+                  <entry>Sets the password for the bindDN.</entry>
+                  <entry>Yes</entry>
+                </row>
+                <row>
+                  <entry><code>url</code></entry>
+                  <entry>Sets the url that should be used to connect to the server. Eg.: <![CDATA[ldap://<<server>>:389]]>.</entry>
+                  <entry>Yes</entry>
+                </row>
+                <row>
+                  <entry><code>userDNSuffix</code></entry>
+                  <entry>Sets the fixed DN of the context where users should be read/stored from.</entry>
+                  <entry>Yes</entry>
+                </row>
+                <row>
+                  <entry><code>agentDNSuffix</code></entry>
+                  <entry>Sets the fixed DN of the context where agents should be read/stored from. If not provided, will be used the context provided by the <code>setUserDNSuffix</code></entry>
+                  <entry>No</entry>
+                </row>
+                <row>
+                  <entry><code>roleDNSuffix</code></entry>
+                  <entry>Sets the fixed DN of the context where roles should be read/stored from.</entry>
+                  <entry>Yes</entry>
+                </row>
+                <row>
+                  <entry><code>groupDNSuffix</code></entry>
+                  <entry>Sets the fixed DN of the context where groups should be read/stored from.</entry>
+                  <entry>Yes</entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </table>
+
+          <section>
+            <title>Mapping Groups to different contexts</title>
+
+            <para>
+              Sometimes may be useful to map a specific group to a specific context or DN. By default, all groups are stored and read from the DN provided by the <code>setGroupDNSuffix</code> method, which means that you can not have groups with the same name.
+            </para>
+
+            <para>
+              The following configuration maps the group with path <emphasis>/QA Group</emphasis> to <emphasis>ou=QA,dc=jboss,dc=org</emphasis> 
+            </para>
+
+            <programlisting language="JAVA"><![CDATA[LDAPIdentityStoreConfiguration ldapStoreConfig = new LDAPIdentityStoreConfiguration();
+
+ldapStoreConfig
+  .addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org");]]></programlisting>
+
+            <para>
+              With this configuration you can have groups with the same name, but with different paths.
+            </para>
+
+            <programlisting language="JAVA"><![CDATA[IdentityManager identityManager = getIdentityManager();
+Group managers = new SimpleGroup("managers");      
+
+identityManager.add(managers); // group's path is /manager 
+                  
+Group qaGroup = identityManager.getGroup("QA Group");        
+Group managersQA = new SimpleGroup("managers", qaGroup);
+
+// the QA Group is mapped to a different DN.
+Group qaManagerGroup = identityManager.add(managersQA); // group's path is /QA Group/managers]]></programlisting>                
+          </section>            
+        </section>
+      </section>
+
+</chapter>
