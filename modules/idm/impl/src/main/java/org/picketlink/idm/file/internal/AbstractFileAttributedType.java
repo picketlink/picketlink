@@ -28,7 +28,6 @@ import org.picketlink.idm.model.annotation.AttributeProperty;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,8 +38,6 @@ import java.util.Map;
 public abstract class AbstractFileAttributedType<T extends AttributedType> extends AbstractFileType<T> {
 
     private static final long serialVersionUID = -8312773698663190107L;
-
-    private Map<String, Serializable> attributes = new HashMap<String, Serializable>();
 
     protected AbstractFileAttributedType(String version, T object) {
         super(version, object);
@@ -61,19 +58,12 @@ public abstract class AbstractFileAttributedType<T extends AttributedType> exten
         attributedType.setId(properties.get("id").toString());
 
         for (Property<Serializable> property: getAttributedProperties(attributedType)) {
-            property.setValue(attributedType, properties.get(property.getName()));
+            Serializable value = properties.get(property.getName());
+
+            if (value != null) {
+                property.setValue(attributedType, value);
+            }
         }
-
-//        if (this.attributes == null) {
-//            this.attributes = new HashMap<String, Serializable>();
-//        }
-//
-//        Set<Entry<String, Serializable>> entrySet = this.attributes.entrySet();
-//
-//        for (Entry<String, Serializable> entry : entrySet) {
-//            attributedType.setAttribute(new Attribute<Serializable>(entry.getKey(), entry.getValue()));
-//        }
-
         return attributedType;
     }
 
@@ -84,29 +74,22 @@ public abstract class AbstractFileAttributedType<T extends AttributedType> exten
         properties.put("id", attributedType.getId());
 
         for (Property<Serializable> property: getAttributedProperties(attributedType)) {
-            properties.put(property.getName(), property.getValue(getEntry()));
+            Serializable value = property.getValue(getEntry());
+
+            if (value != null) {
+                properties.put(property.getName(), value);
+            }
         }
     }
 
     @Override
     protected void doWriteObject(ObjectOutputStream s) throws Exception {
         super.doWriteObject(s);
-
-        T attributedType = getEntry();
-
-//        Collection<Attribute<? extends Serializable>> typeAttributes = attributedType.getAttributes();
-//
-//        for (Attribute<? extends Serializable> attribute : typeAttributes) {
-//            this.attributes.put(attribute.getName(), attribute.getValue());
-//        }
-//
-//        s.writeObject(this.attributes);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     protected void doReadObject(ObjectInputStream s) throws Exception {
-//        this.attributes = (Map<String, Serializable>) s.readObject();
     }
 
     private List<Property<Serializable>> getAttributedProperties(T attributedType) {
