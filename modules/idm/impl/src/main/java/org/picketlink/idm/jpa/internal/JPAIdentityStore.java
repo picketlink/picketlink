@@ -429,7 +429,9 @@ public class JPAIdentityStore
                 }
             }
 
-            cq.select(from);
+            Property idProperty = rootMapper.getProperty(Id.class).getValue();
+            cq.select(from.get(idProperty.getName()));
+
             cq.where(predicates.toArray(new Predicate[predicates.size()]));
 
             Query query = entityManager.createQuery(cq);
@@ -443,7 +445,8 @@ public class JPAIdentityStore
             }
 
             for (Object entity : query.getResultList()) {
-                result.add(rootMapper.<V>createType(entity, entityManager));
+                result.add(rootMapper.<V>createType(entityManager.find(rootMapper.getEntityType(),entity),
+                        entityManager));
             }
         }
 
