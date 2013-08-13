@@ -25,6 +25,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,13 +38,14 @@ public class FileAttribute extends AbstractFileType<Collection<Attribute<? exten
     private String identityTypeId;
 
     protected FileAttribute(AttributedType identityType) {
-        super(VERSION, new ArrayList<Attribute<? extends Serializable>>(identityType.getAttributes()));
+        super(VERSION, Collections.synchronizedList(new ArrayList<Attribute<? extends Serializable>>(identityType
+                .getAttributes())));
         this.identityTypeId = identityType.getId();
     }
 
     @Override
     protected Collection<Attribute<? extends Serializable>> doPopulateEntry(Map<String, Serializable> properties) throws Exception {
-        ArrayList<Attribute<? extends Serializable>> attributes = new ArrayList<Attribute<? extends Serializable>>();
+        List<Attribute<? extends Serializable>> attributes = new ArrayList<Attribute<?extends Serializable>>();
 
         for (String name: properties.keySet()) {
             attributes.add(new Attribute(name, properties.get(name)));
@@ -65,7 +68,7 @@ public class FileAttribute extends AbstractFileType<Collection<Attribute<? exten
 
     @Override
     protected void doPopulateProperties(Map<String, Serializable> properties) throws Exception {
-        for (Attribute attribute: getEntry()) {
+        for (Attribute attribute: new ArrayList<Attribute>(getEntry())) {
             properties.put(attribute.getName(), attribute.getValue());
         }
     }

@@ -23,8 +23,9 @@ import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.List;
@@ -96,6 +97,8 @@ public class FileDataSource {
     private Map<String, FileAttributedType> attributedTypes;
 
     private ExecutorService executorService;
+
+    private final Map<String, FileChannel> streams = new ConcurrentHashMap<String, FileChannel>();
 
     FileDataSource(FileIdentityStoreConfiguration configuration) {
         this.configuration = configuration;
@@ -237,13 +240,13 @@ public class FileDataSource {
 
         File agentsFile = createFileIfNotExists(getWorkingDirFile(partitionId + File.separator + IDENTITY_TYPES__FILE_NAME));
 
-        Map<String, FileIdentityType> attributedTypes = readObject(agentsFile);
+        Map<String, Map<String, FileIdentityType>> identityTypes = readObject(agentsFile);
 
-        if (attributedTypes == null) {
-            attributedTypes = new ConcurrentHashMap<String, FileIdentityType>();
+        if (identityTypes == null) {
+            identityTypes = new ConcurrentHashMap<String, Map<String, FileIdentityType>>();
         }
 
-        filePartition.setIdentityTypes(attributedTypes);
+        filePartition.setIdentityTypes(identityTypes);
 
         LOGGER.debugf("Loaded Agents for Partition [%s].", filePartition.getId());
 
@@ -283,15 +286,14 @@ public class FileDataSource {
     }
 
     private void performFlush(final String fileName, final Object object) {
-        FileOutputStream fos = null;
         ObjectOutputStream oos = null;
         ByteArrayOutputStream bos = null;
+        RandomAccessFile randomAccessFile = null;
 
         try {
-            String filePath = getWorkingDir() + File.separator + fileName;
-            fos = new FileOutputStream(filePath);
+            randomAccessFile = new RandomAccessFile(getWorkingDir() + File.separator + fileName, "rw");
 
-            FileChannel channel = fos.getChannel();
+            FileChannel channel = randomAccessFile.getChannel();
 
             bos = new ByteArrayOutputStream(FLUSH_BYTE_BUFFER);
 
@@ -304,10 +306,10 @@ public class FileDataSource {
             throw new IdentityManagementException("Error flushing changes to file system.", e);
         } finally {
             try {
-                if (fos != null) {
-                    fos.close();
+                if (randomAccessFile != null) {
+                    randomAccessFile.close();
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
 
             }
             try {

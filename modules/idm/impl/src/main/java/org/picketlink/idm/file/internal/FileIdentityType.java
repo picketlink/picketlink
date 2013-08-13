@@ -17,11 +17,12 @@
  */
 package org.picketlink.idm.file.internal;
 
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Partition;
 
 /**
  * @author pedroigor
@@ -72,7 +73,11 @@ public class FileIdentityType extends AbstractFileAttributedType<IdentityType> {
         properties.put("partitionId", identityType.getPartition().getId());
         properties.put("partitionType", identityType.getPartition().getClass().getName());
         properties.put("createdDate", identityType.getCreatedDate());
-        properties.put("expirationDate", identityType.getExpirationDate());
+
+        if (identityType.getExpirationDate() != null) {
+            properties.put("expirationDate", identityType.getExpirationDate());
+        }
+
         properties.put("enabled", identityType.isEnabled());
     }
 }

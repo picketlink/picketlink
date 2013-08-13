@@ -17,15 +17,16 @@
  */
 package org.picketlink.idm.file.internal;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.PropertyQuery;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.credential.storage.annotations.Stored;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author pedroigor
@@ -41,7 +42,11 @@ public class FileCredentialStorage extends AbstractFileType<CredentialStorage> {
     @Override
     protected void doPopulateProperties(Map<String, Serializable> properties) throws Exception {
         for (Property<Serializable> property: getStoredProperties()) {
-            properties.put(property.getName(), property.getValue(getEntry()));
+            Serializable value = property.getValue(getEntry());
+
+            if (value != null) {
+                properties.put(property.getName(), value);
+            }
         }
     }
 

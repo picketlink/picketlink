@@ -33,6 +33,7 @@ import org.picketlink.idm.credential.handler.X509CertificateCredentialHandler;
 import org.picketlink.idm.credential.handler.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.internal.AbstractIdentityStore;
+import org.picketlink.idm.internal.RelationshipReference;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
@@ -121,7 +122,11 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
             Partition partition = identityType.getPartition();
             FilePartition filePartition = resolve(partition.getClass(), partition.getName());
 
-            filePartition.getIdentityTypes().remove(identityType.getId());
+            Map<String, FileIdentityType> identityTypes = filePartition.getIdentityTypes().get(attributedType.getClass().getName());
+
+            if (identityTypes != null) {
+                identityTypes.remove(identityType.getId());
+            }
 
             this.fileDataSource.flushAttributedTypes(filePartition);
         } else if (Relationship.class.isInstance(attributedType)) {
@@ -262,22 +267,33 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
 
         Object[] ids = identityQuery.getParameter(IdentityType.ID);
 
+        Map<String, Map<String, FileIdentityType>> identityTypes = filePartition.getIdentityTypes();
+        Map<String, FileIdentityType> typedIdentityTypes = null;
+
+        if (IdentityType.class.equals(identityQuery.getIdentityType())) {
+            typedIdentityTypes = new HashMap<String, FileIdentityType>();
+            for (String type: identityTypes.keySet()) {
+                typedIdentityTypes.putAll(identityTypes.get(type));
+            }
+        } else {
+            typedIdentityTypes = identityTypes.get(identityQuery.getIdentityType().getName());
+        }
+
+        if (typedIdentityTypes == null) {
+            return result;
+        }
+
         if (ids != null && ids.length > 0) {
             if (ids[0] != null) {
-                AbstractFileAttributedType fileAttributedType = filePartition.getIdentityTypes().get(ids[0]);
+                FileIdentityType fileAttributedType = typedIdentityTypes.get(ids[0]);
 
                 if (fileAttributedType != null) {
                     result.add(cloneAttributedType(context, (V) fileAttributedType.getEntry()));
                 }
             }
         } else {
-            for (FileIdentityType storedIdentityType : filePartition.getIdentityTypes().values()) {
+            for (FileIdentityType storedIdentityType : typedIdentityTypes.values()) {
                 IdentityType storedEntry = (IdentityType) storedIdentityType.getEntry();
-
-                if (!IdentityType.class.isInstance(storedEntry) ||
-                        !identityQuery.getIdentityType().isAssignableFrom(storedEntry.getClass())) {
-                    continue;
-                }
 
                 boolean match = identityQuery.getParameters().isEmpty();
 
@@ -402,7 +418,7 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
                             for (Object object : values) {
                                 IdentityType identityType = (IdentityType) object;
 
-                                if (storedRelationship.hasIdentityType(identityType.getId())) {
+                                if (storedRelationship.hasIdentityType(identityType)) {
                                     valuesMathCount--;
                                 }
                             }
@@ -415,7 +431,8 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
                                 IdentityType identityType = (IdentityType) value;
                                 String identityTypeId = storedRelationship.getIdentityTypeId(identityTypeParameter.getName());
 
-                                match = identityTypeId != null && identityTypeId.equals(identityType.getId());
+                                match = identityTypeId != null && identityTypeId.equals(RelationshipReference
+                                        .formatId(identityType));
                             }
                         } else if (AttributeParameter.class.isInstance(queryParameter) && values != null) {
                             AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
@@ -443,7 +460,21 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
                 }
 
                 if (match) {
-                    result.add((T) cloneAttributedType(context, storedRelationship.getEntry()));
+                    T relationship = (T) cloneAttributedType(context, storedRelationship.getEntry());
+
+                    List<Property<IdentityType>> properties = PropertyQueries.<IdentityType>createQuery(query
+                            .getRelationshipClass())
+                            .addCriteria(new TypedPropertyCriteria(IdentityType.class, MatchOption.SUB_TYPE))
+                            .getResultList();
+
+                    RelationshipReference reference = new RelationshipReference(relationship);
+
+                    for (Property<IdentityType> property: properties) {
+                        reference.addIdentityTypeReference(property.getName(), storedRelationship.getIdentityTypeId
+                                (property.getName()));
+                    }
+
+                    result.add((T) reference);
                 }
             }
         }
@@ -594,7 +625,7 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
         Map<String, Map<String, FileRelationship>> relationships = this.fileDataSource.getRelationships();
         for (Map<String, FileRelationship> relationshipsType : relationships.values()) {
             for (FileRelationship fileRelationship : new HashMap<String, FileRelationship>(relationshipsType).values()) {
-                if (fileRelationship.hasIdentityType(identityType.getId())) {
+                if (fileRelationship.hasIdentityType(identityType)) {
                     relationshipsType.remove(fileRelationship.getId());
                 }
             }
@@ -642,7 +673,14 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
     private void storeIdentityType(IdentityContext context, IdentityType identityType) {
         FilePartition filePartition = resolve(context.getPartition().getClass(), context.getPartition().getName());
 
-        filePartition.getIdentityTypes().put(identityType.getId(), new FileIdentityType(identityType));
+        Map<String, FileIdentityType> identityTypes = filePartition.getIdentityTypes().get(identityType.getClass().getName());
+
+        if (identityTypes == null) {
+            identityTypes = new ConcurrentHashMap<String, FileIdentityType>();
+            filePartition.getIdentityTypes().put(identityType.getClass().getName(), identityTypes);
+        }
+
+        identityTypes.put(identityType.getId(), new FileIdentityType(identityType));
 
         this.fileDataSource.flushAttributedTypes(filePartition);
     }

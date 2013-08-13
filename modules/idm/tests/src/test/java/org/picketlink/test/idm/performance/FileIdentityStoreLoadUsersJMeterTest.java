@@ -30,8 +30,11 @@ import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
+import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.sample.Group;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.Role;
 import org.picketlink.idm.model.sample.SampleModel;
@@ -73,7 +76,7 @@ public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerCli
 
         result.sampleStart();
 
-        boolean success = false;
+        boolean success = true;
 
         String loginName = context.getParameter("loginName");
 
@@ -92,13 +95,26 @@ public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerCli
             
             identityManager.add(user);
 
-            success = user.getId() != null && SampleModel.getUser(identityManager, loginName) != null;
+            user = SampleModel.getUser(identityManager, loginName);
 
             Role role = new Role(loginName);
 
             identityManager.add(role);
 
-            success = role.getId() != null && SampleModel.getRole(identityManager, loginName) != null;
+            Group group = new Group(loginName);
+
+            identityManager.add(group);
+
+            RelationshipManager relationshipManager = partitionManager.createRelationshipManager();
+
+            SampleModel.grantRole(relationshipManager, user, role);
+            SampleModel.addToGroup(relationshipManager, user, group);
+
+            for (int i = 0;i < 30;i++) {
+                user.setAttribute(new Attribute("Attribute " + user.getLoginName() + i, "Value " + i));
+            }
+
+            identityManager.update(user);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
