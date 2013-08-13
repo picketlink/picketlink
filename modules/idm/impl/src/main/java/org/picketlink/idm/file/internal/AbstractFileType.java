@@ -23,8 +23,8 @@ import org.picketlink.idm.IdentityManagementException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.picketlink.idm.IDMMessages.*;
 
@@ -38,7 +38,7 @@ public abstract class AbstractFileType<T> implements Serializable {
 
     private String version;
     private String type;
-    private Map<String, Serializable> properties = new HashMap<String, Serializable>();
+    private Map<String, Serializable> properties = new ConcurrentHashMap<String, Serializable>();
 
     private transient T loadedObject;
 
