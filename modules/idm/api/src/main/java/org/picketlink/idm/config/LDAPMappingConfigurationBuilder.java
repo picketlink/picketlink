@@ -108,7 +108,11 @@ public class LDAPMappingConfigurationBuilder extends
         this.mappedClass = fromConfiguration.getMappedClass();
         this.objectClasses.addAll(fromConfiguration.getObjectClasses());
         this.baseDN = fromConfiguration.getBaseDN();
-        this.idPropertyName = fromConfiguration.getIdProperty().getName();
+
+        if (fromConfiguration.getIdProperty() != null) {
+            this.idPropertyName = fromConfiguration.getIdProperty().getName();
+        }
+
         this.mappedProperties.putAll(fromConfiguration.getMappedProperties());
         this.readOnlyAttributes.addAll(fromConfiguration.getReadOnlyAttributes());
         this.parentMapping.putAll(fromConfiguration.getParentMapping());
