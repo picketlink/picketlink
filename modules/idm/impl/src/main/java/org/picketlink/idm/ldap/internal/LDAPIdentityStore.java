@@ -74,49 +74,7 @@ import static org.picketlink.idm.ldap.internal.LDAPConstants.*;
 public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreConfiguration>
         implements CredentialStore<LDAPIdentityStoreConfiguration> {
 
-    private static SimpleDateFormat dateFormat;
-
-    static {
-        dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-    }
-
     private LDAPOperationManager operationManager;
-
-    /**
-     * Parses dates/time stamps stored in LDAP. Some possible values:
-     * <p/>
-     * <ul>
-     * <li>20020228150820</li>
-     * <li>20030228150820Z</li>
-     * <li>20050228150820.12</li>
-     * <li>20060711011740.0Z</li>
-     * </ul>
-     *
-     * @param dateText the date string.
-     * @return the Date.
-     */
-    private static Date parseLDAPDate(String dateText) {
-        // If the date ends with a "Z", that means that it's in the UTC time zone. Otherwise,
-        // Use the default time zone.
-        boolean useUTC = false;
-        if (dateText.endsWith("Z")) {
-            useUTC = true;
-        }
-        Date date = new Date();
-        try {
-            if (useUTC) {
-                dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            } else {
-                dateFormat.setTimeZone(TimeZone.getDefault());
-            }
-            date = dateFormat.parse(dateText);
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error converting ldap date.", e);
-        }
-
-        return date;
-    }
 
     @Override
     public void setup(LDAPIdentityStoreConfiguration config) {
@@ -843,4 +801,34 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
         return baseDN;
     }
+
+    /**
+     * Parses dates/time stamps stored in LDAP. Some possible values:
+     * <p/>
+     * <ul>
+     * <li>20020228150820</li>
+     * <li>20030228150820Z</li>
+     * <li>20050228150820.12</li>
+     * <li>20060711011740.0Z</li>
+     * </ul>
+     *
+     * @param dateText the date string.
+     * @return the Date.
+     */
+    private Date parseLDAPDate(String dateText) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+
+        try {
+            if (dateText.endsWith("Z")) {
+                dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            } else {
+                dateFormat.setTimeZone(TimeZone.getDefault());
+            }
+
+            return dateFormat.parse(dateText);
+        } catch (Exception e) {
+            throw new IdentityManagementException("Error converting ldap date.", e);
+        }
+    }
+
 }
