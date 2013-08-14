@@ -545,9 +545,88 @@ boolean isEmployee = SampleModel.isMember(relationshipManager, user, group);]]><
       
       <para>
         PicketLink has been designed from the ground up to support a system of <emphasis>partitioning</emphasis>, allowing the
-        identity objects to be divided into logical collections.
+        identity objects it manages to be separated into logical groupings.  Partitions may be used to split identities into
+        separate <emphasis>realms</emphasis>, allowing an application to serve multiple organisations (for example in a SaaS
+        architecture) or to support a multi-<emphasis>tier</emphasis> application allowing each tier to define its own set of
+        identity objects (such as groups or roles).  PicketLink's architecture also allows you to define your own custom 
+        partition types, allowing more complex use cases to be supported.
+      </para>
+      
+      <para>
+        The <code>PartitionManager</code> interface provides the following methods for managing partitions:
+        
       </para>
 
+      <programlisting language="JAVA"><![CDATA[public interface PartitionManager extends Serializable {
+
+    <T extends Partition> T getPartition(Class<T> partitionClass, String name);
+
+    <T extends Partition> T lookupById(final Class<T> partitionClass, String id);
+
+    void add(Partition partition);
+
+    void add(Partition partition, String configurationName);
+
+    void update(Partition partition);
+
+    void remove(Partition partition);
+}]]></programlisting>
+
+      <para>
+        To create a new <code>Partition</code> object you may use either of the <code>add()</code> methods.  If a 
+        <code>configurationName</code> parameter value isn't provided (see <xref linkend="picketlink-idm-configuration"/> for more
+        information), then the newly created <code>Partition</code> will use the default configuration.
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[// Create a new Realm partition called "acme"
+partitionManager.add(new Realm("acme"));]]></programlisting>
+
+      <programlisting language="JAVA"><![CDATA[// Create a new Tier partition called "sales" using the named configuration "companyAD"
+partitionManager.add(new Tier("sales"), "companyAD");]]></programlisting>
+
+      <para>
+        Each new <code>Partition</code> object created will be automatically assigned a unique identifier value, which can be accessed
+        via its <code>getId()</code> method:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[Realm realm = new Realm("acme");
+partitionManager.add(realm);      
+String partitionId = realm.getId();]]></programlisting>
+
+      <para>
+        Partitions may be retrieved using either their name or their unique identifier value.  Both methods require the exact
+        partition class to be provided as a parameter:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[Realm realm = partitionManager.getPartition(Realm.class, "acme");
+Tier tier = partitionManager.lookupById(Tier.class, tierId);]]></programlisting>      
+
+      <para>
+        Since <code>Partition</code> objects all implement the <code>AttributedType</code> interface, it is also possible to set
+        arbitrary attribute values:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[realm.setAttribute(new Attribute<Date>("created", new Date()));]]></programlisting>
+      
+      <para>
+        After making changes to an existing <code>Partition</code> object, the <code>update()</code> method may be used to persist
+        those changes:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[partitionManager.update(realm);]]></programlisting>
+      
+      <para>
+        A <code>Partition</code> object may also be removed with the <code>remove()</code> method:
+      </para>
+      
+      <warning>
+        <para>
+          Removing a <code>Partition</code> object is permanent, and will also remove all identity objects that exist within that
+          partition!
+        </para>
+      </warning>
+      
+      <programlisting language="JAVA"><![CDATA[partitionManager.remove(realm);]]></programlisting>
              
     </section>
 
