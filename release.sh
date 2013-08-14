@@ -150,6 +150,7 @@ release() {
 			exit 1
 		fi
 	else
+                rollback
 		exit 1
 	fi
 	echo ""
