@@ -81,6 +81,62 @@ public class TOTPCredentialTestCase extends AbstractPartitionManagerTestCase {
     }
 
     @Test
+    public void testSuccessfulNullDevice() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = createUser("someUser");
+        TOTPCredential defaultDevice = new TOTPCredential(DEFAULT_PASSWORD, DEFAULT_TOTP_SECRET);
+
+        identityManager.updateCredential(user, defaultDevice);
+
+        String iphoneSecret = "iphone_secret";
+        TOTPCredential iphoneDevice = new TOTPCredential(DEFAULT_PASSWORD, iphoneSecret);
+
+        String iphoneDeviceName = "My IPhone #SN-121212121";
+        iphoneDevice.setDevice(iphoneDeviceName);
+        identityManager.updateCredential(user, iphoneDevice);
+
+        String androidSecret = "android_secret";
+        TOTPCredential androidDevice = new TOTPCredential(DEFAULT_PASSWORD, androidSecret);
+
+        String androidDeviceName = "My Android #SN-56757554";
+        androidDevice.setDevice(androidDeviceName);
+        identityManager.updateCredential(user, androidDevice);
+
+        TOTPCredentials credentials = new TOTPCredentials();
+
+        credentials.setUsername(user.getLoginName());
+        credentials.setPassword(new Password(DEFAULT_PASSWORD));
+
+        TimeBasedOTP totp = new TimeBasedOTP();
+
+        // validate default device credentials
+        credentials.setToken(totp.generate(DEFAULT_TOTP_SECRET));
+        identityManager.validateCredentials(credentials);
+
+        assertEquals(Status.VALID, credentials.getStatus());
+
+        // validate iphone device credentials
+        credentials.setToken(totp.generate(iphoneSecret));
+        credentials.setDevice(null);
+        identityManager.validateCredentials(credentials);
+
+        assertEquals(Status.VALID, credentials.getStatus());
+
+        // validate iphone device credentials
+        credentials.setToken(totp.generate(androidSecret));
+        credentials.setDevice(null);
+        identityManager.validateCredentials(credentials);
+
+        assertEquals(Status.VALID, credentials.getStatus());
+
+        credentials.setToken(totp.generate("bad_secret"));
+        credentials.setDevice(null);
+        identityManager.validateCredentials(credentials);
+
+        assertEquals(Status.INVALID, credentials.getStatus());
+    }
+
+    @Test
     public void testMultipleDevices() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");

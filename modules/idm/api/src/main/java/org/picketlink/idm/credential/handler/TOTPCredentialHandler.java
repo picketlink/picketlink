@@ -28,6 +28,7 @@ import org.picketlink.idm.model.Account;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -36,10 +37,8 @@ import static org.picketlink.idm.credential.Credentials.*;
 import static org.picketlink.idm.credential.util.TimeBasedOTP.*;
 
 /**
- * <p>
- * This particular implementation supports the validation of {@link TOTPCredentials}, and updating {@link TOTPCredential}
- * credentials.
- * </p>
+ * <p> This particular implementation supports the validation of {@link TOTPCredentials}, and updating {@link
+ * TOTPCredential} credentials. </p>
  *
  * @author Shane Bryzak
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -71,39 +70,12 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
     public void validate(final IdentityContext context, final TOTPCredentials credentials, final CredentialStore<?> store) {
         super.validate(context, credentials, store);
 
-        if (Status.VALID.equals(credentials.getStatus())
-                || Status.EXPIRED.equals(credentials.getStatus())) {
-            String device = getDevice(credentials.getDevice());
-
-            OTPCredentialStorage storage = getOTPCredentialStorage(context, credentials, store, device);
-
-            if (storage != null) {
-                String secretKey = storage.getSecretKey();
-                String token = credentials.getToken();
-
-                if (!this.totp.validate(token, secretKey.getBytes())) {
-                    credentials.setStatus(Status.INVALID);
-                    credentials.setValidatedAccount(null);
-                }
+        if (Status.VALID.equals(credentials.getStatus()) || Status.EXPIRED.equals(credentials.getStatus())) {
+            if (!isValid(context, credentials, store)) {
+                credentials.setStatus(Status.INVALID);
+                credentials.setValidatedAccount(null);
             }
         }
-    }
-
-    private OTPCredentialStorage getOTPCredentialStorage(final IdentityContext context, final TOTPCredentials credentials, final CredentialStore<?> store, final String device) {
-        OTPCredentialStorage storage = null;
-        List<OTPCredentialStorage> storedCredentials =
-                store.retrieveCredentials(context, getAccount(context, credentials.getUsername()), OTPCredentialStorage.class);
-
-        for (OTPCredentialStorage storedCredential : storedCredentials) {
-            if (storedCredential.getDevice().equals(device)
-                    && CredentialUtils.isCurrentCredential(storedCredential)) {
-                if (storage == null || storage.getEffectiveDate().compareTo(storedCredential.getEffectiveDate()) <= 0) {
-                    storage = storedCredential;
-                }
-            }
-        }
-
-        return storage;
     }
 
     @Override
@@ -125,6 +97,44 @@ public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialS
         storage.setDevice(getDevice(credential.getDevice()));
 
         store.storeCredential(context, account, storage);
+    }
+
+    private boolean isValid(final IdentityContext context, final TOTPCredentials credentials, final CredentialStore<?> store) {
+        for (OTPCredentialStorage storage : getCredentialStorages(context, credentials, store)) {
+            String secretKey = storage.getSecretKey();
+            String token = credentials.getToken();
+
+            if (this.totp.validate(token, secretKey.getBytes())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private List<OTPCredentialStorage> getCredentialStorages(final IdentityContext context, final TOTPCredentials credentials, final CredentialStore<?> store) {
+        List<OTPCredentialStorage> storages = store.retrieveCredentials(context, getAccount(context,
+                credentials.getUsername()), OTPCredentialStorage.class);
+
+        for (OTPCredentialStorage storage : new ArrayList<OTPCredentialStorage>(storages)) {
+            if (!CredentialUtils.isCurrentCredential(storage) || !isDeviceStorage(credentials.getDevice(), storage)) {
+                storages.remove(storage);
+            }
+        }
+
+        return storages;
+    }
+
+    /**
+     * <p>Checks if the given {@link OTPCredentialStorage} references the given <code>device</code>. A null device
+     * means that this storage can reference any device and this method will return true.</p>
+     *
+     * @param device
+     * @param storage
+     * @return
+     */
+    private boolean isDeviceStorage(String device, final OTPCredentialStorage storage) {
+        return device == null || device.equals(storage.getDevice());
     }
 
     private String getDevice(String device) {
