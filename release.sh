@@ -29,7 +29,7 @@ check_release_version() {
 # clean the local repo and revert all local modifications
 clean_local_repo() {
     git clean -f -d
-    git reset --hard
+    git reset --hard upstream/master
     rm -rf release.properties
     rm -rf $RELEASE_LOG_FILE
 }
@@ -101,7 +101,7 @@ release() {
 	echo "Done."
 	echo ""
 
-    read -p "Check all project dependencies before releasing ?[y/n] " FLAG_NO_DEPENDENCY_CHECK
+        read -p "Check all project dependencies before releasing ?[y/n] " FLAG_NO_DEPENDENCY_CHECK
 
 	if [ "$FLAG_NO_DEPENDENCY_CHECK" == "y" ]; then
 		echo "Checking dependencies."
@@ -125,9 +125,6 @@ release() {
 
 	FLAG_PERFORM_RELEASE="false"
 
-	read -p "Prepare release first. This will perform some checks before releasing ?[y/n] " FLAG_PERFORM_RELEASE
-
-	if [ "$FLAG_PERFORM_RELEASE" == "y" ]; then
 	echo "Preparing to release."
 	echo "    Executing maven-release-plugin in DryRun mode..."
 	execute_cmd mvn -DpreparationGoals="-Drelease -Prelease -DskipTests=true clean install" release:prepare	--batch-mode -DdevelopmentVersion=$DEVELOPMENT_VERSION -DreleaseVersion=$RELEASE_VERSION -Dtag=vRELEASE_VERSION	-DdryRun -DignoreSnapshots=true -Prelease
@@ -136,9 +133,6 @@ release() {
 	else
 		 echo "ERROR: Project build failed. Can not proceed with the release. Check the logs."
 		 exit 1;
-	fi
-	else
-		read -p "Force release, without preparing it first ?[y/n] " FLAG_PERFORM_RELEASE
 	fi
 
 	if [ "$FLAG_PERFORM_RELEASE" == "y" ]; then
@@ -182,6 +176,11 @@ release() {
 
 	echo "Finishing the release."
 	git flow release finish $RELEASE_VERSION
+        clean_local_repo
+        git branch -D release/$RELEASE_VERSION
+        git push origin :release/$RELEASE_VERSION
+        git push upstream :release/$RELEASE_VERSION
+        git reset --hard upstream/master
 	echo "Done."
 	exit 0
 }
