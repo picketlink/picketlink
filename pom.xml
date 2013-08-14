@@ -198,8 +198,9 @@
           <artifactId>maven-release-plugin</artifactId>
           <version>2.2.1</version>
           <configuration>
-            <arguments>-Drelease -DskipTests=true</arguments>
+            <arguments>-Drelease -Prelease</arguments>
             <autoVersionSubmodules>true</autoVersionSubmodules>
+            <preparationGoals>-DskipTests=true install</preparationGoals>
             <completionGoals>install</completionGoals>
           </configuration>
         </plugin>
