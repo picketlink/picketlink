@@ -200,8 +200,8 @@
           <configuration>
             <arguments>-Drelease</arguments>
             <autoVersionSubmodules>true</autoVersionSubmodules>
-            <preparationGoals>-DskipTests=true clean install</preparationGoals>
-            <completionGoals>-DskipTests=true clean install</completionGoals>
+            <preparationGoals>-DskipTests=true</preparationGoals>
+            <completionGoals>-DskipTests=true install</completionGoals>
           </configuration>
         </plugin>
 
