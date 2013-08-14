@@ -130,8 +130,7 @@ release() {
 	if [ "$FLAG_PERFORM_RELEASE" == "y" ]; then
 	echo "Preparing to release."
 	echo "    Executing maven-release-plugin in DryRun mode..."
-	execute_cmd mvn -DpreparationGoals="-Drelease -Prelease -DskipTests=true clean install" release:prepare --batch-mode
-	-DdevelopmentVersion=$DEVELOPMENT_VERSION -DreleaseVersion=$RELEASE_VERSION -Dtag=vRELEASE_VERSION -DdryRun -DignoreSnapshots=true
+	execute_cmd mvn -DpreparationGoals="-Drelease -Prelease -DskipTests=true clean install" release:prepare	--batch-mode -DdevelopmentVersion=$DEVELOPMENT_VERSION -DreleaseVersion=$RELEASE_VERSION -Dtag=vRELEASE_VERSION -DdryRun -DignoreSnapshots=true
 	if check_build_result; then     
 		 read -p "Project is ready to release. Do you want to proceed ?[y/n] " FLAG_PERFORM_RELEASE
 	else
@@ -149,8 +148,7 @@ release() {
 		execute_cmd mvn clean install
 		execute_cmd perl -pi -e 's/'$RELEASE_VERSION'/'$DEVELOPMENT_VERSION'/g' `find . -name pom.xml`
 		cd ../../
-		execute_cmd mvn -DpreparationGoals="-Drelease -Prelease clean install" release:prepare --batch-mode
-		-DdevelopmentVersion=$DEVELOPMENT_VERSION -DreleaseVersion=$RELEASE_VERSION -Dtag=v$RELEASE_VERSION -Dresume=false -DignoreSnapshots=true
+		execute_cmd mvn -DpreparationGoals="-Drelease -Prelease clean install" release:prepare --batch-mode	-DdevelopmentVersion=$DEVELOPMENT_VERSION -DreleaseVersion=$RELEASE_VERSION -Dtag=v$RELEASE_VERSION -Dresume=false -DignoreSnapshots=true
 		if check_build_result; then
 			echo "Done."
 		else
