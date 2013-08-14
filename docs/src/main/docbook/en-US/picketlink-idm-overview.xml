@@ -627,6 +627,38 @@ Tier tier = partitionManager.lookupById(Tier.class, tierId);]]></programlisting>
       </warning>
       
       <programlisting language="JAVA"><![CDATA[partitionManager.remove(realm);]]></programlisting>
+      
+      <section>
+        <title>Creating Custom Partitions</title>
+        
+        <para>
+          Creating a custom partition type is extremely simple.  PicketLink provides an abstract base class called
+          <code>AbstractPartition</code> (see above) which makes creating a custom partition class a trivial exercise -
+          simply extend the <code>AbstractPartition</code> class and then add any additional property getter/setter methods
+          that you might require.  Let's take a look at the built-in <code>Realm</code> class to see how little code it 
+          requires to create a custom partition:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[@IdentityPartition(supportedTypes = {IdentityType.class})
+public class Realm extends AbstractPartition {
+    public Realm() {
+        super(null);
+    }
+
+    public Realm(String name) {
+        super(name);
+    }
+}]]></programlisting>
+
+        <para>
+          The <code>@IdentityPartition</code> annotation must be present on the partition class - the <code>supportedTypes</code>
+          member is used to configure which identity types may be stored in this partition.  Any identity object (or subclass)
+          specified by <code>supportedTypes</code> is valid.  There is also a <code>unsupportedTypes</code> member which may be
+          used to specify identity types which <emphasis>may not</emphasis> be stored in the partition.  This value can be used
+          to <emphasis>trim</emphasis> unsupported classes (and their subclasses) off the <code>supportedTypes</code>.
+        </para>
+      
+      </section>
              
     </section>
 
