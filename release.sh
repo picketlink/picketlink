@@ -150,7 +150,7 @@ release() {
 		execute_cmd perl -pi -e 's/'$RELEASE_VERSION'/'$DEVELOPMENT_VERSION'/g' `find . -name pom.xml`
 		cd ../../
 		execute_cmd mvn -DpreparationGoals="-Drelease -Prelease clean install" release:prepare --batch-mode
-		 -DdevelopmentVersion=$DEVELOPMENT_VERSION -DreleaseVersion=$RELEASE_VERSION -Dtag=v$RELEASE_VERSION -Dresume=false -DignoreSnapshots=true
+		-DdevelopmentVersion=$DEVELOPMENT_VERSION -DreleaseVersion=$RELEASE_VERSION -Dtag=v$RELEASE_VERSION -Dresume=false -DignoreSnapshots=true
 		if check_build_result; then
 			echo "Done."
 		else
