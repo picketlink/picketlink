@@ -26,12 +26,10 @@ import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.internal.CDIEventBridge;
-import org.picketlink.internal.EEJPAContextInitializer;
 import org.picketlink.internal.IdentityStoreAutoConfiguration;
 import org.picketlink.internal.SecuredIdentityManager;
 
@@ -41,27 +39,46 @@ import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.picketlink.idm.config.IdentityStoreConfiguration.*;
 
 /**
+ * <p>This bean is responsible for initializing the PicketLink IDM subsystem as well produce some core components
+ * such as:</p>
+ *
+ * <ul>
+ *     <li>An application scoped {@link PartitionManager}.</li>
+ *     <li>A request scoped {@link IdentityManager}.</li>
+ *     <li>A request scoped {@link RelationshipManager}.</li>
+ * </ul>
+ *
+ * <p>The configuration is built depending on the existence of any {@link IdentityConfiguration} produced by the
+ * application. If any configuration is found, it will be used. Otherwise the default configuration will be used.</p>
+ *
+ * <p>It's also possible to observe a specific event during the startup of the PicketLink IDM subsystem. In such
+ * situations the application can provide any additional information as a last attempt before the subsystem is fully
+ * initialized. See {@link IdentityConfigurationEvent}.
+ * </p>
+ *
+ * <p>The default configuration is provided by the {@link IdentityStoreAutoConfiguration} bean, only if no specific
+ * configuration is provided by the application.</p>
+ *
+ * <p>After the creation of the {@link PartitionManager} a default partition is always created if any of the provided
+ * configuration supports that. This is very useful for most use cases where only a single partition is necessary.</p>
+ *
  * @author Shane Bryzak
  */
 @ApplicationScoped
 public class IdentityManagerProducer {
-
-    private static final String DEFAULT_CONFIGURATION_NAME = "default";
 
     @Inject
     private Instance<IdentityConfiguration> identityConfigInstance;
 
     @Inject
     private Event<IdentityConfigurationEvent> identityConfigEvent;
-
-    @Inject
-    private EEJPAContextInitializer jpaContextInitializer;
 
     @Inject
     private CDIEventBridge eventBridge;
@@ -77,50 +94,14 @@ public class IdentityManagerProducer {
 
     @Inject
     public void init() {
-        IdentityConfigurationBuilder builder;
-
-        if (!identityConfigInstance.isUnsatisfied()) {
-            IdentityConfiguration identityConfiguration = identityConfigInstance.get();
-            builder = new IdentityConfigurationBuilder(Arrays.asList(identityConfiguration));
-        } else if (identityConfigInstance.isAmbiguous()) {
-            throw new SecurityConfigurationException("Multiple IdentityConfiguration beans found, can not "
-                    + "configure IdentityManagerFactory");
-        } else {
-            builder = new IdentityConfigurationBuilder();
-        }
-
-        this.identityConfigEvent.fire(new IdentityConfigurationEvent(builder));
-
-        if (!builder.isConfigured()) {
-            loadAutoConfig(builder);
-        }
+        IdentityConfigurationBuilder builder = createIdentityConfigurationBuilder();
 
         List<IdentityConfiguration> configurations = builder.buildAll();
 
         this.partitionManager = new DefaultPartitionManager(configurations, this.eventBridge);
 
         if (isPartitionSupported(configurations)) {
-            if (this.partitionManager.getPartition(Realm.class, Realm.DEFAULT_REALM) == null) {
-                this.partitionManager.add(new Realm(Realm.DEFAULT_REALM));
-            }
-        }
-    }
-
-    private void loadAutoConfig(IdentityConfigurationBuilder builder) {
-        if (this.autoConfig.isConfigured()) {
-            Class<?>[] entities = new Class[this.autoConfig.getEntities().size()];
-            this.autoConfig.getEntities().toArray(entities);
-            builder.named(DEFAULT_CONFIGURATION_NAME)
-                    .stores()
-                    .jpa()
-                    .mappedEntity(entities)
-                    .addContextInitializer(this.jpaContextInitializer)
-                    .supportAllFeatures();
-        } else {
-            builder.named(DEFAULT_CONFIGURATION_NAME)
-                    .stores()
-                    .file()
-                    .supportAllFeatures();
+            createDefaultPartition(this.partitionManager);
         }
     }
 
@@ -129,6 +110,12 @@ public class IdentityManagerProducer {
         return partitionManager;
     }
 
+    /**
+     * <p>{@link IdentityManager} instances are produced accordingly to the current {@link Partition} in use. If no
+     * partition is provided, the default partition will be used.</p>
+     *
+     * @return
+     */
     @Produces
     @RequestScoped
     public IdentityManager createIdentityManager() {
@@ -156,6 +143,52 @@ public class IdentityManagerProducer {
         }
 
         return false;
+    }
+
+    private IdentityConfigurationBuilder createIdentityConfigurationBuilder() {
+        IdentityConfigurationBuilder builder;
+        List<IdentityConfiguration> configurations = getIdentityConfiguration();
+
+        if (configurations.isEmpty()) {
+            builder = new IdentityConfigurationBuilder();
+        } else {
+            builder = new IdentityConfigurationBuilder(configurations);
+        }
+
+        this.identityConfigEvent.fire(new IdentityConfigurationEvent(builder));
+
+        if (!builder.isConfigured()) {
+            configureDefaults(builder);
+        }
+
+        return builder;
+    }
+
+    /**
+     * <p>Returns all configurations produced by the application.</p>
+     *
+     * @return
+     */
+    private List<IdentityConfiguration> getIdentityConfiguration() {
+        List<IdentityConfiguration> configurations = new ArrayList<IdentityConfiguration>();
+
+        if (!this.identityConfigInstance.isUnsatisfied()) {
+            for (Iterator<IdentityConfiguration> iterator = this.identityConfigInstance.iterator(); iterator.hasNext();) {
+                configurations.add(iterator.next());
+            }
+        }
+
+        return configurations;
+    }
+
+    private void configureDefaults(IdentityConfigurationBuilder builder) {
+        this.autoConfig.configure(builder);
+    }
+
+    private void createDefaultPartition(PartitionManager partitionManager) {
+        if (partitionManager.getPartition(Realm.class, Realm.DEFAULT_REALM) == null) {
+            partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+        }
     }
 
 }
