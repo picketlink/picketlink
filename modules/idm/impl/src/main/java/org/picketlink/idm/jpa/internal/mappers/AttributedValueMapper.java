@@ -64,7 +64,7 @@ public class AttributedValueMapper extends AbstractIdentityManagedMapper {
             Property property = getNamedProperty(propertyName, managedType);
 
             if (property == null) {
-                throw IDMMessages.MESSAGES.jpaConfigMappedPropertyNotFound(entityType, propertyName, managedType);
+                throw IDMMessages.MESSAGES.configJpaStoreMappedPropertyNotFound(entityType, propertyName, managedType);
             }
 
             entityMapping.addProperty(property, mappedProperty);

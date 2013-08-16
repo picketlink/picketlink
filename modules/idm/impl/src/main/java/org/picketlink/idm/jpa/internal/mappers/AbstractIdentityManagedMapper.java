@@ -37,7 +37,7 @@ public abstract class AbstractIdentityManagedMapper extends AbstractModelMapper 
         IdentityManaged identityManaged = entityType.getAnnotation(IdentityManaged.class);
 
         if (identityManaged == null) {
-            throw MESSAGES.jpaConfigRequiredMappingAnnotation(entityType, IdentityManaged.class);
+            throw MESSAGES.configJpaStoreRequiredMappingAnnotation(entityType, IdentityManaged.class);
         }
 
         Class<? extends AttributedType>[] supportedTypes = null;

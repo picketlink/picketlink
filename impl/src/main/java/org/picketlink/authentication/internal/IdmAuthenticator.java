@@ -14,8 +14,7 @@ import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import javax.inject.Inject;
 
 /**
- * Authenticator that uses the Identity Management API to authenticate.  Assumes that the
- * user has provided a username and password via the DefaultLoginCredentials bean.
+ * Authenticator that uses the Identity Management API to authenticate.
  *
  * @author Shane Bryzak
  */

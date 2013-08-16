@@ -37,7 +37,7 @@ public abstract class AbstractAttributedTypeMapper extends AbstractIdentityManag
         Property idProperty = getAnnotatedProperty(Identifier.class, entityType);
 
         if (idProperty == null) {
-            throw MESSAGES.jpaConfigRequiredMappingAnnotation(entityType, Identifier.class);
+            throw MESSAGES.configJpaStoreRequiredMappingAnnotation(entityType, Identifier.class);
         }
 
         entityMapping.addProperty(getNamedProperty("id", AttributedType.class), idProperty);

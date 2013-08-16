@@ -121,7 +121,7 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
                 }
             }
         } catch (Exception e) {
-            throw MESSAGES.relationshipQueryFailed(this, e);
+            throw MESSAGES.queryRelationshipFailed(this, e);
         }
 
         return result;
@@ -171,7 +171,7 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
                 count += store.countQueryResults(context, this);
             }
         } catch (Exception e) {
-            throw MESSAGES.relationshipQueryFailed(this, e);
+            throw MESSAGES.queryRelationshipFailed(this, e);
         }
 
         return count;

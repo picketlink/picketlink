@@ -48,7 +48,7 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
                 supportsAttribute);
 
         if (entityTypes == null) {
-            throw MESSAGES.jpaConfigNoEntityClassesProvided();
+            throw MESSAGES.configJpaStoreNoEntityClassesProvided();
         }
 
         this.entityTypes = entityTypes;

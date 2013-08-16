@@ -83,7 +83,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         try {
             this.operationManager = new LDAPOperationManager(getConfig());
         } catch (NamingException e) {
-            throw MESSAGES.ldapCouldNotCreateContext(e);
+            throw MESSAGES.storeLdapCouldNotCreateContext(e);
         }
     }
 
@@ -136,12 +136,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                         } catch (NamingException ne) {
                             throw new IdentityManagementException("Could not create parent [" + parentType + "] child [" + attributedType + "] hierarchy.", ne);
                         } finally {
-                            if (search != null) {
-                                try {
-                                    search.close();
-                                } catch (NamingException e) {
-                                }
-                            }
+                            safeClose(search);
                         }
                     }
                 }
@@ -155,12 +150,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
             } catch (NamingException ne) {
                 throw new IdentityManagementException("Could not add AttributedType [" + attributedType + "].", ne);
             } finally {
-                if (search != null) {
-                    try {
-                        search.close();
-                    } catch (NamingException e) {
-                    }
-                }
+                safeClose(search);
             }
         }
     }
@@ -169,7 +159,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
     public void updateAttributedType(IdentityContext context, AttributedType attributedType) {
         // this store does not support updation of relationship types
         if (Relationship.class.isInstance(attributedType)) {
-            throw MESSAGES.storeConfigUnsupportedOperation(attributedType.getClass(),
+            throw MESSAGES.attributedTypeUnsupportedOperation(attributedType.getClass(),
                     IdentityOperation.update, attributedType.getClass(), IdentityOperation.update);
         }
 
@@ -186,12 +176,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         } catch (NamingException ne) {
             throw new IdentityManagementException("Could not update attributes.", ne);
         } finally {
-            if (attributes != null) {
-                try {
-                    attributes.close();
-                } catch (NamingException e) {
-                }
-            }
+            safeClose(attributes);
         }
     }
 
@@ -235,7 +220,9 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                     this.operationManager.modifyAttribute(getBindingDN(relationalAttributedType), attribute);
                 }
             } catch (NamingException e) {
-                throw MESSAGES.relationshipRemoveFailed(relationship, e);
+                throw new IdentityManagementException("Could not remove referenced types from relationship type.", e);
+            } finally {
+                safeClose(search);
             }
         } else {
             List<LDAPMappingConfiguration> relationshipConfigs = getConfig().getRelationshipConfigs();
@@ -243,7 +230,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
             try {
                 for (LDAPMappingConfiguration relationshipConfig : relationshipConfigs) {
-
                     for (String attributeName : relationshipConfig.getMappedProperties().values()) {
                         StringBuilder filter = new StringBuilder();
 
@@ -265,6 +251,8 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                                 this.operationManager.modifyAttribute(result.getNameInNamespace(), relationshipAttribute);
                             }
                         }
+
+                        safeClose(search);
                     }
                 }
             } catch (NamingException e) {
@@ -281,14 +269,16 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
         if (identityQuery.getParameter(IdentityType.ID) != null) {
             Object[] queryParameterValues = identityQuery.getParameter(IdentityType.ID);
-            NamingEnumeration<SearchResult> resultNamingEnumeration = lookupEntryByID(queryParameterValues[0].toString(), getConfig().getBaseDN());
+            NamingEnumeration<SearchResult> search = lookupEntryByID(queryParameterValues[0].toString(), getConfig().getBaseDN());
 
             try {
-                while (resultNamingEnumeration.hasMore()) {
-                    results.add((V) populateAttributedType(context, resultNamingEnumeration.next(), null));
+                while (search.hasMore()) {
+                    results.add((V) populateAttributedType(context, search.next(), null));
                 }
             } catch (NamingException ne) {
-                throw new IdentityManagementException(ne);
+                throw new IdentityManagementException("Could not create identity type from LDAP entry.", ne);
+            } finally {
+                safeClose(search);
             }
 
             return results;
@@ -359,14 +349,9 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                     }
                 }
             } catch (Exception e) {
-                throw MESSAGES.identityTypeQueryFailed(identityQuery, e);
+                throw new IdentityManagementException("Could not query identity types.", e);
             } finally {
-                if (search != null) {
-                    try {
-                        search.close();
-                    } catch (NamingException e) {
-                    }
-                }
+                safeClose(search);
             }
         }
 
@@ -385,7 +370,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         Map<QueryParameter, Object[]> parameters = query.getParameters();
         StringBuilder filter = new StringBuilder();
 
-        List<AttributedType> rootFilter = new ArrayList<AttributedType>();
+        List<AttributedType> referencedTypes = new ArrayList<AttributedType>();
 
         for (QueryParameter queryParameter : parameters.keySet()) {
             Object[] values = parameters.get(queryParameter);
@@ -399,20 +384,18 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                     if (attributeName != null) {
                         filter.append("(").append(attributeName).append(EQUAL).append("*").append(getBindingDN(attributedType)).append("*)");
                     } else {
-                        rootFilter.add(attributedType);
+                        referencedTypes.add(attributedType);
                     }
                 }
             }
         }
 
         List<V> results = new ArrayList<V>();
-        LDAPMappingConfiguration relTypeConfig = getMappingConfig(mappingConfig.getRelatedAttributedType());
+        NamingEnumeration<SearchResult> search = null;
 
-        if (!rootFilter.isEmpty()) {
-            for (AttributedType relFilter : rootFilter) {
-                NamingEnumeration<SearchResult> search = null;
-
-                try {
+        try {
+            if (!referencedTypes.isEmpty()) {
+                for (AttributedType relFilter : referencedTypes) {
                     search = this.operationManager.search(getConfig().getBaseDN(), getBindingName(relFilter));
 
                     List<Property<AttributedType>> properties = PropertyQueries
@@ -487,15 +470,9 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                             }
                         }
                     }
-                } catch (Exception ne) {
-                    throw new IdentityManagementException(ne);
                 }
-            }
-        } else {
-            if (filter.length() > 0) {
-                NamingEnumeration<SearchResult> search = null;
-
-                try {
+            } else {
+                if (filter.length() > 0) {
                     search = this.operationManager.search(getConfig().getBaseDN(), filter.toString());
 
                     Property<AttributedType> property = PropertyQueries
@@ -549,10 +526,12 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                             }
                         }
                     }
-                } catch (Exception e) {
-                    throw IDMMessages.MESSAGES.relationshipQueryFailed(query, e);
                 }
             }
+        } catch (Exception e) {
+            throw IDMMessages.MESSAGES.queryRelationshipFailed(query, e);
+        } finally {
+            safeClose(search);
         }
 
         return results;
@@ -614,14 +593,9 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 this.operationManager.modifyAttribute(getBindingDN(relationalAttributedType), attribute);
             }
         } catch (NamingException e) {
-            if (search != null) {
-                try {
-                    search.close();
-                } catch (NamingException ne) {
-                }
-            }
-
             throw new IdentityManagementException("Could not store relationship.", e);
+        } finally {
+            safeClose(search);
         }
     }
 
@@ -678,21 +652,25 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                 NamingEnumeration<SearchResult> search = this.operationManager.search(getConfig().getBaseDN(), filter.toString());
 
-                while (search.hasMore()) {
-                    SearchResult next = search.next();
+                try {
+                    while (search.hasMore()) {
+                        SearchResult next = search.next();
 
-                    Property<AttributedType> parentProperty = PropertyQueries
-                            .<AttributedType>createQuery(attributedType.getClass())
-                            .addCriteria(new TypedPropertyCriteria(attributedType.getClass())).getFirstResult();
+                        Property<AttributedType> parentProperty = PropertyQueries
+                                .<AttributedType>createQuery(attributedType.getClass())
+                                .addCriteria(new TypedPropertyCriteria(attributedType.getClass())).getFirstResult();
 
-                    if (parentProperty != null) {
-                        String baseDN = next.getNameInNamespace().substring(next.getNameInNamespace().indexOf(",") + 1);
-                        Class<? extends AttributedType> baseDNType = getConfig().getSupportedTypeByBaseDN(baseDN);
+                        if (parentProperty != null) {
+                            String baseDN = next.getNameInNamespace().substring(next.getNameInNamespace().indexOf(",") + 1);
+                            Class<? extends AttributedType> baseDNType = getConfig().getSupportedTypeByBaseDN(baseDN);
 
-                        if (parentProperty.getJavaClass().isAssignableFrom(baseDNType)) {
-                            parentProperty.setValue(attributedType, populateAttributedType(context, next, null));
+                            if (parentProperty.getJavaClass().isAssignableFrom(baseDNType)) {
+                                parentProperty.setValue(attributedType, populateAttributedType(context, next, null));
+                            }
                         }
                     }
+                } finally {
+                    safeClose(search);
                 }
             }
         } catch (Exception e) {
@@ -805,11 +783,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
     /**
      * Parses dates/time stamps stored in LDAP. Some possible values:
      * <p/>
-     * <ul>
-     * <li>20020228150820</li>
-     * <li>20030228150820Z</li>
-     * <li>20050228150820.12</li>
-     * <li>20060711011740.0Z</li>
+     * <ul> <li>20020228150820</li> <li>20030228150820Z</li> <li>20050228150820.12</li> <li>20060711011740.0Z</li>
      * </ul>
      *
      * @param dateText the date string.
@@ -831,4 +805,12 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         }
     }
 
+    private void safeClose(NamingEnumeration<?> search) {
+        if (search != null) {
+            try {
+                search.close();
+            } catch (NamingException e) {
+            }
+        }
+    }
 }

@@ -95,7 +95,7 @@ public class EntityMapping {
                 .getFirstResult();
 
         if (ownerProperty == null) {
-            throw MESSAGES.jpaConfigRequiredMappingAnnotation(entityType, OwnerReference.class);
+            throw MESSAGES.configJpaStoreRequiredMappingAnnotation(entityType, OwnerReference.class);
         }
 
         addProperty(new PropertyMapping() {

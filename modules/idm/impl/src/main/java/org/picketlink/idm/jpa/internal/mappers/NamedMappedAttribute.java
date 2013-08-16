@@ -42,7 +42,7 @@ public class NamedMappedAttribute extends AbstractIdentityManagedMapper {
         Property namedProperty = getNamedProperty(mappedAttribute.value(), supportedType);
 
         if (namedProperty == null) {
-            throw MESSAGES.jpaConfigMappedPropertyNotFound(entityType, mappedAttribute.value(),
+            throw MESSAGES.configJpaStoreMappedPropertyNotFound(entityType, mappedAttribute.value(),
                     supportedType);
         }
 

@@ -47,7 +47,7 @@ public class PartitionMapper extends AbstractAttributedTypeMapper {
         Property configurationNameProperty = getAnnotatedProperty(ConfigurationName.class, entityType);
 
         if (configurationNameProperty == null) {
-            throw MESSAGES.jpaConfigRequiredMappingAnnotation(entityType, ConfigurationName.class);
+            throw MESSAGES.configJpaStoreRequiredMappingAnnotation(entityType, ConfigurationName.class);
         }
 
         entityMapping.addNotNullMappedProperty(configurationNameProperty);

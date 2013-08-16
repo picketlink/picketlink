@@ -1310,7 +1310,7 @@ public class JPAIdentityStore
 
     private EntityManager getEntityManager(IdentityContext context) {
         if (!context.isParameterSet(INVOCATION_CTX_ENTITY_MANAGER)) {
-            throw MESSAGES.jpaStoreCouldNotGetEntityManagerFromStoreContext();
+            throw MESSAGES.storeJpaCouldNotGetEntityManagerFromStoreContext();
         }
 
         return (EntityManager) context.getParameter(INVOCATION_CTX_ENTITY_MANAGER);

@@ -145,7 +145,7 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
                 }
             }
         } catch (Exception e) {
-            throw IDMMessages.MESSAGES.identityTypeQueryFailed(this, e);
+            throw IDMMessages.MESSAGES.queryIdentityTypeFailed(this, e);
         }
 
         return result;

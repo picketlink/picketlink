@@ -60,7 +60,7 @@ public class ManagedCredentialAttributeMapper extends AbstractModelMapper {
             Property typeProperty = getAnnotatedProperty(CredentialClass.class, entityType);
 
             if (typeProperty == null) {
-                throw MESSAGES.jpaConfigRequiredMappingAnnotation(entityType, CredentialClass.class);
+                throw MESSAGES.configJpaStoreRequiredMappingAnnotation(entityType, CredentialClass.class);
             }
 
             entityMapping.addTypeProperty(typeProperty);
@@ -68,7 +68,7 @@ public class ManagedCredentialAttributeMapper extends AbstractModelMapper {
             Property effectiveDate = getAnnotatedProperty(EffectiveDate.class, entityType);
 
             if (effectiveDate == null) {
-                throw MESSAGES.jpaConfigRequiredMappingAnnotation(entityType, EffectiveDate.class);
+                throw MESSAGES.configJpaStoreRequiredMappingAnnotation(entityType, EffectiveDate.class);
             }
 
             entityMapping.addProperty(getNamedProperty("effectiveDate", storageType), effectiveDate);
@@ -76,7 +76,7 @@ public class ManagedCredentialAttributeMapper extends AbstractModelMapper {
             Property expirationDate = getAnnotatedProperty(ExpiryDate.class, entityType);
 
             if (expirationDate == null) {
-                throw MESSAGES.jpaConfigRequiredMappingAnnotation(entityType, ExpiryDate.class);
+                throw MESSAGES.configJpaStoreRequiredMappingAnnotation(entityType, ExpiryDate.class);
             }
 
             entityMapping.addProperty(getNamedProperty("expiryDate", storageType), expirationDate);

@@ -17,9 +17,6 @@
  */
 package org.picketlink.idm.internal;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.handler.CredentialHandler;
@@ -29,7 +26,12 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.picketlink.idm.IDMMessages.*;
 
 /**
  * @author pedroigor
@@ -135,7 +137,7 @@ public abstract class AbstractIdentityStore<C extends IdentityStoreConfiguration
                 credentialHandler = handlerType.newInstance();
                 credentialHandler.setup(this);
             } catch (Exception e) {
-                throw MESSAGES.credentialCredentialHandlerInstantiationError(handlerType, e);
+                throw MESSAGES.instantiationError(handlerType, e);
             }
 
             this.credentialHandlers.put(handlerType, credentialHandler);

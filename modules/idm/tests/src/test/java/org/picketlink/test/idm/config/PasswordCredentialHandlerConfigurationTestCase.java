@@ -22,8 +22,6 @@
 
 package org.picketlink.test.idm.config;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
@@ -41,12 +39,13 @@ import org.picketlink.idm.credential.handler.PasswordCredentialHandler;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.sample.Realm;
 import org.picketlink.idm.model.sample.User;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.picketlink.idm.credential.handler.PasswordCredentialHandler.PASSWORD_ENCODER;
-import static org.picketlink.idm.model.sample.SampleModel.getUser;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+import static org.picketlink.idm.credential.handler.PasswordCredentialHandler.*;
+import static org.picketlink.idm.model.sample.SampleModel.*;
 
 /**
  * <p>Some tests for the configuration of the encoding when using the {@link PasswordCredentialHandler}.</p>
@@ -265,7 +264,7 @@ public class PasswordCredentialHandlerConfigurationTestCase {
         try {
             identityManager.updateCredential(user, password);            
         } catch (Exception e) {
-            assertTrue(e.getMessage().contains("PLIDM000073"));
+            assertTrue(e.getMessage().contains("PLIDM000208"));
             throw e;
         }
         
