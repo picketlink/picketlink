@@ -227,8 +227,6 @@ public class PasswordCredentialHandlerConfigurationTestCase {
 
     @Test (expected=IdentityManagementException.class)
     public void failInvalidEncodingAlgorithm() throws Exception {
-        final Map<String, String> assertionCheck = new HashMap<String, String>();
-
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
