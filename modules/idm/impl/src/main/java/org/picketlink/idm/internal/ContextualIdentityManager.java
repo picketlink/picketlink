@@ -213,11 +213,6 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
                 .retrieveCredentials(this, account, storageClass);
     }
 
-    @Override
-    public void loadAttribute(IdentityType identityType, String attributeName) {
-        //TODO: Implement loadAttribute
-    }
-
     private void checkUniqueness(IdentityType identityType) {
         PropertyQuery<Serializable> propertyQuery = PropertyQueries.createQuery(identityType.getClass());
 

@@ -35,29 +35,29 @@ public interface RelationshipManager {
      * @param relationship
      * @throws IdentityManagementException If cannot add the provided {@link Relationship} instance.
      */
-    void add(Relationship relationship);
+    void add(Relationship relationship) throws IdentityManagementException;
 
     /**
      * <p>
-     * Updates the given {@link Relationship} instance. The instance must have an identifier, otherwise a exception will be
-     * thrown.
+     * Updates the given {@link Relationship} instance. The instance must have an identifier that references a
+     * previously stored instance, otherwise a exception will be thrown.
      * </p>
      *
      * @param relationship
      * @throws IdentityManagementException If cannot update the provided {@link Relationship} instance.
      */
-    void update(Relationship relationship);
+    void update(Relationship relationship) throws IdentityManagementException;
 
     /**
      * <p>
-     * Removes the given {@link Relationship} instance. The instance must have an identifier, otherwise a exception will be
-     * thrown.
+     * Removes the given {@link Relationship} instance. The instance must have an identifier that references a
+     * previously stored instance, otherwise a exception will be thrown.
      * </p>
      *
      * @param relationship
      * @throws IdentityManagementException If cannot remove the provided {@link Relationship} instance.
      */
-    void remove(Relationship relationship);
+    void remove(Relationship relationship) throws IdentityManagementException;
 
     /**
      * <p>
