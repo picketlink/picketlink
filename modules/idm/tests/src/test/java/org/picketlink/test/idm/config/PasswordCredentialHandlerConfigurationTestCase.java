@@ -263,16 +263,10 @@ public class PasswordCredentialHandlerConfigurationTestCase {
         
         try {
             identityManager.updateCredential(user, password);            
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("PLIDM000208"));
+        } catch (IdentityManagementException e) {
+            assertTrue(e.getMessage().contains("PLIDM000205"));
             throw e;
         }
-        
-        UsernamePasswordCredentials credential = new UsernamePasswordCredentials(user.getLoginName(), password);
-        
-        identityManager.validateCredentials(credential);
-        
-        assertEquals(Status.VALID, credential.getStatus());
     }
 
 }
