@@ -18,9 +18,6 @@
 
 package org.picketlink.internal;
 
-import java.util.Date;
-import java.util.List;
-import javax.enterprise.inject.Typed;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials;
@@ -28,6 +25,10 @@ import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
+
+import javax.enterprise.inject.Typed;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Decorator for IdentityManager that provides secured identity management operations
@@ -96,8 +97,4 @@ public class SecuredIdentityManager implements IdentityManager {
         return decorated.retrieveCredentials(account, storageClass);
     }
 
-    @Override
-    public void loadAttribute(IdentityType identityType, String attributeName) {
-        decorated.loadAttribute(identityType, attributeName);
-    }
 }

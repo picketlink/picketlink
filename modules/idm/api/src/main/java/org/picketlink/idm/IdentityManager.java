@@ -17,17 +17,17 @@
  */
 package org.picketlink.idm;
 
-import java.util.Date;
-import java.util.List;
-
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
 
+import java.util.Date;
+import java.util.List;
+
 /**
- * Manages all Identity Management related operations.
+ * <p>Manages all Identity Management related operations.</p>
  *
  * @author Shane Bryzak
  */
@@ -159,14 +159,5 @@ public interface IdentityManager {
      * @return
      */
     <T extends CredentialStorage> List<T> retrieveCredentials(Account account, Class<T> storageClass);
-
-    // Attributes
-
-    /**
-     *
-     * @param identityType
-     * @param attributeName
-     */
-    void loadAttribute(IdentityType identityType, String attributeName);
 
 }
