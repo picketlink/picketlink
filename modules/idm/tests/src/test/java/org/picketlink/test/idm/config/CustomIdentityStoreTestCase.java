@@ -38,7 +38,7 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.ContextInitializer;

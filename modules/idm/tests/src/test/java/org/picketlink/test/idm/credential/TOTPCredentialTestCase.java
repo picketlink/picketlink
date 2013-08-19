@@ -24,7 +24,7 @@ import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.TOTPCredential;
 import org.picketlink.idm.credential.TOTPCredentials;
 import org.picketlink.idm.credential.util.TimeBasedOTP;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;

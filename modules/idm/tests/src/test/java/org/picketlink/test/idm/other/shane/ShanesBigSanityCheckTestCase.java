@@ -10,7 +10,7 @@ import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;

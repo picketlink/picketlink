@@ -22,11 +22,11 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.sample.Agent;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.GroupRole;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.SampleModel;
+import org.picketlink.idm.model.basic.Agent;
+import org.picketlink.idm.model.basic.BasicModel;
+import org.picketlink.idm.model.basic.Group;
+import org.picketlink.idm.model.basic.GroupRole;
+import org.picketlink.idm.model.basic.Role;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
@@ -91,29 +91,29 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
         IdentityManager identityManager = getIdentityManager();
 
         // developerAgent is an employee at the company group
-        SampleModel.grantGroupRole(relationshipManager, developerAgent, employeeRole, companyGroup);
+        BasicModel.grantGroupRole(relationshipManager, developerAgent, employeeRole, companyGroup);
 
         // developerAgent is a developer at the project group
-        SampleModel.grantGroupRole(relationshipManager, developerAgent, developerRole, projectGroup);
+        BasicModel.grantGroupRole(relationshipManager, developerAgent, developerRole, projectGroup);
 
         // projectManagerAgent is an employee at the company group
-        SampleModel.grantGroupRole(relationshipManager, projectManagerAgent, employeeRole, companyGroup);
+        BasicModel.grantGroupRole(relationshipManager, projectManagerAgent, employeeRole, companyGroup);
 
         // projectManagerAgent is the manager of the project group
-        SampleModel.grantGroupRole(relationshipManager, projectManagerAgent, managerRole, projectGroup);
+        BasicModel.grantGroupRole(relationshipManager, projectManagerAgent, managerRole, projectGroup);
 
-        assertTrue(SampleModel.hasGroupRole(relationshipManager, developerAgent, employeeRole, companyGroup));
-        assertTrue(SampleModel.hasGroupRole(relationshipManager, developerAgent, developerRole, projectGroup));
+        assertTrue(BasicModel.hasGroupRole(relationshipManager, developerAgent, employeeRole, companyGroup));
+        assertTrue(BasicModel.hasGroupRole(relationshipManager, developerAgent, developerRole, projectGroup));
 
-        assertTrue(SampleModel.hasGroupRole(relationshipManager, projectManagerAgent, employeeRole, companyGroup));
-        assertTrue(SampleModel.hasGroupRole(relationshipManager, projectManagerAgent, managerRole, projectGroup));
+        assertTrue(BasicModel.hasGroupRole(relationshipManager, projectManagerAgent, employeeRole, companyGroup));
+        assertTrue(BasicModel.hasGroupRole(relationshipManager, projectManagerAgent, managerRole, projectGroup));
 
-        assertFalse(SampleModel.hasGroupRole(relationshipManager, developerAgent, managerRole, projectGroup));
-        assertFalse(SampleModel.hasGroupRole(relationshipManager, projectManagerAgent, developerRole, projectGroup));
+        assertFalse(BasicModel.hasGroupRole(relationshipManager, developerAgent, managerRole, projectGroup));
+        assertFalse(BasicModel.hasGroupRole(relationshipManager, projectManagerAgent, developerRole, projectGroup));
 
-        assertFalse(SampleModel.isMember(relationshipManager, developerAgent, projectGroup));
-        assertFalse(SampleModel.isMember(relationshipManager, developerAgent, companyGroup));
-        assertFalse(SampleModel.hasRole(relationshipManager, developerAgent, employeeRole));
+        assertFalse(BasicModel.isMember(relationshipManager, developerAgent, projectGroup));
+        assertFalse(BasicModel.isMember(relationshipManager, developerAgent, companyGroup));
+        assertFalse(BasicModel.hasRole(relationshipManager, developerAgent, employeeRole));
     }
 
     @Test
@@ -133,31 +133,31 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        SampleModel.grantGroupRole(relationshipManager, agent, managerRole, administratorsGroup);
+        BasicModel.grantGroupRole(relationshipManager, agent, managerRole, administratorsGroup);
 
-        assertTrue(SampleModel.hasGroupRole(relationshipManager, agent, managerRole, administratorsGroup));
-        assertTrue(SampleModel.hasGroupRole(relationshipManager, agent, managerRole, databaseAdministratorsGroup));
-        assertTrue(SampleModel.hasGroupRole(relationshipManager, agent, managerRole, systemAdministradorsGroup));
+        assertTrue(BasicModel.hasGroupRole(relationshipManager, agent, managerRole, administratorsGroup));
+        assertTrue(BasicModel.hasGroupRole(relationshipManager, agent, managerRole, databaseAdministratorsGroup));
+        assertTrue(BasicModel.hasGroupRole(relationshipManager, agent, managerRole, systemAdministradorsGroup));
 
         Role securityManager = createRole("Data Security Manager");
 
-        SampleModel.grantGroupRole(relationshipManager, agent, securityManager, databaseAdministratorsGroup);
+        BasicModel.grantGroupRole(relationshipManager, agent, securityManager, databaseAdministratorsGroup);
 
-        assertTrue(SampleModel.hasGroupRole(relationshipManager, agent, securityManager, databaseAdministratorsGroup));
-        assertFalse(SampleModel.hasGroupRole(relationshipManager, agent, securityManager, administratorsGroup));
-        assertFalse(SampleModel.hasGroupRole(relationshipManager, agent, securityManager, systemAdministradorsGroup));
+        assertTrue(BasicModel.hasGroupRole(relationshipManager, agent, securityManager, databaseAdministratorsGroup));
+        assertFalse(BasicModel.hasGroupRole(relationshipManager, agent, securityManager, administratorsGroup));
+        assertFalse(BasicModel.hasGroupRole(relationshipManager, agent, securityManager, systemAdministradorsGroup));
 
-        SampleModel.revokeGroupRole(relationshipManager, agent, managerRole, administratorsGroup);
+        BasicModel.revokeGroupRole(relationshipManager, agent, managerRole, administratorsGroup);
 
-        assertFalse(SampleModel.hasGroupRole(relationshipManager, agent, managerRole, administratorsGroup));
-        assertFalse(SampleModel.hasGroupRole(relationshipManager, agent, managerRole, databaseAdministratorsGroup));
-        assertFalse(SampleModel.hasGroupRole(relationshipManager, agent, managerRole, systemAdministradorsGroup));
+        assertFalse(BasicModel.hasGroupRole(relationshipManager, agent, managerRole, administratorsGroup));
+        assertFalse(BasicModel.hasGroupRole(relationshipManager, agent, managerRole, databaseAdministratorsGroup));
+        assertFalse(BasicModel.hasGroupRole(relationshipManager, agent, managerRole, systemAdministradorsGroup));
 
-        SampleModel.grantGroupRole(relationshipManager, agent, managerRole, systemAdministradorsGroup);
+        BasicModel.grantGroupRole(relationshipManager, agent, managerRole, systemAdministradorsGroup);
 
-        assertTrue(SampleModel.hasGroupRole(relationshipManager, agent, managerRole, databaseAdministratorsGroup));
-        assertTrue(SampleModel.hasGroupRole(relationshipManager, agent, managerRole, systemAdministradorsGroup));
-        assertFalse(SampleModel.hasGroupRole(relationshipManager, agent, managerRole, administratorsGroup));
+        assertTrue(BasicModel.hasGroupRole(relationshipManager, agent, managerRole, databaseAdministratorsGroup));
+        assertTrue(BasicModel.hasGroupRole(relationshipManager, agent, managerRole, systemAdministradorsGroup));
+        assertFalse(BasicModel.hasGroupRole(relationshipManager, agent, managerRole, administratorsGroup));
     }
 
     /**
@@ -181,22 +181,22 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
         IdentityManager identityManager = getIdentityManager();
 
         // developerAgent is an employee at the company group
-        SampleModel.grantGroupRole(relationshipManager, developerAgent, employeeRole, companyGroup);
+        BasicModel.grantGroupRole(relationshipManager, developerAgent, employeeRole, companyGroup);
 
         // developerAgent is a developer at the project group
-        SampleModel.grantGroupRole(relationshipManager, developerAgent, developerRole, projectGroup);
+        BasicModel.grantGroupRole(relationshipManager, developerAgent, developerRole, projectGroup);
 
-        assertTrue(SampleModel.hasGroupRole(relationshipManager, developerAgent, employeeRole, companyGroup));
-        assertTrue(SampleModel.hasGroupRole(relationshipManager, developerAgent, developerRole, projectGroup));
+        assertTrue(BasicModel.hasGroupRole(relationshipManager, developerAgent, employeeRole, companyGroup));
+        assertTrue(BasicModel.hasGroupRole(relationshipManager, developerAgent, developerRole, projectGroup));
 
-        SampleModel.revokeGroupRole(relationshipManager, developerAgent, developerRole, projectGroup);
+        BasicModel.revokeGroupRole(relationshipManager, developerAgent, developerRole, projectGroup);
 
-        assertFalse(SampleModel.hasGroupRole(relationshipManager, developerAgent, developerRole, projectGroup));
-        assertTrue(SampleModel.hasGroupRole(relationshipManager, developerAgent, employeeRole, companyGroup));
+        assertFalse(BasicModel.hasGroupRole(relationshipManager, developerAgent, developerRole, projectGroup));
+        assertTrue(BasicModel.hasGroupRole(relationshipManager, developerAgent, employeeRole, companyGroup));
 
-        SampleModel.revokeGroupRole(relationshipManager, developerAgent, employeeRole, companyGroup);
+        BasicModel.revokeGroupRole(relationshipManager, developerAgent, employeeRole, companyGroup);
 
-        assertFalse(SampleModel.hasGroupRole(relationshipManager, developerAgent, employeeRole, companyGroup));
+        assertFalse(BasicModel.hasGroupRole(relationshipManager, developerAgent, employeeRole, companyGroup));
     }
 
 }

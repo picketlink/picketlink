@@ -19,7 +19,7 @@
 package org.picketlink.test.idm.relationship;
 
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.basic.Group;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;

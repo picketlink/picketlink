@@ -19,8 +19,8 @@
 package org.picketlink.test.idm.relationship;
 
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.sample.Agent;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.Agent;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;

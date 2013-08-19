@@ -28,7 +28,7 @@ import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.internal.CDIEventBridge;
 import org.picketlink.internal.IdentityStoreAutoConfiguration;
 import org.picketlink.internal.SecuredIdentityManager;

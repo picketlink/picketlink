@@ -24,7 +24,7 @@ import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.util.DigestUtil;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;

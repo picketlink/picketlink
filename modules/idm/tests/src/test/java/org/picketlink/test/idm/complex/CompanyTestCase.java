@@ -31,7 +31,7 @@ import static org.junit.Assert.*;
 
 /**
  * <p>
- * Test case for the {@link org.picketlink.idm.model.sample.Tier} management operations.
+ * Test case for the {@link org.picketlink.idm.model.basic.Tier} management operations.
  * </p>
  *
  * @author Pedro Silva

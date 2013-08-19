@@ -33,7 +33,7 @@ import javax.naming.directory.ModificationItem;
 import java.util.Date;
 
 import static org.picketlink.idm.credential.Credentials.*;
-import static org.picketlink.idm.model.sample.SampleModel.*;
+import static org.picketlink.idm.model.basic.BasicModel.*;
 
 /**
  * This particular implementation supports the validation of UsernamePasswordCredentials, and updating PlainTextPassword

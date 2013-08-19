@@ -23,7 +23,7 @@ import javax.persistence.PersistenceContext;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
-import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.scim.DataProvider;
 import org.picketlink.scim.providers.PicketLinkIDMDataProvider;
 

@@ -34,11 +34,11 @@ import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.SampleModel;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.BasicModel;
+import org.picketlink.idm.model.basic.Group;
+import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.model.basic.Role;
+import org.picketlink.idm.model.basic.User;
 
 /**
  * @author Pedro Silva
@@ -105,8 +105,8 @@ public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerCli
 
             RelationshipManager relationshipManager = partitionManager.createRelationshipManager();
 
-            SampleModel.grantRole(relationshipManager, user, role);
-            SampleModel.addToGroup(relationshipManager, user, group);
+            BasicModel.grantRole(relationshipManager, user, role);
+            BasicModel.addToGroup(relationshipManager, user, group);
 
             for (int i = 0;i < 30;i++) {
                 user.setAttribute(new Attribute("Attribute " + user.getLoginName() + i, "Value " + i));

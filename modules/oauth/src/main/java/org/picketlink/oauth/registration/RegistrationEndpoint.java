@@ -30,7 +30,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.basic.Agent;
 import org.picketlink.oauth.messages.RegistrationRequest;
 import org.picketlink.oauth.messages.RegistrationResponse;
 import org.picketlink.oauth.server.endpoint.BaseEndpoint;

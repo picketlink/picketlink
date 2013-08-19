@@ -22,12 +22,12 @@ import java.util.Date;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
-import org.picketlink.idm.model.sample.Grant;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.SampleModel;
-import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.BasicModel;
+import org.picketlink.idm.model.basic.Grant;
+import org.picketlink.idm.model.basic.Group;
+import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.model.basic.Role;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
@@ -93,8 +93,8 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        SampleModel.grantRole(relationshipManager, anotherUser, role);
-        SampleModel.addToGroup(relationshipManager, anotherUser, group);
+        BasicModel.grantRole(relationshipManager, anotherUser, role);
+        BasicModel.addToGroup(relationshipManager, anotherUser, group);
 
         RelationshipQuery<?> relationshipQuery = relationshipManager.createRelationshipQuery(Grant.class);
 

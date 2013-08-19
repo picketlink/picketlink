@@ -25,7 +25,7 @@ import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.util.DigestUtil;
-import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.test.authentication.AbstractAuthenticationTestCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

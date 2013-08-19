@@ -33,15 +33,15 @@ import org.picketlink.authentication.BaseAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.Role;
+import org.picketlink.idm.model.basic.User;
 
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 import static org.junit.Assert.*;
-import static org.picketlink.idm.model.sample.SampleModel.*;
+import static org.picketlink.idm.model.basic.BasicModel.*;
 
 /**
  * @author Pedro Igor

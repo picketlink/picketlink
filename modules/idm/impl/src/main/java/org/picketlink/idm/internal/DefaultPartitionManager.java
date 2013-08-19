@@ -44,7 +44,7 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.IdentityPartition;
-import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.spi.AttributeStore;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;

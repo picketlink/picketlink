@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.idm.model.sample;
+package org.picketlink.idm.model.basic;
 
 import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.query.QueryParameter;

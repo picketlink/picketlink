@@ -36,18 +36,18 @@ import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.Group;
+import org.picketlink.idm.model.basic.Role;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.AbstractJPADeploymentTestCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.picketlink.idm.model.sample.SampleModel.addToGroup;
-import static org.picketlink.idm.model.sample.SampleModel.grantGroupRole;
-import static org.picketlink.idm.model.sample.SampleModel.grantRole;
-import static org.picketlink.idm.model.sample.SampleModel.hasGroupRole;
-import static org.picketlink.idm.model.sample.SampleModel.hasRole;
-import static org.picketlink.idm.model.sample.SampleModel.isMember;
+import static org.picketlink.idm.model.basic.BasicModel.addToGroup;
+import static org.picketlink.idm.model.basic.BasicModel.grantGroupRole;
+import static org.picketlink.idm.model.basic.BasicModel.grantRole;
+import static org.picketlink.idm.model.basic.BasicModel.hasGroupRole;
+import static org.picketlink.idm.model.basic.BasicModel.hasRole;
+import static org.picketlink.idm.model.basic.BasicModel.isMember;
 
 /**
  * @author Pedro Igor

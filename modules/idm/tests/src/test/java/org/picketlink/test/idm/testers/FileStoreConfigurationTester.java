@@ -19,7 +19,7 @@ package org.picketlink.test.idm.testers;
 
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
-import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.model.basic.Realm;
 
 /**
  * @author pedroigor

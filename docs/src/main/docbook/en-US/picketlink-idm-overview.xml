@@ -159,7 +159,7 @@ public class InitializeSecurity {
         <para>
           Since PicketLink has multiple-partition support, it is important to be able to control the associated partition for 
           the injected <code>IdentityManager</code>.  By default, PicketLink will injected an <code>IdentityManager</code> for the
-          <emphasis>default Realm</emphasis> (i.e. the <code>org.picketlink.idm.model.sample.Realm</code> partition with a name of
+          <emphasis>default Realm</emphasis> (i.e. the <code>org.picketlink.idm.model.basic.Realm</code> partition with a name of
           <emphasis>default</emphasis>).  If your application has basic security requirements then this might well be adequate, 
           however if you wish to override this default behaviour then simply provide a producer method annotated with the
           <code>@PicketLink</code> qualifier that returns the default partition for your application:
@@ -201,8 +201,8 @@ public class DefaultPartitionProducer {
       
       <note>
         <para>
-          The following code examples make use of the classes provided as part of the <emphasis>sample identity model</emphasis>
-          - see <xref linkend="picketlink-idm-samplemodel"/> for more information.
+          The following code examples make use of the classes provided as part of the <emphasis>basic identity model</emphasis>
+          - see <xref linkend="picketlink-idm-basicmodel"/> for more information.
         </para>
       </note>
       
@@ -228,19 +228,19 @@ relationshipManager.add(new Grant(user, admin));
 relationshipManager.add(new GroupMembership(user, group));]]></programlisting>
 
       <para>
-        The static methods provided by the <code>org.picketlink.idm.model.sample.SampleModel</code> class are based on the
-        sample identity model and may be used to lookup various identity objects, or test whether certain relationships exist. 
+        The static methods provided by the <code>org.picketlink.idm.model.basic.BasicModel</code> class are based on the
+        basic identity model and may be used to lookup various identity objects, or test whether certain relationships exist.
         These methods accept either an <code>IdentityManager</code> or <code>RelationshipManager</code> object as a parameter.
       </para>
       
       <programlisting language="JAVA"><![CDATA[// Lookup the user by their username
-User user = SampleModel.getUser(identityManager, "jdoe");
+User user = BasicModel.getUser(identityManager, "jdoe");
 
 // Test if the user has the admin role
-boolean isAdmin = SampleModel.hasRole(relationshipManager, user, role);
+boolean isAdmin = BasicModel.hasRole(relationshipManager, user, role);
 
 // Test if the user is a member of the employee group
-boolean isEmployee = SampleModel.isMember(relationshipManager, user, group);]]></programlisting>
+boolean isEmployee = BasicModel.isMember(relationshipManager, user, group);]]></programlisting>
     </section>
     
     <section>
@@ -340,9 +340,9 @@ boolean isEmployee = SampleModel.isMember(relationshipManager, user, group);]]><
           The base identity types listed above do not define an identity model implementation themselves, so they cannot be used 
           directly to service the security requirements of an application.  Instead, an application must either define its own
           identity model (by providing implementations of whichever identity objects are required by the application,  such as user, 
-          group or role classes) or by using a pre-prepared model.  PicketLink provides a <emphasis>sample</emphasis> identity model
-          (more details can be found in <xref linkend="picketlink-idm-samplemodel"/>) which provides a basic set of identity objects,
-          however in case the sample identity model is insufficient, it is quite simple to define a custom model as we'll see in
+          group or role classes) or by using a pre-prepared model.  PicketLink provides a <emphasis>basic</emphasis> identity model
+          (more details can be found in <xref linkend="picketlink-idm-basicmodel"/>) which provides a basic set of identity objects,
+          however in case the basic identity model is insufficient, it is quite simple to define a custom model as we'll see in
           the next section.
         </para>
       </section>     
@@ -361,7 +361,7 @@ boolean isEmployee = SampleModel.isMember(relationshipManager, user, group);]]><
       </para>
       
       <para>
-        Let's start by looking at the source for some of the identity objects in the sample model, starting with the <code>Agent</code>
+        Let's start by looking at the source for some of the identity objects in the basic model, starting with the <code>Agent</code>
         and <code>User</code> objects:
       </para>
       

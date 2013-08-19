@@ -27,7 +27,7 @@ import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.credential.storage.DigestCredentialStorage;
 import org.picketlink.idm.credential.util.DigestUtil;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.sample.Agent;
+import org.picketlink.idm.model.basic.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 

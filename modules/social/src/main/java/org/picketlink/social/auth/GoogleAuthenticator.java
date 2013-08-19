@@ -20,7 +20,7 @@ package org.picketlink.social.auth;
 
 import com.google.api.services.oauth2.model.Userinfo;
 import org.picketlink.authentication.AuthenticationException;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.social.auth.conf.GoogleConfiguration;
 import org.picketlink.social.standalone.google.GoogleAccessTokenContext;
 import org.picketlink.social.standalone.google.GoogleConstants;

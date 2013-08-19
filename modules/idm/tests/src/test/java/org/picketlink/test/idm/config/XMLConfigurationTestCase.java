@@ -39,11 +39,11 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.sample.Grant;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.GroupMembership;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.Grant;
+import org.picketlink.idm.model.basic.Group;
+import org.picketlink.idm.model.basic.GroupMembership;
+import org.picketlink.idm.model.basic.Role;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.basic.MyCustomAccountEntity;
 
 import java.io.InputStream;

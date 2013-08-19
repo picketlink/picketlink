@@ -34,15 +34,15 @@ import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.picketlink.idm.model.sample.SampleModel.getUser;
+import static org.picketlink.idm.model.basic.BasicModel.getUser;
 
 /**
  * <p>Some tests for the configuration of custom {@link CredentialHandler}.</p>

@@ -29,10 +29,10 @@ import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.idm.model.sample.SampleModel;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.BasicModel;
+import org.picketlink.idm.model.basic.Group;
+import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
@@ -76,23 +76,23 @@ public class XMLConfigurationOperationsTestCase {
     @Test
     public void testUser() {
         IdentityManager identityManager = partitionManager.createIdentityManager();
-        assertNull(SampleModel.getUser(identityManager, "john"));
+        assertNull(BasicModel.getUser(identityManager, "john"));
         identityManager.add(new User("john"));
 
-        User john = SampleModel.getUser(identityManager, "john");
+        User john = BasicModel.getUser(identityManager, "john");
         assertNotNull(john);
 
         john.setFirstName("John");
         john.setLastName("Anthony");
         identityManager.update(john);
 
-        john = SampleModel.getUser(identityManager, "john");
+        john = BasicModel.getUser(identityManager, "john");
         assertNotNull(john);
         assertEquals(john.getFirstName(), "John");
         assertEquals(john.getLastName(), "Anthony");
 
         identityManager.remove(john);
-        assertNull(SampleModel.getUser(identityManager, "john"));
+        assertNull(BasicModel.getUser(identityManager, "john"));
     }
 
     @Test
@@ -102,15 +102,15 @@ public class XMLConfigurationOperationsTestCase {
 
         // Add some groups
         identityManager.add(new Group("platform"));
-        Group platform = SampleModel.getGroup(identityManager, "/platform");
+        Group platform = BasicModel.getGroup(identityManager, "/platform");
         assertNotNull(platform);
         identityManager.add(new Group("users", platform));
         identityManager.add(new Group("administrators", platform));
 
         // assert that groups are here
-        Group users = SampleModel.getGroup(identityManager, "/platform/users");
-        Group administrators = SampleModel.getGroup(identityManager, "/platform/administrators");
-        User mary = SampleModel.getUser(identityManager, "mary");
+        Group users = BasicModel.getGroup(identityManager, "/platform/users");
+        Group administrators = BasicModel.getGroup(identityManager, "/platform/administrators");
+        User mary = BasicModel.getUser(identityManager, "mary");
         assertNotNull(users);
         assertNotNull(administrators);
         assertNotNull(mary);
@@ -119,12 +119,12 @@ public class XMLConfigurationOperationsTestCase {
         // Basic test of GroupMembership
         RelationshipManager relManager = partitionManager.createRelationshipManager();
 
-        SampleModel.addToGroup(relManager, mary, users);
-        assertTrue(SampleModel.isMember(relManager, mary, users));
-        assertFalse(SampleModel.isMember(relManager, mary, administrators));
+        BasicModel.addToGroup(relManager, mary, users);
+        assertTrue(BasicModel.isMember(relManager, mary, users));
+        assertFalse(BasicModel.isMember(relManager, mary, administrators));
 
-        SampleModel.removeFromGroup(relManager, mary, users);
-        assertFalse(SampleModel.isMember(relManager, mary, users));
+        BasicModel.removeFromGroup(relManager, mary, users);
+        assertFalse(BasicModel.isMember(relManager, mary, users));
     }
 
 

@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.Collections;
 import javax.servlet.http.HttpSession;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.social.auth.conf.FacebookConfiguration;
 import org.picketlink.social.standalone.fb.FacebookProcessor;
 

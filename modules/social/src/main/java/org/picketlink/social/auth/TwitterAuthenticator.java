@@ -20,7 +20,7 @@ package org.picketlink.social.auth;
 import java.security.Principal;
 import javax.servlet.http.HttpSession;
 import org.picketlink.authentication.AuthenticationException;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.social.auth.conf.TwitterConfiguration;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;

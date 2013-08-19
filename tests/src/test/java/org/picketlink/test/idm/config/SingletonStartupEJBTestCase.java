@@ -22,15 +22,15 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.Group;
+import org.picketlink.idm.model.basic.Role;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.AbstractJPADeploymentTestCase;
 
 import javax.inject.Inject;
 
 import static org.junit.Assert.*;
-import static org.picketlink.idm.model.sample.SampleModel.*;
+import static org.picketlink.idm.model.basic.BasicModel.*;
 
 /**
  * @author pedroigor

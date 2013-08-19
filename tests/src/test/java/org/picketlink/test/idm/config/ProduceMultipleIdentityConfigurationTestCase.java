@@ -37,8 +37,8 @@ import org.picketlink.idm.jpa.model.sample.simple.RelationshipIdentityTypeEntity
 import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity;
-import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.internal.EEJPAContextInitializer;
 import org.picketlink.test.AbstractJPADeploymentTestCase;
 

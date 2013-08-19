@@ -46,11 +46,11 @@ import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.SampleModel;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.BasicModel;
+import org.picketlink.idm.model.basic.Group;
+import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.model.basic.Role;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.basic.MyCustomAccountEntity;
 import org.picketlink.test.idm.partition.CustomPartitionEntity;
 import org.picketlink.test.idm.relationship.CustomRelationshipTypeEntity;
@@ -144,8 +144,8 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
 
             RelationshipManager relationshipManager = partitionManager.createRelationshipManager();
 
-            SampleModel.grantRole(relationshipManager, user, role);
-            SampleModel.addToGroup(relationshipManager, user, group);
+            BasicModel.grantRole(relationshipManager, user, role);
+            BasicModel.addToGroup(relationshipManager, user, group);
 
             for (int i = 0;i < 20;i++) {
                 user.setAttribute(new Attribute("Attribute " + user.getLoginName() + i, "Value " + i));

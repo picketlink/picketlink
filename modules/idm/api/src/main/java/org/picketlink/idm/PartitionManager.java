@@ -46,7 +46,7 @@ public interface PartitionManager extends Serializable {
     /**
      * <p>Creates an {@link IdentityManager} instance for the default partition.</p>
      *
-     * <p>The default partition is always a {@link org.picketlink.idm.model.sample.Realm} type with name
+     * <p>The default partition is always a {@link org.picketlink.idm.model.basic.Realm} type with name
      * <code>Realm.DEFAULT_REALM</code>. This partition must exists before calling this method,
      * otherwise an exception will be thrown.</p>
      *

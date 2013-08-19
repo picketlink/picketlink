@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.model.sample;
+package org.picketlink.idm.model.basic;
 
 import org.picketlink.idm.model.AbstractPartition;
 import org.picketlink.idm.model.Account;

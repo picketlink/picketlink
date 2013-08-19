@@ -22,11 +22,11 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.SampleModel;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.BasicModel;
+import org.picketlink.idm.model.basic.Group;
+import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.model.basic.Role;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
@@ -81,7 +81,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         
         IdentityManager testingRealmManager = getPartitionManager().createIdentityManager(realm);
         
-        realmUser = SampleModel.getUser(testingRealmManager, realmUser.getLoginName());
+        realmUser = BasicModel.getUser(testingRealmManager, realmUser.getLoginName());
         
         assertNotNull(realmUser);
         assertNotNull(realmUser.getPartition());
@@ -90,7 +90,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         IdentityManager defaultIdentityManager = getIdentityManager();
         
         // the identitytype should not be associated with the DEFAULT realm
-        realmUser = SampleModel.getUser(defaultIdentityManager, realmUser.getLoginName());
+        realmUser = BasicModel.getUser(defaultIdentityManager, realmUser.getLoginName());
         
         assertNull(realmUser);
     }
@@ -110,7 +110,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         } catch (IdentityManagementException e) {
         }
         
-        defaultRealmUser = SampleModel.getUser(defaultIdentityManager, defaultRealmUser.getLoginName());
+        defaultRealmUser = BasicModel.getUser(defaultIdentityManager, defaultRealmUser.getLoginName());
         
         assertNotNull(defaultRealmUser);
 
@@ -120,7 +120,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         
         IdentityManager testingRealmManager = getPartitionManager().createIdentityManager(realm);
 
-        testingRealmUser = SampleModel.getUser(testingRealmManager, testingRealmUser.getLoginName());
+        testingRealmUser = BasicModel.getUser(testingRealmManager, testingRealmUser.getLoginName());
         
         assertNotNull(testingRealmUser);
         assertFalse(defaultRealmUser.getId().equals(testingRealmUser.getId()));
@@ -141,7 +141,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         } catch (Exception e) {
         }
         
-        defaultRealmRole = SampleModel.getRole(defaultIdentityManager, defaultRealmRole.getName());
+        defaultRealmRole = BasicModel.getRole(defaultIdentityManager, defaultRealmRole.getName());
         
         assertNotNull(defaultRealmRole);
 
@@ -152,7 +152,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         // get a IdentityManager instance for the given realm and associate the Role with the realm
         IdentityManager testingRealmManager = getPartitionManager().createIdentityManager(realm);
 
-        testingRealmRole = SampleModel.getRole(testingRealmManager, testingRealmRole.getName());
+        testingRealmRole = BasicModel.getRole(testingRealmManager, testingRealmRole.getName());
         
         assertNotNull(testingRealmRole);
         assertFalse(defaultRealmRole.getId().equals(testingRealmRole.getId()));
@@ -173,7 +173,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         } catch (Exception e) {
         }
         
-        defaultRealmGroup = SampleModel.getGroup(defaultIdentityManager, defaultRealmGroup.getName());
+        defaultRealmGroup = BasicModel.getGroup(defaultIdentityManager, defaultRealmGroup.getName());
         
         assertNotNull(defaultRealmGroup);
 
@@ -184,7 +184,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         // get a IdentityManager instance for the given realm and associate the Group with the realm
         IdentityManager testingRealmManager = getPartitionManager().createIdentityManager(realm);
 
-        testingRealmGroup = SampleModel.getGroup(testingRealmManager, testingRealmGroup.getName());
+        testingRealmGroup = BasicModel.getGroup(testingRealmManager, testingRealmGroup.getName());
         
         assertNotNull(testingRealmGroup);
         assertFalse(defaultRealmGroup.getId().equals(testingRealmGroup.getId()));
@@ -196,7 +196,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         
         Role testingRole = createRole("testingRole", realm);
         
-        testingRole = SampleModel.getRole(getPartitionManager().createIdentityManager(realm), testingRole.getName());
+        testingRole = BasicModel.getRole(getPartitionManager().createIdentityManager(realm), testingRole.getName());
         
         assertNotNull(testingRole);
         assertNotNull(testingRole.getPartition());
@@ -205,7 +205,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         IdentityManager defaultIdentityManager = getIdentityManager();
         
         // the identitytype should not be associated with the DEFAULT realm
-        testingRole = SampleModel.getRole(defaultIdentityManager, testingRole.getName());
+        testingRole = BasicModel.getRole(defaultIdentityManager, testingRole.getName());
         
         assertNull(testingRole);
     }
@@ -216,7 +216,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         
         Group testingGroup = createGroup("testingRealmGroup", null, realm);
         
-        testingGroup = SampleModel.getGroup(getPartitionManager().createIdentityManager(realm), testingGroup.getName());
+        testingGroup = BasicModel.getGroup(getPartitionManager().createIdentityManager(realm), testingGroup.getName());
         
         assertNotNull(testingGroup);
         assertNotNull(testingGroup.getPartition());
@@ -225,7 +225,7 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         IdentityManager defaultIdentityManager = getIdentityManager();
         
         // the identitytype should not be associated with the DEFAULT realm
-        testingGroup = SampleModel.getGroup(defaultIdentityManager, testingGroup.getName());
+        testingGroup = BasicModel.getGroup(defaultIdentityManager, testingGroup.getName());
         
         assertNull(testingGroup);
     }
@@ -244,13 +244,13 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        SampleModel.grantRole(relationshipManager, defaultRealmUser, defaultRealmRole);
-        SampleModel.addToGroup(relationshipManager, defaultRealmUser, defaultRealmGroup);
-        SampleModel.grantGroupRole(relationshipManager, defaultRealmUser, defaultRealmRole, defaultRealmGroup);
+        BasicModel.grantRole(relationshipManager, defaultRealmUser, defaultRealmRole);
+        BasicModel.addToGroup(relationshipManager, defaultRealmUser, defaultRealmGroup);
+        BasicModel.grantGroupRole(relationshipManager, defaultRealmUser, defaultRealmRole, defaultRealmGroup);
 
-        assertTrue(SampleModel.hasRole(relationshipManager, defaultRealmUser, defaultRealmRole));
-        assertTrue(SampleModel.isMember(relationshipManager, defaultRealmUser, defaultRealmGroup));
-        assertTrue(SampleModel.hasGroupRole(relationshipManager, defaultRealmUser, defaultRealmRole, defaultRealmGroup));
+        assertTrue(BasicModel.hasRole(relationshipManager, defaultRealmUser, defaultRealmRole));
+        assertTrue(BasicModel.isMember(relationshipManager, defaultRealmUser, defaultRealmGroup));
+        assertTrue(BasicModel.hasGroupRole(relationshipManager, defaultRealmUser, defaultRealmRole, defaultRealmGroup));
 
         Realm realm = getPartitionManager().getPartition(Realm.class, TESTING_REALM_NAME);
 
@@ -258,22 +258,22 @@ public class RealmManagementTestCase extends AbstractPartitionTestCase<Realm> {
         Role testingRealmRole = createRole("testingRealmRole", realm);
         Group testingRealmGroup = createGroup("testingRealmGroup", null, realm);
 
-        SampleModel.grantRole(relationshipManager, testingRealmUser, testingRealmRole);
-        SampleModel.addToGroup(relationshipManager, testingRealmUser, testingRealmGroup);
-        SampleModel.grantGroupRole(relationshipManager, testingRealmUser, testingRealmRole, testingRealmGroup);
+        BasicModel.grantRole(relationshipManager, testingRealmUser, testingRealmRole);
+        BasicModel.addToGroup(relationshipManager, testingRealmUser, testingRealmGroup);
+        BasicModel.grantGroupRole(relationshipManager, testingRealmUser, testingRealmRole, testingRealmGroup);
 
-        assertTrue(SampleModel.hasRole(relationshipManager, testingRealmUser, testingRealmRole));
-        assertTrue(SampleModel.isMember(relationshipManager, testingRealmUser, testingRealmGroup));
-        assertTrue(SampleModel.hasGroupRole(relationshipManager, testingRealmUser, testingRealmRole, testingRealmGroup));
+        assertTrue(BasicModel.hasRole(relationshipManager, testingRealmUser, testingRealmRole));
+        assertTrue(BasicModel.isMember(relationshipManager, testingRealmUser, testingRealmGroup));
+        assertTrue(BasicModel.hasGroupRole(relationshipManager, testingRealmUser, testingRealmRole, testingRealmGroup));
 
-        assertFalse(SampleModel.hasRole(relationshipManager, defaultRealmUser, testingRealmRole));
-        assertFalse(SampleModel.hasRole(relationshipManager, testingRealmUser, defaultRealmRole));
+        assertFalse(BasicModel.hasRole(relationshipManager, defaultRealmUser, testingRealmRole));
+        assertFalse(BasicModel.hasRole(relationshipManager, testingRealmUser, defaultRealmRole));
 
-        assertFalse(SampleModel.isMember(relationshipManager, defaultRealmUser, testingRealmGroup));
-        assertFalse(SampleModel.isMember(relationshipManager, testingRealmUser, defaultRealmGroup));
+        assertFalse(BasicModel.isMember(relationshipManager, defaultRealmUser, testingRealmGroup));
+        assertFalse(BasicModel.isMember(relationshipManager, testingRealmUser, defaultRealmGroup));
 
-        assertFalse(SampleModel.hasGroupRole(relationshipManager, defaultRealmUser, testingRealmRole, defaultRealmGroup));
-        assertFalse(SampleModel.hasGroupRole(relationshipManager, testingRealmUser, defaultRealmRole, testingRealmGroup));
+        assertFalse(BasicModel.hasGroupRole(relationshipManager, defaultRealmUser, testingRealmRole, defaultRealmGroup));
+        assertFalse(BasicModel.hasGroupRole(relationshipManager, testingRealmUser, defaultRealmRole, testingRealmGroup));
     }
 
 }

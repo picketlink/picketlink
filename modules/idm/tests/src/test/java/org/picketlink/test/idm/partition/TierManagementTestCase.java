@@ -22,11 +22,11 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.SampleModel;
-import org.picketlink.idm.model.sample.Tier;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.BasicModel;
+import org.picketlink.idm.model.basic.Group;
+import org.picketlink.idm.model.basic.Role;
+import org.picketlink.idm.model.basic.Tier;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
@@ -86,7 +86,7 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
     public void testRolesForTier() throws Exception {
         IdentityManager applicationTierIdentityManager = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
-        Role testingRole = SampleModel.getRole(applicationTierIdentityManager, "Role");
+        Role testingRole = BasicModel.getRole(applicationTierIdentityManager, "Role");
 
         if (testingRole != null) {
             applicationTierIdentityManager.remove(testingRole);
@@ -96,7 +96,7 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         applicationTierIdentityManager.add(testingRole);
 
-        testingRole = SampleModel.getRole(applicationTierIdentityManager, testingRole.getName());
+        testingRole = BasicModel.getRole(applicationTierIdentityManager, testingRole.getName());
 
         assertNotNull(testingRole);
         assertNotNull(testingRole.getPartition());
@@ -104,7 +104,7 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         IdentityManager identityManager = getIdentityManager();
 
-        testingRole = SampleModel.getRole(identityManager, testingRole.getName());
+        testingRole = BasicModel.getRole(identityManager, testingRole.getName());
 
         assertNull(testingRole);
     }
@@ -115,13 +115,13 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Group testingGroup = new Group("testingGroupTier");
 
-        if (SampleModel.getGroup(applicationA, testingGroup.getPath()) != null) {
-            applicationA.remove(SampleModel.getGroup(applicationA, testingGroup.getPath()));
+        if (BasicModel.getGroup(applicationA, testingGroup.getPath()) != null) {
+            applicationA.remove(BasicModel.getGroup(applicationA, testingGroup.getPath()));
         }
 
         applicationA.add(testingGroup);
 
-        testingGroup = SampleModel.getGroup(applicationA, testingGroup.getName());
+        testingGroup = BasicModel.getGroup(applicationA, testingGroup.getName());
 
         assertNotNull(testingGroup);
         assertNotNull(testingGroup.getPartition());
@@ -129,7 +129,7 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         IdentityManager identityManager = getIdentityManager();
         
-        testingGroup = SampleModel.getGroup(identityManager, testingGroup.getName());
+        testingGroup = BasicModel.getGroup(identityManager, testingGroup.getName());
 
         assertNull(testingGroup);
     }
@@ -140,8 +140,8 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Role roleA = new Role("Role");
 
-        if (SampleModel.getRole(applicationA, roleA.getName()) != null) {
-            applicationA.remove(SampleModel.getRole(applicationA, roleA.getName()));
+        if (BasicModel.getRole(applicationA, roleA.getName()) != null) {
+            applicationA.remove(BasicModel.getRole(applicationA, roleA.getName()));
         }
 
         applicationA.add(roleA);
@@ -153,20 +153,20 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
         } catch (IdentityManagementException e) {
         }
 
-        roleA = SampleModel.getRole(applicationA, roleA.getName());
+        roleA = BasicModel.getRole(applicationA, roleA.getName());
 
         IdentityManager applicationB = createIdentityManagerForTier(APPLICATION_B_TIER_NAME);
 
         Role roleB = new Role("Role");
 
-        if (SampleModel.getRole(applicationB, roleB.getName()) != null) {
-            applicationB.remove(SampleModel.getRole(applicationB, roleB.getName()));
+        if (BasicModel.getRole(applicationB, roleB.getName()) != null) {
+            applicationB.remove(BasicModel.getRole(applicationB, roleB.getName()));
         }
 
         applicationB.add(roleB);
 
-        roleA = SampleModel.getRole(applicationA, roleA.getName());
-        roleB = SampleModel.getRole(applicationB, roleB.getName());
+        roleA = BasicModel.getRole(applicationA, roleA.getName());
+        roleB = BasicModel.getRole(applicationB, roleB.getName());
 
         assertFalse(roleA.getId().equals(roleB.getId()));
     }
@@ -177,8 +177,8 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Group groupA = new Group("Group");
 
-        if (SampleModel.getGroup(applicationA, groupA.getPath()) != null) {
-            applicationA.remove(SampleModel.getGroup(applicationA, groupA.getPath()));
+        if (BasicModel.getGroup(applicationA, groupA.getPath()) != null) {
+            applicationA.remove(BasicModel.getGroup(applicationA, groupA.getPath()));
         }
 
         applicationA.add(groupA);
@@ -190,20 +190,20 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
         } catch (IdentityManagementException e) {
         }
 
-        groupA = SampleModel.getGroup(applicationA, groupA.getName());
+        groupA = BasicModel.getGroup(applicationA, groupA.getName());
 
         IdentityManager applicationB = createIdentityManagerForTier(APPLICATION_B_TIER_NAME);
 
         Group groupB = new Group("Group");
 
-        if (SampleModel.getGroup(applicationB, groupB.getPath()) != null) {
-            applicationB.remove(SampleModel.getGroup(applicationB, groupB.getPath()));
+        if (BasicModel.getGroup(applicationB, groupB.getPath()) != null) {
+            applicationB.remove(BasicModel.getGroup(applicationB, groupB.getPath()));
         }
 
         applicationB.add(groupB);
 
-        groupA = SampleModel.getGroup(applicationA, groupA.getName());
-        groupB = SampleModel.getGroup(applicationB, groupB.getName());
+        groupA = BasicModel.getGroup(applicationA, groupA.getName());
+        groupB = BasicModel.getGroup(applicationB, groupB.getName());
 
         assertFalse(groupA.getId().equals(groupB.getId()));
     }
@@ -214,8 +214,8 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Group groupA = new Group("Group");
 
-        if (SampleModel.getGroup(applicationA, groupA.getPath()) != null) {
-            applicationA.remove(SampleModel.getGroup(applicationA, groupA.getPath()));
+        if (BasicModel.getGroup(applicationA, groupA.getPath()) != null) {
+            applicationA.remove(BasicModel.getGroup(applicationA, groupA.getPath()));
         }
 
         applicationA.add(groupA);
@@ -227,7 +227,7 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
         } catch (Exception e) {
         }
 
-        groupA = SampleModel.getGroup(applicationA, groupA.getName());
+        groupA = BasicModel.getGroup(applicationA, groupA.getName());
 
         assertNotNull(groupA);
 
@@ -235,14 +235,14 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Group groupB = new Group("Group");
 
-        if (SampleModel.getGroup(applicationB, groupB.getPath()) != null) {
-            applicationB.remove(SampleModel.getGroup(applicationB, groupB.getPath()));
+        if (BasicModel.getGroup(applicationB, groupB.getPath()) != null) {
+            applicationB.remove(BasicModel.getGroup(applicationB, groupB.getPath()));
         }
 
         applicationB.add(groupB);
 
-        groupA = SampleModel.getGroup(applicationA, groupA.getName());
-        groupB = SampleModel.getGroup(applicationB, groupB.getName());
+        groupA = BasicModel.getGroup(applicationA, groupA.getName());
+        groupB = BasicModel.getGroup(applicationB, groupB.getName());
 
         assertFalse(groupA.getId().equals(groupB.getId()));
     }
@@ -275,51 +275,51 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         applicationC.add(new Role(roleCName));
 
-        assertNull(SampleModel.getRole(acmeRealm, roleAName));
-        assertNull(SampleModel.getRole(acmeRealm, roleBName));
-        assertNull(SampleModel.getRole(acmeRealm, roleCName));
+        assertNull(BasicModel.getRole(acmeRealm, roleAName));
+        assertNull(BasicModel.getRole(acmeRealm, roleBName));
+        assertNull(BasicModel.getRole(acmeRealm, roleCName));
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        SampleModel.grantRole(relationshipManager, john, SampleModel.getRole(applicationA, roleAName));
-        SampleModel.grantRole(relationshipManager, bill, SampleModel.getRole(applicationB, roleBName));
-        SampleModel.grantRole(relationshipManager, mary, SampleModel.getRole(applicationC, roleCName));
+        BasicModel.grantRole(relationshipManager, john, BasicModel.getRole(applicationA, roleAName));
+        BasicModel.grantRole(relationshipManager, bill, BasicModel.getRole(applicationB, roleBName));
+        BasicModel.grantRole(relationshipManager, mary, BasicModel.getRole(applicationC, roleCName));
 
-        assertTrue(SampleModel.hasRole(relationshipManager, john, SampleModel.getRole(applicationA, roleAName)));
-        assertFalse(SampleModel.hasRole(relationshipManager, john, SampleModel.getRole(applicationB, roleBName)));
-        assertFalse(SampleModel.hasRole(relationshipManager, john, SampleModel.getRole(applicationC, roleCName)));
+        assertTrue(BasicModel.hasRole(relationshipManager, john, BasicModel.getRole(applicationA, roleAName)));
+        assertFalse(BasicModel.hasRole(relationshipManager, john, BasicModel.getRole(applicationB, roleBName)));
+        assertFalse(BasicModel.hasRole(relationshipManager, john, BasicModel.getRole(applicationC, roleCName)));
 
-        assertTrue(SampleModel.hasRole(relationshipManager, bill, SampleModel.getRole(applicationB, roleBName)));
-        assertFalse(SampleModel.hasRole(relationshipManager, bill, SampleModel.getRole(applicationA, roleAName)));
-        assertFalse(SampleModel.hasRole(relationshipManager, bill, SampleModel.getRole(applicationC, roleCName)));
+        assertTrue(BasicModel.hasRole(relationshipManager, bill, BasicModel.getRole(applicationB, roleBName)));
+        assertFalse(BasicModel.hasRole(relationshipManager, bill, BasicModel.getRole(applicationA, roleAName)));
+        assertFalse(BasicModel.hasRole(relationshipManager, bill, BasicModel.getRole(applicationC, roleCName)));
 
-        assertTrue(SampleModel.hasRole(relationshipManager, mary, SampleModel.getRole(applicationC, roleCName)));
-        assertFalse(SampleModel.hasRole(relationshipManager, mary, SampleModel.getRole(applicationA, roleAName)));
-        assertFalse(SampleModel.hasRole(relationshipManager, mary, SampleModel.getRole(applicationB, roleBName)));
+        assertTrue(BasicModel.hasRole(relationshipManager, mary, BasicModel.getRole(applicationC, roleCName)));
+        assertFalse(BasicModel.hasRole(relationshipManager, mary, BasicModel.getRole(applicationA, roleAName)));
+        assertFalse(BasicModel.hasRole(relationshipManager, mary, BasicModel.getRole(applicationB, roleBName)));
 
-        SampleModel.grantRole(relationshipManager, john, SampleModel.getRole(applicationB, roleBName));
+        BasicModel.grantRole(relationshipManager, john, BasicModel.getRole(applicationB, roleBName));
 
-        assertTrue(SampleModel.hasRole(relationshipManager, john, SampleModel.getRole(applicationA, roleAName)));
-        assertTrue(SampleModel.hasRole(relationshipManager, john, SampleModel.getRole(applicationB, roleBName)));
-        assertFalse(SampleModel.hasRole(relationshipManager, john, SampleModel.getRole(applicationC, roleCName)));
+        assertTrue(BasicModel.hasRole(relationshipManager, john, BasicModel.getRole(applicationA, roleAName)));
+        assertTrue(BasicModel.hasRole(relationshipManager, john, BasicModel.getRole(applicationB, roleBName)));
+        assertFalse(BasicModel.hasRole(relationshipManager, john, BasicModel.getRole(applicationC, roleCName)));
 
-        applicationA.remove(SampleModel.getRole(applicationA, roleAName));
+        applicationA.remove(BasicModel.getRole(applicationA, roleAName));
 
-        assertNull(SampleModel.getRole(applicationA, roleAName));
-        assertTrue(SampleModel.hasRole(relationshipManager, bill, SampleModel.getRole(applicationB, roleBName)));
-        assertTrue(SampleModel.hasRole(relationshipManager, mary, SampleModel.getRole(applicationC, roleCName)));
+        assertNull(BasicModel.getRole(applicationA, roleAName));
+        assertTrue(BasicModel.hasRole(relationshipManager, bill, BasicModel.getRole(applicationB, roleBName)));
+        assertTrue(BasicModel.hasRole(relationshipManager, mary, BasicModel.getRole(applicationC, roleCName)));
 
-        SampleModel.revokeRole(relationshipManager, bill, SampleModel.getRole(applicationB, roleBName));
+        BasicModel.revokeRole(relationshipManager, bill, BasicModel.getRole(applicationB, roleBName));
 
-        assertFalse(SampleModel.hasRole(relationshipManager, bill, SampleModel.getRole(applicationB, roleBName)));
-        assertTrue(SampleModel.hasRole(relationshipManager, mary, SampleModel.getRole(applicationC, roleCName)));
+        assertFalse(BasicModel.hasRole(relationshipManager, bill, BasicModel.getRole(applicationB, roleBName)));
+        assertTrue(BasicModel.hasRole(relationshipManager, mary, BasicModel.getRole(applicationC, roleCName)));
 
         acmeRealm.remove(john);
         acmeRealm.remove(bill);
         acmeRealm.remove(mary);
 
-        assertFalse(SampleModel.hasRole(relationshipManager, bill, SampleModel.getRole(applicationB, roleBName)));
-        assertFalse(SampleModel.hasRole(relationshipManager, mary, SampleModel.getRole(applicationC, roleCName)));
+        assertFalse(BasicModel.hasRole(relationshipManager, bill, BasicModel.getRole(applicationB, roleBName)));
+        assertFalse(BasicModel.hasRole(relationshipManager, mary, BasicModel.getRole(applicationC, roleCName)));
     }
 
     @Test
@@ -348,23 +348,23 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        SampleModel.addToGroup(relationshipManager, john, SampleModel.getGroup(applicationA, "Group A"));
+        BasicModel.addToGroup(relationshipManager, john, BasicModel.getGroup(applicationA, "Group A"));
 
-        SampleModel.addToGroup(relationshipManager, bill, SampleModel.getGroup(applicationB, "Group B"));
+        BasicModel.addToGroup(relationshipManager, bill, BasicModel.getGroup(applicationB, "Group B"));
 
-        SampleModel.addToGroup(relationshipManager, mary, SampleModel.getGroup(applicationC, "Group C"));
+        BasicModel.addToGroup(relationshipManager, mary, BasicModel.getGroup(applicationC, "Group C"));
 
-        assertTrue(SampleModel.isMember(relationshipManager, john, SampleModel.getGroup(applicationA, "Group A")));
-        assertFalse(SampleModel.isMember(relationshipManager, john, SampleModel.getGroup(applicationB, "Group B")));
-        assertFalse(SampleModel.isMember(relationshipManager, john, SampleModel.getGroup(applicationC, "Group C")));
+        assertTrue(BasicModel.isMember(relationshipManager, john, BasicModel.getGroup(applicationA, "Group A")));
+        assertFalse(BasicModel.isMember(relationshipManager, john, BasicModel.getGroup(applicationB, "Group B")));
+        assertFalse(BasicModel.isMember(relationshipManager, john, BasicModel.getGroup(applicationC, "Group C")));
 
-        assertTrue(SampleModel.isMember(relationshipManager, bill, SampleModel.getGroup(applicationB, "Group B")));
-        assertFalse(SampleModel.isMember(relationshipManager, bill, SampleModel.getGroup(applicationA, "Group A")));
-        assertFalse(SampleModel.isMember(relationshipManager, bill, SampleModel.getGroup(applicationC, "Group C")));
+        assertTrue(BasicModel.isMember(relationshipManager, bill, BasicModel.getGroup(applicationB, "Group B")));
+        assertFalse(BasicModel.isMember(relationshipManager, bill, BasicModel.getGroup(applicationA, "Group A")));
+        assertFalse(BasicModel.isMember(relationshipManager, bill, BasicModel.getGroup(applicationC, "Group C")));
 
-        assertTrue(SampleModel.isMember(relationshipManager, mary, SampleModel.getGroup(applicationC, "Group C")));
-        assertFalse(SampleModel.isMember(relationshipManager, mary, SampleModel.getGroup(applicationA, "Group A")));
-        assertFalse(SampleModel.isMember(relationshipManager, mary, SampleModel.getGroup(applicationB, "Group B")));
+        assertTrue(BasicModel.isMember(relationshipManager, mary, BasicModel.getGroup(applicationC, "Group C")));
+        assertFalse(BasicModel.isMember(relationshipManager, mary, BasicModel.getGroup(applicationA, "Group A")));
+        assertFalse(BasicModel.isMember(relationshipManager, mary, BasicModel.getGroup(applicationB, "Group B")));
     }
 
     @Test
@@ -373,8 +373,8 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Role realmRole = new Role("Role");
 
-        if (SampleModel.getRole(acmeRealm, realmRole.getName()) != null) {
-            acmeRealm.remove(SampleModel.getRole(acmeRealm, realmRole.getName()));
+        if (BasicModel.getRole(acmeRealm, realmRole.getName()) != null) {
+            acmeRealm.remove(BasicModel.getRole(acmeRealm, realmRole.getName()));
         }
 
         acmeRealm.add(realmRole);
@@ -383,32 +383,32 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
         Role applicationRole = new Role("Role");
 
-        if (SampleModel.getRole(application, applicationRole.getName()) != null) {
-            application.remove(SampleModel.getRole(application, applicationRole.getName()));
+        if (BasicModel.getRole(application, applicationRole.getName()) != null) {
+            application.remove(BasicModel.getRole(application, applicationRole.getName()));
         }
 
         application.add(applicationRole);
 
-        realmRole = SampleModel.getRole(acmeRealm, "Role");
-        applicationRole = SampleModel.getRole(application, "Role");
+        realmRole = BasicModel.getRole(acmeRealm, "Role");
+        applicationRole = BasicModel.getRole(application, "Role");
 
         assertFalse(realmRole.getId().equals(applicationRole.getId()));
 
         applicationRole = new Role("Another Role");
 
-        if (SampleModel.getRole(application, applicationRole.getName()) != null) {
-            application.remove(SampleModel.getRole(application, applicationRole.getName()));
+        if (BasicModel.getRole(application, applicationRole.getName()) != null) {
+            application.remove(BasicModel.getRole(application, applicationRole.getName()));
         }
 
         application.add(applicationRole);
 
-        assertNull(SampleModel.getRole(acmeRealm, "Another Role"));
+        assertNull(BasicModel.getRole(acmeRealm, "Another Role"));
 
         realmRole = new Role("Another Role");
 
         acmeRealm.add(realmRole);
 
-        assertNotNull(SampleModel.getRole(application, "Another Role"));
+        assertNotNull(BasicModel.getRole(application, "Another Role"));
 
         assertFalse(realmRole.getId().equals(applicationRole.getId()));
     }

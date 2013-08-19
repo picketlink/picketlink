@@ -37,15 +37,15 @@ import org.picketlink.idm.credential.encoder.PasswordEncoder;
 import org.picketlink.idm.credential.encoder.SHAPasswordEncoder;
 import org.picketlink.idm.credential.handler.PasswordCredentialHandler;
 import org.picketlink.idm.internal.DefaultPartitionManager;
-import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.model.basic.User;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.*;
 import static org.picketlink.idm.credential.handler.PasswordCredentialHandler.*;
-import static org.picketlink.idm.model.sample.SampleModel.*;
+import static org.picketlink.idm.model.basic.BasicModel.*;
 
 /**
  * <p>Some tests for the configuration of the encoding when using the {@link PasswordCredentialHandler}.</p>

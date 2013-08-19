@@ -24,10 +24,10 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.sample.Grant;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.SampleModel;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.BasicModel;
+import org.picketlink.idm.model.basic.Grant;
+import org.picketlink.idm.model.basic.Role;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.Configuration;
@@ -136,7 +136,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         assertFalse(containsGrant(result, someAnotherRole));
         assertFalse(containsGrant(result, someImportantRole));
 
-        SampleModel.grantRole(relationshipManager, user, someRole);
+        BasicModel.grantRole(relationshipManager, user, someRole);
 
         query = relationshipManager.createRelationshipQuery(Grant.class);
 
@@ -149,7 +149,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         assertFalse(containsGrant(result, someAnotherRole));
         assertFalse(containsGrant(result, someImportantRole));
 
-        SampleModel.grantRole(relationshipManager, user, someAnotherRole);
+        BasicModel.grantRole(relationshipManager, user, someAnotherRole);
 
         query = relationshipManager.createRelationshipQuery(Grant.class);
 
@@ -162,7 +162,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         assertTrue(containsGrant(result, someAnotherRole));
         assertFalse(containsGrant(result, someImportantRole));
 
-        SampleModel.grantRole(relationshipManager, user, someImportantRole);
+        BasicModel.grantRole(relationshipManager, user, someImportantRole);
 
         query = relationshipManager.createRelationshipQuery(Grant.class);
 
@@ -175,7 +175,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         assertTrue(containsGrant(result, someAnotherRole));
         assertTrue(containsGrant(result, someImportantRole));
 
-        SampleModel.revokeRole(relationshipManager, user, someRole);
+        BasicModel.revokeRole(relationshipManager, user, someRole);
 
         query.setParameter(Grant.ASSIGNEE, user);
 

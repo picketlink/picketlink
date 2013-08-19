@@ -25,10 +25,10 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.GroupMembership;
-import org.picketlink.idm.model.sample.SampleModel;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.BasicModel;
+import org.picketlink.idm.model.basic.Group;
+import org.picketlink.idm.model.basic.GroupMembership;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.Configuration;
@@ -130,7 +130,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         assertFalse(containsMembership(result, someAnotherGroup));
         assertFalse(containsMembership(result, someImportantGroup));
 
-        SampleModel.addToGroup(relationshipManager, user, someGroup);
+        BasicModel.addToGroup(relationshipManager, user, someGroup);
 
         query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
@@ -143,7 +143,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         assertFalse(containsMembership(result, someAnotherGroup));
         assertFalse(containsMembership(result, someImportantGroup));
 
-        SampleModel.addToGroup(relationshipManager, user, someAnotherGroup);
+        BasicModel.addToGroup(relationshipManager, user, someAnotherGroup);
 
         query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
@@ -156,7 +156,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         assertTrue(containsMembership(result, someAnotherGroup));
         assertFalse(containsMembership(result, someImportantGroup));
 
-        SampleModel.addToGroup(relationshipManager, user, someImportantGroup);
+        BasicModel.addToGroup(relationshipManager, user, someImportantGroup);
 
         query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 

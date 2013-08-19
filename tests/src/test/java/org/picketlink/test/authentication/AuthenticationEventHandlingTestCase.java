@@ -44,11 +44,11 @@ import org.picketlink.authentication.event.PreAuthenticateEvent;
 import org.picketlink.authentication.event.PreLoggedOutEvent;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.User;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
-import static org.picketlink.idm.model.sample.SampleModel.getUser;
+import static org.picketlink.idm.model.basic.BasicModel.getUser;
 
 /**
  * <p>

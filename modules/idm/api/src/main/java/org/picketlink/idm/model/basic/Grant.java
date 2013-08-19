@@ -16,63 +16,62 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.model.sample;
+package org.picketlink.idm.model.basic;
 
 import org.picketlink.idm.model.AbstractAttributedType;
-import org.picketlink.idm.model.Account;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
- * A Relationship that represents an identity's membership in a Group
+ * Represents the grant of a Role to an Assignee
  *
  * @author Shane Bryzak
  */
-public class GroupMembership extends AbstractAttributedType implements Relationship {
+public class Grant extends AbstractAttributedType implements Relationship {
+    private static final long serialVersionUID = -200089007240264375L;
 
-    public static final RelationshipQueryParameter MEMBER = new RelationshipQueryParameter() {
-
-        @Override
-        public String getName() {
-            return "member";
-        }
-    };;
-
-    public static final RelationshipQueryParameter GROUP = new RelationshipQueryParameter() {
+    public static final RelationshipQueryParameter ASSIGNEE = new RelationshipQueryParameter() {
 
         @Override
         public String getName() {
-            return "group";
+            return "assignee";
         }
     };;
 
-    private static final long serialVersionUID = 6851576454138812116L;
+    public static final RelationshipQueryParameter ROLE = new RelationshipQueryParameter() {
 
-    private Account member;
-    private Group group;
+        @Override
+        public String getName() {
+            return "role";
+        }
+    };;
 
-    public GroupMembership() {
+    private IdentityType assignee;
+    private Role role;
+
+    public Grant() {
 
     }
 
-    public GroupMembership(Account member, Group group) {
-        this.member = member;
-        this.group = group;
+    public Grant(IdentityType assignee, Role role) {
+        this.assignee = assignee;
+        this.role = role;
     }
 
-    public Account getMember() {
-        return member;
+    public IdentityType getAssignee() {
+        return assignee;
     }
 
-    public void setMember(Account member) {
-        this.member = member;
+    public void setAssignee(IdentityType assignee) {
+        this.assignee = assignee;
     }
 
-    public Group getGroup() {
-        return group;
+    public Role getRole() {
+        return role;
     }
 
-    public void setGroup(Group group) {
-        this.group = group;
+    public void setRole(Role role) {
+        this.role = role;
     }
 }

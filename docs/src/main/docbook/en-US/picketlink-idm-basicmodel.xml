@@ -5,30 +5,30 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"
          xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:ns="http://docbook.org/ns/docbook"
-         id="picketlink-idm-samplemodel">
-  <title>Sample Identity Model</title>
+         id="picketlink-idm-basicmodel">
+  <title>Basic Identity Model</title>
   
     <section>
-      <title>Sample Identity Model</title>
+      <title>Basic Identity Model</title>
       
       <para>
-        For the sake of convenience, PicketLink provides a sample identity model that consists of a number of core interfaces which 
+        For the sake of convenience, PicketLink provides a basic identity model that consists of a number of core interfaces which
         define a set of fundamental identity types which might be found in a typical application.  The usage of this identity model 
-        is entirely optional; for an application with basic security requirements the sample identity model might be more than
+        is entirely optional; for an application with basic security requirements the basic identity model might be more than
         sufficient, however for a more complex application or application with custom security requirements it may be necessary to
         create a custom identity model.
       </para>
       
       <para>
-        The following class diagram shows the classes and interfaces in the <code>org.picketlink.idm.model.sample</code> package:
+        The following class diagram shows the classes and interfaces in the <code>org.picketlink.idm.model.basic</code> package:
       </para>
       
       <mediaobject>
         <imageobject role="fo">
-          <imagedata fileref="diagrams/sampleidentitymodel.png" align="center" scalefit="1"/>
+          <imagedata fileref="diagrams/basicidentitymodel.png" align="center" scalefit="1"/>
         </imageobject>
         <imageobject role="html">
-          <imagedata fileref="diagrams/sampleidentitymodel.png" align="center"/>
+          <imagedata fileref="diagrams/basicidentitymodel.png" align="center"/>
         </imageobject>
       </mediaobject>      
       
@@ -112,7 +112,7 @@
       
       <para>
         PicketLink IDM provides a number of basic implementations of the identity model interfaces for convenience, in the
-        <code>org.picketlink.idm.model.sample</code> package.  The following sections provide examples that show these 
+        <code>org.picketlink.idm.model.basic</code> package.  The following sections provide examples that show these
         implementations in action.
       </para>
   

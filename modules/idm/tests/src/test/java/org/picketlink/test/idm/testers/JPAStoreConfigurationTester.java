@@ -31,7 +31,7 @@ import org.picketlink.idm.jpa.model.sample.simple.RelationshipIdentityTypeEntity
 import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity;
-import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.test.idm.basic.MyCustomAccountEntity;
 import org.picketlink.test.idm.partition.CustomPartitionEntity;
 import org.picketlink.test.idm.relationship.CustomRelationshipTypeEntity;

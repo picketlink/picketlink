@@ -5,8 +5,8 @@ import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.model.basic.User;
 
 import java.io.Serializable;
 

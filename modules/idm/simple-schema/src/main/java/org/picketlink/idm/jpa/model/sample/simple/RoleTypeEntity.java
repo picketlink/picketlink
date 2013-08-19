@@ -20,7 +20,7 @@ package org.picketlink.idm.jpa.model.sample.simple;
 import javax.persistence.Entity;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
-import org.picketlink.idm.model.sample.Role;
+import org.picketlink.idm.model.basic.Role;
 
 /**
  * @author pedroigor

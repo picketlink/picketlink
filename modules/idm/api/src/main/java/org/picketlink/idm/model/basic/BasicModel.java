@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.idm.model.sample;
+package org.picketlink.idm.model.basic;
 
 import java.util.List;
 import org.picketlink.idm.IdentityManagementException;
@@ -28,12 +28,12 @@ import org.picketlink.idm.query.RelationshipQuery;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
- * This class provides a number of static convenience methods for looking up identities from the sample
+ * This class provides a number of static convenience methods for looking up identities from the basic
  * identity model.
  *
  * @author Shane Bryzak
  */
-public class SampleModel {
+public class BasicModel {
 
     /**
      * <p>

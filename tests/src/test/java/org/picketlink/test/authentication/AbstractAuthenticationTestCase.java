@@ -35,10 +35,10 @@ import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.AbstractArquillianTestCase;
 import org.picketlink.test.util.ArchiveUtils;
-import static org.picketlink.idm.model.sample.SampleModel.getUser;
+import static org.picketlink.idm.model.basic.BasicModel.getUser;
 
 /**
  * <p>

@@ -25,7 +25,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.User;
 
 /**
  * @author pedroigor

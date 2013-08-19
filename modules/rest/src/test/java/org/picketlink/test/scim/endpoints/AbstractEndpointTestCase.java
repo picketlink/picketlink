@@ -32,11 +32,11 @@ import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.SampleModel;
-import org.picketlink.idm.model.sample.Realm;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.Group;
+import org.picketlink.idm.model.basic.BasicModel;
+import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.model.basic.Role;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.scim.PicketLinkSCIMApplication;
 import org.picketlink.test.scim.EmbeddedWebServerBase;
 
@@ -89,7 +89,7 @@ public abstract class AbstractEndpointTestCase extends EmbeddedWebServerBase {
         // FIXME: IdentityManager is not threadsafe
         IdentityManager  identityManager = partitionManager.createIdentityManager();
 
-        User anil = SampleModel.getUser(identityManager, "anil");
+        User anil = BasicModel.getUser(identityManager, "anil");
 
         // Check when tests are running in unforked JVM
         if (anil == null) {
@@ -105,7 +105,7 @@ public abstract class AbstractEndpointTestCase extends EmbeddedWebServerBase {
 
             RelationshipManager relationshipManager = partitionManager.createRelationshipManager();
 
-            SampleModel.grantRole(relationshipManager, admin, roleAdmin);
+            BasicModel.grantRole(relationshipManager, admin, roleAdmin);
 
             Group group = new Group("SomeGroup");
             group.setAttribute(new Attribute<String>("ID", "jboss"));

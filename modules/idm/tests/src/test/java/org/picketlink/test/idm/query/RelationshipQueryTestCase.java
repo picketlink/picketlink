@@ -27,12 +27,12 @@ import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.sample.Grant;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.GroupMembership;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.SampleModel;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.Grant;
+import org.picketlink.idm.model.basic.Group;
+import org.picketlink.idm.model.basic.GroupMembership;
+import org.picketlink.idm.model.basic.Role;
+import org.picketlink.idm.model.basic.BasicModel;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.Configuration;
@@ -119,9 +119,9 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        SampleModel.grantRole(relationshipManager, user, role);
-        SampleModel.grantGroupRole(relationshipManager, user, role, group);
-        SampleModel.addToGroup(relationshipManager, user, group);
+        BasicModel.grantRole(relationshipManager, user, role);
+        BasicModel.grantGroupRole(relationshipManager, user, role, group);
+        BasicModel.addToGroup(relationshipManager, user, group);
 
         RelationshipQuery<Relationship> query = relationshipManager.createRelationshipQuery(Relationship.class);
 

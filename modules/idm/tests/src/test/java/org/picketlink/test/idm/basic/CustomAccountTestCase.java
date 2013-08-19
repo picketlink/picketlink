@@ -24,7 +24,7 @@ import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.model.annotation.Unique;
-import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.test.idm.Configuration;

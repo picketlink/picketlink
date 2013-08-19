@@ -11,17 +11,17 @@
           <url value="ldap://localhost:10389" />
           <supportType value="org.picketlink.idm.model.IdentityType" />
           <supportGlobalRelationship
-              value1="org.picketlink.idm.model.sample.Grant"
-              value2="org.picketlink.idm.model.sample.GroupMembership" />
+              value1="org.picketlink.idm.model.basic.Grant"
+              value2="org.picketlink.idm.model.basic.GroupMembership" />
 
-          <mapping value="org.picketlink.idm.model.sample.Agent">
+          <mapping value="org.picketlink.idm.model.basic.Agent">
             <baseDN value="ou=Agent,dc=jboss,dc=org" />
             <objectClasses value="account" />
             <attribute propertyName="loginName" ldapAttributeName="uid" identifier="true" />
             <readOnlyAttribute propertyName="createdDate" ldapAttributeName="createTimeStamp" />
           </mapping>
 
-          <mapping value="org.picketlink.idm.model.sample.User">
+          <mapping value="org.picketlink.idm.model.basic.User">
             <baseDN value="ou=People,dc=jboss,dc=org" />
             <objectClasses value1="inetOrgPerson" value2="organizationalPerson" />
             <attribute propertyName="loginName" ldapAttributeName="uid" identifier="true" />
@@ -31,14 +31,14 @@
             <readOnlyAttribute propertyName="createdDate" ldapAttributeName="createTimeStamp" />
           </mapping>
 
-          <mapping value="org.picketlink.idm.model.sample.Role">
+          <mapping value="org.picketlink.idm.model.basic.Role">
             <baseDN value="ou=Roles,dc=jboss,dc=org" />
             <objectClasses value="groupOfNames" />
             <attribute propertyName="name" ldapAttributeName="cn" identifier="true" />
             <readOnlyAttribute propertyName="createdDate" ldapAttributeName="createTimeStamp" />
           </mapping>
 
-          <mapping value="org.picketlink.idm.model.sample.Group">
+          <mapping value="org.picketlink.idm.model.basic.Group">
             <baseDN value="ou=Groups,dc=jboss,dc=org" />
             <objectClasses value="groupOfNames" />
             <attribute propertyName="name" ldapAttributeName="cn" identifier="true" />
@@ -47,13 +47,13 @@
             <parentMapping parentId="QA Group" baseDN="ou=QA,dc=jboss,dc=org" />
           </mapping>
 
-          <mapping value="org.picketlink.idm.model.sample.Grant">
-            <forMapping value="org.picketlink.idm.model.sample.Role" />
+          <mapping value="org.picketlink.idm.model.basic.Grant">
+            <forMapping value="org.picketlink.idm.model.basic.Role" />
             <attribute propertyName="assignee" ldapAttributeName="member"  />
           </mapping>
 
-          <mapping value="org.picketlink.idm.model.sample.GroupMembership">
-            <forMapping value="org.picketlink.idm.model.sample.Group" />
+          <mapping value="org.picketlink.idm.model.basic.GroupMembership">
+            <forMapping value="org.picketlink.idm.model.basic.Group" />
             <attribute propertyName="member" ldapAttributeName="member"  />
           </mapping>
 

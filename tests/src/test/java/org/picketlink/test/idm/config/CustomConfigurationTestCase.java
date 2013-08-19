@@ -29,7 +29,6 @@ import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity;
-import org.picketlink.idm.jpa.model.sample.simple.AttributedTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.DigestCredentialTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.GroupTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity;
@@ -40,7 +39,7 @@ import org.picketlink.idm.jpa.model.sample.simple.RelationshipIdentityTypeEntity
 import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity;
-import org.picketlink.idm.model.sample.Realm;
+import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.internal.EEJPAContextInitializer;
 import org.picketlink.test.AbstractJPADeploymentTestCase;
 

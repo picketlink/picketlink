@@ -3,9 +3,9 @@ package org.picketlink.test.idm.config;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.RelationshipManager;
-import org.picketlink.idm.model.sample.Group;
-import org.picketlink.idm.model.sample.Role;
-import org.picketlink.idm.model.sample.User;
+import org.picketlink.idm.model.basic.Group;
+import org.picketlink.idm.model.basic.Role;
+import org.picketlink.idm.model.basic.User;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
@@ -13,7 +13,7 @@ import javax.ejb.Startup;
 import javax.inject.Inject;
 
 import static org.junit.Assert.*;
-import static org.picketlink.idm.model.sample.SampleModel.*;
+import static org.picketlink.idm.model.basic.BasicModel.*;
 
 /**
  * @author Pedro Igor

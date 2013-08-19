@@ -21,7 +21,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
-import org.picketlink.idm.model.sample.Group;
+import org.picketlink.idm.model.basic.Group;
 
 /**
  * @author pedroigor
