@@ -28,8 +28,10 @@ import java.util.Set;
 
 
 /**
- * @author Pedro Igor
+ * <p>{@link IdentityStoreConfigurationBuilder} implementation which knows how to build a
+ * {@link JPAIdentityStoreConfiguration}.</p>
  *
+ * @author Pedro Igor
  */
 public class JPAStoreConfigurationBuilder extends
         IdentityStoreConfigurationBuilder<JPAIdentityStoreConfiguration, JPAStoreConfigurationBuilder> {
@@ -68,6 +70,12 @@ public class JPAStoreConfigurationBuilder extends
         return this;
     }
 
+    /**
+     * <p>Configures the given mapped entities.</p>
+     *
+     * @param mappedEntity
+     * @return
+     */
     public IdentityStoreConfigurationBuilder mappedEntity(Class<?>... mappedEntity) {
         this.mappedEntities.addAll(Arrays.asList(mappedEntity));
         return this;

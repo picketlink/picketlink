@@ -24,7 +24,8 @@ package org.picketlink.idm.config;
 
 
 /**
- * <p>{@link IdentityStoreConfigurationBuilder} implementation which knows how to build a {@FileIdentityStoreConfiguration}.</p>
+ * <p>{@link IdentityStoreConfigurationBuilder} implementation which knows how to build a
+ * {@link FileIdentityStoreConfiguration}.</p>
  *
  * @author Pedro Igor
  *
@@ -55,6 +56,8 @@ public class FileStoreConfigurationBuilder extends
     /**
      * <p>Tells the store to preserve state between initializations. If true, previously stored data will be preserved.</p>
      *
+     * <p>This behavior defaults to false. Previously stored data will be always deleted.</p>
+     *
      * @param preserveState
      * @return
      */
@@ -65,6 +68,8 @@ public class FileStoreConfigurationBuilder extends
 
     /**
      * <p>Indicates that write operations should be done asynchronously.</p>
+     *
+     * <p>Defaults to false.</p>
      *
      * @param asyncWrite
      * @return

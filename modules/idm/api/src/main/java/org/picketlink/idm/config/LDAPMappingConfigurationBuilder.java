@@ -22,11 +22,6 @@
 
 package org.picketlink.idm.config;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
@@ -34,7 +29,14 @@ import org.picketlink.idm.config.annotation.ParameterConfigID;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.AttributeProperty;
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static org.picketlink.common.util.StringUtil.*;
 
 /**
  * @author Pedro Igor
@@ -122,17 +124,37 @@ public class LDAPMappingConfigurationBuilder extends
         return this;
     }
 
+    /**
+     * <p>Defines the object classes for this type.</p>
+     *
+     * @param objectClasses
+     * @return
+     */
     public LDAPMappingConfigurationBuilder objectClasses(String... objectClasses) {
         this.objectClasses.addAll(Arrays.asList(objectClasses));
         return this;
     }
 
+    /**
+     * <p>Maps a type property to a specific LDAP attribute.</p>
+     *
+     * @param propertyName
+     * @param ldapAttributeName
+     * @return
+     */
     public LDAPMappingConfigurationBuilder attribute(@ParameterConfigID(name="propertyName") String propertyName,
                                                      @ParameterConfigID(name="ldapAttributeName") String ldapAttributeName) {
         this.mappedProperties.put(propertyName, ldapAttributeName);
         return this;
     }
 
+    /**
+     * <p>Maps a type property to a specific read-only LDAP attribute.</p>
+     *
+     * @param propertyName
+     * @param ldapAttributeName
+     * @return
+     */
     public LDAPMappingConfigurationBuilder readOnlyAttribute(@ParameterConfigID(name="propertyName") String propertyName,
                                                              @ParameterConfigID(name="ldapAttributeName") String ldapAttributeName) {
         this.mappedProperties.put(propertyName, ldapAttributeName);
@@ -140,6 +162,14 @@ public class LDAPMappingConfigurationBuilder extends
         return this;
     }
 
+    /**
+     * <p>Maps a type property to a specific LDAP attribute and mark it as an identifier.</p>
+     *
+     * @param propertyName
+     * @param ldapAttributeName
+     * @param identifier
+     * @return
+     */
     public LDAPMappingConfigurationBuilder attribute(@ParameterConfigID(name="propertyName") String propertyName,
                                                      @ParameterConfigID(name="ldapAttributeName") String ldapAttributeName,
                                                      @ParameterConfigID(name="identifier") boolean identifier) {
@@ -156,21 +186,47 @@ public class LDAPMappingConfigurationBuilder extends
         return this.ldapStoreBuilder.mapping(attributedType);
     }
 
+    /**
+     * <>Sets the base DN for this type.</>
+     *
+     * @param baseDN
+     * @return
+     */
     public LDAPMappingConfigurationBuilder baseDN(String baseDN) {
         this.baseDN = baseDN;
         return this;
     }
 
+    /**
+     * <p>Associates the given type to a mapped type. This is usually used when configuration relationship types.</p>
+     *
+     * @param attributedType
+     * @return
+     */
     public LDAPMappingConfigurationBuilder forMapping(Class<? extends AttributedType> attributedType) {
         this.relatedAttributedType = attributedType;
         return this;
     }
 
+    /**
+     * <p>Defines the LDAP attribute name used to create parent-child relationships.</p>
+     *
+     * @param parentMembershipAttributeName
+     * @return
+     */
     public LDAPMappingConfigurationBuilder parentMembershipAttributeName(String parentMembershipAttributeName) {
         this.parentMembershipAttributeName = parentMembershipAttributeName;
         return this;
     }
 
+    /**
+     * <p>Defines a alternative Base DN in the cases when this type is a child of a parent entry with the given
+     * identifier.</p>
+     *
+     * @param parentId
+     * @param baseDN
+     * @return
+     */
     public LDAPMappingConfigurationBuilder parentMapping(String parentId, String baseDN) {
         this.parentMapping.put(parentId, baseDN);
         return this;

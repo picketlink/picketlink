@@ -22,21 +22,25 @@
 
 package org.picketlink.idm.config;
 
+import org.picketlink.idm.config.annotation.MethodConfigID;
+import org.picketlink.idm.config.annotation.ParameterConfigID;
+import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.Relationship;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.picketlink.idm.IDMMessages;
-import org.picketlink.idm.config.annotation.MethodConfigID;
-import org.picketlink.idm.config.annotation.ParameterConfigID;
-import org.picketlink.idm.model.AttributedType;
-import org.picketlink.idm.model.Relationship;
+
+import static org.picketlink.idm.IDMMessages.*;
 
 /**
- * @author Pedro Igor
+ * <p>A class used to build the configuration for identity stores. Only a single configuration can exists for a given
+ * identity store.</p>
  *
+ * @author Pedro Igor
  */
 public class IdentityStoresConfigurationBuilder
         extends AbstractIdentityConfigurationChildBuilder<List<? extends IdentityStoreConfiguration>>
@@ -44,10 +48,10 @@ public class IdentityStoresConfigurationBuilder
 
     private final List<IdentityStoreConfigurationBuilder<?, ?>> identityStoresConfiguration;
     private final Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>> supportedStoreBuilders;
-    private Set<Class<? extends Relationship>> globalRelationships;
-    private Set<Class<? extends Relationship>> selfRelationships;
+    private final Set<Class<? extends Relationship>> globalRelationships;
+    private final Set<Class<? extends Relationship>> selfRelationships;
 
-    public IdentityStoresConfigurationBuilder(NamedIdentityConfigurationBuilder builder) {
+    protected IdentityStoresConfigurationBuilder(NamedIdentityConfigurationBuilder builder) {
         super(builder);
         this.identityStoresConfiguration = new ArrayList<IdentityStoreConfigurationBuilder<?, ?>>();
         this.supportedStoreBuilders = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStoreConfigurationBuilder<?, ?>>>();
@@ -59,16 +63,31 @@ public class IdentityStoresConfigurationBuilder
         this.supportedStoreBuilders.put(LDAPIdentityStoreConfiguration.class, LDAPStoreConfigurationBuilder.class);
     }
 
+    /**
+     * <p>Configures a file-based identity store for this configuration.</p>
+     *
+     * @return
+     */
     @Override
     public FileStoreConfigurationBuilder file() {
         return forIdentityStoreConfig(FileIdentityStoreConfiguration.class, true);
     }
 
+    /**
+     * <p>Configures a jpa-based identity store for this configuration.</p>
+     *
+     * @return
+     */
     @Override
     public JPAStoreConfigurationBuilder jpa() {
         return forIdentityStoreConfig(JPAIdentityStoreConfiguration.class, true);
     }
 
+    /**
+     * <p>Configures a ldap-based identity store for this configuration.</p>
+     *
+     * @return
+     */
     @Override
     public LDAPStoreConfigurationBuilder ldap() {
         return forIdentityStoreConfig(LDAPIdentityStoreConfiguration.class, true);
@@ -95,24 +114,24 @@ public class IdentityStoresConfigurationBuilder
     protected List<? extends IdentityStoreConfiguration> create() {
         List<IdentityStoreConfiguration> configurations = new ArrayList<IdentityStoreConfiguration>();
 
-        boolean hasPartitionStore = false;
+        IdentityStoreConfiguration partitionStoreConfig = null;
         Set<Class<? extends AttributedType>> supportedTypes = new HashSet<Class<? extends AttributedType>>();
 
         for (IdentityStoreConfigurationBuilder<?, ?> storeConfigurationBuilder : this.identityStoresConfiguration) {
             IdentityStoreConfiguration storeConfiguration = storeConfigurationBuilder.create();
 
             if (storeConfiguration.supportsPartition()) {
-                if (hasPartitionStore) {
-                    throw new SecurityConfigurationException("Only one store configuration must be able to store partitions.");
+                if (partitionStoreConfig != null) {
+                    throw MESSAGES.configStoreMultiplePartitionConfigExists(partitionStoreConfig, storeConfiguration);
                 }
 
-                hasPartitionStore = true;
+                partitionStoreConfig = storeConfiguration;
             }
 
             try {
                 supportedTypes.addAll(storeConfigurationBuilder.getSupportedTypes().keySet());
             } catch (IllegalArgumentException iae) {
-                throw new SecurityConfigurationException("Duplicated supported types found for [" + storeConfiguration + "].");
+                throw MESSAGES.configStoreDuplicatedSupportedType(storeConfiguration);
             }
 
             for (Class<? extends Relationship> relType: storeConfigurationBuilder.getGlobalRelationshipTypes()) {
@@ -126,17 +145,13 @@ public class IdentityStoresConfigurationBuilder
             configurations.add(storeConfiguration);
         }
 
-        if (!hasPartitionStore) {
-//            throw new SecurityConfigurationException("At least one store configuration must support partitions.");
-        }
-
         return configurations;
     }
 
     @Override
     protected void validate() {
         if (this.identityStoresConfiguration.isEmpty()) {
-            throw new SecurityConfigurationException("You must configure at least one identity store.");
+            throw MESSAGES.configStoreNoIdentityStoreConfigProvided();
         }
 
         for (IdentityStoreConfigurationBuilder<?, ?> storeConfigurationBuilder : this.identityStoresConfiguration) {
@@ -147,7 +162,7 @@ public class IdentityStoresConfigurationBuilder
     @Override
     protected IdentityStoresConfigurationBuilder readFrom(List<? extends IdentityStoreConfiguration> fromConfiguration) {
         if (fromConfiguration == null) {
-            throw IDMMessages.MESSAGES.nullArgument("Configurations to read");
+            throw MESSAGES.nullArgument("Configurations to read");
         }
 
         for (IdentityStoreConfiguration identityStoreConfiguration : fromConfiguration) {
@@ -179,8 +194,7 @@ public class IdentityStoresConfigurationBuilder
         try {
             instance = builderType.getConstructor(IdentityStoresConfigurationBuilder.class).newInstance(this);
         } catch (Exception e) {
-            throw new SecurityConfigurationException("Could not instantiate IdentityStoreConfigurationBuilder ["
-                    + builderType.getName() + "]", e);
+            throw MESSAGES.instantiationError(builderType, e);
         }
 
         this.identityStoresConfiguration.add(instance);

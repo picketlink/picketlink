@@ -27,29 +27,32 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.picketlink.idm.event.EventBridge;
+import static org.picketlink.idm.IDMMessages.*;
 
 /**
- * <p>
- * This class should be used as the start point to build an {@link IdentityConfiguration} instance.
- * </p>
+ * <p>A class used to build {@link IdentityConfiguration} instances, providing a fluent API with some meaningful
+ * methods.</p> <p/> <p>It can be initialized in two ways:</p> <p/> <ul> <li>Using the default constructor. In this case
+ * all the configuration must be done before invoking one of the build methods.</li> <li>Passing a {@link List} of
+ * {@link IdentityConfiguration}. In this case the builder will be initialized with all the configuration read from the
+ * provided configurations.</li> </ul> <p/> <p>Multiple configurations are supported and each one must have a unique
+ * name. At least one configuration must be provided, otherwise the build methods will fail when invoked.</p>
  *
  * @author Pedro Igor
  */
 public class IdentityConfigurationBuilder extends Builder<List<IdentityConfiguration>> implements IdentityConfigurationChildBuilder {
 
     private final Map<String, NamedIdentityConfigurationBuilder> namedIdentityConfigurationBuilders;
-    private EventBridge eventBridge;
 
     public IdentityConfigurationBuilder() {
         this.namedIdentityConfigurationBuilders = new LinkedHashMap<String, NamedIdentityConfigurationBuilder>();
     }
 
     /**
-     * <p>Creates a new instance reading all the configuration from a previously created list of {@link IdentityConfiguration}.</p>
+     * <p>Creates a new instance reading all the configuration from a previously created list of {@link
+     * IdentityConfiguration}.</p>
      *
      * @param configurations
-     * @throws  SecurityConfigurationException if any error occurs or for any invalid configuration
+     * @throws SecurityConfigurationException if any error occurs or for any invalid configuration
      */
     public IdentityConfigurationBuilder(List<IdentityConfiguration> configurations) throws SecurityConfigurationException {
         this();
@@ -57,7 +60,8 @@ public class IdentityConfigurationBuilder extends Builder<List<IdentityConfigura
     }
 
     /**
-     * <p>Creates a named configuration.</p>
+     * <p>Creates a new configuration.</p> <p/> <p>If a configuration with the given <code>configurationName</code>
+     * already exists, this method will return it instead of creating a new one.</p>
      *
      * @param configurationName
      * @return
@@ -75,17 +79,34 @@ public class IdentityConfigurationBuilder extends Builder<List<IdentityConfigura
         return namedIdentityConfiguration;
     }
 
+    /**
+     * <p>Builds a single {@link IdentityConfiguration}.</p> <p/> <p>This method should be called when only a single
+     * configuration was provided. Otherwise an exception will be thrown.</p> <p/> <p>For building multiple
+     * configurations use the <code>buildAll</code> method instead.</p>
+     *
+     * @return
+     * @throws SecurityConfigurationException if multiple configurations was defined, or if any validation check fails
+     *                                        or if any error occurs when building the configuration.
+     */
     @Override
     public IdentityConfiguration build() throws SecurityConfigurationException {
         List<IdentityConfiguration> identityConfigurations = create();
 
         if (identityConfigurations.size() > 1) {
-            throw new SecurityConfigurationException("You have provided more than one configuration. Use the buildAll method instead.");
+            throw MESSAGES.configBuildMultipleConfigurationExists();
         }
 
         return identityConfigurations.get(0);
     }
 
+    /**
+     * <p>Builds a {@link List} of {@link IdentityConfiguration}.</p> <p/> <p>This method should be used when multiple
+     * configurations exists.</p>
+     *
+     * @return
+     * @throws SecurityConfigurationException if any validation check fails or if any error occurs when building the
+     *                                        configuration.
+     */
     @Override
     public List<IdentityConfiguration> buildAll() throws SecurityConfigurationException {
         return create();
@@ -103,28 +124,36 @@ public class IdentityConfigurationBuilder extends Builder<List<IdentityConfigura
     @Override
     protected void validate() throws SecurityConfigurationException {
         if (this.namedIdentityConfigurationBuilders.isEmpty()) {
-            throw new SecurityConfigurationException("You must provide at least one configuration.");
+            throw MESSAGES.configNoConfigurationProvided();
         }
 
         for (NamedIdentityConfigurationBuilder identityConfigBuilder : this.namedIdentityConfigurationBuilders.values()) {
-            identityConfigBuilder.validate();
+            try {
+                identityConfigBuilder.validate();
+            } catch (Exception e) {
+                throw MESSAGES.configInvalidConfiguration(identityConfigBuilder.getName());
+            }
         }
     }
 
     @Override
     protected List<IdentityConfiguration> create() throws SecurityConfigurationException {
-        validate();
-
         List<IdentityConfiguration> configurations = new ArrayList<IdentityConfiguration>();
 
-        for (NamedIdentityConfigurationBuilder identityConfigBuilder : this.namedIdentityConfigurationBuilders.values()) {
-            IdentityConfiguration configuration = identityConfigBuilder.create();
+        try {
+            validate();
 
-            if (configurations.contains(configuration)) {
-                throw new SecurityConfigurationException("Multiple configuration with the same name [" + configuration.getName() + "].");
+            for (NamedIdentityConfigurationBuilder identityConfigBuilder : this.namedIdentityConfigurationBuilders.values()) {
+                IdentityConfiguration configuration = identityConfigBuilder.create();
+
+                if (configurations.contains(configuration)) {
+                    throw MESSAGES.configMultipleConfigurationsFoundWithSameName(configuration.getName());
+                }
+
+                configurations.add(configuration);
             }
-
-            configurations.add(configuration);
+        } catch (Exception sce) {
+            throw MESSAGES.configCouldNotCreateConfiguration(sce);
         }
 
         return configurations;
@@ -133,10 +162,10 @@ public class IdentityConfigurationBuilder extends Builder<List<IdentityConfigura
     @Override
     protected Builder<List<IdentityConfiguration>> readFrom(List<IdentityConfiguration> fromConfiguration) throws SecurityConfigurationException {
         if (fromConfiguration == null || fromConfiguration.isEmpty()) {
-            throw new SecurityConfigurationException("No configuration provided to read from.");
+            throw MESSAGES.nullArgument("Configuration to read from.");
         }
 
-        for (IdentityConfiguration identityConfiguration: fromConfiguration) {
+        for (IdentityConfiguration identityConfiguration : fromConfiguration) {
             named(identityConfiguration.getName()).readFrom(identityConfiguration);
         }
 

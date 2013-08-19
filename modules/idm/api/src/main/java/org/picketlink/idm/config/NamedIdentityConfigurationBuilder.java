@@ -19,23 +19,36 @@ package org.picketlink.idm.config;
 
 import org.picketlink.idm.spi.RelationshipPolicy;
 
+import static org.picketlink.common.util.StringUtil.*;
+import static org.picketlink.idm.IDMMessages.*;
+
 /**
+ * <p>A class used to build {@link IdentityConfiguration} instances.</p>
+ *
  * @author pedroigor
  */
 public class NamedIdentityConfigurationBuilder extends AbstractIdentityConfigurationChildBuilder<IdentityConfiguration> {
 
     private final IdentityStoresConfigurationBuilder identityStoresConfigurationBuilder;
-    private String name = "default";
+    private final String name;
 
     protected NamedIdentityConfigurationBuilder(String name, IdentityConfigurationBuilder builder) {
         super(builder);
-        this.identityStoresConfigurationBuilder = new IdentityStoresConfigurationBuilder(this);
 
-        if (name != null) {
-            this.name = name;
+        if (isNullOrEmpty(name)) {
+            throw MESSAGES.nullArgument("Configuration name");
         }
+
+        this.identityStoresConfigurationBuilder = new IdentityStoresConfigurationBuilder(this);
+        this.name = name;
     }
 
+    /**
+     * <p>This method should be used to provide all the necessary configuration for the identity stores supported by
+     * this configuration.</p>
+     *
+     * @return
+     */
     public IdentityStoresConfigurationBuilder stores() {
         return this.identityStoresConfigurationBuilder;
     }
@@ -49,10 +62,6 @@ public class NamedIdentityConfigurationBuilder extends AbstractIdentityConfigura
 
     @Override
     protected void validate() {
-        if (this.name == null) {
-            throw new SecurityConfigurationException("All configuration must have a name.");
-        }
-
         this.identityStoresConfigurationBuilder.validate();
     }
 
@@ -60,5 +69,9 @@ public class NamedIdentityConfigurationBuilder extends AbstractIdentityConfigura
     protected Builder<IdentityConfiguration> readFrom(IdentityConfiguration configuration) {
         this.identityStoresConfigurationBuilder.readFrom(configuration.getStoreConfiguration());
         return this;
+    }
+
+    protected String getName() {
+        return this.name;
     }
 }

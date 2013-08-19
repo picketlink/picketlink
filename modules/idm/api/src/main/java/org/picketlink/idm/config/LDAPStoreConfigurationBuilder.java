@@ -22,14 +22,20 @@
 
 package org.picketlink.idm.config;
 
+import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.Partition;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.picketlink.idm.model.AttributedType;
-import org.picketlink.idm.model.Partition;
+
+import static org.picketlink.common.util.StringUtil.*;
 
 /**
+ * <p>{@link IdentityStoreConfigurationBuilder} implementation which knows how to build a
+ * {@link LDAPIdentityStoreConfiguration}.</p>
+ *
  * @author Pedro Igor
  *
  */
@@ -46,26 +52,56 @@ public class LDAPStoreConfigurationBuilder extends
         super(builder);
     }
 
+    /**
+     * <p>Configures the URL of the LDAP server. The URL should be in the format ldap://ldapserver.com:389.</p>
+     *
+     * @param url
+     * @return
+     */
     public LDAPStoreConfigurationBuilder url(String url) {
         this.url = url;
         return this;
     }
 
+    /**
+     * <p>Sets the base DN.</p>
+     *
+     * @param baseDN
+     * @return
+     */
     public LDAPStoreConfigurationBuilder baseDN(String baseDN) {
         this.baseDN = baseDN;
         return this;
     }
 
+    /**
+     * <p>Sets the DN used to connect to the LDAP server.</p>
+     *
+     * @param bindDN
+     * @return
+     */
     public LDAPStoreConfigurationBuilder bindDN(String bindDN) {
         this.bindDN = bindDN;
         return this;
     }
 
+    /**
+     * <p>Sets the credential for the <code>bindDN</code> used to connect to the LDAP server.</p>
+     *
+     * @param bindCredential
+     * @return
+     */
     public LDAPStoreConfigurationBuilder bindCredential(String bindCredential) {
         this.bindCredential = bindCredential;
         return this;
     }
 
+    /**
+     * <p>Maps a specific {@link AttributedType}.</p>
+     *
+     * @param attributedType
+     * @return
+     */
     public LDAPMappingConfigurationBuilder mapping(Class<? extends AttributedType> attributedType) {
         LDAPMappingConfigurationBuilder ldapMappingConfigurationBuilder = new LDAPMappingConfigurationBuilder(attributedType, this);
 
@@ -102,6 +138,22 @@ public class LDAPStoreConfigurationBuilder extends
     @Override
     protected void validate() {
         super.validate();
+
+        if (isNullOrEmpty(this.baseDN)) {
+            throw new SecurityConfigurationException("You must provide the Base DN.");
+        }
+
+        if (isNullOrEmpty(this.bindDN)) {
+            throw new SecurityConfigurationException("You must provide the Bind DN.");
+        }
+
+        if (isNullOrEmpty(this.bindCredential)) {
+            throw new SecurityConfigurationException("You must provide the credentials for the Bind DN.");
+        }
+
+        if (this.mappingBuilders.isEmpty()) {
+            throw new SecurityConfigurationException("No mappings provided.");
+        }
 
         for (LDAPMappingConfigurationBuilder builder: this.mappingBuilders) {
             builder.validate();

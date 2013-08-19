@@ -209,4 +209,28 @@ public interface IDMMessages {
                                                              IdentityStoreConfiguration storeConfiguration,
                                                              @Cause Exception e);
 
+    @Message(id = 707, value = "You have provided more than one configuration. Use the buildAll method instead.")
+    SecurityConfigurationException configBuildMultipleConfigurationExists();
+
+    @Message(id = 708, value = "Only a single identity store config can support partitions. Found [%s] and [%s].")
+    SecurityConfigurationException configStoreMultiplePartitionConfigExists(IdentityStoreConfiguration config1,
+                                                                            IdentityStoreConfiguration config2);
+
+    @Message(id = 709, value = "Duplicated supported types found for identity store configuration [%s].")
+    SecurityConfigurationException configStoreDuplicatedSupportedType(IdentityStoreConfiguration storeConfiguration);
+
+    @Message(id = 710, value = "You must configure at least one identity store configuration.")
+    SecurityConfigurationException configStoreNoIdentityStoreConfigProvided();
+
+    @Message(id = 711, value = "You must provide at least one configuration.")
+    SecurityConfigurationException configNoConfigurationProvided();
+
+    @Message(id = 712, value = "Multiple configuration with the same name [%s].")
+    SecurityConfigurationException configMultipleConfigurationsFoundWithSameName(String name);
+
+    @Message(id = 713, value = "Could not create configuration.")
+    SecurityConfigurationException configCouldNotCreateConfiguration(@Cause Exception sce);
+
+    @Message(id = 714, value = "Invalid configuration [%s].")
+    SecurityConfigurationException configInvalidConfiguration(String name);
 }

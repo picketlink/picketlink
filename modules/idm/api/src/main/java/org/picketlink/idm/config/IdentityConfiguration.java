@@ -18,15 +18,18 @@
 
 package org.picketlink.idm.config;
 
-import java.util.List;
 import org.picketlink.idm.spi.RelationshipPolicy;
-import static java.util.Collections.unmodifiableList;
+
+import java.util.List;
+
+import static java.util.Collections.*;
 
 /**
  * <p>Consolidates all the configuration that should be used to initialize and start the IDM subsystem.</p>
  *
- * @author Shane Bryzak
+ * <p>Each configuration have a name, and they must be unique when using multiple configurations.</p>
  *
+ * @author Shane Bryzak
  */
 public class IdentityConfiguration {
 
@@ -57,7 +60,7 @@ public class IdentityConfiguration {
     }
 
     public boolean supportsPartition() {
-        for (IdentityStoreConfiguration storeConfiguration: getStoreConfiguration()) {
+        for (IdentityStoreConfiguration storeConfiguration : getStoreConfiguration()) {
             if (storeConfiguration.supportsPartition()) {
                 return true;
             }
