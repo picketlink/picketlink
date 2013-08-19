@@ -37,9 +37,14 @@ import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static junit.framework.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * <p>
@@ -287,6 +292,234 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         for (Integer value: retrievedVal) {
             assertTrue(contains(retrievedVal, value));
         }
+    }
+
+    @Test
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
+    public void testSetOneValuedAttribute() throws Exception {
+        User someUser = createUser();
+        Group someGroup = createGroup();
+
+        GroupMembership groupMembership = new GroupMembership(someUser, someGroup);
+
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
+
+        relationshipManager.add(groupMembership);
+
+        groupMembership.setAttribute(new Attribute<String>("one-valued", "1"));
+
+        relationshipManager.update(groupMembership);
+
+        RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
+
+        query.setParameter(GroupMembership.MEMBER, someUser);
+        query.setParameter(GroupMembership.GROUP, someGroup);
+
+        List<GroupMembership> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+
+        GroupMembership updatedIdentityType = result.get(0);
+
+        Attribute<String> oneValuedAttribute = updatedIdentityType.getAttribute("one-valued");
+
+        assertNotNull(oneValuedAttribute);
+        assertEquals("1", oneValuedAttribute.getValue());
+    }
+
+    @Test
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
+    public void testSetMultiValuedAttribute() throws Exception {
+        User someUser = createUser();
+        Group someGroup = createGroup();
+
+        GroupMembership groupMembership = new GroupMembership(someUser, someGroup);
+
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
+
+        relationshipManager.add(groupMembership);
+
+        groupMembership.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
+
+        relationshipManager.update(groupMembership);
+
+        RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
+
+        query.setParameter(GroupMembership.MEMBER, someUser);
+        query.setParameter(GroupMembership.GROUP, someGroup);
+
+        List<GroupMembership> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+
+        GroupMembership updatedIdentityType = result.get(0);
+
+        Attribute<String[]> multiValuedAttribute = updatedIdentityType.getAttribute("multi-valued");
+
+        assertNotNull(multiValuedAttribute);
+        assertNotNull(multiValuedAttribute.getValue());
+        assertEquals(3, multiValuedAttribute.getValue().length);
+
+        String[] values = multiValuedAttribute.getValue();
+
+        Arrays.sort(values);
+
+        assertTrue(Arrays.equals(values, new String[] { "1", "2", "3" }));
+    }
+
+    @Test
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
+    public void testSetMultipleAttributes() throws Exception {
+        User someUser = createUser();
+        Group someGroup = createGroup();
+
+        GroupMembership groupMembership = new GroupMembership(someUser, someGroup);
+
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
+
+        relationshipManager.add(groupMembership);
+
+        groupMembership.setAttribute(new Attribute<String>("QuestionTotal", "2"));
+        groupMembership.setAttribute(new Attribute<String>("Question1", "What is favorite toy?"));
+        groupMembership.setAttribute(new Attribute<String>("Question1Answer", "Gum"));
+        groupMembership.setAttribute(new Attribute<String>("Question2", "What is favorite word?"));
+        groupMembership.setAttribute(new Attribute<String>("Question2Answer", "Hi"));
+
+        relationshipManager.update(groupMembership);
+
+        RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
+
+        query.setParameter(GroupMembership.MEMBER, someUser);
+        query.setParameter(GroupMembership.GROUP, someGroup);
+
+        List<GroupMembership> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+
+        GroupMembership updatedIdentityType = result.get(0);
+
+        assertNotNull(updatedIdentityType.<String> getAttribute("QuestionTotal"));
+        assertNotNull(updatedIdentityType.<String> getAttribute("Question1"));
+        assertNotNull(updatedIdentityType.<String> getAttribute("Question1Answer"));
+        assertNotNull(updatedIdentityType.<String> getAttribute("Question2"));
+        assertNotNull(updatedIdentityType.<String> getAttribute("Question2Answer"));
+
+        assertEquals("2", updatedIdentityType.<String> getAttribute("QuestionTotal").getValue());
+        assertEquals("What is favorite toy?", updatedIdentityType.<String> getAttribute("Question1").getValue());
+        assertEquals("Gum", updatedIdentityType.<String> getAttribute("Question1Answer").getValue());
+        assertEquals("What is favorite word?", updatedIdentityType.<String> getAttribute("Question2").getValue());
+        assertEquals("Hi", updatedIdentityType.<String> getAttribute("Question2Answer").getValue());
+    }
+
+    @Test
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
+    public void testUpdateAttribute() throws Exception {
+        User someUser = createUser();
+        Group someGroup = createGroup();
+
+        GroupMembership groupMembership = new GroupMembership(someUser, someGroup);
+
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
+
+        relationshipManager.add(groupMembership);
+
+        groupMembership.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
+
+        relationshipManager.update(groupMembership);
+
+        RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
+
+        query.setParameter(GroupMembership.MEMBER, someUser);
+        query.setParameter(GroupMembership.GROUP, someGroup);
+
+        List<GroupMembership> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+
+        GroupMembership updatedIdentityType = result.get(0);
+
+        Attribute<String[]> multiValuedAttribute = updatedIdentityType.getAttribute("multi-valued");
+
+        assertNotNull(multiValuedAttribute);
+
+        multiValuedAttribute.setValue(new String[] { "3", "4", "5" });
+
+        updatedIdentityType.setAttribute(multiValuedAttribute);
+
+        relationshipManager.update(updatedIdentityType);
+
+        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
+
+        query.setParameter(GroupMembership.MEMBER, someUser);
+        query.setParameter(GroupMembership.GROUP, someGroup);
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+
+        updatedIdentityType = result.get(0);
+
+        multiValuedAttribute = updatedIdentityType.getAttribute("multi-valued");
+
+        assertNotNull(multiValuedAttribute);
+        assertEquals(3, multiValuedAttribute.getValue().length);
+
+        String[] values = multiValuedAttribute.getValue();
+
+        Arrays.sort(values);
+
+        assertTrue(Arrays.equals(values, new String[] { "3", "4", "5" }));
+    }
+
+    @Test
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
+    public void testRemoveAttribute() throws Exception {
+        User someUser = createUser();
+        Group someGroup = createGroup();
+
+        GroupMembership groupMembership = new GroupMembership(someUser, someGroup);
+
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
+
+        relationshipManager.add(groupMembership);
+
+        groupMembership.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
+
+        relationshipManager.update(groupMembership);
+
+        RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
+
+        query.setParameter(GroupMembership.MEMBER, someUser);
+        query.setParameter(GroupMembership.GROUP, someGroup);
+
+        List<GroupMembership> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+
+        GroupMembership updatedIdentityType = result.get(0);
+
+        Attribute<String[]> multiValuedAttribute = updatedIdentityType.getAttribute("multi-valued");
+
+        assertNotNull(multiValuedAttribute);
+
+        updatedIdentityType.removeAttribute("multi-valued");
+
+        relationshipManager.update(updatedIdentityType);
+
+        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
+
+        query.setParameter(GroupMembership.MEMBER, someUser);
+        query.setParameter(GroupMembership.GROUP, someGroup);
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+
+        updatedIdentityType = result.get(0);
+
+        multiValuedAttribute = updatedIdentityType.getAttribute("multi-valued");
+
+        assertNull(multiValuedAttribute);
     }
 
     @Test

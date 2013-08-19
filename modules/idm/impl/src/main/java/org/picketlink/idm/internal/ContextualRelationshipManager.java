@@ -31,6 +31,8 @@ import org.picketlink.idm.spi.StoreSelector;
 import java.io.Serializable;
 import java.util.List;
 
+import static org.picketlink.idm.IDMMessages.*;
+
 /**
  * Default implementation for RelationshipManager.
  * <p/>
@@ -50,42 +52,25 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
 
     @Override
     public void add(Relationship relationship) {
+        if (relationship == null) {
+            MESSAGES.nullArgument("Relationship");
+        }
+
         storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.create).add(this, relationship);
 
-        AttributeStore<?> attributeStore = storeSelector.getStoreForAttributeOperation(this);
-
-        if (attributeStore != null) {
-            for (Attribute<? extends Serializable> attribute : relationship.getAttributes()) {
-                attributeStore.setAttribute(this, relationship, attribute);
-            }
-        }
+        addAttributes(relationship);
     }
 
     @Override
     public void update(Relationship relationship) {
+        if (relationship == null) {
+            MESSAGES.nullArgument("Relationship");
+        }
+
         storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.update).update(this, relationship);
 
-        List<? extends Relationship> result = createRelationshipQuery(relationship.getClass()).setParameter
-                (Relationship.ID, relationship.getId())
-                .getResultList();
-
-        if (!result.isEmpty()) {
-            Relationship storedType = result.get(0);
-
-            AttributeStore<?> attributeStore = storeSelector.getStoreForAttributeOperation(this);
-
-            if (attributeStore != null) {
-                for (Attribute<? extends Serializable> attribute : storedType.getAttributes()) {
-                    if (relationship.getAttribute(attribute.getName()) == null) {
-                        attributeStore.removeAttribute(this, relationship, attribute.getName());
-                    }
-                }
-
-                for (Attribute<? extends Serializable> attribute : relationship.getAttributes()) {
-                    attributeStore.setAttribute(this, relationship, attribute);
-                }
-            }
-        }
+        removeAttributes(relationship);
+        addAttributes(relationship);
     }
 
     @Override
@@ -95,15 +80,7 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
                 .getResultList();
 
         if (!result.isEmpty()) {
-            Relationship storedType = result.get(0);
-
-            AttributeStore<?> attributeStore = storeSelector.getStoreForAttributeOperation(this);
-
-            if (attributeStore != null) {
-                for (Attribute<? extends Serializable> attribute : storedType.getAttributes()) {
-                    attributeStore.removeAttribute(this, storedType, attribute.getName());
-                }
-            }
+            removeAllAttributes(relationship);
         }
 
         storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.delete).remove(this, relationship);
@@ -112,5 +89,57 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
     @Override
     public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipClass) {
         return new DefaultRelationshipQuery<T>(this, relationshipClass, storeSelector);
+    }
+
+    private void removeAllAttributes(final Relationship identityType) {
+        AttributeStore<?> attributeStore = storeSelector.getStoreForAttributeOperation(this);
+
+        if (attributeStore != null) {
+            Relationship storedType = lookupById(identityType.getClass(), identityType.getId());
+
+            if (storedType != null) {
+                for (Attribute<? extends Serializable> attribute : storedType.getAttributes()) {
+                    attributeStore.removeAttribute(this, identityType, attribute.getName());
+                }
+            }
+        }
+    }
+
+    private void addAttributes(final Relationship identityType) {
+        AttributeStore<?> attributeStore = storeSelector.getStoreForAttributeOperation(this);
+
+        if (attributeStore != null) {
+            for (Attribute<? extends Serializable> attribute : identityType.getAttributes()) {
+                attributeStore.setAttribute(this, identityType, attribute);
+            }
+        }
+    }
+
+    private void removeAttributes(final Relationship identityType) {
+        AttributeStore<?> attributeStore = storeSelector.getStoreForAttributeOperation(this);
+
+        if (attributeStore != null) {
+            Relationship storedType = lookupById(identityType.getClass(), identityType.getId());
+
+            if (storedType != null) {
+                for (Attribute<? extends Serializable> attribute : storedType.getAttributes()) {
+                    if (identityType.getAttribute(attribute.getName()) == null) {
+                        attributeStore.removeAttribute(this, identityType, attribute.getName());
+                    }
+                }
+            }
+        }
+    }
+
+    private Relationship lookupById(final Class<? extends Relationship> relationshipType, final String id) {
+        List<? extends Relationship> result = createRelationshipQuery(relationshipType).setParameter
+                (Relationship.ID, id)
+                .getResultList();
+
+        if (!result.isEmpty()) {
+            return result.get(0);
+        }
+
+        return null;
     }
 }

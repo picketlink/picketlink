@@ -18,7 +18,6 @@
 
 package org.picketlink.idm.query.internal;
 
-import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
@@ -34,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import static org.picketlink.idm.IDMMessages.*;
 
 /**
  * Default IdentityQuery implementation.
@@ -124,12 +125,6 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
         return sortAscending;
     }
 
-    /*@Override
-    public IdentityQuery<T> setParameter(QueryParameter param, Operator operator, Object value) {
-        // TODO Auto-generated method stub
-        return null;
-    }*/
-
     @Override
     public List<T> getResultList() {
         List<T> result = null;
@@ -145,7 +140,7 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
                 }
             }
         } catch (Exception e) {
-            throw IDMMessages.MESSAGES.queryIdentityTypeFailed(this, e);
+            throw MESSAGES.queryIdentityTypeFailed(this, e);
         }
 
         return result;

@@ -51,13 +51,10 @@ import java.util.List;
 import static org.picketlink.idm.IDMMessages.*;
 
 /**
- * Default implementation of the IdentityManager interface.
- * <p/>
- * This lightweight class is intended to be created any time a batch of partition-specific identity management
- * operations are to be performed.  In a web environment, it is recommended that instances are scoped to the web request
- * lifecycle.
- * <p/>
- * This class is not thread-safe.
+ * <p>Default implementation of the IdentityManager interface.<p/> <p/> <p> This lightweight class is intended to be
+ * created any time a batch of partition-specific identity management operations are to be performed.  In a web
+ * environment, it is recommended that instances are scoped to the web request lifecycle. <p/> <p/> <p> This class is
+ * not thread-safe. </p>
  *
  * @author Shane Bryzak
  * @author anil saldhana
@@ -77,23 +74,13 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
 
     @Override
     public void add(IdentityType identityType) throws IdentityManagementException {
-        if (identityType == null) {
-            throw MESSAGES.nullArgument("IdentityType");
-        }
-
         checkUniqueness(identityType);
 
         try {
             storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, identityType.getClass(), IdentityOperation.create)
                     .add(this, identityType);
 
-            AttributeStore<?> attributeStore = storeSelector.getStoreForAttributeOperation(this);
-
-            if (attributeStore != null) {
-                for (Attribute<? extends Serializable> attribute : identityType.getAttributes()) {
-                    attributeStore.setAttribute(this, identityType, attribute);
-                }
-            }
+            addAttributes(identityType);
         } catch (Exception e) {
             throw MESSAGES.attributedTypeAddFailed(identityType, e);
         }
@@ -107,21 +94,8 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
             storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, IdentityType.class, IdentityOperation.update)
                     .update(this, identityType);
 
-            AttributeStore<?> attributeStore = storeSelector.getStoreForAttributeOperation(this);
-
-            if (attributeStore != null) {
-                IdentityType storedType = lookupIdentityById(identityType.getClass(), identityType.getId());
-
-                for (Attribute<? extends Serializable> attribute : storedType.getAttributes()) {
-                    if (identityType.getAttribute(attribute.getName()) == null) {
-                        attributeStore.removeAttribute(this, identityType, attribute.getName());
-                    }
-                }
-
-                for (Attribute<? extends Serializable> attribute : identityType.getAttributes()) {
-                    attributeStore.setAttribute(this, identityType, attribute);
-                }
-            }
+            removeAttributes(identityType);
+            addAttributes(identityType);
         } catch (Exception e) {
             throw MESSAGES.attributedTypeUpdateFailed(identityType, e);
         }
@@ -140,15 +114,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
                 this.relationshipManager.remove(relationship);
             }
 
-            AttributeStore<?> attributeStore = storeSelector.getStoreForAttributeOperation(this);
-
-            if (attributeStore != null) {
-                IdentityType storedType = lookupIdentityById(identityType.getClass(), identityType.getId());
-
-                for (Attribute<? extends Serializable> attribute : storedType.getAttributes()) {
-                    attributeStore.removeAttribute(this, identityType, attribute.getName());
-                }
-            }
+            removeAllAttributes(identityType);
 
             storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, IdentityType.class, IdentityOperation.delete)
                     .remove(this, identityType);
@@ -160,6 +126,14 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
     @SuppressWarnings("unchecked")
     @Override
     public <T extends IdentityType> T lookupIdentityById(Class<T> identityType, String id) {
+        if (identityType == null) {
+            MESSAGES.nullArgument("IdentityType class");
+        }
+
+        if (identityType == null) {
+            MESSAGES.nullArgument("Identifier");
+        }
+
         IdentityQuery<T> query = createIdentityQuery(identityType);
 
         query.setParameter(IdentityType.ID, id);
@@ -182,11 +156,19 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType) {
+        if (identityType == null) {
+            MESSAGES.nullArgument("IdentityType class");
+        }
+
         return new DefaultIdentityQuery(this, identityType, this.storeSelector);
     }
 
     @Override
     public void validateCredentials(Credentials credentials) {
+        if (credentials == null) {
+            MESSAGES.nullArgument("Credentials");
+        }
+
         storeSelector.getStoreForCredentialOperation(this, credentials.getClass()).validateCredentials(this, credentials);
     }
 
@@ -197,23 +179,45 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
 
     @Override
     public void updateCredential(Account account, Object credential, Date effectiveDate, Date expiryDate) {
+        checkIfIdentityTypeExists(account);
+
+        if (credential == null) {
+            MESSAGES.nullArgument("Credential");
+        }
+
         storeSelector.getStoreForCredentialOperation(this, credential.getClass())
                 .updateCredential(this, account, credential, effectiveDate, expiryDate);
     }
 
     @Override
     public <T extends CredentialStorage> T retrieveCurrentCredential(Account account, Class<T> storageClass) {
+        checkIfIdentityTypeExists(account);
+
+        if (storageClass == null) {
+            MESSAGES.nullArgument("CredentialStorage type");
+        }
+
         return (T) ((CredentialStore<?>) storeSelector.getStoreForCredentialOperation(this, storageClass))
                 .retrieveCurrentCredential(this, account, storageClass);
     }
 
     @Override
     public <T extends CredentialStorage> List<T> retrieveCredentials(Account account, Class<T> storageClass) {
+        checkIfIdentityTypeExists(account);
+
+        if (storageClass == null) {
+            MESSAGES.nullArgument("CredentialStorage type");
+        }
+
         return (List<T>) ((CredentialStore<?>) storeSelector.getStoreForCredentialOperation(this, storageClass))
                 .retrieveCredentials(this, account, storageClass);
     }
 
     private void checkUniqueness(IdentityType identityType) {
+        if (identityType == null) {
+            MESSAGES.nullArgument("IdentityType");
+        }
+
         PropertyQuery<Serializable> propertyQuery = PropertyQueries.createQuery(identityType.getClass());
 
         propertyQuery.addCriteria(new AnnotatedPropertyCriteria(Unique.class));
@@ -239,4 +243,45 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
                     getPartition());
         }
     }
+
+    private void removeAllAttributes(final IdentityType identityType) {
+        AttributeStore<?> attributeStore = storeSelector.getStoreForAttributeOperation(this);
+
+        if (attributeStore != null) {
+            IdentityType storedType = lookupIdentityById(identityType.getClass(), identityType.getId());
+
+            if (storedType != null) {
+                for (Attribute<? extends Serializable> attribute : storedType.getAttributes()) {
+                    attributeStore.removeAttribute(this, identityType, attribute.getName());
+                }
+            }
+        }
+    }
+
+    private void addAttributes(final IdentityType identityType) {
+        AttributeStore<?> attributeStore = storeSelector.getStoreForAttributeOperation(this);
+
+        if (attributeStore != null) {
+            for (Attribute<? extends Serializable> attribute : identityType.getAttributes()) {
+                attributeStore.setAttribute(this, identityType, attribute);
+            }
+        }
+    }
+
+    private void removeAttributes(final IdentityType identityType) {
+        AttributeStore<?> attributeStore = storeSelector.getStoreForAttributeOperation(this);
+
+        if (attributeStore != null) {
+            IdentityType storedType = lookupIdentityById(identityType.getClass(), identityType.getId());
+
+            if (storedType != null) {
+                for (Attribute<? extends Serializable> attribute : storedType.getAttributes()) {
+                    if (identityType.getAttribute(attribute.getName()) == null) {
+                        attributeStore.removeAttribute(this, identityType, attribute.getName());
+                    }
+                }
+            }
+        }
+    }
+
 }
