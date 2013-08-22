@@ -1574,7 +1574,7 @@
                           <para>Defines which SAML binding should be used: SAML HTTP POST or Redirect bindings.</para>
                         </entry>
                         <entry>
-                          <para>POST|REDIRECT. Defaults to REDIRECT if no specified.</para>
+                          <para>POST|REDIRECT. Defaults to POST if no specified.</para>
                         </entry>
                       </row>
                       <row>
@@ -5531,7 +5531,6 @@
    &lt;filter-mapping&gt;
      &lt;filter-name&gt;SPFilter&lt;/filter-name&gt;
      &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-     &lt;dispatcher&gt;REQUEST&lt;/dispatcher&gt;
    &lt;/filter-mapping&gt;
 &lt;/web-app&gt;</programlisting>
             </example>
