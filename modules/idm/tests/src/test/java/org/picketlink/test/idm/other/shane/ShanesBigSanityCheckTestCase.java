@@ -48,7 +48,7 @@ public class ShanesBigSanityCheckTestCase {
      * This scenario exercises a variety of use cases against a relational database (JPA) identity store
      */
     @Test
-    public void testScenario1() {
+    public void testScenario1() throws InterruptedException {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("shanes-test-suite-pu");
         final EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
