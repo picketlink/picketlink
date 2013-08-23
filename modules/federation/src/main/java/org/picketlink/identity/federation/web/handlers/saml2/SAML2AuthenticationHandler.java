@@ -25,6 +25,7 @@ import org.jboss.security.audit.AuditLevel;
 import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.constants.SAMLAuthenticationContextClass;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.exceptions.fed.AssertionExpiredException;
@@ -64,7 +65,9 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType.STSubType;
 import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnContextComparisonType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestedAuthnContextType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
@@ -86,24 +89,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.picketlink.common.util.StringUtil.*;
+
 /**
- * <p>
- * Handles for dealing with SAML2 Authentication
- * </p>
- * <p>
+ * <p> Handles for dealing with SAML2 Authentication </p>
+ * <p/>
  * Configuration Options:
- * 
- * @see SAML2Handler#CLOCK_SKEW_MILIS: a milisecond value sets a skew for checking the validity of assertion (SP Setting)
- * @see SAML2Handler#DISABLE_AUTHN_STATEMENT Setting a value will disable the generation of an AuthnStatement (IDP Setting)
- * @see SAML2Handler#DISABLE_SENDING_ROLES Setting any value will disable the generation and return of roles to SP (IDP Setting)
- * @see SAML2Handler#USE_MULTI_VALUED_ROLES Setting any value will have an attribute statement with multiple values (IDP Setting)
+ *
+ * @author Anil.Saldhana@redhat.com
+ * @see SAML2Handler#CLOCK_SKEW_MILIS: a milisecond value sets a skew for checking the validity of assertion (SP
+ *      Setting)
+ * @see SAML2Handler#DISABLE_AUTHN_STATEMENT Setting a value will disable the generation of an AuthnStatement (IDP
+ *      Setting)
+ * @see SAML2Handler#DISABLE_SENDING_ROLES Setting any value will disable the generation and return of roles to SP (IDP
+ *      Setting)
+ * @see SAML2Handler#USE_MULTI_VALUED_ROLES Setting any value will have an attribute statement with multiple values (IDP
+ *      Setting)
  * @see SAML2Handler#DISABLE_ROLE_PICKING Setting to true will disable picking IDP attribute statements (SP Setting)
  * @see SAML2Handler#ROLE_KEY a csv list of strings that represent the roles coming from IDP (SP Setting)
  * @see GeneralConstants#NAMEID_FORMAT Setting to a value will provide the nameid format to be sent to IDP (SP Setting)
- * @see SAML2Handler#ASSERTION_CONSUMER_URL: the url to be used for assertionConsumerURL (SP Setting)
- *      </p>
- * 
- * @author Anil.Saldhana@redhat.com
+ * @see SAML2Handler#ASSERTION_CONSUMER_URL: the url to be used for assertionConsumerURL (SP Setting) </p>
  * @since Oct 8, 2009
  */
 public class SAML2AuthenticationHandler extends BaseSAML2Handler {
@@ -274,7 +279,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             // Create an AuthnStatementType
             if (handlerConfig.getParameter(DISABLE_AUTHN_STATEMENT) == null) {
                 String authContextRef = JBossSAMLURIConstants.AC_PASSWORD.get();
-                if (StringUtil.isNotNull(authMethod))
+                if (isNotNull(authMethod))
                     authContextRef = authMethod;
 
                 AuthnStatementType authnStatement = StatementUtil.createAuthnStatement(XMLTimeUtil.getIssueInstant(),
@@ -287,13 +292,13 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
             if (handlerConfig.getParameter(DISABLE_SENDING_ROLES) == null && (roles != null && !roles.isEmpty())) {
                 AttributeStatementType attrStatement = null;
-                if(handlerConfig.getParameter(USE_MULTI_VALUED_ROLES) != null){
-                    attrStatement = StatementUtil.createAttributeStatementForRoles(roles,true);
-                }else {
+                if (handlerConfig.getParameter(USE_MULTI_VALUED_ROLES) != null) {
+                    attrStatement = StatementUtil.createAttributeStatementForRoles(roles, true);
+                } else {
                     attrStatement = StatementUtil.createAttributeStatement(roles);
                 }
-                if(attrStatement != null){
-                    assertion.addStatement(attrStatement);   
+                if (attrStatement != null) {
+                    assertion.addStatement(attrStatement);
                 }
             }
 
@@ -365,12 +370,14 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
             // Check if there is a nameid policy
             String nameIDFormat = (String) handlerConfig.getParameter(GeneralConstants.NAMEID_FORMAT);
-            if (StringUtil.isNotNull(nameIDFormat)) {
+            if (isNotNull(nameIDFormat)) {
                 samlRequest.setNameIDFormat(nameIDFormat);
             }
             try {
                 AuthnRequestType authn = samlRequest.createAuthnRequestType(id, assertionConsumerURL,
                         response.getDestination(), issuerValue);
+
+                createRequestAuthnContext(authn);
 
                 String bindingType = getSPConfiguration().getBindingType();
                 boolean isIdpUsesPostBinding = getSPConfiguration().isIdpUsesPostBinding();
@@ -436,14 +443,14 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 session.setAttribute(GeneralConstants.PRINCIPAL_ID, userPrincipal);
 
                 Document assertionDocument = AssertionUtil.asDocument((AssertionType) assertion);
-                
+
                 String assertionAttributeName = (String) handlerConfig
                         .getParameter(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME);
-                
+
                 if (assertionAttributeName != null) {
                     session.setAttribute(assertionAttributeName, assertionDocument);
                 }
-                
+
                 session.setAttribute(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME, assertionDocument);
             }
         }
@@ -502,7 +509,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             boolean expiredAssertion;
             try {
                 String skew = (String) handlerConfig.getParameter(SAML2Handler.CLOCK_SKEW_MILIS);
-                if (StringUtil.isNotNull(skew)) {
+                if (isNotNull(skew)) {
                     long skewMilis = Long.parseLong(skew);
                     expiredAssertion = AssertionUtil.hasExpired(assertion, skewMilis);
                 } else
@@ -567,7 +574,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
         /**
          * Get the roles from the attribute statement
-         * 
+         *
          * @param attributeStatement
          * @return
          */
@@ -577,7 +584,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             // PLFED-141: Disable role picking from IDP response
             if (handlerConfig.containsKey(DISABLE_ROLE_PICKING)) {
                 String val = (String) handlerConfig.getParameter(DISABLE_ROLE_PICKING);
-                if (StringUtil.isNotNull(val) && "true".equalsIgnoreCase(val))
+                if (isNotNull(val) && "true".equalsIgnoreCase(val))
                     return roles;
             }
 
@@ -586,7 +593,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
             if (handlerConfig.containsKey(ROLE_KEY)) {
                 String roleKey = (String) handlerConfig.getParameter(ROLE_KEY);
-                if (StringUtil.isNotNull(roleKey)) {
+                if (isNotNull(roleKey)) {
                     roleKeys.addAll(StringUtil.tokenize(roleKey));
                 }
             }
@@ -622,6 +629,36 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             }
 
             return spConfiguration;
+        }
+    }
+
+    private void createRequestAuthnContext(final AuthnRequestType authn) {
+        String authnContextClasses = (String) handlerConfig.getParameter(GeneralConstants.AUTHN_CONTEXT_CLASSES);
+
+        if (isNotNull(authnContextClasses)) {
+            RequestedAuthnContextType requestAuthnContext = new RequestedAuthnContextType();
+
+            for (String contextClass: authnContextClasses.split(",")) {
+                SAMLAuthenticationContextClass standardClass = SAMLAuthenticationContextClass.forAlias(contextClass);
+
+                if (standardClass != null) {
+                    contextClass = standardClass.getFqn();
+                }
+
+                requestAuthnContext.addAuthnContextClassRef(contextClass);
+            }
+
+            if (!requestAuthnContext.getAuthnContextClassRef().isEmpty()) {
+                authn.setRequestedAuthnContext(requestAuthnContext);
+
+                String comparison = (String) handlerConfig.getParameter(GeneralConstants.REQUESTED_AUTHN_CONTEXT_COMPARISON);
+
+                if (isNotNull(comparison)) {
+                    requestAuthnContext.setComparison(AuthnContextComparisonType.fromValue(comparison));
+                }
+            } else {
+                logger.debug("RequestedAuthnContext not set for AuthnRequest. No context class was provided.");
+            }
         }
     }
 
