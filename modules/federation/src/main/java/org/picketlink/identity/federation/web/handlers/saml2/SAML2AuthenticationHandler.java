@@ -377,7 +377,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 AuthnRequestType authn = samlRequest.createAuthnRequestType(id, assertionConsumerURL,
                         response.getDestination(), issuerValue);
 
-                createRequestAuthnContext(authn);
+                createRequestedAuthnContext(authn);
 
                 String bindingType = getSPConfiguration().getBindingType();
                 boolean isIdpUsesPostBinding = getSPConfiguration().isIdpUsesPostBinding();
@@ -632,32 +632,32 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
         }
     }
 
-    private void createRequestAuthnContext(final AuthnRequestType authn) {
+    private void createRequestedAuthnContext(final AuthnRequestType authn) {
         String authnContextClasses = (String) handlerConfig.getParameter(GeneralConstants.AUTHN_CONTEXT_CLASSES);
 
         if (isNotNull(authnContextClasses)) {
             RequestedAuthnContextType requestAuthnContext = new RequestedAuthnContextType();
 
-            for (String contextClass: authnContextClasses.split(",")) {
-                SAMLAuthenticationContextClass standardClass = SAMLAuthenticationContextClass.forAlias(contextClass);
+            for (String classFqn: authnContextClasses.split(",")) {
+                SAMLAuthenticationContextClass standardClass = SAMLAuthenticationContextClass.forAlias(classFqn);
 
                 if (standardClass != null) {
-                    contextClass = standardClass.getFqn();
+                    classFqn = standardClass.getFqn();
                 }
 
-                requestAuthnContext.addAuthnContextClassRef(contextClass);
+                requestAuthnContext.addAuthnContextClassRef(classFqn);
             }
 
             if (!requestAuthnContext.getAuthnContextClassRef().isEmpty()) {
-                authn.setRequestedAuthnContext(requestAuthnContext);
-
                 String comparison = (String) handlerConfig.getParameter(GeneralConstants.REQUESTED_AUTHN_CONTEXT_COMPARISON);
 
                 if (isNotNull(comparison)) {
                     requestAuthnContext.setComparison(AuthnContextComparisonType.fromValue(comparison));
                 }
+
+                authn.setRequestedAuthnContext(requestAuthnContext);
             } else {
-                logger.debug("RequestedAuthnContext not set for AuthnRequest. No context class was provided.");
+                logger.debug("RequestedAuthnContext not set for AuthnRequest. No class was provided.");
             }
         }
     }
