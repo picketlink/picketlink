@@ -23,7 +23,10 @@ import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.parsers.ParserNamespaceSupport;
 import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.saml.v2.assertion.OneTimeUseType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnContextComparisonType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestedAuthnContextType;
@@ -31,7 +34,9 @@ import org.picketlink.identity.federation.saml.v2.protocol.RequestedAuthnContext
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 import java.net.URI;
 
 /**
@@ -164,14 +169,41 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
         StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
         StaxParserUtil.validate(startElement, JBossSAMLConstants.REQUESTED_AUTHN_CONTEXT.get());
 
-        startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-        String elName = StaxParserUtil.getStartElementName(startElement);
+        Attribute comparison = startElement.getAttributeByName(new QName(JBossSAMLConstants.COMPARISON.get()));
 
-        if (elName.equals(JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get())) {
-            String value = StaxParserUtil.getElementText(xmlEventReader);
-            ract.addAuthnContextClassRef(value);
-        } else
-            throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + elName);
+        if (comparison != null) {
+            ract.setComparison(AuthnContextComparisonType.fromValue(comparison.getValue()));
+        }
+
+        while (xmlEventReader.hasNext()) {
+            XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+
+            if (xmlEvent instanceof EndElement) {
+                EndElement nextEndElement = (EndElement) xmlEvent;
+                if (StaxParserUtil.matches(nextEndElement, JBossSAMLConstants.REQUESTED_AUTHN_CONTEXT.get())) {
+                    nextEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+                    break;
+                } else
+                    throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT
+                            + StaxParserUtil.getEndElementName(nextEndElement));
+            }
+
+            String tag = null;
+
+            if (xmlEvent instanceof StartElement) {
+                StartElement peekedElement = (StartElement) xmlEvent;
+                tag = StaxParserUtil.getStartElementName(peekedElement);
+            }
+
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            String elName = StaxParserUtil.getStartElementName(startElement);
+
+            if (elName.equals(JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get())) {
+                String value = StaxParserUtil.getElementText(xmlEventReader);
+                ract.addAuthnContextClassRef(value);
+            } else
+                throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + elName);
+        }
 
         return ract;
     }

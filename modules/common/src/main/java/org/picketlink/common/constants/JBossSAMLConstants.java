@@ -37,7 +37,7 @@ public enum JBossSAMLConstants {
             "AuthnContextClassRef"), AUTHN_CONTEXT_DECLARATION("AuthnContextDecl"), AUTHN_CONTEXT_DECLARATION_REF(
             "AuthnContextDeclRef"), AUTHN_INSTANT("AuthnInstant"), AUTHN_REQUEST("AuthnRequest"), AUTHN_STATEMENT(
             "AuthnStatement"), AUTHN_REQUESTS_SIGNED("AuthnRequestsSigned"), BASEID("BaseID"), BINDING("Binding"), CACHE_DURATION(
-            "cacheDuration"), COMPANY("Company"), CONDITIONS("Conditions"), CONSENT("Consent"), CONTACT_PERSON("ContactPerson"), CONTACT_TYPE(
+            "cacheDuration"), COMPANY("Company"), CONDITIONS("Conditions"), COMPARISON("Comparison"), CONSENT("Consent"), CONTACT_PERSON("ContactPerson"), CONTACT_TYPE(
             "contactType"), DESTINATION("Destination"), DNS_NAME("DNSName"), EMAIL_ADDRESS("EmailAddress"), ENCODING("Encoding"), ENCRYPTED_ASSERTION(
             "EncryptedAssertion"), ENCRYPTED_ID("EncryptedID"), ENTITY_ID("entityID"), ENTITY_DESCRIPTOR("EntityDescriptor"), ENTITIES_DESCRIPTOR(
             "EntitiesDescriptor"), EXTENSIONS("Extensions"), FORMAT("Format"), FRIENDLY_NAME("FriendlyName"), FORCE_AUTHN(

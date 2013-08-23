@@ -4424,6 +4424,56 @@
                         <para>2.1.7</para>
                       </entry>
                     </row>
+                    <row>
+                      <entry>
+                        <para>9</para>
+                      </entry>
+                      <entry>
+                        <para>
+                          AUTHN_CONTEXT_CLASSES
+                        </para>
+                      </entry>
+                      <entry>
+                        <para>String</para>
+                      </entry>
+                      <entry>
+                        <para>
+                          Specifies a single or a comma separated list of SAML Authentication Classes to be used when creating an AuthnRequest. The value can be a full qualified name (FQN) or an alias. For each
+                          standard class name there is an alias, as defined by the <code>org.picketlink.common.constants.SAMLAuthenticationContextClass</code>.
+                        </para>
+                      </entry>
+                      <entry>
+                        <para>SP</para>
+                      </entry>
+                      <entry>
+                        <para>2.5.0</para>
+                      </entry>
+                    </row>
+                    <row>
+                      <entry>
+                        <para>9</para>
+                      </entry>
+                      <entry>
+                        <para>
+                          REQUESTED_AUTHN_CONTEXT_COMPARISON
+                        </para>
+                      </entry>
+                      <entry>
+                        <para>String</para>
+                      </entry>
+                      <entry>
+                        <para>
+                          Specifies the Comparison attribute of the RequestedAuthnContext. This option should be used in conjunction with the AUTHN_CONTEXT_CLASSES option.
+                          Only the values defined by the specification are supported.
+                        </para>
+                      </entry>
+                      <entry>
+                        <para>SP</para>
+                      </entry>
+                      <entry>
+                        <para>2.5.0</para>
+                      </entry>
+                    </row>
                   </tbody>
                 </tgroup>
               </informaltable>
