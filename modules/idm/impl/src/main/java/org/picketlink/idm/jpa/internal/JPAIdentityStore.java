@@ -87,6 +87,7 @@ import java.util.Map;
 
 import static java.util.Map.*;
 import static org.picketlink.common.properties.query.TypedPropertyCriteria.*;
+import static org.picketlink.common.util.StringUtil.*;
 import static org.picketlink.idm.IDMMessages.*;
 import static org.picketlink.idm.config.IdentityStoreConfiguration.*;
 
@@ -203,6 +204,25 @@ public class JPAIdentityStore
 
     @Override
     public <P extends Partition> P get(IdentityContext identityContext, Class<P> partitionClass, String name) {
+        List<P> result = getPartitions(identityContext, partitionClass, name);
+
+        if (!result.isEmpty()) {
+            if (result.size() > 1) {
+                throw new IdentityManagementException("More than one partitions have been found with the given name [" + name + "] and type [" + partitionClass + "].");
+            }
+
+            return result.get(0);
+        }
+
+        return null;
+    }
+
+    @Override
+    public <P extends Partition> List<P> get(IdentityContext identityContext, Class<P> partitionClass) {
+        return getPartitions(identityContext, partitionClass, null);
+    }
+
+    public <P extends Partition> List<P> getPartitions(IdentityContext identityContext, Class<P> partitionClass, String name) {
         EntityManager entityManager = getEntityManager(identityContext);
         String PARTITION_NAME_PROPERTY = "name";
 
@@ -217,26 +237,25 @@ public class JPAIdentityStore
 
         List<Predicate> predicates = new ArrayList<Predicate>();
 
-        predicates.add(cb.equal(from.get(nameEntityMapping.getValue().getName()), name));
+        if (!isNullOrEmpty(name)) {
+            predicates.add(cb.equal(from.get(nameEntityMapping.getValue().getName()), name));
+        }
 
         if (!Partition.class.equals(partitionClass)) {
-            predicates.add(cb.equal(from.get(typeEntityMapping.getValue().getName()),
-                    partitionClass.getName()));
+            predicates.add(cb.equal(from.get(typeEntityMapping.getValue().getName()), partitionClass.getName()));
         }
 
         cq.where(predicates.toArray(new Predicate[predicates.size()]));
 
         Query query = entityManager.createQuery(cq);
 
-        query.setMaxResults(1);
+        List<P> result = new ArrayList<P>();
 
-        List result = query.getResultList();
-
-        if (!result.isEmpty()) {
-            return entityMapper.createType(result.get(0), entityManager);
+        for (Object entity: query.getResultList()) {
+            result.add((P) entityMapper.createType(entity, entityManager));
         }
 
-        return null;
+        return result;
     }
 
     @Override
@@ -766,7 +785,7 @@ public class JPAIdentityStore
 
     /**
      * <p>Returns all {@link EntityMapper} instances used to map the given {@link AttributedType}. Only mappers for
-     * {@link IdentityManaged} annotated entity classes are considers, what means that this method can only be used when
+     * {@link IdentityManaged} annotated entity classes are considered, what means that this method can only be used when
      * trying to persist or populate @{link AttributedType} instances.</p>
      *
      * @param attributedType
@@ -778,7 +797,8 @@ public class JPAIdentityStore
         for (EntityMapper entityMapper : this.entityMappers) {
             if (entityMapper.getEntityType().isAnnotationPresent(IdentityManaged.class)) {
                 for (EntityMapping entityMapping : entityMapper.getEntityMappings()) {
-                    if (entityMapping.getSupportedType().equals(attributedType) && entityMapper.isRoot()) {
+                    if ((entityMapping.getSupportedType().equals(attributedType) || entityMapping.getSupportedType().isAssignableFrom(attributedType))
+                            && entityMapper.isRoot()) {
                         mappers.add(0, entityMapper);
                     } else if (entityMapping.getSupportedType().isAssignableFrom(attributedType)) {
                         mappers.add(entityMapper);
@@ -1301,6 +1321,10 @@ public class JPAIdentityStore
                     configureEntityMapper(ownerClass);
                 }
             }
+        }
+
+        if (entityType.getSuperclass().isAnnotationPresent(IdentityManaged.class)) {
+            configureEntityMapper(entityType.getSuperclass());
         }
 
         if (!this.entityMappers.contains(entityMapper)) {

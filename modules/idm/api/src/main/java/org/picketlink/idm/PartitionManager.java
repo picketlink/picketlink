@@ -21,6 +21,7 @@ import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.model.Partition;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>Provides partition management operations and serves as a start point for managing identity data (eg.: users,
@@ -98,6 +99,22 @@ public interface PartitionManager extends Serializable {
      * @throws IdentityManagementException if any error occurs during the retrieval.
      */
     <T extends Partition> T getPartition(Class<T> partitionClass, String name) throws IdentityManagementException;
+
+    /**
+     * <p>Return all {@link Partition} instances for a given <code>partitionClass</code>.</p>
+     *
+     * <p>The <code>partitionClass</code> can be any sub-type of {@link Partition}. In this case only partitions of a
+     * specific sub-type will be considered.
+     * </p>
+     *
+     * <p>If <code>partitionClass</code> equals the {@link Partition} type this method may return any of its
+     * sub-types.</p>
+     *
+     * @param partitionClass
+     * @return
+     * @throws IdentityManagementException if any error occurs during the retrieval.
+     */
+    <T extends Partition> List<T> getPartitions(Class<T> partitionClass) throws IdentityManagementException;
 
     /**
      * <p>Return the partition specified by the partition class and identifier.</p>

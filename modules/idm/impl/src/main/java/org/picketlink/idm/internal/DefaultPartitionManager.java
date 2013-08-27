@@ -53,11 +53,13 @@ import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.StoreSelector;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -329,6 +331,41 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             return partition;
         } catch (Exception e) {
             throw MESSAGES.partitionGetFailed(partitionClass, name, e);
+        }
+    }
+
+    @Override
+    public <T extends Partition> List<T> getPartitions(Class<T> partitionClass) {
+        if (partitionClass == null) {
+            throw MESSAGES.nullArgument("Partition class");
+        }
+
+        List<T> partitions = null;
+
+        if (partitionManagementConfig == null) {
+            partitions = new ArrayList<T>();
+
+            partitions.add((T) createDefaultPartition());
+
+            return partitions;
+        }
+
+        try {
+            IdentityContext context = createIdentityContext();
+
+            partitions = getStoreForPartitionOperation(context).<T>get(context, partitionClass);
+
+            for (T partition: partitions) {
+                AttributeStore<?> attributeStore = getStoreForAttributeOperation(context);
+
+                if (attributeStore != null) {
+                    attributeStore.loadAttributes(context, partition);
+                }
+            }
+
+            return partitions;
+        } catch (Exception e) {
+            throw MESSAGES.partitionGetFailed(partitionClass, "not specified", e);
         }
     }
 

@@ -198,6 +198,21 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
     }
 
     @Override
+    public <P extends Partition> List<P> get(IdentityContext identityContext, Class<P> partitionClass) {
+        List<P> result = new ArrayList<P>();
+
+        for (FilePartition filePartition : this.fileDataSource.getPartitions().values()) {
+            Partition partition = filePartition.getEntry();
+
+            if (Partition.class.equals(partitionClass) || partitionClass.equals(partition.getClass())) {
+                result.add((P) cloneAttributedType(identityContext, partition));
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public <P extends Partition> P lookupById(final IdentityContext context, final Class<P> partitionClass,
                                               final String id) {
         FilePartition filePartition = this.fileDataSource.getPartitions().get(id);
@@ -272,7 +287,7 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
 
         if (IdentityType.class.equals(identityQuery.getIdentityType())) {
             typedIdentityTypes = new HashMap<String, FileIdentityType>();
-            for (String type: identityTypes.keySet()) {
+            for (String type : identityTypes.keySet()) {
                 typedIdentityTypes.putAll(identityTypes.get(type));
             }
         } else {
@@ -469,7 +484,7 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
 
                     RelationshipReference reference = new RelationshipReference(relationship);
 
-                    for (Property<IdentityType> property: properties) {
+                    for (Property<IdentityType> property : properties) {
                         reference.addIdentityTypeReference(property.getName(), storedRelationship.getIdentityTypeId
                                 (property.getName()));
                     }
@@ -511,7 +526,7 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
         FileAttribute fileAttribute = getFileAttribute(type);
 
         if (fileAttribute != null) {
-            for (Attribute<? extends Serializable> attribute: fileAttribute.getEntry()) {
+            for (Attribute<? extends Serializable> attribute : fileAttribute.getEntry()) {
                 if (attribute.getName().equals(attributeName)) {
                     return (Attribute<V>) attribute;
                 }
@@ -526,7 +541,7 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
         FileAttribute fileAttribute = getFileAttribute(attributedType);
 
         if (fileAttribute != null) {
-            for (Attribute<? extends Serializable> attribute: fileAttribute.getEntry()) {
+            for (Attribute<? extends Serializable> attribute : fileAttribute.getEntry()) {
                 attributedType.setAttribute(attribute);
             }
         }
@@ -537,7 +552,7 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
         FileAttribute fileAttribute = getFileAttribute(type);
 
         if (fileAttribute != null) {
-            for (Attribute<? extends Serializable> attribute: new ArrayList<Attribute<? extends Serializable>>
+            for (Attribute<? extends Serializable> attribute : new ArrayList<Attribute<? extends Serializable>>
                     (fileAttribute.getEntry())) {
                 if (attribute.getName().equals(attributeName)) {
                     fileAttribute.getEntry().remove(attribute);

@@ -20,6 +20,8 @@ package org.picketlink.idm.spi;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.model.Partition;
 
+import java.util.List;
+
 /**
  * A special type of IdentityStore that is also capable of providing partition management functionality
  *
@@ -31,6 +33,8 @@ public interface PartitionStore<T extends IdentityStoreConfiguration> extends Id
     String getConfigurationName(IdentityContext identityContext, Partition partition);
 
     <P extends Partition> P get(IdentityContext identityContext, Class<P> partitionClass, String name);
+
+    <P extends Partition> List<P> get(IdentityContext identityContext, Class<P> partitionClass);
 
     <P extends Partition> P lookupById(final IdentityContext context, final Class<P> partitionClass, String id);
 
