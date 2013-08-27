@@ -18,6 +18,7 @@
 package org.picketlink.identity.federation.web.process;
 
 import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.config.federation.PicketLinkType;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
@@ -38,16 +39,21 @@ import java.util.concurrent.locks.Lock;
  */
 public class SAMLHandlerChainProcessor {
     private final Set<SAML2Handler> handlers = new LinkedHashSet<SAML2Handler>();
+    private final PicketLinkType configuration;
 
-    public SAMLHandlerChainProcessor(Set<SAML2Handler> handlers) {
+    public SAMLHandlerChainProcessor(Set<SAML2Handler> handlers, PicketLinkType configuration) {
         this.handlers.addAll(handlers);
+        this.configuration = configuration;
     }
 
     public void callHandlerChain(SAML2Object samlObject, SAML2HandlerRequest saml2HandlerRequest,
             SAML2HandlerResponse saml2HandlerResponse, HTTPContext httpContext, Lock chainLock) throws ProcessingException,
             IOException {
         try {
-            chainLock.lock();
+            if (this.configuration.getHandlers().isLocking()) {
+                chainLock.lock();
+            }
+
             // Deal with handler chains
             for (SAML2Handler handler : handlers) {
                 if (saml2HandlerResponse.isInError()) {
@@ -61,7 +67,9 @@ public class SAMLHandlerChainProcessor {
                 }
             }
         } finally {
-            chainLock.unlock();
+            if (this.configuration.getHandlers().isLocking()) {
+                chainLock.unlock();
+            }
         }
     }
 }

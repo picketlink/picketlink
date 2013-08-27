@@ -23,6 +23,7 @@ import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.exceptions.TrustKeyConfigurationException;
 import org.picketlink.common.exceptions.TrustKeyProcessingException;
+import org.picketlink.config.federation.PicketLinkType;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerResponse;
@@ -58,8 +59,8 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
      * @param postBinding Whether it is the Post Binding
      * @param serviceURL Service URL of the SP
      */
-    public ServiceProviderSAMLResponseProcessor(boolean postBinding, String serviceURL) {
-        super(postBinding, serviceURL);
+    public ServiceProviderSAMLResponseProcessor(boolean postBinding, String serviceURL, PicketLinkType picketLinkType) {
+        super(postBinding, serviceURL, picketLinkType);
     }
 
     /**
@@ -91,12 +92,12 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
         SAML2HandlerRequest saml2HandlerRequest = getSAML2HandlerRequest(documentHolder, httpContext);
         SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
 
-        SAMLHandlerChainProcessor chainProcessor = new SAMLHandlerChainProcessor(handlers);
+        SAMLHandlerChainProcessor chainProcessor = new SAMLHandlerChainProcessor(handlers, this.configuration);
 
         // Set some request options
         setRequestOptions(saml2HandlerRequest);
         saml2HandlerRequest.addOption(GeneralConstants.CONTEXT_PATH, httpContext.getServletContext().getContextPath());
-        saml2HandlerRequest.addOption(GeneralConstants.SUPPORTS_SIGNATURES, this.spConfiguration.isSupportsSignature());
+        saml2HandlerRequest.addOption(GeneralConstants.SUPPORTS_SIGNATURES, getSpConfiguration().isSupportsSignature());
 
         chainProcessor.callHandlerChain(documentHolder.getSamlObject(), saml2HandlerRequest, saml2HandlerResponse, httpContext,
                 chainLock);

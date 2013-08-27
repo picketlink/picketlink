@@ -46,9 +46,10 @@ import java.util.List;
 public class Handlers {
     
     protected String handlerChainClass;
-    
+    private boolean locking = true;
+
     protected List<Handler> handler = new ArrayList<Handler>();
-    
+
     public void add(Handler h) {
         this.handler.add(h);
     }
@@ -93,5 +94,21 @@ public class Handlers {
      */
     public void setHandlers(List<Handler> theHandlers){
         handler.addAll(theHandlers);
+    }
+
+    /**
+     * Sets the locking behavior of the handler chain
+     * @return
+     */
+    public void setLocking(final Boolean locking) {
+        this.locking = locking;
+    }
+
+    /**
+     * Indicates if the handler chain execution should be locked
+     * @return
+     */
+    public boolean isLocking() {
+        return locking;
     }
 }

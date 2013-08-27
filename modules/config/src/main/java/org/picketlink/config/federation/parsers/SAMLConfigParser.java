@@ -101,6 +101,8 @@ public class SAMLConfigParser extends AbstractParser {
     
     public static final String HANDLERS_CHAIN_CLASS = "ChainClass";
 
+    public static final String HANDLERS_CHAIN_LOCKING = "Locking";
+
     public static final String HANDLER = "Handler";
 
     public static final String OPTION = "Option";
@@ -139,11 +141,16 @@ public class SAMLConfigParser extends AbstractParser {
         StaxParserUtil.validate(startElement, HANDLERS);
 
         // parse and set the root element attributes.
-        QName attributeQName = new QName("", HANDLERS_CHAIN_CLASS);
-        Attribute attribute = startElement.getAttributeByName(attributeQName);
-        if (attribute != null)
-            handlers.setHandlerChainClass(StaxParserUtil.getAttributeValue(attribute));
-        
+        QName handlerChainClassQName = new QName("", HANDLERS_CHAIN_CLASS);
+        Attribute handlerChainClass = startElement.getAttributeByName(handlerChainClassQName);
+        if (handlerChainClass != null)
+            handlers.setHandlerChainClass(StaxParserUtil.getAttributeValue(handlerChainClass));
+
+        QName lockingQName = new QName("", HANDLERS_CHAIN_LOCKING);
+        Attribute lockingAttribute = startElement.getAttributeByName(lockingQName);
+        if (lockingAttribute != null)
+            handlers.setLocking(Boolean.valueOf(lockingAttribute.getValue()));
+
         while (xmlEventReader.hasNext()) {
             XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
             if (xmlEvent == null)

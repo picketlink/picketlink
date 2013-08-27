@@ -25,7 +25,7 @@ import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.exceptions.TrustKeyConfigurationException;
 import org.picketlink.common.exceptions.TrustKeyProcessingException;
-import org.picketlink.common.util.StringUtil;
+import org.picketlink.config.federation.PicketLinkType;
 import org.picketlink.config.federation.ProviderType;
 import org.picketlink.config.federation.SPType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
@@ -50,7 +50,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
-import static org.picketlink.common.util.StringUtil.isNotNull;
+import static org.picketlink.common.util.StringUtil.*;
 
 /**
  * A processor util at the SP
@@ -59,8 +59,10 @@ import static org.picketlink.common.util.StringUtil.isNotNull;
  * @since Oct 27, 2009
  */
 public class ServiceProviderBaseProcessor {
-    
+
     protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+
+    protected final PicketLinkType configuration;
 
     protected boolean postBinding;
 
@@ -68,12 +70,10 @@ public class ServiceProviderBaseProcessor {
 
     protected String identityURL;
 
-    protected ProviderType spConfiguration;
-
     protected TrustKeyManager keyManager;
 
     protected String issuer = null;
-    
+
     protected PicketLinkAuditHelper auditHelper = null;
 
     public static final String IDP_KEY = "idp.key";
@@ -82,20 +82,12 @@ public class ServiceProviderBaseProcessor {
      * Construct
      *
      * @param postBinding Whether it is the Post Binding
-     * @param serviceURL Service URL of the SP
+     * @param serviceURL  Service URL of the SP
      */
-    public ServiceProviderBaseProcessor(boolean postBinding, String serviceURL) {
+    public ServiceProviderBaseProcessor(boolean postBinding, String serviceURL, PicketLinkType configuration) {
         this.postBinding = postBinding;
         this.serviceURL = serviceURL;
-    }
-
-    /**
-     * Set the SP configuration
-     *
-     * @param sp
-     */
-    public void setConfiguration(ProviderType sp) {
-        this.spConfiguration = sp;
+        this.configuration = configuration;
     }
 
     /**
@@ -124,12 +116,13 @@ public class ServiceProviderBaseProcessor {
     public void setIssuer(String issuer) {
         this.issuer = issuer;
     }
-    
+
     /**
      * Set the {@link PicketLinkAuditHelper}
+     *
      * @param helper
      */
-    public void setAuditHelper(PicketLinkAuditHelper helper){
+    public void setAuditHelper(PicketLinkAuditHelper helper) {
         this.auditHelper = helper;
     }
 
@@ -146,17 +139,17 @@ public class ServiceProviderBaseProcessor {
         // Create the request/response
         SAML2HandlerRequest saml2HandlerRequest = getSAML2HandlerRequest(null, httpContext);
         saml2HandlerRequest.addOption(GeneralConstants.CONTEXT_PATH, httpContext.getServletContext().getContextPath());
-        saml2HandlerRequest.addOption(GeneralConstants.SUPPORTS_SIGNATURES, this.spConfiguration.isSupportsSignature());
-        
+        saml2HandlerRequest.addOption(GeneralConstants.SUPPORTS_SIGNATURES, getSpConfiguration().isSupportsSignature());
+
         SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
 
         saml2HandlerResponse.setPostBindingForResponse(postBinding);
         saml2HandlerResponse.setDestination(identityURL);
-        
+
         // if the request is a GLO. Check if there is a specific URL for logout.
         if (isLogOutRequest(httpContext)) {
-            String logoutUrl = ((SPType) this.spConfiguration).getLogoutUrl();
-            
+            String logoutUrl = ((SPType) getSpConfiguration()).getLogoutUrl();
+
             if (logoutUrl != null) {
                 saml2HandlerResponse.setDestination(logoutUrl);
             }
@@ -164,11 +157,13 @@ public class ServiceProviderBaseProcessor {
 
         // Reset the state
         try {
-
-            chainLock.lock();
+            if (this.configuration.getHandlers().isLocking()) {
+                chainLock.lock();
+            }
 
             for (SAML2Handler handler : handlers) {
                 handler.reset();
+
                 if (saml2HandlerResponse.isInError()) {
                     httpContext.getResponse().sendError(saml2HandlerResponse.getErrorCode());
                     break;
@@ -178,6 +173,7 @@ public class ServiceProviderBaseProcessor {
                     saml2HandlerRequest.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.LOGOUT);
                 else
                     saml2HandlerRequest.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.AUTH);
+
                 handler.generateSAMLRequest(saml2HandlerRequest, saml2HandlerResponse);
 
                 logger.trace("Finished Processing handler: " + handler.getClass().getCanonicalName());
@@ -186,10 +182,16 @@ public class ServiceProviderBaseProcessor {
             logger.error(pe);
             throw logger.samlHandlerChainProcessingError(pe);
         } finally {
-            chainLock.unlock();
+            if (this.configuration.getHandlers().isLocking()) {
+                chainLock.unlock();
+            }
         }
 
         return saml2HandlerResponse;
+    }
+
+    protected ProviderType getSpConfiguration() {
+        return this.configuration.getIdpOrSP();
     }
 
     protected SAML2HandlerRequest getSAML2HandlerRequest(SAMLDocumentHolder documentHolder, HTTPContext httpContext) {
@@ -219,13 +221,13 @@ public class ServiceProviderBaseProcessor {
     }
 
     /**
-     * <p>
-     * Returns the PublicKey to be used to verify signatures for SAML tokens issued by the IDP.
-     * </p>
+     * <p> Returns the PublicKey to be used to verify signatures for SAML tokens issued by the IDP. </p>
      *
      * @return
      * @throws org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException
+     *
      * @throws org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException
+     *
      */
     protected PublicKey getIDPPublicKey() throws TrustKeyConfigurationException, TrustKeyProcessingException {
         if (this.keyManager == null) {
@@ -233,34 +235,32 @@ public class ServiceProviderBaseProcessor {
         }
         String idpValidatingAlias = (String) this.keyManager.getAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY);
 
-        if (StringUtil.isNullOrEmpty(idpValidatingAlias)) {
-            idpValidatingAlias = safeURL(spConfiguration.getIdentityURL()).getHost();
+        if (isNullOrEmpty(idpValidatingAlias)) {
+            idpValidatingAlias = safeURL(getSpConfiguration().getIdentityURL()).getHost();
         }
 
         return keyManager.getValidatingKey(idpValidatingAlias);
     }
 
     protected void setRequestOptions(SAML2HandlerRequest saml2HandlerRequest) throws TrustKeyConfigurationException, TrustKeyProcessingException {
-        if (spConfiguration != null) {
-            Map<String, Object> requestOptions = new HashMap<String, Object>();
+        Map<String, Object> requestOptions = new HashMap<String, Object>();
 
-            requestOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
-            
-            if(auditHelper != null){
-                requestOptions.put(GeneralConstants.AUDIT_HELPER, auditHelper);
-            }
+        requestOptions.put(GeneralConstants.CONFIGURATION, getSpConfiguration());
 
-            if (keyManager != null) {
-                PublicKey validatingKey = getIDPPublicKey();
-
-                requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
-                requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
-            }
-            
-            requestOptions.put(GeneralConstants.SUPPORTS_SIGNATURES, this.spConfiguration.isSupportsSignature());
-
-            saml2HandlerRequest.setOptions(requestOptions);
+        if (auditHelper != null) {
+            requestOptions.put(GeneralConstants.AUDIT_HELPER, auditHelper);
         }
+
+        if (keyManager != null) {
+            PublicKey validatingKey = getIDPPublicKey();
+
+            requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
+            requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
+        }
+
+        requestOptions.put(GeneralConstants.SUPPORTS_SIGNATURES, getSpConfiguration().isSupportsSignature());
+
+        saml2HandlerRequest.setOptions(requestOptions);
     }
 
 }

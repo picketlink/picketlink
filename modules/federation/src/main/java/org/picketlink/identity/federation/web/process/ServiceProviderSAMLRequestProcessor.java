@@ -21,6 +21,7 @@ import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.config.federation.PicketLinkType;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
@@ -55,8 +56,8 @@ public class ServiceProviderSAMLRequestProcessor extends ServiceProviderBaseProc
      * @param postBinding Whether it is the Post Binding
      * @param serviceURL Service URL of the SP
      */
-    public ServiceProviderSAMLRequestProcessor(boolean postBinding, String serviceURL) {
-        super(postBinding, serviceURL);
+    public ServiceProviderSAMLRequestProcessor(boolean postBinding, String serviceURL, PicketLinkType configuration) {
+        super(postBinding, serviceURL, configuration);
     }
 
     /**
@@ -95,7 +96,7 @@ public class ServiceProviderSAMLRequestProcessor extends ServiceProviderBaseProc
         saml2HandlerResponse = new DefaultSAML2HandlerResponse();
         saml2HandlerResponse.setPostBindingForResponse(postBinding);
 
-        SAMLHandlerChainProcessor chainProcessor = new SAMLHandlerChainProcessor(handlers);
+        SAMLHandlerChainProcessor chainProcessor = new SAMLHandlerChainProcessor(handlers, this.configuration);
 
         // Set some request options
         setRequestOptions(saml2HandlerRequest);
