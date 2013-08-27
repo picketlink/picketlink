@@ -21,7 +21,7 @@ public class CustomRelationshipTypeEntity implements Serializable {
 
     @Id
     @GeneratedValue
-    private String id;
+    private Long id;
 
     @AttributeValue
     private String attributeA;
@@ -36,11 +36,11 @@ public class CustomRelationshipTypeEntity implements Serializable {
     @ManyToOne
     private RelationshipTypeEntity owner;
 
-    public String getId() {
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
