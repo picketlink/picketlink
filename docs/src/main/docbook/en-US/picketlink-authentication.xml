@@ -40,7 +40,7 @@ void logout();
 
 boolean isLoggedIn();
 
-Agent getAgent();]]></programlisting>
+Account getAccount();]]></programlisting>
            
       <para>
         The <code>login()</code> method is the <emphasis>primary</emphasis> point of entry for the authentication process. Invoking
@@ -100,19 +100,18 @@ Agent getAgent();]]></programlisting>
         The <code>isLoggedIn()</code> method may be used to determine whether there is a user logged in for the current session.
         It is typically used as an authorization check to control either an aspect of the user interface (for example, not
         displaying a menu item if the user isn't logged in), or to restrict certain business logic.  While logged in, 
-        the <code>getAgent()</code> method can be used to retrieve the currently authenticated agent (or user).  If the current
-        session is not authenticated, then <code>getAgent()</code> will return <code>null</code>.  The following example 
+        the <code>getAccount()</code> method can be used to retrieve the currently authenticated account.  If the current
+        session is not authenticated, then <code>getAccount()</code> will return <code>null</code>.  The following example
         shows both the <code>isLoggedIn()</code> and <code>getAgent()</code> methods being used inside a JSF page:
       </para>
       
-      <programlisting language="XML"><![CDATA[<ui:fragment rendered="#{identity.loggedIn}">Welcome, #{identity.agent.loginName}]]></programlisting>
+      <programlisting language="XML"><![CDATA[<ui:fragment rendered="#{identity.loggedIn}">Welcome, #{identity.account.loginName}]]></programlisting>
       
       <note>
         <para>
-          If you're wondering what an <code>Agent</code> is, it is simply a representation of the external entity that is 
-          interacting with your application, whether that be a human user or some third party (non-human) system.  
-          The <code>Agent</code> interface is actually the superclass of <code>User</code> - see the Identity Management
-          chapter for more details.
+          If you're wondering what an <code>Account</code> is, it is simply a representation of the external entity that is
+          interacting and authenticating with your application. The <code>Account</code> interface is actually the superclass of <code>User</code> and <code>Agent</code>
+          - see the Identity Management chapter for more details.
         </para>
       </note>      
       
@@ -150,7 +149,7 @@ Agent getAgent();]]></programlisting>
 
     AuthenticationStatus getStatus();
 
-    Agent getAgent();
+    Account getAccount();
 }]]></programlisting>
 
       <para>
@@ -159,9 +158,9 @@ Agent getAgent();]]></programlisting>
         is the most important of these, as it defines the actual authentication logic.  After <code>authenticate()</code> has been 
         invoked by the <code>Identity</code> bean, the <code>getStatus()</code> method will reflect the authentication status 
         (either <code>SUCCESS</code>, <code>FAILURE</code> or <code>DEFERRED</code>).  If the authentication process was a 
-        success, the <code>getAgent()</code> method will return the authenticated <code>Agent</code> object and the 
+        success, the <code>getAccount()</code> method will return the authenticated <code>Account</code> object and the
         <code>postAuthenticate()</code> method will be invoked also.  If the authentication was not a success, 
-        <code>getAgent()</code> will return <code>null</code>. 
+        <code>getAccount()</code> will return <code>null</code>.
       </para>
     </section>
    
@@ -222,8 +221,8 @@ Agent getAgent();]]></programlisting>
         <listitem>
           <para>
             <emphasis>1.1.4</emphasis> - 
-            The <code>Identity</code> bean then invokes the <code>Authenticator</code>'s <code>getAgent()</code> method,
-            which returns an <code>Agent</code> object representing the authenticated agent, which is then stored as a 
+            The <code>Identity</code> bean then invokes the <code>Authenticator</code>'s <code>getAccount()</code> method,
+            which returns an <code>Account</code> object representing the authenticated agent, which is then stored as a
             private field in the <code>Identity</code> bean.
           </para>
         </listitem>
@@ -255,7 +254,7 @@ public class SimpleAuthenticator extends BaseAuthenticator {
         if ("jsmith".equals(credentials.getUserId()) &&
                 "abc123".equals(credentials.getPassword())) {
             setStatus(AuthenticationStatus.SUCCESS);
-            setUser(new SimpleUser("jsmith"));
+            setAccount(new User("jsmith"));
         } else {
             setStatus(AuthenticationStatus.FAILURE);
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(
@@ -270,8 +269,8 @@ public class SimpleAuthenticator extends BaseAuthenticator {
           for the authentication process.  The next thing is that the authenticator class extends something called
           <code>BaseAuthenticator</code>.  This abstract base class provided by PicketLink implements the 
           <code>Authenticator</code> interface and provides implementations of the <code>getStatus()</code> and 
-          <code>getAgent()</code> methods (while also providing matching <code>setStatus()</code> and 
-          <code>setAgent()</code> methods), and also provides an empty implementation of
+          <code>getAccount()</code> methods (while also providing matching <code>setStatus()</code> and
+          <code>setAccount()</code> methods), and also provides an empty implementation of
           the <code>postAuthenticate()</code> method.  By extending <code>BaseAuthenticator</code>, our 
           <code>Authenticator</code> implementation simply needs to implement the <code>authenticate()</code> method
           itself.
@@ -279,8 +278,8 @@ public class SimpleAuthenticator extends BaseAuthenticator {
         
         <para>
           We can see in the above code that in the case of a successful authentication, the <code>setStatus()</code> method
-          is used to set the authentication status to <literal>SUCCESS</literal>, and the <code>setUser()</code> method
-          is used to set the user (in this case by creating a new instance of <code>SimpleUser</code>).  For an 
+          is used to set the authentication status to <literal>SUCCESS</literal>, and the <code>setAccount()</code> method
+          is used to set the user (in this case by creating a new instance of <code>User</code>).  For an
           unsuccessful authentication, the <code>setStatus()</code> method is used to set the authentication status to
           <literal>FAILURE</literal>, and a new <code>FacesMessage</code> is created to indicate to the user that
           authentication has failed.  While this code is obviously meant for a JSF application, it's possible to

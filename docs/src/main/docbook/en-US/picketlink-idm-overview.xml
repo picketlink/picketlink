@@ -561,6 +561,8 @@ boolean isEmployee = BasicModel.isMember(relationshipManager, user, group);]]></
 
     <T extends Partition> T getPartition(Class<T> partitionClass, String name);
 
+    <T extends Partition> List<T> getPartitions(Class<T> partitionClass);
+
     <T extends Partition> T lookupById(final Class<T> partitionClass, String id);
 
     void add(Partition partition);
@@ -599,7 +601,15 @@ String partitionId = realm.getId();]]></programlisting>
       </para>
       
       <programlisting language="JAVA"><![CDATA[Realm realm = partitionManager.getPartition(Realm.class, "acme");
-Tier tier = partitionManager.lookupById(Tier.class, tierId);]]></programlisting>      
+Tier tier = partitionManager.lookupById(Tier.class, tierId);]]></programlisting>
+
+      <para>
+        It is also possible to retrieve all partitions for a given partition class. In this case you can retrieve all partitions
+        for a given type or all of them:
+      </para>
+
+      <programlisting language="JAVA"><![CDATA[List<Realm> realms = partitionManager.getPartitions(Realm.class);
+List<Partition> allPartitions = partitionManager.getPartitions(Partition.class);]]></programlisting>
 
       <para>
         Since <code>Partition</code> objects all implement the <code>AttributedType</code> interface, it is also possible to set

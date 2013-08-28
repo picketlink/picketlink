@@ -17,9 +17,8 @@
         <para>
           Configuration in PicketLink is in essence quite simple; an <code>IdentityConfiguration</code> object must first 
           be created to hold the PicketLink configuration options.  Once all configuration options have been set, you just create a 
-          <code>IdentityManagerFactory</code> instance passing the previously created configuration.            
-          The <code>IdentityManagerFactory</code> can then be used to create <code>IdentityManager</code> instances 
-          via the <code>createIdentityManager()</code> method.  
+          <code>PartitionManager</code> instance passing the previously created configuration.
+          The <code>PartitionManager</code> can then be used to create <code>Partition</code> and <code>IdentityManager</code> instances.
         </para>          
           
         <mediaobject>
@@ -42,18 +41,6 @@
         </note>
 
         <para>
-          Each <code>IdentityManager</code> instance has its own <emphasis>security context</emphasis>, represented by
-          the <code>SecurityContext</code> class.  The security context contains temporary state which is maintained 
-          for one or more identity management operations within the scope of a single realm or tier.  The 
-          <code>IdentityManager</code> (and its associated <code>SecurityContext</code>) is typically modelled as a
-          request-scoped object (for environments which support such a paradigm, such as a servlet container), or alternatively
-          as an actor within the scope of a transaction.  In the latter case, the underlying resources being 
-          utilised by the configured identity stores (such as a JPA <code>EntityManager</code>) would participate in 
-          the active transaction, and changes made as a result of any identity management operations would either be 
-          committed or rolled back as appropriate for the logic of the encapsulating business method.
-        </para>
-            
-        <para>
           The following sections describe various ways that configuration may be performed in different environments.
         </para>
       </section>
@@ -66,10 +53,10 @@
           of configuration options in order to speed up the coding itself and make the configuration more <emphasis>readable</emphasis>.
         </para>
         <para>        
-          Let's assume that you want to quick start with PicketLink Identity Management features using a file-based Identity Store. 
+          Let's assume that you want to quick start with PicketLink Identity Management features using a File-based Identity Store.
           First, a fresh instance of <code>IdentityConfiguration</code> is created using the <code>IdentityConfigurationBuilder</code> helper object, 
           where we choose which identity store we want to use (in this case a file-based store) and any other configuration option, if necessary. 
-          Finally, we use the configuration to create a <code>IdentityManagerFactory</code> from where we can create <code>IdentityManager</code> instances and start to perform Identity Management operations: 
+          Finally, we use the configuration to create a <code>PartitionManager</code> from where we can create <code>IdentityManager</code> instances and start to perform Identity Management operations:
         </para>
         
         <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
