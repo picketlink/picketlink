@@ -9,11 +9,6 @@ objectclass: top
 objectclass: organizationalUnit
 ou: People
 
-dn: ou=QA,dc=jboss,dc=org
-objectclass: top
-objectclass: organizationalUnit
-ou: QA
-
 dn: ou=Agent,dc=jboss,dc=org
 objectclass: top
 objectclass: organizationalUnit
@@ -33,3 +28,8 @@ dn: ou=Groups,dc=jboss,dc=org
 objectclass: top
 objectclass: organizationalUnit
 ou: Groups
+
+dn: ou=QA,ou=Groups,dc=jboss,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: QA

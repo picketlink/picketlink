@@ -325,11 +325,9 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
             try {
                 String baseDN = getConfig().getBaseDN();
 
-                // this can increase performance, because queries are executed considering a specific base dn for a type.
-                // But certain types have a hierarchy, so we need to consider all their DNs. For now, let`s use the base DN.
-//                if (ldapEntryConfig != null) {
-//                    baseDN = ldapEntryConfig.getBaseDN();
-//                }
+                if (ldapEntryConfig != null) {
+                    baseDN = ldapEntryConfig.getBaseDN();
+                }
 
                 filter.insert(0, "(&(");
 
@@ -341,8 +339,8 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                 search = this.operationManager.search(baseDN, filter.toString());
 
-                while (search.hasMore()) {
-                    V type = (V) populateAttributedType(context, search.next(), null);
+                while (search.hasMoreElements()) {
+                    V type = (V) populateAttributedType(context, search.nextElement(), null);
 
                     if (type != null) {
                         results.add(type);
@@ -396,7 +394,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         try {
             if (!referencedTypes.isEmpty()) {
                 for (AttributedType relFilter : referencedTypes) {
-                    search = this.operationManager.search(getConfig().getBaseDN(), getBindingName(relFilter));
+                    search = this.operationManager.search(getBaseDN(relFilter), getBindingName(relFilter));
 
                     List<Property<AttributedType>> properties = PropertyQueries
                             .<AttributedType>createQuery(query.getRelationshipClass())
@@ -473,7 +471,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 }
             } else {
                 if (filter.length() > 0) {
-                    search = this.operationManager.search(getConfig().getBaseDN(), filter.toString());
+                    search = this.operationManager.search(getMappingConfig(mappingConfig.getRelatedAttributedType()).getBaseDN(), filter.toString());
 
                     Property<AttributedType> property = PropertyQueries
                             .<AttributedType>createQuery(query.getRelationshipClass())
@@ -627,7 +625,11 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                         String ldapAttributeName = mappingConfig.getMappedProperties().get(property.getName());
 
                         if (ldapAttributeName != null && ldapAttributeName.equals(ldapAttribute.getID())) {
-                            property.setValue(attributedType, value);
+                            if (property.getJavaClass().equals(Date.class)) {
+                                property.setValue(attributedType, parseLDAPDate(value.toString()));
+                            } else {
+                                property.setValue(attributedType, value);
+                            }
                         }
                     }
                 }

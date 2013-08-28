@@ -28,15 +28,8 @@ import org.picketlink.idm.model.basic.GroupMembership;
 import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.util.LDAPEmbeddedServer;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CREATE_TIMESTAMP;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.EMAIL;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.GROUP_OF_NAMES;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.SN;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.UID;
-import static org.picketlink.test.idm.util.LDAPEmbeddedServer.AGENT_DN_SUFFIX;
-import static org.picketlink.test.idm.util.LDAPEmbeddedServer.BASE_DN;
-import static org.picketlink.test.idm.util.LDAPEmbeddedServer.LDAP_URL;
+
+import static org.picketlink.idm.ldap.internal.LDAPConstants.*;
 
 /**
  * @author pedroigor
@@ -54,19 +47,19 @@ public class LDAPStoreConfigurationTester implements IdentityConfigurationTester
             .named(SIMPLE_LDAP_STORE_CONFIG)
                 .stores()
                     .ldap()
-                        .baseDN(BASE_DN)
-                        .bindDN("uid=admin,ou=system")
-                        .bindCredential("secret")
-                        .url(LDAP_URL)
+                        .baseDN(embeddedServer.getBaseDn())
+                        .bindDN(embeddedServer.getBindDn())
+                        .bindCredential(embeddedServer.getBindCredential())
+                        .url(embeddedServer.getConnectionUrl())
                         .supportType(IdentityType.class)
                         .supportGlobalRelationship(Grant.class, GroupMembership.class)
                         .mapping(Agent.class)
-                            .baseDN(AGENT_DN_SUFFIX)
+                            .baseDN(embeddedServer.getAgentDnSuffix())
                             .objectClasses("account")
                             .attribute("loginName", UID, true)
                             .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
                         .mapping(User.class)
-                            .baseDN(LDAPEmbeddedServer.USER_DN_SUFFIX)
+                            .baseDN(embeddedServer.getUserDnSuffix())
                             .objectClasses("inetOrgPerson", "organizationalPerson")
                             .attribute("loginName", UID, true)
                             .attribute("firstName", CN)
@@ -74,17 +67,17 @@ public class LDAPStoreConfigurationTester implements IdentityConfigurationTester
                             .attribute("email", EMAIL)
                             .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
                         .mapping(Role.class)
-                            .baseDN(LDAPEmbeddedServer.ROLES_DN_SUFFIX)
+                            .baseDN(embeddedServer.getRolesDnSuffix())
                             .objectClasses(GROUP_OF_NAMES)
                             .attribute("name", CN, true)
                             .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
                         .mapping(Group.class)
-                            .baseDN(LDAPEmbeddedServer.GROUP_DN_SUFFIX)
+                            .baseDN(embeddedServer.getGroupDnSuffix())
                             .objectClasses(GROUP_OF_NAMES)
                             .attribute("name", CN, true)
                             .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
                             .parentMembershipAttributeName("member")
-                            .parentMapping("QA Group", "ou=QA,dc=jboss,dc=org")
+                            .parentMapping("QA Group", "ou=QA," + embeddedServer.getGroupDnSuffix())
 //                        .mapping(CustomAccountTestCase.MyCustomAccount.class)
 //                            .baseDN("ou=CustomTypes,dc=jboss,dc=org")
 //                            .objectClasses("device")
