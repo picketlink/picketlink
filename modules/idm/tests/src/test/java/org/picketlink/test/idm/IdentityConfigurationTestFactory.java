@@ -24,19 +24,49 @@ import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
+ * <p>This factory is responsible to create all {@link IdentityConfigurationTester} that will be used to run the test cases
+ * that extends {@link AbstractPartitionManagerTestCase}.</p>
+ *
+ * <p>It is possible to restrict which testers will run using the <code>testerClasses</code> system property.
+ * This property accepts a comma separated list which the names of the test classes.</p>
+ *
  * @author pedroigor
  */
 public class IdentityConfigurationTestFactory {
 
     public static IdentityConfigurationTester[] getConfigurations() {
-        return new IdentityConfigurationTester[] {
-                new FileStoreConfigurationTester(),
-                new JPAStoreConfigurationTester(),
-                new JPAStoreComplexSchemaConfigurationTester(),
-                new MixedLDAPJPAStoreConfigurationTester(),
-                new LDAPStoreConfigurationTester()
-        };
+        List<IdentityConfigurationTester> testers = getIdentityConfigurationTesters();
+
+        String testerClassesProperty = System.getProperty("testerClasses");
+
+        if (testerClassesProperty != null) {
+            List<String> testerClasses = Arrays.asList(testerClassesProperty.split(","));
+
+            for (IdentityConfigurationTester tester : new ArrayList<IdentityConfigurationTester>(testers)) {
+                if (!testerClasses.contains(tester.getClass().getSimpleName())) {
+                    testers.remove(tester);
+                }
+            }
+        }
+
+        return testers.toArray(new IdentityConfigurationTester[testers.size()]);
+    }
+
+    private static List<IdentityConfigurationTester> getIdentityConfigurationTesters() {
+        List<IdentityConfigurationTester> testers = new ArrayList<IdentityConfigurationTester>();
+
+        testers.add(new FileStoreConfigurationTester());
+        testers.add(new JPAStoreConfigurationTester());
+        testers.add(new JPAStoreComplexSchemaConfigurationTester());
+        testers.add(new MixedLDAPJPAStoreConfigurationTester());
+        testers.add(new LDAPStoreConfigurationTester());
+
+        return testers;
     }
 
 }
