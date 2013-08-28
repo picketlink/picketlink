@@ -23,10 +23,10 @@
           
         <mediaobject>
           <imageobject role="fo">
-            <imagedata fileref="diagrams/architecture.png" align="center" scalefit="1"/>
+            <imagedata fileref="diagrams/idm_config_architecture.png" align="center" scalefit="1"/>
           </imageobject>
           <imageobject role="html">
-            <imagedata fileref="diagrams/architecture.png" align="center"/>
+            <imagedata fileref="diagrams/idm_config_architecture.png" align="center"/>
           </imageobject>
         </mediaobject>
 
