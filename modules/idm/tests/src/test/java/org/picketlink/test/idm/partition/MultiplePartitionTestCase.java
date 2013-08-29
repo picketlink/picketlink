@@ -57,52 +57,52 @@ public class MultiplePartitionTestCase {
     public void testLDAPPartition() {
         PartitionManager partitionManager = getPartitionManager();
 
-        Realm ldapManagedPartition = new Realm("ldap.managed.partition");
+        Realm internalPartition = new Realm("ldap.managed.partition");
 
-        partitionManager.add(ldapManagedPartition, "ldap.config");
+        partitionManager.add(internalPartition, "ldap.config");
 
-        Realm jpaManagedPartition = new Realm("jpa.managed.partition");
+        IdentityManager internalIdentityManager = partitionManager.createIdentityManager(internalPartition);
 
-        partitionManager.add(jpaManagedPartition, "jpa.config");
+        User john = new User("john");
 
-        IdentityManager ldapIdentityManager = partitionManager.createIdentityManager(ldapManagedPartition);
+        internalIdentityManager.add(john);
 
-        User ldapJohn = new User("john");
-
-        ldapIdentityManager.add(ldapJohn);
-
-        User storeLdapJohn = BasicModel.getUser(ldapIdentityManager, ldapJohn.getLoginName());
+        User storeLdapJohn = BasicModel.getUser(internalIdentityManager, john.getLoginName());
 
         assertNotNull(storeLdapJohn);
-        assertEquals(ldapJohn.getId(), storeLdapJohn.getId());
+        assertEquals(john.getId(), storeLdapJohn.getId());
 
-        User jpaJohn = new User("john");
+        Realm externalPartition = new Realm("jpa.managed.partition");
 
-        IdentityManager jpaIdentityManager = partitionManager.createIdentityManager(jpaManagedPartition);
+        partitionManager.add(externalPartition, "jpa.config");
 
-        jpaIdentityManager.add(jpaJohn);
+        User mary = new User("mary");
 
-        User storeJpaJohn = BasicModel.getUser(jpaIdentityManager, jpaJohn.getLoginName());
+        IdentityManager externalIdentityManager = partitionManager.createIdentityManager(externalPartition);
+
+        externalIdentityManager.add(mary);
+
+        User storeJpaJohn = BasicModel.getUser(externalIdentityManager, mary.getLoginName());
 
         assertNotNull(storeJpaJohn);
-        assertEquals(jpaJohn.getId(), storeJpaJohn.getId());
+        assertEquals(mary.getId(), storeJpaJohn.getId());
 
         assertFalse(storeJpaJohn.getId().equals(storeLdapJohn.getId()));
 
         storeLdapJohn.setAttribute(new Attribute<Serializable>("name", "value"));
 
-        ldapIdentityManager.update(storeLdapJohn);
+        internalIdentityManager.update(storeLdapJohn);
 
-        storeLdapJohn = BasicModel.getUser(ldapIdentityManager, ldapJohn.getLoginName());
+        storeLdapJohn = BasicModel.getUser(internalIdentityManager, john.getLoginName());
 
         // ldap store does not support ad-hoc attributes
         assertNull(storeLdapJohn.getAttribute("name"));
 
         storeJpaJohn.setAttribute(new Attribute<Serializable>("name", "value"));
 
-        jpaIdentityManager.update(storeJpaJohn);
+        externalIdentityManager.update(storeJpaJohn);
 
-        storeLdapJohn = BasicModel.getUser(jpaIdentityManager, ldapJohn.getLoginName());
+        storeLdapJohn = BasicModel.getUser(externalIdentityManager, john.getLoginName());
 
         // jpa store supports ad-hoc attributes
         assertNotNull(storeJpaJohn.getAttribute("name"));
