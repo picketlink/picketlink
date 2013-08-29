@@ -19,41 +19,18 @@
         </para>
         
         <section>
-          <title>Recommended Database Schema</title>
-          
-          <para>
-            The following schema diagram is an example of a suitable database structure for storing IDM-related data:
-          </para>
-          
-          <mediaobject>
-            <imageobject role="fo">
-              <imagedata fileref="diagrams/jpa_identity_store_er_diagram.png" align="center" scalefit="1"/>
-            </imageobject>
-            <imageobject role="html">
-              <imagedata fileref="diagrams/jpa_identity_store_er_diagram.png" align="center"/>
-            </imageobject>
-          </mediaobject>
-
-          <para>
-            Please note that the data types shown in the above diagram might not be available in your RDBMS; if that is the case
-            please adjust the data types to suit.
-          </para>
-
-        </section>
-        
-        <section>
           <title>Default Database Schema</title>
           
           <para>
             If you do not wish to provide your own JPA entities for storing IDM-related state, you may use the default schema
-            provided by PicketLink in the <literal>picketlink-idm-schema</literal> module.  This module contains a collection
+            provided by PicketLink in the <literal>picketlink-idm-simple-schema</literal> module.  This module contains a collection
             of entity beans suitable for use with <code>JPAIdentityStore</code>.  To use this module, add the following dependency
             to your Maven project's <literal>pom.xml</literal> file:
           </para>
           
           <programlisting language="XML"><![CDATA[<dependency>
     <groupId>org.picketlink</groupId>
-    <artifactId>picketlink-idm-schema</artifactId>
+    <artifactId>picketlink-idm-simple-schema</artifactId>
     <version>${picketlink.version}</version>
 </dependency>]]></programlisting>
 
@@ -63,14 +40,20 @@
             section:
           </para>
           
-          <programlisting language="XML"><![CDATA[<class>org.picketlink.idm.jpa.schema.IdentityObject</class>
-<class>org.picketlink.idm.jpa.schema.PartitionObject</class>
-<class>org.picketlink.idm.jpa.schema.RelationshipObject</class>
-<class>org.picketlink.idm.jpa.schema.RelationshipIdentityObject</class>
-<class>org.picketlink.idm.jpa.schema.RelationshipObjectAttribute</class>
-<class>org.picketlink.idm.jpa.schema.IdentityObjectAttribute</class>
-<class>org.picketlink.idm.jpa.schema.CredentialObject</class>
-<class>org.picketlink.idm.jpa.schema.CredentialObjectAttribute</class>]]></programlisting>
+          <programlisting language="XML"><![CDATA[<class>org.picketlink.idm.jpa.model.sample.simple.AttributedTypeEntity</class>
+<class>org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity</class>
+<class>org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity</class>
+<class>org.picketlink.idm.jpa.model.sample.simple.GroupTypeEntity</class>
+<class>org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity</class>
+<class>org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity</class>
+<class>org.picketlink.idm.jpa.model.sample.simple.RelationshipIdentityTypeEntity</class>
+<class>org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity</class>
+<class>org.picketlink.idm.jpa.model.sample.simple.PasswordCredentialTypeEntity</class>
+<class>org.picketlink.idm.jpa.model.sample.simple.DigestCredentialTypeEntity</class>
+<class>org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity</class>
+<class>org.picketlink.idm.jpa.model.sample.simple.OTPCredentialTypeEntity</class>
+<class>org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity</class>
+]]></programlisting>yes
         
         </section>
 
