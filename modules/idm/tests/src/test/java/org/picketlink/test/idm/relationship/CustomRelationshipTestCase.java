@@ -35,7 +35,7 @@ import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
-import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
 
 import java.util.List;
 
@@ -50,7 +50,7 @@ import static org.junit.Assert.*;
  * 
  */
 @Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
-        MixedLDAPJPAStoreConfigurationTester.class})
+        SingleConfigLDAPJPAStoreConfigurationTester.class})
 public class CustomRelationshipTestCase extends AbstractPartitionManagerTestCase {
 
     public CustomRelationshipTestCase(IdentityConfigurationTester builder) {

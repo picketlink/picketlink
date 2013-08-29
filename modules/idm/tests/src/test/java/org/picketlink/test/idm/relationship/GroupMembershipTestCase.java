@@ -34,7 +34,7 @@ import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -55,7 +55,7 @@ import static org.junit.Assert.assertTrue;
  * 
  */
 @Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
-        LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+        LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
 public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
     public GroupMembershipTestCase(IdentityConfigurationTester builder) {

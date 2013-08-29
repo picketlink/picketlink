@@ -34,7 +34,7 @@ import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
 
 import java.util.Date;
 
@@ -53,7 +53,7 @@ import static org.junit.Assert.assertNotNull;
  *
  */
 @Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
-        MixedLDAPJPAStoreConfigurationTester.class, LDAPStoreConfigurationTester.class})
+        SingleConfigLDAPJPAStoreConfigurationTester.class, LDAPStoreConfigurationTester.class})
 public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group> {
 
     public GroupManagementTestCase(IdentityConfigurationTester builder) {
@@ -91,7 +91,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     }
 
     @Test
-    @Configuration (exclude = MixedLDAPJPAStoreConfigurationTester.class)
+    @Configuration (exclude = SingleConfigLDAPJPAStoreConfigurationTester.class)
     public void testCreateWithSameName() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
@@ -116,7 +116,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     }
 
     @Test
-    @Configuration (exclude = MixedLDAPJPAStoreConfigurationTester.class)
+    @Configuration (exclude = SingleConfigLDAPJPAStoreConfigurationTester.class)
     public void testCreateWithMultipleParentGroups() {
         IdentityManager identityManager = getIdentityManager();
 
@@ -143,7 +143,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     }
 
     @Test
-    @Configuration (exclude = MixedLDAPJPAStoreConfigurationTester.class)
+    @Configuration (exclude = SingleConfigLDAPJPAStoreConfigurationTester.class)
     public void testGetGroupPath() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
@@ -177,7 +177,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     }
 
     @Test
-    @Configuration (exclude = MixedLDAPJPAStoreConfigurationTester.class)
+    @Configuration (exclude = SingleConfigLDAPJPAStoreConfigurationTester.class)
     public void testCreateWithParentGroup() throws Exception {
         Group childGroup = createGroup("childGroup", "parentGroup");
 
@@ -190,7 +190,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     }
 
     @Test
-    @Configuration (exclude = MixedLDAPJPAStoreConfigurationTester.class)
+    @Configuration (exclude = SingleConfigLDAPJPAStoreConfigurationTester.class)
     public void testGetWithParent() throws Exception {
         Group storedGroup = createIdentityType();
 

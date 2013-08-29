@@ -37,7 +37,7 @@ import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -80,7 +80,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
     public void testPagination() throws Exception {
         T identityType = null;
 
@@ -163,7 +163,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
     public void testFindByRealm() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
@@ -204,7 +204,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
     public void testFindEnabledAndDisabled() throws Exception {
         T someType = createIdentityType(null, null);
         T someAnotherType = createIdentityType("someAnotherAgent", null);
@@ -298,7 +298,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
     public void testFindExpiryDate() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -406,7 +406,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
     public void testFindBetweenExpirationDate() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -506,7 +506,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
     public void testFindByMultipleParameters() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -558,7 +558,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
     public void testFindByDefinedAttributes() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -607,7 +607,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
     public void testFindByMultiValuedAttributes() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -688,7 +688,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
     public void testFindByTier() throws Exception {
         T someType = createInstance("someType");
 

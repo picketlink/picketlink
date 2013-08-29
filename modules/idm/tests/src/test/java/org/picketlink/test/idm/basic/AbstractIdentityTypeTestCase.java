@@ -27,7 +27,7 @@ import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -55,7 +55,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
     public void testDisable() throws Exception {
         T enabledIdentityType = createIdentityType();
 
@@ -100,7 +100,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
     public void testExpiration() throws Exception {
         T validIdentityType = createIdentityType();
 

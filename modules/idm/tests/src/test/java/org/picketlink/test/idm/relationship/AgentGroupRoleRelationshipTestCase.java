@@ -32,7 +32,7 @@ import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
-import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
 
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -45,7 +45,7 @@ import static org.junit.Assert.assertFalse;
  * 
  */
 @Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
-        MixedLDAPJPAStoreConfigurationTester.class})
+        SingleConfigLDAPJPAStoreConfigurationTester.class})
 public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends AbstractPartitionManagerTestCase {
 
     public AgentGroupRoleRelationshipTestCase(IdentityConfigurationTester builder) {
@@ -117,7 +117,7 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
     }
 
     @Test
-    @Configuration(exclude = MixedLDAPJPAStoreConfigurationTester.class)
+    @Configuration(exclude = SingleConfigLDAPJPAStoreConfigurationTester.class)
     public void testGrantParentGroupRole() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 

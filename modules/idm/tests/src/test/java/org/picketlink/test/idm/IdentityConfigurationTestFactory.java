@@ -22,7 +22,7 @@ import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreComplexSchemaConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +63,7 @@ public class IdentityConfigurationTestFactory {
         testers.add(new FileStoreConfigurationTester());
         testers.add(new JPAStoreConfigurationTester());
         testers.add(new JPAStoreComplexSchemaConfigurationTester());
-        testers.add(new MixedLDAPJPAStoreConfigurationTester());
+        testers.add(new SingleConfigLDAPJPAStoreConfigurationTester());
         testers.add(new LDAPStoreConfigurationTester());
 
         return testers;

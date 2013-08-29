@@ -35,7 +35,7 @@ import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
-import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,7 +55,7 @@ import static org.junit.Assert.*;
  * 
  */
 @Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
-        LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+        LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
 public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
     public UserManagementTestCase(IdentityConfigurationTester builder) {
@@ -194,7 +194,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
     }
     
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, MixedLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
     public void testSetCertificateAsAttribute() {
         User mary = createUser("mary");
         

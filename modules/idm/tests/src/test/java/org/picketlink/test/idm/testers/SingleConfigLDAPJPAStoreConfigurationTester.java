@@ -41,7 +41,7 @@ import static org.picketlink.idm.ldap.internal.LDAPConstants.*;
 /**
  * @author pedroigor
  */
-public class MixedLDAPJPAStoreConfigurationTester implements IdentityConfigurationTester {
+public class SingleConfigLDAPJPAStoreConfigurationTester implements IdentityConfigurationTester {
 
     private final LDAPEmbeddedServer embeddedServer = new LDAPEmbeddedServer();
 
@@ -73,8 +73,6 @@ public class MixedLDAPJPAStoreConfigurationTester implements IdentityConfigurati
                         })
                         .supportGlobalRelationship(Relationship.class)
                         .supportAttributes(true)
-            .named(SIMPLE_LDAP_STORE_CONFIG)
-                .stores()
                     .ldap()
                         .baseDN(embeddedServer.getBaseDn())
                         .bindDN(embeddedServer.getBindDn())

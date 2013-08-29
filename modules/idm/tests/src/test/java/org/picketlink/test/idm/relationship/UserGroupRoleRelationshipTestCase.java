@@ -24,7 +24,7 @@ import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
-import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
 
 /**
  * <p>
@@ -34,7 +34,7 @@ import org.picketlink.test.idm.testers.MixedLDAPJPAStoreConfigurationTester;
  *
  */
 @Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
-        MixedLDAPJPAStoreConfigurationTester.class})
+        SingleConfigLDAPJPAStoreConfigurationTester.class})
 public class  UserGroupRoleRelationshipTestCase extends AgentGroupRoleRelationshipTestCase<User>{
 
     public UserGroupRoleRelationshipTestCase(IdentityConfigurationTester builder) {
