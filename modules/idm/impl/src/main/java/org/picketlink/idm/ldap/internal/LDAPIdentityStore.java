@@ -105,7 +105,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
             entryAttributes.put(objectClassAttribute);
 
             if (ldapEntryConfig.getObjectClasses().contains(GROUP_OF_NAMES)) {
-                entryAttributes.put(MEMBER, SPACE_STRING);
+                entryAttributes.put(MEMBER, "cn=empty-member," + getConfig().getBaseDN());
             }
 
             this.operationManager.createSubContext(getBindingDN(attributedType), entryAttributes);
@@ -233,7 +233,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                     for (String attributeName : relationshipConfig.getMappedProperties().values()) {
                         StringBuilder filter = new StringBuilder();
 
-                        filter.append("(&(").append(attributeName).append(EQUAL).append("*").append(bindingDN).append("*))");
+                        filter.append("(&(").append(attributeName).append(EQUAL).append("").append(bindingDN).append("))");
 
                         NamingEnumeration<SearchResult> search = this.operationManager.search(getMappingConfig(relationshipConfig.getRelatedAttributedType()).getBaseDN(), filter.toString());
 
@@ -246,7 +246,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                             if (relationshipAttribute != null && relationshipAttribute.contains(bindingDN)) {
                                 relationshipAttribute.remove(bindingDN);
                                 if (relationshipAttribute.size() == 0) {
-                                    relationshipAttribute.add(" ");
+                                    relationshipAttribute.add(getEmptyMemberDN());
                                 }
                                 this.operationManager.modifyAttribute(result.getNameInNamespace(), relationshipAttribute);
                             }
@@ -380,7 +380,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 for (Object value : values) {
                     AttributedType attributedType = (AttributedType) value;
                     if (attributeName != null) {
-                        filter.append("(").append(attributeName).append(EQUAL).append("*").append(getBindingDN(attributedType)).append("*)");
+                        filter.append("(").append(attributeName).append(EQUAL).append("").append(getBindingDN(attributedType)).append(")");
                     } else {
                         referencedTypes.add(attributedType);
                     }
@@ -443,6 +443,10 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                                             while (all.hasMore()) {
                                                 String member = all.next().toString();
 
+                                                if (isEmptyMember(member)) {
+                                                    continue;
+                                                }
+
                                                 if (!isNullOrEmpty(member.trim())) {
                                                     V relationship = query.getRelationshipClass().newInstance();
 
@@ -489,6 +493,10 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                             while (attributeValues.hasMore()) {
                                 String value = attributeValues.next().toString();
 
+                                if (isEmptyMember(value)) {
+                                    continue;
+                                }
+
                                 if (!isNullOrEmpty(value.trim())) {
                                     Property<AttributedType> associatedProperty = PropertyQueries
                                             .<AttributedType>createQuery(query.getRelationshipClass())
@@ -533,6 +541,14 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         }
 
         return results;
+    }
+
+    private boolean isEmptyMember(final String value) {
+        return value.contains(getEmptyMemberDN());
+    }
+
+    private String getEmptyMemberDN() {
+        return "cn=empty-member," + getConfig().getBaseDN();
     }
 
     @Override
@@ -614,7 +630,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 javax.naming.directory.Attribute ldapAttribute = ldapAttributes.next();
                 Object value = ldapAttribute.get();
 
-                if (ldapAttribute.getID().equals(LDAPConstants.ENTRY_UUID)) {
+                if (ldapAttribute.getID().equals(ENTRY_UUID)) {
                     attributedType.setId(value.toString());
                 } else {
                     List<Property<Object>> properties = PropertyQueries
@@ -648,7 +664,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
             if (mappingConfig.getParentMembershipAttributeName() != null) {
                 StringBuilder filter = new StringBuilder("(|");
 
-                filter.append("(").append(mappingConfig.getParentMembershipAttributeName()).append(EQUAL).append("*").append(getBindingName(attributedType)).append(COMMA).append(entryDN).append("*)");
+                filter.append("(").append(mappingConfig.getParentMembershipAttributeName()).append(EQUAL).append("").append(getBindingName(attributedType)).append(COMMA).append(entryDN).append(")");
 
                 filter.append(")");
 

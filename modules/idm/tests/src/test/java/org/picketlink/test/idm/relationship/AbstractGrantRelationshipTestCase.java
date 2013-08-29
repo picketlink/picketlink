@@ -80,6 +80,26 @@ public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> 
         assertTrue(BasicModel.hasRole(relationshipManager, someAgent, someRole));
     }
 
+    @Test
+    public void testGrantRoleToMultipleAgents() throws Exception {
+        T someAgent = createIdentityType("someAgent");
+        T someAnotherAgent = createIdentityType("someAnotherAgent");
+        Role someRole = createRole("someRole");
+
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
+
+        BasicModel.grantRole(relationshipManager, someAgent, someRole);
+        BasicModel.grantRole(relationshipManager, someAnotherAgent, someRole);
+
+        assertTrue(BasicModel.hasRole(relationshipManager, someAgent, someRole));
+        assertTrue(BasicModel.hasRole(relationshipManager, someAnotherAgent, someRole));
+
+        BasicModel.revokeRole(relationshipManager, someAgent, someRole);
+
+        assertFalse(BasicModel.hasRole(relationshipManager, someAgent, someRole));
+        assertTrue(BasicModel.hasRole(relationshipManager, someAnotherAgent, someRole));
+    }
+
     /**
      * <p>
      * Tests revoking roles from users.

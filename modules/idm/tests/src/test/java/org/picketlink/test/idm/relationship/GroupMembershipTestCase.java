@@ -165,10 +165,10 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         
         // group testing path is /a/b 
         assertFalse(BasicModel.isMember(relationshipManager, someUser, groupB));
-        
-        groupA = createGroup("a", null);
-        
-        groupB = createGroupWithParent("b", groupA);
+
+        groupB = createGroup("b", "a");
+
+        groupA = groupB.getParentGroup();
         
         Group groupC = createGroupWithParent("c", groupB);
 
@@ -184,7 +184,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         identityManager.remove(groupA);
 
         groupA = createGroup("a", null);
-        
+
         groupB = createGroupWithParent("b", groupA);
         
         groupC = createGroupWithParent("c", groupB);

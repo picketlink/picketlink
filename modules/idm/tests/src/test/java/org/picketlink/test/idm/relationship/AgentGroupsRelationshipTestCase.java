@@ -197,6 +197,26 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractPa
         assertTrue(contains(result, "someImportantGroup"));
     }
 
+    @Test
+    public void testGroupWithMultipleAgents() throws Exception {
+        T someAgent = createIdentityType("someAgent");
+        T someAnotherAgent = createIdentityType("someAnotherAgent");
+        Group someGroup = createGroup("someGroup", null);
+
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
+
+        BasicModel.addToGroup(relationshipManager, someAgent, someGroup);
+        BasicModel.addToGroup(relationshipManager, someAnotherAgent, someGroup);
+
+        assertTrue(BasicModel.isMember(relationshipManager, someAgent, someGroup));
+        assertTrue(BasicModel.isMember(relationshipManager, someAnotherAgent, someGroup));
+
+        BasicModel.removeFromGroup(relationshipManager, someAgent, someGroup);
+
+        assertFalse(BasicModel.isMember(relationshipManager, someAgent, someGroup));
+        assertTrue(BasicModel.isMember(relationshipManager, someAnotherAgent, someGroup));
+    }
+
     private boolean contains(List<GroupMembership> result, String groupName) {
         for (GroupMembership resultGroup : result) {
             if (resultGroup.getGroup().getName().equals(groupName)) {

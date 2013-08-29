@@ -37,7 +37,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import static org.picketlink.idm.ldap.internal.LDAPConstants.*;
-import static org.picketlink.test.idm.util.LDAPEmbeddedServer.*;
 
 /**
  * @author pedroigor
@@ -77,18 +76,18 @@ public class MixedLDAPJPAStoreConfigurationTester implements IdentityConfigurati
             .named(SIMPLE_LDAP_STORE_CONFIG)
                 .stores()
                     .ldap()
-                        .baseDN(BASE_DN)
-                        .bindDN("uid=admin,ou=system")
-                        .bindCredential("secret")
-                        .url(LDAP_URL)
+                        .baseDN(embeddedServer.getBaseDn())
+                        .bindDN(embeddedServer.getBindDn())
+                        .bindCredential(embeddedServer.getBindCredential())
+                        .url(embeddedServer.getConnectionUrl())
                         .supportType(IdentityType.class)
                         .mapping(Agent.class)
-                            .baseDN(AGENT_DN_SUFFIX)
+                            .baseDN(embeddedServer.getAgentDnSuffix())
                             .objectClasses("account")
                             .attribute("loginName", UID, true)
                             .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
                         .mapping(User.class)
-                            .baseDN(LDAPEmbeddedServer.USER_DN_SUFFIX)
+                            .baseDN(embeddedServer.getUserDnSuffix())
                             .objectClasses("inetOrgPerson", "organizationalPerson")
                             .attribute("loginName", UID, true)
                             .attribute("firstName", CN)
@@ -96,17 +95,17 @@ public class MixedLDAPJPAStoreConfigurationTester implements IdentityConfigurati
                             .attribute("email", EMAIL)
                             .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
                         .mapping(Role.class)
-                            .baseDN(LDAPEmbeddedServer.ROLES_DN_SUFFIX)
+                            .baseDN(embeddedServer.getRolesDnSuffix())
                             .objectClasses(GROUP_OF_NAMES)
                             .attribute("name", CN, true)
                             .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
                         .mapping(Group.class)
-                            .baseDN(LDAPEmbeddedServer.GROUP_DN_SUFFIX)
+                            .baseDN(embeddedServer.getGroupDnSuffix())
                             .objectClasses(GROUP_OF_NAMES)
                             .attribute("name", CN, true)
                             .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
                             .parentMembershipAttributeName("member")
-                            .parentMapping("QA Group", "ou=QA,dc=jboss,dc=org");
+                            .parentMapping("QA Group", "ou=QA," + embeddedServer.getGroupDnSuffix());
 
         return new DefaultPartitionManager(builder.buildAll());
     }

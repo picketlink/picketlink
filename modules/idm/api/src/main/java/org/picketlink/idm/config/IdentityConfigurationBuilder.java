@@ -60,8 +60,9 @@ public class IdentityConfigurationBuilder extends Builder<List<IdentityConfigura
     }
 
     /**
-     * <p>Creates a new configuration.</p> <p/> <p>If a configuration with the given <code>configurationName</code>
-     * already exists, this method will return it instead of creating a new one.</p>
+     * <p>Creates a new configuration.</p>
+     * <p>If a configuration with the given <code>configurationName</code> already exists,
+     * this method will return the same instance instead of creating a new one.</p>
      *
      * @param configurationName
      * @return
