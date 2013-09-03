@@ -210,6 +210,48 @@ builder
             </listitem>
           </itemizedlist>
         </para>
+        <section id="configuring_credential_handlers">
+          <title>Configuring Credential Handlers</title>
+          <para>
+            Each <code>IdentityStore</code> may support a different set of credential handlers. This documentations describes the built-in credential handlers provided by PicketLink, but sometimes you
+            may want to provide your own implementations.
+          </para>
+
+          <para>When you write your custom credential handler you need to tell PicketLink the identity store that will support it. This is done by the following code:</para>
+          <programlisting language="JAVA"><![CDATA[ IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+ builder
+   .named("default")
+     .stores()
+       .jpa()
+         // other JPA configuration
+         .addCredentialHandler(UserPasswordCredentialHandler.class)
+         .supportAllFeatures();]]></programlisting>
+
+          <para>
+            The example above shows how to configure a credential handler for a JPA-based store using the <code>addCredentialHandler</code> method.
+          </para>
+          <section>
+            <title>Passing parameters to Credential Handlers</title>
+            <para>
+              Some credential handlers support a set of configuration options to configure their behavior. These options can be specified as follows:
+            </para>
+            <programlisting language="JAVA"><![CDATA[ IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+ builder
+   .named("default")
+     .stores()
+       .jpa()
+         // other JPA configuration
+         .setCredentialHandlerProperty(PasswordCredentialHandler.PASSWORD_ENCODER, new BCryptPasswordEncoder(4))
+         .supportAllFeatures();]]></programlisting>
+
+            <para>
+              The example above shows how to set a property for the <code>PasswordCredentialHandler</code> using the <code>setCredentialHandlerProperty</code> method.
+            </para>
+
+          </section>
+        </section>
         <section>
         	<title>Initializing the SecurityContext</title>
           <para>
@@ -237,7 +279,7 @@ builder
       .file()
         .supportAllFeatures();
         .addContextInitializer(new MySecurityContextInitializer());
-}]]></programlisting>
+]]></programlisting>
 				  <para>You can provide multiple initializers.</para>
 				  <note>
 					  <para>
