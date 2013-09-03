@@ -81,7 +81,8 @@ public class ShanesBigSanityCheckTestCase {
                         }
                     })
                     .addCredentialHandler(UserPasswordCredentialHandler.class)
-                    .supportAllFeatures();
+                    .supportAllFeatures()
+                    .simpleSecureRandomProvider();
 
         PartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
 

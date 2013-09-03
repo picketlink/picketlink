@@ -31,7 +31,8 @@ public class FileStorePreservingStateTestCase {
                 .stores()
                     .file()
                         .workingDirectory("/tmp/teste")
-                        .supportAllFeatures();
+                        .supportAllFeatures()
+                        .simpleSecureRandomProvider();
 
         PartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
 
@@ -67,7 +68,8 @@ public class FileStorePreservingStateTestCase {
                     .file()
                         .preserveState(true)
                         .workingDirectory("/tmp/teste")
-                        .supportAllFeatures();
+                        .supportAllFeatures()
+                        .simpleSecureRandomProvider();
 
         partitionManager = new DefaultPartitionManager(builder.buildAll());
 
@@ -95,7 +97,8 @@ public class FileStorePreservingStateTestCase {
                     .file()
                         .preserveState(true)
                         .workingDirectory("/tmp/teste")
-                        .supportAllFeatures();
+                        .supportAllFeatures()
+                        .simpleSecureRandomProvider();
 
         partitionManager = new DefaultPartitionManager(builder.buildAll());
 

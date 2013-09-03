@@ -205,7 +205,8 @@ public class MultiplePartitionTestCase {
                                 return entityManager;
                             }
                         })
-                        .supportAllFeatures();
+                        .supportAllFeatures()
+                        .simpleSecureRandomProvider();
 
         return new DefaultPartitionManager(builder.buildAll());
     }

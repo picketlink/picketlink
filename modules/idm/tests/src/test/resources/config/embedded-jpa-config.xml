@@ -22,6 +22,7 @@
               value14="org.picketlink.test.idm.partition.CustomPartitionEntity" />
           <supportGlobalRelationship value="org.picketlink.idm.model.Relationship" />
           <supportAllFeatures />
+          <simpleSecureRandomProvider />
           <!-- JPAContextInitializer needs to be added programmatically later -->
         </jpa>
       </stores>
