@@ -23,6 +23,8 @@
 package org.picketlink.idm.config;
 
 import org.picketlink.idm.credential.handler.CredentialHandler;
+import org.picketlink.idm.credential.handler.PasswordCredentialHandler;
+import org.picketlink.idm.credential.random.SimpleSecureRandomProvider;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
@@ -194,6 +196,16 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
      */
     public S setCredentialHandlerProperty(String propertyName, Object value) {
         this.credentialHandlerProperties.put(propertyName, value);
+        return (S) this;
+    }
+
+    /**
+     * <p>Sets simple secure random provider to credential handler properties. Useful just for testing purposes</p>
+     *
+     * @return
+     */
+    public S simpleSecureRandomProvider() {
+        this.setCredentialHandlerProperty(PasswordCredentialHandler.SECURE_RANDOM_PROVIDER, new SimpleSecureRandomProvider());
         return (S) this;
     }
 

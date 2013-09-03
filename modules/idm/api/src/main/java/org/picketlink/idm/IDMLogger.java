@@ -52,4 +52,21 @@ public interface IDMLogger extends BasicLogger {
     @Message(id = 1101, value = "Working directory [%s] is marked to be always created. All your existing data will be lost.")
     void fileConfigAlwaysCreateWorkingDir(String path);
 
+    // SecureRandom logging messages. Ids 1200-1299
+    @LogMessage(level = Level.INFO)
+    @Message(id = 1200, value = "Start initialization of SecureRandom")
+    void startSecureRandomInitialization();
+
+    @LogMessage(level = Level.INFO)
+    @Message(id = 1201, value = "SecureRandom initialized successfully")
+    void secureRandomInitialized();
+
+    @LogMessage(level = Level.DEBUG)
+    @Message(id = 1202, value = "SecureRandom re-initialized with new seed")
+    void secureRandomReinitialized();
+
+    @LogMessage(level = Level.DEBUG)
+    @Message(id = 1203, value = "Will use secureRandomProvider [%s].")
+    void usedSecureRandomProvider(String secureRandomProvider);
+
 }

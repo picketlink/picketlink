@@ -18,23 +18,25 @@
 
 package org.picketlink.idm.credential.handler;
 
-import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.encoder.PasswordEncoder;
 import org.picketlink.idm.credential.encoder.SHAPasswordEncoder;
 import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
+import org.picketlink.idm.credential.random.AutoReseedSecureRandomProvider;
+import org.picketlink.idm.credential.random.SecureRandomProvider;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.credential.storage.EncodedPasswordStorage;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Map;
+
+import static org.picketlink.idm.IDMLogger.*;
 
 /**
  * <p> This particular implementation supports the validation of {@link UsernamePasswordCredentials}, and updating
@@ -49,14 +51,19 @@ import java.util.Map;
 public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends UsernamePasswordCredentials, U extends Password>
         extends AbstractCredentialHandler<S, V, U> {
 
-    private static final String DEFAULT_SALT_ALGORITHM = "SHA1PRNG";
-
     /**
      * <p> Stores a <b>stateless</b> instance of {@link PasswordEncoder} that should be used to encode passwords. </p>
      */
     public static final String PASSWORD_ENCODER = "PASSWORD_ENCODER";
 
+    /**
+     * <p> Stores an instance of {@link SecureRandomProvider} that should be used to obtain instances of {@link SecureRandom}</p>
+     */
+    public static final String SECURE_RANDOM_PROVIDER = "SECURE_RANDOM_PROVIDER";
+
     private PasswordEncoder passwordEncoder = new SHAPasswordEncoder(512);
+
+    private SecureRandomProvider secureRandomProvider;
 
     @Override
     public void setup(S store) {
@@ -73,6 +80,25 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
                             + "] must be an instance of " + PasswordEncoder.class.getName());
                 }
             }
+
+            Object secureRandomProvider = options.get(SECURE_RANDOM_PROVIDER);
+
+            if (secureRandomProvider != null) {
+                if (SecureRandomProvider.class.isInstance(secureRandomProvider)) {
+                    this.secureRandomProvider = (SecureRandomProvider) secureRandomProvider;
+                } else {
+                    throw new SecurityConfigurationException("The secure random provider [" + secureRandomProvider
+                            + "] must be an instance of " + SecureRandomProvider.class.getName());
+                }
+            } else {
+                AutoReseedSecureRandomProvider autoReseedSecureRandomProvider = new AutoReseedSecureRandomProvider();
+                autoReseedSecureRandomProvider.start();
+                this.secureRandomProvider = autoReseedSecureRandomProvider;
+
+                // put it back to properties, so that other CredentialHandler can reuse this
+                options.put(SECURE_RANDOM_PROVIDER, this.secureRandomProvider);
+            }
+            LOGGER.usedSecureRandomProvider(this.secureRandomProvider.toString());
         }
     }
 
@@ -137,15 +163,7 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
      * @return
      */
     private String generateSalt() {
-        SecureRandom pseudoRandom = null;
-
-        try {
-            pseudoRandom = SecureRandom.getInstance(DEFAULT_SALT_ALGORITHM);
-            pseudoRandom.setSeed(1024);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IdentityManagementException("Error getting SecureRandom instance: " + DEFAULT_SALT_ALGORITHM, e);
-        }
-
+        SecureRandom pseudoRandom = secureRandomProvider.getSecureRandom();
         return String.valueOf(pseudoRandom.nextLong());
     }
 

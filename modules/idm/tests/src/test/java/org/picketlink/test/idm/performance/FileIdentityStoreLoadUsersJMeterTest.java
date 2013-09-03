@@ -133,7 +133,8 @@ public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerCli
                         .preserveState(false)
                         .asyncWrite(true)
                         .asyncWriteThreadPool(20)
-                        .supportAllFeatures();
+                        .supportAllFeatures()
+                        .simpleSecureRandomProvider();
 
         DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
 

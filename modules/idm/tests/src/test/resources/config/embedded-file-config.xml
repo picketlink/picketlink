@@ -9,6 +9,7 @@
           <preserveState value="false" />
           <supportGlobalRelationship value="org.picketlink.idm.model.Relationship" />
           <supportAllFeatures />
+          <simpleSecureRandomProvider />
         </file>
       </stores>
     </named>

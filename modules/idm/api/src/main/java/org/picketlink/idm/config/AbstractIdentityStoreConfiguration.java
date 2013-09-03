@@ -28,6 +28,7 @@ import org.picketlink.idm.spi.IdentityStore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -81,7 +82,8 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
         this.unsupportedTypes = unmodifiableMap(unsupportedTypes);
         this.contextInitializers = unmodifiableList(contextInitializers);
         this.credentialHandlers = unmodifiableSet(credentialHandlers);
-        this.credentialHandlerProperties = unmodifiableMap(credentialHandlerProperties);
+        // Not unmodifiable, so that some CredentialHandlers could possibly add more properties during it's initialization
+        this.credentialHandlerProperties = new HashMap<String, Object>(credentialHandlerProperties);
         this.supportsAttribute = supportsAttribute;
     }
 

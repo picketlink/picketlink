@@ -83,7 +83,8 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
                                 return entityManager;
                             }
                         })
-                        .supportAllFeatures();
+                        .supportAllFeatures()
+                        .simpleSecureRandomProvider();
 
         DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
 

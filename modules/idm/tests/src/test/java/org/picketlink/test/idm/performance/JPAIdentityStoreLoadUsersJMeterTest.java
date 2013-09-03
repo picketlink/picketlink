@@ -194,7 +194,8 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
                                 return entityManager.get();
                             }
                         })
-                        .supportAllFeatures();
+                        .supportAllFeatures()
+                        .simpleSecureRandomProvider();
 
             DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
 

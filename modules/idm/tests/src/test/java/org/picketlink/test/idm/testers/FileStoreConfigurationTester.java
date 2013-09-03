@@ -37,7 +37,8 @@ public class FileStoreConfigurationTester implements IdentityConfigurationTester
                 .stores()
                     .file()
                     .preserveState(false)
-                    .supportAllFeatures();
+                    .supportAllFeatures()
+                    .simpleSecureRandomProvider();
 
         DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
 
