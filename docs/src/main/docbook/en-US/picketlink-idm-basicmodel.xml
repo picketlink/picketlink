@@ -105,7 +105,73 @@
           </para>
         </listitem>
       </itemizedlist>
-    </section>      
+
+      <section>
+        <title>Utility Class for the Basic Identity Model</title>
+
+        <para>
+          PicketLink also provides an utility class with some very useful and common methods to manipulate the basic identity model.
+          Along the documentation you'll find a lot of examples using the the following class: <code>org.picketlink.idm.model.basic.BasicModel</code>.
+          If you're using the basic identity model, this helper class can save you a lot of code and make your application even more simple.
+        </para>
+
+        <para>
+          The list below summarizes some of the functionalities provided by this class:
+        </para>
+
+        <itemizedlist>
+          <listitem>
+            <para>
+              Retrieve <code>User</code> and <code>Agent</code> instances by login name.
+            </para>
+          </listitem>
+
+          <listitem>
+            <para>
+              Retrieve <code>Role</code> and <code>Group</code> instances by name.
+            </para>
+          </listitem>
+
+          <listitem>
+            <para>
+              Add users as group members, grant roles to users. As well check if an user is member of a group or has a specific role.
+            </para>
+          </listitem>
+        </itemizedlist>
+
+        <para>
+          One import thing to keep in mind is that the <code>BasicModel</code> helper class is only suitable if you're using the types
+          provided by the basic identity model, only. If you are using custom types, even if those are sub-types of any of the types provided
+          by the basic identity model, you should handle those custom types directly using the PicketLink IDM API.
+        </para>
+
+        <para>
+          As an example, let's suppose you have a custom type which extends the <code>Agent</code> type.
+        </para>
+
+        <programlisting language="JAVA"><![CDATA[  SalesAgent salesAgent = BasicModel.getUser(identityManager, "someSalesAgent");]]></programlisting>
+
+        <para>
+          The code above will never return a <code>SalesAgent</code> instance. The correct way of doing that is using the Query API directly as follows:
+        </para>
+
+        <programlisting language="JAVA"><![CDATA[  public SaleAgent findSalesAgent(String loginName) {
+      List<SaleAgent> result = identityManager
+                                .createIdentityQuery(SaleAgent.class)
+                                .setParameter(SaleAgent.LOGIN_NAME, loginName)
+                                .getResultList();
+      return result.isEmpty() ? null : result.get(0);
+}]]></programlisting>
+
+        <warning>
+          <para>
+            Please note that the <code>BasicModel</code> helper class is only suitable for use cases where only the types provided by the basic identity model are used.
+            If your application have also custom types, they need to be handled directly using the PicketLink IDM API.
+          </para>
+        </warning>
+      </section>
+
+    </section>
 
     <section>
       <title>Managing Users, Groups and Roles</title>
@@ -140,14 +206,14 @@
           Once the <code>User</code> is created, it's possible to look it up using its login name:
         </para>
         
-        <programlisting language="JAVA"><![CDATA[  User user = identityManager.getUser("jsmith");]]></programlisting>
+        <programlisting language="JAVA"><![CDATA[  User user = BasicModel.getUser(identityManager, "jsmith");]]></programlisting>
         
         <para>
           User properties can also be modified after the User has already been created.  The following example demonstrates how
           to change the e-mail address of the user we created above:
         </para>
         
-        <programlisting language="JAVA"><![CDATA[  User user = identityManager.getUser("jsmith");
+        <programlisting language="JAVA"><![CDATA[  User user = BasicModel.getUser(identityManager, "jsmith");
   user.setEmail("john@smith.com");
   identityManager.update(user);]]></programlisting>
   
@@ -155,7 +221,7 @@
           Users may also be deleted.  The following example demonstrates how to delete the user previously created:
         </para>
         
-        <programlisting language="JAVA"><![CDATA[  User user = identityManager.getUser("jsmith");
+        <programlisting language="JAVA"><![CDATA[  User user = BasicModel.getUser(identityManager, "jsmith");
   identityManager.remove("jsmith");]]></programlisting>
         
       </section>
@@ -182,21 +248,21 @@
           is unique, it can be passed as a single parameter:
         </para>
         
-        <programlisting language="JAVA"><![CDATA[  Group employees = identityManager.getGroup("employees");]]></programlisting>
+        <programlisting language="JAVA"><![CDATA[  Group employees = BasicModel.getGroup(identityManager, "employees");]]></programlisting>
         
         <para>
           If the group name is not unique, the parent group must be passed as the second parameter (although it can still be
           provided if the group name is unique):
         </para>
         
-        <programlisting language="JAVA"><![CDATA[  Group managers = identityManager.getGroup("managers", employees);]]></programlisting>
+        <programlisting language="JAVA"><![CDATA[  Group managers = BasicModel.getGroup(identityManager, "managers", employees);]]></programlisting>
         
         <para>
           It is also possible to modify a <code>Group</code>'s name and other properties (besides its parent) after it has
           been created.  The following example demonstrates how to disable the "employees" group we created above:
         </para>
         
-        <programlisting language="JAVA"><![CDATA[  Group employees = identityManager.getGroup("employees");
+        <programlisting language="JAVA"><![CDATA[  Group employees = BasicModel.getGroup(identityManager, "employees");
   employees.setEnabled(false);
   identityManager.update(employees);]]></programlisting>
         
@@ -204,7 +270,7 @@
           To remove an existing group, we can use the <code>remove()</code> method:
         </para>
         
-        <programlisting language="JAVA"><![CDATA[  Group employees = identityManager.getGroup("employees");
+        <programlisting language="JAVA"><![CDATA[  Group employees = BasicModel.getGroup(identityManager, "employees");
   identityManager.remove(employees);]]></programlisting>
 
       </section>
@@ -321,16 +387,16 @@
             The <code>IdentityManager</code> interface provides methods for directly granting a role.  Here's a simple example:
           </para>
           
-          <programlisting language="JAVA"><![CDATA[  User bob = identityManager.getUser("bob");
-  Role superuser = identityManager.getRole("superuser");
-  identityManager.grantRole(bob, superuser);]]></programlisting>
+          <programlisting language="JAVA"><![CDATA[  User bob = BasicModel.getUser(identityManager, "bob");
+  Role superuser = BasicModel.getRole(identityManager, "superuser");
+  BasicModel.grantRole(relationshipManager, bob, superuser);]]></programlisting>
           
           <para>
             The above code is equivalent to the following:
           </para>
           
-          <programlisting language="JAVA"><![CDATA[  User bob = identityManager.getUser("bob");
-  Role superuser = identityManager.getRole("superuser");
+          <programlisting language="JAVA"><![CDATA[  User bob = BasicModel.getUser(identityManager, "bob");
+  Role superuser = BasicModel.getRole(identityManager, "superuser");
   Grant grant = new Grant(bob, superuser);
   identityManager.add(grant);]]></programlisting>
   
@@ -338,17 +404,17 @@
             A granted role can also be revoked using the <code>revokeRole()</code> method:
           </para>
           
-          <programlisting language="JAVA"><![CDATA[  User bob = identityManager.getUser("bob");
-  Role superuser = identityManager.getRole("superuser");
-  identityManager.revokeRole(bob, superuser);]]></programlisting>
+          <programlisting language="JAVA"><![CDATA[  User bob = BasicModel.getUser(identityManager, "bob");
+  Role superuser = BasicModel.getRole(identityManager, "superuser");
+  BasicModel.revokeRole(relationshipManager, bob, superuser);]]></programlisting>
   
           <para>
             To check whether an identity has a specific role granted to them, we can use the <code>hasRole()</code> method:
           </para>
           
-          <programlisting language="JAVA"><![CDATA[  User bob = identityManager.getUser("bob");
-  Role superuser = identityManager.getRole("superuser");
-  boolean isBobASuperUser = identityManager.hasRole(bob, superuser);]]></programlisting>
+          <programlisting language="JAVA"><![CDATA[  User bob = BasicModel.getUser(identityManager, "bob");
+  Role superuser = BasicModel.getRole(identityManager, "superuser");
+  boolean isBobASuperUser = BasicModel.hasRole(relationshipManager, bob, superuser);]]></programlisting>
         </section>
         
         <section>
@@ -442,22 +508,22 @@ identityManager.add(new Group("Asia", sales);
             permissions and roles for that group:
           </para>
           
-          <programlisting language="JAVA"><![CDATA[Role admin = identityManager.getRole("administrator");
-User user = identityManager.getUser("jsmith");
-Group group = identityManager.getGroup("Northeast");
-identityManager.grantGroupRole(user, admin, group);]]></programlisting>
+          <programlisting language="JAVA"><![CDATA[Role admin = BasicModel.getRole(identityManager, "administrator");
+User user = BasicModel.getUser(identityManager, "jsmith");
+Group group = BasicModel.getGroup(identityManager, "Northeast");
+BasicModel.grantGroupRole(relationshipManager, user, admin, group);]]></programlisting>
 
           <para>
             A group role can be revoked using the <code>revokeGroupRole()</code> method:
           </para>
           
-          <programlisting language="JAVA"><![CDATA[identityManager.revokeGroupRole(user, admin, group);]]></programlisting>
+          <programlisting language="JAVA"><![CDATA[BasicModel.revokeGroupRole(relationshipManager, user, admin, group);]]></programlisting>
   
           <para>
             To test whether a user has a particular group role, you can use the <code>hasGroupRole()</code> method:
           </para>
           
-          <programlisting language="JAVA"><![CDATA[boolean isUserAGroupAdmin = identityManager.hasGroupRole(user, admin, group);]]></programlisting> 
+          <programlisting language="JAVA"><![CDATA[boolean isUserAGroupAdmin = BasicModel.hasGroupRole(relationshipManager, user, admin, group);]]></programlisting>
 
           <para>
             Next, let's look at some examples of how to work with simple group memberships. 
@@ -465,9 +531,9 @@ identityManager.grantGroupRole(user, admin, group);]]></programlisting>
             <emphasis>Northeast</emphasis> sales group:
           </para>
           
-          <programlisting language="JAVA"><![CDATA[User user = identityManager.getUser("rbrown");
-Group group = identityManager.getGroup("Northeast");
-identityManager.addToGroup(user, group);]]></programlisting>          
+          <programlisting language="JAVA"><![CDATA[User user = BasicModel.getUser(identityManager, "rbrown");
+Group group = BasicModel.getGroup(identityManager, "Northeast");
+BasicModel.addToGroup(relationshipManager, user, group);]]></programlisting>
           
           <para>
             A <code>User</code> may also be a member of more than one <code>Group</code>; there are no built-in limitations on 
@@ -478,22 +544,22 @@ identityManager.addToGroup(user, group);]]></programlisting>
             We can use the <code>removeFromGroup()</code> method to remove the same user from the group:
           </para>
           
-          <programlisting language="JAVA"><![CDATA[identityManager.removeFromGroup(user, group);]]></programlisting>
+          <programlisting language="JAVA"><![CDATA[BasicModel.removeFromGroup(relationshipManager, user, group);]]></programlisting>
   
           <para>
             To check whether a user is the member of a group we can use the <code>isMember()</code> method:
           </para>
           
-          <programlisting language="JAVA"><![CDATA[boolean isUserAMember = identityManager.isMember(user, group);]]></programlisting>
+          <programlisting language="JAVA"><![CDATA[boolean isUserAMember = BasicModel.isMember(relationshipManager, user, group);]]></programlisting>
  
           <para>
             Relationships can also be created via the <code>add()</code> method.  The following code is equivalent
             to assigning a group role via the <code>grantGroupRole()</code> method shown above:
           </para>
           
-          <programlisting language="JAVA"><![CDATA[Role admin = identityManager.getRole("administrator");
-User user = identityManager.getUser("jsmith");
-Group group = identityManager.getGroup("Northeast");
+          <programlisting language="JAVA"><![CDATA[Role admin = BasicModel.getRole(identityManager, "administrator");
+User user = BasicModel.getUser(identityManager, "jsmith");
+Group group = BasicModel.getGroup(identityManager, "Northeast");
 GroupRole groupRole = new GroupRole(user, group, admin);
 identityManager.add(groupRole);]]></programlisting>
         </section>
