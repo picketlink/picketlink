@@ -181,7 +181,7 @@ builder
         .stores()
             .jpa()
               // specific configuration options for the JPA store
-              .supportAllFeatures();]]></programlisting>
+              .supportAllFeatures();
 
 DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
 
