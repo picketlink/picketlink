@@ -35,7 +35,91 @@
           API for every single aspect of PicketLink configuration.
         </para>
       </section>
-      
+
+      <section>
+        <title>Default Configuration</title>
+
+        <para>
+          If you'd like to get up and running with IDM quickly, the good news is that PicketLink will provide a default configuration
+          that stores your identity data on the file system if no other configuration is available.  This means that if you
+          have the PicketLink libraries in your project, you can simply inject the <code>PartitionManager</code>,
+          <code>IdentityManager</code> or <code>RelationshipManager</code> beans into your own application and start using them
+          immediately:
+        </para>
+
+        <programlisting language="JAVA"><![CDATA[@Inject PartitionManager partitionManager;
+@Inject IdentityManager identityManager;
+@Inject RelationshipManager relationshipManager;]]></programlisting>
+
+        <note>
+          <para>
+            The default configuration is very useful for developing and testing purposes, as you don't need a database or a LDAP server to
+            start managing your identity data.
+          </para>
+        </note>
+      </section>
+
+      <section>
+        <title>Providing a Custom Configuration</title>
+
+        <para>
+          In certain cases the default configuration may not be enough to your application. You can easily provide your own configuration
+          by observing a specific <code>IdentityConfigurationEvent</code>:
+        </para>
+
+        <programlisting language="JAVA"><![CDATA[@ApplicationScoped
+public static class PicketLinkConfiguration {
+
+  public void observeIdentityConfigurationEvent(@Observes IdentityConfigurationEvent event) throws Exception {
+    IdentityConfigurationBuilder builder = event.getConfig();
+
+    // use the builder to provide your own configuration
+  }
+}]]></programlisting>
+
+        <para>
+          You can also provide your own configuration by producing one or more <code>IdentityConfiguration</code> instances using a
+          <code>@Producer</code> annotated method:
+        </para>
+
+        <programlisting language="JAVA"><![CDATA[@ApplicationScoped
+public static class PicketLinkConfiguration {
+
+  @Produces
+  public IdentityConfiguration produceJPAConfiguration() throws Exception {
+      IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+      builder
+          .named("jpa.config")
+              .stores()
+                  .jpa()
+                    // configure the JPA store
+
+      return builder.build();
+  }
+
+  @Produces
+  public IdentityConfiguration produceLDAPConfiguration() throws Exception {
+      IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+      builder
+          .named("ldap.config")
+              .stores()
+                  .ldap()
+                      // configure the LDAP store
+
+      return builder.build();
+  }
+}]]></programlisting>
+
+        <para>
+          The example above produces two distinct configurations: one using a JPA store and another using the LDAP store. During the
+          startup PicketLink will resolve both configurations and initialize the IDM subsystem with them. You can also provide a single
+          configuration.
+        </para>
+
+      </section>
+
       <section id="programmatic_configuration">
         <title>Programmatic Configuration Overview</title>
       
@@ -97,7 +181,7 @@ builder
         .stores()
             .jpa()
               // specific configuration options for the JPA store
-              .supportAllFeatures();
+              .supportAllFeatures();]]></programlisting>
 
 DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
 
@@ -174,7 +258,49 @@ builder
           You may also notice that the JPA store is configured to support attributes too. What means that we can now use ad-hoc attributes for all the supported types.
         </para>
       </section>
-      <section id="idm_security_context_configuration">
+      <section id="configuring_credential_handlers">
+        <title>Configuring Credential Handlers</title>
+        <para>
+          Each <code>IdentityStore</code> may support a different set of credential handlers. This documentations describes the built-in credential handlers provided by PicketLink, but sometimes you
+          may want to provide your own implementations.
+        </para>
+
+        <para>When you write your custom credential handler you need to tell PicketLink the identity store that will support it. This is done by the following code:</para>
+        <programlisting language="JAVA"><![CDATA[ IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+ builder
+   .named("default")
+     .stores()
+       .jpa()
+         // other JPA configuration
+         .addCredentialHandler(UserPasswordCredentialHandler.class)
+         .supportAllFeatures();]]></programlisting>
+
+        <para>
+          The example above shows how to configure a credential handler for a JPA-based store using the <code>addCredentialHandler</code> method.
+        </para>
+        <section>
+          <title>Passing parameters to Credential Handlers</title>
+          <para>
+            Some credential handlers support a set of configuration options to configure their behavior. These options can be specified as follows:
+          </para>
+          <programlisting language="JAVA"><![CDATA[ IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+ builder
+   .named("default")
+     .stores()
+       .jpa()
+         // other JPA configuration
+         .setCredentialHandlerProperty(PasswordCredentialHandler.PASSWORD_ENCODER, new BCryptPasswordEncoder(4))
+         .supportAllFeatures();]]></programlisting>
+
+          <para>
+            The example above shows how to set a property for the <code>PasswordCredentialHandler</code> using the <code>setCredentialHandlerProperty</code> method.
+          </para>
+
+        </section>
+      </section>
+      <section id="idm_identity_context_configuration">
         <title>Identity Context Configuration</title>
 
         <para>
@@ -210,48 +336,6 @@ builder
             </listitem>
           </itemizedlist>
         </para>
-        <section id="configuring_credential_handlers">
-          <title>Configuring Credential Handlers</title>
-          <para>
-            Each <code>IdentityStore</code> may support a different set of credential handlers. This documentations describes the built-in credential handlers provided by PicketLink, but sometimes you
-            may want to provide your own implementations.
-          </para>
-
-          <para>When you write your custom credential handler you need to tell PicketLink the identity store that will support it. This is done by the following code:</para>
-          <programlisting language="JAVA"><![CDATA[ IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
-
- builder
-   .named("default")
-     .stores()
-       .jpa()
-         // other JPA configuration
-         .addCredentialHandler(UserPasswordCredentialHandler.class)
-         .supportAllFeatures();]]></programlisting>
-
-          <para>
-            The example above shows how to configure a credential handler for a JPA-based store using the <code>addCredentialHandler</code> method.
-          </para>
-          <section>
-            <title>Passing parameters to Credential Handlers</title>
-            <para>
-              Some credential handlers support a set of configuration options to configure their behavior. These options can be specified as follows:
-            </para>
-            <programlisting language="JAVA"><![CDATA[ IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
-
- builder
-   .named("default")
-     .stores()
-       .jpa()
-         // other JPA configuration
-         .setCredentialHandlerProperty(PasswordCredentialHandler.PASSWORD_ENCODER, new BCryptPasswordEncoder(4))
-         .supportAllFeatures();]]></programlisting>
-
-            <para>
-              The example above shows how to set a property for the <code>PasswordCredentialHandler</code> using the <code>setCredentialHandlerProperty</code> method.
-            </para>
-
-          </section>
-        </section>
         <section>
         	<title>Initializing the SecurityContext</title>
           <para>
