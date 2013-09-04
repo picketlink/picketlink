@@ -24,6 +24,8 @@ package org.picketlink.test.idm.config;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.picketlink.common.random.DefaultSecureRandomProvider;
+import org.picketlink.common.random.SecureRandomProvider;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
@@ -36,6 +38,7 @@ import org.picketlink.idm.credential.encoder.PBKDF2PasswordEncoder;
 import org.picketlink.idm.credential.encoder.PasswordEncoder;
 import org.picketlink.idm.credential.encoder.SHAPasswordEncoder;
 import org.picketlink.idm.credential.handler.PasswordCredentialHandler;
+import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.model.basic.User;
@@ -225,6 +228,84 @@ public class PasswordCredentialHandlerConfigurationTestCase {
         assertEquals("true", assertionCheck.get("WAS_INVOKED"));
     }
 
+    @Test
+    public void testKeyLengthRandomNumber() throws Exception {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+            .named("default")
+                .stores()
+                    .file()
+                        .addCredentialHandler(MockPasswordCredentialHandler.class)
+                        .setCredentialHandlerProperty(PasswordCredentialHandler.KEY_LENGTH_RANDOM_NUMBER, 8)
+                        .supportAllFeatures();
+
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+
+        IdentityManager identityManager = partitionManager.createIdentityManager();
+
+        User user = new User("user");
+
+        identityManager.add(user);
+
+        user = getUser(identityManager, user.getLoginName());
+
+        assertNotNull(user);
+
+        Password password = new Password("123");
+
+        identityManager.updateCredential(user, password);
+
+        UsernamePasswordCredentials credential = new UsernamePasswordCredentials(user.getLoginName(), password);
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.VALID, credential.getStatus());
+
+        assertEquals(8, ((DefaultSecureRandomProvider) MockPasswordCredentialHandler.secureRandomProvider).getKeyLength());
+    }
+
+    @Test
+    public void testSaltAlgorithm() throws Exception {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+                .named("default")
+                .stores()
+                .file()
+                .addCredentialHandler(MockPasswordCredentialHandler.class)
+                .setCredentialHandlerProperty(PasswordCredentialHandler.ALGORITHM_RANDOM_NUMBER, "SHA1PRNG")
+                .supportAllFeatures();
+
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+
+        IdentityManager identityManager = partitionManager.createIdentityManager();
+
+        User user = new User("user");
+
+        identityManager.add(user);
+
+        user = getUser(identityManager, user.getLoginName());
+
+        assertNotNull(user);
+
+        Password password = new Password("123");
+
+        identityManager.updateCredential(user, password);
+
+        UsernamePasswordCredentials credential = new UsernamePasswordCredentials(user.getLoginName(), password);
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.VALID, credential.getStatus());
+
+        assertEquals("SHA1PRNG", ((DefaultSecureRandomProvider) MockPasswordCredentialHandler.secureRandomProvider).getAlgorithm());
+    }
+
     @Test (expected=IdentityManagementException.class)
     public void failInvalidEncodingAlgorithm() throws Exception {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
@@ -267,4 +348,15 @@ public class PasswordCredentialHandlerConfigurationTestCase {
         }
     }
 
+    @SupportsCredentials({UsernamePasswordCredentials.class, Password.class})
+    public static class MockPasswordCredentialHandler extends PasswordCredentialHandler {
+
+        public static SecureRandomProvider secureRandomProvider;
+
+        @Override
+        public SecureRandomProvider getSecureRandomProvider() {
+            secureRandomProvider = super.getSecureRandomProvider();
+            return secureRandomProvider;
+        }
+    }
 }
