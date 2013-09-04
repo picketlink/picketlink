@@ -1,6 +1,7 @@
 package org.picketlink.common.random;
 
 import java.security.SecureRandom;
+import java.util.Random;
 
 /**
  * <p>A default implementation of {@link SecureRandomProvider}.</p>
@@ -35,6 +36,8 @@ public class DefaultSecureRandomProvider implements SecureRandomProvider {
 
             if (this.keyLength > 0) {
                 secureRandom.setSeed(secureRandom.generateSeed(this.keyLength));
+            } else {
+                secureRandom.setSeed(new Random().nextLong());
             }
         } catch (Exception e) {
             throw new IllegalStateException("Error getting SecureRandom instance: " + this.algorithm, e);

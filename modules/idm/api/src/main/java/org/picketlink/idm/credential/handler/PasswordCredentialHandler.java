@@ -83,8 +83,8 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
     private PasswordEncoder passwordEncoder = new SHAPasswordEncoder(512);
 
     private final Lock lock = new ReentrantLock();
-    private Integer renewRandomNumberGeneratorInterval = 0;
-    private Date lastRenewTime;
+    private Integer renewRandomNumberGeneratorInterval = -1;
+    private volatile Date lastRenewTime;
 
     private SecureRandomProvider secureRandomProvider;
     private SecureRandom secureRandom;
@@ -230,7 +230,7 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
     }
 
     private boolean isSecureRandomOutDated() {
-        if (this.renewRandomNumberGeneratorInterval <= 0) {
+        if (this.renewRandomNumberGeneratorInterval == -1) {
             return false;
         }
 
