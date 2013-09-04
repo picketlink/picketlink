@@ -18,6 +18,8 @@
 
 package org.picketlink.idm.credential.handler;
 
+import org.picketlink.common.random.DefaultSecureRandomProvider;
+import org.picketlink.common.random.SecureRandomProvider;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.Password;
@@ -31,10 +33,12 @@ import org.picketlink.idm.model.Account;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * <p> This particular implementation supports the validation of {@link UsernamePasswordCredentials}, and updating
@@ -56,7 +60,34 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
      */
     public static final String PASSWORD_ENCODER = "PASSWORD_ENCODER";
 
+    /**
+     * <p>An user-defined {@link SecureRandomProvider} instance.</p>
+     */
+    public static final String SECURE_RANDOM_PROVIDER = "SECURE_RANDOM_PROVIDER";
+
+    /**
+     * <p>Time interval to be used to get a fresh {@link SecureRandom} instance.</p>
+     */
+    public static final String RENEW_RANDOM_NUMBER_GENERATOR_INTERVAL = "RENEW_RANDOM_NUMBER_GENERATOR_INTERVAL";
+
+    /**
+     * <p>The algorithm to be used to salt passwords.</p>
+     */
+    public static final String ALGORITHM_RANDOM_NUMBER = "ALGORITHM_RANDOM_NUMBER";
+
+    /**
+     * <p>Key length when generating a seed for random numbers.</p>
+     */
+    public static final String KEY_LENGTH_RANDOM_NUMBER = "KEY_LENGTH_RANDOM_NUMBER";
+
     private PasswordEncoder passwordEncoder = new SHAPasswordEncoder(512);
+
+    private final Lock lock = new ReentrantLock();
+    private Integer renewRandomNumberGeneratorInterval = 0;
+    private Date lastRenewTime;
+
+    private SecureRandomProvider secureRandomProvider;
+    private SecureRandom secureRandom;
 
     @Override
     public void setup(S store) {
@@ -73,7 +104,35 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
                             + "] must be an instance of " + PasswordEncoder.class.getName());
                 }
             }
+
+            Object renewRandomNumberGeneratorInterval = options.get(RENEW_RANDOM_NUMBER_GENERATOR_INTERVAL);
+
+            if (renewRandomNumberGeneratorInterval != null) {
+                this.renewRandomNumberGeneratorInterval = Integer.valueOf(renewRandomNumberGeneratorInterval.toString());
+            }
+
+            Object secureRandomProvider = options.get(SECURE_RANDOM_PROVIDER);
+
+            if (secureRandomProvider != null) {
+                this.secureRandomProvider = (SecureRandomProvider) secureRandomProvider;
+            } else {
+                Object saltAlgorithm = options.get(ALGORITHM_RANDOM_NUMBER);
+
+                if (saltAlgorithm == null) {
+                    saltAlgorithm = DEFAULT_SALT_ALGORITHM;
+                }
+
+                Object keyLengthRandomNumber = options.get(KEY_LENGTH_RANDOM_NUMBER);
+
+                if (keyLengthRandomNumber == null) {
+                    keyLengthRandomNumber = Integer.valueOf(0);
+                }
+
+                this.secureRandomProvider = new DefaultSecureRandomProvider(saltAlgorithm.toString(), Integer.valueOf(keyLengthRandomNumber.toString()));
+            }
         }
+
+        this.secureRandom = createSecureRandom();
     }
 
     @Override
@@ -120,6 +179,10 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
         store.storeCredential(context, account, hash);
     }
 
+    protected SecureRandomProvider getSecureRandomProvider() {
+        return this.secureRandomProvider;
+    }
+
     /**
      * <p> Salt the give <code>rawPassword</code> with the specified <code>salt</code> value. </p>
      *
@@ -137,16 +200,46 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
      * @return
      */
     private String generateSalt() {
-        SecureRandom pseudoRandom = null;
+        return String.valueOf(getSecureRandom().nextLong());
+    }
 
+    private void renewSecureRandom() {
+        if (isSecureRandomOutDated()) {
+            if (this.lock.tryLock()) {
+                try {
+                    this.secureRandom = createSecureRandom();
+                    this.lastRenewTime = new Date();
+                } finally {
+                    this.lock.unlock();
+                }
+            }
+        }
+    }
+
+    private SecureRandom createSecureRandom() {
         try {
-            pseudoRandom = SecureRandom.getInstance(DEFAULT_SALT_ALGORITHM);
-            pseudoRandom.setSeed(1024);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IdentityManagementException("Error getting SecureRandom instance: " + DEFAULT_SALT_ALGORITHM, e);
+            return getSecureRandomProvider().getSecureRandom();
+        } catch (Exception e) {
+            throw new IdentityManagementException("Error getting SecureRandom instance from provider [" + this.secureRandomProvider + "].", e);
+        }
+    }
+
+    private SecureRandom getSecureRandom() {
+        renewSecureRandom();
+        return this.secureRandom;
+    }
+
+    private boolean isSecureRandomOutDated() {
+        if (this.renewRandomNumberGeneratorInterval <= 0) {
+            return false;
         }
 
-        return String.valueOf(pseudoRandom.nextLong());
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.setTime(this.lastRenewTime);
+        calendar.add(Calendar.MILLISECOND, this.renewRandomNumberGeneratorInterval);
+
+        return calendar.getTime().compareTo(new Date()) <= 0;
     }
 
 }
