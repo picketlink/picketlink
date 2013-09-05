@@ -23,6 +23,8 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.TOTPCredential;
 import org.picketlink.idm.credential.TOTPCredentials;
+import org.picketlink.idm.credential.storage.OTPCredentialStorage;
+import org.picketlink.idm.credential.util.CredentialUtils;
 import org.picketlink.idm.credential.util.TimeBasedOTP;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
@@ -30,6 +32,7 @@ import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -390,7 +393,27 @@ public class TOTPCredentialTestCase extends AbstractPartitionManagerTestCase {
         identityManager.validateCredentials(credentials);
 
         assertEquals(Status.INVALID, credentials.getStatus());
+    }
 
+    @Test
+    @Configuration (exclude = LDAPStoreConfigurationTester.class)
+    public void testRetrieveCurrentCredential() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = createUser("someUser");
+        TOTPCredential credential = new TOTPCredential(DEFAULT_PASSWORD, DEFAULT_TOTP_SECRET);
+
+        credential.setDevice("My Android");
+
+        identityManager.updateCredential(user, credential);
+
+        OTPCredentialStorage currentStorage = identityManager.retrieveCurrentCredential(user, OTPCredentialStorage.class);
+
+        assertNotNull(currentStorage);
+        assertTrue(CredentialUtils.isCurrentCredential(currentStorage));
+
+        assertNotNull(currentStorage.getEffectiveDate());
+        assertNotNull(currentStorage.getDevice());
+        assertNotNull(currentStorage.getSecretKey());
     }
 
 }

@@ -33,6 +33,7 @@ import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
+import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.file.internal.FileIdentityStore;
 import org.picketlink.idm.internal.util.RelationshipMetadata;
@@ -557,7 +558,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
             for (@SuppressWarnings("rawtypes") Class<? extends CredentialHandler> handlerClass : storeConfig.getCredentialHandlers()) {
                 if (handlerClass.isAnnotationPresent(SupportsCredentials.class)) {
-                    for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).value()) {
+                    for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).credentialClass()) {
                         if (cls.isAssignableFrom(credentialClass)) {
                             IdentityStore<?> identityStore = null;
                             try {
@@ -725,6 +726,33 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         }
 
         return null;
+    }
+
+    @Override
+    public Set<CredentialStore<?>> getStoresForCredentialStorage(final IdentityContext context, Class<? extends CredentialStorage> storageClass) {
+        Map<IdentityStoreConfiguration, IdentityStore<?>> storesConfig = this.stores.get(getConfigurationForPartition(context.getPartition()));
+
+        Set<CredentialStore<?>> credentialStores = new HashSet<CredentialStore<?>>();
+
+        if (storesConfig != null) {
+            for (IdentityStore identityStore: storesConfig.values()) {
+                if (CredentialStore.class.isInstance(identityStore)) {
+                    CredentialStore<?> credentialStore = (CredentialStore<?>) identityStore;
+
+                    for (Class<? extends CredentialHandler> credentialHandler: credentialStore.getConfig().getCredentialHandlers()) {
+                        SupportsCredentials supportedCredentials = credentialHandler.getAnnotation(SupportsCredentials.class);
+
+                        if (supportedCredentials != null) {
+                            if (supportedCredentials.credentialStorage().equals(storageClass)) {
+                                credentialStores.add(credentialStore);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return credentialStores;
     }
 
     private String getDefaultConfigurationName() {

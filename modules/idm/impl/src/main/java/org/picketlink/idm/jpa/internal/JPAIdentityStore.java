@@ -802,8 +802,13 @@ public class JPAIdentityStore
                         mappers.add(0, entityMapper);
                     } else if (entityMapping.getSupportedType().isAssignableFrom(attributedType)) {
                         mappers.add(entityMapper);
-                    } else if (attributedType.isAssignableFrom(entityMapping.getSupportedType())) {
-                        mappers.add(entityMapper);
+                    } else {
+                        if (Partition.class.equals(attributedType)
+                                || IdentityType.class.equals(attributedType) || Relationship.class.equals(attributedType)) {
+                            if (attributedType.isAssignableFrom(entityMapping.getSupportedType())) {
+                                mappers.add(entityMapper);
+                            }
+                        }
                     }
                 }
             }

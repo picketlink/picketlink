@@ -18,17 +18,21 @@
 
 package org.picketlink.idm.credential.handler.annotations;
 
+import org.picketlink.idm.credential.storage.CredentialStorage;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.*;
 
 /**
- * This annotation is used to declare which credential types are supported by a
- * particular CredentialHandler implementation
+ * <p>This annotation is used to declare which credential types are supported by a
+ * particular {@link org.picketlink.idm.credential.handler.CredentialHandler} implementation.</p>
+ *
+ * <p>It also declares the {@link CredentialStorage} supported by a particular {@link org.picketlink.idm.credential.handler.CredentialHandler}.</p>
  *
  * @author Shane Bryzak
  */
@@ -37,5 +41,20 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Inherited
 public @interface SupportsCredentials {
-    Class<?>[] value();
+
+    interface NO_CREDENTIAL_STORAGE extends CredentialStorage {};
+
+    /**
+     * <p>Credential types supported by the handler.</p>
+     *
+     * @return
+     */
+    Class<?>[] credentialClass();
+
+    /**
+     * <p>Credential storage supported by the handler.</p>
+     *
+     * @return
+     */
+    Class<? extends CredentialStorage> credentialStorage();
 }

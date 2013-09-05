@@ -42,7 +42,9 @@ import static org.picketlink.idm.model.basic.BasicModel.*;
  * @author Shane Bryzak
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-@SupportsCredentials({ UsernamePasswordCredentials.class, Password.class })
+@SupportsCredentials(
+        credentialClass = {UsernamePasswordCredentials.class, Password.class},
+        credentialStorage = SupportsCredentials.NO_CREDENTIAL_STORAGE.class)
 public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
     implements CredentialHandler<LDAPIdentityStore, UsernamePasswordCredentials, Password> {
 

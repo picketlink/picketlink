@@ -48,6 +48,7 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 import static org.picketlink.idm.credential.handler.PasswordCredentialHandler.*;
+import static org.picketlink.idm.credential.handler.annotations.SupportsCredentials.NO_CREDENTIAL_STORAGE;
 import static org.picketlink.idm.model.basic.BasicModel.*;
 
 /**
@@ -348,7 +349,9 @@ public class PasswordCredentialHandlerConfigurationTestCase {
         }
     }
 
-    @SupportsCredentials({UsernamePasswordCredentials.class, Password.class})
+    @SupportsCredentials(
+            credentialClass = {UsernamePasswordCredentials.class, Password.class},
+            credentialStorage = NO_CREDENTIAL_STORAGE.class)
     public static class MockPasswordCredentialHandler extends PasswordCredentialHandler {
 
         public static SecureRandomProvider secureRandomProvider;

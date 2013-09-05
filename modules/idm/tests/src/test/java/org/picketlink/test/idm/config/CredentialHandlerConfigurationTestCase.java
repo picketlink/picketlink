@@ -42,6 +42,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.picketlink.idm.credential.handler.annotations.SupportsCredentials.NO_CREDENTIAL_STORAGE;
 import static org.picketlink.idm.model.basic.BasicModel.getUser;
 
 /**
@@ -141,7 +142,10 @@ public class CredentialHandlerConfigurationTestCase {
         assertEquals(Status.INVALID, badCredential.getStatus());
     }
 
-    @SupportsCredentials({ CustomCredentialHandler.TokenCredential.class, CustomCredentialHandler.Token.class })
+    @SupportsCredentials(
+            credentialClass = { CustomCredentialHandler.TokenCredential.class, CustomCredentialHandler.Token.class },
+            credentialStorage = NO_CREDENTIAL_STORAGE.class
+    )
     public static class CustomCredentialHandler<S,V,U> 
         implements CredentialHandler<IdentityStore<?>, CustomCredentialHandler.TokenCredential, Object> {
 
