@@ -43,7 +43,9 @@ import static org.picketlink.idm.credential.util.TimeBasedOTP.*;
  * @author Shane Bryzak
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-@SupportsCredentials({TOTPCredentials.class, TOTPCredential.class})
+@SupportsCredentials(
+        credentialClass = {TOTPCredentials.class, TOTPCredential.class},
+        credentialStorage = OTPCredentialStorage.class)
 public class TOTPCredentialHandler extends PasswordCredentialHandler<CredentialStore<?>, TOTPCredentials, TOTPCredential> {
 
     public static final String ALGORITHM = "ALGORITHM";

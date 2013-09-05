@@ -20,6 +20,7 @@ package org.picketlink.idm.spi;
 
 import java.util.Set;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
+import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
@@ -80,4 +81,12 @@ public interface StoreSelector {
      * @return
      */
     <T extends AttributeStore<?>> T getStoreForAttributeOperation(IdentityContext context);
+
+    /**
+     * <p>Returns all available {@link CredentialStore} instances that support the given {@link CredentialStorage} type.</p>
+     *
+     * @param context
+     * @return
+     */
+    Set<CredentialStore<?>> getStoresForCredentialStorage(IdentityContext context, Class<? extends CredentialStorage> storageClass);
 }

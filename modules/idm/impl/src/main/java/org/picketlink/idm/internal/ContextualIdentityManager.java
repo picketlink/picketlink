@@ -45,6 +45,7 @@ import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreSelector;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -127,11 +128,11 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
     @Override
     public <T extends IdentityType> T lookupIdentityById(Class<T> identityType, String id) {
         if (identityType == null) {
-            MESSAGES.nullArgument("IdentityType class");
+            throw MESSAGES.nullArgument("IdentityType class");
         }
 
         if (identityType == null) {
-            MESSAGES.nullArgument("Identifier");
+            throw MESSAGES.nullArgument("Identifier");
         }
 
         IdentityQuery<T> query = createIdentityQuery(identityType);
@@ -157,7 +158,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
     @Override
     public <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType) {
         if (identityType == null) {
-            MESSAGES.nullArgument("IdentityType class");
+            throw MESSAGES.nullArgument("IdentityType class");
         }
 
         return new DefaultIdentityQuery(this, identityType, this.storeSelector);
@@ -166,7 +167,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
     @Override
     public void validateCredentials(Credentials credentials) {
         if (credentials == null) {
-            MESSAGES.nullArgument("Credentials");
+            throw MESSAGES.nullArgument("Credentials");
         }
 
         storeSelector.getStoreForCredentialOperation(this, credentials.getClass()).validateCredentials(this, credentials);
@@ -182,7 +183,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
         checkIfIdentityTypeExists(account);
 
         if (credential == null) {
-            MESSAGES.nullArgument("Credential");
+            throw MESSAGES.nullArgument("Credential");
         }
 
         storeSelector.getStoreForCredentialOperation(this, credential.getClass())
@@ -194,11 +195,18 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
         checkIfIdentityTypeExists(account);
 
         if (storageClass == null) {
-            MESSAGES.nullArgument("CredentialStorage type");
+            throw  MESSAGES.nullArgument("CredentialStorage type");
         }
 
-        return (T) ((CredentialStore<?>) storeSelector.getStoreForCredentialOperation(this, storageClass))
-                .retrieveCurrentCredential(this, account, storageClass);
+        for (CredentialStore credentialStore: this.storeSelector.getStoresForCredentialStorage(this, storageClass)) {
+            T credentialStorage = (T) credentialStore.retrieveCurrentCredential(this, account, storageClass);
+
+            if (credentialStorage != null) {
+                return credentialStorage;
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -206,16 +214,21 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
         checkIfIdentityTypeExists(account);
 
         if (storageClass == null) {
-            MESSAGES.nullArgument("CredentialStorage type");
+            throw MESSAGES.nullArgument("CredentialStorage type");
         }
 
-        return (List<T>) ((CredentialStore<?>) storeSelector.getStoreForCredentialOperation(this, storageClass))
-                .retrieveCredentials(this, account, storageClass);
+        List<T> storages = new ArrayList<T>();
+
+        for (CredentialStore credentialStore: this.storeSelector.getStoresForCredentialStorage(this, storageClass)) {
+            storages.addAll(credentialStore.retrieveCredentials(this, account, storageClass));
+        }
+
+        return storages;
     }
 
     private void checkUniqueness(IdentityType identityType) {
         if (identityType == null) {
-            MESSAGES.nullArgument("IdentityType");
+            throw MESSAGES.nullArgument("IdentityType");
         }
 
         PropertyQuery<Serializable> propertyQuery = PropertyQueries.createQuery(identityType.getClass());

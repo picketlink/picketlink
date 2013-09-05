@@ -94,4 +94,5 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
         return identityManager;
     }
 
+
 }

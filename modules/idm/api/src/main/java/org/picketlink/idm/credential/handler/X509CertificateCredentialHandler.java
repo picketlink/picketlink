@@ -40,7 +40,9 @@ import java.util.Date;
  * @author Shane Bryzak
  * @author Pedro Igor
  */
-@SupportsCredentials({X509CertificateCredentials.class, X509Certificate.class})
+@SupportsCredentials(
+        credentialClass = {X509CertificateCredentials.class, X509Certificate.class},
+        credentialStorage = X509CertificateStorage.class)
 public class X509CertificateCredentialHandler<S, V, U>
         extends AbstractCredentialHandler<CredentialStore<?>, X509CertificateCredentials, X509Certificate> {
 

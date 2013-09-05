@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.model.basic.Agent;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.Configuration;
@@ -42,9 +43,22 @@ public class CustomAgentManagementTestCase extends AbstractIdentityTypeTestCase<
         assertEquals(identityType.getId(), result.get(0).getId());
     }
 
+    @Test
+    public void testFindByLoginName() throws Exception {
+        CustomAgent identityType = createIdentityType();
+
+        CustomAgent storedAgent = getIdentityType();
+
+        assertNotNull(storedAgent);
+        assertEquals(identityType.getId(), storedAgent.getId());
+        assertEquals("Custom Value", storedAgent.getCustomProperty());
+    }
+
     @Override
     protected CustomAgent createIdentityType() {
         CustomAgent agent = new CustomAgent("john");
+
+        agent.setCustomProperty("Custom Value");
 
         List<CustomAgent> result = getIdentityManager().createIdentityQuery(CustomAgent.class)
                 .setParameter(CustomAgent.LOGIN_NAME, agent.getLoginName())
@@ -74,11 +88,22 @@ public class CustomAgentManagementTestCase extends AbstractIdentityTypeTestCase<
 
     public static class CustomAgent extends Agent {
 
+        @AttributeProperty
+        private String customProperty;
+
         public CustomAgent() {
         }
 
         public CustomAgent(final String john) {
             super(john);
+        }
+
+        public String getCustomProperty() {
+            return customProperty;
+        }
+
+        public void setCustomProperty(final String customProperty) {
+            this.customProperty = customProperty;
         }
     }
 

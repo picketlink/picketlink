@@ -337,7 +337,7 @@ builder
           </itemizedlist>
         </para>
         <section>
-        	<title>Initializing the SecurityContext</title>
+        	<title>Initializing the IdentityContext</title>
           <para>
           	Sometimes you may need to provide additional configuration or even references for external resources before the operation is executed by an identity store.
           	An example is how you tell to the <code>JPAIdentityStore</code> which <code>EntityManager</code> instance should be used.
@@ -346,7 +346,7 @@ builder
         	  that allows you to provide a <code>ContextInitializer</code> implementation.
           </para>
        	  <programlisting language="JAVA"><![CDATA[public interface ContextInitializer {
-    void initContextForStore(SecurityContext context, IdentityStore<?> store);
+    void initContextForStore(IdentityContext context, IdentityStore<?> store);
 }]]></programlisting>
 				  <para>
 				  	The method <code>initContextForStore</code> will be invoked for every single operation and before its execution by the identity store.
@@ -362,7 +362,7 @@ builder
     .stores()
       .file()
         .supportAllFeatures();
-        .addContextInitializer(new MySecurityContextInitializer());
+        .addContextInitializer(new MyContextInitializer());
 ]]></programlisting>
 				  <para>You can provide multiple initializers.</para>
 				  <note>
