@@ -23,6 +23,8 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
+import org.picketlink.idm.credential.storage.DigestCredentialStorage;
+import org.picketlink.idm.credential.util.CredentialUtils;
 import org.picketlink.idm.credential.util.DigestUtil;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
@@ -30,6 +32,7 @@ import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -272,5 +275,28 @@ public class DigestCredentialTestCase extends AbstractPartitionManagerTestCase {
         identityManager.validateCredentials(credential);
         
         assertEquals(Status.ACCOUNT_DISABLED, credential.getStatus());
+    }
+
+    @Test
+    @Configuration (exclude = LDAPStoreConfigurationTester.class)
+    public void testRetrieveCurrentCredential() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = createUser("someUser");
+        Digest realmAPassword = new Digest();
+
+        realmAPassword.setRealm("Realm A");
+        realmAPassword.setUsername(user.getLoginName());
+        realmAPassword.setPassword("somePassword");
+
+        identityManager.updateCredential(user, realmAPassword);
+
+        DigestCredentialStorage currentStorage = identityManager.retrieveCurrentCredential(user, DigestCredentialStorage.class);
+
+        assertNotNull(currentStorage);
+        assertTrue(CredentialUtils.isCurrentCredential(currentStorage));
+
+        assertNotNull(currentStorage.getEffectiveDate());
+        assertNotNull(currentStorage.getHa1());
+        assertNotNull(currentStorage.getRealm());
     }
 }

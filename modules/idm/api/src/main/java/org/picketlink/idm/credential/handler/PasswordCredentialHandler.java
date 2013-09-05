@@ -49,7 +49,9 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Shane Bryzak
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-@SupportsCredentials({UsernamePasswordCredentials.class, Password.class})
+@SupportsCredentials(
+        credentialClass = {UsernamePasswordCredentials.class, Password.class},
+        credentialStorage = EncodedPasswordStorage.class)
 public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends UsernamePasswordCredentials, U extends Password>
         extends AbstractCredentialHandler<S, V, U> {
 

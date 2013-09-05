@@ -53,7 +53,9 @@ import static org.picketlink.idm.credential.util.DigestUtil.*;
  * @author Shane Bryzak
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-@SupportsCredentials({ DigestCredentials.class, Digest.class })
+@SupportsCredentials(
+        credentialClass = { DigestCredentials.class, Digest.class },
+        credentialStorage = DigestCredentialStorage.class)
 public class DigestCredentialHandler<S,V,U>
     extends AbstractCredentialHandler<CredentialStore<?>, DigestCredentials, Digest> {
 

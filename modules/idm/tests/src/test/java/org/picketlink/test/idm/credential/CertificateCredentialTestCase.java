@@ -21,13 +21,18 @@ package org.picketlink.test.idm.credential;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
+import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.X509CertificateCredentials;
+import org.picketlink.idm.credential.storage.EncodedPasswordStorage;
+import org.picketlink.idm.credential.storage.X509CertificateStorage;
+import org.picketlink.idm.credential.util.CredentialUtils;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -155,6 +160,26 @@ public class CertificateCredentialTestCase extends AbstractPartitionManagerTestC
         identityManager.validateCredentials(credential);
 
         assertEquals(Status.VALID, credential.getStatus());
+    }
+
+    @Test
+    @Configuration (exclude = LDAPStoreConfigurationTester.class)
+    public void testRetrieveCurrentCredential() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        X509Certificate clientCert = getTestingCertificate("servercert.txt");
+        X509CertificateCredentials credential = new X509CertificateCredentials(clientCert);
+
+        User user = createUser(credential.getUsername());
+
+        identityManager.updateCredential(user, clientCert);
+
+        X509CertificateStorage currentStorage = identityManager.retrieveCurrentCredential(user, X509CertificateStorage.class);
+
+        assertNotNull(currentStorage);
+        assertTrue(CredentialUtils.isCurrentCredential(currentStorage));
+
+        assertNotNull(currentStorage.getEffectiveDate());
+        assertNotNull(currentStorage.getBase64Cert());
     }
 
     private X509Certificate getTestingCertificate(String fromTextFile) {

@@ -23,6 +23,8 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
+import org.picketlink.idm.credential.storage.EncodedPasswordStorage;
+import org.picketlink.idm.credential.util.CredentialUtils;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.Configuration;
@@ -33,6 +35,9 @@ import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -281,4 +286,50 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
 
         assertEquals(Status.ACCOUNT_DISABLED, credential.getStatus());
     }
+
+    @Test
+    @Configuration (exclude = LDAPStoreConfigurationTester.class)
+    public void testRandomSaltGeneration() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = createUser("someUser");
+        Password plainTextPassword = new Password("updated_password".toCharArray());
+
+        identityManager.updateCredential(user, plainTextPassword);
+        identityManager.updateCredential(user, plainTextPassword);
+        identityManager.updateCredential(user, plainTextPassword);
+        identityManager.updateCredential(user, plainTextPassword);
+        identityManager.updateCredential(user, plainTextPassword);
+        identityManager.updateCredential(user, plainTextPassword);
+
+        List<EncodedPasswordStorage> storages = identityManager.retrieveCredentials(user, EncodedPasswordStorage.class);
+
+        assertFalse(storages.isEmpty());
+        assertEquals(6, storages.size());
+
+        Set<String> salts = new HashSet<String>();
+
+        for (EncodedPasswordStorage storage: storages) {
+            assertTrue(salts.add(storage.getSalt()));
+        }
+    }
+
+    @Test
+    @Configuration (exclude = LDAPStoreConfigurationTester.class)
+    public void testRetrieveCurrentCredential() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = createUser("someUser");
+        Password plainTextPassword = new Password("updated_password".toCharArray());
+
+        identityManager.updateCredential(user, plainTextPassword);
+
+        EncodedPasswordStorage currentStorage = identityManager.retrieveCurrentCredential(user, EncodedPasswordStorage.class);
+
+        assertNotNull(currentStorage);
+        assertTrue(CredentialUtils.isCurrentCredential(currentStorage));
+
+        assertNotNull(currentStorage.getEffectiveDate());
+        assertNotNull(currentStorage.getEncodedHash());
+        assertNotNull(currentStorage.getSalt());
+    }
+
 }
