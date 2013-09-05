@@ -37,6 +37,7 @@ import java.security.SecureRandom;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -86,7 +87,7 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
 
     private final Lock lock = new ReentrantLock();
     private Integer renewRandomNumberGeneratorInterval = -1;
-    private volatile Date lastRenewTime;
+    private AtomicLong lastRenewTime = new AtomicLong();
 
     private SecureRandomProvider secureRandomProvider;
     private SecureRandom secureRandom;
@@ -209,8 +210,8 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
         if (isSecureRandomOutDated()) {
             if (this.lock.tryLock()) {
                 try {
+                    this.lastRenewTime.set(new Date().getTime());
                     this.secureRandom = createSecureRandom();
-                    this.lastRenewTime = new Date();
                 } finally {
                     this.lock.unlock();
                 }
@@ -238,7 +239,7 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
 
         Calendar calendar = Calendar.getInstance();
 
-        calendar.setTime(this.lastRenewTime);
+        calendar.setTime(new Date(this.lastRenewTime.get()));
         calendar.add(Calendar.MILLISECOND, this.renewRandomNumberGeneratorInterval);
 
         return calendar.getTime().compareTo(new Date()) <= 0;
