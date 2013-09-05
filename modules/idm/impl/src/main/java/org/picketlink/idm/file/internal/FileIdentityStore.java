@@ -247,7 +247,7 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
 
     @Override
     public <T extends CredentialStorage> List<T> retrieveCredentials(IdentityContext context, Account account, Class<T> storageClass) {
-        ArrayList<T> storedCredentials = new ArrayList<T>();
+        List<T> storedCredentials = new ArrayList<T>();
 
         List<FileCredentialStorage> credentials = getCredentials(account, storageClass);
 
@@ -605,10 +605,6 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
             property.setValue(clonedAttributedType, property.getValue(attributedType));
         }
 
-//        for (Attribute<? extends Serializable> attribute : attributedType.getAttributes()) {
-//            clonedAttributedType.setAttribute(attribute);
-//        }
-
         if (IdentityType.class.isInstance(attributedType)) {
             IdentityType identityType = (IdentityType) attributedType;
 
@@ -655,14 +651,14 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
         Map<String, List<FileCredentialStorage>> agentCredentials = filePartition.getCredentials().get(account.getId());
 
         if (agentCredentials == null) {
-            agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
+            agentCredentials = new ConcurrentHashMap<String, List<FileCredentialStorage>>();
             this.fileDataSource.getPartitions().get(partition.getId()).getCredentials().put(account.getId(), agentCredentials);
         }
 
         List<FileCredentialStorage> credentials = agentCredentials.get(storageType.getName());
 
         if (credentials == null) {
-            credentials = new ArrayList<FileCredentialStorage>();
+            credentials = Collections.synchronizedList(new ArrayList<FileCredentialStorage>());
         }
 
         agentCredentials.put(storageType.getName(), credentials);

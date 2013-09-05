@@ -98,8 +98,6 @@ public class FileDataSource {
 
     private ExecutorService executorService;
 
-    private final Map<String, FileChannel> streams = new ConcurrentHashMap<String, FileChannel>();
-
     FileDataSource(FileIdentityStoreConfiguration configuration) {
         this.configuration = configuration;
         init();
@@ -285,7 +283,7 @@ public class FileDataSource {
         }
     }
 
-    private void performFlush(final String fileName, final Object object) {
+    private synchronized  void  performFlush(final String fileName, final Object object) {
         ObjectOutputStream oos = null;
         ByteArrayOutputStream bos = null;
         RandomAccessFile randomAccessFile = null;
