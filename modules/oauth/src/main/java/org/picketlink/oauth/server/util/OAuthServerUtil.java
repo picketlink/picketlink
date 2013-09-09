@@ -34,11 +34,27 @@ import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.internal.DefaultPartitionManager;
+import org.picketlink.idm.jpa.internal.JPAIdentityStore;
+import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.DigestCredentialTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.GroupTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.OTPCredentialTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.PasswordCredentialTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.RelationshipIdentityTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.basic.Agent;
 import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.spi.ContextInitializer;
+import org.picketlink.idm.spi.IdentityContext;
+import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.oauth.common.OAuthConstants;
 import org.picketlink.oauth.grants.AuthorizationCodeGrant;
 import org.picketlink.oauth.grants.ResourceOwnerPasswordCredentialsGrant;
@@ -78,39 +94,49 @@ public class OAuthServerUtil {
         identityManager = (IdentityManager) context.getAttribute("identityManager");
         if (identityManager == null) {
             entityManagerFactory = Persistence.createEntityManagerFactory("picketlink-oauth-pu");
+            final EntityManager entityManager = entityManagerFactory.createEntityManager();
+            entityManager.getTransaction().begin();
+            entityManagerThreadLocal.set(entityManager);
+
             IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
             builder
-                .named("default")
+                .named("oauth")
                     .stores()
-                        .jpa()
-//                            .identityClass(IdentityObject.class)
-//                            .attributeClass(IdentityObjectAttribute.class)
-//                            .relationshipClass(RelationshipObject.class)
-//                            .relationshipIdentityClass(RelationshipIdentityObject.class)
-//                            .relationshipAttributeClass(RelationshipObjectAttribute.class)
-//                            .credentialClass(CredentialObject.class)
-//                            .credentialAttributeClass(CredentialObjectAttribute.class)
-//                            .partitionClass(PartitionObject.class).supportAllFeatures()
-//                            .addContextInitializer(new JPAContextInitializer(entityManagerFactory) {
-//                                @Override
-//                                public EntityManager getEntityManager() {
-//                                    return entityManagerThreadLocal.get();
-//                                }
-//                            });
-            ;
+                        .jpa().mappedEntity(
+                    AccountTypeEntity.class,
+                    RoleTypeEntity.class,
+                    GroupTypeEntity.class,
+                    IdentityTypeEntity.class,
+                    RelationshipTypeEntity.class,
+                    RelationshipIdentityTypeEntity.class,
+                    PartitionTypeEntity.class,
+                    PasswordCredentialTypeEntity.class,
+                    DigestCredentialTypeEntity.class,
+                    X509CredentialTypeEntity.class,
+                    OTPCredentialTypeEntity.class,
+                    AttributeTypeEntity.class
+            ).addContextInitializer(new ContextInitializer() {
+                @Override
+                public void initContextForStore(IdentityContext ctx, IdentityStore<?> store) {
+                    if (store instanceof JPAIdentityStore) {
+                        if (!ctx.isParameterSet(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER)) {
+                            ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, entityManager);
+                        }
+                    }
+                }
+            }).supportAllFeatures();
 
-            DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+            DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
 
-            partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+            if (partitionManager.getPartition(Realm.class, Realm.DEFAULT_REALM) == null) {
+                partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+            }
 
             // FIXME: IdentityManager is not threadsafe
             identityManager = partitionManager.createIdentityManager();
 
             context.setAttribute("identityManager", identityManager);
-            EntityManager entityManager = entityManagerFactory.createEntityManager();
-            entityManagerThreadLocal.set(entityManager);
-            entityManager.getTransaction().begin();
         }
         return identityManager;
     }

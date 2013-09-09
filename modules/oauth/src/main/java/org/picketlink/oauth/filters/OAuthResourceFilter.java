@@ -36,9 +36,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
+import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.spi.ContextInitializer;
+import org.picketlink.idm.spi.IdentityContext;
+import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.oauth.common.OAuthConstants;
 import org.picketlink.oauth.messages.ResourceAccessRequest;
 import org.picketlink.oauth.server.util.OAuthServerUtil;
@@ -61,7 +65,7 @@ public class OAuthResourceFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         try {
             context = filterConfig.getServletContext();
-            handleIdentityManager();
+            identityManager = OAuthServerUtil.handleIdentityManager(context);
         } catch (IOException e1) {
             throw new RuntimeException(e1);
         }
@@ -72,8 +76,6 @@ public class OAuthResourceFilter implements Filter {
             ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-
-        initializeEntityManager();
 
         try {
 
@@ -126,104 +128,11 @@ public class OAuthResourceFilter implements Filter {
         } catch (Exception e) {
             httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, e.getLocalizedMessage());
             return;
-        } finally {
-            closeEntityManager();
         }
     }
 
     @Override
     public void destroy() {
-    }
-
-    private void handleIdentityManager() throws IOException {
-        if (identityManager == null) {
-            if (context == null) {
-                throw new RuntimeException("Servlet Context has not been injected");
-            }
-
-            if (isJPAStoreConfigured()) {
-                this.entityManagerFactory = Persistence.createEntityManagerFactory("picketlink-oauth-pu");
-
-                IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
-
-                builder
-                    .named("default")
-                        .stores()
-                            .jpa()
-//                                .identityClass(IdentityObject.class)
-//                                .attributeClass(IdentityObjectAttribute.class)
-//                                .relationshipClass(RelationshipObject.class)
-//                                .relationshipIdentityClass(RelationshipIdentityObject.class)
-//                                .relationshipAttributeClass(RelationshipObjectAttribute.class)
-//                                .credentialClass(CredentialObject.class)
-//                                .credentialAttributeClass(CredentialObjectAttribute.class)
-//                                .partitionClass(PartitionObject.class)
-//                                .supportAllFeatures().addContextInitializer(new JPAContextInitializer(this.entityManagerFactory) {
-//                                    @Override
-//                                    public EntityManager getEntityManager() {
-//                                        return entityManager.get();
-//                                    }
-//                                });
-                ;
-
-                DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.build());
-
-                partitionManager.add(new Realm(Realm.DEFAULT_REALM));
-
-                // FIXME: IdentityManager is not threadsafe
-                identityManager = partitionManager.createIdentityManager();
-            }
-
-            if (isLDAPStoreConfigured()) {
-                IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
-
-                Properties properties = getProperties();
-
-                builder
-                    .named("default")
-                        .stores()
-                            .ldap()
-                                .baseDN(properties.getProperty("baseDN"))
-                                .bindDN(properties.getProperty("bindDN"))
-                                .bindCredential(properties.getProperty("bindCredential"))
-                                .url(properties.getProperty("ldapURL"))
-                                .supportAllFeatures();
-
-                DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.build());
-
-                // FIXME: IdentityManager is not threadsafe
-                identityManager = partitionManager.createIdentityManager();
-            }
-        }
-    }
-
-    private boolean isLDAPStoreConfigured() {
-        return "ldap".equalsIgnoreCase(context.getInitParameter("storeType"));
-    }
-
-    private boolean isJPAStoreConfigured() {
-        return context.getInitParameter("storeType") == null || "db".equals(context.getInitParameter("storeType"));
-    }
-
-    private void closeEntityManager() {
-        if (isJPAStoreConfigured() && this.entityManagerFactory != null) {
-            EntityManager entityManager = this.entityManager.get();
-
-            entityManager.getTransaction().commit();
-            entityManager.close();
-
-            this.entityManager.remove();
-        }
-    }
-
-    private void initializeEntityManager() {
-        if (isJPAStoreConfigured() && this.entityManagerFactory != null) {
-            EntityManager entityManager = this.entityManagerFactory.createEntityManager();
-
-            entityManager.getTransaction().begin();
-
-            this.entityManager.set(entityManager);
-        }
     }
 
     private Properties getProperties() throws IOException {
