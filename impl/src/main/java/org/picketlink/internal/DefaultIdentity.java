@@ -244,11 +244,13 @@ public class DefaultIdentity implements Identity
 
     public boolean hasPermission(Object resource, String operation)
     {
-        return permissionMapper.resolvePermission(resource, operation);
+        //return permissionMapper.resolvePermission(resource, operation);
+        return false;
     }
 
     public boolean hasPermission(Class<?> resourceClass, Serializable identifier, String operation)
     {
-        return permissionMapper.resolvePermission(resourceClass, identifier, operation);
+        //return permissionMapper.resolvePermission(resourceClass, identifier, operation);
+        return false;
     }
 }
