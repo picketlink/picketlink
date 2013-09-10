@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.picketlink.permission.annotations;
+package org.picketlink.idm.permission.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;

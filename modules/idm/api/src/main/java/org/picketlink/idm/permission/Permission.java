@@ -16,18 +16,17 @@
  * limitations under the License.
  */
 
-package org.picketlink.permission;
+package org.picketlink.idm.permission;
 
 import org.picketlink.idm.model.IdentityType;
 
 /**
- * Represents a specific permission granted for a domain object 
- * 
+ * Represents a specific permission granted for a domain object
+ *
  * @author Shane Bryzak
  *
  */
-public class Permission
-{
+public class Permission {
     private Object resource;
     private IdentityType recipient;
     private String permission;

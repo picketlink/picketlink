@@ -43,7 +43,7 @@ import org.picketlink.authentication.event.PreLoggedOutEvent;
 import org.picketlink.authentication.internal.IdmAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.model.Account;
-import org.picketlink.permission.internal.PermissionMapper;
+import org.picketlink.idm.permission.internal.PermissionMapper;
 
 /**
  * Default Identity implementation

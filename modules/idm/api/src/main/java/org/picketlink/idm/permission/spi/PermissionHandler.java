@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.picketlink.permission.spi;
+package org.picketlink.idm.permission.spi;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -24,15 +24,14 @@ import java.util.Set;
 
 /**
  * Handles the generation of permission resource identifiers, and is responsible for the
- * marshaling / unmarshaling of permissions 
+ * marshaling / unmarshaling of permissions
  *
  * @author Shane Bryzak
  */
-public interface PermissionHandler 
-{
+public interface PermissionHandler {
     /**
      * Returns true if the implementation can handle resources of the specified class
-     * 
+     *
      * @param resourceClass
      * @return
      */
@@ -40,7 +39,7 @@ public interface PermissionHandler
 
     /**
      * Returns true if the implementation can load the resource instance for the specified identifier
-     * 
+     *
      * @param identifier
      * @return
      */
@@ -48,7 +47,7 @@ public interface PermissionHandler
 
     /**
      * Returns a String identifier value that can be used to uniquely identify the specified resource
-     *  
+     *
      * @param resource
      * @return
      */
@@ -56,7 +55,7 @@ public interface PermissionHandler
 
     /**
      * Returns the natural identifier value of the specified resource
-     * 
+     *
      * @param resource
      * @return
      */
@@ -64,7 +63,7 @@ public interface PermissionHandler
 
     /**
      * Returns the resource instance for the specified identifier
-     * 
+     *
      * @param identifier
      * @return
      */
@@ -73,14 +72,14 @@ public interface PermissionHandler
     /**
      * Returns a set containing the available permissions for a particular resource.  If there are no hard coded
      * permissions defined (i.e. any permission is allowed) then this method will return an empty set.
-     * 
+     *
      * @param resourceClass
      * @return
      */
     Set<String> listAvailablePermissions(Class<?> resourceClass);
 
     /**
-     * 
+     *
      * @param resourceClass
      * @param permissions
      * @return

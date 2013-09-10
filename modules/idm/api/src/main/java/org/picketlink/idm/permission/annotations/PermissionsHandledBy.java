@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.picketlink.permission.annotations;
+package org.picketlink.idm.permission.annotations;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -26,7 +26,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.picketlink.permission.spi.PermissionHandler;
+import org.picketlink.idm.permission.spi.PermissionHandler;
 
 /**
  * Configures the Permission Handler to use for instance-based permissions.  The specified class

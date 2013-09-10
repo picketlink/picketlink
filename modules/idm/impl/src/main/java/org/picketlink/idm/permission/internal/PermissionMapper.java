@@ -16,28 +16,23 @@
  * limitations under the License.
  */
 
-package org.picketlink.permission.internal;
+package org.picketlink.idm.permission.internal;
 
 import java.io.Serializable;
+import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-
-import org.picketlink.permission.PermissionResolver;
-import org.picketlink.permission.PermissionResolver.PermissionStatus;
+import org.picketlink.idm.permission.PermissionResolver;
+import org.picketlink.idm.permission.PermissionResolver.PermissionStatus;
 
 /**
- * Uses the available PermissionResolver instances to determine whether an application permission
+ * Iterates through the available PermissionResolver instances to determine whether an application permission
  * is to be allowed or denied. 
  *
  * @author Shane Bryzak
  */
-@ApplicationScoped
 public class PermissionMapper
 {
-    @Inject 
-    private Instance<PermissionResolver> resolvers;
+    private List<PermissionResolver> resolvers;
 
     public boolean resolvePermission(Object resource, String operation)
     {

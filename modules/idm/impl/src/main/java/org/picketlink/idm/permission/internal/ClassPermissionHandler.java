@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.picketlink.permission.internal;
+package org.picketlink.idm.permission.internal;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -24,8 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.enterprise.context.Dependent;
 
-import org.picketlink.permission.annotations.PermissionsHandledBy;
-import org.picketlink.permission.spi.PermissionHandler;
+import org.picketlink.idm.permission.annotations.PermissionsHandledBy;
+import org.picketlink.idm.permission.spi.PermissionHandler;
 
 /**
  * An Identifier strategy for class-based permission checks
