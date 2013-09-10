@@ -26,27 +26,22 @@ import org.picketlink.idm.permission.PermissionResolver.PermissionStatus;
 
 /**
  * Iterates through the available PermissionResolver instances to determine whether an application permission
- * is to be allowed or denied. 
+ * is to be allowed or denied.
  *
  * @author Shane Bryzak
  */
-public class PermissionMapper
-{
+public class PermissionMapper {
     private List<PermissionResolver> resolvers;
 
-    public boolean resolvePermission(Object resource, String operation)
-    {
+    public boolean resolvePermission(Object resource, String operation) {
         boolean permit = false;
 
-        for (PermissionResolver resolver : resolvers)
-        {
+        for (PermissionResolver resolver : resolvers) {
             PermissionStatus status = resolver.hasPermission(resource, operation);
-            if (PermissionStatus.ALLOW.equals(status))
-            {
+            if (PermissionStatus.ALLOW.equals(status)) {
                 permit = true;
             }
-            else if (PermissionStatus.DENY.equals(status))
-            {
+            else if (PermissionStatus.DENY.equals(status)) {
                 return false;
             }
         }
@@ -54,19 +49,15 @@ public class PermissionMapper
         return permit;
     }
 
-    public boolean resolvePermission(Class<?> resourceClass, Serializable identifier, String operation)
-    {
+    public boolean resolvePermission(Class<?> resourceClass, Serializable identifier, String operation) {
         boolean permit = false;
 
-        for (PermissionResolver resolver : resolvers)
-        {
+        for (PermissionResolver resolver : resolvers) {
             PermissionStatus status = resolver.hasPermission(resourceClass, identifier, operation);
-            if (PermissionStatus.ALLOW.equals(status))
-            {
+            if (PermissionStatus.ALLOW.equals(status)) {
                 permit = true;
             }
-            else if (PermissionStatus.DENY.equals(status))
-            {
+            else if (PermissionStatus.DENY.equals(status)) {
                 return false;
             }
         }

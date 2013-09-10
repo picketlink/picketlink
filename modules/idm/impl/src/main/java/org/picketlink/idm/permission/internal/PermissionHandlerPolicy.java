@@ -26,26 +26,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import org.picketlink.idm.permission.annotations.PermissionsHandledBy;
 import org.picketlink.idm.permission.spi.PermissionHandler;
 
 /**
- * Manages a set of PermissionHandler instances that overall define a "policy" for 
+ * Manages a set of PermissionHandler instances that overall define a "policy" for
  * how persistent resource permissions are mapped and managed.
  *
  * @author Shane Bryzak
  */
-@ApplicationScoped
 public class PermissionHandlerPolicy {
     private Map<Class<?>, PermissionHandler> handlers = new ConcurrentHashMap<Class<?>, PermissionHandler>();
 
     private Set<PermissionHandler> registeredHandlers = new HashSet<PermissionHandler>();
 
-    @Inject
-    public void create() {
+    public PermissionHandlerPolicy(Set<PermissionHandler> registeredHandlers) {
         if (registeredHandlers.isEmpty()) {
             // FIXME add back once ACL permissions are reinstated
             //registeredHandlers.add(new EntityPermissionHandler());
@@ -95,7 +90,7 @@ public class PermissionHandlerPolicy {
         return identifiers;
     }
 
-    public Map<String,Object> lookupResources(Collection<String> identifiers, 
+    public Map<String,Object> lookupResources(Collection<String> identifiers,
             Collection<Object> loadedResources) {
         Map<String,Object> resources = new HashMap<String,Object>();
         Map<String,Object> loadedResourceIdentifiers = loadResourceIdentifiers(loadedResources);

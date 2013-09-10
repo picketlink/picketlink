@@ -67,8 +67,8 @@ public class DefaultIdentity implements Identity
     @Inject
     private Instance<IdmAuthenticator> idmAuthenticatorInstance;
 
-    @Inject 
-    private PermissionMapper permissionMapper;
+    //@Inject 
+    //private PermissionMapper permissionMapper;
 
     /**
      * Flag indicating whether we are currently authenticating

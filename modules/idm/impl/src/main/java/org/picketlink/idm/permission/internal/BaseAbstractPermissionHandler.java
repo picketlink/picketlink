@@ -117,7 +117,7 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
                         this.permissions.add(permission);
                     }
                 }
-            } 
+            }
             else {
                 // comma-separated string based actions
                 String[] permissions = members.split(",");
@@ -160,8 +160,7 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
                 }
 
                 return "" + mask;
-            } 
-            else {
+            } else {
                 StringBuilder sb = new StringBuilder();
                 for (String member : permissions) {
                     if (sb.length() > 0) {
@@ -174,8 +173,7 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
         }
     }
 
-    public PermissionSet createPermissionSet(Class<?> resourceClass, String members) 
-    {
+    public PermissionSet createPermissionSet(Class<?> resourceClass, String members) {
         if (!classPermissions.containsKey(resourceClass)) {
             initClassPermissions(resourceClass);
         }
