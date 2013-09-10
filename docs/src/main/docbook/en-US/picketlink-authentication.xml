@@ -25,12 +25,12 @@
     </section>
     
     <section>
-      <title>The Authentication API</title>
+      <title>Authentication API - the <code>Identity</code> bean</title>
       
       <para>
         The <code>Identity</code> bean (which can be found in the <code>org.picketlink</code> package) is central to PicketLink's
-        security API.  This bean represents the authenticated user for the current session, and provides many useful methods for
-        controlling the authentication process and querying the user's assigned privileges.  In terms of authentication, the
+        security API.  This bean represents the authenticated user for the current session, and provides many useful methods for 
+        controlling the authentication process and querying the user's assigned privileges.  In terms of authentication, the 
         <code>Identity</code> bean provides the following methods:
       </para>
       
@@ -55,8 +55,9 @@ Account getAccount();]]></programlisting>
 
       <para>
         If the authentication process is successful, the <code>login()</code> method will return a result of <code>SUCCESS</code>,
-        otherwise it will return a result of <code>FAILED</code>.  By default, the <code>Identity</code> bean is session-scoped,
-        which means that once a user is authenticated they will stay authenticated for the duration of the session.  
+        otherwise it will return a result of <code>FAILED</code>.  The default implementation of the <code>Identity</code> bean is 
+        a <code>@SessionScoped</code> CDI bean, which means that once a user is authenticated they will stay authenticated for the 
+        duration of the session.  
       </para>
 
       <note>
@@ -97,10 +98,10 @@ Account getAccount();]]></programlisting>
       <programlisting language="XML"><![CDATA[<h:commandButton value="LOGIN" action="#{loginAction.login}"/>]]></programlisting>
       
       <para>
-        The <code>isLoggedIn()</code> method may be used to determine whether there is a user logged in for the current session.
+        The <code>Identity.isLoggedIn()</code> method may be used to determine whether there is a user logged in for the current session.
         It is typically used as an authorization check to control either an aspect of the user interface (for example, not
         displaying a menu item if the user isn't logged in), or to restrict certain business logic.  While logged in, 
-        the <code>getAccount()</code> method can be used to retrieve the currently authenticated account.  If the current
+        the <code>getAccount()</code> method can be used to retrieve the currently authenticated account (i.e. the user).  If the current
         session is not authenticated, then <code>getAccount()</code> will return <code>null</code>.  The following example
         shows both the <code>isLoggedIn()</code> and <code>getAgent()</code> methods being used inside a JSF page:
       </para>
@@ -110,7 +111,8 @@ Account getAccount();]]></programlisting>
       <note>
         <para>
           If you're wondering what an <code>Account</code> is, it is simply a representation of the external entity that is
-          interacting and authenticating with your application. The <code>Account</code> interface is actually the superclass of <code>User</code> and <code>Agent</code>
+          interacting and authenticating with your application. The <code>Account</code> interface is actually the superclass of 
+          the <code>User</code> and <code>Agent</code>
           - see the Identity Management chapter for more details.
         </para>
       </note>      
