@@ -17,11 +17,30 @@
  */
 package org.picketlink.idm.internal;
 
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.util.IDMUtil.isTypeSupported;
+import static org.picketlink.idm.util.IDMUtil.toSet;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.picketlink.idm.DefaultIdGenerator;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.PermissionManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.AbstractIdentityStoreConfiguration;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
@@ -53,23 +72,6 @@ import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.StoreSelector;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static org.picketlink.common.util.StringUtil.*;
-import static org.picketlink.idm.IDMLogger.*;
-import static org.picketlink.idm.IDMMessages.*;
-import static org.picketlink.idm.util.IDMUtil.*;
-
 /**
  * Provides partition management functionality, and partition-specific {@link IdentityManager} instances. <p/> Before
  * using this factory you need a valid {@link IdentityConfiguration}, usually created using the {@link
@@ -83,6 +85,9 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     private static final long serialVersionUID = 1L;
     private static final String DEFAULT_CONFIGURATION_NAME = "default";
+
+    private static final Realm DEFAULT_REALM = new Realm(Realm.DEFAULT_REALM);
+
     /**
      * A collection of all identity configurations.  Each configuration has a unique name.
      */
@@ -270,7 +275,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     @Override
     public IdentityManager createIdentityManager() throws IdentityManagementException {
-        return createIdentityManager(new Realm(Realm.DEFAULT_REALM));
+        return createIdentityManager(DEFAULT_REALM);
     }
 
     @Override
@@ -295,6 +300,35 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             return new ContextualIdentityManager(storedPartition, eventBridge, idGenerator, this, createRelationshipManager());
         } catch (Exception e) {
             throw MESSAGES.partitionCouldNotCreateIdentityManager(storedPartition);
+        }
+    }
+
+    @Override
+    public PermissionManager createPermissionManager() {
+        return createPermissionManager(DEFAULT_REALM);
+    }
+
+    @Override
+    public PermissionManager createPermissionManager(Partition partition) throws IdentityManagementException {
+        if (partition == null) {
+            throw MESSAGES.nullArgument("Partition");
+        }
+
+        Partition storedPartition = null;
+        if (this.partitionManagementConfig != null) {
+            storedPartition = getPartition(partition.getClass(), partition.getName());
+        } else {
+            storedPartition = createDefaultPartition();
+        }
+
+        if (storedPartition == null) {
+            throw MESSAGES.partitionNotFoundWithName(partition.getClass(), partition.getName());
+        }
+
+        try {
+            return new ContextualPermissionManager(storedPartition, eventBridge, idGenerator);
+        } catch (Exception ex) {
+            throw MESSAGES.partitionCouldNotCreatePermissionManager(storedPartition);
         }
     }
 

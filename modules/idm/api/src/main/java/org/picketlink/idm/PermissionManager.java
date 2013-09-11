@@ -48,7 +48,7 @@ public interface PermissionManager {
      * @param permission
      * @return
      */
-    public boolean revokePermission(Permission permission);
+    boolean revokePermission(Permission permission);
 
     /**
      * Revoke the specified permissions
@@ -56,14 +56,14 @@ public interface PermissionManager {
      * @param permissions
      * @return
      */
-    public boolean revokePermissions(List<Permission> permissions);
+    boolean revokePermissions(List<Permission> permissions);
 
     /**
      * Remove all permissions for the specified resource
      *
      * @param resource
      */
-    public void clearPermissions(Object resource);
+    void clearPermissions(Object resource);
 
     /**
      * List all allowed permission type strings for the specified resource
@@ -71,5 +71,5 @@ public interface PermissionManager {
      * @param resource
      * @return
      */
-    public List<String> listPermissionTypes(Object resource);
+    List<String> listPermissionTypes(Object resource);
 }

@@ -116,8 +116,7 @@ public interface IDMMessages {
 
     // partition API messages 400-499
     @Message(id = 400, value = "Could not create contextual IdentityManager for Partition [%s]. Partition not found " +
-            "or" +
-            " it was null.")
+            "or it was null.")
     IdentityManagementException partitionCouldNotCreateIdentityManager(Partition partition);
 
     @Message(id = 401, value = "A Partition [%s] with name [%s] already exists.")
@@ -149,6 +148,10 @@ public interface IDMMessages {
     @Message(id = 409, value = "Partition management is not supported by the current configuration.")
     OperationNotSupportedException partitionManagementNoSupported(@Param Class<Partition> partitionClass,
                                                                   @Param IdentityOperation create);
+
+    @Message(id = 410, value = "Could not create contextual PermissionManager for Partition [%s]. Partition not found " +
+            "or it was null.")
+    IdentityManagementException partitionCouldNotCreatePermissionManager(Partition partition);
 
     // query API messages 500-599
     @Message(id = 500, value = "Could not query Relationship using query [%s].")
