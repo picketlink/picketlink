@@ -35,6 +35,7 @@ import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityStore;
@@ -236,4 +237,8 @@ public interface IDMMessages {
 
     @Message(id = 714, value = "Invalid configuration [%s].")
     SecurityConfigurationException configInvalidConfiguration(String name);
+
+    // Permission management messages 800-899
+    @Message(id = 800, value = "Could not grant Permission [%s].")
+    IdentityManagementException permissionGrantFailed(Permission permission, @Cause Throwable t);
 }

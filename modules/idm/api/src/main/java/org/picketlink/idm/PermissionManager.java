@@ -32,7 +32,7 @@ public interface PermissionManager {
      *
      * @return boolean returns true if the permission was granted successfully
      */
-    boolean grantPermission(Permission permission);
+    void grantPermission(Permission permission);
 
     /**
      * Grant all permissions in the specified list
@@ -40,7 +40,7 @@ public interface PermissionManager {
      * @param permissions
      * @return boolean returns true if the permissions were granted successfully
      */
-    boolean grantPermissions(List<Permission> permissions);
+    void grantPermissions(List<Permission> permissions);
 
     /**
      * Revoke the specified permission
@@ -48,7 +48,7 @@ public interface PermissionManager {
      * @param permission
      * @return
      */
-    boolean revokePermission(Permission permission);
+    void revokePermission(Permission permission);
 
     /**
      * Revoke the specified permissions
@@ -56,7 +56,7 @@ public interface PermissionManager {
      * @param permissions
      * @return
      */
-    boolean revokePermissions(List<Permission> permissions);
+    void revokePermissions(List<Permission> permissions);
 
     /**
      * Remove all permissions for the specified resource

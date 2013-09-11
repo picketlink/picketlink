@@ -65,6 +65,7 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.IdentityPartition;
 import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.permission.spi.PermissionStore;
 import org.picketlink.idm.spi.AttributeStore;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
@@ -326,7 +327,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         }
 
         try {
-            return new ContextualPermissionManager(storedPartition, eventBridge, idGenerator);
+            return new ContextualPermissionManager(storedPartition, eventBridge, idGenerator, this);
         } catch (Exception ex) {
             throw MESSAGES.partitionCouldNotCreatePermissionManager(storedPartition);
         }
@@ -837,6 +838,38 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         storedPartition.setId(Realm.DEFAULT_REALM);
 
         return storedPartition;
+    }
+
+    @Override
+    public PermissionStore getStoreForPermissionOperation(IdentityContext context) {
+
+        IdentityConfiguration identityConfiguration = null;
+
+        if (this.partitionManagementConfig != null) {
+            identityConfiguration = getConfigurationForPartition(context.getPartition());
+        } else if (this.configurations.size() == 1) {
+            identityConfiguration = this.configurations.iterator().next();
+        }
+
+        PermissionStore store = null;
+
+        /*if (identityConfiguration == null) {
+            for (IdentityConfiguration configuration : this.configurations) {
+                store = lookupStore(context, configuration, type, operation);
+
+                if (store != null) {
+                    break;
+                }
+            }
+        } else {
+            store = lookupStore(context, identityConfiguration, type, operation);
+        }
+
+        if (store == null) {
+            throw MESSAGES.attributedTypeUnsupportedOperation(type, operation, type, operation);
+        }*/
+
+        return store;
     }
 
 }

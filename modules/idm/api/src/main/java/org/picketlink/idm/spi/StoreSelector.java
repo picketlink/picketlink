@@ -24,6 +24,7 @@ import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.permission.spi.PermissionStore;
 
 /**
  * Returns the correct IdentityStore instances for certain operation types, for a given Partition
@@ -67,6 +68,14 @@ public interface StoreSelector {
      */
     Set<IdentityStore<?>> getStoresForRelationshipQuery(IdentityContext context, Class<? extends Relationship> relationshipClass,
             Set<Partition> partitions);
+
+    /**
+     * Returns a PermissionStore instance
+     *
+     * @param context
+     * @return
+     */
+    PermissionStore getStoreForPermissionOperation(IdentityContext context);
 
     /**
      * Returns the PartitionStore that manages partitions.
