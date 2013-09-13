@@ -48,15 +48,14 @@ public class SingleConfigLDAPJPAStoreConfigurationTester implements IdentityConf
     private EntityManagerFactory emf;
     private EntityManager entityManager;
 
-    public static final String SIMPLE_JPA_STORE_CONFIG = "SIMPLE_JPA_STORE_CONFIG";
-    public static final String SIMPLE_LDAP_STORE_CONFIG = "SIMPLE_LDAP_STORE_CONFIG";
+    public static final String SINGLE_MIXED_LDAP_JPA_CONFIG = "SINGLE_MIXED_LDAP_JPA_CONFIG";
 
     @Override
     public DefaultPartitionManager getPartitionManager() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
-            .named(SIMPLE_JPA_STORE_CONFIG)
+            .named(SINGLE_MIXED_LDAP_JPA_CONFIG)
                 .stores()
                     .jpa()
                         .mappedEntity(
@@ -79,6 +78,7 @@ public class SingleConfigLDAPJPAStoreConfigurationTester implements IdentityConf
                         .bindCredential(embeddedServer.getBindCredential())
                         .url(embeddedServer.getConnectionUrl())
                         .supportType(IdentityType.class)
+                        .supportCredentials(true)
                         .mapping(Agent.class)
                             .baseDN(embeddedServer.getAgentDnSuffix())
                             .objectClasses("account")

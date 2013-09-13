@@ -66,6 +66,7 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
      * <p>Additional {@link CredentialHandler} types supported by this configuration.</p>
      */
     private final Set<Class<? extends CredentialHandler>> credentialHandlers;
+    private final boolean supportsCredential;
     private Class<? extends IdentityStore> identityStoreType;
     private final boolean supportsAttribute;
     private List<Class<? extends CredentialHandler>> supportedCredentialHandlers;
@@ -76,13 +77,15 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
             Set<Class<? extends CredentialHandler>> credentialHandlers,
-            boolean supportsAttribute) {
+            boolean supportsAttribute,
+            boolean supportsCredential) {
         this.supportedTypes = unmodifiableMap(supportedTypes);
         this.unsupportedTypes = unmodifiableMap(unsupportedTypes);
         this.contextInitializers = unmodifiableList(contextInitializers);
         this.credentialHandlers = unmodifiableSet(credentialHandlers);
         this.credentialHandlerProperties = unmodifiableMap(credentialHandlerProperties);
         this.supportsAttribute = supportsAttribute;
+        this.supportsCredential = supportsCredential;
     }
 
     @Override
@@ -188,4 +191,10 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
     public boolean supportsAttribute() {
         return this.supportsAttribute;
     }
+
+    @Override
+    public boolean supportsCredential() {
+        return this.supportsCredential;
+    }
+
 }

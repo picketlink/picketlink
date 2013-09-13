@@ -132,7 +132,8 @@ public class LDAPStoreConfigurationBuilder extends
                 getUnsupportedTypes(),
                 getContextInitializers(),
                 getCredentialHandlerProperties(),
-                getCredentialHandlers());
+                getCredentialHandlers(),
+                isSupportCredentials());
     }
 
     @Override
