@@ -38,6 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static java.util.Map.*;
+import static org.picketlink.common.util.ClassUtil.*;
 import static org.picketlink.idm.IDMMessages.*;
 
 /**
@@ -160,8 +161,7 @@ public class EntityMapper {
             }
 
             try {
-                attributedType =
-                        (P) Class.forName(getTypeProperty().getValue(entityInstance).toString()).newInstance();
+                attributedType = (P) loadClass(getClass(), getTypeProperty().getValue(entityInstance).toString()).newInstance();
 
                 EntityMapping entityMapping = getMappingsFor(attributedType.getClass());
 

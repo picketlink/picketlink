@@ -22,6 +22,7 @@ import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
+import org.picketlink.common.util.ClassUtil;
 import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
@@ -429,7 +430,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                                                         break;
                                                     }
 
-                                                    V relationship = query.getRelationshipClass().newInstance();
+                                                    V relationship = createRelationshipInstance(query);
 
                                                     rootProperty.setValue(relationship, populateAttributedType(context, next, null));
                                                     property.setValue(relationship, relType);
@@ -448,7 +449,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                                                 }
 
                                                 if (!isNullOrEmpty(member.trim())) {
-                                                    V relationship = query.getRelationshipClass().newInstance();
+                                                    V relationship = createRelationshipInstance(query);
 
                                                     rootProperty.setValue(relationship, populateAttributedType(context, next, null));
 
@@ -515,7 +516,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                                     AttributedType ownerRelType = populateAttributedType(context, next, null);
 
                                     if (property.getJavaClass().isAssignableFrom(ownerRelType.getClass())) {
-                                        V relationship = query.getRelationshipClass().newInstance();
+                                        V relationship = createRelationshipInstance(query);
 
                                         property.setValue(relationship, ownerRelType);
 
@@ -541,14 +542,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         }
 
         return results;
-    }
-
-    private boolean isEmptyMember(final String value) {
-        return value.contains(getEmptyMemberDN());
-    }
-
-    private String getEmptyMemberDN() {
-        return "cn=empty-member," + getConfig().getBaseDN();
     }
 
     @Override
@@ -831,4 +824,17 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
             }
         }
     }
+
+    private <V extends Relationship> V createRelationshipInstance(final RelationshipQuery<V> query) throws InstantiationException, IllegalAccessException {
+        return (V) ClassUtil.loadClass(getClass(), query.getRelationshipClass().getName()).newInstance();
+    }
+
+    private boolean isEmptyMember(final String value) {
+        return value.contains(getEmptyMemberDN());
+    }
+
+    private String getEmptyMemberDN() {
+        return "cn=empty-member," + getConfig().getBaseDN();
+    }
+
 }
