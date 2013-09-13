@@ -51,7 +51,8 @@ public class JPAStoreConfigurationBuilder extends
                 getContextInitializers(),
                 getCredentialHandlerProperties(),
                 getCredentialHandlers(),
-                isSupportAttributes());
+                isSupportAttributes(),
+                isSupportCredentials());
     }
 
     @Override
