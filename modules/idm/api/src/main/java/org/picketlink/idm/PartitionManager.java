@@ -74,6 +74,23 @@ public interface PartitionManager extends Serializable {
     IdentityManager createIdentityManager(Partition partition) throws IdentityManagementException;
 
     /**
+     * Creates a {@link PermissionManager} for the default partition.
+     *
+     * @return
+     * @throws IdentityManagementException
+     */
+    PermissionManager createPermissionManager() throws IdentityManagementException;
+
+    /**
+     * Creates a {@link PermissionManager} for the specified partition.
+     *
+     * @param partition
+     * @return
+     * @throws IdentityManagementException
+     */
+    PermissionManager createPermissionManager(Partition partition) throws IdentityManagementException;
+
+    /**
      * <p>Creates an {@link RelationshipManager} for the specified partition.</p>
      *
      * <p>The returned {@link RelationshipManager} instance is not thread-safe.</p>

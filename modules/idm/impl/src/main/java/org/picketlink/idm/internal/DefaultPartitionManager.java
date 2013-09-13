@@ -17,11 +17,30 @@
  */
 package org.picketlink.idm.internal;
 
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.util.IDMUtil.isTypeSupported;
+import static org.picketlink.idm.util.IDMUtil.toSet;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.picketlink.idm.DefaultIdGenerator;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.PermissionManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.AbstractIdentityStoreConfiguration;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
@@ -46,29 +65,13 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.IdentityPartition;
 import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.permission.spi.PermissionStore;
 import org.picketlink.idm.spi.AttributeStore;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.StoreSelector;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static org.picketlink.common.util.StringUtil.*;
-import static org.picketlink.idm.IDMLogger.*;
-import static org.picketlink.idm.IDMMessages.*;
-import static org.picketlink.idm.util.IDMUtil.*;
 
 /**
  * Provides partition management functionality, and partition-specific {@link IdentityManager} instances. <p/> Before
@@ -83,6 +86,9 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     private static final long serialVersionUID = 1L;
     private static final String DEFAULT_CONFIGURATION_NAME = "default";
+
+    private static final Realm DEFAULT_REALM = new Realm(Realm.DEFAULT_REALM);
+
     /**
      * A collection of all identity configurations.  Each configuration has a unique name.
      */
@@ -270,7 +276,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     @Override
     public IdentityManager createIdentityManager() throws IdentityManagementException {
-        return createIdentityManager(new Realm(Realm.DEFAULT_REALM));
+        return createIdentityManager(DEFAULT_REALM);
     }
 
     @Override
@@ -295,6 +301,35 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             return new ContextualIdentityManager(storedPartition, eventBridge, idGenerator, this, createRelationshipManager());
         } catch (Exception e) {
             throw MESSAGES.partitionCouldNotCreateIdentityManager(storedPartition);
+        }
+    }
+
+    @Override
+    public PermissionManager createPermissionManager() {
+        return createPermissionManager(DEFAULT_REALM);
+    }
+
+    @Override
+    public PermissionManager createPermissionManager(Partition partition) throws IdentityManagementException {
+        if (partition == null) {
+            throw MESSAGES.nullArgument("Partition");
+        }
+
+        Partition storedPartition = null;
+        if (this.partitionManagementConfig != null) {
+            storedPartition = getPartition(partition.getClass(), partition.getName());
+        } else {
+            storedPartition = createDefaultPartition();
+        }
+
+        if (storedPartition == null) {
+            throw MESSAGES.partitionNotFoundWithName(partition.getClass(), partition.getName());
+        }
+
+        try {
+            return new ContextualPermissionManager(storedPartition, eventBridge, idGenerator, this);
+        } catch (Exception ex) {
+            throw MESSAGES.partitionCouldNotCreatePermissionManager(storedPartition);
         }
     }
 
@@ -803,6 +838,38 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         storedPartition.setId(Realm.DEFAULT_REALM);
 
         return storedPartition;
+    }
+
+    @Override
+    public PermissionStore getStoreForPermissionOperation(IdentityContext context) {
+
+        IdentityConfiguration identityConfiguration = null;
+
+        if (this.partitionManagementConfig != null) {
+            identityConfiguration = getConfigurationForPartition(context.getPartition());
+        } else if (this.configurations.size() == 1) {
+            identityConfiguration = this.configurations.iterator().next();
+        }
+
+        PermissionStore store = null;
+
+        /*if (identityConfiguration == null) {
+            for (IdentityConfiguration configuration : this.configurations) {
+                store = lookupStore(context, configuration, type, operation);
+
+                if (store != null) {
+                    break;
+                }
+            }
+        } else {
+            store = lookupStore(context, identityConfiguration, type, operation);
+        }
+
+        if (store == null) {
+            throw MESSAGES.attributedTypeUnsupportedOperation(type, operation, type, operation);
+        }*/
+
+        return store;
     }
 
 }

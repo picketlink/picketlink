@@ -16,16 +16,16 @@
  * limitations under the License.
  */
 
-package org.picketlink.permission.internal;
+package org.picketlink.idm.permission.internal;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.picketlink.permission.annotations.AllowedPermission;
-import org.picketlink.permission.annotations.AllowedPermissions;
-import org.picketlink.permission.spi.PermissionHandler;
+import org.picketlink.idm.permission.annotations.AllowedPermission;
+import org.picketlink.idm.permission.annotations.AllowedPermissions;
+import org.picketlink.idm.permission.spi.PermissionHandler;
 
 /**
  * Stored resource permissions can either be persisted as a comma-separated list of values, or as a
@@ -117,7 +117,7 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
                         this.permissions.add(permission);
                     }
                 }
-            } 
+            }
             else {
                 // comma-separated string based actions
                 String[] permissions = members.split(",");
@@ -160,8 +160,7 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
                 }
 
                 return "" + mask;
-            } 
-            else {
+            } else {
                 StringBuilder sb = new StringBuilder();
                 for (String member : permissions) {
                     if (sb.length() > 0) {
@@ -174,8 +173,7 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
         }
     }
 
-    public PermissionSet createPermissionSet(Class<?> resourceClass, String members) 
-    {
+    public PermissionSet createPermissionSet(Class<?> resourceClass, String members) {
         if (!classPermissions.containsKey(resourceClass)) {
             initClassPermissions(resourceClass);
         }

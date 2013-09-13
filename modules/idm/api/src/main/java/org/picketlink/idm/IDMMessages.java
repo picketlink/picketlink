@@ -35,6 +35,7 @@ import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityStore;
@@ -116,8 +117,7 @@ public interface IDMMessages {
 
     // partition API messages 400-499
     @Message(id = 400, value = "Could not create contextual IdentityManager for Partition [%s]. Partition not found " +
-            "or" +
-            " it was null.")
+            "or it was null.")
     IdentityManagementException partitionCouldNotCreateIdentityManager(Partition partition);
 
     @Message(id = 401, value = "A Partition [%s] with name [%s] already exists.")
@@ -149,6 +149,10 @@ public interface IDMMessages {
     @Message(id = 409, value = "Partition management is not supported by the current configuration.")
     OperationNotSupportedException partitionManagementNoSupported(@Param Class<Partition> partitionClass,
                                                                   @Param IdentityOperation create);
+
+    @Message(id = 410, value = "Could not create contextual PermissionManager for Partition [%s]. Partition not found " +
+            "or it was null.")
+    IdentityManagementException partitionCouldNotCreatePermissionManager(Partition partition);
 
     // query API messages 500-599
     @Message(id = 500, value = "Could not query Relationship using query [%s].")
@@ -233,4 +237,8 @@ public interface IDMMessages {
 
     @Message(id = 714, value = "Invalid configuration [%s].")
     SecurityConfigurationException configInvalidConfiguration(String name);
+
+    // Permission management messages 800-899
+    @Message(id = 800, value = "Could not grant Permission [%s].")
+    IdentityManagementException permissionGrantFailed(Permission permission, @Cause Throwable t);
 }

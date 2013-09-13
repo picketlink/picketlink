@@ -16,65 +16,53 @@
  * limitations under the License.
  */
 
-package org.picketlink.permission.internal;
+package org.picketlink.idm.permission.internal;
 
 import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.enterprise.context.Dependent;
-
-import org.picketlink.permission.annotations.PermissionsHandledBy;
-import org.picketlink.permission.spi.PermissionHandler;
+import org.picketlink.idm.permission.annotations.PermissionsHandledBy;
+import org.picketlink.idm.permission.spi.PermissionHandler;
 
 /**
  * An Identifier strategy for class-based permission checks
  *
  * @author Shane Bryzak
  */
-@Dependent
-public class ClassPermissionHandler extends BaseAbstractPermissionHandler implements PermissionHandler 
-{
+public class ClassPermissionHandler extends BaseAbstractPermissionHandler implements PermissionHandler {
     private Map<Class<?>, String> identifierNames = new ConcurrentHashMap<Class<?>, String>();
 
-    public boolean canHandle(Class<?> resourceClass) 
-    {
+    public boolean canHandle(Class<?> resourceClass) {
         return Class.class.equals(resourceClass);
     }
 
-    public String getGeneratedIdentifier(Object resource) 
-    {
-        if (!(resource instanceof Class<?>)) 
-        {
+    public String getGeneratedIdentifier(Object resource) {
+        if (!(resource instanceof Class<?>)) {
             throw new IllegalArgumentException("Resource [" + resource + "] must be instance of Class");
         }
 
         return getIdentifierName((Class<?>) resource);
     }
 
-    public Serializable getNaturalIdentifier(Object resource) 
-    {
+    public Serializable getNaturalIdentifier(Object resource) {
         // The identifier value is the same as getIdentifier()
         return getGeneratedIdentifier(resource);
-    }    
-    
-    private String getIdentifierName(Class<?> cls) 
-    {
-        if (!identifierNames.containsKey(cls)) 
-        {
+    }
+
+    private String getIdentifierName(Class<?> cls) {
+        if (!identifierNames.containsKey(cls)) {
             String name = null;
 
-            if (cls.isAnnotationPresent(PermissionsHandledBy.class)) 
-            {
+            if (cls.isAnnotationPresent(PermissionsHandledBy.class)) {
                 PermissionsHandledBy handledBy = (PermissionsHandledBy) cls.getAnnotation(PermissionsHandledBy.class);
-                if (handledBy.name() != null && !"".equals(handledBy.name().trim())) 
+                if (handledBy.name() != null && !"".equals(handledBy.name().trim()))
                 {
                     name = handledBy.name();
                 }
             }
 
-            if (name == null) 
-            {
+            if (name == null) {
                 name = cls.getName().substring(cls.getName().lastIndexOf('.') + 1);
             }
 

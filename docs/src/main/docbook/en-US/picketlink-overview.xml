@@ -13,7 +13,8 @@
       <para>
         PicketLink is an Application Security Framework for Java EE applications.  It provides features for authenticating users,
         authorizing access to the business methods of your application, managing your application's users, groups, roles and
-        permissions, plus much more.  The following diagram presents a high level overview of the PicketLink modules.
+        permissions, plus much more.  The following diagram presents a high level overview of the PicketLink modules and the 
+        main features provided by those modules:
       </para>
       
       <mediaobject>
