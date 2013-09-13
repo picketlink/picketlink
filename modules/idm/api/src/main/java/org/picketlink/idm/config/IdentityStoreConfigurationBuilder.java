@@ -264,6 +264,9 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
             addContextInitializer(contextInitializer);
         }
 
+        supportAttributes(configuration.supportsAttribute());
+        supportCredentials(configuration.supportsCredential());
+
         return this;
     }
 
@@ -296,7 +299,11 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
     }
 
     protected boolean isSupportAttributes() {
-        return supportAttributes;
+        return this.supportAttributes;
+    }
+
+    protected boolean isSupportCredentials() {
+        return this.supportCredentials;
     }
 
     private static Class<? extends AttributedType>[] getDefaultIdentityModelClasses() {

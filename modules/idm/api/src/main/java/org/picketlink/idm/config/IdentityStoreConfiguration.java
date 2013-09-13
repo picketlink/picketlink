@@ -44,7 +44,19 @@ public interface IdentityStoreConfiguration {
 
     Map<Class<? extends AttributedType>, Set<IdentityOperation>> getSupportedTypes();
 
+    /**
+     * <p>Indicates if ad-hoc attributes are supported.</p>
+     *
+     * @return
+     */
     boolean supportsAttribute();
+
+    /**
+     * <p>Indicates if credentials are supported.</p>
+     *
+     * @return
+     */
+    boolean supportsCredential();
 
     /**
      * <p>Supported operations for @{AttributedType} types.</p>

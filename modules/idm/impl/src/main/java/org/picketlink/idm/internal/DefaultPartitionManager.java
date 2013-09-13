@@ -587,10 +587,20 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         if (this.partitionManagementConfig != null) {
             identityConfiguration = getConfigurationForPartition(context.getPartition());
         } else {
-            identityConfiguration = this.configurations.iterator().next();
+            for (IdentityConfiguration configuration: this.configurations) {
+                for (IdentityStoreConfiguration storeConfig : configuration.getStoreConfiguration()) {
+                    if (storeConfig.supportsCredential()) {
+                        identityConfiguration = configuration;
+                    }
+                }
+            }
         }
 
         for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
+            if (!storeConfig.supportsCredential()) {
+                continue;
+            }
+
             for (@SuppressWarnings("rawtypes") Class<? extends CredentialHandler> handlerClass : storeConfig.getCredentialHandlers()) {
                 if (handlerClass.isAnnotationPresent(SupportsCredentials.class)) {
                     for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).credentialClass()) {
@@ -771,7 +781,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
         if (storesConfig != null) {
             for (IdentityStore identityStore: storesConfig.values()) {
-                if (CredentialStore.class.isInstance(identityStore)) {
+                if (CredentialStore.class.isInstance(identityStore) && identityStore.getConfig().supportsCredential()) {
                     CredentialStore<?> credentialStore = (CredentialStore<?>) identityStore;
 
                     for (Class<? extends CredentialHandler> credentialHandler: credentialStore.getConfig().getCredentialHandlers()) {

@@ -60,9 +60,10 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
-            Set<Class<? extends CredentialHandler>> credentialHandlers) {
+            Set<Class<? extends CredentialHandler>> credentialHandlers,
+            boolean supportsCredential) {
         super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers,
-         false       );
+         false, supportsCredential);
         this.ldapURL = url;
         this.bindDN = bindDN;
         this.bindCredential = bindCredential;
