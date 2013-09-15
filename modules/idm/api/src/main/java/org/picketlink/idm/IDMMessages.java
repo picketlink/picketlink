@@ -238,6 +238,9 @@ public interface IDMMessages {
     @Message(id = 714, value = "Invalid configuration [%s].")
     SecurityConfigurationException configInvalidConfiguration(String name);
 
+    @Message(id = 715, value = "Multiple configuration with credential support.")
+    SecurityConfigurationException configMultipleConfigurationsFoundWithCredentialSupport();
+
     // Permission management messages 800-899
     @Message(id = 800, value = "Could not grant Permission [%s].")
     IdentityManagementException permissionGrantFailed(Permission permission, @Cause Throwable t);

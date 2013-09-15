@@ -25,6 +25,9 @@ package org.picketlink.test.idm.config;
 import org.junit.Test;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.SecurityConfigurationException;
+import org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
 
 import static org.junit.Assert.assertEquals;
 
@@ -71,6 +74,40 @@ public class ConfigurationTestCase {
                         .supportAllFeatures();
 
         builder.build();
+    }
+
+    @Test (expected = SecurityConfigurationException.class)
+    public void failMultipleConfigurationWithPartitions() {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+            .named("default")
+                .stores()
+                    .file()
+                        .supportAllFeatures()
+                    .jpa()
+                        .mappedEntity(IdentityTypeEntity.class)
+                        .supportAllFeatures();
+
+        builder.buildAll();
+    }
+
+    @Test (expected = SecurityConfigurationException.class)
+    public void failMultipleConfigurationWithCredentialSupport() {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+            .named("default")
+                .stores()
+                    .file()
+                        .supportType(Partition.class)
+                        .supportCredentials(true)
+                    .jpa()
+                        .mappedEntity(IdentityTypeEntity.class)
+                        .supportCredentials(true)
+                        .supportType(IdentityType.class);
+
+        builder.buildAll();
     }
 
     @Test

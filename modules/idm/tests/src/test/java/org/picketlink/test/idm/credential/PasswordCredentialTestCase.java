@@ -50,7 +50,8 @@ import static org.junit.Assert.*;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-@Configuration(include = {SingleConfigLDAPJPAStoreConfigurationTester.class})
+@Configuration(include = {SingleConfigLDAPJPAStoreConfigurationTester.class, JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
+        LDAPStoreConfigurationTester.class})
 public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase {
 
     public PasswordCredentialTestCase(IdentityConfigurationTester builder) {

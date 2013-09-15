@@ -52,7 +52,7 @@ import static org.picketlink.test.idm.relationship.CustomRelationshipTestCase.*;
  *
  */
 @Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
-        SingleConfigLDAPJPAStoreConfigurationTester.class})
+        SingleConfigLDAPJPAStoreConfigurationTester.class, LDAPStoreConfigurationTester.class})
 public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase {
 
     public RelationshipQueryTestCase(IdentityConfigurationTester builder) {
@@ -60,6 +60,7 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
     }
 
     @Test
+    @Configuration (exclude = LDAPStoreConfigurationTester.class)
     public void testFindById() throws Exception {
         User user = createUser("user");
         Role role = createRole("role");
@@ -120,7 +121,6 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
         BasicModel.grantRole(relationshipManager, user, role);
-        BasicModel.grantGroupRole(relationshipManager, user, role, group);
         BasicModel.addToGroup(relationshipManager, user, group);
 
         RelationshipQuery<Relationship> query = relationshipManager.createRelationshipQuery(Relationship.class);
@@ -130,7 +130,7 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
         List<Relationship> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(3, result.size());
+        assertEquals(2, result.size());
 
         query = relationshipManager.createRelationshipQuery(Relationship.class);
 
@@ -139,7 +139,7 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(2, result.size());
+        assertEquals(1, result.size());
 
         query = relationshipManager.createRelationshipQuery(Relationship.class);
 
@@ -148,7 +148,7 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(2, result.size());
+        assertEquals(1, result.size());
 
         query = relationshipManager.createRelationshipQuery(Relationship.class);
 
@@ -157,7 +157,7 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(3, result.size());
+        assertEquals(2, result.size());
     }
 
     @Test
@@ -221,6 +221,7 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
     }
 
     @Test
+    @Configuration (exclude = LDAPStoreConfigurationTester.class)
     public void testFormalAttributes() throws Exception {
         CustomRelationship relationship = new CustomRelationship();
 
