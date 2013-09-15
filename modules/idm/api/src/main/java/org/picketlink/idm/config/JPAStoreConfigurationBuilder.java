@@ -81,4 +81,8 @@ public class JPAStoreConfigurationBuilder extends
         this.mappedEntities.addAll(Arrays.asList(mappedEntity));
         return this;
     }
+
+    protected Set<Class<?>> getMappedEntities() {
+        return this.mappedEntities;
+    }
 }
