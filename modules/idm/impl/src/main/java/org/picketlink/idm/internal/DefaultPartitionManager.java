@@ -17,24 +17,6 @@
  */
 package org.picketlink.idm.internal;
 
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
-import static org.picketlink.idm.IDMLogger.LOGGER;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-import static org.picketlink.idm.util.IDMUtil.isTypeSupported;
-import static org.picketlink.idm.util.IDMUtil.toSet;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.picketlink.idm.DefaultIdGenerator;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
@@ -66,12 +48,30 @@ import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.IdentityPartition;
 import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.permission.spi.PermissionStore;
+import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.spi.AttributeStore;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.StoreSelector;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static org.picketlink.common.util.StringUtil.*;
+import static org.picketlink.idm.IDMLogger.*;
+import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.idm.util.IDMUtil.*;
 
 /**
  * Provides partition management functionality, and partition-specific {@link IdentityManager} instances. <p/> Before
@@ -518,6 +518,13 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
             if (attributeStore != null) {
                 Partition storedType = lookupById(partition.getClass(), partition.getId());
+
+                IdentityManager identityManager = createIdentityManager(storedType);
+                IdentityQuery<IdentityType> query = identityManager.createIdentityQuery(IdentityType.class);
+
+                for (IdentityType identityType: query.getResultList()) {
+                    identityManager.remove(identityType);
+                }
 
                 for (Attribute<? extends Serializable> attribute : storedType.getAttributes()) {
                     attributeStore.removeAttribute(context, storedType, attribute.getName());

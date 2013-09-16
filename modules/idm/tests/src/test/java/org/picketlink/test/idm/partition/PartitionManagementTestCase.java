@@ -1,10 +1,15 @@
 package org.picketlink.test.idm.partition;
 
 import org.junit.Test;
+import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.basic.BasicModel;
 import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.Tier;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
@@ -49,5 +54,69 @@ public class PartitionManagementTestCase extends AbstractPartitionManagerTestCas
 
         // 6 because we have the default partition
         assertEquals(6, partitions.size());
+    }
+
+    @Test
+    public void testRemovePartitionWithIdentityTypes() {
+        PartitionManager partitionManager = getPartitionManager();
+        Realm somePartition = new Realm("somePartition");
+
+        partitionManager.add(somePartition);
+
+        IdentityManager identityManager = partitionManager.createIdentityManager(somePartition);
+
+        User userA = new User("userA");
+
+        identityManager.add(userA);
+
+        User userB = new User("userB");
+
+        identityManager.add(userB);
+
+        User userC = new User("userC");
+
+        identityManager.add(userC);
+
+        assertNotNull(BasicModel.getUser(identityManager, userA.getLoginName()));
+        assertNotNull(BasicModel.getUser(identityManager, userB.getLoginName()));
+        assertNotNull(BasicModel.getUser(identityManager, userC.getLoginName()));
+
+        Role roleA = new Role("roleA");
+
+        identityManager.add(roleA);
+
+        Role roleB = new Role("roleB");
+
+        identityManager.add(roleB);
+
+        Role roleC = new Role("roleC");
+
+        identityManager.add(roleC);
+
+        assertNotNull(BasicModel.getRole(identityManager, roleA.getName()));
+        assertNotNull(BasicModel.getRole(identityManager, roleB.getName()));
+        assertNotNull(BasicModel.getRole(identityManager, roleC.getName()));
+
+        RelationshipManager relationshipManager = partitionManager.createRelationshipManager();
+
+        BasicModel.grantRole(relationshipManager, userA, roleA);
+        BasicModel.grantRole(relationshipManager, userB, roleB);
+        BasicModel.grantRole(relationshipManager, userC, roleC);
+
+        assertTrue(BasicModel.hasRole(relationshipManager, userA, roleA));
+        assertTrue(BasicModel.hasRole(relationshipManager, userB, roleB));
+        assertTrue(BasicModel.hasRole(relationshipManager, userC, roleC));
+
+        partitionManager.remove(somePartition);
+
+        new Realm("somePartition");
+
+        partitionManager.add(somePartition);
+
+        identityManager = partitionManager.createIdentityManager(somePartition);
+
+        assertNull(BasicModel.getUser(identityManager, userA.getLoginName()));
+        assertNull(BasicModel.getUser(identityManager, userB.getLoginName()));
+        assertNull(BasicModel.getUser(identityManager, userC.getLoginName()));
     }
 }
