@@ -1,0 +1,33 @@
+<!DOCTYPE glossary PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+          "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
+<glossary>
+  <title>Glossary</title>
+
+  <para>
+    This chapter lists the glossary of terms used throughout the PicketLink Reference Documentation.
+  </para>
+  
+  <glossdiv>
+    <title>A</title>
+
+    <glossentry id="api">
+      <glossterm>API</glossterm>
+      <glossdef>
+        <para>Application Programming Interface - A set of interfaces and classes designed for direct usage by the developer.</para>
+      </glossdef>
+    </glossentry>
+    
+  </glossdiv>
+
+  <glossdiv>
+    <title>C</title>
+
+    <glossentry id="cdi">
+      <glossterm>CDI</glossterm>
+      <glossdef>
+        <para>Contexts and Dependency Injection (JSR-299)</para>
+      </glossdef>
+    </glossentry>
+
+  </glossdiv>
+</glossary>

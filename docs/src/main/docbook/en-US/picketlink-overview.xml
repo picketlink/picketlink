@@ -86,7 +86,7 @@
           session-scoped authentication tracking for web applications and other session-capable clients, plus a
           customisable permissions SPI that supports a flexible range of authorization mechanisms for object-level security.
           It is the "glue" that integrates all of the PicketLink modules together to provide a cohesive API, and also provides
-          CDI (Contexts and Dependency Injection) producers to allow you to inject the PicketLink API objects directly into 
+          <glossterm linkend="cdi">CDI</glossterm> producers to allow you to inject the PicketLink API objects directly into 
           your application's beans.
         </para>
         
