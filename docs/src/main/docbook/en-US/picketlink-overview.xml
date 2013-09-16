@@ -87,7 +87,7 @@
           customisable permissions SPI that supports a flexible range of authorization mechanisms for object-level security.
           It is the "glue" that integrates all of the PicketLink modules together to provide a cohesive API, and also provides
           CDI (Contexts and Dependency Injection) producers to allow you to inject the PicketLink API objects directly into 
-          your application's beans.https://github.com/picketlink/picketlink-quickstarts
+          your application's beans.
         </para>
         
         <para>
@@ -108,7 +108,7 @@
         </itemizedlist>        
       </section>
       
-      <section>picketlink-overview-maven
+      <section>
         <title>Identity Management</title>
         
         <para>
@@ -193,8 +193,25 @@
   </dependency>]]></programlisting>
   
       <para>
-        The identity management library is a required dependency of the base module and so will be automatically included.
+        The identity management library is a required dependency of the base module and so will be automatically included.  If you
+        <emphasis>don't</emphasis> wish to use the base module (for example in a Java SE environment) and want to use the PicketLink
+        IDM library on its own, then only add the following dependencies:
       </para>
+
+      <programlisting language="XML"><![CDATA[<dependencies>
+  <dependency>
+      <groupId>org.picketlink</groupId>
+      <artifactId>picketlink-idm-api</artifactId>
+      <scope>compile</scope>
+      <version>${picketlink.version}</version>
+  </dependency>
+  
+  <dependency>
+      <groupId>org.picketlink</groupId>
+      <artifactId>picketlink-idm-impl</artifactId>
+      <scope>runtime</scope>
+      <version>${picketlink.version}</version>
+  </dependency>]]></programlisting>
 
       <para>
         If you wish to use PicketLink's Identity Management features and want to include the default database schema
