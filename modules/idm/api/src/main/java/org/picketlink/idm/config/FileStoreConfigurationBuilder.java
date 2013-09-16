@@ -102,7 +102,8 @@ public class FileStoreConfigurationBuilder extends
                 getContextInitializers(),
                 getCredentialHandlerProperties(),
                 getCredentialHandlers(),
-                isSupportAttributes());
+                isSupportAttributes(),
+                isSupportCredentials());
     }
 
     @Override

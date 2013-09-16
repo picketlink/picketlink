@@ -51,7 +51,8 @@ public class JPAStoreConfigurationBuilder extends
                 getContextInitializers(),
                 getCredentialHandlerProperties(),
                 getCredentialHandlers(),
-                isSupportAttributes());
+                isSupportAttributes(),
+                isSupportCredentials());
     }
 
     @Override
@@ -79,5 +80,9 @@ public class JPAStoreConfigurationBuilder extends
     public IdentityStoreConfigurationBuilder mappedEntity(Class<?>... mappedEntity) {
         this.mappedEntities.addAll(Arrays.asList(mappedEntity));
         return this;
+    }
+
+    protected Set<Class<?>> getMappedEntities() {
+        return this.mappedEntities;
     }
 }

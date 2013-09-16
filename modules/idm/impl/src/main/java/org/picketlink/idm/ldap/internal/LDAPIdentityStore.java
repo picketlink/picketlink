@@ -22,6 +22,7 @@ import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
+import org.picketlink.common.util.ClassUtil;
 import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
@@ -363,32 +364,66 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
     @Override
     public <V extends Relationship> List<V> fetchQueryResults(IdentityContext context, RelationshipQuery<V> query) {
-        LDAPMappingConfiguration mappingConfig = getMappingConfig(query.getRelationshipClass());
+        List<V> results = new ArrayList<V>();
 
-        Map<QueryParameter, Object[]> parameters = query.getParameters();
+        if (Relationship.class.equals(query.getRelationshipClass())) {
+            for (LDAPMappingConfiguration configuration : getConfig().getRelationshipConfigs()) {
+                results.addAll(fetchRelationships(context, query, configuration));
+            }
+        } else {
+            results.addAll(fetchRelationships(context, query, getMappingConfig(query.getRelationshipClass())));
+        }
+
+        return results;
+    }
+
+    private String getRelationshipMappedProperty(Class<? extends IdentityType> identityType, LDAPMappingConfiguration mappingConfig) {
+        final Property<Object> property = PropertyQueries.createQuery(mappingConfig.getMappedClass()).addCriteria(new TypedPropertyCriteria(identityType, MatchOption.ALL)).getFirstResult();
+
+        if (property == null) {
+            return null;
+        }
+
+        return mappingConfig.getMappedProperties().get(property.getName());
+    }
+
+    private <V extends Relationship> List<V> fetchRelationships(final IdentityContext context, final RelationshipQuery<V> query, final LDAPMappingConfiguration mappingConfig) {
+        List<V> results = new ArrayList<V>();
+        Class<V> relationshipClass = (Class<V>) mappingConfig.getMappedClass();
         StringBuilder filter = new StringBuilder();
-
         List<AttributedType> referencedTypes = new ArrayList<AttributedType>();
+        Map<QueryParameter, Object[]> parameters = query.getParameters();
 
         for (QueryParameter queryParameter : parameters.keySet()) {
             Object[] values = parameters.get(queryParameter);
+            RelationshipQueryParameter relationshipQueryParameter = null;
+            String attributeName = null;
 
             if (RelationshipQueryParameter.class.isInstance(queryParameter)) {
-                RelationshipQueryParameter relationshipQueryParameter = (RelationshipQueryParameter) queryParameter;
-                String attributeName = mappingConfig.getMappedProperties().get(relationshipQueryParameter.getName());
+                relationshipQueryParameter = (RelationshipQueryParameter) queryParameter;
+                attributeName = mappingConfig.getMappedProperties().get(relationshipQueryParameter.getName());
+            } else if (Relationship.IDENTITY.equals(queryParameter)) {
+                IdentityType identityType = (IdentityType) values[0];
 
-                for (Object value : values) {
-                    AttributedType attributedType = (AttributedType) value;
-                    if (attributeName != null) {
-                        filter.append("(").append(attributeName).append(EQUAL).append("").append(getBindingDN(attributedType)).append(")");
-                    } else {
+                if (!mappingConfig.getRelatedAttributedType().isInstance(identityType)) {
+                    attributeName = getRelationshipMappedProperty(identityType.getClass(), mappingConfig);
+                }
+            } else {
+                continue;
+            }
+
+            for (Object value : values) {
+                AttributedType attributedType = (AttributedType) value;
+                if (attributeName != null) {
+                    filter.append("(").append(attributeName).append(EQUAL).append("").append(getBindingDN(attributedType)).append(")");
+                } else {
+                    if (mappingConfig.getRelatedAttributedType().isAssignableFrom(attributedType.getClass())) {
                         referencedTypes.add(attributedType);
                     }
                 }
             }
         }
 
-        List<V> results = new ArrayList<V>();
         NamingEnumeration<SearchResult> search = null;
 
         try {
@@ -397,11 +432,11 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                     search = this.operationManager.search(getBaseDN(relFilter), getBindingName(relFilter));
 
                     List<Property<AttributedType>> properties = PropertyQueries
-                            .<AttributedType>createQuery(query.getRelationshipClass())
+                            .<AttributedType>createQuery(relationshipClass)
                             .addCriteria(new TypedPropertyCriteria(IdentityType.class, MatchOption.SUB_TYPE))
                             .getResultList();
                     Property<AttributedType> rootProperty = PropertyQueries
-                            .<AttributedType>createQuery(query.getRelationshipClass())
+                            .<AttributedType>createQuery(relationshipClass)
                             .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType()))
                             .getSingleResult();
 
@@ -417,54 +452,59 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                                 for (QueryParameter queryParameter : parameters.keySet()) {
                                     Object[] values = parameters.get(queryParameter);
 
-                                    if (RelationshipQueryParameter.class.isInstance(queryParameter)) {
-                                        RelationshipQueryParameter relationshipQueryParameter = (RelationshipQueryParameter) queryParameter;
+                                    if (filter.length() > 0) {
+                                        for (Object value : values) {
+                                            IdentityType relType = (IdentityType) value;
 
-                                        if (filter.length() > 0) {
-                                            if (relationshipQueryParameter.getName().equals(property.getName())) {
-                                                for (Object value : values) {
-                                                    AttributedType relType = (AttributedType) value;
+                                            String attributeName = null;
 
-                                                    if (!attribute.contains(getBindingDN(relType))) {
-                                                        break;
-                                                    }
-
-                                                    V relationship = query.getRelationshipClass().newInstance();
-
-                                                    rootProperty.setValue(relationship, populateAttributedType(context, next, null));
-                                                    property.setValue(relationship, relType);
-
-                                                    results.add(relationship);
-                                                }
+                                            if (RelationshipQueryParameter.class.isInstance(queryParameter)) {
+                                                RelationshipQueryParameter relationshipQueryParameter = (RelationshipQueryParameter) queryParameter;
+                                                attributeName = relationshipQueryParameter.getName();
+                                            } else {
+                                                attributeName = getRelationshipMappedProperty(relType.getClass(), mappingConfig);
                                             }
-                                        } else {
-                                            NamingEnumeration<?> all = attribute.getAll();
 
-                                            while (all.hasMore()) {
-                                                String member = all.next().toString();
-
-                                                if (isEmptyMember(member)) {
-                                                    continue;
+                                            if (attributeName.equals(property.getName())) {
+                                                if (!attribute.contains(getBindingDN(relType))) {
+                                                    break;
                                                 }
 
-                                                if (!isNullOrEmpty(member.trim())) {
-                                                    V relationship = query.getRelationshipClass().newInstance();
+                                                V relationship = createRelationshipInstance(relationshipClass);
 
-                                                    rootProperty.setValue(relationship, populateAttributedType(context, next, null));
+                                                rootProperty.setValue(relationship, populateAttributedType(context, next, null));
+                                                property.setValue(relationship, relType);
 
-                                                    String baseDN = member.substring(member.indexOf(",") + 1);
-                                                    String dn = member.substring(0, member.indexOf(","));
+                                                results.add(relationship);
+                                            }
+                                        }
+                                    } else {
+                                        NamingEnumeration<?> all = attribute.getAll();
 
-                                                    NamingEnumeration<SearchResult> result = this.operationManager.search(baseDN, dn);
+                                        while (all.hasMore()) {
+                                            String member = all.next().toString();
 
-                                                    if (!result.hasMore()) {
-                                                        throw new IdentityManagementException("Associated entry does not exists [" + member + "].");
-                                                    }
+                                            if (isEmptyMember(member)) {
+                                                continue;
+                                            }
 
-                                                    property.setValue(relationship, populateAttributedType(context, result.next(), null));
+                                            if (!isNullOrEmpty(member.trim())) {
+                                                V relationship = createRelationshipInstance(relationshipClass);
 
-                                                    results.add(relationship);
+                                                rootProperty.setValue(relationship, populateAttributedType(context, next, null));
+
+                                                String baseDN = member.substring(member.indexOf(",") + 1);
+                                                String dn = member.substring(0, member.indexOf(","));
+
+                                                NamingEnumeration<SearchResult> result = this.operationManager.search(baseDN, dn);
+
+                                                if (!result.hasMore()) {
+                                                    throw new IdentityManagementException("Associated entry does not exists [" + member + "].");
                                                 }
+
+                                                property.setValue(relationship, populateAttributedType(context, result.next(), null));
+
+                                                results.add(relationship);
                                             }
                                         }
                                     }
@@ -478,7 +518,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                     search = this.operationManager.search(getMappingConfig(mappingConfig.getRelatedAttributedType()).getBaseDN(), filter.toString());
 
                     Property<AttributedType> property = PropertyQueries
-                            .<AttributedType>createQuery(query.getRelationshipClass())
+                            .<AttributedType>createQuery(relationshipClass)
                             .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType()))
                             .getSingleResult();
 
@@ -499,7 +539,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                                 if (!isNullOrEmpty(value.trim())) {
                                     Property<AttributedType> associatedProperty = PropertyQueries
-                                            .<AttributedType>createQuery(query.getRelationshipClass())
+                                            .<AttributedType>createQuery(relationshipClass)
                                             .addCriteria(new NamedPropertyCriteria(memberAttribute.getKey())).getSingleResult();
 
                                     String baseDN = value.substring(value.indexOf(",") + 1);
@@ -515,7 +555,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                                     AttributedType ownerRelType = populateAttributedType(context, next, null);
 
                                     if (property.getJavaClass().isAssignableFrom(ownerRelType.getClass())) {
-                                        V relationship = query.getRelationshipClass().newInstance();
+                                        V relationship = createRelationshipInstance(relationshipClass);
 
                                         property.setValue(relationship, ownerRelType);
 
@@ -541,14 +581,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         }
 
         return results;
-    }
-
-    private boolean isEmptyMember(final String value) {
-        return value.contains(getEmptyMemberDN());
-    }
-
-    private String getEmptyMemberDN() {
-        return "cn=empty-member," + getConfig().getBaseDN();
     }
 
     @Override
@@ -831,4 +863,17 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
             }
         }
     }
+
+    private <V extends Relationship> V createRelationshipInstance(Class<V> relationshipClass) throws InstantiationException, IllegalAccessException {
+        return (V) ClassUtil.loadClass(getClass(), relationshipClass.getName()).newInstance();
+    }
+
+    private boolean isEmptyMember(final String value) {
+        return value.contains(getEmptyMemberDN());
+    }
+
+    private String getEmptyMemberDN() {
+        return "cn=empty-member," + getConfig().getBaseDN();
+    }
+
 }

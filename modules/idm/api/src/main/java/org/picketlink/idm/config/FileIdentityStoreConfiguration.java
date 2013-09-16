@@ -49,9 +49,10 @@ public class FileIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
             Set<Class<? extends CredentialHandler>> credentialHandlers,
-            boolean supportsAttribute) {
+            boolean supportsAttribute,
+            boolean supportsCredential) {
         super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers,
-         supportsAttribute);
+         supportsAttribute, supportsCredential);
         this.workingDir = workingDir;
         this.alwaysCreateFiles = !preserveState;
         this.asyncWrite = asyncWrite;

@@ -60,9 +60,8 @@ public class IdentityConfigurationBuilder extends Builder<List<IdentityConfigura
     }
 
     /**
-     * <p>Creates a new configuration.</p>
-     * <p>If a configuration with the given <code>configurationName</code> already exists,
-     * this method will return the same instance instead of creating a new one.</p>
+     * <p>Creates a new configuration.</p> <p>If a configuration with the given <code>configurationName</code> already
+     * exists, this method will return the same instance instead of creating a new one.</p>
      *
      * @param configurationName
      * @return
@@ -149,6 +148,18 @@ public class IdentityConfigurationBuilder extends Builder<List<IdentityConfigura
 
                 if (configurations.contains(configuration)) {
                     throw MESSAGES.configMultipleConfigurationsFoundWithSameName(configuration.getName());
+                }
+
+                boolean supportCredentials = false;
+
+                for (IdentityStoreConfiguration storeConfiguration : configuration.getStoreConfiguration()) {
+                    if (supportCredentials) {
+                        throw MESSAGES.configMultipleConfigurationsFoundWithCredentialSupport();
+                    }
+
+                    if (storeConfiguration.supportsCredential()) {
+                        supportCredentials = true;
+                    }
                 }
 
                 configurations.add(configuration);
