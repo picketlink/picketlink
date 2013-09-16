@@ -29,6 +29,51 @@
     </section>
     
     <section>
+      <title>Where do I get started?</title>
+      
+      <para>
+        Depending on exactly which PicketLink features you'd like to use, getting started can be as simple as adding the
+        PicketLink jar libraries to your project (see <xref linkend="picketlink-overview-maven"/> below for more info)
+        and writing a few lines of code.  To get started using PicketLink Identity Management to manage the users and other
+        identity objects in your application, you can head straight to <xref linkend="picketlink-idm-overview-5min"/>.  If you don't
+        wish to use PicketLink IDM but would like to use PicketLink for authentication in your Java EE application but control the
+        authentication process yourself then head to <xref linkend="picketlink-authentication-basic"/> for simplistic example which 
+        you may adapt for your own application.  If you wish to use SAML SSO then you can head to <xref linkend="picketlink-federation"/>.
+      </para>
+      
+      <para>
+        Here's some additional resources also to help you get started:
+      </para>
+      
+      <section>
+        <title>QuickStarts</title>
+        
+        <para>
+          The PicketLink QuickStarts can be found at 
+          <ulink url="https://github.com/picketlink/picketlink-quickstarts">https://github.com/picketlink/picketlink-quickstarts</ulink>.
+        </para>
+        
+        <para>
+          Quickstarts are self-contained, concise examples that generally demonstrate at most one or two features.  The PicketLink
+          quickstarts at GitHub provide working, buildable code that shows the usage of a number of authentication and authorization
+          features.
+        </para>
+      </section>
+      
+      <section>
+        <title>API Documentation</title>
+        
+        <para>
+          The latest version of the PicketLink API documentation can be found at 
+          <ulink url="http://docs.jboss.org/picketlink/2/latest/api/">http://docs.jboss.org/picketlink/2/latest/api/</ulink>.
+          This handy reference describes the user-facing classes and methods provided by the PicketLink libraries.
+        </para>
+        
+      </section>
+    
+    </section>
+    
+    <section>
       <title>Modules</title>
       
       <section>
@@ -40,7 +85,9 @@
           with a sensible default authentication policy that delegates to the identity management subsystem. It provides
           session-scoped authentication tracking for web applications and other session-capable clients, plus a
           customisable permissions SPI that supports a flexible range of authorization mechanisms for object-level security.
-          It is also the "glue" that integrates all of the PicketLink modules together to provide a cohesive API.
+          It is the "glue" that integrates all of the PicketLink modules together to provide a cohesive API, and also provides
+          CDI (Contexts and Dependency Injection) producers to allow you to inject the PicketLink API objects directly into 
+          your application's beans.https://github.com/picketlink/picketlink-quickstarts
         </para>
         
         <para>
@@ -61,7 +108,7 @@
         </itemizedlist>        
       </section>
       
-      <section>
+      <section>picketlink-overview-maven
         <title>Identity Management</title>
         
         <para>
@@ -113,7 +160,7 @@
       </para>
     </section>
     
-    <section>
+    <section id="picketlink-overview-maven">
       <title>Maven Dependencies</title>
       
       <para>

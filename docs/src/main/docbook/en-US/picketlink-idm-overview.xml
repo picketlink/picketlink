@@ -12,10 +12,12 @@
       <title>Introduction</title>
       
       <para>
-        PicketLink's Identity Management (IDM) features provide a rich and extensible API for managing the identities (such as users, 
-        groups and roles) of your applications and services.  It also supports a flexible system for identity partitioning, allowing
-        it to be used as a complete security solution in simple web applications and/or as an Identity Provider (IDP) in more complex 
-        multi-domain scenarios.
+        PicketLink Identity Management (IDM) is a fundamental module of PicketLink, with all other modules building on top of the
+        IDM component to implement their extended features.  It features provide a rich and extensible API for managing the identities 
+        (such as users, groups and roles) of your applications and services.  It also supports a flexible system for identity 
+        partitioning, allowing it to be used as a complete security solution in simple web applications and/or as an Identity Provider 
+        (IDP) in more complex multi-domain scenarios.  It also provides the core Identity Model API classes (see below) upon which
+        an application's identity classes are defined to provide the security structure for that application.
       </para>
       
       <para>
@@ -180,7 +182,7 @@ public class DefaultPartitionProducer {
     </section>
     
     <section>
-      <title>Getting Started - The 5 Minute Guide</title>
+      <title id="picketlink-idm-overview-5min">Getting Started - The 5 Minute Guide</title>
       
       <para>
         If you'd like to get up and running with IDM quickly, the good news is that PicketLink will provide a default configuration 

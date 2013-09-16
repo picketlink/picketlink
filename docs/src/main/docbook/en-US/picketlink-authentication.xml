@@ -54,8 +54,8 @@ Account getAccount();]]></programlisting>
 }]]></programlisting>
 
       <para>
-        If the authentication process is successful, the <code>login()</code> method will return a result of <code>SUCCESS</code>,
-        otherwise it will return a result of <code>FAILED</code>.  The default implementation of the <code>Identity</code> bean is 
+        If the authentication process is successful, the <code>login()</code> method returns a result of <code>SUCCESS</code>,
+        otherwise it returns a result of <code>FAILED</code>.  The default implementation of the <code>Identity</code> bean is 
         a <code>@SessionScoped</code> CDI bean, which means that once a user is authenticated they will stay authenticated for the 
         duration of the session.  
       </para>
@@ -237,7 +237,7 @@ Account getAccount();]]></programlisting>
       </para>
       
       <section>
-        <title>A Basic Authenticator</title>
+        <title id="picketlink-authentication-basic">A Basic Authenticator</title>
         
         <para>
           Let's take a closer look at an extremely simple example of an <code>Authenticator</code>.  The following
