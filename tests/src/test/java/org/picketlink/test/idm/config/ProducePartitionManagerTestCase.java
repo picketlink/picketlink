@@ -17,20 +17,20 @@
  */
 package org.picketlink.test.idm.config;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.Assert;
 import org.junit.Test;
-import org.picketlink.IdentityConfigurationEvent;
+import org.picketlink.annotations.PicketLink;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
+import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.DigestCredentialTypeEntity;
@@ -48,26 +48,30 @@ import org.picketlink.idm.model.basic.User;
 import org.picketlink.internal.EEJPAContextInitializer;
 import org.picketlink.test.AbstractJPADeploymentTestCase;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author pedroigor
  */
-public class CustomConfigurationTestCase extends AbstractJPADeploymentTestCase {
+public class ProducePartitionManagerTestCase extends AbstractJPADeploymentTestCase {
 
     @Inject
     private PartitionManager partitionManager;
 
     @Deployment
     public static WebArchive deploy() {
-        return deploy(CustomConfigurationTestCase.class);
+        return deploy(ProducePartitionManagerTestCase.class);
     }
 
     @Test
     public void testConfiguration() throws Exception {
         Realm partition = new Realm("Some Partition");
 
-        this.partitionManager.add(partition, "custom-config");
+        this.partitionManager.add(partition, "produced.partition.manager.config");
 
         IdentityManager identityManager = this.partitionManager.createIdentityManager(partition);
 
@@ -100,11 +104,14 @@ public class CustomConfigurationTestCase extends AbstractJPADeploymentTestCase {
         @Inject
         private EEJPAContextInitializer contextInitializer;
 
-        public void observeIdentityConfigurationEvent(@Observes IdentityConfigurationEvent event) throws Exception {
-            IdentityConfigurationBuilder builder = event.getConfig();
+        @PicketLink
+        @Produces
+        public PartitionManager producePartitionManager()
+                throws Exception {
+            IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
             builder
-                .named("custom-config")
+                .named("produced.partition.manager.config")
                     .stores()
                         .jpa()
                             .mappedEntity(
@@ -123,6 +130,8 @@ public class CustomConfigurationTestCase extends AbstractJPADeploymentTestCase {
                             )
                             .addContextInitializer(this.contextInitializer)
                             .supportAllFeatures();
+
+            return new DefaultPartitionManager(builder.build());
         }
     }
 

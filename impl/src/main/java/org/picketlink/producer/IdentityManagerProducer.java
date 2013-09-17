@@ -46,26 +46,15 @@ import java.util.List;
 import static org.picketlink.idm.config.IdentityStoreConfiguration.*;
 
 /**
- * <p>This bean is responsible for initializing the PicketLink IDM subsystem as well produce some core components
- * such as:</p>
- *
- * <ul>
- *     <li>An application scoped {@link PartitionManager}.</li>
- *     <li>A request scoped {@link IdentityManager}.</li>
- *     <li>A request scoped {@link RelationshipManager}.</li>
- * </ul>
- *
- * <p>The configuration is built depending on the existence of any {@link IdentityConfiguration} produced by the
- * application. If any configuration is found, it will be used. Otherwise the default configuration will be used.</p>
- *
- * <p>It's also possible to observe a specific event during the startup of the PicketLink IDM subsystem. In such
- * situations the application can provide any additional information as a last attempt before the subsystem is fully
- * initialized. See {@link IdentityConfigurationEvent}.
- * </p>
- *
- * <p>The default configuration is provided by the {@link IdentityStoreAutoConfiguration} bean, only if no specific
- * configuration is provided by the application.</p>
- *
+ * <p>This bean is responsible for initializing the PicketLink IDM subsystem as well produce some core components such
+ * as:</p> <p/> <ul> <li>An application scoped {@link PartitionManager}.</li> <li>A request scoped {@link
+ * IdentityManager}.</li> <li>A request scoped {@link RelationshipManager}.</li> </ul> <p/> <p>The configuration is
+ * built depending on the existence of any {@link IdentityConfiguration} produced by the application. If any
+ * configuration is found, it will be used. Otherwise the default configuration will be used.</p> <p/> <p>It's also
+ * possible to observe a specific event during the startup of the PicketLink IDM subsystem. In such situations the
+ * application can provide any additional information as a last attempt before the subsystem is fully initialized. See
+ * {@link IdentityConfigurationEvent}. </p> <p/> <p>The default configuration is provided by the {@link
+ * IdentityStoreAutoConfiguration} bean, only if no specific configuration is provided by the application.</p> <p/>
  * <p>After the creation of the {@link PartitionManager} a default partition is always created if any of the provided
  * configuration supports that. This is very useful for most use cases where only a single partition is necessary.</p>
  *
@@ -81,6 +70,10 @@ public class IdentityManagerProducer {
     private Event<IdentityConfigurationEvent> identityConfigEvent;
 
     @Inject
+    @PicketLink
+    private Instance<PartitionManager> partitionManagerInstance;
+
+    @Inject
     private CDIEventBridge eventBridge;
 
     @Inject
@@ -94,15 +87,15 @@ public class IdentityManagerProducer {
 
     @Inject
     public void init() {
-        IdentityConfigurationBuilder builder = createIdentityConfigurationBuilder();
-
-        List<IdentityConfiguration> configurations = builder.buildAll();
-
-        this.partitionManager = new DefaultPartitionManager(configurations, this.eventBridge);
-
-        if (isPartitionSupported(configurations)) {
-            createDefaultPartition(this.partitionManager);
+        if (isPartitionManagerProduced()) {
+            this.partitionManager = this.partitionManagerInstance.get();
+        } else {
+            this.partitionManager = createEmbeddedPartitionManager();
         }
+    }
+
+    private boolean isPartitionManagerProduced() {
+        return !this.partitionManagerInstance.isUnsatisfied();
     }
 
     @Produces
@@ -173,7 +166,7 @@ public class IdentityManagerProducer {
         List<IdentityConfiguration> configurations = new ArrayList<IdentityConfiguration>();
 
         if (!this.identityConfigInstance.isUnsatisfied()) {
-            for (Iterator<IdentityConfiguration> iterator = this.identityConfigInstance.iterator(); iterator.hasNext();) {
+            for (Iterator<IdentityConfiguration> iterator = this.identityConfigInstance.iterator(); iterator.hasNext(); ) {
                 configurations.add(iterator.next());
             }
         }
@@ -189,6 +182,20 @@ public class IdentityManagerProducer {
         if (partitionManager.getPartition(Realm.class, Realm.DEFAULT_REALM) == null) {
             partitionManager.add(new Realm(Realm.DEFAULT_REALM));
         }
+    }
+
+    private PartitionManager createEmbeddedPartitionManager() {
+        IdentityConfigurationBuilder builder = createIdentityConfigurationBuilder();
+
+        List<IdentityConfiguration> configurations = builder.buildAll();
+
+        PartitionManager partitionManager = new DefaultPartitionManager(configurations, this.eventBridge);
+
+        if (isPartitionSupported(configurations)) {
+            createDefaultPartition(partitionManager);
+        }
+
+        return partitionManager;
     }
 
 }
