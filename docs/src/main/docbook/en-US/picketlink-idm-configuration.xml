@@ -118,6 +118,51 @@ public static class PicketLinkConfiguration {
           configuration.
         </para>
 
+        <para>
+          For last, you can also build your own <code>PartitionManager</code> instance if you want more control.
+        </para>
+
+        <programlisting language="JAVA"><![CDATA[@ApplicationScoped
+public static class PicketLinkConfiguration {
+
+  @PicketLink
+  @Produces
+  public PartitionManager producePartitionManager() {
+      IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+      builder
+          .named("produced.partition.manager.config")
+              .stores()
+                  .jpa()
+                      .mappedEntity(
+                              AccountTypeEntity.class,
+                              RoleTypeEntity.class,
+                              GroupTypeEntity.class,
+                              IdentityTypeEntity.class,
+                              RelationshipTypeEntity.class,
+                              RelationshipIdentityTypeEntity.class,
+                              PartitionTypeEntity.class,
+                              PasswordCredentialTypeEntity.class,
+                              DigestCredentialTypeEntity.class,
+                              X509CredentialTypeEntity.class,
+                              OTPCredentialTypeEntity.class,
+                              AttributeTypeEntity.class
+                      )
+                      .addContextInitializer(this.contextInitializer)
+                      .supportAllFeatures();
+
+      return new DefaultPartitionManager(builder.build());
+  }
+
+}]]></programlisting>
+
+        <para>
+          The example above allows you to produce your own <code>PartitionManager</code> instance. Note that the producer
+          method is annotated with the <code>PicketLink</code> annotation. Another important thing when producing your own
+          <code>PartitionManager</code> is that you must manually create the partitions before start producing <code>IdentityManager</code>
+          instances (eg.: the default partition).
+        </para>
+
       </section>
 
       <section id="programmatic_configuration">

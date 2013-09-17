@@ -31,7 +31,11 @@ import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.AbstractArquillianTestCase;
 import org.picketlink.test.util.ArchiveUtils;
 
@@ -72,6 +76,24 @@ public class DefaultConfigurationTestCase extends AbstractArquillianTestCase {
         IdentityStoreConfiguration identityStoreConfiguration = configuredStores.get(0);
 
         assertEquals(FileIdentityStoreConfiguration.class, identityStoreConfiguration.getClass());
+
+        User user = new User("john");
+
+        this.identityManager.add(user);
+
+        Password password = new Password("abcd1234");
+
+        this.identityManager.updateCredential(user, password);
+
+        UsernamePasswordCredentials credentials = new UsernamePasswordCredentials();
+
+        credentials.setUsername(user.getLoginName());
+        credentials.setPassword(password);
+
+        this.identityManager.validateCredentials(credentials);
+
+        assertEquals(Credentials.Status.VALID, credentials.getStatus());
+
     }
 
     @ApplicationScoped
