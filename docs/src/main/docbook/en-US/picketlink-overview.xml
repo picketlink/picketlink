@@ -224,7 +224,18 @@
     <version>${picketlink.version}</version>
   </dependency>]]></programlisting>
 
+    </section>
+    
+    <section>
+      <title>Help us improve the docs!</title>
       
+      <para>
+        We're always looking for ways to improve this documentation.  If you think that we can enhance the way that any 
+        of PicketLink's features or concepts are explained, or even if you just spot a typo or grammatical error then please
+        let us know on the PicketLink forums (you can find a link to the forums at 
+        <ulink url="http://www.picketlink.org">www.picketlink.org</ulink>).  We appreciate any and all feedback that is provided.
+      </para>
+    
     </section>
 
 </chapter>
