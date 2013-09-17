@@ -70,7 +70,7 @@
         <programlisting language="JAVA"><![CDATA[@ApplicationScoped
 public static class PicketLinkConfiguration {
 
-  public void observeIdentityConfigurationEvent(@Observes IdentityConfigurationEvent event) throws Exception {
+  public void observeIdentityConfigurationEvent(@Observes IdentityConfigurationEvent event) {
     IdentityConfigurationBuilder builder = event.getConfig();
 
     // use the builder to provide your own configuration
@@ -86,7 +86,7 @@ public static class PicketLinkConfiguration {
 public static class PicketLinkConfiguration {
 
   @Produces
-  public IdentityConfiguration produceJPAConfiguration() throws Exception {
+  public IdentityConfiguration produceJPAConfiguration() {
       IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
       builder
@@ -99,7 +99,7 @@ public static class PicketLinkConfiguration {
   }
 
   @Produces
-  public IdentityConfiguration produceLDAPConfiguration() throws Exception {
+  public IdentityConfiguration produceLDAPConfiguration() {
       IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
       builder
