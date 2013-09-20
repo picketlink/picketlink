@@ -8,7 +8,7 @@ import javax.persistence.Id;
 
 import org.picketlink.idm.jpa.annotations.PermissionGrant;
 import org.picketlink.idm.jpa.annotations.PermissionRecipient;
-import org.picketlink.idm.jpa.annotations.PermissionResource;
+import org.picketlink.idm.jpa.annotations.PermissionResourceClass;
 import org.picketlink.idm.jpa.annotations.entity.PermissionManaged;
 
 /**
@@ -26,7 +26,7 @@ public class ResourcePermission implements Serializable {
     @PermissionRecipient
     private String recipient;
 
-    @PermissionResource
+    @PermissionResourceClass
     private String resource;
 
     @PermissionGrant
