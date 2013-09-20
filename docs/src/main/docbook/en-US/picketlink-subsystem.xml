@@ -121,6 +121,13 @@
       </para>
     </note>
     <section>
+      <title>Identity Management</title>
+
+      <para>
+        TODO
+      </para>
+    </section>
+    <section>
       <title>Federation</title>
 
       <para>
@@ -299,7 +306,7 @@
           ]]>
         </para>
         <para>
-          Open both files (idp.war and sales.war) and remove the following configuration files:
+          Open both files (idp.war and sales-post.war) and remove the following configuration files:
         </para>
         <itemizedlist>
           <listitem>
