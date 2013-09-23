@@ -3,6 +3,7 @@ package org.picketlink.test.idm.other.shane;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.PermissionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Password;
@@ -11,6 +12,7 @@ import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
@@ -26,6 +28,7 @@ import org.picketlink.test.idm.other.shane.model.scenario1.entity.RoleDetail;
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.State;
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.StreetType;
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.UserAddress;
+import org.picketlink.test.idm.other.shane.model.scenario2.entity.Customer;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -210,7 +213,7 @@ public class ShanesBigSanityCheckTestCase {
         em.persist(city);
         em.persist(streetType);
 
-        // Create a UserAddress instance and assign it to the user
+        // Create a UserAddress instance and assign it to the userberkshire
         UserAddress addr = new UserAddress();
         addr.setUnitNumber("15B");
         addr.setStreetNumber("123");
@@ -412,5 +415,49 @@ public class ShanesBigSanityCheckTestCase {
         r.setAttribute(new Attribute<String>("foo", "bar"));
         partitionManager.add(r, "default");
 
+        // Create a new user
+        org.picketlink.test.idm.other.shane.model.scenario2.User u = new org.picketlink.test.idm.other.shane.model.scenario2.User();
+        u.setLoginName("shane");
+
+        // Create an identity manager for the default partition
+        IdentityManager identityManager = partitionManager.createIdentityManager();
+
+        // Add the user
+        identityManager.add(u);
+
+        // Lookup the user
+        u = identityManager.lookupIdentityById(org.picketlink.test.idm.other.shane.model.scenario2.User.class, u.getId());
+
+        // Create some sample customer objects and persist them
+        Customer c1 = new Customer();
+        c1.setName("acme");
+        em.persist(c1);
+
+        Customer c2 = new Customer();
+        c2.setName("BuyNLarge");
+        em.persist(c2);
+
+        // Create a PermissionManager
+        PermissionManager pm = partitionManager.createPermissionManager();
+
+        // Grant the 'READ' permission for Customer c1 to the user we created
+        pm.grantPermission(new Permission(c1, u, Customer.PERMISSION_READ));
+
+        // Confirm that the permission was created
+        assert !pm.listPermissions(c1).isEmpty();
+
+        // Confirm that the permission can by looked up via the resource and the action string
+        assert !pm.listPermissions(c1, Customer.PERMISSION_READ).isEmpty();
+
+        // Also assert there was only one permission created
+        assert pm.listPermissions(c1).size() == 1;
+
+        // Lookup the permission object
+        Permission p =pm.listPermissions(c1).get(0);
+
+        // Assert the permission properties are correctly set
+        assert p.getResource().equals(c1);
+        assert p.getRecipient().equals(u);
+        assert Customer.PERMISSION_READ.equals(p.getAction());
     }
 }
