@@ -178,7 +178,7 @@
 </subsystem>]]></programlisting>
     <note>
       <para>
-        The domain model XML schema can be obtained from <ulink url="https://github.com/picketlink/picketlink-as-subsystem/blob/master/src/main/resources/schema/jboss-picketlink_1_0.xsd">here</ulink>.
+        The domain model XML schema can be obtained from <ulink url="https://github.com/picketlink/picketlink-as-subsystem/blob/master/src/main/resources/schema/jboss-picketlink_1_0.xsd">https://github.com/picketlink/picketlink-as-subsystem/blob/master/src/main/resources/schema/jboss-picketlink_1_0.xsd</ulink>.
       </para>
     </note>
   </section>
@@ -566,7 +566,7 @@
 </subsystem>]]></programlisting>
       <note>
         <para>
-          If you are looking for more examples about how to use the domain model, take a look <ulink url="https://github.com/picketlink/picketlink-as-subsystem/blob/master/src/test/resources/picketlink-subsystem.xml">here</ulink>.
+          If you are looking for more examples about how to use the domain model, take a look at <ulink url="https://github.com/picketlink/picketlink-as-subsystem/blob/master/src/test/resources/picketlink-subsystem.xml">https://github.com/picketlink/picketlink-as-subsystem/blob/master/src/test/resources/picketlink-subsystem.xml</ulink>.
         </para>
       </note>
     </section>
@@ -577,7 +577,7 @@
         This section will guide you through the basic steps to get an Identity Provider and a Service Provider working using the subsystem configuration.
       </para>
       <para>
-        Download the PicketLink Federation <ulink url="https://repository.jboss.org/nexus/content/groups/public/org/picketlink/quickstarts/picketlink-quickstarts/2.1.8.Final/picketlink-quickstarts-2.1.8.Final-webapps-jboss-as7.zip">Quickstarts</ulink>.
+        Download the PicketLink Federation Quickstarts from <ulink url="https://repository.jboss.org/nexus/content/groups/public/org/picketlink/quickstarts/picketlink-quickstarts/2.1.8.Final/picketlink-quickstarts-2.1.8.Final-webapps-jboss-as7.zip">https://repository.jboss.org/nexus/content/groups/public/org/picketlink/quickstarts/picketlink-quickstarts/2.1.8.Final/picketlink-quickstarts-2.1.8.Final-webapps-jboss-as7.zip</ulink>.
       </para>
       <para>
         <![CDATA[
