@@ -48,7 +48,8 @@
       </listitem>
       <listitem>
         <para>
-          All the configurations are external from applications, avoiding them to worry about environment configurations during packaging or deployment.
+          Applications don't need to change when moving between different environments such as development, testing, staging or production. All the configuration
+          is defined outside the application.
         </para>
       </listitem>
       <listitem>
@@ -77,9 +78,23 @@
       </para>
     </note>
     <para>
-      Once the subsystem is properly installed you need to configure your standalone/domain.xml with the following extension:
+      Once the subsystem is properly installed you need to change your <literal>standalone/domain.xml</literal>, inside your EAP installation, with the following extension and subsystem:
     </para>
-    <programlisting language="XML"><![CDATA[<extension module="org.picketlink.as.extension" />]]></programlisting>
+    <programlisting language="XML"><![CDATA[<extensions>
+  ...
+
+  <!-- Add the PicketLink extension -->
+  <extension module="org.picketlink.as.extension" />
+
+</extensions>
+<profile>
+
+  <!-- Add the PicketLink Subsystem -->
+  <subsystem xmlns="urn:jboss:domain:picketlink:1.0" />
+
+  ...
+</profile>
+]]></programlisting>
   </section>
 
   <section>
@@ -87,7 +102,7 @@
 
     <para>
       One your JBoss Application Server is properly configured with all PicketLink libraries and their respective modules, you can
-      use the <code>META-INF/jboss-deployment-structure.xml</code> file to configure the dependencies as follows:
+      add a <literal>META-INF/jboss-deployment-structure.xml</literal> file inside the root directory of your deployment to configure the dependencies as follows:
     </para>
     <programlisting language="XML"><![CDATA[<jboss-deployment-structure>
   <deployment>
@@ -110,13 +125,29 @@
       you don't need to add any additional library to your deployments and you can easily manage the PicketLink libraries without requiring
       changes to your deployments.
     </para>
+    <para>
+      Considering that you no longer need the PicketLink libraries inside your deployment, you must change your Maven dependencies to use the PicketLink dependencies with
+      scope <literal>provided</literal>:
+    </para>
+    <programlisting language="XML"><![CDATA[<dependency>
+  <groupId>org.picketlink</groupId>
+  <artifactId>picketlink-api</artifactId>
+  <scope>provided</scope>
+</dependency>
+
+<dependency>
+  <groupId>org.picketlink</groupId>
+  <artifactId>picketlink-idm-api</artifactId>
+  <scope>provided</scope>
+</dependency>
+]]></programlisting>
   </section>
 
   <section>
     <title>Domain Model</title>
 
     <para>
-      The subsystem provides a domain model that allows you to configure the PicketLink Federation and Identity Management services using the standalone/domain.xml.
+      The subsystem provides a domain model that allows you to configure the PicketLink Federation and Identity Management services using the <literal>standalone/domain.xml</literal> inside your EAP installation.
       The domain model is very easy to understand if you are already familiar with the PicketLink configuration.
     </para>
     <programlisting language="XML"><![CDATA[<subsystem xmlns="urn:jboss:domain:picketlink:1.0">
@@ -150,51 +181,49 @@
         The domain model XML schema can be obtained from <ulink url="https://github.com/picketlink/picketlink-as-subsystem/blob/master/src/main/resources/schema/jboss-picketlink_1_0.xsd">here</ulink>.
       </para>
     </note>
-    <section>
-      <title>Identity Management</title>
+  </section>
+  <section>
+    <title>Identity Management</title>
 
-      <para>
-        The subsystem provides a domain model that allows you to configure PicketLink Identity Management Services using the standalone/domain.xml. Basically, what the subsystem does is parse the configuration, automatically build a org.picketlink.idm.PartitionManager and expose it via JNDI for further access.
-      </para>
-      <para>
-        With the subsystem you can :
-      </para>
-      <itemizedlist>
-        <listitem>
-          <para>
-            Externalize and centralize the IDM configuration for deployments.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            Define multiple configuration for identity management services.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            Expose the <code>PartitionManager</code> via JNDI for further access.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            If using CDI, inject the <code>PartitionManager</code> instances using the <code>Resource</code> annotation.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            If using CDI, use the PicketLink IDM alone without requiring the base module dependencies. In this case you can provide
-            your own configuration without using the subsystem's domain model.
-          </para>
-        </listitem>
-      </itemizedlist>
-      <section>
-        <title>Identity Management Domain Model</title>
-
+    <para>
+      The subsystem provides a domain model that allows you to configure PicketLink Identity Management Services using the <literal>standalone/domain.xml</literal>. Basically, what the subsystem does is parse the configuration, automatically build a org.picketlink.idm.PartitionManager and expose it via JNDI for further access.
+    </para>
+    <para>
+      With the subsystem you can :
+    </para>
+    <itemizedlist>
+      <listitem>
         <para>
-          The domain model is an abstraction for all PicketLink IDM configuration, providing a single schema from which all configurations can be defined. If you're already familiar with the Configuration API, you'll find
-          the domain pretty simple and intuitive.
+          Externalize and centralize the IDM configuration for deployments.
         </para>
-        <programlisting language="XML"><![CDATA[<subsystem xmlns="urn:jboss:domain:picketlink:1.0">
+      </listitem>
+      <listitem>
+        <para>
+          Define multiple configuration for identity management services.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Expose the <code>PartitionManager</code> via JNDI for further access.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          If using CDI, inject the <code>PartitionManager</code> instances using the <code>Resource</code> annotation.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          If using CDI, use the PicketLink IDM alone without requiring the base module dependencies. In this case you can provide
+          your own configuration without using the subsystem's domain model.
+        </para>
+      </listitem>
+    </itemizedlist>
+    <para>
+      The IDM domain model is an abstraction for all PicketLink IDM configuration, providing a single schema from which all configurations can be defined. If you're already familiar with the Configuration API, you'll find
+      the domain pretty simple and intuitive.
+    </para>
+    <programlisting language="XML"><![CDATA[<subsystem xmlns="urn:jboss:domain:picketlink:1.0">
   <identity-management jndi-name="picketlink/FileBasedPartitionManager" alias="file.based.partition.manager">
     <identity-configuration name="file.config">
       <file-store working-dir="/tmp/pl-idm-complete" always-create-files="true" async-write="true"
@@ -212,49 +241,49 @@
     </identity-configuration>
   </identity-management>
 </subsystem>]]></programlisting>
-        <note>
-          <para>
-            If you are looking for more examples about how to use the domain model, take a look <ulink url="https://github.com/picketlink/picketlink-as-subsystem/blob/master/src/test/resources/picketlink-subsystem.xml">here</ulink>.
-          </para>
-        </note>
+    <note>
+      <para>
+        If you are looking for more examples about how to use the domain model, take a look at <ulink url="https://github.com/picketlink/picketlink-as-subsystem/blob/master/src/test/resources/picketlink-subsystem.xml">https://github.com/picketlink/picketlink-as-subsystem/blob/master/src/test/resources/picketlink-subsystem.xml</ulink>.
+      </para>
+    </note>
+    <para>
+      Most of the configuration are known if you are familiar with the PicketLink IDM configuration. But the domain model provides some additional configuration in order to allow deployments to access the configured identity management services.
+      Basically, each configuration must have a:
+    </para>
+    <itemizedlist>
+      <listitem>
         <para>
-          Most of the configuration are known if you are familiar with the PicketLink IDM configuration. But the domain model provides some additional configuration in order to allow deployments to access the configured identity management services.
-          Basically, each configuration must have a:
+          <emphasis role="strong">jndi-url</emphasis>, that defines where the <code>PartitionManager</code> should be published in the JNDI tree for further access.
         </para>
-        <itemizedlist>
-          <listitem>
-            <para>
-              <emphasis role="strong">jndi-url</emphasis>, that defines where the <code>PartitionManager</code> should be published in the JNDI tree for further access.
-            </para>
-          </listitem>
-          <listitem>
-            <para>
-              <emphasis role="strong">alias</emphasis>, an alias for the configuration to allow other subsystems to inject the Identity Management Services using the MSC injection infrastructure.
-            </para>
-          </listitem>
-        </itemizedlist>
+      </listitem>
+      <listitem>
         <para>
-          The rest of the configuration is very similar with how you use the Configuration API to programmaticaly build the IDM configuration. For a complete description
-          of the domain model elements, please take a look at the XML Schema.
+          <emphasis role="strong">alias</emphasis>, an alias for the configuration to allow other subsystems to inject the Identity Management Services using the MSC injection infrastructure.
         </para>
-        <section>
-          <title>JPA Identity Store Configuration</title>
+      </listitem>
+    </itemizedlist>
+    <para>
+      The rest of the configuration is very similar with how you use the Configuration API to programmaticaly build the IDM configuration. For a complete description
+      of the domain model elements, please take a look at the XML Schema.
+    </para>
+    <section>
+      <title><code>JPAIdentityStore</code></title>
 
-          <para>
-            In order to provide a better and easy integration with the container, the JPA Identity Store configuration provides some additional configuration to let you
-            configure how the EntityManagerFactory is built or used by the JPA Identity Store.
-          </para>
-          <section>
-            <title>Using a DataSource JNDI Url</title>
+      <para>
+        In order to provide a better and easy integration with the container, the <code>JPAIdentityStore</code> configuration provides some additional configuration to let you
+        configure how the <code>EntityManagerFactory</code> is built or used by the <code>JPAIdentityStore</code>.
+      </para>
+      <section>
+        <title>Using a DataSource JNDI Url</title>
 
-            <para>
-              When you specify a DataSource JNDI url, the subsystem will automatically build a <code>EntityManagerFactory</code> using
-              a default configuration. This is the fast way to get a JPA Identity Store configuration.
-            </para>
-            <para>
-              The DataSource JNDI url can be specified using the <emphasis role="strong">data-source</emphasis> attribute as follows:
-            </para>
-            <programlisting language="XML"><![CDATA[<subsystem xmlns="urn:jboss:domain:picketlink:1.0">
+        <para>
+          When you specify a DataSource JNDI url, the subsystem will automatically build a <code>EntityManagerFactory</code> using
+          a default configuration. This is the fast way to get a JPA Identity Store configuration.
+        </para>
+        <para>
+          The DataSource JNDI url can be specified using the <emphasis role="strong">data-source</emphasis> attribute as follows:
+        </para>
+        <programlisting language="XML"><![CDATA[<subsystem xmlns="urn:jboss:domain:picketlink:1.0">
   <identity-management jndi-name="picketlink/JPADSBasedPartitionManager" alias="jpa.ds.based.partition.manager">
     <identity-configuration name="jpa.config">
       <jpa-store data-source="jboss/datasources/ExampleDS">
@@ -263,18 +292,18 @@
     </identity-configuration>
   </identity-management>
 </subsystem>]]></programlisting>
-            <para>
-              This configuration option is very handy if you want to use the basic IDM model provided by PicketLink.
-            </para>
-          </section>
-          <section>
-            <title>Using a <code>EntityManagerFactory</code> JNDI Url</title>
+        <para>
+          This configuration option is very handy if you want to use the basic IDM model provided by PicketLink.
+        </para>
+      </section>
+      <section>
+        <title>Using a <code>EntityManagerFactory</code> JNDI Url</title>
 
-            <para>
-              Sometimes you may need more control over the JPA Persistence Unit configuration. In this case you can use the
-              <emphasis role="strong">entity-manager-factory</emphasis> attribute to specify where your previously built <code>EntityManagerFactory</code> is located.
-            </para>
-            <programlisting language="XML"><![CDATA[<subsystem xmlns="urn:jboss:domain:picketlink:1.0">
+        <para>
+          Sometimes you may need more control over the JPA Persistence Unit configuration. In this case you can use the
+          <emphasis role="strong">entity-manager-factory</emphasis> attribute to specify where your previously built <code>EntityManagerFactory</code> is located.
+        </para>
+        <programlisting language="XML"><![CDATA[<subsystem xmlns="urn:jboss:domain:picketlink:1.0">
   <identity-management jndi-name="picketlink/JPAEMFBasedPartitionManager" alias="jpa.emf.based.partition.manager">
     <identity-configuration name="jpa.config">
       <jpa-store entity-manager-factory="jboss/PicketLinkEMF">
@@ -287,34 +316,34 @@
     </identity-configuration>
   </identity-management>
 </subsystem>]]></programlisting>
-            <para>
-              This configuration option is very useful if you want to support custom types.
-            </para>
-          </section>
-          <section>
-            <title>Using a JBoss Module</title>
+        <para>
+          This configuration option is very useful if you want to support custom types.
+        </para>
+      </section>
+      <section>
+        <title>Using a JBoss Module</title>
 
+        <para>
+          The JPA Identity Store configuration allows you to specify a JBoss Module from where the JPA Persistence Unit and mapped entities
+          will be loaded from.
+        </para>
+        <para>
+          This configuration can be done using two attributes:
+        </para>
+        <itemizedlist>
+          <listitem>
             <para>
-              The JPA Identity Store configuration allows you to specify a JBoss Module from where the JPA Persistence Unit and mapped entities
-              will be loaded from.
+              <emphasis role="strong">entity-module</emphasis>, the module name where the JPA Persistence Unit and all mapped entities are located.
             </para>
+          </listitem>
+          <listitem>
             <para>
-              This configuration can be done using two attributes:
+              <emphasis role="strong">entity-module-unit-name</emphasis>, the name of the JPA Persistence Unit name.
+              If you don't provide a name the subsystem will use <emphasis role="strong">identity</emphasis>.
             </para>
-            <itemizedlist>
-              <listitem>
-                <para>
-                  <emphasis role="strong">entity-module</emphasis>, the module name where the JPA Persistence Unit and all mapped entities are located.
-                </para>
-              </listitem>
-              <listitem>
-                <para>
-                  <emphasis role="strong">entity-module-unit-name</emphasis>, the name of the JPA Persistence Unit name.
-                  If you don't provide a name the subsystem will use <emphasis role="strong">identity</emphasis>.
-                </para>
-              </listitem>
-            </itemizedlist>
-            <programlisting language="XML"><![CDATA[<subsystem xmlns="urn:jboss:domain:picketlink:1.0">
+          </listitem>
+        </itemizedlist>
+        <programlisting language="XML"><![CDATA[<subsystem xmlns="urn:jboss:domain:picketlink:1.0">
     <identity-management jndi-name="picketlink/JPACustomEntityBasedPartitionManager" alias="jpa.custom.entity.based.partition.manager">
       <identity-configuration name="jpa.config">
         <jpa-store entity-module="org.picketlink.test" entity-module-unit-name="custom-pu" module="org.picketlink.test">
@@ -330,178 +359,177 @@
       </identity-configuration>
     </identity-management>
   </subsystem>]]></programlisting>
-          </section>
-        </section>
       </section>
-      <section>
-        <title>Usage Examples</title>
+    </section>
+    <section>
+      <title>Usage Examples</title>
 
-        <para>
-          If you want to have your deployment properly configured with the PicketLink Identity Management Services, you should
-          add a <code>META-INF/jboss-deployment-structure.xml</code> file to your deployment as follows:
-        </para>
-        <programlisting language="XML"><![CDATA[<jboss-deployment-structure>
+      <para>
+        If you want to have your deployment properly configured with the PicketLink Identity Management Services, you should
+        add a <literal>META-INF/jboss-deployment-structure.xml</literal> file to your deployment as follows:
+      </para>
+      <programlisting language="XML"><![CDATA[<jboss-deployment-structure>
   <deployment>
-	  <dependencies>
+    <dependencies>
       <module name="org.picketlink.idm" />
 
         <!-- We only need this dependency because we want to use the built-in schema -->
         <module name="org.picketlink.idm.schema" />
-		</dependencies>
+    </dependencies>
   </deployment>
-</jboss-deployment-structure>]]></programlisting>
-        <note>
-          <para>
-            When you're configuring the PicketLink dependencies using the jboss-deployment-structure.xml file you don't need
-            to ship the libraries inside your deployment. All the necessary dependencies are automatically resolved and configured.
-          </para>
-        </note>
+  </jboss-deployment-structure>]]></programlisting>
+      <note>
+        <para>
+          When you're configuring the PicketLink dependencies using the <literal>META-INF/jboss-deployment-structure.xml</literal> file you don't need
+          to ship the libraries inside your deployment. All the necessary dependencies are automatically resolved and configured.
+        </para>
+      </note>
 
-        <section>
-          <title>Injecting a <code>PartitionManager</code> using <code>Resource</code> annotation</title>
+      <section>
+        <title>Injecting a <code>PartitionManager</code> using <code>Resource</code> annotation</title>
 
-          <programlisting language="XML"><![CDATA[@Resource(mappedName="picketlink/JPADSBasedPartitionManager")
-private PartitionManager jpaDSBasedPartitionManager;]]></programlisting>
-        </section>
-        <section>
-          <title>Producing your own configuration</title>
+        <programlisting language="XML"><![CDATA[@Resource(mappedName="picketlink/JPADSBasedPartitionManager")
+  private PartitionManager jpaDSBasedPartitionManager;]]></programlisting>
+      </section>
+      <section>
+        <title>Producing your own configuration</title>
 
-          <programlisting language="XML"><![CDATA[@ApplicationScoped
-public static class MyIdentityConfigurationProducer {
+        <programlisting language="XML"><![CDATA[@ApplicationScoped
+  public static class MyIdentityConfigurationProducer {
 
   @Produces
   public IdentityConfiguration produceIdentityConfiguration() {
     return new IdentityConfigurationBuilder().named("default").stores().file().supportAllFeatures().build();
   }
 
-}]]></programlisting>
-        </section>
+  }]]></programlisting>
       </section>
     </section>
+  </section>
+  <section>
+    <title>Federation</title>
+
+    <para>
+      All the configuration is external from applications where there is no need to add or change configuration files inside the application being deployed. The subsystem is responsible for during deployment time properly configure the applications being deployed, according with the configurations defined in the domain model:
+    </para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          The configurations in picketlink.xml are automatically created. No need to have this file inside your deployment.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The PicketLink Authenticators (Apache Tomcat Valves) for Identity Providers and Service Providers are automatically registered. No need to have a jboss-web.xml file inside your deployment.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The PicketLink dependencies are automatically configured. No need to have a jboss-deployment-structure.xml inside your deployment defining the org.picketlink module as a dependency.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          The Security Domain is automatically configured using the configurations defined in the domain model. No need to have a jboss-web.xml file inside your deployment.
+        </para>
+      </listitem>
+    </itemizedlist>
+    <para>
+      The table bellow summarizes the main differences between the traditional configuration and the subsystem configuration for PicketLink applications:
+    </para>
+    <informaltable>
+      <tgroup cols="3">
+        <thead>
+          <row>
+            <entry>
+              <para>Configuration</para>
+            </entry>
+            <entry>
+              <para>Old Configuration</para>
+            </entry>
+            <entry>
+              <para>Subsystem Configuration</para>
+            </entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry>
+              <para>
+                WEB-INF/picketlink.xml
+              </para>
+            </entry>
+            <entry>
+              <para>
+                Required
+              </para>
+            </entry>
+            <entry>
+              <para>
+                Not required. If present it will be considered instead of the configurations defined in the domain model.
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                WEB-INF/jboss-web.xml
+              </para>
+            </entry>
+            <entry>
+              <para>
+                Required
+              </para>
+            </entry>
+            <entry>
+              <para>
+                Not required. The PicketLink Authenticators (Tomcat Valves) and the Security Domain is read from the domain model.
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                META-INF/jboss-deployment-structure.xml
+              </para>
+            </entry>
+            <entry>
+              <para>
+                Required
+              </para>
+            </entry>
+            <entry>
+              <para>
+                Not required. When the PicketLink Extension/Subsystem is enabled, the dependency to the org.picketlink module is automatically configured.
+              </para>
+            </entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </informaltable>
     <section>
-      <title>Federation</title>
+      <title>The Federation concept (Circle of Trust)</title>
 
       <para>
-        All the configuration is external from applications where there is no need to add or change configuration files inside the application being deployed. The subsystem is responsible for during deployment time properly configure the applications being deployed, according with the configurations defined in the domain model:
+        When using the PicketLink subsystem to configure and deploy your identity providers and service providers, all of them are grouped in a Federation.
       </para>
-      <itemizedlist>
-        <listitem>
-          <para>
-            The configurations in picketlink.xml are automatically created. No need to have this file inside your deployment.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            The PicketLink Authenticators (Apache Tomcat Valves) for Identity Providers and Service Providers are automatically registered. No need to have a jboss-web.xml file inside your deployment.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            The PicketLink dependencies are automatically configured. No need to have a jboss-deployment-structure.xml inside your deployment defining the org.picketlink module as a dependency.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            The Security Domain is automatically configured using the configurations defined in the domain model. No need to have a jboss-web.xml file inside your deployment.
-          </para>
-        </listitem>
-      </itemizedlist>
       <para>
-        The table bellow summarizes the main differences between the traditional configuration and the subsystem configuration for PicketLink applications:
+        A Federation can be understood as a Circle of Trust (CoT) from which applications share common configurations (certificates, saml specific configurations, etc) and where each participating domain is trusted to accurately document the processes used to identify a user, the type of authentication system used, and any policies associated with the resulting authentication credentials.
       </para>
-      <informaltable>
-        <tgroup cols="3">
-          <thead>
-            <row>
-              <entry>
-                <para>Configuration</para>
-              </entry>
-              <entry>
-                <para>Old Configuration</para>
-              </entry>
-              <entry>
-                <para>Subsystem Configuration</para>
-              </entry>
-            </row>
-          </thead>
-          <tbody>
-            <row>
-              <entry>
-                <para>
-                  WEB-INF/picketlink.xml
-                </para>
-              </entry>
-              <entry>
-                <para>
-                  Required
-                </para>
-              </entry>
-              <entry>
-                <para>
-                  Not required. If present it will be considered instead of the configurations defined in the domain model.
-                </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <para>
-                  WEB-INF/jboss-web.xml
-                </para>
-              </entry>
-              <entry>
-                <para>
-                  Required
-                </para>
-              </entry>
-              <entry>
-                <para>
-                  Not required. The PicketLink Authenticators (Tomcat Valves) and the Security Domain is read from the domain model.
-                </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <para>
-                  META-INF/jboss-deployment-structure.xml
-                </para>
-              </entry>
-              <entry>
-                <para>
-                  Required
-                </para>
-              </entry>
-              <entry>
-                <para>
-                  Not required. When the PicketLink Extension/Subsystem is enabled, the dependency to the org.picketlink module is automatically configured.
-                </para>
-              </entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </informaltable>
-      <section>
-        <title>The Federation concept (Circle of Trust)</title>
+      <para>
+        Each federation has one Identity Provider and many Service Providers. You do not need to specify for each SP the IDP that it trusts, because this is defined by the federation.
+      </para>
+    </section>
+    <section>
+      <title>Federation Domain Model</title>
 
-        <para>
-          When using the PicketLink subsystem to configure and deploy your identity providers and service providers, all of them are grouped in a Federation.
-        </para>
-        <para>
-          A Federation can be understood as a Circle of Trust (CoT) from which applications share common configurations (certificates, saml specific configurations, etc) and where each participating domain is trusted to accurately document the processes used to identify a user, the type of authentication system used, and any policies associated with the resulting authentication credentials.
-        </para>
-        <para>
-          Each federation has one Identity Provider and many Service Providers. You do not need to specify for each SP the IDP that it trusts, because this is defined by the federation.
-        </para>
-      </section>
-      <section>
-        <title>Federation Domain Model</title>
-
-        <para>
-          The domain model is an abstraction for all PicketLink Federation configuration, providing a single schema from which all configurations can be defined for Identity Providers or Service Providers, for example.
-        </para>
-        <para>
-          The example bellow shows how the domain model can used to configure an Identity Provider and a Service Provider.
-        </para>
-        <programlisting language="XML"><![CDATA[<subsystem xmlns="urn:jboss:domain:picketlink:1.0">
+      <para>
+        The domain model is an abstraction for all PicketLink Federation configuration, providing a single schema from which all configurations can be defined for Identity Providers or Service Providers, for example.
+      </para>
+      <para>
+        The example bellow shows how the domain model can used to configure an Identity Provider and a Service Provider.
+      </para>
+      <programlisting language="XML"><![CDATA[<subsystem xmlns="urn:jboss:domain:picketlink:1.0">
   <federation alias="federation-without-signatures">
 
     <saml token-timeout="4000" clock-skew="0" />
@@ -536,55 +564,55 @@ public static class MyIdentityConfigurationProducer {
     </service-providers>
   </federation>
 </subsystem>]]></programlisting>
-        <note>
-          <para>
-            If you are looking for more examples about how to use the domain model, take a look <ulink url="https://github.com/picketlink/picketlink-as-subsystem/blob/master/src/test/resources/picketlink-subsystem.xml">here</ulink>.
-          </para>
-        </note>
-      </section>
-      <section>
-        <title>Usage Examples</title>
+      <note>
+        <para>
+          If you are looking for more examples about how to use the domain model, take a look <ulink url="https://github.com/picketlink/picketlink-as-subsystem/blob/master/src/test/resources/picketlink-subsystem.xml">here</ulink>.
+        </para>
+      </note>
+    </section>
+    <section>
+      <title>Usage Examples</title>
 
-        <para>
-          This section will guide you through the basic steps to get an Identity Provider and a Service Provider working using the subsystem configuration.
-        </para>
-        <para>
-          Download the PicketLink Federation <ulink url="https://repository.jboss.org/nexus/content/groups/public/org/picketlink/quickstarts/picketlink-quickstarts/2.1.8.Final/picketlink-quickstarts-2.1.8.Final-webapps-jboss-as7.zip">Quickstarts</ulink>.
-        </para>
-        <para>
-          <![CDATA[
+      <para>
+        This section will guide you through the basic steps to get an Identity Provider and a Service Provider working using the subsystem configuration.
+      </para>
+      <para>
+        Download the PicketLink Federation <ulink url="https://repository.jboss.org/nexus/content/groups/public/org/picketlink/quickstarts/picketlink-quickstarts/2.1.8.Final/picketlink-quickstarts-2.1.8.Final-webapps-jboss-as7.zip">Quickstarts</ulink>.
+      </para>
+      <para>
+        <![CDATA[
             Extract the file and copy the idp.war and sales-post.war to﻿${JBOSS.HOME.dir}/standalone/deployments.
           ]]>
-        </para>
-        <para>
-          Open both files (idp.war and sales-post.war) and remove the following configuration files:
-        </para>
-        <itemizedlist>
-          <listitem>
-            <para>
-              WEB-INF/picketlink.xml
-            </para>
-          </listitem>
-          <listitem>
-            <para>
-              META-INF/jboss-deployment-structure.xml
-            </para>
-          </listitem>
-          <listitem>
-            <para>
-              WEB-INF/jboss-web.xml
-            </para>
-          </listitem>
-        </itemizedlist>
-        <important>
+      </para>
+      <para>
+        Open both files (idp.war and sales-post.war) and remove the following configuration files:
+      </para>
+      <itemizedlist>
+        <listitem>
           <para>
-            Don't forget to configure the security domains for both applications.
+            WEB-INF/picketlink.xml
           </para>
-        </important>
+        </listitem>
+        <listitem>
+          <para>
+            META-INF/jboss-deployment-structure.xml
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            WEB-INF/jboss-web.xml
+          </para>
+        </listitem>
+      </itemizedlist>
+      <important>
         <para>
-          Open the standalone.xml and add the following configuration for the PicketLink subsystem:
+          Don't forget to configure the security domains for both applications.
         </para>
-        <programlisting language="XML"><![CDATA[<subsystem xmlns="urn:jboss:domain:picketlink:1.0">
+      </important>
+      <para>
+        Open the standalone.xml and add the following configuration for the PicketLink subsystem:
+      </para>
+      <programlisting language="XML"><![CDATA[<subsystem xmlns="urn:jboss:domain:picketlink:1.0">
   <federation alias="example-federation">
       <!-- Identity Provider configuration -->
       <identity-provider alias="idp.war" security-domain="idp" supportsSignatures="false" url="http://localhost:8080/idp/">
@@ -599,48 +627,48 @@ public static class MyIdentityConfigurationProducer {
       </service-providers>
   </federation>
 </subsystem>]]></programlisting>
-        <para>
-          To make sure that everything is ok, please start JBoss AS and try to access the sales application. You should be redirected to the idp application.
-        </para>
-      </section>
-      <section>
-        <title>Metrics and Statistics</title>
-
-        <para>
-          Metrics and statistics can be collected from applications deployed using the PicketLink subsystem. This means you can get some useful information about how your Identity Providers and Service providers are working.
-        </para>
-        <itemizedlist>
-          <listitem>
-            <para>
-              How many SAML assertions were issued by your identity provider ?
-            </para>
-          </listitem>
-          <listitem>
-            <para>
-              How many times your identity provider respond to service providers ?
-            </para>
-          </listitem>
-          <listitem>
-            <para>
-              How many SAML assertions were expired ?
-            </para>
-          </listitem>
-          <listitem>
-            <para>
-              How many authentications are done by your identity provider ?
-            </para>
-          </listitem>
-          <listitem>
-            <para>
-              How many errors happened ? Trusted Domain errors, signing errors, etc.
-            </para>
-          </listitem>
-        </itemizedlist>
-      </section>
       <para>
-        To query those metrics and statistics you can use JBoss CLI as follows:
+        To make sure that everything is ok, please start JBoss AS and try to access the sales application. You should be redirected to the idp application.
       </para>
-      <programlisting language="XML"><![CDATA[[standalone@localhost:9999 federation=example-federation] ./identity-provider=idp.war:read-resource(include-runtime=true)
+    </section>
+    <section>
+      <title>Metrics and Statistics</title>
+
+      <para>
+        Metrics and statistics can be collected from applications deployed using the PicketLink subsystem. This means you can get some useful information about how your Identity Providers and Service providers are working.
+      </para>
+      <itemizedlist>
+        <listitem>
+          <para>
+            How many SAML assertions were issued by your identity provider ?
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            How many times your identity provider respond to service providers ?
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            How many SAML assertions were expired ?
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            How many authentications are done by your identity provider ?
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            How many errors happened ? Trusted Domain errors, signing errors, etc.
+          </para>
+        </listitem>
+      </itemizedlist>
+    </section>
+    <para>
+      To query those metrics and statistics you can use JBoss CLI as follows:
+    </para>
+    <programlisting language="XML"><![CDATA[[standalone@localhost:9999 federation=example-federation] ./identity-provider=idp.war:read-resource(include-runtime=true)
 {
     "outcome" => "success",
     "result" => {
@@ -662,7 +690,6 @@ public static class MyIdentityConfigurationProducer {
          "trust-domain" =>{"localhost" => undefined}
     }
 }]]></programlisting>
-    </section>
   </section>
   <section>
     <title>Management Capabilities</title>
