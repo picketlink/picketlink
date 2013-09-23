@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import org.picketlink.idm.jpa.annotations.PermissionGrant;
 import org.picketlink.idm.jpa.annotations.PermissionRecipient;
 import org.picketlink.idm.jpa.annotations.PermissionResourceClass;
+import org.picketlink.idm.jpa.annotations.PermissionResourceIdentifier;
 import org.picketlink.idm.jpa.annotations.entity.PermissionManaged;
 
 /**
@@ -20,6 +21,8 @@ import org.picketlink.idm.jpa.annotations.entity.PermissionManaged;
 @Entity
 public class ResourcePermission implements Serializable {
 
+    private static final long serialVersionUID = -5728457124164068127L;
+
     @Id @GeneratedValue
     private Long id;
 
@@ -27,7 +30,10 @@ public class ResourcePermission implements Serializable {
     private String recipient;
 
     @PermissionResourceClass
-    private String resource;
+    private String resourceClass;
+
+    @PermissionResourceIdentifier
+    private String resourceIdentifier;
 
     @PermissionGrant
     private String grants;
@@ -48,12 +54,20 @@ public class ResourcePermission implements Serializable {
         this.recipient = recipient;
     }
 
-    public String getResource() {
-        return resource;
+    public String getResourceClass() {
+        return resourceClass;
     }
 
-    public void setResource(String resource) {
-        this.resource = resource;
+    public void setResourceClass(String resourceClass) {
+        this.resourceClass = resourceClass;
+    }
+
+    public String getResourceIdentifier() {
+        return resourceIdentifier;
+    }
+
+    public void setResourceIdentifier(String resourceIdentifier) {
+        this.resourceIdentifier = resourceIdentifier;
     }
 
     public String getGrants() {

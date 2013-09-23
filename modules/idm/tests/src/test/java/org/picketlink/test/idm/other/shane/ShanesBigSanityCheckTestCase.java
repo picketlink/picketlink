@@ -49,7 +49,7 @@ public class ShanesBigSanityCheckTestCase {
      */
     @Test
     public void testScenario1() throws InterruptedException {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("shanes-test-suite-pu");
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("shanes-test-suite-scenario1-pu");
         final EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
 
@@ -378,5 +378,39 @@ public class ShanesBigSanityCheckTestCase {
         assert !id.isEmpty();
 
         em.getTransaction().commit();
+    }
+
+    //@Test
+    public void testScenario2() throws InterruptedException {
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("shanes-test-suite-scenario2-pu");
+        final EntityManager em = emf.createEntityManager();
+        em.getTransaction().begin();
+
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder.named("default")
+            .stores()
+                .jpa()
+                    .mappedEntity(org.picketlink.test.idm.other.shane.model.scenario1.entity.AccountLogin.class,
+                    org.picketlink.test.idm.other.shane.model.scenario2.entity.IdentityObject.class,
+                    org.picketlink.test.idm.other.shane.model.scenario2.entity.Partition.class,
+                    org.picketlink.test.idm.other.shane.model.scenario2.entity.ResourcePermission.class,
+                    org.picketlink.test.idm.other.shane.model.scenario2.entity.UserDetail.class)
+                    .addContextInitializer(new ContextInitializer() {
+                        @Override
+                        public void initContextForStore(IdentityContext context, IdentityStore<?> store) {
+                            context.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, em);
+                        }
+                    })
+                    .addCredentialHandler(UserPasswordCredentialHandler.class)
+                    .supportAllFeatures();
+
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
+
+        // Create a realm with some attributes
+        Realm r = new Realm(Realm.DEFAULT_REALM);
+        r.setAttribute(new Attribute<String>("foo", "bar"));
+        partitionManager.add(r, "default");
+
     }
 }

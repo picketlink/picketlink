@@ -17,15 +17,15 @@
  */
 package org.picketlink.idm.config;
 
-import org.picketlink.idm.credential.handler.CredentialHandler;
-import org.picketlink.idm.model.AttributedType;
-import org.picketlink.idm.spi.ContextInitializer;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.picketlink.idm.IDMMessages.*;
+import org.picketlink.idm.credential.handler.CredentialHandler;
+import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.spi.ContextInitializer;
 
 /**
  * Defines the configuration for a JPA based IdentityStore implementation.
