@@ -320,4 +320,12 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
 
         return (Class<? extends AttributedType>[]) classes.toArray(new Class<?>[classes.size()]);
     }
+
+	@Override
+	public <U extends IdentityStoreConfigurationBuilder<?, ?>> U add(
+			Class<? extends IdentityStoreConfiguration> identityStoreConfiguration,
+			Class<U> builder) {
+		return this.identityStoresConfigurationBuilder.add(
+				identityStoreConfiguration, builder);
+	}
 }
