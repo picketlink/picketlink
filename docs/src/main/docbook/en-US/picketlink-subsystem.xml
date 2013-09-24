@@ -415,7 +415,7 @@
     <itemizedlist>
       <listitem>
         <para>
-          The configurations in picketlink.xml are automatically created. No need to have this file inside your deployment.
+          The configurations in <literal>picketlink.xml</literal> are automatically created. No need to have this file inside your deployment.
         </para>
       </listitem>
       <listitem>
@@ -425,12 +425,12 @@
       </listitem>
       <listitem>
         <para>
-          The PicketLink dependencies are automatically configured. No need to have a jboss-deployment-structure.xml inside your deployment defining the org.picketlink module as a dependency.
+          The PicketLink dependencies are automatically configured. No need to have a <literal>META-INF/jboss-deployment-structure.xml</literal> inside your deployment defining the <literal>org.picketlink</literal> module as a dependency.
         </para>
       </listitem>
       <listitem>
         <para>
-          The Security Domain is automatically configured using the configurations defined in the domain model. No need to have a jboss-web.xml file inside your deployment.
+          The Security Domain is automatically configured using the configurations defined in the domain model. No need to have a <literal>WEB-INF/jboss-web.xml</literal> file inside your deployment.
         </para>
       </listitem>
     </itemizedlist>
