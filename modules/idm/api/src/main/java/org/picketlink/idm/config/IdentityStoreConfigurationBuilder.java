@@ -112,9 +112,9 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
     }
 
     /**
-     * <p>Defines which type should not be supported by this configuration.</p>
-     * <p>If the operation was not provided, the type should be completely removed from the supported types.
-     * Otherwise, only the provided operations should not be supported.</p>
+     * <p>Defines which type should not be supported by this configuration.</p> <p>If the operation was not provided,
+     * the type should be completely removed from the supported types. Otherwise, only the provided operations should
+     * not be supported.</p>
      *
      * @param type
      * @param operation
@@ -239,16 +239,16 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
 
     @Override
     protected Builder<T> readFrom(T configuration) {
-        for (Class<? extends CredentialHandler> credentialHandler: configuration.getCredentialHandlers()) {
+        for (Class<? extends CredentialHandler> credentialHandler : configuration.getCredentialHandlers()) {
             addCredentialHandler(credentialHandler);
         }
 
-        for (String credentialProperty: configuration.getCredentialHandlerProperties().keySet()) {
+        for (String credentialProperty : configuration.getCredentialHandlerProperties().keySet()) {
             Object value = configuration.getCredentialHandlerProperties().get(credentialProperty);
             setCredentialHandlerProperty(credentialProperty, value);
         }
 
-        for (Class<? extends AttributedType> supportedType: configuration.getSupportedTypes().keySet()) {
+        for (Class<? extends AttributedType> supportedType : configuration.getSupportedTypes().keySet()) {
             supportType(supportedType);
 
             if (Relationship.class.isAssignableFrom(supportedType)) {
@@ -256,11 +256,11 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
             }
         }
 
-        for (Class<? extends AttributedType> unsupportedType: configuration.getUnsupportedTypes().keySet()) {
+        for (Class<? extends AttributedType> unsupportedType : configuration.getUnsupportedTypes().keySet()) {
             unsupportType(unsupportedType);
         }
 
-        for (ContextInitializer contextInitializer :  configuration.getContextInitializers()) {
+        for (ContextInitializer contextInitializer : configuration.getContextInitializers()) {
             addContextInitializer(contextInitializer);
         }
 
@@ -321,11 +321,11 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
         return (Class<? extends AttributedType>[]) classes.toArray(new Class<?>[classes.size()]);
     }
 
-	@Override
-	public <U extends IdentityStoreConfigurationBuilder<?, ?>> U add(
-			Class<? extends IdentityStoreConfiguration> identityStoreConfiguration,
-			Class<U> builder) {
-		return this.identityStoresConfigurationBuilder.add(
-				identityStoreConfiguration, builder);
-	}
+    @Override
+    public <U extends IdentityStoreConfigurationBuilder<?, ?>> U add(
+            Class<? extends IdentityStoreConfiguration> identityStoreConfiguration,
+            Class<U> builder) {
+        return this.identityStoresConfigurationBuilder.add(
+                identityStoreConfiguration, builder);
+    }
 }

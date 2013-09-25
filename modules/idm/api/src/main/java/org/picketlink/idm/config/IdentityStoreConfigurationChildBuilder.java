@@ -25,7 +25,6 @@ package org.picketlink.idm.config;
  * <p>Defines the top-level configuration methods for @{link Builder} implementations.</p>
  *
  * @author Pedro Igor
- *
  */
 public interface IdentityStoreConfigurationChildBuilder extends IdentityConfigurationChildBuilder {
 
@@ -35,6 +34,6 @@ public interface IdentityStoreConfigurationChildBuilder extends IdentityConfigur
 
     LDAPStoreConfigurationBuilder ldap();
 
-	<T extends IdentityStoreConfigurationBuilder<?, ?>> T add(Class<? extends IdentityStoreConfiguration> identityStoreConfiguration, Class<T> builder);
-    
+    <T extends IdentityStoreConfigurationBuilder<?, ?>> T add(Class<? extends IdentityStoreConfiguration> identityStoreConfiguration, Class<T> builder);
+
 }
