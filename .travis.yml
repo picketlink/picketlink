@@ -8,8 +8,6 @@ after_success:
 jdk:
 - oraclejdk7
 - openjdk6
-notifications:
-  irc: irc.freenode.org#picketlink
 branches:
   only:
   - master
