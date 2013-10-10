@@ -43,7 +43,7 @@
     <jboss.snapshots.repo.url>https://repository.jboss.org/nexus/content/repositories/snapshots/
     </jboss.snapshots.repo.url>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <pressgang.version>3.0.1-SNAPSHOT</pressgang.version>
+    <pressgang.version>3.0.0</pressgang.version>
     <shrinkwrap.resolver.version>2.0.0-beta-2</shrinkwrap.resolver.version>
     <arquillian.version>1.0.3.Final</arquillian.version>
     <jboss.logging.version>3.1.1.GA</jboss.logging.version>
@@ -66,6 +66,8 @@
     <module>modules/social</module>
     <module>modules/oauth</module>
     <module>modules/rest</module>
+
+    <module>bom</module>
   </modules>
 
   <dependencyManagement>
