@@ -7,7 +7,7 @@
          xmlns:ns="http://docbook.org/ns/docbook">
   <title>Identity Management</title>
 
-    <section>
+    <section id="picketlink-idm-overview">
       <title>Overview</title>
       
       <para>

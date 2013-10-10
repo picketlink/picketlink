@@ -171,12 +171,11 @@
     </para>
 
     <para>
-      For most applications using Java EE 6.0, the following configuration is enough to get your project properly configured with
-      the PicketLink dependencies:
+      For most applications using Java EE 6.0, the <emphasis>picketlink-javaee-6.0</emphasis> BOM can be used to define the
+      PicketLink and Java EE 6.0 specification APIs dependencies to your project.
     </para>
 
     <programlisting language="XML"><![CDATA[<properties>
-  <!-- JBoss dependency versions -->
   <!-- PicketLink dependency versions -->
   <version.picketlink.javaee.bom>]]>&project.version;<![CDATA[</version.picketlink.javaee.bom>
 </properties>
@@ -195,31 +194,13 @@
 </dependencyManagement>]]></programlisting>
 
     <para>
-      PicketLink also provides a specific BOM with the Apache Deltaspike(core and security modules) dependencies if you want to use it in conjunction with PicketLink.
+      Once the BOM is included, required PicketLink dependencies may be added to the section of your pom.xml.
+      When using a BOM you don't need to specify their versions because this is automatically managed, the version in use depends
+      on the BOM's version. For example, the configuration above is defining a version &project.version; of the <emphasis>picketlink-javaee-6.0</emphasis> BOM, which means
+      you'll be using version &project.version; of the PicketLink libraries.
     </para>
 
-    <programlisting language="XML"><![CDATA[<properties>
-  <!-- JBoss dependency versions -->
-  <!-- PicketLink dependency versions -->
-  <version.picketlink.javaee.bom>]]>&project.version;<![CDATA[</version.picketlink.javaee.bom>
-</properties>
-
-<dependencyManagement>
-  <dependencies>
-    <!-- Dependency Management for PicketLink and Apache Deltaspike. -->
-    <dependency>
-      <groupId>org.picketlink</groupId>
-      <artifactId>picketlink-javaee-6.0-with-deltaspike</artifactId>
-      <version>${version.picketlink.javaee.bom}</version>
-      <scope>import</scope>
-      <type>pom</type>
-    </dependency>
-  </dependencies>
-</dependencyManagement>]]></programlisting>
-
-    <para>
-      Once you have a BOM properly configured, you can now define your dependencies. For a typical application, it is suggested that you include the following PicketLink dependencies:
-    </para>
+    <para>For a typical application, it is suggested that you include the following PicketLink dependencies:</para>
 
     <programlisting language="XML"><![CDATA[<dependencies>
 <!-- Import the PicketLink API, we deploy this as library with the application,
@@ -237,6 +218,28 @@
     <scope>runtime</scope>
   </dependency>
 </dependencies>]]></programlisting>
+
+    <para>
+      PicketLink also provides a specific BOM with the Apache Deltaspike(core and security modules) dependencies if you want to use it in conjunction with PicketLink.
+    </para>
+
+    <programlisting language="XML"><![CDATA[<properties>
+  <!-- PicketLink dependency versions -->
+  <version.picketlink.javaee.bom>]]>&project.version;<![CDATA[</version.picketlink.javaee.bom>
+</properties>
+
+<dependencyManagement>
+  <dependencies>
+    <!-- Dependency Management for PicketLink and Apache Deltaspike. -->
+    <dependency>
+      <groupId>org.picketlink</groupId>
+      <artifactId>picketlink-javaee-6.0-with-deltaspike</artifactId>
+      <version>${version.picketlink.javaee.bom}</version>
+      <scope>import</scope>
+      <type>pom</type>
+    </dependency>
+  </dependencies>
+</dependencyManagement>]]></programlisting>
 
     <para>
       The identity management library is a required dependency of the base module and so will be automatically included.  If you
@@ -258,7 +261,7 @@
 
     <para>
       If you wish to use PicketLink's Identity Management features and want to include the default database schema
-      (see the Identity Management chapter for more details) then configure the following dependency also:
+      (see the <link linkend='picketlink-idm-overview'>Identity Management</link> chapter for more details) then configure the following dependency also:
     </para>
 
     <programlisting language="XML"><![CDATA[  <dependency>
@@ -267,8 +270,7 @@
   </dependency>]]></programlisting>
 
     <para>
-      Another way to configure the PicketLink dependencies is manually defining them in your project's
-      <literal>pom.xml</literal> file like so:
+      Another way to configure the PicketLink dependencies (without using the PicketLink BOM) is to manually define them in your project's <emphasis>pom.xml</emphasis> file like so:
     </para>
 
     <programlisting language="XML"><![CDATA[<properties>
@@ -298,7 +300,7 @@
     <note>
       <para>
         We strongly recommend using a BOM to configure your project with the PicketLink dependencies. This can avoid
-        some very common and tricky issues like keep the versions in the project using the artifacts in synch with the versions distributed in a release.
+        some very common and tricky issues like keep the versions in the project using the artifacts in sync with the versions distributed in a release.
       </para>
     </note>
 
