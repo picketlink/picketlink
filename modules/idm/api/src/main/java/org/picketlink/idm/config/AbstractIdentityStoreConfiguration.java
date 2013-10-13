@@ -90,7 +90,6 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
 
     @Override
     public final void init() throws SecurityConfigurationException {
-        initConfig();
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debugf("FeatureSet for %s", this);
@@ -113,8 +112,6 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
             LOGGER.debug("]");
         }
     }
-
-    protected abstract void initConfig();
 
     @Override
     public void addContextInitializer(ContextInitializer contextInitializer) {
