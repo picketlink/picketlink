@@ -71,10 +71,6 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         this.mappingConfig = mappingConfig;
     }
 
-    @Override
-    protected void initConfig() throws SecurityConfigurationException {
-    }
-
     public String getStandardAttributesFileName() {
         return this.standardAttributesFileName;
     }

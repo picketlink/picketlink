@@ -130,11 +130,6 @@ public class CustomIdentityStoreTestCase {
         }
 
         @Override
-        protected void initConfig() {
-
-        }
-
-        @Override
         public Class<? extends IdentityStore> getIdentityStoreType() {
             return MyIdentityStore.class;
         }

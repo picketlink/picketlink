@@ -55,9 +55,6 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
         this.entityTypes = entityTypes;
     }
 
-    @Override
-    protected void initConfig() {  }
-
     public Set<Class<?>> getEntityTypes() {
         return this.entityTypes;
     }
