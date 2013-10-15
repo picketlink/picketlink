@@ -36,8 +36,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.picketlink.idm.IDMLogger.*;
-import static org.picketlink.idm.file.internal.FileUtils.*;
+import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.idm.file.internal.FileUtils.createFileIfNotExists;
+import static org.picketlink.idm.file.internal.FileUtils.delete;
+import static org.picketlink.idm.file.internal.FileUtils.readObject;
 
 /**
  * @author Pedro Silva

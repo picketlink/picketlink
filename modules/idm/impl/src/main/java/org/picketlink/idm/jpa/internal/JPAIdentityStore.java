@@ -85,11 +85,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Map.*;
-import static org.picketlink.common.properties.query.TypedPropertyCriteria.*;
-import static org.picketlink.common.util.StringUtil.*;
-import static org.picketlink.idm.IDMMessages.*;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.*;
+import static java.util.Map.Entry;
+import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * Implementation of IdentityStore that stores its state in a relational database. This is a lightweight object that is

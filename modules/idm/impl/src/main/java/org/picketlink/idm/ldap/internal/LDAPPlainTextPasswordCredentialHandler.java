@@ -32,8 +32,9 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import java.util.Date;
 
-import static org.picketlink.idm.credential.Credentials.*;
-import static org.picketlink.idm.model.basic.BasicModel.*;
+import static org.picketlink.idm.credential.Credentials.Status;
+import static org.picketlink.idm.model.basic.BasicModel.getAgent;
+import static org.picketlink.idm.model.basic.BasicModel.getUser;
 
 /**
  * This particular implementation supports the validation of UsernamePasswordCredentials, and updating PlainTextPassword

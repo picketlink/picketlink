@@ -32,10 +32,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static java.util.Collections.*;
-import static org.picketlink.idm.IDMLogger.*;
-import static org.picketlink.idm.IDMMessages.*;
-import static org.picketlink.idm.util.IDMUtil.*;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.Collections.unmodifiableSet;
+import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.util.IDMUtil.isTypeOperationSupported;
 
 /**
  * <p>Base class for {@link IdentityStoreConfiguration} implementations.</p>

@@ -68,10 +68,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.picketlink.common.util.StringUtil.*;
-import static org.picketlink.idm.IDMLogger.*;
-import static org.picketlink.idm.IDMMessages.*;
-import static org.picketlink.idm.util.IDMUtil.*;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.util.IDMUtil.isTypeSupported;
+import static org.picketlink.idm.util.IDMUtil.toSet;
 
 /**
  * Provides partition management functionality, and partition-specific {@link IdentityManager} instances. <p/> Before

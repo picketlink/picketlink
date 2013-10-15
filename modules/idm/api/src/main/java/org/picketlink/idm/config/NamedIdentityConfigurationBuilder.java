@@ -19,8 +19,8 @@ package org.picketlink.idm.config;
 
 import org.picketlink.idm.spi.RelationshipPolicy;
 
-import static org.picketlink.common.util.StringUtil.*;
-import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * <p>A class used to build {@link IdentityConfiguration} instances.</p>

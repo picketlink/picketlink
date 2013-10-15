@@ -31,7 +31,7 @@ import org.picketlink.idm.spi.StoreSelector;
 import java.io.Serializable;
 import java.util.List;
 
-import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Default implementation for RelationshipManager.

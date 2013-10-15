@@ -23,7 +23,7 @@ import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
 import org.picketlink.idm.jpa.annotations.entity.ConfigurationName;
 
-import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * @author pedroigor
