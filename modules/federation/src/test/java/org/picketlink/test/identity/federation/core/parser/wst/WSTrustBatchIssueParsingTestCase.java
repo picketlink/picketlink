@@ -43,6 +43,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Oct 11, 2010
  */
 public class WSTrustBatchIssueParsingTestCase {
+
     /**
      * Parse and validate the parser/wst/wst-batch-issue.xml file
      *

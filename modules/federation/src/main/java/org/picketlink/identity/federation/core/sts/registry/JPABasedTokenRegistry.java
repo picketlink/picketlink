@@ -24,13 +24,14 @@ import java.io.IOException;
 
 /**
  * <p>
- * {@link SecurityTokenRegistry} implementation that uses JPA to store tokens. By default, the JPA configuration has the name
+ * {@link SecurityTokenRegistry} implementation that uses JPA to store tokens. By default, the JPA configuration has
+ * the
+ * name
  * {@code picketlink-sts} but a different configuration name can be specified through the constructor that takes a
  * {@code String} as a parameter.
  * </p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
  * @see {@link SecurityToken}
  */
 public class JPABasedTokenRegistry extends AbstractJPARegistry implements SecurityTokenRegistry {
@@ -45,7 +46,7 @@ public class JPABasedTokenRegistry extends AbstractJPARegistry implements Securi
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.picketlink.identity.federation.core.sts.registry.SecurityTokenRegistry#addToken(java.lang.String,
      * java.lang.Object)
      */
@@ -67,7 +68,7 @@ public class JPABasedTokenRegistry extends AbstractJPARegistry implements Securi
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.picketlink.identity.federation.core.sts.registry.SecurityTokenRegistry#removeToken(java.lang.String)
      */
     public void removeToken(final String id) throws IOException {
@@ -88,7 +89,7 @@ public class JPABasedTokenRegistry extends AbstractJPARegistry implements Securi
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.picketlink.identity.federation.core.sts.registry.SecurityTokenRegistry#getToken(java.lang.String)
      */
     public Object getToken(final String id) {
@@ -108,7 +109,7 @@ public class JPABasedTokenRegistry extends AbstractJPARegistry implements Securi
      * This method expects a {@link TransactionCallback} to execute some logic inside a managed transaction.
      * Invokers do not have to care about managing the {@link EntityManager} and transaction life cycle.
      * </p>
-     * 
+     *
      * @param callback
      */
     private void executeInTransaction(TransactionCallback callback) {
@@ -140,20 +141,19 @@ public class JPABasedTokenRegistry extends AbstractJPARegistry implements Securi
      * <p>
      * This interface should be used to execute some logic inside a managed {@link EntityManager} transaction.
      * </p>
-     * 
+     *
      * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
-     * 
      */
-    private static interface TransactionCallback {
+    private interface TransactionCallback {
 
         /**
          * <p>
          * Executes some logic given the {@link EntityManager} instance.
          * </p>
-         * 
+         *
          * @param entityManager
          */
-        public void executeInTransaction(EntityManager entityManager);
+        void executeInTransaction(EntityManager entityManager);
 
     }
 }

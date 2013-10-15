@@ -40,9 +40,9 @@ public class PicketLinkAuditEvent extends AuditEvent {
     protected String assertionID;
 
     protected String httpSessionID;
-    
+
     /**
-     * String that represents arbitrary text that gets 
+     * String that represents arbitrary text that gets
      * logged at the end of the entry
      */
     protected String optionalString;
@@ -127,7 +127,7 @@ public class PicketLinkAuditEvent extends AuditEvent {
 
     public void setHttpSessionID(String httpSessionID) {
         this.httpSessionID = httpSessionID;
-    } 
+    }
 
     public String getOptionalString() {
         return optionalString;

@@ -23,7 +23,6 @@ import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11ConditionsType;
-import org.picketlink.identity.federation.saml.v1.assertion.SAML11NameIdentifierType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11StatementAbstractType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
 
@@ -44,6 +43,7 @@ import java.util.List;
  * @since Dec 30, 2010
  */
 public class SAML11ProtocolContext implements ProtocolContext {
+
     protected String issuerID;
 
     protected SAML11SubjectType subjectType;
@@ -59,7 +59,7 @@ public class SAML11ProtocolContext implements ProtocolContext {
     /**
      * Get the Issuer ID
      *
-     * @return instance of {@link SAML11NameIdentifierType}
+     * @return instance of {@link org.picketlink.identity.federation.saml.v1.assertion.SAML11NameIdentifierType}
      */
     public String getIssuerID() {
         return issuerID;

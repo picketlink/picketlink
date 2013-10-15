@@ -28,6 +28,7 @@ import java.util.List;
  * @since Sep 25, 2009
  */
 public interface SAML2HandlerResponse {
+
     /**
      * Set the destination where the response from the current processing node is sent
      *
@@ -121,8 +122,9 @@ public interface SAML2HandlerResponse {
     void setSendRequest(boolean request);
 
     /**
-     * @see #setSendRequest(boolean)
      * @return
+     *
+     * @see #setSendRequest(boolean)
      */
     boolean getSendRequest();
 
@@ -140,17 +142,18 @@ public interface SAML2HandlerResponse {
      */
     boolean isPostBindingForResponse();
 
-   /**
-    *  Whole destination query string including signature. It's used only in Redirect Binding with
-    * signature enabled.
-    *
-    * @param destinationQueryStringWithSignature
-    */
+    /**
+     * Whole destination query string including signature. It's used only in Redirect Binding with
+     * signature enabled.
+     *
+     * @param destinationQueryStringWithSignature
+     */
     void setDestinationQueryStringWithSignature(String destinationQueryStringWithSignature);
 
-   /**
-    * @see #setDestinationQueryStringWithSignature(String)
-    * @return
-    */
+    /**
+     * @return
+     *
+     * @see #setDestinationQueryStringWithSignature(String)
+     */
     String getDestinationQueryStringWithSignature();
 }

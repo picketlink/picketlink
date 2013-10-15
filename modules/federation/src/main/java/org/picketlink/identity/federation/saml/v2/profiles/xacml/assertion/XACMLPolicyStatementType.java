@@ -43,13 +43,13 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class XACMLPolicyStatementType extends StatementAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     public static class ChoiceType {
+
         private PolicyType policy;
         private PolicySetType policySet;
 

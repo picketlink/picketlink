@@ -35,8 +35,6 @@ package org.picketlink.identity.federation.saml.v2.profiles.attribute.dce;
  *   &lt;/simpleContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class DCEValueType {
 
@@ -48,7 +46,6 @@ public class DCEValueType {
      * Gets the value of the value property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getValue() {
         return value;
@@ -58,7 +55,6 @@ public class DCEValueType {
      * Sets the value of the value property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setValue(String value) {
         this.value = value;
@@ -68,7 +64,6 @@ public class DCEValueType {
      * Gets the value of the realm property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getRealm() {
         return realm;
@@ -78,7 +73,6 @@ public class DCEValueType {
      * Sets the value of the realm property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setRealm(String value) {
         this.realm = value;
@@ -88,7 +82,6 @@ public class DCEValueType {
      * Gets the value of the friendlyName property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getFriendlyName() {
         return friendlyName;
@@ -98,7 +91,6 @@ public class DCEValueType {
      * Sets the value of the friendlyName property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setFriendlyName(String value) {
         this.friendlyName = value;

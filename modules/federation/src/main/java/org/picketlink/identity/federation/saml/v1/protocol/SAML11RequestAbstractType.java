@@ -28,7 +28,8 @@ import java.util.List;
 /**
  * <complexType name="RequestAbstractType" abstract="true">
  *
- * <sequence> <element ref="samlp:RespondWith" minOccurs="0" maxOccurs="unbounded"/> <element ref="ds:Signature" minOccurs="0"/>
+ * <sequence> <element ref="samlp:RespondWith" minOccurs="0" maxOccurs="unbounded"/> <element ref="ds:Signature"
+ * minOccurs="0"/>
  * </sequence> <attribute name="RequestID" type="ID" use="required"/> <attribute name="MajorVersion" type="integer"
  * use="required"/> <attribute name="MinorVersion" type="integer" use="required"/> <attribute name="IssueInstant"
  * type="dateTime" use="required"/> </complexType>
@@ -37,6 +38,7 @@ import java.util.List;
  * @since Jun 22, 2011
  */
 public abstract class SAML11RequestAbstractType extends CommonRequestAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     protected int majorVersion = 1;

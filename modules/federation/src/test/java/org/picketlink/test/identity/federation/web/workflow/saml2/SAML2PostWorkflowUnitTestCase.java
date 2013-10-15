@@ -61,6 +61,7 @@ import java.net.URL;
  * @since Oct 8, 2009
  */
 public class SAML2PostWorkflowUnitTestCase extends TestCase {
+
     private String profile = "saml2/post";
     private ClassLoader tcl = Thread.currentThread().getContextClassLoader();
 
@@ -161,7 +162,7 @@ public class SAML2PostWorkflowUnitTestCase extends TestCase {
     }
 
     private MockContextClassLoader setupTCL(String resource) {
-        URL[] urls = new URL[] { tcl.getResource(resource) };
+        URL[] urls = new URL[]{tcl.getResource(resource)};
 
         MockContextClassLoader mcl = new MockContextClassLoader(urls);
         mcl.setDelegate(tcl);

@@ -38,6 +38,7 @@ import java.util.TimerTask;
  * @since Feb 7, 2011
  */
 public class JBossAuthCacheInvalidationFactory {
+
     /**
      * Get an instance of {@link TimeCacheExpiry}
      *
@@ -48,6 +49,7 @@ public class JBossAuthCacheInvalidationFactory {
     }
 
     public interface TimeCacheExpiry {
+
         /**
          * Register a Principal that has an expiry at {@link Date}
          *
@@ -59,6 +61,7 @@ public class JBossAuthCacheInvalidationFactory {
     }
 
     protected static class ExpiringPrincipalCacheInvalidation implements TimeCacheExpiry {
+
         private static Logger log = Logger.getLogger(ExpiringPrincipalCacheInvalidation.class);
 
         private final boolean trace = log.isTraceEnabled();
@@ -97,8 +100,8 @@ public class JBossAuthCacheInvalidationFactory {
                         try {
                             ObjectName on = new ObjectName(objectName);
                             MBeanServer server = SecurityActions.getJBossMBeanServer();
-                            Object[] obj = new Object[] { securityDomain, principal };
-                            String[] sig = new String[] { "java.lang.String", "java.security.Principal" };
+                            Object[] obj = new Object[]{securityDomain, principal};
+                            String[] sig = new String[]{"java.lang.String", "java.security.Principal"};
 
                             // Flush the Authentication Cache
                             server.invoke(on, "flushAuthenticationCache", obj, sig);

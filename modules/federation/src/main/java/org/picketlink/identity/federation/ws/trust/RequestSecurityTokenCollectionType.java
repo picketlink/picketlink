@@ -22,8 +22,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- *
- * The RequestSecurityTokenCollection (RSTC) element is used to provide multiple RST requests. One or more RSTR elements in an
+ * The RequestSecurityTokenCollection (RSTC) element is used to provide multiple RST requests. One or more RSTR
+ * elements
+ * in an
  * RSTRC element are returned in the response to the RequestSecurityTokenCollection.
  *
  *
@@ -38,16 +39,16 @@ import java.util.List;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="RequestSecurityToken" type="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}RequestSecurityTokenType" maxOccurs="unbounded" minOccurs="2"/>
+ *         &lt;element name="RequestSecurityToken" type="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}RequestSecurityTokenType"
+ * maxOccurs="unbounded" minOccurs="2"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class RequestSecurityTokenCollectionType implements SimpleCollectionUsage<RequestSecurityTokenType> {
+
     protected List<RequestSecurityTokenType> requestSecurityToken = new ArrayList<RequestSecurityTokenType>();
 
     /**

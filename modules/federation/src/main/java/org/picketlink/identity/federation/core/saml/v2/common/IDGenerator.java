@@ -29,9 +29,9 @@ import java.util.UUID;
  * @since Jan 5, 2009
  */
 public class IDGenerator {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     /*
      * Create a basic unique ID
      */
@@ -43,7 +43,9 @@ public class IDGenerator {
      * Create an id that is prefixed by a string
      *
      * @param prefix
+     *
      * @return an id
+     *
      * @throws IllegalArgumentException when prefix is null
      */
     public static String create(String prefix) {

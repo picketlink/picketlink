@@ -26,36 +26,27 @@ import java.lang.reflect.Method;
  *
  * @see PropertyCriteria
  */
-public class TypedPropertyCriteria implements PropertyCriteria 
-{
+public class TypedPropertyCriteria implements PropertyCriteria {
 
     /**
-     * <p>
-     *     Different options can be used to match a specific property based on its type. Regardless of the
-     *     option chosen, if the property type equals the <code>propertyClass</code> it will be selected.
-     *
-     *     <ul>
-     *         <li>SUB_TYPE: Also consider properties where its type is a subtype of
-     *         <code>propertyClass</code>.
-     *         .</li>
-     *         <li>SUPER_TYPE: Also consider properties where its type is a superclass or superinterface of
-     *         <code>propertyClass</code>.
-     *         .</li>
-     *     </ul>
+     * <p> Different options can be used to match a specific property based on its type. Regardless of the option
+     * chosen, if the property type equals the <code>propertyClass</code> it will be selected. <p/> <ul> <li>SUB_TYPE:
+     * Also consider properties where its type is a subtype of <code>propertyClass</code>. .</li> <li>SUPER_TYPE: Also
+     * consider properties where its type is a superclass or superinterface of <code>propertyClass</code>. .</li> </ul>
      * </p>
      */
-    public static enum MatchOption {SUB_TYPE, SUPER_TYPE, ALL}
+    public static enum MatchOption {
+        SUB_TYPE, SUPER_TYPE, ALL
+    }
 
     private final Class<?> propertyClass;
     private final MatchOption matchOption;
 
-    public TypedPropertyCriteria(Class<?> propertyClass) 
-    {
+    public TypedPropertyCriteria(Class<?> propertyClass) {
         this(propertyClass, null);
     }
 
-    public TypedPropertyCriteria(Class<?> propertyClass, MatchOption matchOption)
-    {
+    public TypedPropertyCriteria(Class<?> propertyClass, MatchOption matchOption) {
         if (propertyClass == null) {
             throw new IllegalArgumentException("Property class can not be null.");
         }
@@ -63,13 +54,11 @@ public class TypedPropertyCriteria implements PropertyCriteria
         this.matchOption = matchOption;
     }
 
-    public boolean fieldMatches(Field f) 
-    {
+    public boolean fieldMatches(Field f) {
         return match(f.getType());
     }
 
-    public boolean methodMatches(Method m) 
-    {
+    public boolean methodMatches(Method m) {
         return match(m.getReturnType());
     }
 

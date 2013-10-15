@@ -28,6 +28,7 @@ import java.util.Map;
  * @since Apr 21, 2009
  */
 public interface IMetadataProvider<T> {
+
     /**
      * Initialize the provider with options
      *
@@ -59,8 +60,9 @@ public interface IMetadataProvider<T> {
     /**
      * Inject a File instance depending on
      *
-     * @see #requireFileInjection() method
      * @param fileStream
+     *
+     * @see #requireFileInjection() method
      */
     void injectFileStream(InputStream fileStream);
 

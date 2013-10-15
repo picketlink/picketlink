@@ -4,10 +4,10 @@
                     InResponseTo="ID_230a1668-c2ab-47af-83f7-79613f9994d9"
                     IssueInstant="2010-07-29T13:46:03.862-05:00"
                     Version="2.0">
-   <Issuer>http://localhost:8080/employee-post/</Issuer>
-   <ns3:Status>
-       <ns3:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder">
-          <ns3:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
-       </ns3:StatusCode>
-    </ns3:Status>
+  <Issuer>http://localhost:8080/employee-post/</Issuer>
+  <ns3:Status>
+    <ns3:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder">
+      <ns3:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
+    </ns3:StatusCode>
+  </ns3:Status>
 </ns3:LogoutResponse>

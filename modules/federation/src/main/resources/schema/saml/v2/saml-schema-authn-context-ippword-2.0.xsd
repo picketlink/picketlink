@@ -10,13 +10,13 @@
   <xs:redefine schemaLocation="saml-schema-authn-context-types-2.0.xsd">
 
     <xs:annotation>
-      <xs:documentation> 
+      <xs:documentation>
         Class identifier: urn:oasis:names:tc:SAML:2.0:ac:classes:InternetProtocolPassword
         Document identifier: saml-schema-authn-context-ippword-2.0
         Location: http://docs.oasis-open.org/security/saml/v2.0/
         Revision history:
-          V2.0 (March, 2005):
-            New authentication context class schema for SAML V2.0. 
+        V2.0 (March, 2005):
+        New authentication context class schema for SAML V2.0.
       </xs:documentation>
     </xs:annotation>
 
@@ -60,7 +60,7 @@
         </xs:restriction>
       </xs:complexContent>
     </xs:complexType>
-    
+
   </xs:redefine>
 
 </xs:schema>

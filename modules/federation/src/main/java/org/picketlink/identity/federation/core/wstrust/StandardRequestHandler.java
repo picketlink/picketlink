@@ -64,8 +64,10 @@ import java.util.List;
 
 /**
  * <p>
- * Default implementation of the {@code WSTrustRequestHandler} interface. It creates the request context containing the original
- * WS-Trust request as well as any information that may be relevant to the token processing, and delegates the actual token
+ * Default implementation of the {@code WSTrustRequestHandler} interface. It creates the request context containing the
+ * original
+ * WS-Trust request as well as any information that may be relevant to the token processing, and delegates the actual
+ * token
  * handling processing to the appropriate {@code SecurityTokenProvider}.
  * </p>
  *
@@ -73,9 +75,9 @@ import java.util.List;
  * @author <a href="mailto:alessio.soldano@jboss.com">Alessio Soldano</a>
  */
 public class StandardRequestHandler implements WSTrustRequestHandler {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private static long KEY_SIZE = 128;
 
     private STSConfiguration configuration;
@@ -117,7 +119,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
 
                 providerCertificate = this.configuration.getServiceProviderCertificate(serviceName);
 
-                if(providerCertificate != null) {
+                if (providerCertificate != null) {
                     providerPublicKey = providerCertificate.getPublicKey();
                 }
 
@@ -225,7 +227,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
             Certificate certificate = this.configuration.getCertificate(callerPrincipal.getName());
             if (certificate != null)
                 requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(certificate));
-            // if no certificate was found in the keystore, check the UseKey contents.
+                // if no certificate was found in the keystore, check the UseKey contents.
             else if (request.getUseKey() != null) {
                 UseKeyType useKeyType = request.getUseKey();
                 List<Object> theList = useKeyType.getAny();
@@ -238,27 +240,27 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                             X509DataType data = new X509DataType();
                             data.add(value);
                             value = data;
-                        } else if(elementName.equals("KeyValue")){
-                           KeyValueType keyValue = null;
-                           Element child = DocumentUtil.getChildElement(keyElement, new QName(WSTrustConstants.XMLDSig.RSA_KEYVALUE));
-                           if(child != null){
-                               try {
-                                keyValue = SignatureUtil.getRSAKeyValue(child);
-                            } catch (ParsingException e) {
-                                throw logger.stsError(e);
-                            }
-                           }
-                           if(keyValue == null && child == null){
-                               child = DocumentUtil.getChildElement(keyElement, new QName(WSTrustConstants.XMLDSig.DSA_KEYVALUE));
-                               if(child != null){
-                                   try {
-                                    keyValue = SignatureUtil.getDSAKeyValue(child);
+                        } else if (elementName.equals("KeyValue")) {
+                            KeyValueType keyValue = null;
+                            Element child = DocumentUtil.getChildElement(keyElement, new QName(WSTrustConstants.XMLDSig.RSA_KEYVALUE));
+                            if (child != null) {
+                                try {
+                                    keyValue = SignatureUtil.getRSAKeyValue(child);
                                 } catch (ParsingException e) {
                                     throw logger.stsError(e);
                                 }
-                               }
-                               value = keyValue;
-                           }
+                            }
+                            if (keyValue == null && child == null) {
+                                child = DocumentUtil.getChildElement(keyElement, new QName(WSTrustConstants.XMLDSig.DSA_KEYVALUE));
+                                if (child != null) {
+                                    try {
+                                        keyValue = SignatureUtil.getDSAKeyValue(child);
+                                    } catch (ParsingException e) {
+                                        throw logger.stsError(e);
+                                    }
+                                }
+                                value = keyValue;
+                            }
                         }
                         KeyInfoType keyInfo = new KeyInfoType();
                         keyInfo.addContent(value);
@@ -330,9 +332,9 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
     public RequestSecurityTokenResponse renew(RequestSecurityToken request, Principal callerPrincipal) throws WSTrustException {
         // first validate the provided token signature to make sure it has been issued by this STS and hasn't been
         // tempered.
-        
+
         logger.trace("Validating token for renew request " + request.getContext());
-        
+
         if (request.getRenewTargetElement() == null)
             throw new WSTrustException(logger.nullValueError("renew target"));
 
@@ -568,14 +570,14 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                     //Is there a certificate?
                     X509Certificate x509Certificate = null;
                     String signingCertificateAlias = this.configuration.getSigningCertificateAlias();
-                    if(signingCertificateAlias != null){
+                    if (signingCertificateAlias != null) {
                         x509Certificate = (X509Certificate) this.configuration.getCertificate(signingCertificateAlias);
                     }
                     // Set the CanonicalizationMethod if any
                     XMLSignatureUtil.setCanonicalizationMethodType(configuration.getXMLDSigCanonicalizationMethod());
 
                     rstrDocument = XMLSignatureUtil.sign(rstrDocument, tokenElement, keyPair, DigestMethod.SHA1,
-                            signatureMethod, setupIDAttribute(tokenElement),x509Certificate);
+                            signatureMethod, setupIDAttribute(tokenElement), x509Certificate);
                     if (logger.isTraceEnabled()) {
                         try {
                             Document tokenDocument = DocumentUtil.createDocument();
@@ -598,7 +600,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                     String serviceName = WSTrustUtil.parseAppliesTo(request.getAppliesTo());
 
                     logger.trace("Locating public key for " + serviceName);
-                    
+
                     if (serviceName != null)
                         providerPublicKey = this.configuration.getServiceProviderPublicKey(serviceName);
                 }
@@ -631,6 +633,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
      * Setup the ID attribute in the provided node if it's a SAML Assertion element.
      *
      * @param node The node representing the SAML Assertion
+     *
      * @return A reference to the correct ID
      */
     private static String setupIDAttribute(Node node) {

@@ -34,6 +34,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Feb 15, 2012
  */
 public class SPPostMetadataConfigurationProviderUnitTestCase {
+
     @Test
     public void testSPType() throws ProcessingException {
         SPPostMetadataConfigurationProvider provider = new SPPostMetadataConfigurationProvider();

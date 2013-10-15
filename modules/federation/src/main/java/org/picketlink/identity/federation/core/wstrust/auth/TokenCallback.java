@@ -23,9 +23,9 @@ import javax.security.auth.callback.Callback;
  * Simple callback that stores an object.
  *
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
- *
  */
 public class TokenCallback implements Callback {
+
     private transient Object token;
 
     public Object getToken() {

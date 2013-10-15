@@ -17,7 +17,6 @@
  */
 package org.picketlink.identity.federation.saml.common;
 
-import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
 import org.w3c.dom.Element;
 
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -28,6 +27,7 @@ import java.io.Serializable;
  * @since Jun 22, 2011
  */
 public class CommonResponseType implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     protected String id;
@@ -47,7 +47,6 @@ public class CommonResponseType implements Serializable {
      * Gets the value of the id property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getID() {
         return id;
@@ -57,7 +56,6 @@ public class CommonResponseType implements Serializable {
      * Gets the value of the issueInstant property.
      *
      * @return possible object is {@link XMLGregorianCalendar }
-     *
      */
     public XMLGregorianCalendar getIssueInstant() {
         return issueInstant;
@@ -67,7 +65,6 @@ public class CommonResponseType implements Serializable {
      * Gets the value of the inResponseTo property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getInResponseTo() {
         return inResponseTo;
@@ -77,7 +74,6 @@ public class CommonResponseType implements Serializable {
      * Sets the value of the inResponseTo property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setInResponseTo(String value) {
         this.inResponseTo = value;
@@ -86,8 +82,7 @@ public class CommonResponseType implements Serializable {
     /**
      * Gets the value of the signature property.
      *
-     * @return possible object is {@link SignatureType }
-     *
+     * @return possible object is {@link org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType }
      */
     public Element getSignature() {
         return signature;
@@ -96,8 +91,7 @@ public class CommonResponseType implements Serializable {
     /**
      * Sets the value of the signature property.
      *
-     * @param value allowed object is {@link SignatureType }
-     *
+     * @param value allowed object is {@link org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType }
      */
     public void setSignature(Element value) {
         this.signature = value;

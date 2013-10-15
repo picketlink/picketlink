@@ -66,6 +66,7 @@ import static org.junit.Assert.assertTrue;
  * @since Oct 7, 2009
  */
 public class SAML2LogoutWorkflowUnitTestCase {
+
     private final String profile = "saml2/logout";
 
     private ClassLoader tcl;
@@ -77,8 +78,8 @@ public class SAML2LogoutWorkflowUnitTestCase {
     /**
      * Test that the SP web filter generates the logout request to the IDP when there is a parameter "GLO" set to true
      *
-     * @see {@code GeneralConstants#GLOBAL_LOGOUT}
      * @throws Exception
+     * @see {@code GeneralConstants#GLOBAL_LOGOUT}
      */
     @Test
     public void testSPFilterLogOutRequestGeneration() throws Exception {
@@ -129,11 +130,16 @@ public class SAML2LogoutWorkflowUnitTestCase {
     }
 
     /**
-     * In this test case, we preload the IDP with 2 active participants namely the Sales app and Employee App. After this, the
-     * employee app issues a logout request. The IDP is supposed to receive this logout request, a) note that there are 2
-     * session participants b) issue a logout request to the sales app c) the sales app invalidates its session d) the sales app
-     * issues a logout response (status response type) to the IDP e) the IDP sees that we have 1 participant left and because it
-     * is the same as the original logout requestor, invalidates its session and sends the logout success to the employee app.
+     * In this test case, we preload the IDP with 2 active participants namely the Sales app and Employee App. After
+     * this, the
+     * employee app issues a logout request. The IDP is supposed to receive this logout request, a) note that there are
+     * 2
+     * session participants b) issue a logout request to the sales app c) the sales app invalidates its session d) the
+     * sales app
+     * issues a logout response (status response type) to the IDP e) the IDP sees that we have 1 participant left and
+     * because it
+     * is the same as the original logout requestor, invalidates its session and sends the logout success to the
+     * employee app.
      * f) employee app invalidates its session
      *
      * @throws Exception
@@ -287,7 +293,7 @@ public class SAML2LogoutWorkflowUnitTestCase {
     }
 
     private MockContextClassLoader setupTCL(String resource) {
-        URL[] urls = new URL[] { tcl.getResource(resource) };
+        URL[] urls = new URL[]{tcl.getResource(resource)};
 
         MockContextClassLoader mcl = new MockContextClassLoader(urls);
         mcl.setDelegate(tcl);

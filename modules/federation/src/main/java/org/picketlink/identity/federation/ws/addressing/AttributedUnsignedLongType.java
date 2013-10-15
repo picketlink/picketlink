@@ -35,17 +35,15 @@ import java.math.BigInteger;
  *   &lt;/simpleContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class AttributedUnsignedLongType extends BaseAddressingType {
+
     protected BigInteger value;
 
     /**
      * Gets the value of the value property.
      *
      * @return possible object is {@link BigInteger }
-     *
      */
     public BigInteger getValue() {
         return value;
@@ -55,7 +53,6 @@ public class AttributedUnsignedLongType extends BaseAddressingType {
      * Sets the value of the value property.
      *
      * @param value allowed object is {@link BigInteger }
-     *
      */
     public void setValue(BigInteger value) {
         this.value = value;

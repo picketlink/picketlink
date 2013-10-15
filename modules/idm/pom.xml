@@ -19,6 +19,7 @@
       <groupId>org.jboss.logging</groupId>
       <artifactId>jboss-logging-processor</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.jboss.logging</groupId>
       <artifactId>jboss-logging</artifactId>
@@ -33,38 +34,5 @@
     <module>tests</module>
     <module>drools</module>
   </modules>
-  
-  <build>
-    <plugins>
-      <!-- Checkstyle -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>2.9.1</version>
-        <dependencies>
-          <dependency>
-            <groupId>org.picketlink</groupId>
-            <artifactId>picketlink-build-config</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-        </dependencies>
-        <configuration>
-          <configLocation>picketlink-checkstyle/checkstyle.xml</configLocation>
-          <consoleOutput>true</consoleOutput>
-          <failsOnError>true</failsOnError>
-          <useFile />
-        </configuration>
-        <executions>
-          <execution>
-            <id>check-style</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>checkstyle</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>

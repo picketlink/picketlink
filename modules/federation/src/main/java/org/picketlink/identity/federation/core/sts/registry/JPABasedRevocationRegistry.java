@@ -22,21 +22,26 @@ import javax.persistence.EntityTransaction;
 
 /**
  * <p>
- * {@code JPABasedRevocationRegistry} is a revocation registry implementation that uses JPA to store the ids of the revoked
- * (canceled) security tokens on a database. By default, the JPA configuration has the name {@code picketlink-sts} but a
+ * {@code JPABasedRevocationRegistry} is a revocation registry implementation that uses JPA to store the ids of the
+ * revoked
+ * (canceled) security tokens on a database. By default, the JPA configuration has the name {@code picketlink-sts} but
+ * a
  * different configuration name can be specified through the constructor that takes a {@code String} as a parameter.
  * </p>
  * <p>
  * NOTE: this implementation doesn't keep any cache of the security token ids. It performs a JPA query every time the
- * {@code isRevoked(String id)} method is called. Many JPA providers have internal caching mechanisms that can keep the data in
- * the cache synchronized with the database and avoid unnecessary trips to the database. This makes this registry a good choice
+ * {@code isRevoked(String id)} method is called. Many JPA providers have internal caching mechanisms that can keep the
+ * data in
+ * the cache synchronized with the database and avoid unnecessary trips to the database. This makes this registry a
+ * good
+ * choice
  * for clustered environments as any changes to the revocation table made by a node will be visible to the other nodes.
  * </p>
  *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public class JPABasedRevocationRegistry extends AbstractJPARegistry implements RevocationRegistry {
-    
+
     /**
      * <p>
      * Creates an instance of {@code JPABasedRevocationRegistry} that uses the default {@code picketlink-sts} JPA configuration

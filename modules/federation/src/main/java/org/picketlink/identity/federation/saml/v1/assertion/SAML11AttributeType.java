@@ -23,7 +23,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <complexType name="AttributeType"> <complexContent> <extension base="saml:AttributeDesignatorType"> <sequence> <element
+ * <complexType name="AttributeType"> <complexContent> <extension base="saml:AttributeDesignatorType"> <sequence>
+ * <element
  * ref="saml:AttributeValue" maxOccurs="unbounded"/> </sequence> </extension> </complexContent>
  *
  * </complexType>
@@ -32,6 +33,7 @@ import java.util.List;
  * @since Jun 22, 2011
  */
 public class SAML11AttributeType extends SAML11AttributeDesignatorType {
+
     protected List<Object> attributeValues = new ArrayList<Object>();
 
     public SAML11AttributeType(String attributeName, URI attributeNamespace) {

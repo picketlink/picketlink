@@ -50,6 +50,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Oct 14, 2010
  */
 public class WSTrustCancelTargetSamlTestCase {
+
     @Test
     public void testWST_CancelTargetSaml() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();

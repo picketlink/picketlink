@@ -53,11 +53,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "PrivateKeyProtectionType", propOrder = { "keyActivation", "keyStorage", "keySharing", "extension" })
+@XmlType(name = "PrivateKeyProtectionType", propOrder = {"keyActivation", "keyStorage", "keySharing", "extension"})
 public class PrivateKeyProtectionType {
 
     @XmlElement(name = "KeyActivation")
@@ -73,7 +71,6 @@ public class PrivateKeyProtectionType {
      * Gets the value of the keyActivation property.
      *
      * @return possible object is {@link KeyActivationType }
-     *
      */
     public KeyActivationType getKeyActivation() {
         return keyActivation;
@@ -83,7 +80,6 @@ public class PrivateKeyProtectionType {
      * Sets the value of the keyActivation property.
      *
      * @param value allowed object is {@link KeyActivationType }
-     *
      */
     public void setKeyActivation(KeyActivationType value) {
         this.keyActivation = value;
@@ -93,7 +89,6 @@ public class PrivateKeyProtectionType {
      * Gets the value of the keyStorage property.
      *
      * @return possible object is {@link KeyStorageType }
-     *
      */
     public KeyStorageType getKeyStorage() {
         return keyStorage;
@@ -103,7 +98,6 @@ public class PrivateKeyProtectionType {
      * Sets the value of the keyStorage property.
      *
      * @param value allowed object is {@link KeyStorageType }
-     *
      */
     public void setKeyStorage(KeyStorageType value) {
         this.keyStorage = value;
@@ -113,7 +107,6 @@ public class PrivateKeyProtectionType {
      * Gets the value of the keySharing property.
      *
      * @return possible object is {@link KeySharingType }
-     *
      */
     public KeySharingType getKeySharing() {
         return keySharing;
@@ -123,7 +116,6 @@ public class PrivateKeyProtectionType {
      * Sets the value of the keySharing property.
      *
      * @param value allowed object is {@link KeySharingType }
-     *
      */
     public void setKeySharing(KeySharingType value) {
         this.keySharing = value;
@@ -133,7 +125,8 @@ public class PrivateKeyProtectionType {
      * Gets the value of the extension property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to the
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the
      * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
      * extension property.
      *
@@ -147,8 +140,6 @@ public class PrivateKeyProtectionType {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link ExtensionType }
-     *
-     *
      */
     public List<ExtensionType> getExtension() {
         if (extension == null) {

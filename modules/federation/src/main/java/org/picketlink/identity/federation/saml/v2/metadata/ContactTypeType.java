@@ -36,7 +36,6 @@ package org.picketlink.identity.federation.saml.v2.metadata;
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
- *
  */
 public enum ContactTypeType {
     TECHNICAL("technical"), SUPPORT("support"), ADMINISTRATIVE("administrative"), BILLING("billing"), OTHER("other");

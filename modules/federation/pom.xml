@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <groupId>org.picketlink</groupId>
     <artifactId>picketlink-parent</artifactId>
@@ -8,15 +9,18 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>picketlink-federation</artifactId>
   <packaging>jar</packaging>
+
   <name>PicketLink Federation Core</name>
   <url>http://labs.jboss.org/portal/picketlink/</url>
   <description>PicketLink Federation Core contains the core infrastructure code</description>
+
   <licenses>
     <license>
       <name>lgpl</name>
       <url>http://repository.jboss.com/licenses/lgpl.txt</url>
     </license>
   </licenses>
+
   <organization>
     <name>JBoss Inc.</name>
     <url>http://www.jboss.org</url>
@@ -89,10 +93,12 @@
       <groupId>org.picketlink</groupId>
       <artifactId>picketlink-common</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.picketlink</groupId>
       <artifactId>picketlink-config</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.apache.santuario</groupId>
       <artifactId>xmlsec</artifactId>
@@ -104,52 +110,62 @@
         </exclusion>
       </exclusions>
     </dependency>
+
     <dependency>
       <groupId>org.jboss.security</groupId>
       <artifactId>jbossxacml</artifactId>
       <version>2.0.8.Final</version>
     </dependency>
+
     <dependency>
       <groupId>org.jboss.spec.javax.servlet</groupId>
       <artifactId>jboss-servlet-api_3.0_spec</artifactId>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>javax.persistence</groupId>
       <artifactId>persistence-api</artifactId>
       <version>1.0</version>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>org.jboss.logging</groupId>
       <artifactId>jboss-logging</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.jboss.logging</groupId>
       <artifactId>jboss-logging-processor</artifactId>
     </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>xmlunit</groupId>
       <artifactId>xmlunit</artifactId>
       <version>1.1</version>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>apache-xalan</groupId>
       <artifactId>xalan</artifactId>
       <version>2.7.1.patch01-brew</version>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>apache-xalan</groupId>
       <artifactId>serializer</artifactId>

@@ -39,9 +39,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
  */
 public class ExtensionsType {
+
     protected List<Object> any = new ArrayList<Object>();
 
     /**
@@ -64,7 +64,6 @@ public class ExtensionsType {
 
     /**
      * Gets the value of the any property.
-     *
      */
     public List<Object> getAny() {
         return Collections.unmodifiableList(this.any);

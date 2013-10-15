@@ -41,12 +41,14 @@ import java.util.List;
  * @since Apr 29, 2009
  */
 public class MetaDataExtractor {
+
     public static String LINE_SEPARATOR = SecurityActions.getSystemProperty("line.separator", "\n");
 
     /**
      * Get the {@link X509Certificate} from the KeyInfo
      *
      * @param keyDescriptor
+     *
      * @return
      */
     public static X509Certificate getCertificate(KeyDescriptorType keyDescriptor) {
@@ -61,6 +63,7 @@ public class MetaDataExtractor {
      * Generate a string from the information in the metadata
      *
      * @param edt
+     *
      * @return
      */
     public static String toString(EntityDescriptorType edt) {
@@ -94,6 +97,7 @@ public class MetaDataExtractor {
      * Information from the IDP SSO Descriptor
      *
      * @param idp
+     *
      * @return
      */
     public static String toString(IDPSSODescriptorType idp) {
@@ -121,6 +125,7 @@ public class MetaDataExtractor {
      * Information from the SP SSO Descriptor
      *
      * @param sp
+     *
      * @return
      */
     public static String toString(SPSSODescriptorType sp) {
@@ -154,6 +159,7 @@ public class MetaDataExtractor {
      * Information from the general SSO descriptor
      *
      * @param sso
+     *
      * @return
      */
     public static String toString(SSODescriptorType sso) {
@@ -194,6 +200,7 @@ public class MetaDataExtractor {
      * Information from an endpoint
      *
      * @param ept
+     *
      * @return
      */
     public static String toString(EndpointType ept) {

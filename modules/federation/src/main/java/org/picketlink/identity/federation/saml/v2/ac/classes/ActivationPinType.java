@@ -33,15 +33,15 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Length" minOccurs="0"/>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Alphabet" minOccurs="0"/>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Generation" minOccurs="0"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}ActivationLimit" minOccurs="0"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Extension" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}ActivationLimit"
+ * minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Extension"
+ * maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ActivationPinType extends ExtensionListType {
 
@@ -54,7 +54,6 @@ public class ActivationPinType extends ExtensionListType {
      * Gets the value of the length property.
      *
      * @return possible object is {@link LengthType }
-     *
      */
     public LengthType getLength() {
         return length;
@@ -64,7 +63,6 @@ public class ActivationPinType extends ExtensionListType {
      * Sets the value of the length property.
      *
      * @param value allowed object is {@link LengthType }
-     *
      */
     public void setLength(LengthType value) {
         this.length = value;
@@ -74,7 +72,6 @@ public class ActivationPinType extends ExtensionListType {
      * Gets the value of the alphabet property.
      *
      * @return possible object is {@link AlphabetType }
-     *
      */
     public AlphabetType getAlphabet() {
         return alphabet;
@@ -84,7 +81,6 @@ public class ActivationPinType extends ExtensionListType {
      * Sets the value of the alphabet property.
      *
      * @param value allowed object is {@link AlphabetType }
-     *
      */
     public void setAlphabet(AlphabetType value) {
         this.alphabet = value;
@@ -94,7 +90,6 @@ public class ActivationPinType extends ExtensionListType {
      * Gets the value of the generation property.
      *
      * @return possible object is {@link Generation }
-     *
      */
     public Generation getGeneration() {
         return generation;
@@ -104,7 +99,6 @@ public class ActivationPinType extends ExtensionListType {
      * Sets the value of the generation property.
      *
      * @param value allowed object is {@link Generation }
-     *
      */
     public void setGeneration(Generation value) {
         this.generation = value;
@@ -114,7 +108,6 @@ public class ActivationPinType extends ExtensionListType {
      * Gets the value of the activationLimit property.
      *
      * @return possible object is {@link ActivationLimitType }
-     *
      */
     public ActivationLimitType getActivationLimit() {
         return activationLimit;
@@ -124,7 +117,6 @@ public class ActivationPinType extends ExtensionListType {
      * Sets the value of the activationLimit property.
      *
      * @param value allowed object is {@link ActivationLimitType }
-     *
      */
     public void setActivationLimit(ActivationLimitType value) {
         this.activationLimit = value;

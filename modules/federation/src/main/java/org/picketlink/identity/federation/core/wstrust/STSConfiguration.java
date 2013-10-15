@@ -28,6 +28,7 @@ import org.picketlink.identity.federation.core.sts.STSCoreConfig;
  * @author Anil.Saldhana@redhat.com
  */
 public interface STSConfiguration extends STSCoreConfig {
+
     /**
      * <p>
      * Obtains the WS-Trust request handler class.
@@ -35,7 +36,7 @@ public interface STSConfiguration extends STSCoreConfig {
      *
      * @return a reference to the configured {@code WSTrustRequestHandler}.
      */
-    public WSTrustRequestHandler getRequestHandler();
+    WSTrustRequestHandler getRequestHandler();
 
     /**
      * <p>
@@ -43,9 +44,10 @@ public interface STSConfiguration extends STSCoreConfig {
      * </p>
      *
      * @param claimsDialect a {@code String} representing the claims dialect (usually a URL).
+     *
      * @return the {@code ClaimsProcessor} to be used, or {@code null} if no processor could be found for the dialect.
      */
-    public ClaimsProcessor getClaimsProcessor(String claimsDialect);
+    ClaimsProcessor getClaimsProcessor(String claimsDialect);
 
     /**
      * <p>
@@ -57,5 +59,5 @@ public interface STSConfiguration extends STSCoreConfig {
      *
      * @return
      */
-    public String getXMLDSigCanonicalizationMethod();
+    String getXMLDSigCanonicalizationMethod();
 }

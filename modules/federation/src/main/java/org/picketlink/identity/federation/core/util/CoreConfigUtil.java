@@ -58,7 +58,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.picketlink.common.util.StringUtil.*;
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 /**
  * Utility for configuration
@@ -74,6 +74,7 @@ public class CoreConfigUtil {
      * Given either the IDP Configuration or the SP Configuration, derive the TrustKeyManager
      *
      * @param idpOrSPConfiguration
+     *
      * @return
      */
     public static TrustKeyManager getTrustKeyManager(ProviderType idpOrSPConfiguration) {
@@ -85,6 +86,7 @@ public class CoreConfigUtil {
      * Once the {@code KeyProviderType} is derived, get the {@code TrustKeyManager}
      *
      * @param keyProvider
+     *
      * @return
      */
     public static TrustKeyManager getTrustKeyManager(KeyProviderType keyProvider) {
@@ -109,7 +111,9 @@ public class CoreConfigUtil {
      *
      * @param idpSpConfiguration
      * @param domain
+     *
      * @return
+     *
      * @throws ConfigurationException
      * @throws ProcessingException
      */
@@ -125,7 +129,9 @@ public class CoreConfigUtil {
      *
      * @param trustKeyManager
      * @param domain
+     *
      * @return
+     *
      * @throws ConfigurationException
      * @throws ProcessingException
      */
@@ -142,7 +148,9 @@ public class CoreConfigUtil {
      * password
      *
      * @param keyProviderType
+     *
      * @return
+     *
      * @throws GeneralSecurityException
      */
     @SuppressWarnings("unchecked")
@@ -156,11 +164,14 @@ public class CoreConfigUtil {
     }
 
     /**
-     * Given a {@code TokenProviderType}, return the list of properties that have been decrypted for any masked property
+     * Given a {@code TokenProviderType}, return the list of properties that have been decrypted for any masked
+     * property
      * value
      *
      * @param tokenProviderType
+     *
      * @return
+     *
      * @throws GeneralSecurityException
      */
     @SuppressWarnings("unchecked")
@@ -177,7 +188,9 @@ public class CoreConfigUtil {
      * property value
      *
      * @param claimsProcessorType
+     *
      * @return
+     *
      * @throws GeneralSecurityException
      */
     @SuppressWarnings("unchecked")
@@ -190,10 +203,12 @@ public class CoreConfigUtil {
     }
 
     /**
-     * Given a key value list, check if decrypt of any properties is needed. Unless one of the keys is "salt", we cannot
+     * Given a key value list, check if decrypt of any properties is needed. Unless one of the keys is "salt", we
+     * cannot
      * figure out is decrypt is needed
      *
      * @param keyValueList
+     *
      * @return
      */
     public static boolean decryptionNeeded(List<? extends KeyValueType> keyValueList) {
@@ -215,7 +230,9 @@ public class CoreConfigUtil {
      * decoded passwords and pass it back
      *
      * @param keyValueList
+     *
      * @return
+     *
      * @throws GeneralSecurityException
      * @throws Exception
      */
@@ -285,6 +302,7 @@ public class CoreConfigUtil {
      *
      * @param entityDescriptor
      * @param bindingURI
+     *
      * @return
      */
     public static ProviderType getSPConfiguration(EntityDescriptorType entityDescriptor, String bindingURI) {
@@ -314,7 +332,9 @@ public class CoreConfigUtil {
      *
      * @param entityDescriptor
      * @param bindingURI
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     public static SPType getSPConfiguration(EntitiesDescriptorType entitiesDescriptor, String bindingURI)
@@ -377,6 +397,7 @@ public class CoreConfigUtil {
      * Get the first metadata descriptor for an IDP
      *
      * @param entitiesDescriptor
+     *
      * @return
      */
     public static IDPSSODescriptorType getIDPDescriptor(EntitiesDescriptorType entitiesDescriptor) {
@@ -399,6 +420,7 @@ public class CoreConfigUtil {
      * Get the IDP metadata descriptor from an entity descriptor
      *
      * @param entityDescriptor
+     *
      * @return
      */
     public static IDPSSODescriptorType getIDPDescriptor(EntityDescriptorType entityDescriptor) {
@@ -419,6 +441,7 @@ public class CoreConfigUtil {
      * Get the SP Descriptor from an entity descriptor
      *
      * @param entityDescriptor
+     *
      * @return
      */
     public static SPSSODescriptorType getSPDescriptor(EntityDescriptorType entityDescriptor) {
@@ -440,6 +463,7 @@ public class CoreConfigUtil {
      *
      * @param idp
      * @param bindingURI
+     *
      * @return
      */
     public static String getIdentityURL(IDPSSODescriptorType idp, String bindingURI) {
@@ -461,6 +485,7 @@ public class CoreConfigUtil {
      *
      * @param idp
      * @param bindingURI
+     *
      * @return
      */
     public static String getLogoutURL(IDPSSODescriptorType idp, String bindingURI) {
@@ -504,6 +529,7 @@ public class CoreConfigUtil {
      *
      * @param sp
      * @param bindingURI
+     *
      * @return
      */
     public static String getServiceURL(SPSSODescriptorType sp, String bindingURI) {
@@ -524,6 +550,7 @@ public class CoreConfigUtil {
      * Get the IDP Type
      *
      * @param idpSSODescriptor
+     *
      * @return
      */
     public static IDPType getIDPType(IDPSSODescriptorType idpSSODescriptor) {
@@ -551,6 +578,7 @@ public class CoreConfigUtil {
      *
      * @param providerType
      * @param servletContext
+     *
      * @return
      */
     @SuppressWarnings({"rawtypes", "unchecked"})

@@ -43,16 +43,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.picketlink.idm.config.IdentityStoreConfiguration.*;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * <p>This bean is responsible for initializing the PicketLink IDM subsystem as well produce some core components
  * such as:</p>
  *
  * <ul>
- *     <li>An application scoped {@link PartitionManager}.</li>
- *     <li>A request scoped {@link IdentityManager}.</li>
- *     <li>A request scoped {@link RelationshipManager}.</li>
+ * <li>An application scoped {@link PartitionManager}.</li>
+ * <li>A request scoped {@link IdentityManager}.</li>
+ * <li>A request scoped {@link RelationshipManager}.</li>
  * </ul>
  *
  * <p>The configuration is built depending on the existence of any {@link IdentityConfiguration} produced by the
@@ -177,7 +177,7 @@ public class IdentityManagerProducer {
         List<IdentityConfiguration> configurations = new ArrayList<IdentityConfiguration>();
 
         if (!this.identityConfigInstance.isUnsatisfied()) {
-            for (Iterator<IdentityConfiguration> iterator = this.identityConfigInstance.iterator(); iterator.hasNext();) {
+            for (Iterator<IdentityConfiguration> iterator = this.identityConfigInstance.iterator(); iterator.hasNext(); ) {
                 configurations.add(iterator.next());
             }
         }

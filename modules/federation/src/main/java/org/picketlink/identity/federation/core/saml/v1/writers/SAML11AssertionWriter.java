@@ -59,6 +59,7 @@ import java.util.List;
  * @since June 24, 2011
  */
 public class SAML11AssertionWriter extends BaseSAML11Writer {
+
     String ns = SAML11Constants.ASSERTION_11_NSURI;
 
     public SAML11AssertionWriter(XMLStreamWriter writer) {
@@ -70,6 +71,7 @@ public class SAML11AssertionWriter extends BaseSAML11Writer {
      *
      * @param assertion
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(SAML11AssertionType assertion) throws ProcessingException {
@@ -152,6 +154,7 @@ public class SAML11AssertionWriter extends BaseSAML11Writer {
      *
      * @param statement
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(StatementAbstractType statement) throws ProcessingException {
@@ -186,6 +189,7 @@ public class SAML11AssertionWriter extends BaseSAML11Writer {
      *
      * @param authnStatement
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(SAML11AuthenticationStatementType authnStatement) throws ProcessingException {
@@ -275,6 +279,7 @@ public class SAML11AssertionWriter extends BaseSAML11Writer {
      *
      * @param subject
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(SAML11SubjectType subject) throws ProcessingException {
@@ -357,6 +362,7 @@ public class SAML11AssertionWriter extends BaseSAML11Writer {
      *
      * @param attributeType
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(SAML11AttributeType attributeType) throws ProcessingException {

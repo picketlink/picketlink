@@ -27,10 +27,13 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * <complexType name="AssertionType"> <sequence> <element ref="saml:Issuer"/> <element ref="ds:Signature" minOccurs="0"/>
- * <element ref="saml:Subject" minOccurs="0"/> <element ref="saml:Conditions" minOccurs="0"/> <element ref="saml:Advice"
+ * <complexType name="AssertionType"> <sequence> <element ref="saml:Issuer"/> <element ref="ds:Signature"
+ * minOccurs="0"/>
+ * <element ref="saml:Subject" minOccurs="0"/> <element ref="saml:Conditions" minOccurs="0"/> <element
+ * ref="saml:Advice"
  * minOccurs="0"/> <choice minOccurs="0" maxOccurs="unbounded"> <element ref="saml:Statement"/> <element
- * ref="saml:AuthnStatement"/> <element ref="saml:AuthzDecisionStatement"/> <element ref="saml:AttributeStatement"/> </choice>
+ * ref="saml:AuthnStatement"/> <element ref="saml:AuthzDecisionStatement"/> <element ref="saml:AttributeStatement"/>
+ * </choice>
  * </sequence> <attribute name="Version" type="string" use="required"/> <attribute name="ID" type="ID" use="required"/>
  * <attribute name="IssueInstant" type="dateTime" use="required"/> </complexType>
  *
@@ -38,6 +41,7 @@ import java.util.Set;
  * @since Nov 24, 2010
  */
 public class AssertionType extends CommonAssertionType {
+
     private static final long serialVersionUID = 1L;
 
     private Element signature;

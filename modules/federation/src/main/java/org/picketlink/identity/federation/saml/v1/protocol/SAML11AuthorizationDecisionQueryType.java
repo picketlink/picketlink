@@ -26,16 +26,19 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <complexType name="AuthorizationDecisionQueryType"> <complexContent> <extension base="samlp:SubjectQueryAbstractType">
+ * <complexType name="AuthorizationDecisionQueryType"> <complexContent> <extension
+ * base="samlp:SubjectQueryAbstractType">
  * <sequence>
  *
- * <element ref="saml:Action" maxOccurs="unbounded"/> <element ref="saml:Evidence" minOccurs="0"/> </sequence> <attribute
+ * <element ref="saml:Action" maxOccurs="unbounded"/> <element ref="saml:Evidence" minOccurs="0"/> </sequence>
+ * <attribute
  * name="Resource" type="anyURI" use="required"/> </extension> </complexContent> </complexType>
  *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011
  */
 public class SAML11AuthorizationDecisionQueryType extends SAML11SubjectQueryAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     protected List<SAML11ActionType> action = new ArrayList<SAML11ActionType>();

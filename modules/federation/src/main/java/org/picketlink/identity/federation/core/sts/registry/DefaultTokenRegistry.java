@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since Jan 4, 2011
  */
 public class DefaultTokenRegistry implements SecurityTokenRegistry {
+
     protected Map<String, Object> tokens = new ConcurrentHashMap<String, Object>();
 
     /**

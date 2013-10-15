@@ -38,9 +38,9 @@ import javax.xml.stream.events.StartElement;
  * @since Oct 18, 2010
  */
 public class WSTrustOnBehalfOfParser implements ParserNamespaceSupport {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     /**
      * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
      */

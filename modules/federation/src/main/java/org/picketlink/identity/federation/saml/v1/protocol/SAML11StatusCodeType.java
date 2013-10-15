@@ -21,13 +21,15 @@ import javax.xml.namespace.QName;
 import java.io.Serializable;
 
 /**
- * <complexType name="StatusCodeType"> <sequence> <element ref="samlp:StatusCode" minOccurs="0"/> </sequence> <attribute
+ * <complexType name="StatusCodeType"> <sequence> <element ref="samlp:StatusCode" minOccurs="0"/> </sequence>
+ * <attribute
  * name="Value" type="QName" use="required"/> </complexType>
  *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011
  */
 public class SAML11StatusCodeType implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     public static final SAML11StatusCodeType SUCCESS = new SAML11StatusCodeType(new QName("samlp:Success"));
@@ -44,7 +46,6 @@ public class SAML11StatusCodeType implements Serializable {
      * Gets the value of the statusCode property.
      *
      * @return possible object is {@link StatusCodeType }
-     *
      */
     public SAML11StatusCodeType getStatusCode() {
         return statusCode;
@@ -54,7 +55,6 @@ public class SAML11StatusCodeType implements Serializable {
      * Sets the value of the statusCode property.
      *
      * @param value allowed object is {@link StatusCodeType }
-     *
      */
     public void setStatusCode(SAML11StatusCodeType value) {
         this.statusCode = value;
@@ -64,7 +64,6 @@ public class SAML11StatusCodeType implements Serializable {
      * Gets the value of the value property.
      *
      * @return possible object is {@link String }
-     *
      */
     public QName getValue() {
         return value;

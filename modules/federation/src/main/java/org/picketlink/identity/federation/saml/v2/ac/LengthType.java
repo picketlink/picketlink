@@ -49,12 +49,10 @@ import java.math.BigInteger;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "LengthType")
-@XmlSeeAlso({ RestrictedLengthType.class })
+@XmlSeeAlso({RestrictedLengthType.class})
 public class LengthType {
 
     @XmlAttribute(required = true)
@@ -66,7 +64,6 @@ public class LengthType {
      * Gets the value of the min property.
      *
      * @return possible object is {@link BigInteger }
-     *
      */
     public BigInteger getMin() {
         return min;
@@ -76,7 +73,6 @@ public class LengthType {
      * Sets the value of the min property.
      *
      * @param value allowed object is {@link BigInteger }
-     *
      */
     public void setMin(BigInteger value) {
         this.min = value;
@@ -86,7 +82,6 @@ public class LengthType {
      * Gets the value of the max property.
      *
      * @return possible object is {@link BigInteger }
-     *
      */
     public BigInteger getMax() {
         return max;
@@ -96,7 +91,6 @@ public class LengthType {
      * Sets the value of the max property.
      *
      * @param value allowed object is {@link BigInteger }
-     *
      */
     public void setMax(BigInteger value) {
         this.max = value;

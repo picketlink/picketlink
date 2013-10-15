@@ -63,6 +63,7 @@ import static org.picketlink.common.constants.JBossSAMLURIConstants.ASSERTION_NS
  * @since Nov 2, 2010
  */
 public class SAMLAssertionWriter extends BaseWriter {
+
     public SAMLAssertionWriter(XMLStreamWriter writer) {
         super(writer);
     }
@@ -72,6 +73,7 @@ public class SAMLAssertionWriter extends BaseWriter {
      *
      * @param assertion
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(AssertionType assertion) throws ProcessingException {
@@ -156,6 +158,7 @@ public class SAMLAssertionWriter extends BaseWriter {
      *
      * @param statement
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(StatementAbstractType statement) throws ProcessingException {
@@ -189,6 +192,7 @@ public class SAMLAssertionWriter extends BaseWriter {
      *
      * @param authnStatement
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(AuthnStatementType authnStatement) throws ProcessingException {
@@ -198,9 +202,9 @@ public class SAMLAssertionWriter extends BaseWriter {
         if (authnInstant != null) {
             StaxUtil.writeAttribute(writer, JBossSAMLConstants.AUTHN_INSTANT.get(), authnInstant.toString());
         }
-        
+
         String sessionIndex = authnStatement.getSessionIndex();
-        
+
         if (sessionIndex != null) {
             StaxUtil.writeAttribute(writer, JBossSAMLConstants.SESSION_INDEX.get(), sessionIndex);
         }
@@ -245,6 +249,7 @@ public class SAMLAssertionWriter extends BaseWriter {
      *
      * @param authContext
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(AuthnContextType authContext) throws ProcessingException {

@@ -38,8 +38,7 @@ package org.picketlink.identity.xmlsec.w3.xmldsig;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public interface KeyValueType {
+
 }

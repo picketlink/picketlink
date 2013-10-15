@@ -36,6 +36,7 @@ import static org.picketlink.identity.federation.core.wspolicy.WSPolicyConstants
  * @since Nov 5, 2010
  */
 public class WSPolicyWriter {
+
     private XMLStreamWriter writer;
 
     public WSPolicyWriter(XMLStreamWriter writer) {
@@ -47,6 +48,7 @@ public class WSPolicyWriter {
      *
      * @param appliesTo
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(AppliesTo appliesTo) throws ProcessingException {

@@ -33,11 +33,14 @@ import java.util.zip.InflaterInputStream;
  * @since Dec 11, 2008
  */
 public class DeflateUtil {
+
     /**
      * Apply DEFLATE encoding
      *
      * @param message
+     *
      * @return
+     *
      * @throws IOException
      */
     public static byte[] encode(byte[] message) throws IOException {
@@ -54,7 +57,9 @@ public class DeflateUtil {
      * Apply DEFLATE encoding
      *
      * @param message
+     *
      * @return
+     *
      * @throws IOException
      */
     public static byte[] encode(String message) throws IOException {
@@ -65,6 +70,7 @@ public class DeflateUtil {
      * DEFLATE decoding
      *
      * @param msgToDecode the message that needs decoding
+     *
      * @return
      */
     public static InputStream decode(byte[] msgToDecode) {

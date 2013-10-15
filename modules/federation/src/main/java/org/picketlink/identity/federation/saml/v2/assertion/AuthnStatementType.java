@@ -41,10 +41,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class AuthnStatementType extends StatementAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     protected SubjectLocalityType subjectLocality;
@@ -62,7 +61,6 @@ public class AuthnStatementType extends StatementAbstractType {
      * Gets the value of the subjectLocality property.
      *
      * @return possible object is {@link SubjectLocalityType }
-     *
      */
     public SubjectLocalityType getSubjectLocality() {
         return subjectLocality;
@@ -72,7 +70,6 @@ public class AuthnStatementType extends StatementAbstractType {
      * Sets the value of the subjectLocality property.
      *
      * @param value allowed object is {@link SubjectLocalityType }
-     *
      */
     public void setSubjectLocality(SubjectLocalityType value) {
         this.subjectLocality = value;
@@ -82,7 +79,6 @@ public class AuthnStatementType extends StatementAbstractType {
      * Gets the value of the authnContext property.
      *
      * @return possible object is {@link AuthnContextType }
-     *
      */
     public AuthnContextType getAuthnContext() {
         return authnContext;
@@ -92,7 +88,6 @@ public class AuthnStatementType extends StatementAbstractType {
      * Sets the value of the authnContext property.
      *
      * @param value allowed object is {@link AuthnContextType }
-     *
      */
     public void setAuthnContext(AuthnContextType value) {
         this.authnContext = value;
@@ -102,7 +97,6 @@ public class AuthnStatementType extends StatementAbstractType {
      * Gets the value of the authnInstant property.
      *
      * @return possible object is {@link XMLGregorianCalendar }
-     *
      */
     public XMLGregorianCalendar getAuthnInstant() {
         return authnInstant;
@@ -112,7 +106,6 @@ public class AuthnStatementType extends StatementAbstractType {
      * Gets the value of the sessionIndex property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getSessionIndex() {
         return sessionIndex;
@@ -122,7 +115,6 @@ public class AuthnStatementType extends StatementAbstractType {
      * Sets the value of the sessionIndex property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setSessionIndex(String value) {
         this.sessionIndex = value;
@@ -132,7 +124,6 @@ public class AuthnStatementType extends StatementAbstractType {
      * Gets the value of the sessionNotOnOrAfter property.
      *
      * @return possible object is {@link XMLGregorianCalendar }
-     *
      */
     public XMLGregorianCalendar getSessionNotOnOrAfter() {
         return sessionNotOnOrAfter;
@@ -142,7 +133,6 @@ public class AuthnStatementType extends StatementAbstractType {
      * Sets the value of the sessionNotOnOrAfter property.
      *
      * @param value allowed object is {@link XMLGregorianCalendar }
-     *
      */
     public void setSessionNotOnOrAfter(XMLGregorianCalendar value) {
         this.sessionNotOnOrAfter = value;

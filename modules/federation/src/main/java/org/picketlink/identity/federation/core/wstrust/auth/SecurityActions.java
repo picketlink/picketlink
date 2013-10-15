@@ -30,6 +30,7 @@ import java.security.PrivilegedAction;
  * @since Jan 31, 2011
  */
 class SecurityActions {
+
     /**
      * Get the current security context on the association
      *

@@ -24,6 +24,7 @@ package org.picketlink.identity.federation.core.wsse;
  * @since Nov 8, 2010
  */
 public interface WSSecurityConstants {
+
     String ID = "Id";
     String USERNAME = "Username";
     String USERNAME_TOKEN = "UsernameToken";

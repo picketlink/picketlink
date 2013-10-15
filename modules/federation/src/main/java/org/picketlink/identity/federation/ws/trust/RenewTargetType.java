@@ -35,10 +35,9 @@ package org.picketlink.identity.federation.ws.trust;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class RenewTargetType extends SimpleAnyType {
+
     @Override
     public void add(Object t) {
         // ensure that we clear

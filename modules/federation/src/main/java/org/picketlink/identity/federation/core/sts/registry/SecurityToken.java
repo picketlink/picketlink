@@ -17,8 +17,6 @@
  */
 package org.picketlink.identity.federation.core.sts.registry;
 
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -34,7 +32,7 @@ import java.util.Date;
  * <p>
  * {@code SecurityToken} is a simple JPA entity used by the {@code JPABasedTokenRegistry} to persist tokens.
  * </p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @Entity
@@ -66,7 +64,7 @@ public class SecurityToken {
      * <p>
      * Obtains the id of the revoked security token.
      * </p>
-     * 
+     *
      * @return a {@code String} containing the revoked token id.
      */
     public String getTokenId() {
@@ -77,7 +75,7 @@ public class SecurityToken {
      * <p>
      * Sets the id of the revoked security token.
      * </p>
-     * 
+     *
      * @param tokenId a {@code String} containing the id to be set.
      */
     public void setTokenId(String tokenId) {
@@ -86,7 +84,7 @@ public class SecurityToken {
 
     /**
      * <p>Gets the {@link Date} which this token was created.</p>
-     * 
+     *
      * @return
      */
     public Date getTokenCreationDate() {
@@ -95,6 +93,7 @@ public class SecurityToken {
 
     /**
      * <p>Sets the {@link Date} which this token was created.</p>
+     *
      * @param tokenCreationDate
      */
     public void setTokenCreationDate(Date tokenCreationDate) {
@@ -103,7 +102,7 @@ public class SecurityToken {
 
     /**
      * <p>Sets the byte array representation of the token object.</p>
-     * 
+     *
      * @param token
      */
     public void setToken(byte[] token) {
@@ -112,7 +111,7 @@ public class SecurityToken {
 
     /**
      * <p>Gets the byte array representation of the token object.</p>
-     * 
+     *
      * @return
      */
     public byte[] getToken() {
@@ -121,9 +120,10 @@ public class SecurityToken {
 
     /**
      * <p>
-     * Unmarshall the <code>token</code> byte array to a {@link AssertionType} instance.
+     * Unmarshall the <code>token</code> byte array to a {@link org.picketlink.identity.federation.saml.v2.assertion.AssertionType}
+     * instance.
      * </p>
-     * 
+     *
      * @return
      */
     public Object unmarshalToken() {
@@ -135,12 +135,13 @@ public class SecurityToken {
             throw new RuntimeException("Error unmarshalling token.", e);
         }
     }
-    
+
     /**
      * <p>
-     * Marshals a {@link AssertionType} instance into a byte array.
+     * Marshals a {@link org.picketlink.identity.federation.saml.v2.assertion.AssertionType} instance into a byte
+     * array.
      * </p>
-     * 
+     *
      * @param token
      */
     private void marshallAndSetToken(Object token) {
@@ -154,5 +155,5 @@ public class SecurityToken {
             throw new RuntimeException("Error marshalling token.", e);
         }
     }
-    
+
 }

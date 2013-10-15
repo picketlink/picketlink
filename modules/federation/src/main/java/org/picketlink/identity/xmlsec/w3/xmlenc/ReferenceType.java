@@ -38,10 +38,9 @@ import java.net.URI;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ReferenceType {
+
     protected URI uri;
 
     public Object reference;
@@ -62,7 +61,6 @@ public class ReferenceType {
      * Gets the value of the uri property.
      *
      * @return possible object is {@link URI }
-     *
      */
     public URI getURI() {
         return uri;

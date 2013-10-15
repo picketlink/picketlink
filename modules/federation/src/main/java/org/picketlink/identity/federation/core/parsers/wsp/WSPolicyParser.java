@@ -42,6 +42,7 @@ import javax.xml.stream.events.XMLEvent;
  * @since Oct 14, 2010
  */
 public class WSPolicyParser extends AbstractParser {
+
     /**
      * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
      */

@@ -45,7 +45,7 @@ import java.security.GeneralSecurityException;
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public class SAMLUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     public static final String SAML11_BEARER_URI = "urn:oasis:names:tc:SAML:1.0:cm:bearer";
@@ -74,7 +74,9 @@ public class SAMLUtil {
      * </p>
      *
      * @param assertion an {@code AssertionType} object representing the SAML assertion to be marshaled.
+     *
      * @return a reference to the {@code Element} that contains the marshaled SAML assertion.
+     *
      * @throws Exception if an error occurs while marshaling the assertion.
      */
     public static Element toElement(AssertionType assertion) throws Exception {
@@ -99,7 +101,9 @@ public class SAMLUtil {
      * </p>
      *
      * @param assertion an {@code AssertionType} object representing the SAML assertion to be marshaled.
+     *
      * @return a reference to the {@code Element} that contains the marshaled SAML assertion.
+     *
      * @throws Exception if an error occurs while marshaling the assertion.
      */
     public static Element toElement(SAML11AssertionType assertion) throws Exception {
@@ -119,7 +123,9 @@ public class SAMLUtil {
      * </p>
      *
      * @param assertionElement the {@code Element} that contains the marshaled SAMLV2.0 assertion.
+     *
      * @return a reference to the unmarshaled {@code AssertionType} instance.
+     *
      * @throws ConfigurationException
      * @throws ProcessingException
      * @throws ParsingException
@@ -137,7 +143,9 @@ public class SAMLUtil {
      * Given a {@link Element} that represents a SAML 1.1 assertion, convert it into a {@link SAML11AssertionType}
      *
      * @param assertionElement
+     *
      * @return
+     *
      * @throws GeneralSecurityException
      */
     public static SAML11AssertionType saml11FromElement(Element assertionElement) throws GeneralSecurityException {

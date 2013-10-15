@@ -24,6 +24,7 @@ package org.picketlink.identity.federation.core.saml.v2.holders;
  * @since Jul 24, 2009
  */
 public class SignatureInfoHolder {
+
     private byte[] signatureValue;
 
     private String sigAlg;

@@ -20,21 +20,18 @@ package org.picketlink;
 
 /**
  * Base class for security related exceptions
- * 
- * @author Shane Bryzak
  *
+ * @author Shane Bryzak
  */
-public class SecurityException extends RuntimeException 
-{
+public class SecurityException extends RuntimeException {
+
     private static final long serialVersionUID = -1809156359762519539L;
 
-    public SecurityException(String message) 
-    {
+    public SecurityException(String message) {
         super(message);
     }
 
-    public SecurityException(String message, Throwable cause) 
-    {
+    public SecurityException(String message, Throwable cause) {
         super(message, cause);
     }
 }

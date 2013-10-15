@@ -45,6 +45,7 @@ import static org.picketlink.common.constants.JBossSAMLURIConstants.PROTOCOL_NSU
  * @since Nov 3, 2010
  */
 public class SAMLSloRequestParser extends SAMLRequestAbstractParser implements ParserNamespaceSupport {
+
     /**
      * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
      */
@@ -96,7 +97,9 @@ public class SAMLSloRequestParser extends SAMLRequestAbstractParser implements P
      * Parse the attributes at the log out request element
      *
      * @param startElement
+     *
      * @return
+     *
      * @throws ParsingException
      */
     private LogoutRequestType parseBaseAttributes(StartElement startElement) throws ParsingException {

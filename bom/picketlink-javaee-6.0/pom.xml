@@ -12,7 +12,6 @@
   </parent>
 
   <artifactId>picketlink-javaee-6.0</artifactId>
-
   <packaging>pom</packaging>
 
   <name>PicketLink Java EE 6 BOM</name>

@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- *
- * The <wst:RequestSecurityTokenResponseCollection> element (RSTRC) MUST be used to return a security token or response to a
+ * The <wst:RequestSecurityTokenResponseCollection> element (RSTRC) MUST be used to return a security token or response
+ * to a
  * security token request on the final response.
  *
  *
@@ -40,17 +40,17 @@ import java.util.List;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element ref="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}RequestSecurityTokenResponse" maxOccurs="unbounded"/>
+ *         &lt;element ref="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}RequestSecurityTokenResponse"
+ * maxOccurs="unbounded"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class RequestSecurityTokenResponseCollectionType extends AnyAddressingType implements
         SimpleCollectionUsage<RequestSecurityTokenResponseType> {
+
     protected List<RequestSecurityTokenResponseType> requestSecurityTokenResponse = new ArrayList<RequestSecurityTokenResponseType>();
 
     /**
@@ -58,8 +58,6 @@ public class RequestSecurityTokenResponseCollectionType extends AnyAddressingTyp
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link RequestSecurityTokenResponseType }
-     *
-     *
      */
     public List<RequestSecurityTokenResponseType> getRequestSecurityTokenResponse() {
         return Collections.unmodifiableList(this.requestSecurityTokenResponse);

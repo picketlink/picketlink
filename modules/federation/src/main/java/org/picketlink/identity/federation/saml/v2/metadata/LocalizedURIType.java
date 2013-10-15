@@ -35,8 +35,6 @@ import java.net.URI;
  *   &lt;/simpleContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class LocalizedURIType {
 
@@ -52,7 +50,6 @@ public class LocalizedURIType {
      * Gets the value of the value property.
      *
      * @return possible object is {@link String }
-     *
      */
     public URI getValue() {
         return value;
@@ -62,7 +59,6 @@ public class LocalizedURIType {
      * Sets the value of the value property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setValue(URI value) {
         this.value = value;
@@ -72,7 +68,6 @@ public class LocalizedURIType {
      * Gets the value of the lang property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getLang() {
         return lang;

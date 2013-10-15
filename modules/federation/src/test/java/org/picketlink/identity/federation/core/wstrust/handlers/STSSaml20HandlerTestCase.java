@@ -47,15 +47,16 @@ import static org.mockito.Mockito.when;
 /**
  * Unit test for {@link STSSaml20Handler}. </p>
  *
- * When running this unit test 'java.endorsed.dirs' must be set. For example, if you are using Eclipse then you can set this in
+ * When running this unit test 'java.endorsed.dirs' must be set. For example, if you are using Eclipse then you can set
+ * this in
  * the run configuration as a VM argument: -Djava.endorsed.dirs=${project_loc}/src/test/resources/endorsed
  *
  * This is not required when running the test through maven as this same setting exists in pom.xml.
  *
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
- *
  */
 public class STSSaml20HandlerTestCase {
+
     private SOAPMessageContext soapMessageContext;
 
     private SOAPMessage soapMessage;
@@ -194,6 +195,7 @@ public class STSSaml20HandlerTestCase {
     }
 
     private class FakeSamlHandler extends STSSaml20Handler {
+
         private final STSClient stsClient;
 
         public FakeSamlHandler(final STSClient stsClient) {

@@ -25,8 +25,10 @@ import java.net.URI;
 /**
  * <complexType name="ResponseAbstractType" abstract="true"> <sequence>
  *
- * <element ref="ds:Signature" minOccurs="0"/> </sequence> <attribute name="ResponseID" type="ID" use="required"/> <attribute
- * name="InResponseTo" type="NCName" use="optional"/> <attribute name="MajorVersion" type="integer" use="required"/> <attribute
+ * <element ref="ds:Signature" minOccurs="0"/> </sequence> <attribute name="ResponseID" type="ID" use="required"/>
+ * <attribute
+ * name="InResponseTo" type="NCName" use="optional"/> <attribute name="MajorVersion" type="integer" use="required"/>
+ * <attribute
  * name="MinorVersion" type="integer" use="required"/> <attribute name="IssueInstant" type="dateTime" use="required"/>
  * <attribute name="Recipient" type="anyURI" use="optional"/> </complexType>
  *
@@ -34,6 +36,7 @@ import java.net.URI;
  * @since Jun 22, 2011
  */
 public abstract class SAML11ResponseAbstractType extends CommonResponseType {
+
     private static final long serialVersionUID = 1L;
 
     protected int majorVersion = 1;

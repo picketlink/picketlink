@@ -44,10 +44,9 @@ import java.io.Serializable;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class SubjectConfirmationType implements Serializable {
+
     private static final long serialVersionUID = 1L;
     protected BaseIDAbstractType baseID;
     protected NameIDType nameID;
@@ -59,7 +58,6 @@ public class SubjectConfirmationType implements Serializable {
      * Gets the value of the baseID property.
      *
      * @return possible object is {@link BaseIDAbstractType }
-     *
      */
     public BaseIDAbstractType getBaseID() {
         return baseID;
@@ -69,7 +67,6 @@ public class SubjectConfirmationType implements Serializable {
      * Sets the value of the baseID property.
      *
      * @param value allowed object is {@link BaseIDAbstractType }
-     *
      */
     public void setBaseID(BaseIDAbstractType value) {
         this.baseID = value;
@@ -79,7 +76,6 @@ public class SubjectConfirmationType implements Serializable {
      * Gets the value of the nameID property.
      *
      * @return possible object is {@link NameIDType }
-     *
      */
     public NameIDType getNameID() {
         return nameID;
@@ -89,7 +85,6 @@ public class SubjectConfirmationType implements Serializable {
      * Sets the value of the nameID property.
      *
      * @param value allowed object is {@link NameIDType }
-     *
      */
     public void setNameID(NameIDType value) {
         this.nameID = value;
@@ -99,7 +94,6 @@ public class SubjectConfirmationType implements Serializable {
      * Gets the value of the encryptedID property.
      *
      * @return possible object is {@link EncryptedElementType }
-     *
      */
     public EncryptedElementType getEncryptedID() {
         return encryptedID;
@@ -109,7 +103,6 @@ public class SubjectConfirmationType implements Serializable {
      * Sets the value of the encryptedID property.
      *
      * @param value allowed object is {@link EncryptedElementType }
-     *
      */
     public void setEncryptedID(EncryptedElementType value) {
         this.encryptedID = value;
@@ -119,7 +112,6 @@ public class SubjectConfirmationType implements Serializable {
      * Gets the value of the subjectConfirmationData property.
      *
      * @return possible object is {@link SubjectConfirmationDataType }
-     *
      */
     public SubjectConfirmationDataType getSubjectConfirmationData() {
         return subjectConfirmationData;
@@ -129,7 +121,6 @@ public class SubjectConfirmationType implements Serializable {
      * Sets the value of the subjectConfirmationData property.
      *
      * @param value allowed object is {@link SubjectConfirmationDataType }
-     *
      */
     public void setSubjectConfirmationData(SubjectConfirmationDataType value) {
         this.subjectConfirmationData = value;
@@ -139,7 +130,6 @@ public class SubjectConfirmationType implements Serializable {
      * Gets the value of the method property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getMethod() {
         return method;
@@ -149,7 +139,6 @@ public class SubjectConfirmationType implements Serializable {
      * Sets the value of the method property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setMethod(String value) {
         this.method = value;

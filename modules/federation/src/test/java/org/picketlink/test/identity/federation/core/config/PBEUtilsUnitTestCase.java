@@ -35,6 +35,7 @@ import static org.junit.Assert.assertEquals;
  * @since May 25, 2010
  */
 public class PBEUtilsUnitTestCase {
+
     @Test
     public void testPBE() throws Exception {
         String pass = "testpass";

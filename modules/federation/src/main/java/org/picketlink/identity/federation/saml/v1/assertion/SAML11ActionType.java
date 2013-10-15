@@ -22,12 +22,14 @@ import org.picketlink.identity.federation.saml.common.CommonActionType;
 /**
  * SAML11 Action Type
  *
- * <complexType name="ActionType"> <simpleContent> <extension base="string"> <attribute name="Namespace" type="anyURI"/>
+ * <complexType name="ActionType"> <simpleContent> <extension base="string"> <attribute name="Namespace"
+ * type="anyURI"/>
  * </extension> </simpleContent> </complexType>
  *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011
  */
 public class SAML11ActionType extends CommonActionType {
+
     private static final long serialVersionUID = 1L;
 }

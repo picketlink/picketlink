@@ -34,17 +34,16 @@ import java.util.List;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="Handler" type="{urn:picketlink:identity-federation:handler:config:1.0}Handler" maxOccurs="unbounded"/>
+ *         &lt;element name="Handler" type="{urn:picketlink:identity-federation:handler:config:1.0}Handler"
+ * maxOccurs="unbounded"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class Handlers {
-    
+
     protected String handlerChainClass;
     private boolean locking = true;
 
@@ -62,42 +61,43 @@ public class Handlers {
      * Gets the value of the handler property.
      * <p>
      * Objects of the following type(s) are allowed in the list {@link Handler }
-     *
-     *
      */
     public List<Handler> getHandler() {
         return Collections.unmodifiableList(this.handler);
     }
-    
+
     /**
      * <p>
      * Sets the Handler chain class.
      * </p>
-     * 
+     *
      * @param samlHandlerChainClass value must be a subclass of #{@link SAML2HandlerChain}
      */
     public void setHandlerChainClass(String samlHandlerChainClass) {
         this.handlerChainClass = samlHandlerChainClass;
     }
-    
+
     /**
      * Get the Handler chain class FQN
+     *
      * @return
      */
     public String getHandlerChainClass() {
         return this.handlerChainClass;
     }
-    
+
     /**
      * Set the list of {@link Handler}
+     *
      * @param theHandlers
      */
-    public void setHandlers(List<Handler> theHandlers){
+    public void setHandlers(List<Handler> theHandlers) {
         handler.addAll(theHandlers);
     }
 
     /**
      * Sets the locking behavior of the handler chain
+     *
      * @return
      */
     public void setLocking(final Boolean locking) {
@@ -106,6 +106,7 @@ public class Handlers {
 
     /**
      * Indicates if the handler chain execution should be locked
+     *
      * @return
      */
     public boolean isLocking() {

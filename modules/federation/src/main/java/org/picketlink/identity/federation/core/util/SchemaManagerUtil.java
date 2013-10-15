@@ -27,6 +27,7 @@ import java.util.List;
  * @since Jun 30, 2011
  */
 public class SchemaManagerUtil {
+
     public static List<String> getXMLSchemas() {
         List<String> list = new ArrayList<String>();
 

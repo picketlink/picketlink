@@ -29,6 +29,7 @@ import java.util.Map;
  * @since Dec 10, 2010
  */
 public abstract class TypeWithOtherAttributes {
+
     protected Map<QName, String> otherAttributes = new HashMap<QName, String>();
 
     /**
@@ -53,7 +54,6 @@ public abstract class TypeWithOtherAttributes {
 
     /**
      * Gets a map that contains attributes that aren't bound to any typed property on this class.
-     *
      *
      * @return always non-null
      */

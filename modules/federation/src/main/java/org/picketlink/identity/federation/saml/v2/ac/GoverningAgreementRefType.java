@@ -47,8 +47,6 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "GoverningAgreementRefType")
@@ -62,7 +60,6 @@ public class GoverningAgreementRefType {
      * Gets the value of the governingAgreementRef property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getGoverningAgreementRef() {
         return governingAgreementRef;
@@ -72,7 +69,6 @@ public class GoverningAgreementRefType {
      * Sets the value of the governingAgreementRef property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setGoverningAgreementRef(String value) {
         this.governingAgreementRef = value;

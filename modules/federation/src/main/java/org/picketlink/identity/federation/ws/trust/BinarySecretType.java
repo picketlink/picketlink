@@ -30,15 +30,15 @@ import org.picketlink.identity.federation.ws.addressing.BaseAddressingType;
  * &lt;complexType name="BinarySecretType">
  *   &lt;simpleContent>
  *     &lt;extension base="&lt;http://www.w3.org/2001/XMLSchema>base64Binary">
- *       &lt;attribute name="Type" type="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}BinarySecretTypeOpenEnum" />
+ *       &lt;attribute name="Type" type="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}BinarySecretTypeOpenEnum"
+ * />
  *     &lt;/extension>
  *   &lt;/simpleContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class BinarySecretType extends BaseAddressingType {
+
     protected byte[] value;
 
     protected String type;
@@ -65,7 +65,6 @@ public class BinarySecretType extends BaseAddressingType {
      * Gets the value of the type property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getType() {
         return type;
@@ -75,7 +74,6 @@ public class BinarySecretType extends BaseAddressingType {
      * Sets the value of the type property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setType(String value) {
         this.type = value;

@@ -52,7 +52,7 @@ import java.security.PrivilegedActionException;
  */
 @WebServiceProvider(serviceName = "SOAPSAMLXACMLPDP", portName = "SOAPSAMLXACMLPort", targetNamespace = "urn:picketlink:identity-federation:pdp", wsdlLocation = "WEB-INF/wsdl/SOAPSAMLXACMLPDP.wsdl")
 public class SOAPSAMLXACMLPDP implements Provider<Source> {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     @Resource
@@ -75,11 +75,11 @@ public class SOAPSAMLXACMLPDP implements Provider<Source> {
     public Source invoke(Source request) {
         try {
             Document doc = (Document) DocumentUtil.getNodeFromSource(request);
-            
+
             if (logger.isTraceEnabled()) {
                 logger.trace("XACML Received Message: " + DocumentUtil.asString(doc));
             }
-            
+
             XACMLAuthzDecisionQueryType xacmlQuery = SOAPSAMLXACMLUtil.getXACMLQueryType(doc);
             ResponseType samlResponseType = SOAPSAMLXACMLUtil.handleXACMLQuery(pdp, issuer, xacmlQuery);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();

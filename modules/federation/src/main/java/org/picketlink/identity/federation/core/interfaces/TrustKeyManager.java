@@ -36,19 +36,23 @@ import java.util.List;
  * @since Jan 22, 2009
  */
 public interface TrustKeyManager {
+
     /**
      * Provide a set of properties used for authentication into the storage of keys - keystore, ldap, db, HSM etc
      *
      * @param authList
+     *
      * @throws {@link IOException}
      */
     void setAuthProperties(List<AuthPropertyType> authList) throws TrustKeyConfigurationException, TrustKeyProcessingException;
 
     /**
-     * Set a list of (domain,alias) tuple to trust domains The alias is a string that represents the validating key stored for a
+     * Set a list of (domain,alias) tuple to trust domains The alias is a string that represents the validating key
+     * stored for a
      * domain
      *
      * @param aliases
+     *
      * @throws {@link IOException}
      */
     void setValidatingAlias(List<KeyValueType> aliases) throws TrustKeyConfigurationException, TrustKeyProcessingException;
@@ -57,13 +61,15 @@ public interface TrustKeyManager {
      * Get the Signing Key
      *
      * @return
+     *
      * @throws {@link CertificateException}
      */
     PrivateKey getSigningKey() throws TrustKeyConfigurationException, TrustKeyProcessingException;
 
     /**
      * <p>
-     * Constructs a {@code KeyPair} instance containing the signing key ({@code PrivateKey}) and associated {@code PublicKey}.
+     * Constructs a {@code KeyPair} instance containing the signing key ({@code PrivateKey}) and associated {@code
+     * PublicKey}.
      * </p>
      *
      * @return the constructed {@code KeyPair} object.
@@ -74,7 +80,9 @@ public interface TrustKeyManager {
      * Get the certificate given an alias
      *
      * @param alias
+     *
      * @return
+     *
      * @throws {@link CertificateException}
      */
     Certificate getCertificate(String alias) throws TrustKeyConfigurationException, TrustKeyProcessingException;
@@ -83,7 +91,9 @@ public interface TrustKeyManager {
      * Get a Public Key given an alias
      *
      * @param alias
+     *
      * @return
+     *
      * @throws {@link CertificateException}
      */
     PublicKey getPublicKey(String alias) throws TrustKeyConfigurationException, TrustKeyProcessingException;
@@ -91,11 +101,13 @@ public interface TrustKeyManager {
     /**
      * Given a domain, obtain a secret key
      *
-     * @see {@code EncryptionKeyUtil}
      * @param domain
      * @param encryptionAlgorithm Encryption Algorithm
      * @param keyLength length of keys
+     *
      * @return
+     *
+     * @see {@code EncryptionKeyUtil}
      */
     SecretKey getEncryptionKey(String domain, String encryptionAlgorithm, int keyLength) throws TrustKeyConfigurationException,
             TrustKeyProcessingException;
@@ -104,6 +116,7 @@ public interface TrustKeyManager {
      * Get the Validating Public Key of the domain
      *
      * @param domain
+     *
      * @return
      */
     PublicKey getValidatingKey(String domain) throws TrustKeyConfigurationException, TrustKeyProcessingException;
@@ -120,6 +133,7 @@ public interface TrustKeyManager {
      * Get additional option
      *
      * @param key
+     *
      * @return
      */
     Object getAdditionalOption(String key);

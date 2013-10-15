@@ -34,17 +34,17 @@ import java.util.List;
  *     &lt;extension base="{urn:oasis:names:tc:SAML:2.0:metadata}RoleDescriptorType">
  *       &lt;sequence>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AuthzService" maxOccurs="unbounded"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AssertionIDRequestService" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AssertionIDRequestService" maxOccurs="unbounded"
+ * minOccurs="0"/>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}NameIDFormat" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/extension>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class PDPDescriptorType extends RoleDescriptorType {
+
     protected List<EndpointType> authzService = new ArrayList<EndpointType>();
 
     protected List<EndpointType> assertionIDRequestService = new ArrayList<EndpointType>();

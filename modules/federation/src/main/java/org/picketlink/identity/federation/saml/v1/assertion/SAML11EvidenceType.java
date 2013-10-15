@@ -30,6 +30,7 @@ import java.util.List;
  * @since Jun 22, 2011
  */
 public class SAML11EvidenceType {
+
     protected List<String> assertionIDReference = new ArrayList<String>();
 
     protected List<SAML11AssertionType> assertions = new ArrayList<SAML11AssertionType>();

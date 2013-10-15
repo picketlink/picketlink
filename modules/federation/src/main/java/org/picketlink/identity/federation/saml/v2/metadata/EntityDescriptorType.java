@@ -52,7 +52,8 @@ import java.util.List;
  *         &lt;/choice>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}Organization" minOccurs="0"/>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}ContactPerson" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AdditionalMetadataLocation" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AdditionalMetadataLocation" maxOccurs="unbounded"
+ * minOccurs="0"/>
  *       &lt;/sequence>
  *       &lt;attribute name="entityID" use="required" type="{urn:oasis:names:tc:SAML:2.0:metadata}entityIDType" />
  *       &lt;attribute name="validUntil" type="{http://www.w3.org/2001/XMLSchema}dateTime" />
@@ -62,11 +63,11 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class EntityDescriptorType extends TypeWithOtherAttributes {
+
     public static class EDTChoiceType {
+
         private List<EDTDescriptorChoiceType> descriptors = new ArrayList<EntityDescriptorType.EDTDescriptorChoiceType>();
 
         private AffiliationDescriptorType affiliationDescriptor;
@@ -95,6 +96,7 @@ public class EntityDescriptorType extends TypeWithOtherAttributes {
     }
 
     public static class EDTDescriptorChoiceType {
+
         private RoleDescriptorType roleDescriptor;
 
         private IDPSSODescriptorType idpDescriptor;
@@ -183,7 +185,6 @@ public class EntityDescriptorType extends TypeWithOtherAttributes {
      * Gets the value of the signature property.
      *
      * @return possible object is {@link Element }
-     *
      */
     public Element getSignature() {
         return signature;
@@ -193,7 +194,6 @@ public class EntityDescriptorType extends TypeWithOtherAttributes {
      * Sets the value of the signature property.
      *
      * @param value allowed object is {@link Element }
-     *
      */
     public void setSignature(Element value) {
         this.signature = value;
@@ -203,7 +203,6 @@ public class EntityDescriptorType extends TypeWithOtherAttributes {
      * Gets the value of the extensions property.
      *
      * @return possible object is {@link ExtensionsType }
-     *
      */
     public ExtensionsType getExtensions() {
         return extensions;
@@ -213,7 +212,6 @@ public class EntityDescriptorType extends TypeWithOtherAttributes {
      * Sets the value of the extensions property.
      *
      * @param value allowed object is {@link ExtensionsType }
-     *
      */
     public void setExtensions(ExtensionsType value) {
         this.extensions = value;
@@ -250,7 +248,6 @@ public class EntityDescriptorType extends TypeWithOtherAttributes {
      * Gets the value of the organization property.
      *
      * @return possible object is {@link OrganizationType }
-     *
      */
     public OrganizationType getOrganization() {
         return organization;
@@ -260,7 +257,6 @@ public class EntityDescriptorType extends TypeWithOtherAttributes {
      * Sets the value of the organization property.
      *
      * @param value allowed object is {@link OrganizationType }
-     *
      */
     public void setOrganization(OrganizationType value) {
         this.organization = value;
@@ -283,8 +279,6 @@ public class EntityDescriptorType extends TypeWithOtherAttributes {
      * Gets the value of the contactPerson property.
      * <p>
      * Objects of the following type(s) are allowed in the list {@link ContactType }
-     *
-     *
      */
     public List<ContactType> getContactPerson() {
         return Collections.unmodifiableList(this.contactPerson);
@@ -312,7 +306,8 @@ public class EntityDescriptorType extends TypeWithOtherAttributes {
      * Gets the value of the additionalMetadataLocation property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to the
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the
      * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
      * additionalMetadataLocation property.
      *
@@ -326,8 +321,6 @@ public class EntityDescriptorType extends TypeWithOtherAttributes {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link AdditionalMetadataLocationType }
-     *
-     *
      */
     public List<AdditionalMetadataLocationType> getAdditionalMetadataLocation() {
         return Collections.unmodifiableList(this.additionalMetadataLocation);
@@ -337,7 +330,6 @@ public class EntityDescriptorType extends TypeWithOtherAttributes {
      * Gets the value of the entityID property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getEntityID() {
         return entityID;
@@ -347,7 +339,6 @@ public class EntityDescriptorType extends TypeWithOtherAttributes {
      * Gets the value of the validUntil property.
      *
      * @return possible object is {@link XMLGregorianCalendar }
-     *
      */
     public XMLGregorianCalendar getValidUntil() {
         return validUntil;
@@ -357,7 +348,6 @@ public class EntityDescriptorType extends TypeWithOtherAttributes {
      * Sets the value of the validUntil property.
      *
      * @param value allowed object is {@link XMLGregorianCalendar }
-     *
      */
     public void setValidUntil(XMLGregorianCalendar value) {
         this.validUntil = value;
@@ -367,7 +357,6 @@ public class EntityDescriptorType extends TypeWithOtherAttributes {
      * Gets the value of the cacheDuration property.
      *
      * @return possible object is {@link Duration }
-     *
      */
     public Duration getCacheDuration() {
         return cacheDuration;
@@ -377,7 +366,6 @@ public class EntityDescriptorType extends TypeWithOtherAttributes {
      * Sets the value of the cacheDuration property.
      *
      * @param value allowed object is {@link Duration }
-     *
      */
     public void setCacheDuration(Duration value) {
         this.cacheDuration = value;
@@ -387,7 +375,6 @@ public class EntityDescriptorType extends TypeWithOtherAttributes {
      * Gets the value of the id property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getID() {
         return id;
@@ -397,7 +384,6 @@ public class EntityDescriptorType extends TypeWithOtherAttributes {
      * Sets the value of the id property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setID(String value) {
         this.id = value;

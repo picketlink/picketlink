@@ -40,9 +40,9 @@ import java.util.Set;
  * @since Oct 7, 2009
  */
 public class HandlerUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     public static Set<SAML2Handler> getHandlers(Handlers handlers) throws ConfigurationException {
         if (handlers == null)
             throw logger.nullArgumentError("handlers");

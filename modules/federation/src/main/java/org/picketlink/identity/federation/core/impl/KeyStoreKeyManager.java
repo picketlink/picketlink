@@ -54,12 +54,13 @@ import java.util.Map;
  * @since Jan 22, 2009
  */
 public class KeyStoreKeyManager implements TrustKeyManager {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     /**
      * An map of secret keys alive only for the duration of the program. The keys are generated on the fly. If you need
-     * sophisticated key storage, then a custom version of the {@code TrustKeyManager} needs to be written that either uses a
+     * sophisticated key storage, then a custom version of the {@code TrustKeyManager} needs to be written that either
+     * uses a
      * secure thumb drive or a TPM module or a HSM module. Also see JBoss XMLKey.
      */
     private final Map<String, SecretKey> keys = new HashMap<String, SecretKey>();
@@ -134,7 +135,7 @@ public class KeyStoreKeyManager implements TrustKeyManager {
     public Certificate getCertificate(String alias) throws TrustKeyConfigurationException, TrustKeyProcessingException {
         try {
             initKeyStore();
-            
+
             if (alias == null || alias.length() == 0)
                 throw logger.keyStoreNullAlias();
 
@@ -156,7 +157,7 @@ public class KeyStoreKeyManager implements TrustKeyManager {
 
         try {
             initKeyStore();
-            
+
             Certificate cert = ks.getCertificate(alias);
             if (cert != null)
                 publicKey = cert.getPublicKey();
@@ -184,9 +185,9 @@ public class KeyStoreKeyManager implements TrustKeyManager {
         PublicKey publicKey = null;
         try {
             initKeyStore();
-            
+
             String domainAlias = this.domainAliasMap.get(domain);
-            
+
             if (domainAlias == null)
                 throw logger.keyStoreMissingDomainAlias(domain);
 
@@ -217,7 +218,7 @@ public class KeyStoreKeyManager implements TrustKeyManager {
         if (ks == null)
             throw logger.keyStoreNullStore();
     }
-    
+
     /**
      * @see TrustKeyManager#setAuthProperties(List)
      */
@@ -275,7 +276,6 @@ public class KeyStoreKeyManager implements TrustKeyManager {
     }
 
     /**
-     *
      * @see org.picketlink.identity.federation.core.interfaces.TrustKeyManager#getAdditionalOption(java.lang.String)
      */
     public Object getAdditionalOption(String key) {
@@ -299,6 +299,7 @@ public class KeyStoreKeyManager implements TrustKeyManager {
      * Seek the input stream to the KeyStore
      *
      * @param keyStore
+     *
      * @return
      */
     private InputStream getKeyStoreInputStream(String keyStore) {

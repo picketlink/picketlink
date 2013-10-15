@@ -57,12 +57,10 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "PasswordType", propOrder = { "length", "alphabet", "generation", "extension" })
-@XmlSeeAlso({ RestrictedPasswordType.class })
+@XmlType(name = "PasswordType", propOrder = {"length", "alphabet", "generation", "extension"})
+@XmlSeeAlso({RestrictedPasswordType.class})
 public class PasswordType {
 
     @XmlElement(name = "Length")
@@ -81,7 +79,6 @@ public class PasswordType {
      * Gets the value of the length property.
      *
      * @return possible object is {@link LengthType }
-     *
      */
     public LengthType getLength() {
         return length;
@@ -91,7 +88,6 @@ public class PasswordType {
      * Sets the value of the length property.
      *
      * @param value allowed object is {@link LengthType }
-     *
      */
     public void setLength(LengthType value) {
         this.length = value;
@@ -101,7 +97,6 @@ public class PasswordType {
      * Gets the value of the alphabet property.
      *
      * @return possible object is {@link AlphabetType }
-     *
      */
     public AlphabetType getAlphabet() {
         return alphabet;
@@ -111,7 +106,6 @@ public class PasswordType {
      * Sets the value of the alphabet property.
      *
      * @param value allowed object is {@link AlphabetType }
-     *
      */
     public void setAlphabet(AlphabetType value) {
         this.alphabet = value;
@@ -121,7 +115,6 @@ public class PasswordType {
      * Gets the value of the generation property.
      *
      * @return possible object is {@link Generation }
-     *
      */
     public Generation getGeneration() {
         return generation;
@@ -131,7 +124,6 @@ public class PasswordType {
      * Sets the value of the generation property.
      *
      * @param value allowed object is {@link Generation }
-     *
      */
     public void setGeneration(Generation value) {
         this.generation = value;
@@ -141,7 +133,8 @@ public class PasswordType {
      * Gets the value of the extension property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to the
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the
      * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
      * extension property.
      *
@@ -155,8 +148,6 @@ public class PasswordType {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link ExtensionType }
-     *
-     *
      */
     public List<ExtensionType> getExtension() {
         if (extension == null) {
@@ -169,7 +160,6 @@ public class PasswordType {
      * Gets the value of the externalVerification property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getExternalVerification() {
         return externalVerification;
@@ -179,7 +169,6 @@ public class PasswordType {
      * Sets the value of the externalVerification property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setExternalVerification(String value) {
         this.externalVerification = value;

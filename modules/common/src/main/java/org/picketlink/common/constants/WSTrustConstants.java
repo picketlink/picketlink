@@ -24,14 +24,13 @@ package org.picketlink.common.constants;
 import javax.xml.namespace.QName;
 
 /**
- * <p>
- * This class defines the constants used throughout the WS-Trust implementation code.
- * </p>
+ * <p> This class defines the constants used throughout the WS-Trust implementation code. </p>
  *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  * @author <a href="mailto:asaldhan@redhat.com">Anil Saldhana</a>
  */
 public interface WSTrustConstants {
+
     String BASE_NAMESPACE = "http://docs.oasis-open.org/ws-sx/ws-trust/200512";
 
     String PREFIX = "wst";
@@ -77,7 +76,7 @@ public interface WSTrustConstants {
     String WSA_NS = "http://www.w3.org/2005/08/addressing";
 
     String WSP_NS = "http://schemas.xmlsoap.org/ws/2004/09/policy";
-    
+
     String WSP_15_NS = "http://www.w3.org/ns/ws-policy";
 
     String WSU_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd";
@@ -108,7 +107,7 @@ public interface WSTrustConstants {
     String BINARY_SECRET = "BinarySecret";
 
     String CREATED = "Created";
-    
+
     String COMPUTED_KEY_ALGORITHM = "ComputedKeyAlgorithm";
 
     String ENTROPY = "Entropy";
@@ -144,7 +143,7 @@ public interface WSTrustConstants {
     String REQUESTED_PROOF_TOKEN = "RequestedProofToken";
 
     String REQUESTED_ATTACHED_REFERENCE = "RequestedAttachedReference";
-    
+
     String REQUESTED_UNATTACHED_REFERENCE = "RequestedUnattachedReference";
 
     String REQUEST_TYPE = "RequestType";
@@ -179,6 +178,7 @@ public interface WSTrustConstants {
     String VALUE_TYPE = "ValueType";
 
     public interface XMLDSig {
+
         String DSIG_NS = "http://www.w3.org/2000/09/xmldsig#";
 
         String EXPONENT = "Exponent";
@@ -198,7 +198,7 @@ public interface WSTrustConstants {
         String X509DATA = "X509Data";
 
         String X509CERT = "X509Certificate";
-        
+
         String P = "P";
         String Q = "Q";
         String G = "G";
@@ -208,12 +208,14 @@ public interface WSTrustConstants {
     }
 
     public interface XMLEnc {
+
         String XMLENC_NS = "http://www.w3.org/2001/04/xmlenc#";
 
         String ENCRYPTED_KEY = "EncryptedKey";
     }
 
     public interface WSSE {
+
         String ID = "Id";
 
         String KEY_IDENTIFIER = "KeyIdentifier";

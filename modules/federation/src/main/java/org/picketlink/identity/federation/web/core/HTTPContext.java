@@ -32,6 +32,7 @@ import javax.xml.namespace.QName;
  * @since Sep 17, 2009
  */
 public class HTTPContext implements ProtocolContext {
+
     protected HttpServletRequest request;
     protected HttpServletResponse response;
 

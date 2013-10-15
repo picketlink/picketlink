@@ -41,8 +41,6 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class PhysicalVerification {
 
@@ -52,7 +50,6 @@ public class PhysicalVerification {
      * Gets the value of the credentialLevel property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getCredentialLevel() {
         return credentialLevel;
@@ -62,7 +59,6 @@ public class PhysicalVerification {
      * Sets the value of the credentialLevel property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setCredentialLevel(String value) {
         this.credentialLevel = value;

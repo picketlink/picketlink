@@ -59,17 +59,19 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * <p>
- * This test case demonstrates how PicketLink behaves when a XML Signature Wrapping Attack is performed using a SAML Response
+ * This test case demonstrates how PicketLink behaves when a XML Signature Wrapping Attack is performed using a SAML
+ * Response
  * document. It also forces a successful attack.
  * </p>
  * <p>
- * What is protecting PicketLink to the XML Signature Wrapping Attack is how the idness of attributes is configured for XML elements. PicketLink
+ * What is protecting PicketLink to the XML Signature Wrapping Attack is how the idness of attributes is configured for
+ * XML elements. PicketLink
  * expects to manually set the idness of attributes after Apache Santuario version update.
  * </p>
  * <p>
  * It is strongly recommended to use signatures when configuring IDPs and SPs.
  * </p>
- *  
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 public class SAMLAssertionWrappingAttackTestCase {
@@ -102,11 +104,13 @@ public class SAMLAssertionWrappingAttackTestCase {
 
     /**
      * <p>
-     * Tests if PicketLink is blinded for XML Signature Wrapping Attacks when using a SAML Response. In this case an exception
-     * should be throw because the ID used to reference the signed Response will not be found. This tests shows how PicketLink
+     * Tests if PicketLink is blinded for XML Signature Wrapping Attacks when using a SAML Response. In this case an
+     * exception
+     * should be throw because the ID used to reference the signed Response will not be found. This tests shows how
+     * PicketLink
      * reacts when a XML Signature Wrapping Attack is performed.
      * </p>
-     * 
+     *
      * @throws Exception
      */
     @Test(expected = XMLSignatureException.class)
@@ -177,7 +181,7 @@ public class SAMLAssertionWrappingAttackTestCase {
      * <p>
      * Forces the XML Signature Wrapping Attack. This test creates a valid SAML Response properly signed.
      * </p>
-     * 
+     *
      * @throws Exception
      */
     @Test

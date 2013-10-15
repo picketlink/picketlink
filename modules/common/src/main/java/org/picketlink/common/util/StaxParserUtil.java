@@ -52,7 +52,7 @@ import static org.picketlink.common.ErrorCodes.EXPECTED_XSI;
  * @since Feb 8, 2010
  */
 public class StaxParserUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     protected static Validator validator = null;
@@ -62,6 +62,7 @@ public class StaxParserUtil {
      *
      * @param xmlEventReader
      * @param tag Tag of the XML element that we need to bypass
+     *
      * @throws ParsingException
      */
     public static void bypassElementBlock(XMLEventReader xmlEventReader, String tag) throws ParsingException {
@@ -79,6 +80,7 @@ public class StaxParserUtil {
      * Given an {@code Attribute}, get its trimmed value
      *
      * @param attribute
+     *
      * @return
      */
     public static String getAttributeValue(Attribute attribute) {
@@ -92,6 +94,7 @@ public class StaxParserUtil {
      *
      * @param startElement
      * @param tag localpart of the qname of the attribute
+     *
      * @return
      */
     public static String getAttributeValue(StartElement startElement, String tag) {
@@ -103,10 +106,13 @@ public class StaxParserUtil {
     }
 
     /**
-     * Given that the {@code XMLEventReader} is in {@code XMLStreamConstants.START_ELEMENT} mode, we parse into a DOM Element
+     * Given that the {@code XMLEventReader} is in {@code XMLStreamConstants.START_ELEMENT} mode, we parse into a DOM
+     * Element
      *
      * @param xmlEventReader
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static Element getDOMElement(XMLEventReader xmlEventReader) throws ParsingException {
@@ -143,7 +149,9 @@ public class StaxParserUtil {
      * Get the element text.
      *
      * @param xmlEventReader
+     *
      * @return A <b>trimmed</b> string value
+     *
      * @throws ParsingException
      */
     public static String getElementText(XMLEventReader xmlEventReader) throws ParsingException {
@@ -161,6 +169,7 @@ public class StaxParserUtil {
      * Get the XML event reader
      *
      * @param is
+     *
      * @return
      */
     public static XMLEventReader getXMLEventReader(InputStream is) {
@@ -184,6 +193,7 @@ public class StaxParserUtil {
      * Given a {@code Location}, return a formatted string [lineNum,colNum]
      *
      * @param location
+     *
      * @return
      */
     public static String getLineColumnNumber(Location location) {
@@ -196,7 +206,9 @@ public class StaxParserUtil {
      * Get the next xml event
      *
      * @param xmlEventReader
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static XMLEvent getNextEvent(XMLEventReader xmlEventReader) throws ParsingException {
@@ -211,7 +223,9 @@ public class StaxParserUtil {
      * Get the next {@code StartElement }
      *
      * @param xmlEventReader
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static StartElement getNextStartElement(XMLEventReader xmlEventReader) throws ParsingException {
@@ -232,7 +246,9 @@ public class StaxParserUtil {
      * Get the next {@code EndElement}
      *
      * @param xmlEventReader
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static EndElement getNextEndElement(XMLEventReader xmlEventReader) throws ParsingException {
@@ -253,6 +269,7 @@ public class StaxParserUtil {
      * Return the name of the start element
      *
      * @param startElement
+     *
      * @return
      */
     public static String getStartElementName(StartElement startElement) {
@@ -263,6 +280,7 @@ public class StaxParserUtil {
      * Return the name of the end element
      *
      * @param endElement
+     *
      * @return
      */
     public static String getEndElementName(EndElement endElement) {
@@ -273,7 +291,9 @@ public class StaxParserUtil {
      * Given a start element, obtain the xsi:type defined
      *
      * @param startElement
+     *
      * @return
+     *
      * @throws RuntimeException if xsi:type is missing
      */
     public static String getXSITypeValue(StartElement startElement) {
@@ -288,7 +308,9 @@ public class StaxParserUtil {
      * Return whether the next event is going to be text
      *
      * @param xmlEventReader
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static boolean hasTextAhead(XMLEventReader xmlEventReader) throws ParsingException {
@@ -301,6 +323,7 @@ public class StaxParserUtil {
      *
      * @param startElement
      * @param tag
+     *
      * @return boolean if the tags match
      */
     public static boolean matches(StartElement startElement, String tag) {
@@ -313,6 +336,7 @@ public class StaxParserUtil {
      *
      * @param endElement
      * @param tag
+     *
      * @return boolean if the tags match
      */
     public static boolean matches(EndElement endElement, String tag) {
@@ -324,7 +348,9 @@ public class StaxParserUtil {
      * Peek at the next event
      *
      * @param xmlEventReader
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static XMLEvent peek(XMLEventReader xmlEventReader) throws ParsingException {
@@ -339,7 +365,9 @@ public class StaxParserUtil {
      * Peek the next {@code StartElement }
      *
      * @param xmlEventReader
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static StartElement peekNextStartElement(XMLEventReader xmlEventReader) throws ParsingException {
@@ -361,7 +389,9 @@ public class StaxParserUtil {
      * Peek the next {@code EndElement}
      *
      * @param xmlEventReader
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static EndElement peekNextEndElement(XMLEventReader xmlEventReader) throws ParsingException {
@@ -383,7 +413,9 @@ public class StaxParserUtil {
      * Given a string, trim it
      *
      * @param str
+     *
      * @return
+     *
      * @throws {@code IllegalArgumentException} if the passed str is null
      */
     public static final String trim(String str) {
@@ -397,6 +429,7 @@ public class StaxParserUtil {
      *
      * @param startElement
      * @param tag
+     *
      * @throws RuntimeException mismatch
      */
     public static void validate(StartElement startElement, String tag) {
@@ -410,6 +443,7 @@ public class StaxParserUtil {
      *
      * @param endElement
      * @param tag
+     *
      * @throws RuntimeException mismatch
      */
     public static void validate(EndElement endElement, String tag) {

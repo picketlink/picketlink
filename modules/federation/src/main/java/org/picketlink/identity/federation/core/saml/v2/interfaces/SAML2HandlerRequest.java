@@ -31,9 +31,12 @@ import java.util.Map;
  * @since Sep 25, 2009
  */
 public interface SAML2HandlerRequest {
+
     public enum GENERATE_REQUEST_TYPE {
         AUTH, LOGOUT;
-    };
+    }
+
+    ;
 
     /**
      * Holder of transport context such as HTTP

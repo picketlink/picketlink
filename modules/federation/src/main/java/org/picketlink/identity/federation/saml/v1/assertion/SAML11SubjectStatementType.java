@@ -27,6 +27,7 @@ package org.picketlink.identity.federation.saml.v1.assertion;
  * @since Jun 22, 2011
  */
 public class SAML11SubjectStatementType extends SAML11StatementAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     protected SAML11SubjectType subject;

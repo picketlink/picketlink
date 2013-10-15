@@ -31,14 +31,13 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}SwitchAudit" minOccurs="0"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Extension" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Extension"
+ * maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class SecurityAuditType extends ExtensionListType {
 
@@ -48,7 +47,6 @@ public class SecurityAuditType extends ExtensionListType {
      * Gets the value of the switchAudit property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getSwitchAudit() {
         return switchAudit;
@@ -58,7 +56,6 @@ public class SecurityAuditType extends ExtensionListType {
      * Sets the value of the switchAudit property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setSwitchAudit(ExtensionOnlyType value) {
         this.switchAudit = value;

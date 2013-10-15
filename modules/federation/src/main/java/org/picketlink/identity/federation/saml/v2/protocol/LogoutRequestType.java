@@ -51,10 +51,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class LogoutRequestType extends RequestAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     protected BaseIDAbstractType baseID;
@@ -77,7 +76,6 @@ public class LogoutRequestType extends RequestAbstractType {
      * Gets the value of the baseID property.
      *
      * @return possible object is {@link BaseIDAbstractType }
-     *
      */
     public BaseIDAbstractType getBaseID() {
         return baseID;
@@ -87,7 +85,6 @@ public class LogoutRequestType extends RequestAbstractType {
      * Sets the value of the baseID property.
      *
      * @param value allowed object is {@link BaseIDAbstractType }
-     *
      */
     public void setBaseID(BaseIDAbstractType value) {
         this.baseID = value;
@@ -97,7 +94,6 @@ public class LogoutRequestType extends RequestAbstractType {
      * Gets the value of the nameID property.
      *
      * @return possible object is {@link NameIDType }
-     *
      */
     public NameIDType getNameID() {
         return nameID;
@@ -107,7 +103,6 @@ public class LogoutRequestType extends RequestAbstractType {
      * Sets the value of the nameID property.
      *
      * @param value allowed object is {@link NameIDType }
-     *
      */
     public void setNameID(NameIDType value) {
         this.nameID = value;
@@ -117,7 +112,6 @@ public class LogoutRequestType extends RequestAbstractType {
      * Gets the value of the encryptedID property.
      *
      * @return possible object is {@link EncryptedElementType }
-     *
      */
     public EncryptedElementType getEncryptedID() {
         return encryptedID;
@@ -127,7 +121,6 @@ public class LogoutRequestType extends RequestAbstractType {
      * Sets the value of the encryptedID property.
      *
      * @param value allowed object is {@link EncryptedElementType }
-     *
      */
     public void setEncryptedID(EncryptedElementType value) {
         this.encryptedID = value;
@@ -153,7 +146,6 @@ public class LogoutRequestType extends RequestAbstractType {
 
     /**
      * Gets the value of the sessionIndex property.
-     *
      */
     public List<String> getSessionIndex() {
         return Collections.unmodifiableList(this.sessionIndex);
@@ -163,7 +155,6 @@ public class LogoutRequestType extends RequestAbstractType {
      * Gets the value of the reason property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getReason() {
         return reason;
@@ -173,7 +164,6 @@ public class LogoutRequestType extends RequestAbstractType {
      * Sets the value of the reason property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setReason(String value) {
         this.reason = value;
@@ -183,7 +173,6 @@ public class LogoutRequestType extends RequestAbstractType {
      * Gets the value of the notOnOrAfter property.
      *
      * @return possible object is {@link XMLGregorianCalendar }
-     *
      */
     public XMLGregorianCalendar getNotOnOrAfter() {
         return notOnOrAfter;
@@ -193,7 +182,6 @@ public class LogoutRequestType extends RequestAbstractType {
      * Sets the value of the notOnOrAfter property.
      *
      * @param value allowed object is {@link XMLGregorianCalendar }
-     *
      */
     public void setNotOnOrAfter(XMLGregorianCalendar value) {
         this.notOnOrAfter = value;

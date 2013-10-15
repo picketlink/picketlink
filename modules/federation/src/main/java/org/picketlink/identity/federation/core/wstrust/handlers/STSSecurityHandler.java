@@ -49,22 +49,30 @@ import static org.picketlink.common.constants.WSTrustConstants.INVALID_SECURITY;
 import static org.picketlink.common.constants.WSTrustConstants.SECURITY_TOKEN_UNAVAILABLE;
 
 /**
- * STSSecurityHandler is a server-side JAX-WS SOAP Protocol handler that will extract a Security Token from the SOAP Security
+ * STSSecurityHandler is a server-side JAX-WS SOAP Protocol handler that will extract a Security Token from the SOAP
+ * Security
  * Header and validate the token with the configured Security Token Service (STS).
  * <p/>
  *
- * This class is abstract to simpify is usage as the intention is for a handler to be specified in a server side handler chain.
- * Here different Security Header specifications and security token specifications can be specified using class names instead of
- * using properties which would force users to finding and setting the correct namespaces. Hopefully this will be easier and
+ * This class is abstract to simpify is usage as the intention is for a handler to be specified in a server side
+ * handler
+ * chain.
+ * Here different Security Header specifications and security token specifications can be specified using class names
+ * instead of
+ * using properties which would force users to finding and setting the correct namespaces. Hopefully this will be
+ * easier
+ * and
  * less error prone.
  *
  * <h3>Concrete implementations</h3>
  * Subclasses a required to implement two methods:
  * <ul>
- * <li> {@link #getSecurityElementQName()} This should return the qualified name of the security header. This lets us support
+ * <li> {@link #getSecurityElementQName()} This should return the qualified name of the security header. This lets us
+ * support
  * different versions.</li>
  *
- * <li>{@link #getTokenElementQName()} This should return the qualified name of the security token element that should exist in
+ * <li>{@link #getTokenElementQName()} This should return the qualified name of the security token element that should
+ * exist in
  * the security header. This lets us support different tokens that can be validated with the configured STS.</li>
  * </ul>
  *
@@ -87,8 +95,10 @@ import static org.picketlink.common.constants.WSTrustConstants.SECURITY_TOKEN_UN
  * </pre>
  * <p/>
  *
- * This class uses {@link STSClient} to interact with an STS. By default the configuration properties are set in a file named
- * {@link STSClientConfig#DEFAULT_CONFIG_FILE}. This can be overridden by specifying environment entries in a deployment
+ * This class uses {@link STSClient} to interact with an STS. By default the configuration properties are set in a file
+ * named
+ * {@link STSClientConfig#DEFAULT_CONFIG_FILE}. This can be overridden by specifying environment entries in a
+ * deployment
  * descriptor.
  *
  * For example in web.xml:
@@ -103,20 +113,23 @@ import static org.picketlink.common.constants.WSTrustConstants.SECURITY_TOKEN_UN
  * }
  * </pre>
  *
- * Username and password for the STS can be configured as shown above in the sts-client.properties file. But it may also be
- * specified by a handler earlier in the handlerchain. Such a handler is expected to extract the username and password for the
+ * Username and password for the STS can be configured as shown above in the sts-client.properties file. But it may
+ * also
+ * be
+ * specified by a handler earlier in the handlerchain. Such a handler is expected to extract the username and password
+ * for the
  * desired location and put these values into the SOAPMessageContext using: <br/>
  * {@link #USERNAME_MSG_CONTEXT_PROPERTY} <br/>
  * {@link #PASSWORD_MSG_CONTEXT_PROPERTY} <br/>
- * These will then be used when contacting the STS, overriding any such values that were parsed from the configuration file.
- *
+ * These will then be used when contacting the STS, overriding any such values that were parsed from the configuration
+ * file.
  *
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
  */
 public abstract class STSSecurityHandler implements SOAPHandler<SOAPMessageContext> {
-    
+
     protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     /**
      * Constant that can be used by handlers to set the username in the SOAPMessageContext.
      */
@@ -196,9 +209,9 @@ public abstract class STSSecurityHandler implements SOAPHandler<SOAPMessageConte
         return true;
     }
 
-    @SuppressWarnings({ "rawtypes" })
+    @SuppressWarnings({"rawtypes"})
     private Element extractSecurityToken(final SOAPMessageContext messageContext, final QName securityQName,
-            final QName tokenQName) {
+                                         final QName tokenQName) {
         try {
             if (securityQName == null)
                 throw logger.nullArgumentError("securityQName from subclass");

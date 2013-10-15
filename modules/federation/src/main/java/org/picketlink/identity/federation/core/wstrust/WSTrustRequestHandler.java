@@ -26,13 +26,15 @@ import java.security.Principal;
 
 /**
  * <p>
- * The {@code WSTrustRequestHandler} interface defines the methods that will be responsible for handling the different types of
+ * The {@code WSTrustRequestHandler} interface defines the methods that will be responsible for handling the different
+ * types of
  * WS-Trust request messages.
  * </p>
  *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public interface WSTrustRequestHandler {
+
     /**
      * <p>
      * Initializes the concrete {@code WSTrustRequestHandler} instance.
@@ -40,20 +42,23 @@ public interface WSTrustRequestHandler {
      *
      * @param configuration a reference to object that contains the STS configuration.
      */
-    public void initialize(STSConfiguration configuration);
+    void initialize(STSConfiguration configuration);
 
     /**
      * <p>
-     * Generates a security token according to the information specified in the request message and returns the created token in
+     * Generates a security token according to the information specified in the request message and returns the created
+     * token in
      * the response.
      * </p>
      *
      * @param request the security token request message.
      * @param callerPrincipal the {@code Principal} of the ws-trust token requester.
+     *
      * @return a {@code RequestSecurityTokenResponse} containing the generated token.
+     *
      * @throws WSTrustException if an error occurs while handling the request message.
      */
-    public RequestSecurityTokenResponse issue(RequestSecurityToken request, Principal callerPrincipal) throws WSTrustException;
+    RequestSecurityTokenResponse issue(RequestSecurityToken request, Principal callerPrincipal) throws WSTrustException;
 
     /**
      * <p>
@@ -62,10 +67,12 @@ public interface WSTrustRequestHandler {
      *
      * @param request the request message that contains the token to be renewed.
      * @param callerPrincipal the {@code Principal} of the ws-trust token requester.
+     *
      * @return a {@code RequestSecurityTokenResponse} containing the renewed token.
+     *
      * @throws WSTrustException if an error occurs while handling the renewal process.
      */
-    public RequestSecurityTokenResponse renew(RequestSecurityToken request, Principal callerPrincipal) throws WSTrustException;
+    RequestSecurityTokenResponse renew(RequestSecurityToken request, Principal callerPrincipal) throws WSTrustException;
 
     /**
      * <p>
@@ -74,10 +81,12 @@ public interface WSTrustRequestHandler {
      *
      * @param request the request message that contains the token to be canceled.
      * @param callerPrincipal the {@code Principal} of the ws-trust token requester.
+     *
      * @return a {@code RequestSecurityTokenResponse} indicating whether the token has been canceled or not.
+     *
      * @throws WSTrustException if an error occurs while handling the cancellation process.
      */
-    public RequestSecurityTokenResponse cancel(RequestSecurityToken request, Principal callerPrincipal) throws WSTrustException;
+    RequestSecurityTokenResponse cancel(RequestSecurityToken request, Principal callerPrincipal) throws WSTrustException;
 
     /**
      * <p>
@@ -86,20 +95,26 @@ public interface WSTrustRequestHandler {
      *
      * @param request the request message that contains the token to be validated.
      * @param callerPrincipal the {@code Principal} of the ws-trust token requester.
+     *
      * @return a {@code RequestSecurityTokenResponse} containing the validation status or a new token.
+     *
      * @throws WSTrustException if an error occurs while handling the validation process.
      */
-    public RequestSecurityTokenResponse validate(RequestSecurityToken request, Principal callerPrincipal)
+    RequestSecurityTokenResponse validate(RequestSecurityToken request, Principal callerPrincipal)
             throws WSTrustException;
 
     /**
-     * Perform Post Processing on the generated RSTR Collection Document Steps such as signing and encryption need to be done
+     * Perform Post Processing on the generated RSTR Collection Document Steps such as signing and encryption need to
+     * be
+     * done
      * here.
      *
      * @param rstrDocument
      * @param request
+     *
      * @return
+     *
      * @throws WSTrustException
      */
-    public Document postProcess(Document rstrDocument, RequestSecurityToken request) throws WSTrustException;
+    Document postProcess(Document rstrDocument, RequestSecurityToken request) throws WSTrustException;
 }

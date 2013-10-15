@@ -20,7 +20,8 @@ package org.picketlink.identity.federation.saml.v1.protocol;
 import java.net.URI;
 
 /**
- * <complexType name="AuthenticationQueryType"> <complexContent> <extension base="samlp:SubjectQueryAbstractType"> <attribute
+ * <complexType name="AuthenticationQueryType"> <complexContent> <extension base="samlp:SubjectQueryAbstractType">
+ * <attribute
  * name="AuthenticationMethod" type="anyURI"/> </extension>
  *
  * </complexContent> </complexType>
@@ -29,6 +30,7 @@ import java.net.URI;
  * @since Jun 22, 2011
  */
 public class SAML11AuthenticationQueryType extends SAML11SubjectQueryAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     protected URI authenticationMethod;

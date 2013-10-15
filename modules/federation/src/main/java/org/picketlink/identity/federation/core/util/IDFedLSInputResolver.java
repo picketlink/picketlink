@@ -39,7 +39,7 @@ import java.util.Map;
  * @since Jun 9, 2009
  */
 public class IDFedLSInputResolver implements LSResourceResolver {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     private static Map<String, LSInput> lsmap = new HashMap<String, LSInput>();
@@ -110,7 +110,7 @@ public class IDFedLSInputResolver implements LSResourceResolver {
     }
 
     public LSInput resolveResource(String type, String namespaceURI, final String publicId, final String systemId,
-            final String baseURI) {
+                                   final String baseURI) {
         LSInput lsi = null;
         if (systemId == null)
             throw logger.nullValueError("systemid");
@@ -127,13 +127,14 @@ public class IDFedLSInputResolver implements LSResourceResolver {
             lsi = new PicketLinkLSInput(baseURI, loc, publicId, systemId);
 
             logger.trace("Loaded:" + lsi);
-            
+
             lsmap.put(systemId, lsi);
         }
         return lsi;
     }
 
     public static class PicketLinkLSInput implements LSInput {
+
         private final String baseURI;
 
         private final String loc;

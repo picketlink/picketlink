@@ -28,11 +28,14 @@ import java.security.PrivilegedAction;
  * @since Oct 25, 2010
  */
 public class SecurityActions {
+
     /**
-     * <p>Returns a system property value using the specified <code>key</code>. If not found the <code>defaultValue</code> will be returned.</p>
+     * <p>Returns a system property value using the specified <code>key</code>. If not found the
+     * <code>defaultValue</code> will be returned.</p>
      *
      * @param key
      * @param defaultValue
+     *
      * @return
      */
     static String getSystemProperty(final String key, final String defaultValue) {
@@ -54,11 +57,12 @@ public class SecurityActions {
      *
      * @param clazz
      * @param resourceName
+     *
      * @return
      */
     static URL loadResource(final Class<?> clazz, final String resourceName) {
         SecurityManager sm = System.getSecurityManager();
-        
+
         if (sm != null) {
             return AccessController.doPrivileged(new PrivilegedAction<URL>() {
                 public URL run() {

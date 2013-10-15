@@ -53,6 +53,7 @@ import static org.junit.Assert.assertTrue;
  * @since Feb 24, 2012
  */
 public class XMLSignatureUtilUnitTestCase {
+
     @Test
     public void testSigningWSTRequestCollection() throws Exception {
         String fileName = "signatures/wstRequestCollection.xml";
@@ -115,42 +116,44 @@ public class XMLSignatureUtilUnitTestCase {
         assertTrue(XMLSignatureUtil.validate(rstrDocument, keyPair.getPublic()));
     }
 
-   /**
-    * Testing method {@link XMLSignatureUtil#sign(org.w3c.dom.Element, org.w3c.dom.Node, java.security.KeyPair, String, String, String)}
-    *
-    * @throws Exception
-    */
+    /**
+     * Testing method {@link XMLSignatureUtil#sign(org.w3c.dom.Element, org.w3c.dom.Node, java.security.KeyPair, String,
+     * String, String)}
+     *
+     * @throws Exception
+     */
     @Test
     public void testSignSAML2Assertion1() throws Exception {
-       String fileName = "signatures/saml20assertion.xml";
-       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-       InputStream is = tcl.getResourceAsStream(fileName);
-       if (is == null)
-           throw new RuntimeException("InputStream is null");
+        String fileName = "signatures/saml20assertion.xml";
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream is = tcl.getResourceAsStream(fileName);
+        if (is == null)
+            throw new RuntimeException("InputStream is null");
 
-       Document rstrDocument = DocumentUtil.getDocument(is);
-       assertNotNull(rstrDocument);
+        Document rstrDocument = DocumentUtil.getDocument(is);
+        assertNotNull(rstrDocument);
 
-       String signatureMethod = SignatureMethod.RSA_SHA1;
-       KeyPair keyPair = KeyStoreUtil.generateKeyPair("RSA");
+        String signatureMethod = SignatureMethod.RSA_SHA1;
+        KeyPair keyPair = KeyStoreUtil.generateKeyPair("RSA");
 
-       Element assertionElement = (Element) rstrDocument.getElementsByTagNameNS("urn:oasis:names:tc:SAML:2.0:assertion",
-           "Assertion").item(0);
-       String referenceURI = "#" + assertionElement.getAttribute("ID");
-       assertionElement.setIdAttribute("ID", true);
-       Node nextSibling = assertionElement.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(),
-             JBossSAMLConstants.ISSUER.get()).item(0).getNextSibling();
-       XMLSignatureUtil.sign(assertionElement, nextSibling, keyPair, DigestMethod.SHA1, signatureMethod, referenceURI);
+        Element assertionElement = (Element) rstrDocument.getElementsByTagNameNS("urn:oasis:names:tc:SAML:2.0:assertion",
+                "Assertion").item(0);
+        String referenceURI = "#" + assertionElement.getAttribute("ID");
+        assertionElement.setIdAttribute("ID", true);
+        Node nextSibling = assertionElement.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(),
+                JBossSAMLConstants.ISSUER.get()).item(0).getNextSibling();
+        XMLSignatureUtil.sign(assertionElement, nextSibling, keyPair, DigestMethod.SHA1, signatureMethod, referenceURI);
 
-       assertNotNull(rstrDocument);
+        assertNotNull(rstrDocument);
 
-       Logger.getLogger(XMLSignatureUtilUnitTestCase.class).debug(DocumentUtil.asString(rstrDocument));
+        Logger.getLogger(XMLSignatureUtilUnitTestCase.class).debug(DocumentUtil.asString(rstrDocument));
 
-       assertTrue(XMLSignatureUtil.validate(rstrDocument, keyPair.getPublic()));
+        assertTrue(XMLSignatureUtil.validate(rstrDocument, keyPair.getPublic()));
     }
 
     /**
-     * Testing method {@link XMLSignatureUtil#sign(org.w3c.dom.Document, org.w3c.dom.Node, java.security.KeyPair, String, String, String)}
+     * Testing method {@link XMLSignatureUtil#sign(org.w3c.dom.Document, org.w3c.dom.Node, java.security.KeyPair,
+     * String, String, String)}
      *
      * @throws Exception
      */
@@ -160,7 +163,7 @@ public class XMLSignatureUtilUnitTestCase {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();
         InputStream is = tcl.getResourceAsStream(fileName);
         if (is == null)
-           throw new RuntimeException("InputStream is null");
+            throw new RuntimeException("InputStream is null");
 
         Document rstrDocument = DocumentUtil.getDocument(is);
         assertNotNull(rstrDocument);
@@ -169,10 +172,10 @@ public class XMLSignatureUtilUnitTestCase {
         KeyPair keyPair = KeyStoreUtil.generateKeyPair("RSA");
 
         Element assertionElement = (Element) rstrDocument.getElementsByTagNameNS("urn:oasis:names:tc:SAML:2.0:assertion",
-             "Assertion").item(0);
+                "Assertion").item(0);
         String referenceURI = "#" + assertionElement.getAttribute("ID");
         assertionElement.setIdAttribute("ID", true);
-        
+
         XMLSignatureUtil.sign(rstrDocument.getDocumentElement(), assertionElement, keyPair, DigestMethod.SHA1, signatureMethod, referenceURI);
 
         assertNotNull(rstrDocument);
@@ -182,7 +185,7 @@ public class XMLSignatureUtilUnitTestCase {
         // TODO: This test is currently failing because of https://issues.jboss.org/browse/PLFED-377
         assertTrue(XMLSignatureUtil.validate(rstrDocument, keyPair.getPublic()));
     }
-    
+
     @Test
     public void testDSAKeyValueParsing() throws Exception {
         String fileName = "signatures/dsakeyvalue.xml";
@@ -194,23 +197,23 @@ public class XMLSignatureUtilUnitTestCase {
         Document doc = DocumentUtil.getDocument(is);
         assertNotNull(doc);
         assertNotNull(doc.getDocumentElement());
-        
+
         Element dsaEl = (Element) doc.getElementsByTagName("ds:DSAKeyValue").item(0);
         assertNotNull(dsaEl);
-        
+
         DSAKeyValueType dsa = XMLSignatureUtil.getDSAKeyValue(dsaEl);
         assertNotNull(dsa);
         assertNotNull(dsa.getP());
         assertNotNull(dsa.getQ());
         assertNotNull(dsa.getG());
         assertNotNull(dsa.getY());
-        
+
         System.out.println(dsa);
 
         DSAPublicKey publicKey = dsa.convertToPublicKey();
         assertNotNull(publicKey);
     }
-    
+
     @Test
     public void testRSAKeyValueParsing() throws Exception {
         String fileName = "signatures/rsakeyvalue.xml";
@@ -222,17 +225,17 @@ public class XMLSignatureUtilUnitTestCase {
         Document doc = DocumentUtil.getDocument(is);
         assertNotNull(doc);
         assertNotNull(doc.getDocumentElement());
-        
+
         Element rsaEl = (Element) doc.getElementsByTagName("ds:RSAKeyValue").item(0);
         assertNotNull(rsaEl);
-        
+
         RSAKeyValueType rsa = XMLSignatureUtil.getRSAKeyValue(rsaEl);
         assertNotNull(rsa);
         assertNotNull(rsa.getModulus());
-        assertNotNull(rsa.getExponent()); 
-        
+        assertNotNull(rsa.getExponent());
+
         System.out.println(rsa);
-        
+
         RSAPublicKey publicKey = rsa.convertToPublicKey();
         assertNotNull(publicKey);
     }

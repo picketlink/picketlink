@@ -46,6 +46,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Jul 1, 2011
  */
 public class SAMLAttributeQueryParserTestCase {
+
     @Test
     public void testSAMLAttributeQueryParse() throws Exception {
         String file = "parser/saml2/saml2-attributequery.xml";

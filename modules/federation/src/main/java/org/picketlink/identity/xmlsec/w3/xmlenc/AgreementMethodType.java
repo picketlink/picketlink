@@ -41,13 +41,13 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class AgreementMethodType {
+
     protected String algorithm;
 
     public static class AggrementMethod {
+
         protected byte[] kANonce;
         protected KeyInfoType originatorKeyInfo;
         protected KeyInfoType recipientKeyInfo;
@@ -79,7 +79,6 @@ public class AgreementMethodType {
      * Gets the value of the algorithm property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getAlgorithm() {
         return algorithm;

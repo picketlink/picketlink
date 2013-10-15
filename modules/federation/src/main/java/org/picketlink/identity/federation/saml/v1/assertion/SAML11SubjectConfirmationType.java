@@ -25,7 +25,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <complexType name="SubjectConfirmationType"> <sequence> <element ref="saml:ConfirmationMethod" maxOccurs="unbounded"/>
+ * <complexType name="SubjectConfirmationType"> <sequence> <element ref="saml:ConfirmationMethod"
+ * maxOccurs="unbounded"/>
  * <element ref="saml:SubjectConfirmationData" minOccurs="0"/>
  *
  * <element ref="ds:KeyInfo" minOccurs="0"/> </sequence> </complexType>
@@ -34,6 +35,7 @@ import java.util.List;
  * @since Jun 22, 2011
  */
 public class SAML11SubjectConfirmationType {
+
     protected List<URI> confirmationMethod = new ArrayList<URI>();
 
     protected Object subjectConfirmationData;

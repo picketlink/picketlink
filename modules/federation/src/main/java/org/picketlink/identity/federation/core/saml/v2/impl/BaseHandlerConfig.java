@@ -17,8 +17,6 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.impl;
 
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,17 +25,18 @@ import java.util.Map;
  * @since Oct 12, 2009
  */
 public class BaseHandlerConfig {
+
     protected Map<String, Object> params = new HashMap<String, Object>();
 
     /**
-     * @see SAML2HandlerChainConfig#containsKey(String)
+     * @see DefaultSAML2HandlerChainConfig#containsKey(String)
      */
     public boolean containsKey(String key) {
         return params.containsKey(key);
     }
 
     /**
-     * @see SAML2HandlerChainConfig#getParameter(String)
+     * @see DefaultSAML2HandlerChainConfig#getParameter(String)
      */
     public Object getParameter(String parameterName) {
         return params.get(parameterName);

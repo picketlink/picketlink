@@ -24,6 +24,7 @@ package org.picketlink.identity.federation.core.wspolicy;
  * @since Nov 5, 2010
  */
 public interface WSPolicyConstants {
+
     String APPLIES_TO = "AppliesTo";
     String WSP_PREFIX = "wsp";
     String WSP_NS = "http://schemas.xmlsoap.org/ws/2004/09/policy";

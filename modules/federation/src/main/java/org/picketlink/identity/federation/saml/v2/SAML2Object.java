@@ -24,4 +24,5 @@ package org.picketlink.identity.federation.saml.v2;
  * @since Sep 17, 2009
  */
 public interface SAML2Object {
+
 }

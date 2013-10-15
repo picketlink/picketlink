@@ -40,13 +40,14 @@ import java.util.regex.Pattern;
  * @since Oct 21, 2009
  */
 public class StringUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     /**
      * Check whether the passed string is null or empty
      *
      * @param str
+     *
      * @return
      */
     public static boolean isNotNull(String str) {
@@ -57,6 +58,7 @@ public class StringUtil {
      * Check whether the string is null or empty
      *
      * @param str
+     *
      * @return
      */
     public static boolean isNullOrEmpty(String str) {
@@ -82,6 +84,7 @@ public class StringUtil {
      * </p>
      *
      * @param str
+     *
      * @return
      */
     public static String getSystemPropertyAsString(String str) {
@@ -132,6 +135,7 @@ public class StringUtil {
      * Given a comma separated string, get the tokens as a {@link List}
      *
      * @param str
+     *
      * @return
      */
     public static List<String> tokenize(String str) {
@@ -143,6 +147,7 @@ public class StringUtil {
      *
      * @param str
      * @param delimiter the delimiter
+     *
      * @return
      */
     public static List<String> tokenize(String str, String delimiter) {
@@ -158,6 +163,7 @@ public class StringUtil {
      * Given a string that is comma delimited and contains key-value pairs
      *
      * @param keyValuePairString
+     *
      * @return
      */
     public static Map<String, String> tokenizeKeyValuePair(String keyValuePairString) {
@@ -177,7 +183,9 @@ public class StringUtil {
      * @param maskedString a password string that is masked
      * @param salt Salt
      * @param iterationCount Iteration Count
+     *
      * @return Decoded String
+     *
      * @throws Exception
      */
     public static String decode(String maskedString, String salt, int iterationCount) throws Exception {
@@ -200,19 +208,19 @@ public class StringUtil {
     }
 
     public static String[] split(String toSplit, String delimiter) {
-       if (delimiter.length() != 1) {
-           throw new IllegalArgumentException("Delimiter can only be one character in length");
-       }
+        if (delimiter.length() != 1) {
+            throw new IllegalArgumentException("Delimiter can only be one character in length");
+        }
 
-       int offset = toSplit.indexOf(delimiter);
+        int offset = toSplit.indexOf(delimiter);
 
-       if (offset < 0) {
-           return null;
-       }
+        if (offset < 0) {
+            return null;
+        }
 
-       String beforeDelimiter = toSplit.substring(0, offset);
-       String afterDelimiter = toSplit.substring(offset + 1);
+        String beforeDelimiter = toSplit.substring(0, offset);
+        String afterDelimiter = toSplit.substring(offset + 1);
 
-       return new String[] {beforeDelimiter, afterDelimiter};
-   } 
+        return new String[]{beforeDelimiter, afterDelimiter};
+    }
 }

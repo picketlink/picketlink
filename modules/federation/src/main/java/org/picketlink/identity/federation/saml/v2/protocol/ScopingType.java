@@ -43,10 +43,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ScopingType {
+
     protected IDPListType idpList;
     protected List<URI> requesterID = new ArrayList<URI>();
 
@@ -56,7 +55,6 @@ public class ScopingType {
      * Gets the value of the idpList property.
      *
      * @return possible object is {@link IDPListType }
-     *
      */
     public IDPListType getIDPList() {
         return idpList;
@@ -66,7 +64,6 @@ public class ScopingType {
      * Sets the value of the idpList property.
      *
      * @param value allowed object is {@link IDPListType }
-     *
      */
     public void setIDPList(IDPListType value) {
         this.idpList = value;
@@ -84,8 +81,6 @@ public class ScopingType {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link String }
-     *
-     *
      */
     public List<URI> getRequesterID() {
         return Collections.unmodifiableList(this.requesterID);
@@ -113,7 +108,6 @@ public class ScopingType {
      * Gets the value of the proxyCount property.
      *
      * @return possible object is {@link BigInteger }
-     *
      */
     public BigInteger getProxyCount() {
         return proxyCount;
@@ -123,7 +117,6 @@ public class ScopingType {
      * Sets the value of the proxyCount property.
      *
      * @param value allowed object is {@link BigInteger }
-     *
      */
     public void setProxyCount(BigInteger value) {
         this.proxyCount = value;

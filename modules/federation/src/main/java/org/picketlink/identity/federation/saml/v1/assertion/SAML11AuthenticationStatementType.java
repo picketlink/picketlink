@@ -34,6 +34,7 @@ import java.util.List;
  * @since Jun 22, 2011
  */
 public class SAML11AuthenticationStatementType extends SAML11SubjectStatementType {
+
     private static final long serialVersionUID = 1L;
 
     protected URI authenticationMethod;

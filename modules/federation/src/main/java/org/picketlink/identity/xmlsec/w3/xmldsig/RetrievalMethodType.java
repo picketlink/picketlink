@@ -37,10 +37,9 @@ package org.picketlink.identity.xmlsec.w3.xmldsig;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class RetrievalMethodType {
+
     protected TransformsType transforms;
     protected String uri;
     protected String type;
@@ -49,7 +48,6 @@ public class RetrievalMethodType {
      * Gets the value of the transforms property.
      *
      * @return possible object is {@link TransformsType }
-     *
      */
     public TransformsType getTransforms() {
         return transforms;
@@ -59,7 +57,6 @@ public class RetrievalMethodType {
      * Sets the value of the transforms property.
      *
      * @param value allowed object is {@link TransformsType }
-     *
      */
     public void setTransforms(TransformsType value) {
         this.transforms = value;
@@ -69,7 +66,6 @@ public class RetrievalMethodType {
      * Gets the value of the uri property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getURI() {
         return uri;
@@ -79,7 +75,6 @@ public class RetrievalMethodType {
      * Sets the value of the uri property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setURI(String value) {
         this.uri = value;
@@ -89,7 +84,6 @@ public class RetrievalMethodType {
      * Gets the value of the type property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getType() {
         return type;
@@ -99,7 +93,6 @@ public class RetrievalMethodType {
      * Sets the value of the type property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setType(String value) {
         this.type = value;

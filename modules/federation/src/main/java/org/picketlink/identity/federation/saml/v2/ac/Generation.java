@@ -56,8 +56,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
@@ -72,7 +70,6 @@ public class Generation {
      * Gets the value of the mechanism property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getMechanism() {
         return mechanism;
@@ -82,7 +79,6 @@ public class Generation {
      * Sets the value of the mechanism property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setMechanism(String value) {
         this.mechanism = value;

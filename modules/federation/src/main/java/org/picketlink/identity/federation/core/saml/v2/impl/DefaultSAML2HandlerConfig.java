@@ -26,4 +26,5 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerCo
  * @since Oct 12, 2009
  */
 public class DefaultSAML2HandlerConfig extends BaseHandlerConfig implements SAML2HandlerConfig {
+
 }

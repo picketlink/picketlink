@@ -28,6 +28,7 @@ import java.util.Map;
  * @since Oct 10, 2009
  */
 public class DefaultSAML2HandlerChainConfig extends BaseHandlerConfig implements SAML2HandlerChainConfig {
+
     public DefaultSAML2HandlerChainConfig() {
     }
 

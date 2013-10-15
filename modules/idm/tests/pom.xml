@@ -134,12 +134,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss.logging</groupId>
-      <artifactId>jboss-logging-log4j</artifactId>
-      <version>2.1.0.GA</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.jmeter</groupId>
       <artifactId>ApacheJMeter_java</artifactId>
       <version>2.9</version>

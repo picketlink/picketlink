@@ -60,6 +60,7 @@ import java.io.OutputStream;
  * @since Jan 27, 2009
  */
 public class SOAPSAMLXACMLServlet extends HttpServlet {
+
     private static Logger log = Logger.getLogger(SOAPSAMLXACMLServlet.class);
 
     private final boolean trace = log.isTraceEnabled();
@@ -149,7 +150,7 @@ public class SOAPSAMLXACMLServlet extends HttpServlet {
                     }
                     if (localName != null
                             && (localName.contains(JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get()) || localName
-                                    .contains(JBossSAMLConstants.REQUEST_ABSTRACT.get()))) {
+                            .contains(JBossSAMLConstants.REQUEST_ABSTRACT.get()))) {
                         node = n;
                         break;
                     }
@@ -250,7 +251,7 @@ public class SOAPSAMLXACMLServlet extends HttpServlet {
             }
         } finally {
             resp.setContentType("text/xml;charset=utf-8");
-            ;
+
             OutputStream os = resp.getOutputStream();
             try {
                 if (returnSOAPMessage == null)

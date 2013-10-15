@@ -21,41 +21,35 @@ package org.picketlink.authentication;
 import org.picketlink.idm.model.Account;
 
 /**
- * Abstract base class that Authenticator implementations can extend for convenience. 
- * 
- * @author Shane Bryzak
+ * Abstract base class that Authenticator implementations can extend for convenience.
  *
+ * @author Shane Bryzak
  */
-public abstract class BaseAuthenticator implements Authenticator
-{
+public abstract class BaseAuthenticator implements Authenticator {
+
     private AuthenticationStatus status = AuthenticationStatus.FAILURE;
     private Account account;
 
     @Override
-    public AuthenticationStatus getStatus()
-    {
+    public AuthenticationStatus getStatus() {
         return status;
     }
 
-    protected void setStatus(AuthenticationStatus status)
-    {
+    protected void setStatus(AuthenticationStatus status) {
         this.status = status;
     }
 
-    protected void setAccount(Account account)
-    {
+    protected void setAccount(Account account) {
         this.account = account;
     }
 
     @Override
-    public Account getAccount()
-    {
+    public Account getAccount() {
         return account;
     }
 
     @Override
-    public void postAuthenticate()
-    {
+    public void postAuthenticate() {
         // No-op, override if any post-authentication processing is required.
     }
 }

@@ -31,6 +31,7 @@ import org.picketlink.common.exceptions.ProcessingException;
  * @since Sep 17, 2009
  */
 public interface SAML2Handler {
+
     // Define some constants
     String ASSERTION_CONSUMER_URL = "ASSERTION_CONSUMER_URL";
 
@@ -51,7 +52,9 @@ public interface SAML2Handler {
      */
     public enum HANDLER_TYPE {
         IDP, SP;
-    };
+    }
+
+    ;
 
     /**
      * Initialize the handler
@@ -72,6 +75,7 @@ public interface SAML2Handler {
      *
      * @param request
      * @param response
+     *
      * @throws ProcessingException
      */
     void generateSAMLRequest(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException;
@@ -88,6 +92,7 @@ public interface SAML2Handler {
      *
      * @param requestAbstractType
      * @param resultingDocument
+     *
      * @return
      */
     void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException;
@@ -97,6 +102,7 @@ public interface SAML2Handler {
      *
      * @param statusResponseType
      * @param resultingDocument
+     *
      * @return
      */
     void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException;

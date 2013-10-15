@@ -17,8 +17,6 @@
  */
 package org.picketlink.identity.xmlsec.w3.xmldsig;
 
-import org.w3c.dom.Element;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,8 +42,6 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class TransformType {
 
@@ -68,8 +64,7 @@ public class TransformType {
      * Gets the value of the content property.
      *
      * <p>
-     * Objects of the following type(s) are allowed in the list {@link Element } {@link String } {@link Object }
-     *
+     * Objects of the following type(s) are allowed in the list {@link org.w3c.dom.Element } {@link String } {@link Object }
      */
     public List<Object> getContent() {
         return Collections.unmodifiableList(this.content);
@@ -79,7 +74,6 @@ public class TransformType {
      * Gets the value of the algorithm property.
      *
      * @return possible object is {@link String }
-     *
      */
     public URI getAlgorithm() {
         return algorithm;

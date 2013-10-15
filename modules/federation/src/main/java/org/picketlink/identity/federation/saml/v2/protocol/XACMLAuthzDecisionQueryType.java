@@ -41,10 +41,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class XACMLAuthzDecisionQueryType extends RequestAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     protected RequestType request;
@@ -61,7 +60,6 @@ public class XACMLAuthzDecisionQueryType extends RequestAbstractType {
      * Gets the value of the request property.
      *
      * @return possible object is {@link RequestType }
-     *
      */
     public RequestType getRequest() {
         return request;
@@ -71,7 +69,6 @@ public class XACMLAuthzDecisionQueryType extends RequestAbstractType {
      * Sets the value of the request property.
      *
      * @param value allowed object is {@link RequestType }
-     *
      */
     public void setRequest(RequestType value) {
         this.request = value;
@@ -81,7 +78,6 @@ public class XACMLAuthzDecisionQueryType extends RequestAbstractType {
      * Gets the value of the inputContextOnly property.
      *
      * @return possible object is {@link Boolean }
-     *
      */
     public boolean isInputContextOnly() {
         if (inputContextOnly == null) {
@@ -95,7 +91,6 @@ public class XACMLAuthzDecisionQueryType extends RequestAbstractType {
      * Sets the value of the inputContextOnly property.
      *
      * @param value allowed object is {@link Boolean }
-     *
      */
     public void setInputContextOnly(Boolean value) {
         this.inputContextOnly = value;
@@ -105,7 +100,6 @@ public class XACMLAuthzDecisionQueryType extends RequestAbstractType {
      * Gets the value of the returnContext property.
      *
      * @return possible object is {@link Boolean }
-     *
      */
     public boolean isReturnContext() {
         if (returnContext == null) {
@@ -119,7 +113,6 @@ public class XACMLAuthzDecisionQueryType extends RequestAbstractType {
      * Sets the value of the returnContext property.
      *
      * @param value allowed object is {@link Boolean }
-     *
      */
     public void setReturnContext(Boolean value) {
         this.returnContext = value;

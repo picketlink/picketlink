@@ -35,11 +35,14 @@ import java.security.cert.X509Certificate;
  * @since Jan 31, 2011
  */
 public class SAMLMetadataUtil {
+
     /**
      * Get the {@link X509Certificate} from the KeyInfo
      *
      * @param keyDescriptor
+     *
      * @return
+     *
      * @throws ProcessingException
      * @throws ConfigurationException
      */

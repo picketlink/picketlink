@@ -17,8 +17,6 @@
  */
 package org.picketlink.identity.xmlsec.w3.xmldsig;
 
-import org.w3c.dom.Element;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -44,10 +42,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ObjectType {
+
     protected List<Object> content = new ArrayList<Object>();
     protected String id;
     protected String mimeType;
@@ -64,7 +61,7 @@ public class ObjectType {
     /**
      * Gets the value of the content property.
      * <p>
-     * Objects of the following type(s) are allowed in the list {@link Element } {@link Object } {@link String }
+     * Objects of the following type(s) are allowed in the list {@link org.w3c.dom.Element } {@link Object } {@link String }
      */
     public List<Object> getContent() {
         return Collections.unmodifiableList(this.content);
@@ -74,7 +71,6 @@ public class ObjectType {
      * Gets the value of the id property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getId() {
         return id;
@@ -84,7 +80,6 @@ public class ObjectType {
      * Sets the value of the id property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setId(String value) {
         this.id = value;
@@ -94,7 +89,6 @@ public class ObjectType {
      * Gets the value of the mimeType property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getMimeType() {
         return mimeType;
@@ -104,7 +98,6 @@ public class ObjectType {
      * Sets the value of the mimeType property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setMimeType(String value) {
         this.mimeType = value;
@@ -114,7 +107,6 @@ public class ObjectType {
      * Gets the value of the encoding property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getEncoding() {
         return encoding;
@@ -124,7 +116,6 @@ public class ObjectType {
      * Sets the value of the encoding property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setEncoding(String value) {
         this.encoding = value;

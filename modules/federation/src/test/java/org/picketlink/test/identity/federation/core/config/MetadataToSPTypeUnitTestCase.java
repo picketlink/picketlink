@@ -38,6 +38,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Feb 28, 2011
  */
 public class MetadataToSPTypeUnitTestCase {
+
     private final String idpMetadata = "saml2/metadata/testshib.org.idp-metadata.xml";
 
     @Test

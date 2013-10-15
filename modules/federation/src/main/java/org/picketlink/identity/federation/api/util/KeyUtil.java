@@ -40,16 +40,18 @@ import java.security.cert.X509Certificate;
  * @since Apr 29, 2009
  */
 public class KeyUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private static String EOL = getSystemProperty("line.separator", "\n");
 
     /**
      * Base64 encode the certificate
      *
      * @param certificate
+     *
      * @return
+     *
      * @throws CertificateEncodingException
      */
     public static String encodeAsString(Certificate certificate) throws CertificateEncodingException {
@@ -60,7 +62,9 @@ public class KeyUtil {
      * Given a certificate, build a keyinfo type
      *
      * @param certificate
+     *
      * @return
+     *
      * @throws CertificateException
      * @throws ProcessingException
      * @throws ParsingException
@@ -93,6 +97,7 @@ public class KeyUtil {
      *
      * @param key
      * @param defaultValue
+     *
      * @return
      */
     static String getSystemProperty(final String key, final String defaultValue) {

@@ -34,14 +34,13 @@ import java.util.List;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}GoverningAgreementRef" maxOccurs="unbounded"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}GoverningAgreementRef"
+ * maxOccurs="unbounded"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class GoverningAgreementsType {
 
@@ -60,8 +59,6 @@ public class GoverningAgreementsType {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link GoverningAgreementRefType }
-     *
-     *
      */
     public List<GoverningAgreementRefType> getGoverningAgreementRef() {
         return Collections.unmodifiableList(this.governingAgreementRef);

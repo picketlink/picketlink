@@ -25,7 +25,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <complexType name="AttributeQueryType"> <complexContent> <extension base="samlp:SubjectQueryAbstractType"> <sequence>
+ * <complexType name="AttributeQueryType"> <complexContent> <extension base="samlp:SubjectQueryAbstractType">
+ * <sequence>
  * <element ref="saml:AttributeDesignator" minOccurs="0" maxOccurs="unbounded"/> </sequence>
  *
  * <attribute name="Resource" type="anyURI" use="optional"/> </extension> </complexContent> </complexType>
@@ -34,6 +35,7 @@ import java.util.List;
  * @since Jun 22, 2011
  */
 public class SAML11AttributeQueryType extends SAML11SubjectQueryAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     protected List<SAML11AttributeDesignatorType> attributeDesignator = new ArrayList<SAML11AttributeDesignatorType>();

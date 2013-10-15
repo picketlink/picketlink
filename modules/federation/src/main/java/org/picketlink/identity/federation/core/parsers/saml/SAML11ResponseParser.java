@@ -47,9 +47,9 @@ import javax.xml.stream.events.XMLEvent;
  * @since 23 June 2011
  */
 public class SAML11ResponseParser implements ParserNamespaceSupport {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private final String RESPONSE = JBossSAMLConstants.RESPONSE.get();
 
     /**
@@ -97,7 +97,9 @@ public class SAML11ResponseParser implements ParserNamespaceSupport {
      * Parse the status element
      *
      * @param xmlEventReader
+     *
      * @return
+     *
      * @throws ParsingException
      */
     protected SAML11StatusType parseStatus(XMLEventReader xmlEventReader) throws ParsingException {
@@ -153,7 +155,7 @@ public class SAML11ResponseParser implements ParserNamespaceSupport {
                     break;
                 status.setStatusMessage(StaxParserUtil.getElementText(xmlEventReader));
             }
-            
+
             if (JBossSAMLConstants.STATUS_DETAIL.get().equals(elementTag)) {
                 startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
                 if (startElement == null)

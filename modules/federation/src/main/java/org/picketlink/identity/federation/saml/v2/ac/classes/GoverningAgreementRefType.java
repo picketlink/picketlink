@@ -34,8 +34,6 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class GoverningAgreementRefType {
 
@@ -45,7 +43,6 @@ public class GoverningAgreementRefType {
      * Gets the value of the governingAgreementRef property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getGoverningAgreementRef() {
         return governingAgreementRef;
@@ -55,7 +52,6 @@ public class GoverningAgreementRefType {
      * Sets the value of the governingAgreementRef property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setGoverningAgreementRef(String value) {
         this.governingAgreementRef = value;

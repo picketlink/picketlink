@@ -29,6 +29,7 @@ import java.util.List;
  * @since Jun 22, 2011
  */
 public class CommonAdviceType implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     protected List<Object> advices = new ArrayList<Object>();
@@ -46,6 +47,7 @@ public class CommonAdviceType implements Serializable {
      * Remove an advice
      *
      * @param advice
+     *
      * @return
      */
     public boolean remove(Object advice) {

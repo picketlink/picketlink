@@ -28,6 +28,7 @@ import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
  * @since Jan 26, 2009
  */
 public class SAML2RequestUnitTestCase extends TestCase {
+
     public void testLogOut() throws Exception {
         SAML2Request saml2Request = new SAML2Request();
         LogoutRequestType lrt = saml2Request.createLogoutRequest("http://idp");

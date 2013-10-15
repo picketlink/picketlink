@@ -87,7 +87,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Unit test the {@link SAML2AuthenticationHandler}
@@ -96,6 +100,7 @@ import static org.junit.Assert.*;
  * @since Feb 17, 2011
  */
 public class SAML2AuthenticationHandlerUnitTestCase {
+
     @Test
     public void handleNameIDCustomization() throws Exception {
         SAML2AuthenticationHandler handler = new SAML2AuthenticationHandler();
@@ -140,7 +145,7 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         NameIDPolicyType nameIDPolicy = authnRequest.getNameIDPolicy();
         assertEquals(JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get(), nameIDPolicy.getFormat().toString());
     }
-    
+
     @Ignore
     @Test
     public void handleEncryptedAssertion() throws Exception {
@@ -273,13 +278,13 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         handler.initHandlerConfig(handlerConfig);
 
         IdentityServer identityServer = new IdentityServer();
-        servletContext.setAttribute(GeneralConstants.IDENTITY_SERVER,identityServer);
+        servletContext.setAttribute(GeneralConstants.IDENTITY_SERVER, identityServer);
 
         //Add roles to session to be picked up by the handler
         List<String> roles = new ArrayList<String>();
         roles.add("role1");
         roles.add("role2");
-        session.setAttribute(GeneralConstants.ROLES_ID,roles);
+        session.setAttribute(GeneralConstants.ROLES_ID, roles);
 
         httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
         docHolder = new SAMLDocumentHolder(authnRequest, null);
@@ -289,7 +294,7 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
         sts.installDefaultConfiguration(null);
 
-        handler.handleRequestType(request,response);
+        handler.handleRequestType(request, response);
         samlReq = response.getResultingDocument();
         parser = new SAMLParser();
         ResponseType responseType = (ResponseType) parser.parse(DocumentUtil.getNodeAsStream(samlReq));
@@ -299,13 +304,13 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         Set<StatementAbstractType> statements = assertion.getStatements();
         Iterator<StatementAbstractType> iter = statements.iterator();
         boolean processedAttributeStatement = false;
-        while(iter.hasNext()){
+        while (iter.hasNext()) {
             StatementAbstractType statement = iter.next();
-            if(statement instanceof AuthnStatementType){
+            if (statement instanceof AuthnStatementType) {
                 continue;
             }
-            if(statement instanceof AttributeStatementType){
-                AttributeStatementType attributeStatementType = (AttributeStatementType)statement;
+            if (statement instanceof AttributeStatementType) {
+                AttributeStatementType attributeStatementType = (AttributeStatementType) statement;
                 assertNotNull(attributeStatementType);
                 assertEquals(1, attributeStatementType.getAttributes().size());
                 AttributeType attributeType = attributeStatementType.getAttributes().get(0).getAttribute();
@@ -318,7 +323,7 @@ public class SAML2AuthenticationHandlerUnitTestCase {
 
         assertTrue(processedAttributeStatement);
     }
-    
+
     @Test
     public void testPublishAssertionInHttpSession() throws Exception {
         SAML2AuthenticationHandler handler = new SAML2AuthenticationHandler();
@@ -344,10 +349,10 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
-        
+
         SAML2Response saml2Response = new SAML2Response();
         IssuerInfoHolder issuerInfoholder = new IssuerInfoHolder("testIssuer");
-        
+
         AssertionType assertion = AssertionUtil.createAssertion(IDGenerator.create("ID_"), new NameIDType());
         SubjectType assertionSubject = new SubjectType();
         STSubType subType = new STSubType();
@@ -358,7 +363,7 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         assertion.setSubject(assertionSubject);
 
         ResponseType responseType = saml2Response.createResponseType(IDGenerator.create("ID_"), issuerInfoholder, assertion);
-        
+
         Document responseDoc = saml2Response.convert(responseType);
 
         SAMLParser parser = new SAMLParser();
@@ -378,7 +383,7 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         });
 
         handler.handleStatusResponseType(request, response);
-        
+
         assertNotNull(session.getAttribute("org.picketlink.sp.SAML_ASSERTION"));
     }
 
@@ -431,7 +436,7 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         assertNotNull(requestedAuthnContextType.getAuthnContextClassRef());
         assertFalse(requestedAuthnContextType.getAuthnContextClassRef().isEmpty());
 
-        for (String aliasClasses: contextClasses.split(",")) {
+        for (String aliasClasses : contextClasses.split(",")) {
             SAMLAuthenticationContextClass contextClass = SAMLAuthenticationContextClass.forAlias(aliasClasses);
             if (!requestedAuthnContextType.getAuthnContextClassRef().contains(contextClass.getFqn())) {
                 fail("Expected authentication context class not found.");

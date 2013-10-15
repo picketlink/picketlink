@@ -17,8 +17,6 @@
  */
 package org.picketlink.identity.federation.saml.v2.protocol;
 
-import org.w3c.dom.Element;
-
 import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
@@ -39,10 +37,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ArtifactResponseType extends StatusResponseType {
+
     private static final long serialVersionUID = 1L;
 
     protected Object any;
@@ -58,8 +55,7 @@ public class ArtifactResponseType extends StatusResponseType {
     /**
      * Gets the value of the any property.
      *
-     * @return possible object is {@link Element } {@link Object }
-     *
+     * @return possible object is {@link org.w3c.dom.Element } {@link Object }
      */
     public Object getAny() {
         return any;
@@ -68,8 +64,7 @@ public class ArtifactResponseType extends StatusResponseType {
     /**
      * Sets the value of the any property.
      *
-     * @param value allowed object is {@link Element } {@link Object }
-     *
+     * @param value allowed object is {@link org.w3c.dom.Element } {@link Object }
      */
     public void setAny(Object value) {
         this.any = value;

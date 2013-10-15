@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
- 
+
 
 /**
  * Utility dealing with Strings
@@ -33,12 +33,13 @@ import java.util.regex.Pattern;
  * @since Oct 21, 2009
  */
 public class StringUtil {
-     
-    
+
+
     /**
      * Check whether the passed string is null or empty
      *
      * @param str
+     *
      * @return
      */
     public static boolean isNotNull(String str) {
@@ -49,6 +50,7 @@ public class StringUtil {
      * Check whether the string is null or empty
      *
      * @param str
+     *
      * @return
      */
     public static boolean isNullOrEmpty(String str) {
@@ -74,6 +76,7 @@ public class StringUtil {
      * </p>
      *
      * @param str
+     *
      * @return
      */
     public static String getSystemPropertyAsString(String str) {
@@ -117,13 +120,14 @@ public class StringUtil {
      */
     public static void match(String first, String second) {
         if (first.equals(second) == false)
-            throw new RuntimeException("Mismatch:" + first + " and " +  second);
+            throw new RuntimeException("Mismatch:" + first + " and " + second);
     }
 
     /**
      * Given a comma separated string, get the tokens as a {@link List}
      *
      * @param str
+     *
      * @return
      */
     public static List<String> tokenize(String str) {
@@ -135,6 +139,7 @@ public class StringUtil {
      *
      * @param str
      * @param delimiter the delimiter
+     *
      * @return
      */
     public static List<String> tokenize(String str, String delimiter) {
@@ -150,6 +155,7 @@ public class StringUtil {
      * Given a string that is comma delimited and contains key-value pairs
      *
      * @param keyValuePairString
+     *
      * @return
      */
     public static Map<String, String> tokenizeKeyValuePair(String keyValuePairString) {

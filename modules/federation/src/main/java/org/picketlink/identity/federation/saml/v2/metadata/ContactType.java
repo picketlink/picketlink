@@ -38,17 +38,18 @@ import java.util.List;
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}GivenName" minOccurs="0"/>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}SurName" minOccurs="0"/>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}EmailAddress" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}TelephoneNumber" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}TelephoneNumber" maxOccurs="unbounded"
+ * minOccurs="0"/>
  *       &lt;/sequence>
- *       &lt;attribute name="contactType" use="required" type="{urn:oasis:names:tc:SAML:2.0:metadata}ContactTypeType" />
+ *       &lt;attribute name="contactType" use="required" type="{urn:oasis:names:tc:SAML:2.0:metadata}ContactTypeType"
+ * />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ContactType extends TypeWithOtherAttributes {
+
     protected ExtensionsType extensions;
 
     protected String company;
@@ -71,7 +72,6 @@ public class ContactType extends TypeWithOtherAttributes {
      * Gets the value of the extensions property.
      *
      * @return possible object is {@link ExtensionsType }
-     *
      */
     public ExtensionsType getExtensions() {
         return extensions;
@@ -81,7 +81,6 @@ public class ContactType extends TypeWithOtherAttributes {
      * Sets the value of the extensions property.
      *
      * @param value allowed object is {@link ExtensionsType }
-     *
      */
     public void setExtensions(ExtensionsType value) {
         this.extensions = value;
@@ -91,7 +90,6 @@ public class ContactType extends TypeWithOtherAttributes {
      * Gets the value of the company property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getCompany() {
         return company;
@@ -101,7 +99,6 @@ public class ContactType extends TypeWithOtherAttributes {
      * Sets the value of the company property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setCompany(String value) {
         this.company = value;
@@ -111,7 +108,6 @@ public class ContactType extends TypeWithOtherAttributes {
      * Gets the value of the givenName property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getGivenName() {
         return givenName;
@@ -121,7 +117,6 @@ public class ContactType extends TypeWithOtherAttributes {
      * Sets the value of the givenName property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setGivenName(String value) {
         this.givenName = value;
@@ -131,7 +126,6 @@ public class ContactType extends TypeWithOtherAttributes {
      * Gets the value of the surName property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getSurName() {
         return surName;
@@ -141,7 +135,6 @@ public class ContactType extends TypeWithOtherAttributes {
      * Sets the value of the surName property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setSurName(String value) {
         this.surName = value;
@@ -187,8 +180,6 @@ public class ContactType extends TypeWithOtherAttributes {
      * Gets the value of the emailAddress property.
      * <p>
      * Objects of the following type(s) are allowed in the list {@link String }
-     *
-     *
      */
     public List<String> getEmailAddress() {
         return Collections.unmodifiableList(this.emailAddress);
@@ -198,8 +189,6 @@ public class ContactType extends TypeWithOtherAttributes {
      * Gets the value of the telephoneNumber property.
      * <p>
      * Objects of the following type(s) are allowed in the list {@link String }
-     *
-     *
      */
     public List<String> getTelephoneNumber() {
         return Collections.unmodifiableList(this.telephoneNumber);
@@ -209,7 +198,6 @@ public class ContactType extends TypeWithOtherAttributes {
      * Gets the value of the contactType property.
      *
      * @return possible object is {@link ContactTypeType }
-     *
      */
     public ContactTypeType getContactType() {
         return contactType;
@@ -219,7 +207,6 @@ public class ContactType extends TypeWithOtherAttributes {
      * Sets the value of the contactType property.
      *
      * @param value allowed object is {@link ContactTypeType }
-     *
      */
     public void setContactType(ContactTypeType value) {
         this.contactType = value;

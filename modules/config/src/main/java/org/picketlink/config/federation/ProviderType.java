@@ -40,8 +40,10 @@ import java.util.Map;
  *       &lt;sequence>
  *         &lt;element name="IdentityURL" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="Trust" type="{urn:picketlink:identity-federation:config:1.0}TrustType" minOccurs="0"/>
- *         &lt;element name="KeyProvider" type="{urn:picketlink:identity-federation:config:1.0}KeyProviderType" minOccurs="0"/>
- *         &lt;element name="MetaDataProvider" type="{urn:picketlink:identity-federation:config:1.0}MetadataProviderType" minOccurs="0"/>
+ *         &lt;element name="KeyProvider" type="{urn:picketlink:identity-federation:config:1.0}KeyProviderType"
+ * minOccurs="0"/>
+ *         &lt;element name="MetaDataProvider" type="{urn:picketlink:identity-federation:config:1.0}MetadataProviderType"
+ * minOccurs="0"/>
  *       &lt;/sequence>
  *       &lt;attribute name="ServerEnvironment" default="picketlink">
  *         &lt;simpleType>
@@ -58,10 +60,9 @@ import java.util.Map;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ProviderType {
+
     protected String identityURL;
 
     protected TrustType trust;
@@ -77,12 +78,11 @@ public class ProviderType {
     protected Map<String, Object> additionalOptions = new HashMap<String, Object>();
 
     protected boolean supportsSignature = false;
-    
+
     /**
      * Gets the value of the identityURL property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getIdentityURL() {
         return identityURL;
@@ -92,7 +92,6 @@ public class ProviderType {
      * Sets the value of the identityURL property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setIdentityURL(String value) {
         this.identityURL = value;
@@ -102,7 +101,6 @@ public class ProviderType {
      * Gets the value of the trust property.
      *
      * @return possible object is {@link TrustType }
-     *
      */
     public TrustType getTrust() {
         return trust;
@@ -112,7 +110,6 @@ public class ProviderType {
      * Sets the value of the trust property.
      *
      * @param value allowed object is {@link TrustType }
-     *
      */
     public void setTrust(TrustType value) {
         this.trust = value;
@@ -122,7 +119,6 @@ public class ProviderType {
      * Gets the value of the keyProvider property.
      *
      * @return possible object is {@link KeyProviderType }
-     *
      */
     public KeyProviderType getKeyProvider() {
         return keyProvider;
@@ -132,7 +128,6 @@ public class ProviderType {
      * Sets the value of the keyProvider property.
      *
      * @param value allowed object is {@link KeyProviderType }
-     *
      */
     public void setKeyProvider(KeyProviderType value) {
         this.keyProvider = value;
@@ -142,7 +137,6 @@ public class ProviderType {
      * Gets the value of the metaDataProvider property.
      *
      * @return possible object is {@link MetadataProviderType }
-     *
      */
     public MetadataProviderType getMetaDataProvider() {
         return metaDataProvider;
@@ -152,7 +146,6 @@ public class ProviderType {
      * Sets the value of the metaDataProvider property.
      *
      * @param value allowed object is {@link MetadataProviderType }
-     *
      */
     public void setMetaDataProvider(MetadataProviderType value) {
         this.metaDataProvider = value;
@@ -162,7 +155,6 @@ public class ProviderType {
      * Gets the value of the serverEnvironment property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getServerEnvironment() {
         if (serverEnvironment == null) {
@@ -176,7 +168,6 @@ public class ProviderType {
      * Sets the value of the serverEnvironment property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setServerEnvironment(String value) {
         this.serverEnvironment = value;
@@ -186,7 +177,6 @@ public class ProviderType {
      * Gets the value of the canonicalizationMethod property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getCanonicalizationMethod() {
         return canonicalizationMethod;
@@ -196,7 +186,6 @@ public class ProviderType {
      * Sets the value of the canonicalizationMethod property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setCanonicalizationMethod(String canonicalizationMethod) {
         this.canonicalizationMethod = canonicalizationMethod;
@@ -225,6 +214,7 @@ public class ProviderType {
      * Get option
      *
      * @param key
+     *
      * @return
      */
     public Object getAdditionalOption(String key) {
@@ -238,20 +228,20 @@ public class ProviderType {
      */
     public void importFrom(ProviderType other) {
         KeyProviderType keyProvider = other.getKeyProvider();
-        
+
         if (keyProvider != null) {
             setKeyProvider(keyProvider);
         }
-        
+
         setSupportsSignature(other.isSupportsSignature());
-        
+
         String can = other.getCanonicalizationMethod();
         if (StringUtil.isNotNull(can)) {
             setCanonicalizationMethod(can);
         }
-        
+
         if (trust == null) {
-            trust = other.getTrust();            
+            trust = other.getTrust();
         } else if (other.getTrust() != null) {
             trust.addDomain(other.getTrust().getDomains());
         }

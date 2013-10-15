@@ -37,10 +37,9 @@ import java.net.URI;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class IDPEntryType {
+
     protected URI providerID;
     protected String name;
     protected String loc;
@@ -49,7 +48,6 @@ public class IDPEntryType {
      * Gets the value of the providerID property.
      *
      * @return possible object is {@link String }
-     *
      */
     public URI getProviderID() {
         return providerID;
@@ -59,7 +57,6 @@ public class IDPEntryType {
      * Sets the value of the providerID property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setProviderID(URI value) {
         this.providerID = value;
@@ -69,7 +66,6 @@ public class IDPEntryType {
      * Gets the value of the name property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getName() {
         return name;
@@ -79,7 +75,6 @@ public class IDPEntryType {
      * Sets the value of the name property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setName(String value) {
         this.name = value;
@@ -89,7 +84,6 @@ public class IDPEntryType {
      * Gets the value of the loc property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getLoc() {
         return loc;
@@ -99,7 +93,6 @@ public class IDPEntryType {
      * Sets the value of the loc property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setLoc(String value) {
         this.loc = value;

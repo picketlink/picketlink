@@ -38,10 +38,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class AuthnQueryType extends SubjectQueryAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     protected RequestedAuthnContextType requestedAuthnContext;
@@ -56,7 +55,6 @@ public class AuthnQueryType extends SubjectQueryAbstractType {
      * Gets the value of the requestedAuthnContext property.
      *
      * @return possible object is {@link RequestedAuthnContextType }
-     *
      */
     public RequestedAuthnContextType getRequestedAuthnContext() {
         return requestedAuthnContext;
@@ -66,7 +64,6 @@ public class AuthnQueryType extends SubjectQueryAbstractType {
      * Sets the value of the requestedAuthnContext property.
      *
      * @param value allowed object is {@link RequestedAuthnContextType }
-     *
      */
     public void setRequestedAuthnContext(RequestedAuthnContextType value) {
         this.requestedAuthnContext = value;
@@ -76,7 +73,6 @@ public class AuthnQueryType extends SubjectQueryAbstractType {
      * Gets the value of the sessionIndex property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getSessionIndex() {
         return sessionIndex;
@@ -86,7 +82,6 @@ public class AuthnQueryType extends SubjectQueryAbstractType {
      * Sets the value of the sessionIndex property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setSessionIndex(String value) {
         this.sessionIndex = value;

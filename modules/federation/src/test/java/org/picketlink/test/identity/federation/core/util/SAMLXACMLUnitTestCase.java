@@ -31,11 +31,12 @@ import static org.junit.Assert.assertTrue;
 /**
  * Read a SAML-XACML request
  *
- * @see {@code SAMLResponseParserTestCase#testXACMLDecisionStatements()}
  * @author Anil.Saldhana@redhat.com
+ * @see {@code SAMLResponseParserTestCase#testXACMLDecisionStatements()}
  * @since Jan 8, 2009
  */
 public class SAMLXACMLUnitTestCase {
+
     /**
      * Usage of samlp with xsi-type
      */

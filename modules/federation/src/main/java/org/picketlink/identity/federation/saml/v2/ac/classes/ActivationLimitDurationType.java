@@ -36,8 +36,6 @@ import javax.xml.datatype.Duration;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ActivationLimitDurationType {
 
@@ -51,7 +49,6 @@ public class ActivationLimitDurationType {
      * Gets the value of the duration property.
      *
      * @return possible object is {@link Duration }
-     *
      */
     public Duration getDuration() {
         return duration;

@@ -17,8 +17,6 @@
  */
 package org.picketlink.identity.federation.ws.trust;
 
-import org.w3c.dom.Element;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,14 +26,14 @@ import java.util.List;
  * @since Jun 16, 2011
  */
 public class SimpleAnyType implements SimpleCollectionUsage<Object> {
+
     protected List<Object> any = new ArrayList<Object>();
 
     /**
      * Gets the value of the any property.
      *
      * <p>
-     * Objects of the following type(s) are allowed in the list {@link Object } {@link Element }
-     *
+     * Objects of the following type(s) are allowed in the list {@link Object } {@link org.w3c.dom.Element }
      */
     public List<Object> getAny() {
         return Collections.unmodifiableList(this.any);

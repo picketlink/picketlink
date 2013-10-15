@@ -28,20 +28,22 @@ import java.security.PrivilegedAction;
  * @since Dec 9, 2008
  */
 class SecurityActions {
-    
+
     /**
      * <p>
-     * Loads a {@link Class} using the <code>fullQualifiedName</code> supplied. This method tries first to load from the
+     * Loads a {@link Class} using the <code>fullQualifiedName</code> supplied. This method tries first to load from
+     * the
      * specified {@link Class}, if not found it will try to load from using TCL.
      * </p>
      *
      * @param theClass
      * @param fullQualifiedName
+     *
      * @return
      */
     static Class<?> loadClass(final Class<?> theClass, final String fullQualifiedName) {
         SecurityManager sm = System.getSecurityManager();
-        
+
         if (sm != null) {
             return AccessController.doPrivileged(new PrivilegedAction<Class<?>>() {
                 public Class<?> run() {
@@ -74,11 +76,12 @@ class SecurityActions {
      *
      * @param classLoader
      * @param fullQualifiedName
+     *
      * @return
      */
     static Class<?> loadClass(final ClassLoader classLoader, final String fullQualifiedName) {
         SecurityManager sm = System.getSecurityManager();
-        
+
         if (sm != null) {
             return AccessController.doPrivileged(new PrivilegedAction<Class<?>>() {
                 public Class<?> run() {
@@ -103,11 +106,12 @@ class SecurityActions {
      *
      * @param clazz
      * @param resourceName
+     *
      * @return
      */
     static URL loadResource(final Class<?> clazz, final String resourceName) {
         SecurityManager sm = System.getSecurityManager();
-        
+
         if (sm != null) {
             return AccessController.doPrivileged(new PrivilegedAction<URL>() {
                 public URL run() {
@@ -136,5 +140,5 @@ class SecurityActions {
             return url;
         }
     }
-    
+
 }

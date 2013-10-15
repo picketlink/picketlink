@@ -29,10 +29,10 @@ import org.picketlink.idm.model.Account;
  * proper authenticator based on the following premises:</p>
  *
  * <ul>
- *     <li>If any class that implements this interface and annotated with {@link org.picketlink.annotations
- *     .PicketLink} is provided, it will be used.</li>
- *     <li>If any producer method or field annotated with {@link org.picketlink.annotations.PicketLink} that
- *     references a implementation of this interface, it will be selected.</li>
+ * <li>If any class that implements this interface and annotated with {@link org.picketlink.annotations
+ * .PicketLink} is provided, it will be used.</li>
+ * <li>If any producer method or field annotated with {@link org.picketlink.annotations.PicketLink} that
+ * references a implementation of this interface, it will be selected.</li>
  * </ul>
  *
  * <p>Please, not that implementations must be annotated with {@link org.picketlink.annotations.PicketLink},
@@ -46,34 +46,31 @@ import org.picketlink.idm.model.Account;
  * checked the provided credentials, implementations need to:</p>
  *
  * <ul>
- *     <li>Return a {@link AuthenticationStatus.SUCCESS} status.</li>
- *     <li>Return an {@link Account} that maps to the owner of the provided credentials.</li>
+ * <li>Return a {@link AuthenticationStatus.SUCCESS} status.</li>
+ * <li>Return an {@link Account} that maps to the owner of the provided credentials.</li>
  * </ul>
  *
  * <p>The other status can be used in case of failure or if the authentication was deferred.</p>
  *
  * <p>It is recommended that implementations be requested scoped.</p>
- * 
+ *
  * @author Shane Bryzak
  */
-public interface Authenticator
-{
-    public enum AuthenticationStatus 
-    {
-        SUCCESS, 
-        FAILURE, 
+public interface Authenticator {
+
+    public enum AuthenticationStatus {
+        SUCCESS,
+        FAILURE,
         DEFERRED
     }
 
     /**
      * <p>Performs the authentication.</p>
-     *
      */
     void authenticate();
 
     /**
      * <p>Post-authentication logic. This method is always invoked after an authentication attempt.</p>
-     *
      */
     void postAuthenticate();
 

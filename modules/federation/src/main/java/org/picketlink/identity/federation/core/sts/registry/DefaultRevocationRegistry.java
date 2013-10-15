@@ -22,14 +22,17 @@ import java.util.Set;
 
 /**
  * <p>
- * A simple {@code RevocationRegistry} that keeps the revoked token ids in a memory-only cache. This registry is only used if no
- * other implementation has been configured and it doesn't persist the revoked ids. For these reasons it is highly recommended
+ * A simple {@code RevocationRegistry} that keeps the revoked token ids in a memory-only cache. This registry is only
+ * used if no
+ * other implementation has been configured and it doesn't persist the revoked ids. For these reasons it is highly
+ * recommended
  * that this implementation be used only in testing scenarios.
  * </p>
  *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public class DefaultRevocationRegistry implements RevocationRegistry {
+
     private static Set<String> ids = new HashSet<String>();
 
     /*

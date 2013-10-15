@@ -22,17 +22,19 @@ import javax.xml.ws.Provider;
 
 /**
  * <p>
- * The {@code SecurityTokenService} (STS) interface. It extends the {@code Provider} interface so that it can be dynamically
+ * The {@code SecurityTokenService} (STS) interface. It extends the {@code Provider} interface so that it can be
+ * dynamically
  * invoked (as opposed to having a service endpoint interface).
  * </p>
  *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public interface SecurityTokenService extends Provider<Source> {
+
     /*
      * (non-Javadoc)
      *
      * @see javax.xml.ws.Provider#invoke(java.lang.Object)
      */
-    public Source invoke(Source request);
+    Source invoke(Source request);
 }

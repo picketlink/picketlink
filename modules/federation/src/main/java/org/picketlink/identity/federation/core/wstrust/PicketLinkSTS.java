@@ -52,7 +52,6 @@ import javax.xml.ws.Provider;
 import javax.xml.ws.Service;
 import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceContext;
-import javax.xml.ws.WebServiceException;
 import javax.xml.ws.WebServiceProvider;
 import java.io.File;
 import java.io.InputStream;
@@ -65,13 +64,13 @@ import java.security.PrivilegedAction;
  * <p>
  * Default implementation of the {@code SecurityTokenService} interface.
  * </p>
- * 
+ *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 @WebServiceProvider(serviceName = "PicketLinkSTS", portName = "PicketLinkSTSPort", targetNamespace = "urn:picketlink:identity-federation:sts", wsdlLocation = "WEB-INF/wsdl/PicketLinkSTS.wsdl")
 @ServiceMode(value = Service.Mode.MESSAGE)
-public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenService
-{
+public class PicketLinkSTS implements Provider<SOAPMessage> { // SecurityTokenService
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     private static final String SEPARATOR = AccessController.doPrivileged(new PrivilegedAction<String>() {
@@ -94,6 +93,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
     public static ThreadLocal<BinaryToken> binaryToken = new InheritableThreadLocal<BinaryToken>();
 
     public static class BinaryToken {
+
         public Node token;
     }
 
@@ -191,10 +191,12 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
      * <p>
      * Process a security token request.
      * </p>
-     * 
+     *
      * @param request a {@code RequestSecurityToken} instance that contains the request information.
+     *
      * @return a {@code Source} instance representing the marshalled response.
-     * @throws WebServiceException Any exception encountered in handling token
+     *
+     * @throws javax.xml.ws.WebServiceException Any exception encountered in handling token
      */
     protected Source handleTokenRequest(RequestSecurityToken request) {
         if (context == null)
@@ -212,7 +214,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
             throw logger.nullValueError("WSTrustRequestHandler");
 
         String requestType = request.getRequestType().toString();
-        
+
         logger.trace("STS received request of type " + requestType);
 
         try {
@@ -240,8 +242,9 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
      * <p>
      * Process a collection of security token requests.
      * </p>
-     * 
+     *
      * @param requestCollection a {@code RequestSecurityTokenCollection} containing the various requests information.
+     *
      * @return a {@code Source} instance representing the marshalled response.
      */
     protected Source handleTokenRequestCollection(RequestSecurityTokenCollection requestCollection) {
@@ -252,8 +255,9 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
      * <p>
      * Marshalls the specified {@code RequestSecurityTokenResponse} into a {@code Source} instance.
      * </p>
-     * 
+     *
      * @param response the {@code RequestSecurityTokenResponse} to be marshalled.
+     *
      * @return the resulting {@code Source} instance.
      */
     protected Source marshallResponse(RequestSecurityTokenResponse response) {
@@ -275,7 +279,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
      * <p>
      * Obtains the STS configuration options.
      * </p>
-     * 
+     *
      * @return an instance of {@code STSConfiguration} containing the STS configuration properties.
      */
     protected STSConfiguration getConfiguration() throws ConfigurationException {
@@ -289,7 +293,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
                 configurationFileURL = configurationFile.toURI().toURL();
             } else {
                 configurationFileURL = SecurityActions.loadResource(getClass(), PICKETLINK_CONFIG_FILE);
-                
+
                 // fallback to the old configuration
                 if (configurationFileURL == null) {
                     configurationFileURL = SecurityActions.loadResource(getClass(), STS_CONFIG_FILE);

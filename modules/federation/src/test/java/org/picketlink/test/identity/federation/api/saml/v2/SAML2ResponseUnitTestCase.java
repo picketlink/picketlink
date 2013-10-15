@@ -58,6 +58,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Jul 21, 2011
  */
 public class SAML2ResponseUnitTestCase {
+
     private final String keystoreLocation = "keystore/jbid_test_keystore.jks";
 
     private final String keystorePass = "store123";
@@ -87,7 +88,8 @@ public class SAML2ResponseUnitTestCase {
     }
 
     /**
-     * This test constructs the {@link ResponseType}. An {@link AssertionType} is locally constructed and then passed to the
+     * This test constructs the {@link ResponseType}. An {@link AssertionType} is locally constructed and then passed to
+     * the
      * construct method
      *
      * @throws Exception
@@ -140,9 +142,10 @@ public class SAML2ResponseUnitTestCase {
     }
 
     /**
-     * @see {@link KeyUtilUnitTestCase}
      * @return
+     *
      * @throws Exception
+     * @see {@link KeyUtilUnitTestCase}
      */
     private KeyPair getKeyPair() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();

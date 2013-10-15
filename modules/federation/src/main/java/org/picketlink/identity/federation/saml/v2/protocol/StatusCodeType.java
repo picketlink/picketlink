@@ -38,10 +38,9 @@ import java.net.URI;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class StatusCodeType {
+
     protected StatusCodeType statusCode;
     protected URI value;
 
@@ -49,7 +48,6 @@ public class StatusCodeType {
      * Gets the value of the statusCode property.
      *
      * @return possible object is {@link StatusCodeType }
-     *
      */
     public StatusCodeType getStatusCode() {
         return statusCode;
@@ -59,7 +57,6 @@ public class StatusCodeType {
      * Sets the value of the statusCode property.
      *
      * @param value allowed object is {@link StatusCodeType }
-     *
      */
     public void setStatusCode(StatusCodeType value) {
         this.statusCode = value;
@@ -69,7 +66,6 @@ public class StatusCodeType {
      * Gets the value of the value property.
      *
      * @return possible object is {@link String }
-     *
      */
     public URI getValue() {
         return value;
@@ -79,7 +75,6 @@ public class StatusCodeType {
      * Sets the value of the value property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setValue(URI value) {
         this.value = value;

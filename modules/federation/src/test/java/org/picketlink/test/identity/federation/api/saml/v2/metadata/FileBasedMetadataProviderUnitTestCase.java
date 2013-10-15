@@ -62,7 +62,7 @@ public class FileBasedMetadataProviderUnitTestCase extends TestCase {
                 fail("Wrong type: " + descriptorType.getClass());
             }
 
-            EntityDescriptorType entDescriptorType = (EntityDescriptorType)descriptorType;
+            EntityDescriptorType entDescriptorType = (EntityDescriptorType) descriptorType;
 
             if ("https://saml.salesforce.com".equals(entDescriptorType.getEntityID())) {
                 SPSSODescriptorType spDescriptor = CoreConfigUtil.getSPDescriptor(entDescriptorType);
@@ -73,18 +73,16 @@ public class FileBasedMetadataProviderUnitTestCase extends TestCase {
                 assertEquals(logoutEndpoints.size(), 1);
                 EndpointType endpoint = logoutEndpoints.get(0);
                 assertEquals("https://login.salesforce.com/saml/logout-request.jsp?saml=MgoTx78aEPkEM4eGV5ZzptlliwIVkRkOWYKlqXQq2StV_sLo0EiRqKYtIc",
-                      endpoint.getLocation().toASCIIString());
+                        endpoint.getLocation().toASCIIString());
                 assertEquals("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST", endpoint.getBinding().toASCIIString());
-            }
-            else if ("google.com/a/somedomain.com".equals(entDescriptorType.getEntityID())) {
+            } else if ("google.com/a/somedomain.com".equals(entDescriptorType.getEntityID())) {
                 SPSSODescriptorType spDescriptor = CoreConfigUtil.getSPDescriptor(entDescriptorType);
 
                 assertFalse(spDescriptor.isAuthnRequestsSigned());
                 List<EndpointType> logoutEndpoints = spDescriptor.getSingleLogoutService();
                 assertNotNull(logoutEndpoints);
                 assertEquals(logoutEndpoints.size(), 0);
-            }
-            else {
+            } else {
                 fail("Wrong entityID: " + entDescriptorType.getEntityID());
             }
         }

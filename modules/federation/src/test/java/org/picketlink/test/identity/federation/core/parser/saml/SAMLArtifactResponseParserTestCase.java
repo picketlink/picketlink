@@ -45,6 +45,7 @@ import static org.junit.Assert.assertTrue;
  * @since Jul 1, 2011
  */
 public class SAMLArtifactResponseParserTestCase {
+
     @Test
     public void testSAMLArtifactResponseWithAuthnRequestParse() throws Exception {
         String file = "parser/saml2/saml2-artifact-response-authnrequest.xml";
