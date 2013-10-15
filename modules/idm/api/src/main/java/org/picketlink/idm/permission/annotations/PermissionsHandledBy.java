@@ -26,7 +26,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.picketlink.idm.permission.spi.PermissionHandler;
+import org.picketlink.idm.permission.acl.spi.PermissionHandler;
 
 /**
  * Configures the Permission Handler to use for instance-based permissions.  The specified class

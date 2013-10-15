@@ -23,9 +23,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.picketlink.idm.permission.acl.spi.PermissionHandler;
 import org.picketlink.idm.permission.annotations.AllowedPermission;
 import org.picketlink.idm.permission.annotations.AllowedPermissions;
-import org.picketlink.idm.permission.spi.PermissionHandler;
 
 /**
  * Stored resource permissions can either be persisted as a comma-separated list of values, or as a

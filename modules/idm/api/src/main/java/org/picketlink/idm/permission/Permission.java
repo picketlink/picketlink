@@ -29,12 +29,12 @@ import org.picketlink.idm.model.IdentityType;
 public class Permission {
     private Object resource;
     private IdentityType recipient;
-    private String action;
+    private String operation;
 
-    public Permission(Object resource, IdentityType recipient, String action) {
+    public Permission(Object resource, IdentityType recipient, String operation) {
         this.resource = resource;
         this.recipient = recipient;
-        this.action = action;
+        this.operation = operation;
     }
 
     public Object getResource() {
@@ -45,7 +45,7 @@ public class Permission {
         return recipient;
     }
 
-    public String getAction() {
-        return action;
+    public String getOperation() {
+        return operation;
     }
 }

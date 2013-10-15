@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.permission.spi;
+package org.picketlink.idm.permission.acl.spi;
 
 import java.io.Serializable;
 import java.util.Set;
