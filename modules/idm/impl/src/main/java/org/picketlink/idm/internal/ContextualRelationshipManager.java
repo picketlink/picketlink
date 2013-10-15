@@ -75,6 +75,10 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
 
     @Override
     public void remove(Relationship relationship) {
+        if (relationship == null) {
+            MESSAGES.nullArgument("Relationship");
+        }
+
         List<? extends Relationship> result = createRelationshipQuery(relationship.getClass()).setParameter
                 (Relationship.ID, relationship.getId())
                 .getResultList();
@@ -88,6 +92,10 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
 
     @Override
     public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipClass) {
+        if (relationshipClass == null) {
+            MESSAGES.nullArgument("Relationship Type");
+        }
+
         return new DefaultRelationshipQuery<T>(this, relationshipClass, storeSelector);
     }
 
