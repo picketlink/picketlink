@@ -17,12 +17,13 @@
  */
 package org.picketlink.idm.config;
 
-import java.util.Map;
-import java.util.Set;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.model.AttributedType;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author pedroigor

@@ -62,10 +62,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static java.util.Map.*;
-import static org.picketlink.common.properties.query.TypedPropertyCriteria.*;
-import static org.picketlink.idm.IDMMessages.*;
-import static org.picketlink.idm.credential.util.CredentialUtils.*;
+import static java.util.Map.Entry;
+import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.credential.util.CredentialUtils.getCurrentCredential;
 
 /**
  * <p> File based {@link IdentityStore} implementation. </p>

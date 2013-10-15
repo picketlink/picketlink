@@ -37,9 +37,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import static java.util.Map.*;
-import static org.picketlink.common.util.ClassUtil.*;
-import static org.picketlink.idm.IDMMessages.*;
+import static java.util.Map.Entry;
+import static org.picketlink.common.util.ClassUtil.loadClass;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * <p> This class holds all the mapping configuration for a specific JPA Entity and their corresponding IDM model

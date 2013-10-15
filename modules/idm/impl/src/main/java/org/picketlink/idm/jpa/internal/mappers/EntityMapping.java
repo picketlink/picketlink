@@ -32,8 +32,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.picketlink.common.properties.query.TypedPropertyCriteria.*;
-import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * @author pedroigor

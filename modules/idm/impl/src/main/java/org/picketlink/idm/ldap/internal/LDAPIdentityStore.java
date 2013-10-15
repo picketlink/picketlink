@@ -57,12 +57,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import static java.util.Map.*;
-import static org.picketlink.common.properties.query.TypedPropertyCriteria.*;
-import static org.picketlink.common.util.StringUtil.*;
-import static org.picketlink.idm.IDMMessages.*;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.*;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.*;
+import static java.util.Map.Entry;
+import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.COMMA;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.CREATE_TIMESTAMP;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.ENTRY_UUID;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.EQUAL;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.GROUP_OF_NAMES;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
 
 /**
  * An IdentityStore implementation backed by an LDAP directory
