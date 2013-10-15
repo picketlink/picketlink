@@ -43,7 +43,7 @@ import org.picketlink.idm.spi.IdentityStore;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 
-import static org.picketlink.idm.config.IdentityStoreConfiguration.*;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * <p>
@@ -77,6 +77,8 @@ public interface IDMMessages {
     @Message(id = 4, value = "Error marshalling object.")
     IdentityManagementException marshallingError(@Cause Throwable t);
 
+    @Message(id = 5, value = "Unexpected type [%s].")
+    IdentityManagementException unexpectedType(Class<?> unexpectedType);
 
     // credential API messages 200-299
     @Message(id = 200, value = "Credentials class [%s] not supported by this handler [%s].")
