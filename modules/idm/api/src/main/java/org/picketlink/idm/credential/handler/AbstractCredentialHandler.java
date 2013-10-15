@@ -27,7 +27,8 @@ import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 
 import static org.picketlink.idm.credential.Credentials.Status;
-import static org.picketlink.idm.model.basic.BasicModel.*;
+import static org.picketlink.idm.model.basic.BasicModel.getAgent;
+import static org.picketlink.idm.model.basic.BasicModel.getUser;
 
 /**
  * <p>Base class for {@link CredentialHandler} implementations.</p>

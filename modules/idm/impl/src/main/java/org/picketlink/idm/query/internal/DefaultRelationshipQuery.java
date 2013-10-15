@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Default IdentityQuery implementation.

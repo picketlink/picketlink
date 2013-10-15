@@ -34,8 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static java.util.Map.*;
-import static org.picketlink.common.properties.query.TypedPropertyCriteria.*;
+import static java.util.Map.Entry;
+import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
 
 /**
  * @author pedroigor

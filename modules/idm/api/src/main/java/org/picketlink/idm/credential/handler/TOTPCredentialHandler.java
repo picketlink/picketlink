@@ -32,9 +32,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.picketlink.common.util.StringUtil.*;
-import static org.picketlink.idm.credential.Credentials.*;
-import static org.picketlink.idm.credential.util.TimeBasedOTP.*;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.credential.Credentials.Status;
+import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_ALGORITHM;
+import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_DELAY_WINDOW;
+import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_INTERVAL_SECONDS;
+import static org.picketlink.idm.credential.util.TimeBasedOTP.DEFAULT_NUMBER_DIGITS;
 
 /**
  * <p> This particular implementation supports the validation of {@link TOTPCredentials}, and updating {@link

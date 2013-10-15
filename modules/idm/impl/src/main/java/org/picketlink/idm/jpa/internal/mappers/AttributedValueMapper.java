@@ -26,7 +26,7 @@ import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
 
-import static org.picketlink.common.util.StringUtil.*;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * @author pedroigor

@@ -37,9 +37,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static java.util.Collections.*;
-import static org.picketlink.idm.IDMMessages.*;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.*;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.Collections.unmodifiableSet;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * <p>Base class for {@link IdentityStoreConfigurationBuilder} implementations.</p>

@@ -26,7 +26,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * @author Pedro Silva

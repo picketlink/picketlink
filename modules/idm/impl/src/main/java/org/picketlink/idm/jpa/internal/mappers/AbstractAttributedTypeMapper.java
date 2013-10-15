@@ -22,8 +22,8 @@ import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.model.AttributedType;
 
-import static org.picketlink.common.util.StringUtil.*;
-import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * @author pedroigor
