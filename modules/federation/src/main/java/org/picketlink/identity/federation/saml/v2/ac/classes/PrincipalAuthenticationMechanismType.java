@@ -33,19 +33,20 @@ import java.math.BigInteger;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Password" minOccurs="0"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}RestrictedPassword" minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}RestrictedPassword"
+ * minOccurs="0"/>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Token" minOccurs="0"/>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Smartcard" minOccurs="0"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}ActivationPin" minOccurs="0"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Extension" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}ActivationPin"
+ * minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Extension"
+ * maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *       &lt;attribute name="preauth" type="{http://www.w3.org/2001/XMLSchema}integer" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class PrincipalAuthenticationMechanismType extends ExtensionListType {
 
@@ -60,7 +61,6 @@ public class PrincipalAuthenticationMechanismType extends ExtensionListType {
      * Gets the value of the password property.
      *
      * @return possible object is {@link PasswordType }
-     *
      */
     public PasswordType getPassword() {
         return password;
@@ -70,7 +70,6 @@ public class PrincipalAuthenticationMechanismType extends ExtensionListType {
      * Sets the value of the password property.
      *
      * @param value allowed object is {@link PasswordType }
-     *
      */
     public void setPassword(PasswordType value) {
         this.password = value;
@@ -80,7 +79,6 @@ public class PrincipalAuthenticationMechanismType extends ExtensionListType {
      * Gets the value of the restrictedPassword property.
      *
      * @return possible object is {@link RestrictedPasswordType }
-     *
      */
     public RestrictedPasswordType getRestrictedPassword() {
         return restrictedPassword;
@@ -90,7 +88,6 @@ public class PrincipalAuthenticationMechanismType extends ExtensionListType {
      * Sets the value of the restrictedPassword property.
      *
      * @param value allowed object is {@link RestrictedPasswordType }
-     *
      */
     public void setRestrictedPassword(RestrictedPasswordType value) {
         this.restrictedPassword = value;
@@ -100,7 +97,6 @@ public class PrincipalAuthenticationMechanismType extends ExtensionListType {
      * Gets the value of the token property.
      *
      * @return possible object is {@link TokenType }
-     *
      */
     public TokenType getToken() {
         return token;
@@ -110,7 +106,6 @@ public class PrincipalAuthenticationMechanismType extends ExtensionListType {
      * Sets the value of the token property.
      *
      * @param value allowed object is {@link TokenType }
-     *
      */
     public void setToken(TokenType value) {
         this.token = value;
@@ -120,7 +115,6 @@ public class PrincipalAuthenticationMechanismType extends ExtensionListType {
      * Gets the value of the smartcard property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getSmartcard() {
         return smartcard;
@@ -130,7 +124,6 @@ public class PrincipalAuthenticationMechanismType extends ExtensionListType {
      * Sets the value of the smartcard property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setSmartcard(ExtensionOnlyType value) {
         this.smartcard = value;
@@ -140,7 +133,6 @@ public class PrincipalAuthenticationMechanismType extends ExtensionListType {
      * Gets the value of the activationPin property.
      *
      * @return possible object is {@link ActivationPinType }
-     *
      */
     public ActivationPinType getActivationPin() {
         return activationPin;
@@ -150,7 +142,6 @@ public class PrincipalAuthenticationMechanismType extends ExtensionListType {
      * Sets the value of the activationPin property.
      *
      * @param value allowed object is {@link ActivationPinType }
-     *
      */
     public void setActivationPin(ActivationPinType value) {
         this.activationPin = value;
@@ -160,7 +151,6 @@ public class PrincipalAuthenticationMechanismType extends ExtensionListType {
      * Gets the value of the preauth property.
      *
      * @return possible object is {@link BigInteger }
-     *
      */
     public BigInteger getPreauth() {
         return preauth;
@@ -170,7 +160,6 @@ public class PrincipalAuthenticationMechanismType extends ExtensionListType {
      * Sets the value of the preauth property.
      *
      * @param value allowed object is {@link BigInteger }
-     *
      */
     public void setPreauth(BigInteger value) {
         this.preauth = value;

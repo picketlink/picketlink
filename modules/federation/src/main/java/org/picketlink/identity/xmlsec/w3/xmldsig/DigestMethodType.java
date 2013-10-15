@@ -38,10 +38,9 @@ import java.net.URI;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class DigestMethodType {
+
     protected URI algorithm;
     private Object content;
 
@@ -61,7 +60,6 @@ public class DigestMethodType {
      * Gets the value of the algorithm property.
      *
      * @return possible object is {@link URI }
-     *
      */
     public URI getAlgorithm() {
         return algorithm;

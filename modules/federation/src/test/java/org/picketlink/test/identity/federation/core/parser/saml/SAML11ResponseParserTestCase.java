@@ -43,6 +43,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Jun 23, 2011
  */
 public class SAML11ResponseParserTestCase extends AbstractParserTest {
+
     @Test
     public void testSAML11Response() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();
@@ -76,7 +77,7 @@ public class SAML11ResponseParserTestCase extends AbstractParserTest {
         Logger.getLogger(SAML11ResponseParserTestCase.class).debug(writtenString);
         validateSchema(writtenString);
     }
-    
+
     @Test
     public void testSAML11ResponseWithStatusMessage() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();

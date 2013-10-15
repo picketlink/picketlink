@@ -31,15 +31,17 @@ import java.util.Date;
 
 /**
  * Implementation of {@link org.picketlink.identity.federation.core.sts.registry.SecurityTokenRegistry} using JDBC
+ *
  * @author Anil Saldhana
  * @since August 06, 2013
  */
-public class JDBCRevocationRegistry extends AbstractJDBCRegistry implements RevocationRegistry{
+public class JDBCRevocationRegistry extends AbstractJDBCRegistry implements RevocationRegistry {
 
-    public JDBCRevocationRegistry(){
+    public JDBCRevocationRegistry() {
         super("jdbc/picketlink-sts");
     }
-    public JDBCRevocationRegistry(String jndiName){
+
+    public JDBCRevocationRegistry(String jndiName) {
         super(jndiName);
     }
 
@@ -47,7 +49,7 @@ public class JDBCRevocationRegistry extends AbstractJDBCRegistry implements Revo
      * @see RevocationRegistry#isRevoked(String, String)
      */
     public boolean isRevoked(String tokenType, String tokenID) {
-        if(dataSource == null){
+        if (dataSource == null) {
             throw logger.datasourceIsNull();
         }
         String existsTableSQL = "SELECT COUNT(*) FROM REVOCATION_REGISTRY WHERE TOKEN_ID =? AND  TOKEN_TYPE = ?";
@@ -65,8 +67,8 @@ public class JDBCRevocationRegistry extends AbstractJDBCRegistry implements Revo
 
             return resultSet.getInt(1) > 0;
         } catch (SQLException e) {
-            throw logger.runtimeException("revokeToken",e);
-        }finally {
+            throw logger.runtimeException("revokeToken", e);
+        } finally {
             safeClose(resultSet);
             safeClose(preparedStatement);
             safeClose(conn);
@@ -77,7 +79,7 @@ public class JDBCRevocationRegistry extends AbstractJDBCRegistry implements Revo
      * @see RevocationRegistry#revokeToken(String, String)
      */
     public void revokeToken(String tokenType, String tokenID) {
-        if(dataSource == null){
+        if (dataSource == null) {
             throw logger.datasourceIsNull();
         }
         String insertTableSQL = "INSERT INTO REVOCATION_REGISTRY" + "(TOKEN_ID, TOKEN_TYPE, CREATED_DATE) VALUES" + "(?,?,?)";
@@ -93,8 +95,8 @@ public class JDBCRevocationRegistry extends AbstractJDBCRegistry implements Revo
             preparedStatement.setTimestamp(3, new Timestamp(tokenCreationDate.getTime()));
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw logger.runtimeException("revokeToken",e);
-        }finally {
+            throw logger.runtimeException("revokeToken", e);
+        } finally {
             safeClose(preparedStatement);
             safeClose(conn);
         }

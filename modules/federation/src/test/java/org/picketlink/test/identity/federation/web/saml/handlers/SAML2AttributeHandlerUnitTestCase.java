@@ -65,6 +65,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Oct 12, 2009
  */
 public class SAML2AttributeHandlerUnitTestCase {
+
     private static String name = "anil";
 
     private static String email = "anil@test";
@@ -82,7 +83,7 @@ public class SAML2AttributeHandlerUnitTestCase {
         idpType.setAttributeManager(TestAttributeManager.class.getName());
         chainOptions.put(GeneralConstants.CONFIGURATION, idpType);
         chainConfig.set(chainOptions);
-        
+
         // Initialize the handler
         handler.initChainConfig(chainConfig);
         handler.initHandlerConfig(handlerConfig);
@@ -165,6 +166,7 @@ public class SAML2AttributeHandlerUnitTestCase {
     }
 
     public static class TestAttributeManager implements AttributeManager {
+
         public Map<String, Object> getAttributes(Principal userPrincipal, List<String> attributeKeys) {
             Map<String, Object> attribs = new HashMap<String, Object>();
 

@@ -41,8 +41,6 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class Generation {
 
@@ -52,7 +50,6 @@ public class Generation {
      * Gets the value of the mechanism property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getMechanism() {
         return mechanism;
@@ -62,7 +59,6 @@ public class Generation {
      * Sets the value of the mechanism property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setMechanism(String value) {
         this.mechanism = value;

@@ -49,8 +49,6 @@ import java.math.BigInteger;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TimeSyncTokenType")
@@ -67,7 +65,6 @@ public class TimeSyncTokenType {
      * Gets the value of the deviceType property.
      *
      * @return possible object is {@link DeviceTypeType }
-     *
      */
     public DeviceTypeType getDeviceType() {
         return deviceType;
@@ -77,7 +74,6 @@ public class TimeSyncTokenType {
      * Sets the value of the deviceType property.
      *
      * @param value allowed object is {@link DeviceTypeType }
-     *
      */
     public void setDeviceType(DeviceTypeType value) {
         this.deviceType = value;
@@ -87,7 +83,6 @@ public class TimeSyncTokenType {
      * Gets the value of the seedLength property.
      *
      * @return possible object is {@link BigInteger }
-     *
      */
     public BigInteger getSeedLength() {
         return seedLength;
@@ -97,7 +92,6 @@ public class TimeSyncTokenType {
      * Sets the value of the seedLength property.
      *
      * @param value allowed object is {@link BigInteger }
-     *
      */
     public void setSeedLength(BigInteger value) {
         this.seedLength = value;
@@ -107,7 +101,6 @@ public class TimeSyncTokenType {
      * Gets the value of the deviceInHand property.
      *
      * @return possible object is {@link BooleanType }
-     *
      */
     public BooleanType getDeviceInHand() {
         return deviceInHand;
@@ -117,7 +110,6 @@ public class TimeSyncTokenType {
      * Sets the value of the deviceInHand property.
      *
      * @param value allowed object is {@link BooleanType }
-     *
      */
     public void setDeviceInHand(BooleanType value) {
         this.deviceInHand = value;

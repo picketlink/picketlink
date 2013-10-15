@@ -53,11 +53,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ComplexAuthenticatorType", propOrder = { "content" })
+@XmlType(name = "ComplexAuthenticatorType", propOrder = {"content"})
 public class ComplexAuthenticatorType {
 
     @XmlElementRefs({
@@ -75,23 +73,28 @@ public class ComplexAuthenticatorType {
             @XmlElementRef(name = "Password", namespace = "urn:oasis:names:tc:SAML:2.0:ac", type = JAXBElement.class),
             @XmlElementRef(name = "AsymmetricDecryption", namespace = "urn:oasis:names:tc:SAML:2.0:ac", type = JAXBElement.class),
             @XmlElementRef(name = "Extension", namespace = "urn:oasis:names:tc:SAML:2.0:ac", type = JAXBElement.class),
-            @XmlElementRef(name = "AsymmetricKeyAgreement", namespace = "urn:oasis:names:tc:SAML:2.0:ac", type = JAXBElement.class) })
+            @XmlElementRef(name = "AsymmetricKeyAgreement", namespace = "urn:oasis:names:tc:SAML:2.0:ac", type = JAXBElement.class)})
     protected List<JAXBElement<?>> content;
 
     /**
      * Gets the rest of the content model.
      *
      * <p>
-     * You are getting this "catch-all" property because of the following reason: The field name "PreviousSession" is used by
-     * two different parts of a schema. See: line 575 of file:/home/anil/saml2/saml-schema-authn-context-types-2.0.xsd line 556
+     * You are getting this "catch-all" property because of the following reason: The field name "PreviousSession" is
+     * used by
+     * two different parts of a schema. See: line 575 of file:/home/anil/saml2/saml-schema-authn-context-types-2.0.xsd
+     * line 556
      * of file:/home/anil/saml2/saml-schema-authn-context-types-2.0.xsd
      * <p>
-     * To get rid of this property, apply a property customization to one of both of the following declarations to change their
+     * To get rid of this property, apply a property customization to one of both of the following declarations to
+     * change their
      * names: Gets the value of the content property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the content
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the
+     * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
+     * content
      * property.
      *
      * <p>
@@ -103,18 +106,22 @@ public class ComplexAuthenticatorType {
      *
      *
      * <p>
-     * Objects of the following type(s) are allowed in the list {@link JAXBElement }{@code <}{@link ComplexAuthenticatorType }
+     * Objects of the following type(s) are allowed in the list {@link JAXBElement }{@code <}{@link
+     * ComplexAuthenticatorType }
      * {@code >} {@link JAXBElement }{@code <}{@link ExtensionOnlyType }{@code >} {@link JAXBElement }{@code <}
      * {@link ExtensionOnlyType }{@code >} {@link JAXBElement }{@code <}{@link RestrictedPasswordType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ExtensionOnlyType }{@code >} {@link JAXBElement }{@code <}{@link ExtensionOnlyType }
+     * {@link JAXBElement }{@code <}{@link ExtensionOnlyType }{@code >} {@link JAXBElement }{@code <}{@link
+     * ExtensionOnlyType }
      * {@code >} {@link JAXBElement }{@code <}{@link PublicKeyType }{@code >} {@link JAXBElement }{@code <}
-     * {@link SharedSecretChallengeResponseType }{@code >} {@link JAXBElement }{@code <}{@link ExtensionOnlyType }{@code >}
-     * {@link JAXBElement }{@code <}{@link ExtensionOnlyType }{@code >} {@link JAXBElement }{@code <}{@link ExtensionOnlyType }
-     * {@code >} {@link JAXBElement }{@code <}{@link PasswordType }{@code >} {@link JAXBElement }{@code <}{@link PublicKeyType }
-     * {@code >} {@link JAXBElement }{@code <}{@link ExtensionType }{@code >} {@link JAXBElement }{@code <}{@link PublicKeyType }
+     * {@link SharedSecretChallengeResponseType }{@code >} {@link JAXBElement }{@code <}{@link ExtensionOnlyType }{@code
+     * >}
+     * {@link JAXBElement }{@code <}{@link ExtensionOnlyType }{@code >} {@link JAXBElement }{@code <}{@link
+     * ExtensionOnlyType }
+     * {@code >} {@link JAXBElement }{@code <}{@link PasswordType }{@code >} {@link JAXBElement }{@code <}{@link
+     * PublicKeyType }
+     * {@code >} {@link JAXBElement }{@code <}{@link ExtensionType }{@code >} {@link JAXBElement }{@code <}{@link
+     * PublicKeyType }
      * {@code >}
-     *
-     *
      */
     public List<JAXBElement<?>> getContent() {
         if (content == null) {

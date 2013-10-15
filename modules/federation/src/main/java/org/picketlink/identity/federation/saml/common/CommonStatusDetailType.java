@@ -40,10 +40,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class CommonStatusDetailType implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     protected List<Object> any = new ArrayList<Object>();

@@ -41,10 +41,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class IDPListType {
+
     protected List<IDPEntryType> idpEntry = new ArrayList<IDPEntryType>();
     protected URI getComplete;
 
@@ -68,7 +67,6 @@ public class IDPListType {
 
     /**
      * Gets the value of the idpEntry property.
-     *
      */
     public List<IDPEntryType> getIDPEntry() {
         return Collections.unmodifiableList(this.idpEntry);
@@ -78,7 +76,6 @@ public class IDPListType {
      * Gets the value of the getComplete property.
      *
      * @return possible object is {@link String }
-     *
      */
     public URI getGetComplete() {
         return getComplete;
@@ -88,7 +85,6 @@ public class IDPListType {
      * Sets the value of the getComplete property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setGetComplete(URI value) {
         this.getComplete = value;

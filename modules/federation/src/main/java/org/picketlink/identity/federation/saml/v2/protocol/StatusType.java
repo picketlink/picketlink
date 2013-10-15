@@ -37,10 +37,9 @@ package org.picketlink.identity.federation.saml.v2.protocol;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class StatusType {
+
     protected String statusMessage;
     protected StatusCodeType statusCode;
     protected StatusDetailType statusDetail;
@@ -49,7 +48,6 @@ public class StatusType {
      * Gets the value of the statusCode property.
      *
      * @return possible object is {@link StatusCodeType }
-     *
      */
     public StatusCodeType getStatusCode() {
         return statusCode;
@@ -59,7 +57,6 @@ public class StatusType {
      * Sets the value of the statusCode property.
      *
      * @param value allowed object is {@link StatusCodeType }
-     *
      */
     public void setStatusCode(StatusCodeType value) {
         this.statusCode = value;
@@ -69,7 +66,6 @@ public class StatusType {
      * Gets the value of the statusMessage property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getStatusMessage() {
         return statusMessage;
@@ -79,7 +75,6 @@ public class StatusType {
      * Sets the value of the statusMessage property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setStatusMessage(String value) {
         this.statusMessage = value;
@@ -89,7 +84,6 @@ public class StatusType {
      * Gets the value of the statusDetail property.
      *
      * @return possible object is {@link StatusDetailType }
-     *
      */
     public StatusDetailType getStatusDetail() {
         return statusDetail;
@@ -99,7 +93,6 @@ public class StatusType {
      * Sets the value of the statusDetail property.
      *
      * @param value allowed object is {@link StatusDetailType }
-     *
      */
     public void setStatusDetail(StatusDetailType value) {
         this.statusDetail = value;

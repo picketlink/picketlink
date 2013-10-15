@@ -54,11 +54,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ActivationPinType", propOrder = { "length", "alphabet", "generation", "activationLimit", "extension" })
+@XmlType(name = "ActivationPinType", propOrder = {"length", "alphabet", "generation", "activationLimit", "extension"})
 public class ActivationPinType {
 
     @XmlElement(name = "Length")
@@ -76,7 +74,6 @@ public class ActivationPinType {
      * Gets the value of the length property.
      *
      * @return possible object is {@link LengthType }
-     *
      */
     public LengthType getLength() {
         return length;
@@ -86,7 +83,6 @@ public class ActivationPinType {
      * Sets the value of the length property.
      *
      * @param value allowed object is {@link LengthType }
-     *
      */
     public void setLength(LengthType value) {
         this.length = value;
@@ -96,7 +92,6 @@ public class ActivationPinType {
      * Gets the value of the alphabet property.
      *
      * @return possible object is {@link AlphabetType }
-     *
      */
     public AlphabetType getAlphabet() {
         return alphabet;
@@ -106,7 +101,6 @@ public class ActivationPinType {
      * Sets the value of the alphabet property.
      *
      * @param value allowed object is {@link AlphabetType }
-     *
      */
     public void setAlphabet(AlphabetType value) {
         this.alphabet = value;
@@ -116,7 +110,6 @@ public class ActivationPinType {
      * Gets the value of the generation property.
      *
      * @return possible object is {@link Generation }
-     *
      */
     public Generation getGeneration() {
         return generation;
@@ -126,7 +119,6 @@ public class ActivationPinType {
      * Sets the value of the generation property.
      *
      * @param value allowed object is {@link Generation }
-     *
      */
     public void setGeneration(Generation value) {
         this.generation = value;
@@ -136,7 +128,6 @@ public class ActivationPinType {
      * Gets the value of the activationLimit property.
      *
      * @return possible object is {@link ActivationLimitType }
-     *
      */
     public ActivationLimitType getActivationLimit() {
         return activationLimit;
@@ -146,7 +137,6 @@ public class ActivationPinType {
      * Sets the value of the activationLimit property.
      *
      * @param value allowed object is {@link ActivationLimitType }
-     *
      */
     public void setActivationLimit(ActivationLimitType value) {
         this.activationLimit = value;
@@ -156,7 +146,8 @@ public class ActivationPinType {
      * Gets the value of the extension property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to the
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the
      * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
      * extension property.
      *
@@ -170,8 +161,6 @@ public class ActivationPinType {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link ExtensionType }
-     *
-     *
      */
     public List<ExtensionType> getExtension() {
         if (extension == null) {

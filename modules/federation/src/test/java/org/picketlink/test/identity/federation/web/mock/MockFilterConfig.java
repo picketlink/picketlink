@@ -30,6 +30,7 @@ import java.util.Map;
  * @since Oct 8, 2009
  */
 public class MockFilterConfig implements FilterConfig {
+
     private Map<String, String> params = new HashMap<String, String>();
     private ServletContext context = null;
 
@@ -49,7 +50,7 @@ public class MockFilterConfig implements FilterConfig {
         return params.get(arg0);
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public Enumeration getInitParameterNames() {
         throw new RuntimeException("NYI");
     }

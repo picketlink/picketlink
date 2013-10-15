@@ -21,7 +21,7 @@ package org.picketlink.authentication.event;
 
 /**
  * <p>This event is fired during the authentication process if the agent is disabled.</p>
- * 
+ *
  * @author Shane Bryzak
  * @author Pedro Igor
  */

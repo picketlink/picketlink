@@ -35,12 +35,14 @@ import java.util.Map;
 import static org.picketlink.common.util.StringUtil.isNotNull;
 
 /**
- * Circle of trust establishing servlet that accesses the metadata urls of the various sites and updates the common store
+ * Circle of trust establishing servlet that accesses the metadata urls of the various sites and updates the common
+ * store
  *
  * @author Anil.Saldhana@redhat.com
  * @since Apr 23, 2009
  */
 public class CircleOfTrustServlet extends HttpServlet {
+
     private static final long serialVersionUID = 1L;
 
     private transient IMetadataConfigurationStore configProvider = new FileBasedMetadataConfigurationStore();
@@ -90,25 +92,25 @@ public class CircleOfTrustServlet extends HttpServlet {
                 }
             }
         } else
-        // IDP
-        if ("idp".equalsIgnoreCase(type)) {
-            if ("add".equalsIgnoreCase(action)) {
-                try {
-                    addSP(req, resp);
-                    req.getRequestDispatcher("/addedSP.jsp").forward(req, resp);
-                } catch (Exception e) {
-                    throw new ServletException(e);
+            // IDP
+            if ("idp".equalsIgnoreCase(type)) {
+                if ("add".equalsIgnoreCase(action)) {
+                    try {
+                        addSP(req, resp);
+                        req.getRequestDispatcher("/addedSP.jsp").forward(req, resp);
+                    } catch (Exception e) {
+                        throw new ServletException(e);
+                    }
+                }
+                if ("display_trusted_providers".equalsIgnoreCase(action)) {
+                    try {
+                        displayTrustedProvidersForIDP(req, resp);
+                        req.getRequestDispatcher("/idpTrustedProviders.jsp").forward(req, resp);
+                    } catch (Exception e) {
+                        throw new ServletException(e);
+                    }
                 }
             }
-            if ("display_trusted_providers".equalsIgnoreCase(action)) {
-                try {
-                    displayTrustedProvidersForIDP(req, resp);
-                    req.getRequestDispatcher("/idpTrustedProviders.jsp").forward(req, resp);
-                } catch (Exception e) {
-                    throw new ServletException(e);
-                }
-            }
-        }
     }
 
     private void addIDP(HttpServletRequest request, HttpServletResponse response) throws IOException {

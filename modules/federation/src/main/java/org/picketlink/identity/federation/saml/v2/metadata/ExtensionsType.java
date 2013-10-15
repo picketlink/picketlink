@@ -37,10 +37,9 @@ import org.w3c.dom.Element;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ExtensionsType {
+
     protected Element element = null;
 
     public Element getElement() {

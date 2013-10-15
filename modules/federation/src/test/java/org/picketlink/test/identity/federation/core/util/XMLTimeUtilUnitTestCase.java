@@ -37,7 +37,7 @@ import java.util.TimeZone;
  * @since Jan 6, 2009
  */
 public class XMLTimeUtilUnitTestCase {
-    
+
     @Test
     public void testCompareViaParsing() throws Exception {
         DatatypeFactory dt = DatatypeFactory.newInstance();
@@ -65,17 +65,17 @@ public class XMLTimeUtilUnitTestCase {
 
         Assert.assertTrue("Compared value is 0", val <= 0);
     }
-    
+
     @Test
     public void testNumericCacheDurationValue() throws Exception {
         Duration numericOneSecondeDuration = XMLTimeUtil.parseAsDuration("1000");
         Assert.assertEquals(1, numericOneSecondeDuration.getSeconds());
-        
+
         Duration numericOneMinuteDuration = XMLTimeUtil.parseAsDuration("60000");
         Assert.assertEquals(1, numericOneMinuteDuration.getMinutes());
     }
 
-    @Test (expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testInvalidCacheDurationValue() throws Exception {
         XMLTimeUtil.parseAsDuration("X10A");
     }

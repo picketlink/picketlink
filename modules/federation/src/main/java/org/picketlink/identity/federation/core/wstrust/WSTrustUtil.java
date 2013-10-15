@@ -76,7 +76,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 
-import static org.picketlink.common.util.StringUtil.*;
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 /**
  * <p>
@@ -89,20 +89,22 @@ public class WSTrustUtil {
 
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
-        // Set some system properties and Santuario providers. Run this block before any other class initialization.
-        static {
-            ProvidersUtil.ensure();
-            SystemPropertiesUtil.ensure();
-            String keyInfoProp = SystemPropertiesUtil.getSystemProperty("picketlink.encryption.includeKeyInfo", null);
-            if (isNotNull(keyInfoProp)) {
-                includeKeyInfoInEncryptedKey = Boolean.parseBoolean(keyInfoProp);
-            }
-    };
+    // Set some system properties and Santuario providers. Run this block before any other class initialization.
+    static {
+        ProvidersUtil.ensure();
+        SystemPropertiesUtil.ensure();
+        String keyInfoProp = SystemPropertiesUtil.getSystemProperty("picketlink.encryption.includeKeyInfo", null);
+        if (isNotNull(keyInfoProp)) {
+            includeKeyInfoInEncryptedKey = Boolean.parseBoolean(keyInfoProp);
+        }
+    }
 
-     /**
-      * By default, we include the keyinfo in the EncryptedKey
-      */
-     private static boolean includeKeyInfoInEncryptedKey = true;
+    ;
+
+    /**
+     * By default, we include the keyinfo in the EncryptedKey
+     */
+    private static boolean includeKeyInfoInEncryptedKey = true;
 
     /**
      * <p>
@@ -111,6 +113,7 @@ public class WSTrustUtil {
      *
      * @param valueType a {@code String} representing the identifier value type.
      * @param value a {@code String} representing the identifier value.
+     *
      * @return the constructed {@code KeyIdentifierType} instance.
      */
     public static KeyIdentifierType createKeyIdentifier(String valueType, String value) {
@@ -123,12 +126,14 @@ public class WSTrustUtil {
     /**
      * <p>
      * Creates an instance of {@code RequestedReferenceType} with the specified values. This method first creates a
-     * {@code SecurityTokenReferenceType} with the specified key identifier and attributes and then use this reference to
+     * {@code SecurityTokenReferenceType} with the specified key identifier and attributes and then use this reference
+     * to
      * construct the {@code RequestedReferenceType} that is returned.
      * </p>
      *
      * @param keyIdentifier the key identifier of the security token reference.
      * @param attributes the attributes to be set on the security token reference.
+     *
      * @return the constructed {@code RequestedReferenceType} instance.
      */
     public static RequestedReferenceType createRequestedReference(KeyIdentifierType keyIdentifier, Map<QName, String> attributes) {
@@ -147,6 +152,7 @@ public class WSTrustUtil {
      * </p>
      *
      * @param endpointURI a {@code String} representing the endpoint URI.
+     *
      * @return the constructed {@code AppliesTo} instance.
      */
     public static AppliesTo createAppliesTo(String endpointURI) {
@@ -164,6 +170,7 @@ public class WSTrustUtil {
      * Given an address, create the WS-Addressing issuer
      *
      * @param addressUri
+     *
      * @return
      */
     public static EndpointReferenceType createIssuer(String addressUri) {
@@ -176,10 +183,12 @@ public class WSTrustUtil {
 
     /**
      * <p>
-     * Parses the contents of the {@code AppliesTo} element and returns the address the uniquely identify the service provider.
+     * Parses the contents of the {@code AppliesTo} element and returns the address the uniquely identify the service
+     * provider.
      * </p>
      *
      * @param appliesTo the {@code AppliesTo} instance to be parsed.
+     *
      * @return the address of the service provider.
      */
     public static String parseAppliesTo(AppliesTo appliesTo) {
@@ -198,7 +207,6 @@ public class WSTrustUtil {
         }
         return null;
     }
-    
 
 
     public static RenewingType parseRenewingType(XMLEventReader xmlEventReader) throws ParsingException {
@@ -224,11 +232,13 @@ public class WSTrustUtil {
 
     /**
      * <p>
-     * Creates a {@code Lifetime} instance that specifies a range of time that starts at the current GMT time and has the
+     * Creates a {@code Lifetime} instance that specifies a range of time that starts at the current GMT time and has
+     * the
      * specified duration in milliseconds.
      * </p>
      *
      * @param tokenTimeout the token timeout value (in milliseconds).
+     *
      * @return the constructed {@code Lifetime} instance.
      */
     public static Lifetime createDefaultLifetime(long tokenTimeout) {
@@ -241,11 +251,13 @@ public class WSTrustUtil {
 
     /**
      * <p>
-     * Parses the contents of the {@code OnBehalfOf} element and returns a {@code Principal} representing the identity on behalf
+     * Parses the contents of the {@code OnBehalfOf} element and returns a {@code Principal} representing the identity
+     * on behalf
      * of which the request was made.
      * </p>
      *
      * @param onBehalfOf the type that represents the {@code OnBehalfOf} element.
+     *
      * @return a {@code Principal} representing the extracted identity, or {@code null} if the contents of the
      *         {@code OnBehalfOf} element could not be parsed.
      */
@@ -278,7 +290,7 @@ public class WSTrustUtil {
         }
 
         logger.debug("Unable to parse the contents of the OnBehalfOfType: " + onBehalfOf.getAny());
-        
+
         return null;
     }
 
@@ -289,6 +301,7 @@ public class WSTrustUtil {
      *
      * @param username a {@code String} that represents the username of the {@code UsernameTokenType}.
      * @param id an optional {@code String} that uniquely identifies the {@code UsernameTokenType}.
+     *
      * @return the constructed {@code OnBehalfOfType} instance.
      */
     public static OnBehalfOfType createOnBehalfOfWithUsername(String username, String id) {
@@ -309,7 +322,9 @@ public class WSTrustUtil {
      * </p>
      *
      * @param entropy a reference to the {@code EntropyType} that contains the binary secret.
-     * @return a {@code byte[]} containing the secret; {@code null} if the specified entropy doesn't contain any secret.
+     *
+     * @return a {@code byte[]} containing the secret; {@code null} if the specified entropy doesn't contain any
+     *         secret.
      */
     public static byte[] getBinarySecret(EntropyType entropy) {
         byte[] secret = null;
@@ -350,6 +365,7 @@ public class WSTrustUtil {
      * </p>
      *
      * @param size the size of the secret to be created, in bytes.
+     *
      * @return a {@code byte[]} containing the generated secret.
      */
     public static byte[] createRandomSecret(final int size) {
@@ -361,7 +377,8 @@ public class WSTrustUtil {
 
     /**
      * <p>
-     * This method implements the {@code P_SHA-1} function as defined in the <i>RFC 2246 - The TLS Protocol Version 1.0 Section
+     * This method implements the {@code P_SHA-1} function as defined in the <i>RFC 2246 - The TLS Protocol Version 1.0
+     * Section
      * 5. HMAC and the pseudorandom function</i>:
      *
      * <pre>
@@ -381,7 +398,9 @@ public class WSTrustUtil {
      * @param secret a {@code byte[]} that represents the HMAC secret.
      * @param seed a {@code byte[]} that represents the seed to be used.
      * @param requiredSize an {@code int} that specifies the size (in bytes) of the result.
+     *
      * @return a {@code byte[]} containing the result of the {@code P_SHA-1} function.
+     *
      * @throws NoSuchAlgorithmException if an error occurs while creating the {@code Mac} instance.
      * @throws InvalidKeyException if an error occurs while initializing the {@code Mac} instance.
      */
@@ -420,7 +439,8 @@ public class WSTrustUtil {
 
     /**
      * <p>
-     * Creates a {@code KeyInfoType} that wraps the specified secret. If the {@code encryptionKey} parameter is not null, the
+     * Creates a {@code KeyInfoType} that wraps the specified secret. If the {@code encryptionKey} parameter is not
+     * null, the
      * secret is encrypted using the specified public key before it is set in the {@code KeyInfoType}. It also create a
      * keyinfo with the information about the key used for the encryption
      * </p>
@@ -428,7 +448,9 @@ public class WSTrustUtil {
      * @param secret a {@code byte[]} representing the secret (symmetric key).
      * @param encryptionKey the {@code PublicKey} that must be used to encrypt the secret.
      * @param keyWrapAlgo the key wrap algorithm to be used.
+     *
      * @return the constructed {@code KeyInfoType} instance.
+     *
      * @throws WSTrustException if an error occurs while creating the {@code KeyInfoType} object.
      */
     public static KeyInfoType createKeyInfo(byte[] secret, PublicKey encryptionKey, URI keyWrapAlgo, X509Certificate cer) throws WSTrustException {
@@ -465,27 +487,33 @@ public class WSTrustUtil {
 
     /**
      * <p>
-     * Creates a {@code KeyInfoType} that wraps the specified secret. If the {@code encryptionKey} parameter is not null, the
+     * Creates a {@code KeyInfoType} that wraps the specified secret. If the {@code encryptionKey} parameter is not
+     * null, the
      * secret is encrypted using the specified public key before it is set in the {@code KeyInfoType}.
      * </p>
      *
      * @param secret a {@code byte[]} representing the secret (symmetric key).
      * @param encryptionKey the {@code PublicKey} that must be used to encrypt the secret.
      * @param keyWrapAlgo the key wrap algorithm to be used.
+     *
      * @return the constructed {@code KeyInfoType} instance.
+     *
      * @throws WSTrustException if an error occurs while creating the {@code KeyInfoType} object.
      */
-     public static KeyInfoType createKeyInfo(byte[] secret, PublicKey encryptionKey, URI keyWrapAlgo) throws WSTrustException {
+    public static KeyInfoType createKeyInfo(byte[] secret, PublicKey encryptionKey, URI keyWrapAlgo) throws WSTrustException {
         return createKeyInfo(secret, encryptionKey, keyWrapAlgo, null);
-     }
+    }
 
     /**
      * <p>
      * Creates a {@code KeyInfoType} that wraps the specified certificate.
      * </p>
      *
-     * @param certificate the {@code Certificate} to be wrapped as a {@code X509DataType} inside the {@code KeyInfoType}.
+     * @param certificate the {@code Certificate} to be wrapped as a {@code X509DataType} inside the {@code
+     * KeyInfoType}.
+     *
      * @return the constructed {@code KeyInfoType} object.
+     *
      * @throws WSTrustException if an error occurs while creating the {@code KeyInfoType}.
      */
     public static KeyInfoType createKeyInfo(Certificate certificate) throws WSTrustException {
@@ -515,7 +543,9 @@ public class WSTrustUtil {
      * </p>
      *
      * @param key the {@code PublicKey} that will be represented as a {@code KeyValueType}.
-     * @return the constructed {@code KeyValueType} or {@code null} if the specified key is neither a DSA nor a RSA key.
+     *
+     * @return the constructed {@code KeyValueType} or {@code null} if the specified key is neither a DSA nor a RSA
+     *         key.
      */
     public static KeyValueType createKeyValue(PublicKey key) {
         return SignatureUtil.createKeyValue(key);

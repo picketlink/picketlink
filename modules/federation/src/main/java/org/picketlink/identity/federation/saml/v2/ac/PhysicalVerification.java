@@ -56,8 +56,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
@@ -72,7 +70,6 @@ public class PhysicalVerification {
      * Gets the value of the credentialLevel property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getCredentialLevel() {
         return credentialLevel;
@@ -82,7 +79,6 @@ public class PhysicalVerification {
      * Sets the value of the credentialLevel property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setCredentialLevel(String value) {
         this.credentialLevel = value;

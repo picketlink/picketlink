@@ -34,6 +34,7 @@ import static org.junit.Assert.assertNotNull;
  * @since May 25, 2010
  */
 public class PicketLinkSTSConfigUnitTestCase {
+
     /**
      * Test the masking of passwords
      *

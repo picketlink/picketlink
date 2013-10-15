@@ -30,9 +30,9 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerCh
  * @since Nov 6, 2009
  */
 public class SAML2HandlerChainFactory {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     public static SAML2HandlerChain createChain() {
         return new DefaultSAML2HandlerChain();
     }

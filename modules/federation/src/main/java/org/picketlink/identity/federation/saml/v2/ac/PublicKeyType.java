@@ -53,11 +53,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "PublicKeyType", propOrder = { "extension" })
+@XmlType(name = "PublicKeyType", propOrder = {"extension"})
 public class PublicKeyType {
 
     @XmlElement(name = "Extension")
@@ -70,7 +68,8 @@ public class PublicKeyType {
      * Gets the value of the extension property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to the
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the
      * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
      * extension property.
      *
@@ -84,8 +83,6 @@ public class PublicKeyType {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link ExtensionType }
-     *
-     *
      */
     public List<ExtensionType> getExtension() {
         if (extension == null) {
@@ -98,7 +95,6 @@ public class PublicKeyType {
      * Gets the value of the keyValidation property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getKeyValidation() {
         return keyValidation;
@@ -108,7 +104,6 @@ public class PublicKeyType {
      * Sets the value of the keyValidation property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setKeyValidation(String value) {
         this.keyValidation = value;

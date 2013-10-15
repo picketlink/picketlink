@@ -54,8 +54,9 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.util.List;
 
-import static org.picketlink.common.constants.JBossSAMLConstants.*;
-import static org.picketlink.common.constants.JBossSAMLURIConstants.*;
+import static org.picketlink.common.constants.JBossSAMLConstants.SESSION_INDEX;
+import static org.picketlink.common.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
+import static org.picketlink.common.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
 
 /**
  * Writes a SAML2 Request Type to Stream
@@ -64,6 +65,7 @@ import static org.picketlink.common.constants.JBossSAMLURIConstants.*;
  * @since Nov 2, 2010
  */
 public class SAMLRequestWriter extends BaseWriter {
+
     public SAMLRequestWriter(XMLStreamWriter writer) {
         super(writer);
     }
@@ -73,6 +75,7 @@ public class SAMLRequestWriter extends BaseWriter {
      *
      * @param request
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(AuthnRequestType request) throws ProcessingException {
@@ -157,6 +160,7 @@ public class SAMLRequestWriter extends BaseWriter {
      *
      * @param logOutRequest
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(LogoutRequestType logOutRequest) throws ProcessingException {
@@ -191,9 +195,9 @@ public class SAMLRequestWriter extends BaseWriter {
         if (nameID != null) {
             write(nameID, new QName(ASSERTION_NSURI.get(), JBossSAMLConstants.NAMEID.get(), ASSERTION_PREFIX));
         }
-        
+
         List<String> sessionIndexes = logOutRequest.getSessionIndex();
-        
+
         for (String sessionIndex : sessionIndexes) {
             StaxUtil.writeStartElement(writer, PROTOCOL_PREFIX, SESSION_INDEX.get(), PROTOCOL_NSURI.get());
 
@@ -211,6 +215,7 @@ public class SAMLRequestWriter extends BaseWriter {
      * Write a {@code NameIDPolicyType} to stream
      *
      * @param nameIDPolicy
+     *
      * @throws ProcessingException
      */
     public void write(NameIDPolicyType nameIDPolicy) throws ProcessingException {
@@ -239,6 +244,7 @@ public class SAMLRequestWriter extends BaseWriter {
      * Write a {@code RequestedAuthnContextType} to stream
      *
      * @param requestedAuthnContextType
+     *
      * @throws ProcessingException
      */
     public void write(RequestedAuthnContextType requestedAuthnContextType) throws ProcessingException {
@@ -253,7 +259,7 @@ public class SAMLRequestWriter extends BaseWriter {
         List<String> authnContextClassRef = requestedAuthnContextType.getAuthnContextClassRef();
 
         if (authnContextClassRef != null && !authnContextClassRef.isEmpty()) {
-            for (String classRef: authnContextClassRef) {
+            for (String classRef : authnContextClassRef) {
                 StaxUtil.writeStartElement(writer, ASSERTION_PREFIX, JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get(), ASSERTION_NSURI.get());
                 StaxUtil.writeNameSpace(writer, ASSERTION_PREFIX, ASSERTION_NSURI.get());
                 StaxUtil.writeCharacters(writer, classRef);

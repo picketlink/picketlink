@@ -39,10 +39,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public abstract class SubjectQueryAbstractType extends RequestAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     protected SubjectType subject;
@@ -59,7 +58,6 @@ public abstract class SubjectQueryAbstractType extends RequestAbstractType {
      * Gets the value of the subject property.
      *
      * @return possible object is {@link SubjectType }
-     *
      */
     public SubjectType getSubject() {
         return subject;

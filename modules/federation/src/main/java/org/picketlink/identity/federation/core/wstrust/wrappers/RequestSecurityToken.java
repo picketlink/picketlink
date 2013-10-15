@@ -51,8 +51,11 @@ import java.util.Map;
 
 /**
  * <p>
- * This class represents a WS-Trust {@code RequestSecurityToken}. It wraps the JAXB representation of the security token request
- * and offers a series of getter/setter methods that make it easy to work with elements that are represented by the {@code Any}
+ * This class represents a WS-Trust {@code RequestSecurityToken}. It wraps the JAXB representation of the security
+ * token
+ * request
+ * and offers a series of getter/setter methods that make it easy to work with elements that are represented by the
+ * {@code Any}
  * XML type.
  * </p>
  * <p>
@@ -163,7 +166,7 @@ public class RequestSecurityToken implements BaseRequestSecurityToken {
     private URI binaryValueType;
 
     private Node binaryToken;
-    
+
     private URI computedKeyAlgorithm;
 
     /**
@@ -788,7 +791,7 @@ public class RequestSecurityToken implements BaseRequestSecurityToken {
         this.signWith = signWith;
         this.delegate.addAny(signWith.toString());
     }
-    
+
     /**
      * Get the ComputedKeyAlgorithm
      * @return

@@ -37,17 +37,15 @@ import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceTy
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class RequestedReferenceType {
+
     protected SecurityTokenReferenceType securityTokenReference;
 
     /**
      * Gets the value of the securityTokenReference property.
      *
      * @return possible object is {@link SecurityTokenReferenceType }
-     *
      */
     public SecurityTokenReferenceType getSecurityTokenReference() {
         return securityTokenReference;
@@ -57,7 +55,6 @@ public class RequestedReferenceType {
      * Sets the value of the securityTokenReference property.
      *
      * @param value allowed object is {@link SecurityTokenReferenceType }
-     *
      */
     public void setSecurityTokenReference(SecurityTokenReferenceType value) {
         this.securityTokenReference = value;

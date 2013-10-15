@@ -24,6 +24,7 @@ package org.picketlink.common;
  * @since Aug 4, 2011
  */
 public interface ErrorCodes {
+
     String ASSERTION_RENEWAL_EXCEPTION = "PL00103:Assertion Renewal Exception:";
 
     String AUDIT_MANAGER_NULL = "PL00028: Audit Manager Is Not Set";
@@ -193,11 +194,11 @@ public interface ErrorCodes {
     String WRITER_UNSUPPORTED_ATTRIB_VALUE = "PL00084: Writer: Unsupported Attribute Value:";
 
     String WRONG_TYPE = "PL00095: Wrong type:";
-    
+
     String SOAP_MESSAGE_DUMP_ERROR = "PL00104: Error while dumping SOAP message:";
-    
+
     String LOCAL_VALIDATION_SEC_DOMAIN_MUST_BE_SPECIFIED = "PL00105: When using local validation 'localValidationSecurityDomain' must be specified.";
-    
+
     String COMPRESSION_ENABLED_SAML_CRED = "When compression is enabled, received credential should be SamlCredential, but got ";
-    
+
 }

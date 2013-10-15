@@ -48,8 +48,9 @@ import java.util.Map.Entry;
  * @author Anil.Saldhana@redhat.com
  * @since Oct 7, 2009
  */
-@SuppressWarnings({ "unchecked", "rawtypes" })
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class MockHttpServletRequest implements HttpServletRequest {
+
     private HttpSession session = null;
     protected Map headers = new HashMap();
     protected Map parameters = new HashMap();
@@ -138,8 +139,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     public String getQueryString() {
         if ("POST".equalsIgnoreCase(this.methodType)) {
             return null;
-        }
-        else {
+        } else {
             return queryString;
         }
     }

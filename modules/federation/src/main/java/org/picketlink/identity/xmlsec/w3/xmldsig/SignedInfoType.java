@@ -42,10 +42,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class SignedInfoType {
+
     protected CanonicalizationMethodType canonicalizationMethod;
     protected SignatureMethodType signatureMethod;
     protected List<ReferenceType> reference = new ArrayList<ReferenceType>();
@@ -55,7 +54,6 @@ public class SignedInfoType {
      * Gets the value of the canonicalizationMethod property.
      *
      * @return possible object is {@link CanonicalizationMethodType }
-     *
      */
     public CanonicalizationMethodType getCanonicalizationMethod() {
         return canonicalizationMethod;
@@ -65,7 +63,6 @@ public class SignedInfoType {
      * Sets the value of the canonicalizationMethod property.
      *
      * @param value allowed object is {@link CanonicalizationMethodType }
-     *
      */
     public void setCanonicalizationMethod(CanonicalizationMethodType value) {
         this.canonicalizationMethod = value;
@@ -75,7 +72,6 @@ public class SignedInfoType {
      * Gets the value of the signatureMethod property.
      *
      * @return possible object is {@link SignatureMethodType }
-     *
      */
     public SignatureMethodType getSignatureMethod() {
         return signatureMethod;
@@ -85,7 +81,6 @@ public class SignedInfoType {
      * Sets the value of the signatureMethod property.
      *
      * @param value allowed object is {@link SignatureMethodType }
-     *
      */
     public void setSignatureMethod(SignatureMethodType value) {
         this.signatureMethod = value;
@@ -104,8 +99,6 @@ public class SignedInfoType {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link ReferenceType }
-     *
-     *
      */
     public List<ReferenceType> getReference() {
         return Collections.unmodifiableList(this.reference);
@@ -115,7 +108,6 @@ public class SignedInfoType {
      * Gets the value of the id property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getId() {
         return id;
@@ -125,7 +117,6 @@ public class SignedInfoType {
      * Sets the value of the id property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setId(String value) {
         this.id = value;

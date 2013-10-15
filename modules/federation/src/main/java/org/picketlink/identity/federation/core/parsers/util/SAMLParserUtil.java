@@ -163,11 +163,11 @@ public class SAMLParserUtil {
         }
         return rsaKeyValue;
     }
-    
+
     private static DSAKeyValueType parseDSAKeyValue(XMLEventReader xmlEventReader) throws ParsingException {
         StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
         StaxParserUtil.validate(startElement, WSTrustConstants.XMLDSig.DSA_KEYVALUE);
-        
+
         Element dsaElement = StaxParserUtil.getDOMElement(xmlEventReader);
         return SignatureUtil.getDSAKeyValue(dsaElement);
     }
@@ -176,7 +176,9 @@ public class SAMLParserUtil {
      * Parse an {@code AttributeStatementType}
      *
      * @param xmlEventReader
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static AttributeStatementType parseAttributeStatement(XMLEventReader xmlEventReader) throws ParsingException {
@@ -209,7 +211,9 @@ public class SAMLParserUtil {
      * Parse an {@code AttributeType}
      *
      * @param xmlEventReader
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static AttributeType parseAttribute(XMLEventReader xmlEventReader) throws ParsingException {
@@ -231,10 +235,11 @@ public class SAMLParserUtil {
      * Parse an {@code AttributeType}
      *
      * @param xmlEventReader
+     *
      * @throws ParsingException
      */
     public static void parseAttributeType(XMLEventReader xmlEventReader, StartElement startElement, String rootTag,
-            AttributeType attributeType) throws ParsingException {
+                                          AttributeType attributeType) throws ParsingException {
         // Look for X500 Encoding
         QName x500EncodingName = new QName(JBossSAMLURIConstants.X500_NSURI.get(), JBossSAMLConstants.ENCODING.get(),
                 JBossSAMLURIConstants.X500_PREFIX.get());
@@ -280,7 +285,9 @@ public class SAMLParserUtil {
      * Parse Attribute value
      *
      * @param xmlEventReader
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static Object parseAttributeValue(XMLEventReader xmlEventReader) throws ParsingException {
@@ -319,7 +326,9 @@ public class SAMLParserUtil {
      * Parse the AuthnStatement inside the assertion
      *
      * @param xmlEventReader
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static AuthnStatementType parseAuthnStatement(XMLEventReader xmlEventReader) throws ParsingException {
@@ -392,7 +401,9 @@ public class SAMLParserUtil {
      * Parse the AuthnContext Type inside the AuthnStatement
      *
      * @param xmlEventReader
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static AuthnContextType parseAuthnContextType(XMLEventReader xmlEventReader) throws ParsingException {
@@ -465,7 +476,9 @@ public class SAMLParserUtil {
      * Parse a {@code NameIDType}
      *
      * @param xmlEventReader
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static NameIDType parseNameIDType(XMLEventReader xmlEventReader) throws ParsingException {
@@ -502,6 +515,7 @@ public class SAMLParserUtil {
      * Parse a space delimited list of strings
      *
      * @param startElement
+     *
      * @return
      */
     public static List<String> parseProtocolEnumeration(StartElement startElement) {

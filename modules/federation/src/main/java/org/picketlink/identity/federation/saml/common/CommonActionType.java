@@ -26,6 +26,7 @@ import java.io.Serializable;
  * @since Jun 22, 2011
  */
 public class CommonActionType implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     protected String namespace;
@@ -36,7 +37,6 @@ public class CommonActionType implements Serializable {
      * Gets the value of the namespace property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getNamespace() {
         return namespace;
@@ -46,7 +46,6 @@ public class CommonActionType implements Serializable {
      * Sets the value of the namespace property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setNamespace(String value) {
         this.namespace = value;

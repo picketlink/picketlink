@@ -49,6 +49,7 @@ import java.util.Set;
  * @since Aug 31, 2009
  */
 public class StatementUtil {
+
     public static final QName X500_QNAME = new QName(JBossSAMLURIConstants.X500_NSURI.get(), "Encoding",
             JBossSAMLURIConstants.X500_PREFIX.get());
 
@@ -57,6 +58,7 @@ public class StatementUtil {
      *
      * @param instant an instanceof {@link XMLGregorianCalendar}
      * @param authnContextClassRefValue indicate the type of authentication performed
+     *
      * @return {@link AuthnStatementType}
      */
     public static AuthnStatementType createAuthnStatement(XMLGregorianCalendar instant, String authnContextClassRefValue) {
@@ -78,6 +80,7 @@ public class StatementUtil {
      * Create an attribute statement with all the attributes
      *
      * @param attributes a map with keys from {@link AttributeConstants}
+     *
      * @return
      */
     public static AttributeStatementType createAttributeStatement(Map<String, Object> attributes) {
@@ -100,9 +103,7 @@ public class StatementUtil {
                     Collection<?> roles = (Collection<?>) value;
                     attrStatement = createAttributeStatement(new ArrayList(roles));
                 }
-            }
-
-            else {
+            } else {
                 AttributeType att;
                 Object value = attributes.get(key);
 
@@ -127,12 +128,13 @@ public class StatementUtil {
      * Given a set of roles, create an attribute statement
      *
      * @param roles
+     *
      * @return
      */
     public static AttributeStatementType createAttributeStatement(List<String> roles) {
         AttributeStatementType attrStatement = null;
         for (String role : roles) {
-            if(attrStatement == null){
+            if (attrStatement == null) {
                 attrStatement = new AttributeStatementType();
             }
             AttributeType attr = new AttributeType(AttributeConstants.ROLE_IDENTIFIER_ASSERTION);
@@ -144,9 +146,10 @@ public class StatementUtil {
 
     /**
      * Given a set of roles, create an attribute statement
-     * 
+     *
      * @param roles
      * @param multivalued if you want the attribute to be multi valued
+     *
      * @return
      */
     public static AttributeStatementType createAttributeStatementForRoles(List<String> roles, boolean multivalued) {
@@ -167,6 +170,7 @@ public class StatementUtil {
      *
      * @param key attribute type
      * @param value attribute value
+     *
      * @return
      */
     public static AttributeStatementType createAttributeStatement(String key, String value) {

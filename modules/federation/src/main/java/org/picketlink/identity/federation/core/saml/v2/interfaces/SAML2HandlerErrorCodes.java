@@ -24,5 +24,6 @@ package org.picketlink.identity.federation.core.saml.v2.interfaces;
  * @since Nov 18, 2009
  */
 public interface SAML2HandlerErrorCodes {
+
     int SIGNATURE_INVALID = 100;
 }

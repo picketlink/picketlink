@@ -35,6 +35,7 @@ import static org.junit.Assert.assertTrue;
  * @since Feb 22, 2012
  */
 public class StringUtilTestCase {
+
     @Test
     public void testTokenizeKeyValuePairs() throws Exception {
         String str = "a=b,c=d,e=f";

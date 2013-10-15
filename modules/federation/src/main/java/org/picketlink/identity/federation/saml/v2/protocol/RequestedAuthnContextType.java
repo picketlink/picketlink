@@ -41,10 +41,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class RequestedAuthnContextType {
+
     protected List<String> authnContextClassRef = new ArrayList<String>();
     protected List<String> authnContextDeclRef = new ArrayList<String>();
     protected AuthnContextComparisonType comparison;
@@ -87,7 +86,6 @@ public class RequestedAuthnContextType {
 
     /**
      * Gets the value of the authnContextClassRef property.
-     *
      */
     public List<String> getAuthnContextClassRef() {
         return Collections.unmodifiableList(this.authnContextClassRef);
@@ -97,7 +95,8 @@ public class RequestedAuthnContextType {
      * Gets the value of the authnContextDeclRef property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to the
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the
      * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
      * authnContextDeclRef property.
      *
@@ -111,8 +110,6 @@ public class RequestedAuthnContextType {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link String }
-     *
-     *
      */
     public List<String> getAuthnContextDeclRef() {
         return Collections.unmodifiableList(this.authnContextDeclRef);
@@ -122,7 +119,6 @@ public class RequestedAuthnContextType {
      * Gets the value of the comparison property.
      *
      * @return possible object is {@link AuthnContextComparisonType }
-     *
      */
     public AuthnContextComparisonType getComparison() {
         return comparison;
@@ -132,7 +128,6 @@ public class RequestedAuthnContextType {
      * Sets the value of the comparison property.
      *
      * @param value allowed object is {@link AuthnContextComparisonType }
-     *
      */
     public void setComparison(AuthnContextComparisonType value) {
         this.comparison = value;

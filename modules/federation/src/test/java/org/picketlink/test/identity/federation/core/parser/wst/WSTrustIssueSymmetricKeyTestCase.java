@@ -43,6 +43,7 @@ import static org.junit.Assert.assertEquals;
  * @since Oct 18, 2010
  */
 public class WSTrustIssueSymmetricKeyTestCase {
+
     @Test
     public void testSymKey() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();

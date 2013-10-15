@@ -49,10 +49,9 @@ import java.net.URI;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public abstract class RequestAbstractType extends CommonRequestAbstractType implements SAML2Object {
+
     private static final long serialVersionUID = 1L;
 
     protected NameIDType issuer;
@@ -73,7 +72,6 @@ public abstract class RequestAbstractType extends CommonRequestAbstractType impl
      * Gets the value of the issuer property.
      *
      * @return possible object is {@link NameIDType }
-     *
      */
     public NameIDType getIssuer() {
         return issuer;
@@ -83,7 +81,6 @@ public abstract class RequestAbstractType extends CommonRequestAbstractType impl
      * Sets the value of the issuer property.
      *
      * @param value allowed object is {@link NameIDType }
-     *
      */
     public void setIssuer(NameIDType value) {
         this.issuer = value;
@@ -93,7 +90,6 @@ public abstract class RequestAbstractType extends CommonRequestAbstractType impl
      * Gets the value of the extensions property.
      *
      * @return possible object is {@link ExtensionsType }
-     *
      */
     public ExtensionsType getExtensions() {
         return extensions;
@@ -103,7 +99,6 @@ public abstract class RequestAbstractType extends CommonRequestAbstractType impl
      * Sets the value of the extensions property.
      *
      * @param value allowed object is {@link ExtensionsType }
-     *
      */
     public void setExtensions(ExtensionsType value) {
         this.extensions = value;
@@ -113,7 +108,6 @@ public abstract class RequestAbstractType extends CommonRequestAbstractType impl
      * Gets the value of the version property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getVersion() {
         return version;
@@ -123,7 +117,6 @@ public abstract class RequestAbstractType extends CommonRequestAbstractType impl
      * Gets the value of the destination property.
      *
      * @return possible object is {@link String }
-     *
      */
     public URI getDestination() {
         return destination;
@@ -133,7 +126,6 @@ public abstract class RequestAbstractType extends CommonRequestAbstractType impl
      * Sets the value of the destination property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setDestination(URI value) {
         this.destination = value;
@@ -143,7 +135,6 @@ public abstract class RequestAbstractType extends CommonRequestAbstractType impl
      * Gets the value of the consent property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getConsent() {
         return consent;
@@ -153,7 +144,6 @@ public abstract class RequestAbstractType extends CommonRequestAbstractType impl
      * Sets the value of the consent property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setConsent(String value) {
         this.consent = value;

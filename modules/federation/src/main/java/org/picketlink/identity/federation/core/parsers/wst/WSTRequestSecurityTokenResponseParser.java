@@ -60,9 +60,9 @@ import java.net.URISyntaxException;
  * @since Oct 11, 2010
  */
 public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSupport {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     public static final String X509CERTIFICATE = "X509Certificate";
 
     public static final String KEYVALUE = "KeyValue";
@@ -250,14 +250,13 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
                     responseToken.setRequestedUnattachedReference(parseRequestedReference(xmlEventReader, WSTrustConstants.REQUESTED_UNATTACHED_REFERENCE));
                 } else if (tag.equals(WSTrustConstants.STATUS)) {
                     responseToken.setStatus(this.parseStatusType(xmlEventReader));
-                }
-                else if (tag.equals(WSTrustConstants.RENEWING)) {
+                } else if (tag.equals(WSTrustConstants.RENEWING)) {
                     responseToken.setRenewing(WSTrustUtil.parseRenewingType(xmlEventReader));
                 } else {
                     QName qname = subEvent.getName();
 
                     logger.trace("Looking for parser for element: " + qname);
-                    
+
                     ParserNamespaceSupport parser = ParserController.get(qname);
                     if (parser == null)
                         throw logger.parserUnknownTag(qname.getLocalPart(), subEvent.getLocation());
@@ -363,5 +362,5 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
 
         return ref;
     }
-    
+
 }

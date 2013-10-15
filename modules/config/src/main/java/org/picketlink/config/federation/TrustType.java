@@ -37,8 +37,6 @@ package org.picketlink.config.federation;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class TrustType {
 
@@ -48,7 +46,6 @@ public class TrustType {
      * Gets the value of the domains property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getDomains() {
         return domains;
@@ -58,7 +55,6 @@ public class TrustType {
      * Sets the value of the domains property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setDomains(String value) {
         this.domains = value;
@@ -66,18 +62,18 @@ public class TrustType {
 
     /**
      * <p>Adds a new domain to the list of trusted domains.</p>
-     * 
+     *
      * @param domain
      */
     public void addDomain(String domain) {
         if (this.domains == null) {
             this.domains = "";
         }
-        
+
         if (!this.domains.isEmpty()) {
-            domain = "," + domain;            
+            domain = "," + domain;
         }
-        
+
         this.domains = this.domains + domain;
     }
 

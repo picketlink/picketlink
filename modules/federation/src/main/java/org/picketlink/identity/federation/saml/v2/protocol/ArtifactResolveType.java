@@ -37,10 +37,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ArtifactResolveType extends RequestAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     protected String artifact;
@@ -53,7 +52,6 @@ public class ArtifactResolveType extends RequestAbstractType {
      * Gets the value of the artifact property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getArtifact() {
         return artifact;
@@ -63,7 +61,6 @@ public class ArtifactResolveType extends RequestAbstractType {
      * Sets the value of the artifact property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setArtifact(String value) {
         this.artifact = value;

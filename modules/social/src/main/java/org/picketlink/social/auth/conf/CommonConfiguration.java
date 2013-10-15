@@ -19,31 +19,37 @@ package org.picketlink.social.auth.conf;
 
 /**
  * Common Configuration for social login
+ *
  * @author Anil Saldhana
  * @since June 03, 2013
  */
 public interface CommonConfiguration {
+
     /**
      * Get the Client ID
+     *
      * @return
      */
-    public String getClientID();
+    String getClientID();
 
     /**
      * Get the Client Secret
+     *
      * @return
      */
-    public String getClientSecret();
+    String getClientSecret();
 
     /**
      * Get the Scope
+     *
      * @return
      */
-    public String getScope();
+    String getScope();
 
     /**
      * Get the Return URL
+     *
      * @return
      */
-    public String getReturnURL();
+    String getReturnURL();
 }

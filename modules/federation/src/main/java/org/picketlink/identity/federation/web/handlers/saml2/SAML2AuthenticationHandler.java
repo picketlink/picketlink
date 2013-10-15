@@ -89,7 +89,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.picketlink.common.util.StringUtil.*;
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 /**
  * <p> Handles for dealing with SAML2 Authentication </p>
@@ -103,7 +103,8 @@ import static org.picketlink.common.util.StringUtil.*;
  *      Setting)
  * @see SAML2Handler#DISABLE_SENDING_ROLES Setting any value will disable the generation and return of roles to SP (IDP
  *      Setting)
- * @see SAML2Handler#USE_MULTI_VALUED_ROLES Setting any value will have an attribute statement with multiple values (IDP
+ * @see SAML2Handler#USE_MULTI_VALUED_ROLES Setting any value will have an attribute statement with multiple values
+ *      (IDP
  *      Setting)
  * @see SAML2Handler#DISABLE_ROLE_PICKING Setting to true will disable picking IDP attribute statements (SP Setting)
  * @see SAML2Handler#ROLE_KEY a csv list of strings that represent the roles coming from IDP (SP Setting)
@@ -155,6 +156,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
     }
 
     private class IDPAuthenticationHandler {
+
         public void generateSAMLRequest(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
         }
 
@@ -357,6 +359,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
     }
 
     private class SPAuthenticationHandler {
+
         public void generateSAMLRequest(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
             String issuerValue = request.getIssuer().getValue();
 
@@ -576,6 +579,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
          * Get the roles from the attribute statement
          *
          * @param attributeStatement
+         *
          * @return
          */
         private List<String> getRoles(AttributeStatementType attributeStatement) {
@@ -638,7 +642,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
         if (isNotNull(authnContextClasses)) {
             RequestedAuthnContextType requestAuthnContext = new RequestedAuthnContextType();
 
-            for (String classFqn: authnContextClasses.split(",")) {
+            for (String classFqn : authnContextClasses.split(",")) {
                 SAMLAuthenticationContextClass standardClass = SAMLAuthenticationContextClass.forAlias(classFqn);
 
                 if (standardClass != null) {

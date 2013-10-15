@@ -65,9 +65,9 @@ import static org.picketlink.common.constants.WSTrustConstants.RST_CONTEXT;
  * @since Oct 19, 2010
  */
 public class WSTrustRequestWriter {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private final XMLStreamWriter writer;
 
     /**
@@ -77,6 +77,7 @@ public class WSTrustRequestWriter {
      * </p>
      *
      * @param out the stream where the request is to be written.
+     *
      * @throws ProcessingException if an error occurs while processing the request.
      */
     public WSTrustRequestWriter(OutputStream out) throws ProcessingException {
@@ -85,11 +86,13 @@ public class WSTrustRequestWriter {
 
     /**
      * <p>
-     * Creates a {@code WSTrustRequestWriter} that writes {@code RequestSecurityToken} instances to the specified {@code Result}
+     * Creates a {@code WSTrustRequestWriter} that writes {@code RequestSecurityToken} instances to the specified {@code
+     * Result}
      * .
      * </p>
      *
      * @param result the {@code Result} where the request it to be written.
+     *
      * @throws ProcessingException if an error occurs while processing the request.
      */
     public WSTrustRequestWriter(Result result) throws ProcessingException {
@@ -98,7 +101,8 @@ public class WSTrustRequestWriter {
 
     /**
      * <p>
-     * Creates a {@code WSTrustRequestWriter} that uses the specified {@code XMLStreamWriter} to write the request objects.
+     * Creates a {@code WSTrustRequestWriter} that uses the specified {@code XMLStreamWriter} to write the request
+     * objects.
      * </p>
      *
      * @param writer the {@code XMLStreamWriter} to be used to write requests.
@@ -112,6 +116,7 @@ public class WSTrustRequestWriter {
      *
      * @param requestTokenCollection
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(RequestSecurityTokenCollection requestTokenCollection) throws ProcessingException {
@@ -135,6 +140,7 @@ public class WSTrustRequestWriter {
      *
      * @param requestToken
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(RequestSecurityToken requestToken) throws ProcessingException {
@@ -199,9 +205,9 @@ public class WSTrustRequestWriter {
         if (entropy != null) {
             writeEntropyType(entropy);
         }
-        
+
         URI computedKeyAlgorithm = requestToken.getComputedKeyAlgorithm();
-        if(computedKeyAlgorithm != null){
+        if (computedKeyAlgorithm != null) {
             writeComputedKeyAlgorithm(computedKeyAlgorithm);
         }
 
@@ -238,6 +244,7 @@ public class WSTrustRequestWriter {
      * Write an {@code EntropyType} to stream
      *
      * @param entropy
+     *
      * @throws ProcessingException
      */
     private void writeEntropyType(EntropyType entropy) throws ProcessingException {
@@ -254,11 +261,12 @@ public class WSTrustRequestWriter {
         }
         StaxUtil.writeEndElement(writer);
     }
-    
+
     /**
      * Write ComputedKeyAlgorithm to stream
      *
      * @param entropy
+     *
      * @throws ProcessingException
      */
     private void writeComputedKeyAlgorithm(URI computedKeyAlgorithm) throws ProcessingException {
@@ -271,6 +279,7 @@ public class WSTrustRequestWriter {
      * Write an {@code UseKeyType} to stream
      *
      * @param useKeyType
+     *
      * @throws ProcessingException
      */
     private void writeUseKeyType(UseKeyType useKeyType) throws ProcessingException {
@@ -305,21 +314,21 @@ public class WSTrustRequestWriter {
         StaxUtil.writeNameSpace(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.DSIG_NS);
         if (type instanceof RSAKeyValueType) {
             RSAKeyValueType rsaKeyValue = (RSAKeyValueType) type;
-            StaxWriterUtil.writeRSAKeyValueType(writer,rsaKeyValue);
-        } else if(type instanceof DSAKeyValueType) {
-            DSAKeyValueType dsaKeyValue = (DSAKeyValueType)type;
+            StaxWriterUtil.writeRSAKeyValueType(writer, rsaKeyValue);
+        } else if (type instanceof DSAKeyValueType) {
+            DSAKeyValueType dsaKeyValue = (DSAKeyValueType) type;
             StaxWriterUtil.writeDSAKeyValueType(writer, dsaKeyValue);
         }
         StaxUtil.writeEndElement(writer);
     }
 
-    
 
     /**
      * Write an {@code OnBehalfOfType} to stream
      *
      * @param onBehalfOf
      * @param out
+     *
      * @throws ProcessingException
      */
     private void writeOnBehalfOfType(OnBehalfOfType onBehalfOf) throws ProcessingException {
@@ -335,6 +344,7 @@ public class WSTrustRequestWriter {
      *
      * @param validateTarget
      * @param out
+     *
      * @throws ProcessingException
      */
     private void writeValidateTargetType(ValidateTargetType validateTarget) throws ProcessingException {
@@ -390,6 +400,7 @@ public class WSTrustRequestWriter {
      *
      * @param cancelTarget
      * @param out
+     *
      * @throws ProcessingException
      */
     private void writeCancelTargetType(CancelTargetType cancelTarget) throws ProcessingException {
@@ -423,6 +434,7 @@ public class WSTrustRequestWriter {
      *
      * @param writer
      * @param binarySecret
+     *
      * @throws ProcessingException
      */
     private void writeBinarySecretType(XMLStreamWriter writer, BinarySecretType binarySecret) throws ProcessingException {
@@ -438,6 +450,7 @@ public class WSTrustRequestWriter {
      *
      * @param writer
      * @param uri
+     *
      * @throws ProcessingException
      */
     private void writeRequestType(XMLStreamWriter writer, URI uri) throws ProcessingException {
@@ -451,6 +464,7 @@ public class WSTrustRequestWriter {
      *
      * @param writer
      * @param uri
+     *
      * @throws ProcessingException
      */
     private void writeTokenType(XMLStreamWriter writer, URI uri) throws ProcessingException {

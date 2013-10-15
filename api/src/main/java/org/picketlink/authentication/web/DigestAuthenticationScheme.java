@@ -27,6 +27,7 @@ import java.util.Timer;
 import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.picketlink.authentication.web.support.HTTPDigestUtil;
 import org.picketlink.authentication.web.support.NonceCache;
 import org.picketlink.credential.DefaultLoginCredentials;
@@ -36,7 +37,6 @@ import org.picketlink.idm.credential.Digest;
  * @author Shane Bryzak
  * @author anil saldhana
  * @author Pedro Igor
- * 
  */
 public class DigestAuthenticationScheme implements HTTPAuthenticationScheme {
 

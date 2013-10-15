@@ -43,6 +43,7 @@ import static org.junit.Assert.assertTrue;
  * @since Oct 22, 2010
  */
 public class DOMTransformerTestCase {
+
     String xml = "<a xmlns=\'urn:a\'><b><c><d>SomeD</d></c></b></a>";
 
     @Test

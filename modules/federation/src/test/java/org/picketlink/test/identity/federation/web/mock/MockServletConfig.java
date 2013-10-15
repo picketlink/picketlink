@@ -31,8 +31,9 @@ import java.util.Map.Entry;
  * @author Anil.Saldhana@redhat.com
  * @since Oct 7, 2009
  */
-@SuppressWarnings({ "unchecked", "rawtypes" })
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class MockServletConfig implements ServletConfig {
+
     private ServletContext context;
 
     private Map<String, String> params = new HashMap<String, String>();

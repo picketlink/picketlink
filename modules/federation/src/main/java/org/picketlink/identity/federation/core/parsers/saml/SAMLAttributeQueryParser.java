@@ -24,7 +24,6 @@ import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.parsers.ParserNamespaceSupport;
 import org.picketlink.common.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
-import org.picketlink.identity.federation.saml.v2.protocol.ArtifactResolveType;
 import org.picketlink.identity.federation.saml.v2.protocol.AttributeQueryType;
 
 import javax.xml.namespace.QName;
@@ -32,12 +31,13 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
 
 /**
- * Parse the {@link ArtifactResolveType}
+ * Parse the {@link org.picketlink.identity.federation.saml.v2.protocol.ArtifactResolveType}
  *
  * @author Anil.Saldhana@redhat.com
  * @since Jul 1, 2011
  */
 public class SAMLAttributeQueryParser extends SAMLRequestAbstractParser implements ParserNamespaceSupport {
+
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
         // Get the startelement
         StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
@@ -76,7 +76,9 @@ public class SAMLAttributeQueryParser extends SAMLRequestAbstractParser implemen
      * Parse the attributes at the authnrequesttype element
      *
      * @param startElement
+     *
      * @return
+     *
      * @throws ParsingException
      */
     private AttributeQueryType parseBaseAttributes(StartElement startElement) throws ParsingException {

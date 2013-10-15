@@ -40,11 +40,11 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ReferenceList {
+
     public static class References {
+
         private ReferenceType dataReference;
         private ReferenceType keyReference;
 

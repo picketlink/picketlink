@@ -46,8 +46,6 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "KeyStorageType")
@@ -60,7 +58,6 @@ public class KeyStorageType {
      * Gets the value of the medium property.
      *
      * @return possible object is {@link MediumType }
-     *
      */
     public MediumType getMedium() {
         return medium;
@@ -70,7 +67,6 @@ public class KeyStorageType {
      * Sets the value of the medium property.
      *
      * @param value allowed object is {@link MediumType }
-     *
      */
     public void setMedium(MediumType value) {
         this.medium = value;

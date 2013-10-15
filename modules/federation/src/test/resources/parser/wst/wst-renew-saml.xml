@@ -3,7 +3,7 @@
   <wst:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</wst:TokenType>
   <wst:RenewTarget>
     <saml2:Assertion ID="ID_654b6092-c725-40ea-8044-de453b59cb28" IssueInstant="2010-09-30T19:13:37.429Z" Version="2.0"
-        xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+                     xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
       <saml2:Issuer>Test STS</saml2:Issuer>
       <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
         <ds:SignedInfo>
@@ -19,17 +19,17 @@
           </ds:Reference>
         </ds:SignedInfo>
         <ds:SignatureValue>
-MukTucsxjAyVtWwPMFQpfhREgZtl9Z+7+DlaaP3Ar2gJXg7GjkOpJmDQ72ASLWQeELUoTseqiOmZ
-slAQPV/RlLXXjLFenEMgO56gpBQdEZ4VVriegkTSXJhfz9c244oOnKKHCSH/7XMASt7DXRX+EOZF
-j3hJtAxbNgGTUOwMSLw=
+          MukTucsxjAyVtWwPMFQpfhREgZtl9Z+7+DlaaP3Ar2gJXg7GjkOpJmDQ72ASLWQeELUoTseqiOmZ
+          slAQPV/RlLXXjLFenEMgO56gpBQdEZ4VVriegkTSXJhfz9c244oOnKKHCSH/7XMASt7DXRX+EOZF
+          j3hJtAxbNgGTUOwMSLw=
         </ds:SignatureValue>
         <ds:KeyInfo>
           <ds:KeyValue>
             <ds:RSAKeyValue>
               <ds:Modulus>
-suGIyhVTbFvDwZdx8Av62zmP+aGOlsBN8WUE3eEEcDtOIZgO78SImMQGwB2C0eIVMhiLRzVPqoW1
-dCPAveTm653zHOmubaps1fY0lLJDSZbTbhjeYhoQmmaBro/tDpVw5lKJwspqVnMuRK19ju2dxpKw
-lYGGtrP5VQv00dfNPbs=
+                suGIyhVTbFvDwZdx8Av62zmP+aGOlsBN8WUE3eEEcDtOIZgO78SImMQGwB2C0eIVMhiLRzVPqoW1
+                dCPAveTm653zHOmubaps1fY0lLJDSZbTbhjeYhoQmmaBro/tDpVw5lKJwspqVnMuRK19ju2dxpKw
+                lYGGtrP5VQv00dfNPbs=
               </ds:Modulus>
               <ds:Exponent>AQAB</ds:Exponent>
             </ds:RSAKeyValue>

@@ -32,6 +32,7 @@ import java.util.StringTokenizer;
  * @since Aug 21, 2009
  */
 public class DefaultRoleValidator implements IRoleValidator {
+
     private static Logger log = Logger.getLogger(DefaultRoleValidator.class);
     private boolean trace = log.isTraceEnabled();
 

@@ -36,11 +36,10 @@ import java.math.BigInteger;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 
 public class ActivationLimitUsagesType {
+
     protected BigInteger number;
 
     public ActivationLimitUsagesType(BigInteger theNumber) {
@@ -51,7 +50,6 @@ public class ActivationLimitUsagesType {
      * Gets the value of the number property.
      *
      * @return possible object is {@link BigInteger }
-     *
      */
     public BigInteger getNumber() {
         return number;

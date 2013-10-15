@@ -40,15 +40,15 @@ import java.math.BigInteger;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class EncryptionMethodType {
+
     protected String algorithm;
 
     protected EncryptionMethod encryptionMethod;
 
     public static class EncryptionMethod {
+
         protected BigInteger keySize;
         protected byte[] OAEPparams;
 
@@ -82,7 +82,6 @@ public class EncryptionMethodType {
      * Gets the value of the algorithm property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getAlgorithm() {
         return algorithm;

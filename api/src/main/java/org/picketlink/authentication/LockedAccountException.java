@@ -21,9 +21,8 @@ package org.picketlink.authentication;
 
 /**
  * <p>Thrown during the authentication process to indicate that the account being validated is disabled.</p>
- * 
+ *
  * @author Pedro Igor
- * 
  */
 public class LockedAccountException extends AuthenticationException {
 
@@ -32,5 +31,5 @@ public class LockedAccountException extends AuthenticationException {
     public LockedAccountException(String message) {
         super(message);
     }
-    
+
 }

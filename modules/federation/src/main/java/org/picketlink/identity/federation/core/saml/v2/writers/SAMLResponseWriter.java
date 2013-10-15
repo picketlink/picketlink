@@ -49,6 +49,7 @@ import static org.picketlink.common.constants.JBossSAMLURIConstants.PROTOCOL_NSU
  * @since Nov 2, 2010
  */
 public class SAMLResponseWriter extends BaseWriter {
+
     private final SAMLAssertionWriter assertionWriter;
 
     public SAMLResponseWriter(XMLStreamWriter writer) {
@@ -61,6 +62,7 @@ public class SAMLResponseWriter extends BaseWriter {
      *
      * @param response
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(ResponseType response) throws ProcessingException {
@@ -146,6 +148,7 @@ public class SAMLResponseWriter extends BaseWriter {
      * @param response
      * @param qname QName of the starting element
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(StatusResponseType response, QName qname) throws ProcessingException {
@@ -176,6 +179,7 @@ public class SAMLResponseWriter extends BaseWriter {
      *
      * @param status
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(StatusType status) throws ProcessingException {
@@ -203,6 +207,7 @@ public class SAMLResponseWriter extends BaseWriter {
      *
      * @param statusCodeType
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(StatusCodeType statusCodeType) throws ProcessingException {
@@ -225,6 +230,7 @@ public class SAMLResponseWriter extends BaseWriter {
      *
      * @param statusDetailType
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(StatusDetailType statusDetailType) throws ProcessingException {
@@ -237,6 +243,7 @@ public class SAMLResponseWriter extends BaseWriter {
      * Write the common attributes for all response types
      *
      * @param statusResponse
+     *
      * @throws ProcessingException
      */
     private void writeBaseAttributes(StatusResponseType statusResponse) throws ProcessingException {

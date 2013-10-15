@@ -41,34 +41,37 @@ import java.security.PrivilegedAction;
  * @since Oct 12, 2010
  */
 public abstract class AbstractParser implements ParserNamespaceSupport {
-    
+
     protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     /**
-      * Get the JAXP {@link XMLInputFactory}
-      * @return
-      */
-      protected XMLInputFactory getXMLInputFactory() {
-         boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP, "false")
-                 .equalsIgnoreCase("true");
-          ClassLoader prevTCCL = getTCCL();
+     * Get the JAXP {@link XMLInputFactory}
+     *
+     * @return
+     */
+    protected XMLInputFactory getXMLInputFactory() {
+        boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP, "false")
+                .equalsIgnoreCase("true");
+        ClassLoader prevTCCL = getTCCL();
         try {
-             if (tccl_jaxp) {
-             setTCCL(getClass().getClassLoader());
-              }
-               return XMLInputFactory.newInstance();
-           } finally {
-               if (tccl_jaxp) {
-              setTCCL(prevTCCL);
-             }
-           }
+            if (tccl_jaxp) {
+                setTCCL(getClass().getClassLoader());
+            }
+            return XMLInputFactory.newInstance();
+        } finally {
+            if (tccl_jaxp) {
+                setTCCL(prevTCCL);
+            }
+        }
     }
 
     /**
      * Parse an InputStream for payload
      *
      * @param configStream
+     *
      * @return
+     *
      * @throws {@link IllegalArgumentException}
      * @throws {@link IllegalArgumentException} when the configStream is null
      */

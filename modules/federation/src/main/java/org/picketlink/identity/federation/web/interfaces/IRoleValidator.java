@@ -28,6 +28,7 @@ import java.util.Map;
  * @since Aug 21, 2009
  */
 public interface IRoleValidator {
+
     /**
      * Initialize the validator
      *
@@ -40,6 +41,7 @@ public interface IRoleValidator {
      *
      * @param userPrincipal
      * @param roles
+     *
      * @return
      */
     boolean userInRole(Principal userPrincipal, List<String> roles);

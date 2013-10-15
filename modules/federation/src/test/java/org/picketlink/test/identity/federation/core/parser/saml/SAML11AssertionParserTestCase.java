@@ -53,6 +53,7 @@ import static org.junit.Assert.assertTrue;
  * @since Jun 21, 2011
  */
 public class SAML11AssertionParserTestCase extends AbstractParserTest {
+
     @Test
     public void testSAML11Assertion() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();

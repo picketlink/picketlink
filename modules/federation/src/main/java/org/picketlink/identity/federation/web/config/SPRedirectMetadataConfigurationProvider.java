@@ -33,7 +33,8 @@ import java.io.InputStream;
 
 /**
  * <p>
- * An instance of {@link SAMLConfigurationProvider} that can be used to generate the SP configuration for the HTTP-Redirect
+ * An instance of {@link SAMLConfigurationProvider} that can be used to generate the SP configuration for the
+ * HTTP-Redirect
  * binding using SAML2 Metadata.
  * </p>
  * <p>
@@ -49,6 +50,7 @@ import java.io.InputStream;
  */
 public class SPRedirectMetadataConfigurationProvider extends AbstractSAMLConfigurationProvider implements
         SAMLConfigurationProvider {
+
     public static final String SP_MD_FILE = "sp-metadata.xml";
 
     public static final String bindingURI = JBossSAMLURIConstants.SAML_HTTP_REDIRECT_BINDING.get();

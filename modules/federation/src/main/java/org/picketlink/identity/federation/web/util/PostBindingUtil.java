@@ -42,13 +42,14 @@ import static org.picketlink.common.util.StringUtil.isNotNull;
  * @since May 22, 2009
  */
 public class PostBindingUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     /**
      * Apply base64 encoding on the message
      *
      * @param stringToEncode
+     *
      * @return
      */
     public static String base64Encode(String stringToEncode) throws IOException {
@@ -59,6 +60,7 @@ public class PostBindingUtil {
      * Apply base64 decoding on the message and return the byte array
      *
      * @param encodedString
+     *
      * @return
      */
     public static byte[] base64Decode(String encodedString) {
@@ -72,6 +74,7 @@ public class PostBindingUtil {
      * Apply base64 decoding on the message and return the stream
      *
      * @param encodedString
+     *
      * @return
      */
     public static InputStream base64DecodeAsStream(String encodedString) {
@@ -82,11 +85,13 @@ public class PostBindingUtil {
     }
 
     /**
-     * Send the response to the redirected destination while adding the character encoding of "UTF-8" as well as adding headers
+     * Send the response to the redirected destination while adding the character encoding of "UTF-8" as well as adding
+     * headers
      * for cache-control and Pragma
      *
      * @param destination Destination URI where the response needs to redirect
      * @param response HttpServletResponse
+     *
      * @throws IOException
      */
     public static void sendPost(DestinationInfoHolder holder, HttpServletResponse response, boolean request) throws IOException {
@@ -99,14 +104,14 @@ public class PostBindingUtil {
         if (destination == null) {
             throw logger.nullValueError("Destination is null");
         }
-        
+
         response.setContentType("text/html");
         common(holder.getDestination(), response);
         StringBuilder builder = new StringBuilder();
 
         builder.append("<HTML>");
         builder.append("<HEAD>");
-        
+
         if (request)
             builder.append("<TITLE>HTTP Post Binding (Request)</TITLE>");
         else
@@ -117,7 +122,7 @@ public class PostBindingUtil {
 
         builder.append("<FORM METHOD=\"POST\" ACTION=\"" + destination + "\">");
         builder.append("<INPUT TYPE=\"HIDDEN\" NAME=\"" + key + "\"" + " VALUE=\"" + samlMessage + "\"/>");
-        
+
         if (isNotNull(relayState)) {
             builder.append("<INPUT TYPE=\"HIDDEN\" NAME=\"RelayState\" " + "VALUE=\"" + relayState + "\"/>");
         }
@@ -128,9 +133,9 @@ public class PostBindingUtil {
         builder.append("</NOSCRIPT>");
 
         builder.append("</FORM></BODY></HTML>");
-        
+
         String str = builder.toString();
-        
+
         logger.trace(str);
 
         ServletOutputStream outputStream = response.getOutputStream();
@@ -138,7 +143,7 @@ public class PostBindingUtil {
         // we need to re-configure the content length, because Tomcat may have written some content.
         response.resetBuffer();
         response.setContentLength(str.length());
-        
+
         outputStream.println(str);
         outputStream.close();
     }

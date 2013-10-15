@@ -17,27 +17,27 @@
  */
 package org.picketlink.identity.federation.ws.trust;
 
-import java.util.Collection;
-
 /**
- * A simple interface to add in methods for a {@link Collection}
+ * A simple interface to add in methods for a {@link java.util.Collection}
  *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 16, 2011
  */
 public interface SimpleCollectionUsage<T> {
+
     /**
      * Add a {@link T} to the collection
      *
      * @param t
      */
-    public void add(T t);
+    void add(T t);
 
     /**
      * Remove a {@link T} from collection
      *
      * @param t
+     *
      * @return
      */
-    public boolean remove(T t);
+    boolean remove(T t);
 }

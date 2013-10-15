@@ -25,6 +25,7 @@ import java.io.Serializable;
  * @since Jun 22, 2011
  */
 public class CommonConditionsType implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     protected XMLGregorianCalendar notBefore;
@@ -35,7 +36,6 @@ public class CommonConditionsType implements Serializable {
      * Gets the value of the notBefore property.
      *
      * @return possible object is {@link XMLGregorianCalendar }
-     *
      */
     public XMLGregorianCalendar getNotBefore() {
         return notBefore;
@@ -45,7 +45,6 @@ public class CommonConditionsType implements Serializable {
      * Sets the value of the notBefore property.
      *
      * @param value allowed object is {@link XMLGregorianCalendar }
-     *
      */
     public void setNotBefore(XMLGregorianCalendar value) {
         this.notBefore = value;
@@ -55,7 +54,6 @@ public class CommonConditionsType implements Serializable {
      * Gets the value of the notOnOrAfter property.
      *
      * @return possible object is {@link XMLGregorianCalendar }
-     *
      */
     public XMLGregorianCalendar getNotOnOrAfter() {
         return notOnOrAfter;
@@ -65,7 +63,6 @@ public class CommonConditionsType implements Serializable {
      * Sets the value of the notOnOrAfter property.
      *
      * @param value allowed object is {@link XMLGregorianCalendar }
-     *
      */
     public void setNotOnOrAfter(XMLGregorianCalendar value) {
         this.notOnOrAfter = value;

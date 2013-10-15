@@ -27,6 +27,7 @@ import org.picketlink.identity.federation.ws.trust.RequestSecurityTokenType;
  * @since Oct 12, 2009
  */
 public class SAML2SecurityToken implements SAML2Object {
+
     private RequestSecurityTokenType token;
 
     public SAML2SecurityToken(RequestSecurityTokenType token) {

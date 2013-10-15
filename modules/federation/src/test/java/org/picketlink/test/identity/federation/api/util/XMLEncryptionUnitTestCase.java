@@ -56,6 +56,7 @@ import java.util.List;
  * @since Feb 5, 2009
  */
 public class XMLEncryptionUnitTestCase extends TestCase {
+
     SAML2Response sr = new SAML2Response();
 
     public void testEncryptAssertion() throws Exception {

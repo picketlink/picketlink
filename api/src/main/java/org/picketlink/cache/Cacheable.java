@@ -22,21 +22,26 @@
 package org.picketlink.cache;
 
 /**
- * Interface indicating an 
+ * Interface indicating an
  * entity has access to a cache
+ *
  * @author anil saldhana
  * @since May 10, 2013
  */
 public interface Cacheable {
+
     /**
      * Get the {@link Cache}
+     *
      * @return
      */
-    <K,V> Cache<K,V> getCache();
+    <K, V> Cache<K, V> getCache();
+
     /**
      * Set the {@link CacheManager}
+     *
      * @param <V>
      * @param cacheManager
      */
-    <K,V> void setCacheManager(Cache<K,V> cache);
+    <K, V> void setCacheManager(Cache<K, V> cache);
 }

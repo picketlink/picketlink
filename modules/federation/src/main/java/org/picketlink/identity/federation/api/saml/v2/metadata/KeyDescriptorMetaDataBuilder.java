@@ -35,9 +35,9 @@ import java.math.BigInteger;
  * @since Apr 20, 2009
  */
 public class KeyDescriptorMetaDataBuilder {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     /**
      * Create a Key Descriptor
      *
@@ -46,12 +46,14 @@ public class KeyDescriptorMetaDataBuilder {
      * @param keySize
      * @param isSigningKey Whether the key is for signing
      * @param isEncryptionKey Whether the key is for encryption
+     *
+     * @return
+     *
      * @throws {@link IllegalArgumentException} when keyinfo is null
      * @throws {@link IllegalArgumentException} when both the parameters "isSigningKey" and "isEncryptionKey" are same
-     * @return
      */
     public static KeyDescriptorType createKeyDescriptor(Element keyInfo, String algorithm, int keySize, boolean isSigningKey,
-            boolean isEncryptionKey) {
+                                                        boolean isEncryptionKey) {
         if (keyInfo == null)
             throw logger.nullArgumentError("keyInfo");
 
@@ -79,11 +81,13 @@ public class KeyDescriptorMetaDataBuilder {
     }
 
     /**
-     * Create a key descriptor that specifies an algorithm but does not specify whether the key is for signing or encryption
+     * Create a key descriptor that specifies an algorithm but does not specify whether the key is for signing or
+     * encryption
      *
      * @param keyInfo
      * @param algorithm
      * @param keySize
+     *
      * @return
      */
     public static KeyDescriptorType createKeyDescriptor(Element keyInfo, String algorithm, int keySize) {

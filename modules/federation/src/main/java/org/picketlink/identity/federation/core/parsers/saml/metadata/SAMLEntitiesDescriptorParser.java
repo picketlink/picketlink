@@ -43,9 +43,9 @@ import javax.xml.stream.events.XMLEvent;
  * @since Jan 31, 2011
  */
 public class SAMLEntitiesDescriptorParser extends AbstractDescriptorParser implements ParserNamespaceSupport {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private final String EDT = JBossSAMLConstants.ENTITIES_DESCRIPTOR.get();
 
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {

@@ -50,13 +50,14 @@ import java.util.List;
  * @since Dec 9, 2008
  */
 public class JBossSAMLAuthnResponseFactory {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     /**
      * Create a StatusType given the status code uri
      *
      * @param statusCodeURI
+     *
      * @return
      */
     public static StatusType createStatusType(String statusCodeURI) {
@@ -75,7 +76,9 @@ public class JBossSAMLAuthnResponseFactory {
      * @param sp holder with the information about the Service Provider
      * @param idp holder with the information on the Identity Provider
      * @param issuerInfo holder with information on the issuer
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     public static ResponseType createResponseType(String ID, SPInfoHolder sp, IDPInfoHolder idp, IssuerInfoHolder issuerInfo)
@@ -130,7 +133,9 @@ public class JBossSAMLAuthnResponseFactory {
      * @param ID
      * @param issuerInfo
      * @param assertionType
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     public static ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, AssertionType assertionType)
@@ -159,7 +164,9 @@ public class JBossSAMLAuthnResponseFactory {
      * @param ID
      * @param issuerInfo
      * @param encryptedAssertion a DOM {@link Element} that represents an encrypted assertion
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     public static ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, Element encryptedAssertion)

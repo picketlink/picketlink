@@ -35,6 +35,7 @@ import java.util.Properties;
  * @since Aug 21, 2009
  */
 public class DefaultRoleGenerator implements RoleGenerator {
+
     private static Properties props = new Properties();
 
     static {

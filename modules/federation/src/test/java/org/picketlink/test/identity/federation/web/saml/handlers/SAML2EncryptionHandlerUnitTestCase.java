@@ -75,13 +75,12 @@ import static junit.framework.Assert.fail;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
  */
 public class SAML2EncryptionHandlerUnitTestCase {
 
     private static final String SERVICE_PROVIDER_URL = "http://service-provider.picketlink.org";
     private static final String IDENTITY_PROVIDER_URL = "http://identity-provider.picketlink.org";
-    
+
     private MockServletContext servletContext = new MockServletContext();
     private KeyPair keyPair;
 
@@ -89,10 +88,10 @@ public class SAML2EncryptionHandlerUnitTestCase {
     public void onSetup() throws NoSuchAlgorithmException {
         // install the STS default configurations
         PicketLinkCoreSTS.instance().installDefaultConfiguration();
-        
+
         // register a identity server into the ServletContext
         servletContext.setAttribute(GeneralConstants.IDENTITY_SERVER, new IdentityServer());
-        
+
         // creates a random and temporary keypair for encryption and signing
         this.keyPair = KeyPairGenerator.getInstance("RSA").genKeyPair();
     }
@@ -101,13 +100,13 @@ public class SAML2EncryptionHandlerUnitTestCase {
      * <p>
      * Try to issue an encrypted and signed SAML Assertion and to process it by the SP.
      * </p>
-     * 
+     *
      * @throws Exception
      */
     @Test
     public void testEncryptAssertion() throws Exception {
         Document assertionDocument = issueSAMLAssertion();
-        
+
         assertNotNull(assertionDocument);
 
         System.out.println(prettyPrintDocument(assertionDocument).getBuffer().toString());
@@ -119,8 +118,9 @@ public class SAML2EncryptionHandlerUnitTestCase {
      * <p>
      * This method asks the IDP for a new encrypted and signed SAML Assertion by sending an AuthnRequest.
      * </p>
-     * 
+     *
      * @return
+     *
      * @throws ConfigurationException
      * @throws ProcessingException
      */
@@ -140,14 +140,14 @@ public class SAML2EncryptionHandlerUnitTestCase {
                 issuerNameID, new SAMLDocumentHolder(authnRequestType), HANDLER_TYPE.IDP);
 
         handlerAuthnRequest.addOption(GeneralConstants.SENDER_PUBLIC_KEY, getKeyPair().getPublic());
-        
+
         DefaultSAML2HandlerResponse handlerAuthnResponse = new DefaultSAML2HandlerResponse();
 
         try {
             for (SAML2Handler handler : getIDPHandlerChain().handlers()) {
                 handler.handleRequestType(handlerAuthnRequest, handlerAuthnResponse);
             }
-        } catch (Exception e) { 
+        } catch (Exception e) {
             e.printStackTrace();
             fail("Error while issuing encrypted and signed SAML Assertion.");
         }
@@ -157,10 +157,12 @@ public class SAML2EncryptionHandlerUnitTestCase {
 
     /**
      * <p>
-     * Given the SAML Assertion, process it by the SP and make sure it can be decrypted and have its signature validated.
+     * Given the SAML Assertion, process it by the SP and make sure it can be decrypted and have its signature
+     * validated.
      * </p>
-     * 
+     *
      * @param assertionDocument
+     *
      * @throws ParsingException
      * @throws ConfigurationException
      * @throws ProcessingException
@@ -175,7 +177,7 @@ public class SAML2EncryptionHandlerUnitTestCase {
         DefaultSAML2HandlerRequest handlerAssertionResponseRequest = new DefaultSAML2HandlerRequest(new HTTPContext(
                 new MockHttpServletRequest(new MockHttpSession(), "POST"), new MockHttpServletResponse(), servletContext),
                 issuerSPNameID, new SAMLDocumentHolder(new SAML2Response().getSAML2ObjectFromStream(DocumentUtil
-                        .getNodeAsStream(assertionDocument)), assertionDocument), HANDLER_TYPE.SP);
+                .getNodeAsStream(assertionDocument)), assertionDocument), HANDLER_TYPE.SP);
 
         handlerAssertionResponseRequest.addOption(GeneralConstants.DECRYPTING_KEY, getKeyPair().getPrivate());
         handlerAssertionResponseRequest.addOption(GeneralConstants.SENDER_PUBLIC_KEY, getKeyPair().getPublic());
@@ -186,7 +188,7 @@ public class SAML2EncryptionHandlerUnitTestCase {
             for (SAML2Handler handler : getSPHandlerChain().handlers()) {
                 handler.handleStatusResponseType(handlerAssertionResponseRequest, handlerAssertionRequestResponse);
             }
-        } catch (Exception e) { 
+        } catch (Exception e) {
             e.printStackTrace();
             fail("Error while processing the encrypted and signed SAML Assertion.");
         }
@@ -211,8 +213,9 @@ public class SAML2EncryptionHandlerUnitTestCase {
      * <p>
      * Creates an return a random RSA {@link KeyPair} for testing.
      * </p>
-     * 
+     *
      * @return
+     *
      * @throws NoSuchAlgorithmException
      */
     private KeyPair getKeyPair() {
@@ -265,7 +268,7 @@ public class SAML2EncryptionHandlerUnitTestCase {
         SAML2EncryptionHandler handler = new SAML2EncryptionHandler();
 
         DefaultSAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
-        
+
         handler.initHandlerConfig(handlerConfig);
 
         return handler;

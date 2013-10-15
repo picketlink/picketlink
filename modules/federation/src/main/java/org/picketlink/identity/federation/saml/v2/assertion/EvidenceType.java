@@ -45,10 +45,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class EvidenceType implements Serializable {
+
     private static final long serialVersionUID = 1L;
     protected List<ChoiceType> evidences = new ArrayList<ChoiceType>();
 
@@ -80,6 +79,7 @@ public class EvidenceType implements Serializable {
     }
 
     public static class ChoiceType implements Serializable {
+
         private static final long serialVersionUID = 1L;
         private String AssertionIDRef;
         private URI AssertionURIRef;

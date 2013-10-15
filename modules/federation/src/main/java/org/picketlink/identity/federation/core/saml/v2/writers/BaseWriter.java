@@ -55,9 +55,9 @@ import static org.picketlink.common.constants.JBossSAMLURIConstants.ASSERTION_NS
  * @since Nov 2, 2010
  */
 public class BaseWriter {
-    
+
     protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     protected static String PROTOCOL_PREFIX = "samlp";
 
     protected static String ASSERTION_PREFIX = "saml";
@@ -80,6 +80,7 @@ public class BaseWriter {
      * @param nameIDType
      * @param tag
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(NameIDType nameIDType, QName tag) throws ProcessingException {
@@ -121,6 +122,7 @@ public class BaseWriter {
      *
      * @param attributeType
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(AttributeType attributeType) throws ProcessingException {
@@ -202,6 +204,7 @@ public class BaseWriter {
      *
      * @param subject
      * @param out
+     *
      * @throws ProcessingException
      */
     public void write(SubjectType subject) throws ProcessingException {

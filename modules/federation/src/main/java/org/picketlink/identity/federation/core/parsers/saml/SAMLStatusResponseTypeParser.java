@@ -46,14 +46,15 @@ import java.net.URI;
  * @since Nov 2, 2010
  */
 public abstract class SAMLStatusResponseTypeParser {
-    
+
     protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     /**
      * Parse the attributes that are common to all SAML Response Types
      *
      * @param startElement
      * @param response
+     *
      * @throws ParsingException
      */
     protected StatusResponseType parseBaseAttributes(StartElement startElement) throws ParsingException {
@@ -93,7 +94,9 @@ public abstract class SAMLStatusResponseTypeParser {
      * Parse the status element
      *
      * @param xmlEventReader
+     *
      * @return
+     *
      * @throws ParsingException
      */
     protected StatusType parseStatus(XMLEventReader xmlEventReader) throws ParsingException {
@@ -157,7 +160,7 @@ public abstract class SAMLStatusResponseTypeParser {
                     break;
                 status.setStatusMessage(StaxParserUtil.getElementText(xmlEventReader));
             }
-            
+
             if (JBossSAMLConstants.STATUS_DETAIL.get().equals(elementTag)) {
                 startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
                 if (startElement == null)

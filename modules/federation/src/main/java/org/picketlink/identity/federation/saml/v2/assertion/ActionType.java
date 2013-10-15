@@ -35,9 +35,8 @@ import org.picketlink.identity.federation.saml.common.CommonActionType;
  *   &lt;/simpleContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ActionType extends CommonActionType {
+
     private static final long serialVersionUID = 1L;
 }

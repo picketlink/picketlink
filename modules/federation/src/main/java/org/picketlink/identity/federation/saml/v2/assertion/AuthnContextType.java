@@ -50,16 +50,16 @@ import java.util.Set;
  *             &lt;element ref="{urn:oasis:names:tc:SAML:2.0:assertion}AuthnContextDeclRef"/>
  *           &lt;/choice>
  *         &lt;/choice>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:assertion}AuthenticatingAuthority" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:assertion}AuthenticatingAuthority" maxOccurs="unbounded"
+ * minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class AuthnContextType implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     private final Set<URI> authenticatingAuthority = new LinkedHashSet<URI>();
@@ -159,10 +159,12 @@ public class AuthnContextType implements Serializable {
     }
 
     /**
-     * <sequence> <element ref="saml:AuthnContextClassRef"/> <choice minOccurs="0"> <element ref="saml:AuthnContextDecl"/>
+     * <sequence> <element ref="saml:AuthnContextClassRef"/> <choice minOccurs="0"> <element
+     * ref="saml:AuthnContextDecl"/>
      * <element ref="saml:AuthnContextDeclRef"/> </choice> </sequence>
      */
     public class AuthnContextTypeSequence implements Serializable {
+
         private static final long serialVersionUID = 1L;
 
         private AuthnContextClassRefType classRef;

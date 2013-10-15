@@ -36,8 +36,6 @@ import java.net.URI;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class IndexedEndpointType extends EndpointType {
 
@@ -51,7 +49,6 @@ public class IndexedEndpointType extends EndpointType {
 
     /**
      * Gets the value of the index property.
-     *
      */
     public int getIndex() {
         return index;
@@ -59,7 +56,6 @@ public class IndexedEndpointType extends EndpointType {
 
     /**
      * Sets the value of the index property.
-     *
      */
     public void setIndex(int value) {
         this.index = value;
@@ -69,7 +65,6 @@ public class IndexedEndpointType extends EndpointType {
      * Gets the value of the isDefault property.
      *
      * @return possible object is {@link Boolean }
-     *
      */
     public Boolean isIsDefault() {
         return isDefault;
@@ -79,7 +74,6 @@ public class IndexedEndpointType extends EndpointType {
      * Sets the value of the isDefault property.
      *
      * @param value allowed object is {@link Boolean }
-     *
      */
     public void setIsDefault(Boolean value) {
         this.isDefault = value;

@@ -33,7 +33,7 @@ public interface SecurityToken {
      *
      * @return a {@code String} representing the token id.
      */
-    public String getTokenID();
+    String getTokenID();
 
     /**
      * <p>
@@ -42,7 +42,7 @@ public interface SecurityToken {
      *
      * @return a {@code String} representing the security token type.
      */
-    public String getTokenType();
+    String getTokenType();
 
     /**
      * <p>
@@ -51,5 +51,5 @@ public interface SecurityToken {
      *
      * @return an {@code Object} representing the security token value.
      */
-    public Object getTokenValue();
+    Object getTokenValue();
 }

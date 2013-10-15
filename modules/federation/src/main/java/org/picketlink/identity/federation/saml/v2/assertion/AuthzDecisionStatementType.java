@@ -42,10 +42,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class AuthzDecisionStatementType extends StatementAbstractType {
+
     private static final long serialVersionUID = 1L;
     protected List<ActionType> action = new ArrayList<ActionType>();
     protected EvidenceType evidence;
@@ -83,7 +82,6 @@ public class AuthzDecisionStatementType extends StatementAbstractType {
      * Gets the value of the evidence property.
      *
      * @return possible object is {@link EvidenceType }
-     *
      */
     public EvidenceType getEvidence() {
         return evidence;
@@ -93,7 +91,6 @@ public class AuthzDecisionStatementType extends StatementAbstractType {
      * Sets the value of the evidence property.
      *
      * @param value allowed object is {@link EvidenceType }
-     *
      */
     public void setEvidence(EvidenceType value) {
         this.evidence = value;
@@ -103,7 +100,6 @@ public class AuthzDecisionStatementType extends StatementAbstractType {
      * Gets the value of the resource property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getResource() {
         return resource;
@@ -113,7 +109,6 @@ public class AuthzDecisionStatementType extends StatementAbstractType {
      * Sets the value of the resource property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setResource(String value) {
         this.resource = value;
@@ -123,7 +118,6 @@ public class AuthzDecisionStatementType extends StatementAbstractType {
      * Gets the value of the decision property.
      *
      * @return possible object is {@link DecisionType }
-     *
      */
     public DecisionType getDecision() {
         return decision;
@@ -133,7 +127,6 @@ public class AuthzDecisionStatementType extends StatementAbstractType {
      * Sets the value of the decision property.
      *
      * @param value allowed object is {@link DecisionType }
-     *
      */
     public void setDecision(DecisionType value) {
         this.decision = value;

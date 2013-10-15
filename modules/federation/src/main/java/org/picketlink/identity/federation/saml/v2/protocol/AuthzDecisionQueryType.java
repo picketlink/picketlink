@@ -48,6 +48,7 @@ import java.util.List;
  * </pre>
  */
 public class AuthzDecisionQueryType extends SubjectQueryAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     protected List<ActionType> action = new ArrayList<ActionType>();
@@ -89,7 +90,6 @@ public class AuthzDecisionQueryType extends SubjectQueryAbstractType {
      * Gets the value of the evidence property.
      *
      * @return possible object is {@link EvidenceType }
-     *
      */
     public EvidenceType getEvidence() {
         return evidence;
@@ -99,7 +99,6 @@ public class AuthzDecisionQueryType extends SubjectQueryAbstractType {
      * Sets the value of the evidence property.
      *
      * @param value allowed object is {@link EvidenceType }
-     *
      */
     public void setEvidence(EvidenceType value) {
         this.evidence = value;
@@ -109,7 +108,6 @@ public class AuthzDecisionQueryType extends SubjectQueryAbstractType {
      * Gets the value of the resource property.
      *
      * @return possible object is {@link String }
-     *
      */
     public URI getResource() {
         return resource;
@@ -119,7 +117,6 @@ public class AuthzDecisionQueryType extends SubjectQueryAbstractType {
      * Sets the value of the resource property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setResource(URI value) {
         this.resource = value;

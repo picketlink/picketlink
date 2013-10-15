@@ -32,9 +32,8 @@ package org.picketlink.identity.federation.saml.v2.assertion;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class OneTimeUseType extends ConditionAbstractType {
+
     private static final long serialVersionUID = 1L;
 }

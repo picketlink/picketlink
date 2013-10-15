@@ -17,20 +17,6 @@
  */
 package org.picketlink.test.identity.federation.api.saml.v2;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PublicKey;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-
-import javax.xml.crypto.dsig.SignatureMethod;
-
 import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
@@ -54,10 +40,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.crypto.dsig.SignatureMethod;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.PublicKey;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -68,8 +59,10 @@ import static org.junit.Assert.assertTrue;
  * @since Dec 15, 2008
  */
 public class SignatureValidationUnitTestCase {
+
     /**
-     * Test the creation of AuthnRequestType with signature creation with a private key and then validate the signature with a
+     * Test the creation of AuthnRequestType with signature creation with a private key and then validate the signature
+     * with a
      * public key
      *
      * @throws Exception
@@ -100,7 +93,8 @@ public class SignatureValidationUnitTestCase {
     }
 
     /**
-     * Test the creation of AuthnRequestType with signature creation with a private key and then validate the signature with a
+     * Test the creation of AuthnRequestType with signature creation with a private key and then validate the signature
+     * with a
      * public key. We test that the signature does not contain the keyinfo
      *
      * @throws Exception
@@ -260,7 +254,7 @@ public class SignatureValidationUnitTestCase {
     }
 
     @Test
-    public void testX509DataInSignedInfo() throws Exception{
+    public void testX509DataInSignedInfo() throws Exception {
         SAML2Request saml2Request = new SAML2Request();
         String id = IDGenerator.create("ID_");
         String assertionConsumerURL = "http://sp";

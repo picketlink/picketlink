@@ -30,6 +30,7 @@ import java.io.IOException;
  * @since Oct 8, 2009
  */
 public class MockFilterChain implements FilterChain {
+
     public void doFilter(ServletRequest arg0, ServletResponse arg1) throws IOException, ServletException {
     }
 }

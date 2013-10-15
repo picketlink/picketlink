@@ -48,8 +48,6 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AlphabetType")
@@ -66,7 +64,6 @@ public class AlphabetType {
      * Gets the value of the requiredChars property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getRequiredChars() {
         return requiredChars;
@@ -76,7 +73,6 @@ public class AlphabetType {
      * Sets the value of the requiredChars property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setRequiredChars(String value) {
         this.requiredChars = value;
@@ -86,7 +82,6 @@ public class AlphabetType {
      * Gets the value of the excludedChars property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getExcludedChars() {
         return excludedChars;
@@ -96,7 +91,6 @@ public class AlphabetType {
      * Sets the value of the excludedChars property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setExcludedChars(String value) {
         this.excludedChars = value;
@@ -106,7 +100,6 @@ public class AlphabetType {
      * Gets the value of the case property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getCase() {
         return _case;
@@ -116,7 +109,6 @@ public class AlphabetType {
      * Sets the value of the case property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setCase(String value) {
         this._case = value;

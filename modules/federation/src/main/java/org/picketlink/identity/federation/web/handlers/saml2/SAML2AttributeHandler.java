@@ -56,7 +56,8 @@ import java.util.Set;
  * <ul>
  * <li>ATTRIBUTE_MANAGER: a fqn of the attribute manager class. This is an IDP setting.</li>
  * <li>ATTRIBUTE_KEYS: a comma separated list of string values representing attributes to be sent. IDP setting.</li>
- * <li>ATTRIBUTE_CHOOSE_FRIENDLY_NAME : set to true if you require attributes to be keyed by friendly name rather than default
+ * <li>ATTRIBUTE_CHOOSE_FRIENDLY_NAME : set to true if you require attributes to be keyed by friendly name rather than
+ * default
  * name. SP Setting.</li>
  * </ul>
  * </p>
@@ -75,9 +76,9 @@ public class SAML2AttributeHandler extends BaseSAML2Handler {
     @Override
     public void initChainConfig(SAML2HandlerChainConfig handlerChainConfig) throws ConfigurationException {
         super.initChainConfig(handlerChainConfig);
-        
+
         Object config = this.handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION);
-        
+
         // if the GeneralConstants.ATTIBUTE_MANAGER parameter is defined for this handler, ignore the PicketLinkIDP AttributeManager attribute.
         if (config instanceof IDPType && getAttributeManager() == null) {
             IDPType idpType = (IDPType) config;
@@ -90,7 +91,7 @@ public class SAML2AttributeHandler extends BaseSAML2Handler {
         if (this.handlerConfig == null) {
             return null;
         }
-        
+
         return this.handlerConfig.getParameter(GeneralConstants.ATTIBUTE_MANAGER);
     }
 
@@ -126,10 +127,10 @@ public class SAML2AttributeHandler extends BaseSAML2Handler {
         HttpSession session = httpContext.getRequest().getSession(false);
 
         Principal userPrincipal = (Principal) session.getAttribute(GeneralConstants.PRINCIPAL_ID);
-        
+
         if (userPrincipal == null)
             userPrincipal = httpContext.getRequest().getUserPrincipal();
-        
+
         Map<String, Object> attribs = (Map<String, Object>) session.getAttribute(GeneralConstants.ATTRIBUTES);
         if (attribs == null) {
             attribs = this.attribManager.getAttributes(userPrincipal, attributeKeys);
@@ -163,14 +164,14 @@ public class SAML2AttributeHandler extends BaseSAML2Handler {
         if (!(request.getSAML2Object() instanceof ResponseType)) {
             return;
         }
-        
+
         HTTPContext httpContext = (HTTPContext) request.getContext();
         HttpSession session = httpContext.getRequest().getSession(false);
 
         AssertionType assertion = (AssertionType) request.getOptions().get(GeneralConstants.ASSERTION);
         if (assertion == null)
             throw logger.samlHandlerAssertionNotFound();
-        
+
         Set<StatementAbstractType> statements = assertion.getStatements();
         for (StatementAbstractType statement : statements) {
             if (statement instanceof AttributeStatementType) {
@@ -193,5 +194,5 @@ public class SAML2AttributeHandler extends BaseSAML2Handler {
             }
         }
     }
-    
+
 }

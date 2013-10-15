@@ -27,6 +27,7 @@ import java.util.Map;
  * @since May 17, 2011
  */
 public class BaseAddressingType {
+
     protected final Map<QName, String> otherAttributes = new HashMap<QName, String>();
 
     /**
@@ -49,9 +50,9 @@ public class BaseAddressingType {
      * <p>
      * the map is keyed by the name of the attribute and the value is the string value of the attribute.
      *
-     * the map returned by this method is live, and you can add new attribute by updating the map directly. Because of this
+     * the map returned by this method is live, and you can add new attribute by updating the map directly. Because of
+     * this
      * design, there's no setter.
-     *
      *
      * @return always non-null
      */

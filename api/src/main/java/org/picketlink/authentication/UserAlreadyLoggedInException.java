@@ -20,7 +20,7 @@ package org.picketlink.authentication;
 
 /**
  * <p>Thrown during the authentication process to indicate that an user is already authenticated.</p>
- * 
+ *
  * @author Pedro Igor
  */
 public class UserAlreadyLoggedInException extends AuthenticationException {

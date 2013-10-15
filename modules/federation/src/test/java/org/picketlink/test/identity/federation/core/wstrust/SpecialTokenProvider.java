@@ -140,7 +140,6 @@ public class SpecialTokenProvider implements SecurityTokenProvider {
     }
 
     /**
-     *
      * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#supports(java.lang.String)
      */
     public boolean supports(String namespace) {
@@ -148,7 +147,6 @@ public class SpecialTokenProvider implements SecurityTokenProvider {
     }
 
     /**
-     *
      * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#tokenType()
      */
     public String tokenType() {

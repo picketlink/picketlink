@@ -31,8 +31,10 @@ import java.util.Map;
 
 /**
  * <p>
- * The {@code WSTrustRequestContext} contains all the information that is relevant for the security token request processing.
- * Its attributes are divided into two groups: attributes set by the request handler before calling a token provider, and
+ * The {@code WSTrustRequestContext} contains all the information that is relevant for the security token request
+ * processing.
+ * Its attributes are divided into two groups: attributes set by the request handler before calling a token provider,
+ * and
  * attributes set by the token provider after processing the token request.
  * </p>
  *
@@ -73,7 +75,8 @@ public class WSTrustRequestContext implements ProtocolContext {
      * Creates an instance of {@code WSTrustRequestContext} using the specified request.
      * </p>
      *
-     * @param request a {@code RequestSecurityToken} object that contains the information about the security token request.
+     * @param request a {@code RequestSecurityToken} object that contains the information about the security token
+     * request.
      * @param callerPrincipal the {@code Principal} of the security token requester.
      */
     public WSTrustRequestContext(RequestSecurityToken request, Principal callerPrincipal) {
@@ -193,7 +196,8 @@ public class WSTrustRequestContext implements ProtocolContext {
 
     /**
      * <p>
-     * Gets the {@code Map} that contains the attributes claimed by the caller. Token providers use this method to obtain the
+     * Gets the {@code Map} that contains the attributes claimed by the caller. Token providers use this method to
+     * obtain the
      * attributes that must be inserted in the security token.
      * </p>
      *
@@ -206,12 +210,15 @@ public class WSTrustRequestContext implements ProtocolContext {
     /**
      * <p>
      * Sets the caller's attributes. The caller uses the {@code Claims} section of the WS-Trust request to specify the
-     * attributes that need to be present in the generated security token. The token service parses this section and (possibly)
+     * attributes that need to be present in the generated security token. The token service parses this section and
+     * (possibly)
      * interacts with other services to determine the values of the required attributes. After the attributes have been
-     * determined the STS uses this method to set them in the request context and make them available for token providers.
+     * determined the STS uses this method to set them in the request context and make them available for token
+     * providers.
      * </p>
      *
-     * @param attributes a {@code Map<String, Object} that contains the caller's attributes keyed by the attribute name.
+     * @param attributes a {@code Map<String, Object} that contains the caller's attributes keyed by the attribute
+     * name.
      */
     public void setClaimedAttributes(Map<String, Object> attributes) {
         this.claimedAttributes = attributes;
@@ -263,7 +270,8 @@ public class WSTrustRequestContext implements ProtocolContext {
 
     /**
      * <p>
-     * Obtains the security token attached reference. This reference is used to locate the token inside the WS-Trust response
+     * Obtains the security token attached reference. This reference is used to locate the token inside the WS-Trust
+     * response
      * message when that token doesn't support references using URI fragments.
      * </p>
      *
@@ -275,7 +283,8 @@ public class WSTrustRequestContext implements ProtocolContext {
 
     /**
      * <p>
-     * Sets the security token attached reference. This reference is used to locate the token inside the WS-Trust response
+     * Sets the security token attached reference. This reference is used to locate the token inside the WS-Trust
+     * response
      * message when that token doesn't support references using URI fragments.
      * </p>
      *
@@ -287,7 +296,8 @@ public class WSTrustRequestContext implements ProtocolContext {
 
     /**
      * <p>
-     * Obtains the security token unattached reference. This reference is used to locate the token when it is not placed inside
+     * Obtains the security token unattached reference. This reference is used to locate the token when it is not placed
+     * inside
      * the WS-Trust response message.
      * </p>
      *
@@ -299,7 +309,8 @@ public class WSTrustRequestContext implements ProtocolContext {
 
     /**
      * <p>
-     * Sets the security token unattached reference. This reference is used to locate the token when it is not placed inside the
+     * Sets the security token unattached reference. This reference is used to locate the token when it is not placed
+     * inside the
      * WS-Trust response message.
      * </p>
      *

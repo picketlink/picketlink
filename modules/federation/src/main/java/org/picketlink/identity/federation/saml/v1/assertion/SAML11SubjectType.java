@@ -27,7 +27,9 @@ package org.picketlink.identity.federation.saml.v1.assertion;
  * @since Jun 22, 2011
  */
 public class SAML11SubjectType {
+
     public static class SAML11SubjectTypeChoice {
+
         protected SAML11NameIdentifierType nameID;
 
         protected SAML11SubjectConfirmationType subjectConfirmation;

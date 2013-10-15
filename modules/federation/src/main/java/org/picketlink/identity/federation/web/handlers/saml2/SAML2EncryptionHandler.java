@@ -38,16 +38,18 @@ import java.security.PublicKey;
 
 /**
  * <p>Handles the encryption and signing of SAML Assertions.</p>
- * <p>This handler should be used only on the IDP side and it must be positioned after the {@link SAML2AuthenticationHandler} in the chain.</p>
- * <p>Configuration options are: <code>GeneralConstants.SAML_ENC_KEY_SIZE</code> and <code>GeneralConstants.SAML_ENC_ALGORITHM</code>.</p>
- * 
+ * <p>This handler should be used only on the IDP side and it must be positioned after the {@link
+ * SAML2AuthenticationHandler} in the chain.</p>
+ * <p>Configuration options are: <code>GeneralConstants.SAML_ENC_KEY_SIZE</code> and
+ * <code>GeneralConstants.SAML_ENC_ALGORITHM</code>.</p>
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 public class SAML2EncryptionHandler extends SAML2SignatureGenerationHandler {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.picketlink.identity.federation.web.handlers.saml2.SAML2SignatureGenerationHandler#handleRequestType(org.picketlink
      * .identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest,
@@ -70,7 +72,7 @@ public class SAML2EncryptionHandler extends SAML2SignatureGenerationHandler {
 
                 byte[] secret = WSTrustUtil.createRandomSecret(128 / 8);
                 SecretKey secretKey = new SecretKeySpec(secret, getAlgorithm());
-                
+
                 // encrypt the Assertion element and replace it with a EncryptedAssertion element.
                 XMLEncryptionUtil.encryptElement(new QName(JBossSAMLURIConstants.ASSERTION_NSURI.get(),
                         JBossSAMLConstants.ASSERTION.get(), samlNSPrefix), samlResponseDocument, getSenderPublicKey(request),
@@ -97,7 +99,7 @@ public class SAML2EncryptionHandler extends SAML2SignatureGenerationHandler {
 
     /**
      * <p>Indicates if the IDP has encryption enabled.</p>
-     * 
+     *
      * @return
      */
     private boolean isEncryptionEnabled() {
@@ -108,8 +110,9 @@ public class SAML2EncryptionHandler extends SAML2SignatureGenerationHandler {
      * <p>
      * Indicates if this handler supports the specified {@link SAML2HandlerRequest}.
      * </p>
-     * 
+     *
      * @param request
+     *
      * @return
      */
     private boolean supportsRequest(SAML2HandlerRequest request) {
@@ -155,7 +158,7 @@ public class SAML2EncryptionHandler extends SAML2SignatureGenerationHandler {
 
         return publicKey;
     }
-    
+
     private void throwResponseDocumentOrAssertionNotFound() {
         throw new IllegalStateException(
                 "No response document/assertions found. Check if this handler is after the SAML2AuthenticationHandler.");

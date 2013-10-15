@@ -43,6 +43,7 @@ import java.util.List;
  * @since Jun 27, 2011
  */
 public class SAML11RequestWriter extends BaseSAML11Writer {
+
     protected String namespace = SAML11Constants.PROTOCOL_11_NSURI;
 
     protected SAML11AssertionWriter assertionWriter;

@@ -46,10 +46,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class NameIDMappingRequestType extends RequestAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     protected BaseIDAbstractType baseID;
@@ -68,7 +67,6 @@ public class NameIDMappingRequestType extends RequestAbstractType {
      * Gets the value of the baseID property.
      *
      * @return possible object is {@link BaseIDAbstractType }
-     *
      */
     public BaseIDAbstractType getBaseID() {
         return baseID;
@@ -78,7 +76,6 @@ public class NameIDMappingRequestType extends RequestAbstractType {
      * Sets the value of the baseID property.
      *
      * @param value allowed object is {@link BaseIDAbstractType }
-     *
      */
     public void setBaseID(BaseIDAbstractType value) {
         this.baseID = value;
@@ -88,7 +85,6 @@ public class NameIDMappingRequestType extends RequestAbstractType {
      * Gets the value of the nameID property.
      *
      * @return possible object is {@link NameIDType }
-     *
      */
     public NameIDType getNameID() {
         return nameID;
@@ -98,7 +94,6 @@ public class NameIDMappingRequestType extends RequestAbstractType {
      * Sets the value of the nameID property.
      *
      * @param value allowed object is {@link NameIDType }
-     *
      */
     public void setNameID(NameIDType value) {
         this.nameID = value;
@@ -108,7 +103,6 @@ public class NameIDMappingRequestType extends RequestAbstractType {
      * Gets the value of the encryptedID property.
      *
      * @return possible object is {@link EncryptedElementType }
-     *
      */
     public EncryptedElementType getEncryptedID() {
         return encryptedID;
@@ -118,7 +112,6 @@ public class NameIDMappingRequestType extends RequestAbstractType {
      * Sets the value of the encryptedID property.
      *
      * @param value allowed object is {@link EncryptedElementType }
-     *
      */
     public void setEncryptedID(EncryptedElementType value) {
         this.encryptedID = value;
@@ -128,7 +121,6 @@ public class NameIDMappingRequestType extends RequestAbstractType {
      * Gets the value of the nameIDPolicy property.
      *
      * @return possible object is {@link NameIDPolicyType }
-     *
      */
     public NameIDPolicyType getNameIDPolicy() {
         return nameIDPolicy;
@@ -138,7 +130,6 @@ public class NameIDMappingRequestType extends RequestAbstractType {
      * Sets the value of the nameIDPolicy property.
      *
      * @param value allowed object is {@link NameIDPolicyType }
-     *
      */
     public void setNameIDPolicy(NameIDPolicyType value) {
         this.nameIDPolicy = value;

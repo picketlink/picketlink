@@ -23,11 +23,9 @@ package org.picketlink.common.properties.query;
  *
  * @see PropertyQuery
  */
-public class PropertyQueries 
-{
+public class PropertyQueries {
 
-    private PropertyQueries() 
-    {
+    private PropertyQueries() {
     }
 
     /**
@@ -35,10 +33,10 @@ public class PropertyQueries
      *
      * @param <V>
      * @param targetClass
+     *
      * @return
      */
-    public static <V> PropertyQuery<V> createQuery(Class<?> targetClass) 
-    {
+    public static <V> PropertyQuery<V> createQuery(Class<?> targetClass) {
         return new PropertyQuery<V>(targetClass);
     }
 

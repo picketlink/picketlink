@@ -37,7 +37,8 @@ import java.util.Map;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:assertion}AttributeValue" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:assertion}AttributeValue" maxOccurs="unbounded"
+ * minOccurs="0"/>
  *       &lt;/sequence>
  *       &lt;attribute name="Name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="NameFormat" type="{http://www.w3.org/2001/XMLSchema}anyURI" />
@@ -46,9 +47,9 @@ import java.util.Map;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
  */
 public class AttributeType implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     protected List<Object> attributeValue = new ArrayList<Object>();
@@ -92,8 +93,6 @@ public class AttributeType implements Serializable {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link Object }
-     *
-     *
      */
     public List<Object> getAttributeValue() {
         return Collections.unmodifiableList(this.attributeValue);
@@ -103,7 +102,6 @@ public class AttributeType implements Serializable {
      * Gets the value of the name property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getName() {
         return name;
@@ -113,7 +111,6 @@ public class AttributeType implements Serializable {
      * Sets the value of the name property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setName(String value) {
         this.name = value;
@@ -123,7 +120,6 @@ public class AttributeType implements Serializable {
      * Gets the value of the nameFormat property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getNameFormat() {
         return nameFormat;
@@ -133,7 +129,6 @@ public class AttributeType implements Serializable {
      * Sets the value of the nameFormat property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setNameFormat(String value) {
         this.nameFormat = value;
@@ -143,7 +138,6 @@ public class AttributeType implements Serializable {
      * Gets the value of the friendlyName property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getFriendlyName() {
         return friendlyName;
@@ -153,7 +147,6 @@ public class AttributeType implements Serializable {
      * Sets the value of the friendlyName property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setFriendlyName(String value) {
         this.friendlyName = value;
@@ -165,9 +158,9 @@ public class AttributeType implements Serializable {
      * <p>
      * the map is keyed by the name of the attribute and the value is the string value of the attribute.
      *
-     * the map returned by this method is live, and you can add new attribute by updating the map directly. Because of this
+     * the map returned by this method is live, and you can add new attribute by updating the map directly. Because of
+     * this
      * design, there's no setter.
-     *
      *
      * @return always non-null
      */

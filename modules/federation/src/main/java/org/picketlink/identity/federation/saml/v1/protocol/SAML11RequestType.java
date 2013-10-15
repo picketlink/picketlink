@@ -27,13 +27,15 @@ import java.util.List;
  * ref="samlp:Query"/> <element ref="samlp:SubjectQuery"/> <element ref="samlp:AuthenticationQuery"/>
  *
  * <element ref="samlp:AttributeQuery"/> <element ref="samlp:AuthorizationDecisionQuery"/> <element
- * ref="saml:AssertionIDReference" maxOccurs="unbounded"/> <element ref="samlp:AssertionArtifact" maxOccurs="unbounded"/>
+ * ref="saml:AssertionIDReference" maxOccurs="unbounded"/> <element ref="samlp:AssertionArtifact"
+ * maxOccurs="unbounded"/>
  * </choice> </extension> </complexContent> </complexType>
  *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011
  */
 public class SAML11RequestType extends SAML11RequestAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     protected SAML11QueryAbstractType query;

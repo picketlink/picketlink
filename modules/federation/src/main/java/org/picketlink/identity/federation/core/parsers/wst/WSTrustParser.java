@@ -35,6 +35,7 @@ import javax.xml.stream.events.XMLEvent;
  * @since Oct 11, 2010
  */
 public class WSTrustParser extends AbstractParser {
+
     /**
      * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
      */

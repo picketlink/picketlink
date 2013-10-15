@@ -22,20 +22,18 @@ import org.picketlink.idm.model.Account;
 
 /**
  * This event is raised just after the user un-authenticates
- * 
+ *
  * @author Shane Bryzak
  */
-public class PostLoggedOutEvent 
-{
+public class PostLoggedOutEvent {
+
     private Account account;
 
-    public PostLoggedOutEvent(Account account)
-    {
+    public PostLoggedOutEvent(Account account) {
         this.account = account;
     }
 
-    public Account getAccount()
-    {
+    public Account getAccount() {
         return account;
     }
 }

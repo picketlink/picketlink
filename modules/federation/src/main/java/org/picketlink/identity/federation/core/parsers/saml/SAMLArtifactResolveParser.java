@@ -36,6 +36,7 @@ import javax.xml.stream.events.StartElement;
  * @since Jul 1, 2011
  */
 public class SAMLArtifactResolveParser extends SAMLRequestAbstractParser implements ParserNamespaceSupport {
+
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
         // Get the startelement
         StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
@@ -73,7 +74,9 @@ public class SAMLArtifactResolveParser extends SAMLRequestAbstractParser impleme
      * Parse the attributes at the authnrequesttype element
      *
      * @param startElement
+     *
      * @return
+     *
      * @throws ParsingException
      */
     private ArtifactResolveType parseBaseAttributes(StartElement startElement) throws ParsingException {

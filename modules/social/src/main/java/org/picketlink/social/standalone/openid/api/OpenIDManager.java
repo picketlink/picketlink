@@ -21,10 +21,6 @@
  */
 package org.picketlink.social.standalone.openid.api;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import org.openid4java.association.AssociationException;
 import org.openid4java.consumer.ConsumerException;
 import org.openid4java.consumer.ConsumerManager;
@@ -40,7 +36,16 @@ import org.openid4java.message.MessageException;
 import org.openid4java.message.ParameterList;
 import org.openid4java.message.ax.FetchRequest;
 import org.openid4java.message.sreg.SRegRequest;
-import org.picketlink.social.standalone.openid.api.exceptions.*;
+import org.picketlink.social.standalone.openid.api.exceptions.OpenIDAssociationException;
+import org.picketlink.social.standalone.openid.api.exceptions.OpenIDConsumerException;
+import org.picketlink.social.standalone.openid.api.exceptions.OpenIDDiscoveryException;
+import org.picketlink.social.standalone.openid.api.exceptions.OpenIDLifeCycleException;
+import org.picketlink.social.standalone.openid.api.exceptions.OpenIDMessageException;
+import org.picketlink.social.standalone.openid.api.exceptions.OpenIDProtocolException;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * OpenID Manager for consumers
@@ -49,6 +54,7 @@ import org.picketlink.social.standalone.openid.api.exceptions.*;
  * @since Jul 6, 2009
  */
 public class OpenIDManager {
+
     public enum CONST {
         OPENID("openid"), OPENID_CLAIMED("openid-claimed"), OPENID_DISC("openid-discovered");
 
@@ -113,7 +119,9 @@ public class OpenIDManager {
      *
      * @param adapter Protocol adapter (such as http)
      * @param listOfProviders (a list of providers from discovery)
+     *
      * @return
+     *
      * @throws OpenIDConsumerException
      * @throws OpenIDLifeCycleException
      */
@@ -147,7 +155,9 @@ public class OpenIDManager {
      *
      * @param adapter protocol adapter
      * @param providerInfo Information about a provider derived from discovery process
+     *
      * @return
+     *
      * @throws OpenIDDiscoveryException
      * @throws OpenIDConsumerException
      * @throws OpenIDMessageException
@@ -242,7 +252,9 @@ public class OpenIDManager {
      * @param adapter protocol adapter
      * @param parameterMap request parameters
      * @param receivedURL url where the response will be received
+     *
      * @return
+     *
      * @throws OpenIDMessageException
      * @throws OpenIDDiscoveryException
      * @throws OpenIDAssociationException
@@ -273,15 +285,15 @@ public class OpenIDManager {
                 AuthSuccess authSuccess = (AuthSuccess) verification.getAuthResponse();
 
                 // Create an lifecycle event array
-                OpenIDLifecycleEvent[] eventArr = new OpenIDLifecycleEvent[] {
-                /** Store the id **/
-                new OpenIDLifecycleEvent(OpenIDLifecycleEvent.TYPE.SESSION, OpenIDLifecycleEvent.OP.ADD, CONST.OPENID.get(), authSuccess.getIdentity()),
+                OpenIDLifecycleEvent[] eventArr = new OpenIDLifecycleEvent[]{
+                        /** Store the id **/
+                        new OpenIDLifecycleEvent(OpenIDLifecycleEvent.TYPE.SESSION, OpenIDLifecycleEvent.OP.ADD, CONST.OPENID.get(), authSuccess.getIdentity()),
 
-                /** Store the claimed **/
-                new OpenIDLifecycleEvent(OpenIDLifecycleEvent.TYPE.SESSION, OpenIDLifecycleEvent.OP.ADD, CONST.OPENID_CLAIMED.get(), authSuccess.getClaimed()),
+                        /** Store the claimed **/
+                        new OpenIDLifecycleEvent(OpenIDLifecycleEvent.TYPE.SESSION, OpenIDLifecycleEvent.OP.ADD, CONST.OPENID_CLAIMED.get(), authSuccess.getClaimed()),
 
-                /** Indicate success **/
-                new OpenIDLifecycleEvent(OpenIDLifecycleEvent.TYPE.SUCCESS, null, null, null) };
+                        /** Indicate success **/
+                        new OpenIDLifecycleEvent(OpenIDLifecycleEvent.TYPE.SUCCESS, null, null, null)};
                 lifeCycle.handle(eventArr);
                 return true;
             }
@@ -300,6 +312,7 @@ public class OpenIDManager {
      * Log an user out from an openid provider
      *
      * @param adapter protocol adapter
+     *
      * @throws OpenIDLifeCycleException
      */
     public void logout(OpenIDProtocolAdapter adapter) throws OpenIDLifeCycleException {
@@ -318,6 +331,7 @@ public class OpenIDManager {
      * Information about a provider from the discovery process
      */
     public static class OpenIDProviderInformation {
+
         private DiscoveryInformation discovered;
 
         OpenIDProviderInformation(DiscoveryInformation di) {
@@ -333,6 +347,7 @@ public class OpenIDManager {
      * List of OpenID providers
      */
     public static class OpenIDProviderList {
+
         private List<DiscoveryInformation> providers = null;
 
         OpenIDProviderList(List<DiscoveryInformation> providers) {

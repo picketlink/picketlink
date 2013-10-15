@@ -28,33 +28,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>
- * Queries a target class for properties that match certain criteria. A property
- * may either be a private or public field, declared by the target class or
- * inherited from a superclass, or a public method declared by the target class
- * or inherited from any of its superclasses. For properties that are exposed
- * via a method, the property must be a JavaBean style property, i.e. it must
- * provide both an accessor and mutator method according to the JavaBean
- * specification.
- * </p>
- * <p/>
- * <p>
- * This class is not thread-safe, however the result returned by the
- * getResultList() method is.
- * </p>
+ * <p> Queries a target class for properties that match certain criteria. A property may either be a private or public
+ * field, declared by the target class or inherited from a superclass, or a public method declared by the target class
+ * or inherited from any of its superclasses. For properties that are exposed via a method, the property must be a
+ * JavaBean style property, i.e. it must provide both an accessor and mutator method according to the JavaBean
+ * specification. </p> <p/> <p> This class is not thread-safe, however the result returned by the getResultList() method
+ * is. </p>
  *
  * @see PropertyQueries
  * @see PropertyCriteria
  */
-public class PropertyQuery<V> 
-{
+public class PropertyQuery<V> {
     private final Class<?> targetClass;
     private final List<PropertyCriteria> criteria;
 
-    PropertyQuery(Class<?> targetClass) 
-    {
-        if (targetClass == null) 
-        {
+    PropertyQuery(Class<?> targetClass) {
+        if (targetClass == null) {
             throw new IllegalArgumentException("targetClass parameter may not be null");
         }
 
@@ -67,8 +56,7 @@ public class PropertyQuery<V>
      *
      * @param criteria the criteria to add
      */
-    public PropertyQuery<V> addCriteria(PropertyCriteria criteria) 
-    {
+    public PropertyQuery<V> addCriteria(PropertyCriteria criteria) {
         this.criteria.add(criteria);
         return this;
     }
@@ -78,76 +66,62 @@ public class PropertyQuery<V>
      *
      * @return the first result, or null if there are no results
      */
-    public Property<V> getFirstResult() 
-    {
+    public Property<V> getFirstResult() {
         List<Property<V>> results = getResultList();
         return results.isEmpty() ? null : results.get(0);
     }
 
     /**
-     * Get the first result from the query that is not marked as read only,
-     * causing the query to be run.
+     * Get the first result from the query that is not marked as read only, causing the query to be run.
      *
      * @return the first writable result, or null if there are no results
      */
-    public Property<V> getFirstWritableResult() 
-    {
+    public Property<V> getFirstWritableResult() {
         List<Property<V>> results = getWritableResultList();
         return results.isEmpty() ? null : results.get(0);
     }
 
     /**
-     * Get a single result from the query, causing the query to be run. An
-     * exception is thrown if the query does not return exactly one result.
+     * Get a single result from the query, causing the query to be run. An exception is thrown if the query does not
+     * return exactly one result.
      *
      * @return the single result
+     *
      * @throws RuntimeException if the query does not return exactly one result
      */
-    public Property<V> getSingleResult() 
-    {
+    public Property<V> getSingleResult() {
         List<Property<V>> results = getResultList();
-        if (results.size() == 1) 
-        {
+        if (results.size() == 1) {
             return results.get(0);
-        } 
-        else if (results.isEmpty()) 
-        {
+        } else if (results.isEmpty()) {
             throw new RuntimeException(
-                    "Expected one property match, but the criteria did not match any properties on " + 
-                    targetClass.getName());
-        } 
-        else 
-        {
-            throw new RuntimeException("Expected one property match, but the criteria matched " + results.size() + 
+                    "Expected one property match, but the criteria did not match any properties on " +
+                            targetClass.getName());
+        } else {
+            throw new RuntimeException("Expected one property match, but the criteria matched " + results.size() +
                     " properties on " + targetClass.getName());
         }
     }
 
     /**
-     * Get a single result from the query that is not marked as read only,
-     * causing the query to be run. An exception is thrown if the query does not
-     * return exactly one result.
+     * Get a single result from the query that is not marked as read only, causing the query to be run. An exception is
+     * thrown if the query does not return exactly one result.
      *
      * @return the single writable result
+     *
      * @throws RuntimeException if the query does not return exactly one result
      */
-    public Property<V> getWritableSingleResult() 
-    {
+    public Property<V> getWritableSingleResult() {
         List<Property<V>> results = getWritableResultList();
-        if (results.size() == 1) 
-        {
+        if (results.size() == 1) {
             return results.get(0);
-        } 
-        else if (results.isEmpty()) 
-        {
+        } else if (results.isEmpty()) {
             throw new RuntimeException(
-                 "Expected one property match, but the criteria did not match any properties on " + 
-                 targetClass.getName());
-        } 
-        else 
-        {
-            throw new RuntimeException("Expected one property match, but the criteria matched " + 
-                 results.size() + " properties on " + targetClass.getName());
+                    "Expected one property match, but the criteria did not match any properties on " +
+                            targetClass.getName());
+        } else {
+            throw new RuntimeException("Expected one property match, but the criteria matched " +
+                    results.size() + " properties on " + targetClass.getName());
         }
     }
 
@@ -156,8 +130,7 @@ public class PropertyQuery<V>
      *
      * @return the results, or an empty list if there are no results
      */
-    public List<Property<V>> getResultList() 
-    {
+    public List<Property<V>> getResultList() {
         return getResultList(false);
     }
 
@@ -166,70 +139,56 @@ public class PropertyQuery<V>
      *
      * @return the results, or an empty list if there are no results
      */
-    public List<Property<V>> getWritableResultList() 
-    {
+    public List<Property<V>> getWritableResultList() {
         return getResultList(true);
     }
 
     /**
      * Get the result from the query, causing the query to be run.
      *
-     * @param writable if this query should only return properties that are not
-     *                 read only
+     * @param writable if this query should only return properties that are not read only
+     *
      * @return the results, or an empty list if there are no results
      */
-    private List<Property<V>> getResultList(boolean writable) 
-    {
+    private List<Property<V>> getResultList(boolean writable) {
         List<Property<V>> results = new ArrayList<Property<V>>();
 
         // First check public accessor methods (we ignore private methods)
-        for (Method method : targetClass.getMethods()) 
-        {
-            if (!(method.getName().startsWith("is") || method.getName().startsWith("get")))
-            {
+        for (Method method : targetClass.getMethods()) {
+            if (!(method.getName().startsWith("is") || method.getName().startsWith("get"))) {
                 continue;
             }
 
             boolean match = true;
-            for (PropertyCriteria c : criteria) 
-            {
-                if (!c.methodMatches(method)) 
-                {
+            for (PropertyCriteria c : criteria) {
+                if (!c.methodMatches(method)) {
                     match = false;
                     break;
                 }
             }
-            if (match) 
-            {
+            if (match) {
                 MethodProperty<V> property = Properties.<V>createProperty(method);
-                if (!writable || !property.isReadOnly()) 
-                {
+                if (!writable || !property.isReadOnly()) {
                     results.add(property);
                 }
             }
         }
 
         Class<?> cls = targetClass;
-        while (cls != null && !cls.equals(Object.class)) 
-        {
+        while (cls != null && !cls.equals(Object.class)) {
             // Now check declared fields
-            for (Field field : cls.getDeclaredFields()) 
-            {
+            for (Field field : cls.getDeclaredFields()) {
                 boolean match = true;
-                for (PropertyCriteria c : criteria) 
-                {
-                    if (!c.fieldMatches(field)) 
-                    {
+                for (PropertyCriteria c : criteria) {
+                    if (!c.fieldMatches(field)) {
                         match = false;
                         break;
                     }
                 }
                 Property<V> prop = Properties.<V>createProperty(field);
 
-                if (match && !resultsContainsProperty(results, prop.getName())) 
-                {
-                    if (!writable || !prop.isReadOnly()) 
-                    {
+                if (match && !resultsContainsProperty(results, prop.getName())) {
+                    if (!writable || !prop.isReadOnly()) {
                         results.add(prop);
                     }
                 }
@@ -241,12 +200,9 @@ public class PropertyQuery<V>
         return results;
     }
 
-    private boolean resultsContainsProperty(List<Property<V>> results, String propertyName) 
-    {
-        for (Property<V> p : results) 
-        {
-            if (propertyName.equals(p.getName()))
-            {
+    private boolean resultsContainsProperty(List<Property<V>> results, String propertyName) {
+        for (Property<V> p : results) {
+            if (propertyName.equals(p.getName())) {
                 return true;
             }
         }

@@ -35,9 +35,8 @@ import java.io.Serializable;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public abstract class StatementAbstractType implements Serializable {
+
     private static final long serialVersionUID = 1L;
 }

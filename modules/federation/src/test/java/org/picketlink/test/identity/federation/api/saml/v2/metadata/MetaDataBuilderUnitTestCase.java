@@ -44,6 +44,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Apr 20, 2009
  */
 public class MetaDataBuilderUnitTestCase {
+
     String organizationName = "JBoss";
     String organizationDisplayName = "JBoss Unit";
     String organizationURL = "http://www.jboss.org";

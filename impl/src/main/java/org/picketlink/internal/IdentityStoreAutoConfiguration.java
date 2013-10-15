@@ -15,15 +15,14 @@ import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 
-import static java.lang.reflect.Modifier.*;
-import static java.util.Collections.*;
+import static java.lang.reflect.Modifier.isAbstract;
+import static java.util.Collections.unmodifiableSet;
 
 /**
  * Automatic configuration builder for JPAIdentityStore - this CDI extension registers any entity
  * bean classes that are annotated with the PicketLink Identity Management JPA annotations.
- * 
- * @author Shane Bryzak
  *
+ * @author Shane Bryzak
  */
 @ApplicationScoped
 public class IdentityStoreAutoConfiguration implements Extension {
@@ -41,18 +40,18 @@ public class IdentityStoreAutoConfiguration implements Extension {
             getEntities().toArray(entities);
 
             builder
-                .named(DEFAULT_CONFIGURATION_NAME)
+                    .named(DEFAULT_CONFIGURATION_NAME)
                     .stores()
-                        .jpa()
-                            .mappedEntity(entities)
-                            .addContextInitializer(getJPAContextInitializer())
-                            .supportAllFeatures();
+                    .jpa()
+                    .mappedEntity(entities)
+                    .addContextInitializer(getJPAContextInitializer())
+                    .supportAllFeatures();
         } else {
             builder
-                .named(DEFAULT_CONFIGURATION_NAME)
+                    .named(DEFAULT_CONFIGURATION_NAME)
                     .stores()
-                        .file()
-                        .supportAllFeatures();
+                    .file()
+                    .supportAllFeatures();
         }
     }
 

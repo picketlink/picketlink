@@ -31,6 +31,7 @@ import javax.servlet.http.HttpSessionEvent;
  * @since Oct 27, 2009
  */
 public class IdentityServerUnitTestCase extends TestCase {
+
     public void testActiveSessionCount() {
         IdentityServer server = new IdentityServer();
         assertEquals(0, server.getActiveSessionCount());

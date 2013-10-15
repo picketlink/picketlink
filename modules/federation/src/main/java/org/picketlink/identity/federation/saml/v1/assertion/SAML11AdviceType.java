@@ -20,12 +20,14 @@ package org.picketlink.identity.federation.saml.v1.assertion;
 import org.picketlink.identity.federation.saml.common.CommonAdviceType;
 
 /**
- * <complexType name="AdviceType"> <choice minOccurs="0" maxOccurs="unbounded"> <element ref="saml:AssertionIDReference"/>
+ * <complexType name="AdviceType"> <choice minOccurs="0" maxOccurs="unbounded"> <element
+ * ref="saml:AssertionIDReference"/>
  * <element ref="saml:Assertion"/> <any namespace="##other" processContents="lax"/> </choice> </complexType>
  *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011
  */
 public class SAML11AdviceType extends CommonAdviceType {
+
     private static final long serialVersionUID = 1L;
 }

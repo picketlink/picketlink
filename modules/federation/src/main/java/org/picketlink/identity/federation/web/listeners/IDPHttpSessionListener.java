@@ -30,7 +30,8 @@ import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
 /**
- * An instance of {@link HttpSessionListener} at the IDP that performs actions when an {@link HttpSession} is created or
+ * An instance of {@link HttpSessionListener} at the IDP that performs actions when an {@link HttpSession} is created
+ * or
  * destroyed.
  *
  * @author Anil.Saldhana@redhat.com
@@ -39,7 +40,7 @@ import javax.servlet.http.HttpSessionListener;
 public class IDPHttpSessionListener implements HttpSessionListener {
 
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     public void sessionCreated(HttpSessionEvent se) {
     }
 

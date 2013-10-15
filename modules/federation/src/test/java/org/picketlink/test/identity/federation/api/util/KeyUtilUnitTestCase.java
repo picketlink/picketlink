@@ -32,10 +32,13 @@ import java.security.cert.Certificate;
  * @since Apr 29, 2009
  */
 public class KeyUtilUnitTestCase extends TestCase {
+
     /**
-     * Keystore (created 15Jan2009 and valid for 200K days) The Keystore has been created with the command (all in one line)
+     * Keystore (created 15Jan2009 and valid for 200K days) The Keystore has been created with the command (all in one
+     * line)
      * keytool -genkey -alias servercert -keyalg RSA -keysize 1024 -dname
-     * "CN=jbossidentity.jboss.org,OU=RD,O=JBOSS,L=Chicago,S=Illinois,C=US" -keypass test123 -keystore jbid_test_keystore.jks
+     * "CN=jbossidentity.jboss.org,OU=RD,O=JBOSS,L=Chicago,S=Illinois,C=US" -keypass test123 -keystore
+     * jbid_test_keystore.jks
      * -storepass store123 -validity 200000
      */
     private String keystoreLocation = "keystore/jbid_test_keystore.jks";

@@ -25,6 +25,7 @@ package org.picketlink.identity.federation.core.sts.registry;
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public interface RevocationRegistry {
+
     /**
      * <p>
      * Indicates whether the token with the specified id has been revoked or not.
@@ -32,18 +33,20 @@ public interface RevocationRegistry {
      *
      * @param tokenType a {@code String} representing the token type.
      * @param id a {@code String} representing the token id.
+     *
      * @return {@code true} if the specified id has been revoked; {@code false} otherwise.
      */
-    public boolean isRevoked(String tokenType, String id);
+    boolean isRevoked(String tokenType, String id);
 
     /**
      * <p>
-     * Adds the specified id to the revocation registry. The security token type can be used to distinguish tokens that may have
+     * Adds the specified id to the revocation registry. The security token type can be used to distinguish tokens that
+     * may have
      * the same id but that are of different types.
      * </p>
      *
      * @param tokenType a {@code String} representing the security token type.
      * @param id the id to registered.
      */
-    public void revokeToken(String tokenType, String id);
+    void revokeToken(String tokenType, String id);
 }

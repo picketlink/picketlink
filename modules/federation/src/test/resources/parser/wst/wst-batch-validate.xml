@@ -3,8 +3,8 @@
     <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/BatchValidate</wst:RequestType>
     <wst:TokenType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/Status</wst:TokenType>
     <wst:ValidateTarget>
-      <saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" ID="ID_ab0392ef-b557-4453-95a8-a7e168da8ac5" 
-          IssueInstant="2010-09-30T19:13:37.869Z" Version="2.0">
+      <saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" ID="ID_ab0392ef-b557-4453-95a8-a7e168da8ac5"
+                       IssueInstant="2010-09-30T19:13:37.869Z" Version="2.0">
         <saml2:Issuer>Test STS</saml2:Issuer>
         <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
           <ds:SignedInfo>
@@ -20,17 +20,17 @@
             </ds:Reference>
           </ds:SignedInfo>
           <ds:SignatureValue>
-se/flQ2htUQ0IUYieVkXNn9cfjnfgv6H99nFarsTNTpRI9xuSlw5OTai/2PYdZI2Va9+QzzBf99m
-VFyigfFdfrqug6aKFhF0lsujzlFfPfmXBbDRiTFX+4SkBeV71uuy7rOUI/jRiitEA0QrKqs0e/pV
-+C8PoaariisK96Mtt7A=
+            se/flQ2htUQ0IUYieVkXNn9cfjnfgv6H99nFarsTNTpRI9xuSlw5OTai/2PYdZI2Va9+QzzBf99m
+            VFyigfFdfrqug6aKFhF0lsujzlFfPfmXBbDRiTFX+4SkBeV71uuy7rOUI/jRiitEA0QrKqs0e/pV
+            +C8PoaariisK96Mtt7A=
           </ds:SignatureValue>
           <ds:KeyInfo>
             <ds:KeyValue>
               <ds:RSAKeyValue>
                 <ds:Modulus>
-suGIyhVTbFvDwZdx8Av62zmP+aGOlsBN8WUE3eEEcDtOIZgO78SImMQGwB2C0eIVMhiLRzVPqoW1
-dCPAveTm653zHOmubaps1fY0lLJDSZbTbhjeYhoQmmaBro/tDpVw5lKJwspqVnMuRK19ju2dxpKw
-lYGGtrP5VQv00dfNPbs=
+                  suGIyhVTbFvDwZdx8Av62zmP+aGOlsBN8WUE3eEEcDtOIZgO78SImMQGwB2C0eIVMhiLRzVPqoW1
+                  dCPAveTm653zHOmubaps1fY0lLJDSZbTbhjeYhoQmmaBro/tDpVw5lKJwspqVnMuRK19ju2dxpKw
+                  lYGGtrP5VQv00dfNPbs=
                 </ds:Modulus>
                 <ds:Exponent>AQAB</ds:Exponent>
               </ds:RSAKeyValue>
@@ -49,8 +49,8 @@ lYGGtrP5VQv00dfNPbs=
     <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/BatchValidate</wst:RequestType>
     <wst:TokenType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/Status</wst:TokenType>
     <wst:ValidateTarget>
-      <saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" ID="ID_cf9efbf0-9d7f-4b4a-b77f-d83ecaafd374" 
-        IssueInstant="2010-09-30T19:13:37.911Z" Version="2.0">
+      <saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" ID="ID_cf9efbf0-9d7f-4b4a-b77f-d83ecaafd374"
+                       IssueInstant="2010-09-30T19:13:37.911Z" Version="2.0">
         <saml2:Issuer>Test STS</saml2:Issuer>
         <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
           <ds:SignedInfo>
@@ -66,17 +66,17 @@ lYGGtrP5VQv00dfNPbs=
             </ds:Reference>
           </ds:SignedInfo>
           <ds:SignatureValue>
-Q8mEzGWlnWmSmb+KUkP0wju4LOINaUYXBBXNF5vRhYVBixSUe8HSHKzNIdQ+ZGtijaV1vh0LUFbT
-//faZKyHRgPXtskDn8cJTVT6obp7rUIOCKMoCs5p9/bUAbtaQHYjfWpifdT3PaTdlehpS8INK2P0
-JUQYU3q8F3u7je9VHbA=
+            Q8mEzGWlnWmSmb+KUkP0wju4LOINaUYXBBXNF5vRhYVBixSUe8HSHKzNIdQ+ZGtijaV1vh0LUFbT
+            //faZKyHRgPXtskDn8cJTVT6obp7rUIOCKMoCs5p9/bUAbtaQHYjfWpifdT3PaTdlehpS8INK2P0
+            JUQYU3q8F3u7je9VHbA=
           </ds:SignatureValue>
           <ds:KeyInfo>
             <ds:KeyValue>
               <ds:RSAKeyValue>
                 <ds:Modulus>
-suGIyhVTbFvDwZdx8Av62zmP+aGOlsBN8WUE3eEEcDtOIZgO78SImMQGwB2C0eIVMhiLRzVPqoW1
-dCPAveTm653zHOmubaps1fY0lLJDSZbTbhjeYhoQmmaBro/tDpVw5lKJwspqVnMuRK19ju2dxpKw
-lYGGtrP5VQv00dfNPbs=
+                  suGIyhVTbFvDwZdx8Av62zmP+aGOlsBN8WUE3eEEcDtOIZgO78SImMQGwB2C0eIVMhiLRzVPqoW1
+                  dCPAveTm653zHOmubaps1fY0lLJDSZbTbhjeYhoQmmaBro/tDpVw5lKJwspqVnMuRK19ju2dxpKw
+                  lYGGtrP5VQv00dfNPbs=
                 </ds:Modulus>
                 <ds:Exponent>AQAB</ds:Exponent>
               </ds:RSAKeyValue>

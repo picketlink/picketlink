@@ -35,7 +35,6 @@ import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLProtocolContext;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
@@ -48,7 +47,6 @@ import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusCodeType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
@@ -128,6 +126,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
     }
 
     private class IDPLogOutHandler {
+
         public void generateSAMLRequest(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
         }
 
@@ -347,6 +346,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
     }
 
     private class SPLogOutHandler {
+
         public void generateSAMLRequest(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
             // Generate the LogOut Request
             SAML2Request samlRequest = new SAML2Request();
@@ -428,9 +428,9 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             StatusCodeType statusCode = statusType.getStatusCode();
             URI statusCodeValueURI = statusCode.getValue();
             boolean success = false;
-            if(statusCodeValueURI != null){
+            if (statusCodeValueURI != null) {
                 String statusCodeValue = statusCodeValueURI.toString();
-                if(JBossSAMLURIConstants.STATUS_SUCCESS.get().equals(statusCodeValue)){
+                if (JBossSAMLURIConstants.STATUS_SUCCESS.get().equals(statusCodeValue)) {
                     success = true;
                     session.invalidate();
                 }
@@ -474,7 +474,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             statusResponse.setIssuer(request.getIssuer());
 
             String logoutResponseLocation = spConfiguration.getLogoutResponseLocation();
-            if(logoutResponseLocation == null) {
+            if (logoutResponseLocation == null) {
                 response.setDestination(logOutRequest.getIssuer().getValue());
             } else {
                 response.setDestination(logoutResponseLocation);

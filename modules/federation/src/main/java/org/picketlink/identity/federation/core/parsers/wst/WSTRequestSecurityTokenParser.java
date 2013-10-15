@@ -62,7 +62,7 @@ import java.net.URISyntaxException;
  * @since Oct 11, 2010
  */
 public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     public static final String X509CERTIFICATE = "X509Certificate";
@@ -271,7 +271,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport {
                         requestToken.setUseKey(useKeyType);
                     } else
                         throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + StaxParserUtil.getStartElementName(subEvent));
-                } else if (tag.equals(WSTrustConstants.COMPUTED_KEY_ALGORITHM)) { 
+                } else if (tag.equals(WSTrustConstants.COMPUTED_KEY_ALGORITHM)) {
                     subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
 
                     if (!StaxParserUtil.hasTextAhead(xmlEventReader))
@@ -284,9 +284,9 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport {
                     requestToken.setRenewing(WSTrustUtil.parseRenewingType(xmlEventReader));
                 } else {
                     QName qname = subEvent.getName();
-                    
+
                     logger.trace("Looking for parser for element: " + qname);
-                    
+
                     ParserNamespaceSupport parser = ParserController.get(qname);
                     if (parser == null)
                         throw logger.parserUnknownTag(qname.getLocalPart(), subEvent.getLocation());

@@ -35,17 +35,15 @@ package org.picketlink.identity.federation.ws.wss.secext;
  *   &lt;/simpleContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class EncodedString extends AttributedString {
+
     protected String encodingType;
 
     /**
      * Gets the value of the encodingType property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getEncodingType() {
         return encodingType;
@@ -55,7 +53,6 @@ public class EncodedString extends AttributedString {
      * Sets the value of the encodingType property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setEncodingType(String value) {
         this.encodingType = value;

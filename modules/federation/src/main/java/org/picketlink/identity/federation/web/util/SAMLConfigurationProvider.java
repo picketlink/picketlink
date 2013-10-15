@@ -29,10 +29,12 @@ import org.picketlink.config.federation.SPType;
  * @since Aug 9, 2011
  */
 public interface SAMLConfigurationProvider {
+
     /**
      * Get the {@link IDPType} configuration
      *
      * @return
+     *
      * @throws ProcessingException
      */
     IDPType getIDPConfiguration() throws ProcessingException;
@@ -41,6 +43,7 @@ public interface SAMLConfigurationProvider {
      * Get the {@l SPType} configuration
      *
      * @return
+     *
      * @throws ProcessingException
      */
     SPType getSPConfiguration() throws ProcessingException;
@@ -49,6 +52,7 @@ public interface SAMLConfigurationProvider {
      * Get the {@l SPType} configuration
      *
      * @return
+     *
      * @throws ProcessingException
      */
     PicketLinkType getPicketLinkConfiguration() throws ProcessingException;

@@ -20,7 +20,8 @@ package org.picketlink.identity.federation.ws.wss.secext;
 import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
 
 /**
- * This complexType defines a container for elements to be specified from any namespace as properties/parameters of a DSIG
+ * This complexType defines a container for elements to be specified from any namespace as properties/parameters of a
+ * DSIG
  * transformation.
  *
  * <p>
@@ -40,8 +41,7 @@ import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class TransformationParametersType extends AnyAddressingType {
+
 }

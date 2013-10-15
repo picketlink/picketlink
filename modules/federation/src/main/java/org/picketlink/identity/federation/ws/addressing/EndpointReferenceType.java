@@ -17,8 +17,6 @@
  */
 package org.picketlink.identity.federation.ws.addressing;
 
-import org.w3c.dom.Element;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -44,10 +42,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class EndpointReferenceType extends BaseAddressingType {
+
     protected AttributedURIType address;
 
     protected ReferenceParametersType referenceParameters;
@@ -60,7 +57,6 @@ public class EndpointReferenceType extends BaseAddressingType {
      * Gets the value of the address property.
      *
      * @return possible object is {@link AttributedURIType }
-     *
      */
     public AttributedURIType getAddress() {
         return address;
@@ -70,7 +66,6 @@ public class EndpointReferenceType extends BaseAddressingType {
      * Sets the value of the address property.
      *
      * @param value allowed object is {@link AttributedURIType }
-     *
      */
     public void setAddress(AttributedURIType value) {
         this.address = value;
@@ -80,7 +75,6 @@ public class EndpointReferenceType extends BaseAddressingType {
      * Gets the value of the referenceParameters property.
      *
      * @return possible object is {@link ReferenceParametersType }
-     *
      */
     public ReferenceParametersType getReferenceParameters() {
         return referenceParameters;
@@ -90,7 +84,6 @@ public class EndpointReferenceType extends BaseAddressingType {
      * Sets the value of the referenceParameters property.
      *
      * @param value allowed object is {@link ReferenceParametersType }
-     *
      */
     public void setReferenceParameters(ReferenceParametersType value) {
         this.referenceParameters = value;
@@ -100,7 +93,6 @@ public class EndpointReferenceType extends BaseAddressingType {
      * Gets the value of the metadata property.
      *
      * @return possible object is {@link MetadataType }
-     *
      */
     public MetadataType getMetadata() {
         return metadata;
@@ -110,7 +102,6 @@ public class EndpointReferenceType extends BaseAddressingType {
      * Sets the value of the metadata property.
      *
      * @param value allowed object is {@link MetadataType }
-     *
      */
     public void setMetadata(MetadataType value) {
         this.metadata = value;
@@ -120,9 +111,7 @@ public class EndpointReferenceType extends BaseAddressingType {
      * Gets the value of the any property.
      *
      * <p>
-     * Objects of the following type(s) are allowed in the list {@link Object } {@link Element }
-     *
-     *
+     * Objects of the following type(s) are allowed in the list {@link Object } {@link org.w3c.dom.Element }
      */
     public List<Object> getAny() {
         return Collections.unmodifiableList(this.any);

@@ -55,9 +55,9 @@ import javax.xml.stream.events.XMLEvent;
  * @since Oct 12, 2010
  */
 public class SAML11AssertionParser implements ParserNamespaceSupport {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private final String ASSERTION = JBossSAMLConstants.ASSERTION.get();
 
     public SAML11AssertionType fromElement(Element element) throws ConfigurationException, ProcessingException,

@@ -22,14 +22,17 @@ import org.w3c.dom.Element;
 /**
  * <p>
  * Standard implementation of the {@code SecurityToken} interface. This implementation stores the issued token as an
- * {@code Element}. The token providers are responsible for marshaling the security token into an {@code Element} instance
- * because the security token marshaling process falls out of the scope of the STS (the STS only deals with WS-Trust classes and
+ * {@code Element}. The token providers are responsible for marshaling the security token into an {@code Element}
+ * instance
+ * because the security token marshaling process falls out of the scope of the STS (the STS only deals with WS-Trust
+ * classes and
  * doesn't know how to marshal each specific token type).
  * </p>
  *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public class StandardSecurityToken implements SecurityToken {
+
     private final String tokenType;
 
     private final String tokenId;
@@ -41,8 +44,9 @@ public class StandardSecurityToken implements SecurityToken {
      * Creates an instance of {@code StandardSecurityToken} with the specified parameters.
      * </p>
      *
-     * @param tokenType a {@code String} representing the type of the security token. This is usually the same type as specified
-     *        in the WS-Trust request message.
+     * @param tokenType a {@code String} representing the type of the security token. This is usually the same type as
+     * specified
+     * in the WS-Trust request message.
      * @param token the security token in its {@code Element} form (i.e. the marshaled security token).
      * @param tokenID a {@code String} representing the id of the security token.
      */

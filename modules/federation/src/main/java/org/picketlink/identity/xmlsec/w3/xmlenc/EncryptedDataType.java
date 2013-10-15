@@ -32,8 +32,7 @@ package org.picketlink.identity.xmlsec.w3.xmlenc;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class EncryptedDataType extends EncryptedType {
+
 }

@@ -26,6 +26,7 @@ import javax.xml.namespace.QName;
  * @since Sep 17, 2009
  */
 public interface ProtocolContext {
+
     /**
      * An optional service name
      *
@@ -50,9 +51,10 @@ public interface ProtocolContext {
     /**
      * What family the context belongs to..
      *
+     * @return
+     *
      * @see {@code SecurityTokenProvider#family()}
      * @see {@code FAMILY_TYPE}
-     * @return
      */
     String family();
 }

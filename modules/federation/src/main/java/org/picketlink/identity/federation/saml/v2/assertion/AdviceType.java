@@ -42,9 +42,8 @@ import org.picketlink.identity.federation.saml.common.CommonAdviceType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class AdviceType extends CommonAdviceType {
+
     private static final long serialVersionUID = 1L;
 }

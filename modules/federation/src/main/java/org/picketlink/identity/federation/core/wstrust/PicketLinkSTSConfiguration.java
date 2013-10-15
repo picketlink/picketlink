@@ -57,7 +57,7 @@ import java.util.Map;
  * @author <a href="mailto:asaldhan@redhat.com">Anil Saldhana</a>
  */
 public class PicketLinkSTSConfiguration implements STSConfiguration {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     // the delegate contains all the information extracted from the picketlink-sts.xml configuration file.
@@ -114,7 +114,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration {
 
                 properties.put(GeneralConstants.ASSERTIONS_VALIDITY, String.valueOf(config.getTokenTimeout()));
                 properties.put(GeneralConstants.CLOCK_SKEW, String.valueOf(config.getClockSkew()));
-                
+
                 for (KeyValueType propertyType : providerPropertiesList) {
                     properties.put(propertyType.getKey(), propertyType.getValue());
                 }
@@ -177,10 +177,10 @@ public class PicketLinkSTSConfiguration implements STSConfiguration {
                 this.trustManager.setValidatingAlias(keyProviderType.getValidatingAlias());
 
                 //Special case when you need X509Data in SignedInfo
-                if(authProperties != null){
-                    for(AuthPropertyType authPropertyType: authProperties){
+                if (authProperties != null) {
+                    for (AuthPropertyType authPropertyType : authProperties) {
                         String key = authPropertyType.getKey();
-                        if(GeneralConstants.X509CERTIFICATE.equals(key)){
+                        if (GeneralConstants.X509CERTIFICATE.equals(key)) {
                             //we need X509Certificate in SignedInfo. The value is the alias name
                             trustManager.addAdditionalOption(GeneralConstants.X509CERTIFICATE, authPropertyType.getValue());
                             break;
@@ -337,8 +337,8 @@ public class PicketLinkSTSConfiguration implements STSConfiguration {
                 if (provider != null && provider.getTruststoreAlias() != null) {
                     Certificate cer = this.trustManager.getCertificate(provider.getTruststoreAlias());
 
-                    if(cer instanceof X509Certificate) {
-                        x509 = (X509Certificate)cer;
+                    if (cer instanceof X509Certificate) {
+                        x509 = (X509Certificate) cer;
                     }
                 }
 
@@ -346,8 +346,8 @@ public class PicketLinkSTSConfiguration implements STSConfiguration {
                 if (x509 == null) {
                     Certificate cer = this.trustManager.getCertificate(provider.getTruststoreAlias());
 
-                    if(cer instanceof X509Certificate) {
-                        x509 = (X509Certificate)cer;
+                    if (cer instanceof X509Certificate) {
+                        x509 = (X509Certificate) cer;
                     }
                 }
             } catch (Exception e) {
@@ -451,13 +451,13 @@ public class PicketLinkSTSConfiguration implements STSConfiguration {
     @Override
     public String getSigningCertificateAlias() {
         //Check keymanager
-        if(certificateAlias == null){
-            certificateAlias = (String)trustManager.getAdditionalOption(GeneralConstants.X509CERTIFICATE);
+        if (certificateAlias == null) {
+            certificateAlias = (String) trustManager.getAdditionalOption(GeneralConstants.X509CERTIFICATE);
         }
         return certificateAlias;
     }
 
-    public void setSigningCertificateAlias(String alias){
+    public void setSigningCertificateAlias(String alias) {
         this.certificateAlias = alias;
     }
 

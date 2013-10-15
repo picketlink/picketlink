@@ -36,10 +36,9 @@ import org.picketlink.identity.federation.ws.addressing.BaseAddressingType;
  *   &lt;/simpleContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class BinaryExchangeType extends BaseAddressingType {
+
     protected String value;
 
     protected String valueType;
@@ -50,7 +49,6 @@ public class BinaryExchangeType extends BaseAddressingType {
      * Gets the value of the value property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getValue() {
         return value;
@@ -60,7 +58,6 @@ public class BinaryExchangeType extends BaseAddressingType {
      * Sets the value of the value property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setValue(String value) {
         this.value = value;
@@ -70,7 +67,6 @@ public class BinaryExchangeType extends BaseAddressingType {
      * Gets the value of the valueType property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getValueType() {
         return valueType;
@@ -80,7 +76,6 @@ public class BinaryExchangeType extends BaseAddressingType {
      * Sets the value of the valueType property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setValueType(String value) {
         this.valueType = value;
@@ -90,7 +85,6 @@ public class BinaryExchangeType extends BaseAddressingType {
      * Gets the value of the encodingType property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getEncodingType() {
         return encodingType;
@@ -100,7 +94,6 @@ public class BinaryExchangeType extends BaseAddressingType {
      * Sets the value of the encodingType property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setEncodingType(String value) {
         this.encodingType = value;

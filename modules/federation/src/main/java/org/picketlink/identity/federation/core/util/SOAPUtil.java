@@ -42,10 +42,12 @@ import java.security.GeneralSecurityException;
  * @since Jun 16, 2011
  */
 public class SOAPUtil {
+
     /**
      * Create an empty {@link SOAPMessage}
      *
      * @return
+     *
      * @throws SOAPException
      */
     public static SOAPMessage create() throws SOAPException {
@@ -59,6 +61,7 @@ public class SOAPUtil {
      * Create a SOAP 1.2 Message
      *
      * @return
+     *
      * @throws SOAPException
      */
     public static SOAPMessage createSOAP12() throws SOAPException {
@@ -71,7 +74,9 @@ public class SOAPUtil {
      * Given a stream of {@link SOAPMessage}, construct the {@link SOAPMessage}
      *
      * @param is
+     *
      * @return
+     *
      * @throws IOException
      * @throws SOAPException
      */
@@ -84,7 +89,9 @@ public class SOAPUtil {
      * Given a stream of {@link SOAPMessage} that is SOAP 1.2, construct the {@link SOAPMessage}
      *
      * @param is
+     *
      * @return
+     *
      * @throws IOException
      * @throws SOAPException
      */
@@ -97,7 +104,9 @@ public class SOAPUtil {
      * Given a string message, create a {@link SOAPFault}
      *
      * @param message
+     *
      * @return
+     *
      * @throws SOAPException
      */
     public static SOAPMessage createFault(String message) throws SOAPException {
@@ -116,7 +125,9 @@ public class SOAPUtil {
      * Given a string message, create a {@link SOAPFault} that is SOAP 1.2
      *
      * @param message
+     *
      * @return
+     *
      * @throws SOAPException
      */
     public static SOAPMessage createFault12(String message) throws SOAPException {
@@ -135,7 +146,9 @@ public class SOAPUtil {
      * Given a {@link SOAPMessage}, get the content as a {@link Document}
      *
      * @param soapMessage
+     *
      * @return
+     *
      * @throws SOAPException
      */
     public static Document getSOAPData(SOAPMessage soapMessage) throws SOAPException {
@@ -146,7 +159,9 @@ public class SOAPUtil {
      * Determine if a SOAPMessage is SOAP 1.2
      *
      * @param soapMessage
+     *
      * @return
+     *
      * @throws SOAPException
      */
     public static boolean isSOAP12(SOAPMessage soapMessage) throws SOAPException {
@@ -162,6 +177,7 @@ public class SOAPUtil {
      *
      * @param data
      * @param soapMessage
+     *
      * @throws SOAPException
      */
     public static void addData(Source data, SOAPMessage soapMessage) throws SOAPException {
@@ -171,20 +187,22 @@ public class SOAPUtil {
             throw new RuntimeException(e);
         }
     }
-    
-   /**
-    * Utility method to dump soapMessage to String.
-    * Used for logging purpose. Use only with TRACE level, please. 
-    * @param soapMessage
-    * @return String representation of soapMessage
-    */
-   public static String soapMessageAsString(SOAPMessage soapMessage) {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      try {
-         soapMessage.writeTo(baos);
-      } catch (Exception almostIgnored) {
-         return ErrorCodes.SOAP_MESSAGE_DUMP_ERROR + almostIgnored;
-      }
-      return baos.toString();
-   }
+
+    /**
+     * Utility method to dump soapMessage to String.
+     * Used for logging purpose. Use only with TRACE level, please.
+     *
+     * @param soapMessage
+     *
+     * @return String representation of soapMessage
+     */
+    public static String soapMessageAsString(SOAPMessage soapMessage) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            soapMessage.writeTo(baos);
+        } catch (Exception almostIgnored) {
+            return ErrorCodes.SOAP_MESSAGE_DUMP_ERROR + almostIgnored;
+        }
+        return baos.toString();
+    }
 }

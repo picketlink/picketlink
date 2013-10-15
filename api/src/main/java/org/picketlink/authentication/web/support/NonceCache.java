@@ -38,7 +38,6 @@ import org.picketlink.idm.credential.Digest;
 
 /**
  * @author Pedro Silva
- * 
  */
 public class NonceCache extends TimerTask {
 

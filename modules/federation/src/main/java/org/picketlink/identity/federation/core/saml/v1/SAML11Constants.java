@@ -24,6 +24,7 @@ package org.picketlink.identity.federation.core.saml.v1;
  * @since Jun 22, 2011
  */
 public interface SAML11Constants {
+
     String ACTION = "Action";
 
     String ASSERTIONID = "AssertionID";

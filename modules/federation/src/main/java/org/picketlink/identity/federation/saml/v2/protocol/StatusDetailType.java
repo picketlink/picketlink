@@ -37,9 +37,8 @@ import org.picketlink.identity.federation.saml.common.CommonStatusDetailType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class StatusDetailType extends CommonStatusDetailType {
+
     private static final long serialVersionUID = 1L;
 }

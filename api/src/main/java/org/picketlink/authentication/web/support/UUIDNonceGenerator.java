@@ -31,11 +31,11 @@ import org.picketlink.common.util.Base64;
  * @author anil saldhana
  */
 public class UUIDNonceGenerator {
-    
+
     public String get() {
         StringBuilder sb = new StringBuilder(System.currentTimeMillis() + ":");
         sb.append(UUID.randomUUID().toString());
         return Base64.encodeBytes(sb.toString().getBytes());
     }
-    
+
 }

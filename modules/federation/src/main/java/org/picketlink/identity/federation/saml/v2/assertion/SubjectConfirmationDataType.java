@@ -47,10 +47,9 @@ import java.util.Map;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class SubjectConfirmationDataType implements Serializable {
+
     private static final long serialVersionUID = 7695748370849965158L;
 
     protected XMLGregorianCalendar notBefore;
@@ -79,7 +78,6 @@ public class SubjectConfirmationDataType implements Serializable {
      * Gets the value of the notBefore property.
      *
      * @return possible object is {@link XMLGregorianCalendar }
-     *
      */
     public XMLGregorianCalendar getNotBefore() {
         return notBefore;
@@ -89,7 +87,6 @@ public class SubjectConfirmationDataType implements Serializable {
      * Sets the value of the notBefore property.
      *
      * @param value allowed object is {@link XMLGregorianCalendar }
-     *
      */
     public void setNotBefore(XMLGregorianCalendar value) {
         this.notBefore = value;
@@ -99,7 +96,6 @@ public class SubjectConfirmationDataType implements Serializable {
      * Gets the value of the notOnOrAfter property.
      *
      * @return possible object is {@link XMLGregorianCalendar }
-     *
      */
     public XMLGregorianCalendar getNotOnOrAfter() {
         return notOnOrAfter;
@@ -109,7 +105,6 @@ public class SubjectConfirmationDataType implements Serializable {
      * Sets the value of the notOnOrAfter property.
      *
      * @param value allowed object is {@link XMLGregorianCalendar }
-     *
      */
     public void setNotOnOrAfter(XMLGregorianCalendar value) {
         this.notOnOrAfter = value;
@@ -119,7 +114,6 @@ public class SubjectConfirmationDataType implements Serializable {
      * Gets the value of the recipient property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getRecipient() {
         return recipient;
@@ -129,7 +123,6 @@ public class SubjectConfirmationDataType implements Serializable {
      * Sets the value of the recipient property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setRecipient(String value) {
         this.recipient = value;
@@ -139,7 +132,6 @@ public class SubjectConfirmationDataType implements Serializable {
      * Gets the value of the inResponseTo property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getInResponseTo() {
         return inResponseTo;
@@ -149,7 +141,6 @@ public class SubjectConfirmationDataType implements Serializable {
      * Sets the value of the inResponseTo property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setInResponseTo(String value) {
         this.inResponseTo = value;
@@ -159,7 +150,6 @@ public class SubjectConfirmationDataType implements Serializable {
      * Gets the value of the address property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getAddress() {
         return address;
@@ -169,7 +159,6 @@ public class SubjectConfirmationDataType implements Serializable {
      * Sets the value of the address property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setAddress(String value) {
         this.address = value;

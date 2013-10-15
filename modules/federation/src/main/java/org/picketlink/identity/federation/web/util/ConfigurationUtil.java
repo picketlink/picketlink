@@ -36,9 +36,9 @@ import java.io.InputStream;
  * @since Aug 21, 2009
  */
 public class ConfigurationUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     public static PicketLinkType getConfiguration(InputStream is) throws ParsingException {
         if (is == null)
             throw logger.nullArgumentError("inputstream");
@@ -51,7 +51,9 @@ public class ConfigurationUtil {
      * Get the IDP Configuration from the passed configuration
      *
      * @param is
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static IDPType getIDPConfiguration(InputStream is) throws ParsingException {
@@ -66,7 +68,9 @@ public class ConfigurationUtil {
      * Get the SP Configuration from the passed inputstream
      *
      * @param is
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static SPType getSPConfiguration(InputStream is) throws ParsingException {
@@ -79,7 +83,9 @@ public class ConfigurationUtil {
      * Get the Handlers from the configuration
      *
      * @param is
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static Handlers getHandlers(InputStream is) throws ParsingException {

@@ -17,7 +17,6 @@
  */
 package org.picketlink.common.util;
 
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,29 +27,40 @@ import java.util.logging.Logger;
  * Change Log:
  * </p>
  * <ul>
- * <li>v2.1 - Cleaned up javadoc comments and unused variables and methods. Added some convenience methods for reading and
+ * <li>v2.1 - Cleaned up javadoc comments and unused variables and methods. Added some convenience methods for reading
+ * and
  * writing to and from files.</li>
- * <li>v2.0.2 - Now specifies UTF-8 encoding in places where the code fails on systems with other encodings (like EBCDIC).</li>
+ * <li>v2.0.2 - Now specifies UTF-8 encoding in places where the code fails on systems with other encodings (like
+ * EBCDIC).</li>
  * <li>v2.0.1 - Fixed an error when decoding a single byte, that is, when the encoded data was a single byte.</li>
- * <li>v2.0 - I got rid of methods that used booleans to set options. Now everything is more consolidated and cleaner. The code
- * now detects when data that's being decoded is gzip-compressed and will decompress it automatically. Generally things are
+ * <li>v2.0 - I got rid of methods that used booleans to set options. Now everything is more consolidated and cleaner.
+ * The code
+ * now detects when data that's being decoded is gzip-compressed and will decompress it automatically. Generally things
+ * are
  * cleaner. You'll probably have to change some method calls that you were making to support the new options format (
  * <tt>int</tt>s that you "OR" together).</li>
- * <li>v1.5.1 - Fixed bug when decompressing and decoding to a byte[] using <tt>decode( String s, boolean gzipCompressed )</tt>.
- * Added the ability to "suspend" encoding in the Output Stream so you can turn on and off the encoding if you need to embed
+ * <li>v1.5.1 - Fixed bug when decompressing and decoding to a byte[] using <tt>decode( String s, boolean
+ * gzipCompressed
+ * )</tt>.
+ * Added the ability to "suspend" encoding in the Output Stream so you can turn on and off the encoding if you need to
+ * embed
  * base64 data in an otherwise "normal" stream (like an XML file).</li>
- * <li>v1.5 - Output stream pases on flush() command but doesn't do anything itself. This helps when using GZIP streams. Added
+ * <li>v1.5 - Output stream pases on flush() command but doesn't do anything itself. This helps when using GZIP
+ * streams.
+ * Added
  * the ability to GZip-compress objects before encoding them.</li>
  * <li>v1.4 - Added helper methods to read/write files.</li>
  * <li>v1.3.6 - Fixed OutputStream.flush() so that 'position' is reset.</li>
- * <li>v1.3.5 - Added flag to turn on and off line breaks. Fixed bug in input stream where last buffer being read, if not
+ * <li>v1.3.5 - Added flag to turn on and off line breaks. Fixed bug in input stream where last buffer being read, if
+ * not
  * completely full, was not returned.</li>
  * <li>v1.3.4 - Fixed when "improperly padded stream" error was thrown at the wrong time.</li>
  * <li>v1.3.3 - Fixed I/O streams which were totally messed up.</li>
  * </ul>
  *
  * <p>
- * I am placing this code in the Public Domain. Do with it as you will. This software comes with no guarantees or warranties but
+ * I am placing this code in the Public Domain. Do with it as you will. This software comes with no guarantees or
+ * warranties but
  * with plenty of well-wishing instead! Please visit <a href="http://iharder.net/base64">http://iharder.net/base64</a>
  * periodically to check for updates or to contribute improvements.
  * </p>
@@ -60,49 +70,50 @@ import java.util.logging.Logger;
  * @version 2.1
  */
 public class Base64 {
+
     private static Logger logger = Logger.getLogger(Base64.class.getCanonicalName());
 
     /* ******** P U B L I C F I E L D S ******** */
 
     /** No options specified. Value is zero. */
-    public final static int NO_OPTIONS = 0;
+    public static final int NO_OPTIONS = 0;
 
     /** Specify encoding. */
-    public final static int ENCODE = 1;
+    public static final int ENCODE = 1;
 
     /** Specify decoding. */
-    public final static int DECODE = 0;
+    public static final int DECODE = 0;
 
     /** Specify that data should be gzip-compressed. */
-    public final static int GZIP = 2;
+    public static final int GZIP = 2;
 
     /** Don't break lines when encoding (violates strict Base64 specification) */
-    public final static int DONT_BREAK_LINES = 8;
+    public static final int DONT_BREAK_LINES = 8;
 
     /* ******** P R I V A T E F I E L D S ******** */
 
     /** Maximum line length (76) of Base64 output. */
-    private final static int MAX_LINE_LENGTH = 76;
+    private static final int MAX_LINE_LENGTH = 76;
 
     /** The equals sign (=) as a byte. */
-    private final static byte EQUALS_SIGN = (byte) '=';
+    private static final byte EQUALS_SIGN = (byte) '=';
 
     /** The new line character (\n) as a byte. */
-    private final static byte NEW_LINE = (byte) '\n';
+    private static final byte NEW_LINE = (byte) '\n';
 
     /** Preferred encoding. */
-    private final static String PREFERRED_ENCODING = "UTF-8";
+    private static final String PREFERRED_ENCODING = "UTF-8";
 
     /** The 64 valid Base64 values. */
-    private final static byte[] ALPHABET;
-    private final static byte[] _NATIVE_ALPHABET = /* May be something funny like EBCDIC */
-    { (byte) 'A', (byte) 'B', (byte) 'C', (byte) 'D', (byte) 'E', (byte) 'F', (byte) 'G', (byte) 'H', (byte) 'I', (byte) 'J',
-            (byte) 'K', (byte) 'L', (byte) 'M', (byte) 'N', (byte) 'O', (byte) 'P', (byte) 'Q', (byte) 'R', (byte) 'S',
-            (byte) 'T', (byte) 'U', (byte) 'V', (byte) 'W', (byte) 'X', (byte) 'Y', (byte) 'Z', (byte) 'a', (byte) 'b',
-            (byte) 'c', (byte) 'd', (byte) 'e', (byte) 'f', (byte) 'g', (byte) 'h', (byte) 'i', (byte) 'j', (byte) 'k',
-            (byte) 'l', (byte) 'm', (byte) 'n', (byte) 'o', (byte) 'p', (byte) 'q', (byte) 'r', (byte) 's', (byte) 't',
-            (byte) 'u', (byte) 'v', (byte) 'w', (byte) 'x', (byte) 'y', (byte) 'z', (byte) '0', (byte) '1', (byte) '2',
-            (byte) '3', (byte) '4', (byte) '5', (byte) '6', (byte) '7', (byte) '8', (byte) '9', (byte) '+', (byte) '/' };
+    private static final byte[] ALPHABET;
+    private static final byte[] _NATIVE_ALPHABET = /* May be something funny like EBCDIC */
+            {(byte) 'A', (byte) 'B', (byte) 'C', (byte) 'D', (byte) 'E', (byte) 'F', (byte) 'G', (byte) 'H', (byte) 'I', (byte) 'J',
+                    (byte) 'K', (byte) 'L', (byte) 'M', (byte) 'N', (byte) 'O', (byte) 'P', (byte) 'Q', (byte) 'R', (byte) 'S',
+                    (byte) 'T', (byte) 'U', (byte) 'V', (byte) 'W', (byte) 'X', (byte) 'Y', (byte) 'Z', (byte) 'a', (byte) 'b',
+                    (byte) 'c', (byte) 'd', (byte) 'e', (byte) 'f', (byte) 'g', (byte) 'h', (byte) 'i', (byte) 'j', (byte) 'k',
+                    (byte) 'l', (byte) 'm', (byte) 'n', (byte) 'o', (byte) 'p', (byte) 'q', (byte) 'r', (byte) 's', (byte) 't',
+                    (byte) 'u', (byte) 'v', (byte) 'w', (byte) 'x', (byte) 'y', (byte) 'z', (byte) '0', (byte) '1', (byte) '2',
+                    (byte) '3', (byte) '4', (byte) '5', (byte) '6', (byte) '7', (byte) '8', (byte) '9', (byte) '+', (byte) '/'};
 
     /** Determine which ALPHABET to use. */
     static {
@@ -119,7 +130,7 @@ public class Base64 {
     /**
      * Translates a Base64 value to either its 6-bit reconstruction value or a negative number indicating some other meaning.
      **/
-    private final static byte[] DECODABET = { -9, -9, -9, -9, -9, -9, -9, -9, -9, // Decimal 0 - 8
+    private static final byte[] DECODABET = {-9, -9, -9, -9, -9, -9, -9, -9, -9, // Decimal 0 - 8
             -5, -5, // Whitespace: Tab and Linefeed
             -9, -9, // Decimal 11 - 12
             -5, // Whitespace: Carriage Return
@@ -150,9 +161,9 @@ public class Base64 {
     };
 
     // I think I end up not using the BAD_ENCODING indicator.
-    // private final static byte BAD_ENCODING = -9; // Indicates error in encoding
-    private final static byte WHITE_SPACE_ENC = -5; // Indicates white space in encoding
-    private final static byte EQUALS_SIGN_ENC = -1; // Indicates equals sign in encoding
+    // private static final byte BAD_ENCODING = -9; // Indicates error in encoding
+    private static final byte WHITE_SPACE_ENC = -5; // Indicates white space in encoding
+    private static final byte EQUALS_SIGN_ENC = -1; // Indicates equals sign in encoding
 
     /** Defeats instantiation. */
     private Base64() {
@@ -629,7 +640,7 @@ public class Base64 {
         catch (java.io.UnsupportedEncodingException uee) {
             bytes = s.getBytes();
         } // end catch
-          // </change>
+        // </change>
 
         // Decode
         bytes = decode(bytes, 0, bytes.length);
@@ -888,6 +899,7 @@ public class Base64 {
      * @since 1.3
      */
     public static class InputStream extends java.io.FilterInputStream {
+
         private boolean encode; // Encoding or decoding
         private int position; // Current position in the buffer
         private byte[] buffer; // Small buffer holding converted data
@@ -1084,6 +1096,7 @@ public class Base64 {
      * @since 1.3
      */
     public static class OutputStream extends java.io.FilterOutputStream {
+
         private boolean encode;
         private int position;
         private byte[] buffer;
@@ -1154,8 +1167,7 @@ public class Base64 {
             // Encode?
             if (encode) {
                 buffer[position++] = (byte) theByte;
-                if (position >= bufferLength) // Enough to encode.
-                {
+                if (position >= bufferLength) { // Enough to encode.
                     out.write(encode3to4(b4, buffer, bufferLength));
 
                     lineLength += 4;
@@ -1173,8 +1185,7 @@ public class Base64 {
                 // Meaningful Base64 character?
                 if (DECODABET[theByte & 0x7f] > WHITE_SPACE_ENC) {
                     buffer[position++] = (byte) theByte;
-                    if (position >= bufferLength) // Enough to output.
-                    {
+                    if (position >= bufferLength) { // Enough to output.
                         int len = Base64.decode4to3(buffer, 0, b4, 0);
                         out.write(b4, 0, len);
                         // out.write( Base64.decode4to3( buffer ) );

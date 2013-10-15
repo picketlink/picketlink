@@ -23,9 +23,7 @@ import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.parsers.ParserNamespaceSupport;
 import org.picketlink.common.util.StaxParserUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
-import org.picketlink.identity.federation.saml.v2.assertion.OneTimeUseType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnContextComparisonType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
@@ -46,6 +44,7 @@ import java.net.URI;
  * @since Nov 2, 2010
  */
 public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements ParserNamespaceSupport {
+
     /**
      * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
      */
@@ -96,7 +95,9 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
      * Parse the attributes at the authnrequesttype element
      *
      * @param startElement
+     *
      * @return
+     *
      * @throws ParsingException
      */
     private AuthnRequestType parseBaseAttributes(StartElement startElement) throws ParsingException {
@@ -149,6 +150,7 @@ public class SAMLAuthNRequestParser extends SAMLRequestAbstractParser implements
      * Get the NameIDPolicy
      *
      * @param startElement
+     *
      * @return
      */
     private NameIDPolicyType getNameIDPolicy(StartElement startElement) {

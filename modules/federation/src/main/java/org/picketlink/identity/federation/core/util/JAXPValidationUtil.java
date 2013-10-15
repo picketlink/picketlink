@@ -45,9 +45,9 @@ import java.util.List;
  * @since Jun 30, 2011
  */
 public class JAXPValidationUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     protected static Validator validator;
 
     protected static SchemaFactory schemaFactory;
@@ -64,6 +64,7 @@ public class JAXPValidationUtil {
      * Based on system property "picketlink.schema.validate" set to "true", do schema validation
      *
      * @param samlDocument
+     *
      * @throws ProcessingException
      */
     public static void checkSchemaValidation(Node samlDocument) throws ProcessingException {
@@ -91,19 +92,19 @@ public class JAXPValidationUtil {
     }
 
     private static Schema getSchema() throws IOException {
-        boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP,"false").equalsIgnoreCase("true");
+        boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP, "false").equalsIgnoreCase("true");
 
         ClassLoader prevTCCL = SecurityActions.getTCCL();
-        try{
-            if(tccl_jaxp){
+        try {
+            if (tccl_jaxp) {
                 SecurityActions.setTCCL(JAXPValidationUtil.class.getClassLoader());
             }
             schemaFactory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
 
             schemaFactory.setResourceResolver(new IDFedLSInputResolver());
             schemaFactory.setErrorHandler(new CustomErrorHandler());
-        } finally{
-            if(tccl_jaxp){
+        } finally {
+            if (tccl_jaxp) {
                 SecurityActions.setTCCL(prevTCCL);
             }
         }
@@ -132,6 +133,7 @@ public class JAXPValidationUtil {
     }
 
     private static class CustomErrorHandler implements ErrorHandler {
+
         public void error(SAXParseException ex) throws SAXException {
             logException(ex);
             if (ex.getMessage().contains("null") == false) {
@@ -160,5 +162,7 @@ public class JAXPValidationUtil {
                 logger.trace(builder.toString());
             }
         }
-    };
+    }
+
+    ;
 }

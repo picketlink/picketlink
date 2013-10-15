@@ -56,7 +56,7 @@ import java.util.StringTokenizer;
  * @since Apr 27, 2009
  */
 public class FileBasedMetadataConfigurationStore implements IMetadataConfigurationStore {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     private String userHome = null;
@@ -170,7 +170,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
         } catch (ProcessingException e) {
             throw new RuntimeException(e);
         }
-        
+
         logger.trace("Persisted entity descriptor into " + persistedFile.getPath());
 
         // Process the EDT

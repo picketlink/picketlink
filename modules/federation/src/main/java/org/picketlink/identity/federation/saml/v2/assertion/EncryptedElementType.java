@@ -28,10 +28,12 @@ import java.io.Serializable;
  * @since Nov 24, 2010
  */
 public class EncryptedElementType implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     /**
-     * <complexType name="EncryptedElementType"> <sequence> <element ref="xenc:EncryptedData"/> <element ref="xenc:EncryptedKey"
+     * <complexType name="EncryptedElementType"> <sequence> <element ref="xenc:EncryptedData"/> <element
+     * ref="xenc:EncryptedKey"
      * minOccurs="0" maxOccurs="unbounded"/> </sequence> </complexType>
      */
 

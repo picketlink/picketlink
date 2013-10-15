@@ -42,6 +42,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Nov 11, 2010
  */
 public class WSTResponseAssertionHOKCertificateTestCase {
+
     @Test
     public void testWST_RSTR_Assertion() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();

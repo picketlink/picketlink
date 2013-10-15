@@ -35,10 +35,9 @@ import java.net.URI;
  *   &lt;/simpleContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class AdditionalMetadataLocationType {
+
     protected URI value;
 
     protected URI namespace;
@@ -47,7 +46,6 @@ public class AdditionalMetadataLocationType {
      * Gets the value of the value property.
      *
      * @return possible object is {@link URI }
-     *
      */
     public URI getValue() {
         return value;
@@ -57,7 +55,6 @@ public class AdditionalMetadataLocationType {
      * Sets the value of the value property.
      *
      * @param value allowed object is {@link URI }
-     *
      */
     public void setValue(URI value) {
         this.value = value;
@@ -67,7 +64,6 @@ public class AdditionalMetadataLocationType {
      * Gets the value of the namespace property.
      *
      * @return possible object is {@link URI }
-     *
      */
     public URI getNamespace() {
         return namespace;
@@ -77,7 +73,6 @@ public class AdditionalMetadataLocationType {
      * Sets the value of the namespace property.
      *
      * @param value allowed object is {@link URI }
-     *
      */
     public void setNamespace(URI value) {
         this.namespace = value;

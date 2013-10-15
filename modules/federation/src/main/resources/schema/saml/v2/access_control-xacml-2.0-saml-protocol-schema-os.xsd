@@ -12,22 +12,22 @@
         blockDefault="substitution"
         version="2.0">
   <xs:import namespace="urn:oasis:names:tc:SAML:2.0:assertion"
-      schemaLocation="http://www.oasis-open.org/committees/download.php/11027/sstc-saml-schema-assertion-2.0.xsd"/>
+             schemaLocation="http://www.oasis-open.org/committees/download.php/11027/sstc-saml-schema-assertion-2.0.xsd"/>
   <xs:import namespace="urn:oasis:names:tc:SAML:2.0:protocol"
-      schemaLocation="http://www.oasis-open.org/committees/download.php/11026/sstc-saml-schema-protocol-2.0.xsd"/>
+             schemaLocation="http://www.oasis-open.org/committees/download.php/11026/sstc-saml-schema-protocol-2.0.xsd"/>
   <xs:import namespace="urn:oasis:names:tc:xacml:2.0:context:schema:os"
-      schemaLocation="http://docs.oasis-open.org/xacml/2.0/access_control-xacml-2.0-context-schema-os.xsd"/>
+             schemaLocation="http://docs.oasis-open.org/xacml/2.0/access_control-xacml-2.0-context-schema-os.xsd"/>
   <xs:import namespace="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
-      schemaLocation="http://docs.oasis-open.org/xacml/2.0/access_control-xacml-2.0-policy-schema-os.xsd"/>
+             schemaLocation="http://docs.oasis-open.org/xacml/2.0/access_control-xacml-2.0-policy-schema-os.xsd"/>
   <xs:annotation>
     <xs:documentation>
-        Document identifier: access_control-xacml-2.0-saml-protocol-schema-os.xsd
-        Location: http://docs.oasis-open.org/xacml/2.0/access_control-xacml-2.0-saml-protocol-schema-os.xsd
+      Document identifier: access_control-xacml-2.0-saml-protocol-schema-os.xsd
+      Location: http://docs.oasis-open.org/xacml/2.0/access_control-xacml-2.0-saml-protocol-schema-os.xsd
     </xs:documentation>
   </xs:annotation>
   <!--    -->
   <xs:element name="XACMLAuthzDecisionQuery"
-           type="xacml-samlp:XACMLAuthzDecisionQueryType"/>
+              type="xacml-samlp:XACMLAuthzDecisionQueryType"/>
   <xs:complexType name="XACMLAuthzDecisionQueryType">
     <xs:complexContent>
       <xs:extension base="samlp:RequestAbstractType">
@@ -47,7 +47,7 @@
   </xs:complexType>
   <!--    -->
   <xs:element name="XACMLPolicyQuery"
-           type="xacml-samlp:XACMLPolicyQueryType"/>
+              type="xacml-samlp:XACMLPolicyQueryType"/>
   <xs:complexType name="XACMLPolicyQueryType">
     <xs:complexContent>
       <xs:extension base="samlp:RequestAbstractType">

@@ -32,7 +32,9 @@ import java.net.URL;
 import java.util.Properties;
 
 /**
- * STSClientConfig has the ability to either programatically construct the configuration needed for {@link STSClient} or parse a
+ * STSClientConfig has the ability to either programatically construct the configuration needed for {@link STSClient}
+ * or
+ * parse a
  * file containing the configuration parameters.
  * <p/>
  *
@@ -63,7 +65,7 @@ import java.util.Properties;
  * @author Anil Saldhana
  */
 public class STSClientConfig {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     public static final String DEFAULT_CONFIG_FILE = "sts-client.properties";
@@ -89,7 +91,7 @@ public class STSClientConfig {
     public static final String REQUEST_TYPE = "requestType";
 
     public static final String SOAP_BINDING = "soapBinding";
-    
+
     private final String serviceName;
 
     private final String portName;
@@ -105,7 +107,7 @@ public class STSClientConfig {
     private final String wspAppliesTo;
 
     private boolean isBatch = false; // Is the RST a batch request?
-    
+
     private final String requestType;
 
     private final String soapBinding;
@@ -169,6 +171,7 @@ public class STSClientConfig {
     }
 
     public static class Builder {
+
         private String serviceName;
 
         private String portName;
@@ -189,7 +192,7 @@ public class STSClientConfig {
         private String requestType = WSTrustConstants.ISSUE_REQUEST;
 
         private String soapBinding = SOAPBinding.SOAP11HTTP_BINDING;
-        
+
         public Builder() {
         }
 
@@ -291,11 +294,11 @@ public class STSClientConfig {
                 String batchStr = properties.getProperty(IS_BATCH);
                 this.isBatch = StringUtil.isNotNull(batchStr) ? Boolean.parseBoolean(batchStr) : false;
                 this.requestType = properties.getProperty(REQUEST_TYPE);
-                
+
                 if (!StringUtil.isNullOrEmpty(properties.getProperty(SOAP_BINDING))) {
-                    this.soapBinding = properties.getProperty(SOAP_BINDING);                    
+                    this.soapBinding = properties.getProperty(SOAP_BINDING);
                 }
-                
+
                 if (this.password.startsWith(PicketLinkFederationConstants.PASS_MASK_PREFIX)) {
                     // password is masked
                     String salt = properties.getProperty(PicketLinkFederationConstants.SALT);
@@ -321,7 +324,7 @@ public class STSClientConfig {
 
         private void validate(Builder builder) {
             logger.trace("Checkin ServiceName:");
-            
+
             checkPropertyShowValue(SERVICE_NAME, serviceName);
 
             logger.trace("Checkin portName:");

@@ -57,11 +57,14 @@ import java.util.Set;
  * @since Jan 28, 2009
  */
 public class SOAPSAMLXACMLUtil {
+
     /**
      * Parse the XACML Authorization Decision Query from the Dom Element
      *
      * @param samlRequest
+     *
      * @return
+     *
      * @throws ProcessingException
      * @throws ConfigurationException
      * @throws ParsingException
@@ -101,7 +104,7 @@ public class SOAPSAMLXACMLUtil {
         throw new RuntimeException("Not found XACMLAuthzDecisionStatementType");
     }
 
-    public synchronized static org.picketlink.identity.federation.saml.v2.protocol.ResponseType handleXACMLQuery(
+    public static synchronized org.picketlink.identity.federation.saml.v2.protocol.ResponseType handleXACMLQuery(
             PolicyDecisionPoint pdp, String issuer, XACMLAuthzDecisionQueryType xacmlRequest) throws ProcessingException,
             ConfigurationException {
         RequestType requestType = xacmlRequest.getRequest();

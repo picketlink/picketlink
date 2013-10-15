@@ -43,6 +43,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Nov 2, 2010
  */
 public class SAMLAuthnRequestParserTestCase extends AbstractParserTest {
+
     @Test
     public void testSAMLAuthnRequestParse() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();

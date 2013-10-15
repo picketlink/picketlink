@@ -38,8 +38,6 @@ import java.net.URI;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class CipherReferenceType {
 
@@ -54,7 +52,6 @@ public class CipherReferenceType {
      * Gets the value of the transforms property.
      *
      * @return possible object is {@link TransformsType }
-     *
      */
     public TransformsType getTransforms() {
         return transforms;
@@ -64,7 +61,6 @@ public class CipherReferenceType {
      * Sets the value of the transforms property.
      *
      * @param value allowed object is {@link TransformsType }
-     *
      */
     public void setTransforms(TransformsType value) {
         this.transforms = value;
@@ -74,7 +70,6 @@ public class CipherReferenceType {
      * Gets the value of the uri property.
      *
      * @return possible object is {@link String }
-     *
      */
     public URI getURI() {
         return uri;

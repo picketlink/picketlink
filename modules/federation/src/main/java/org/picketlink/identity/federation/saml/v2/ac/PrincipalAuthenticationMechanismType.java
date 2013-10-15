@@ -58,12 +58,10 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "PrincipalAuthenticationMechanismType", propOrder = { "password", "restrictedPassword", "token", "smartcard",
-        "activationPin", "extension" })
+@XmlType(name = "PrincipalAuthenticationMechanismType", propOrder = {"password", "restrictedPassword", "token", "smartcard",
+        "activationPin", "extension"})
 public class PrincipalAuthenticationMechanismType {
 
     @XmlElement(name = "Password")
@@ -85,7 +83,6 @@ public class PrincipalAuthenticationMechanismType {
      * Gets the value of the password property.
      *
      * @return possible object is {@link PasswordType }
-     *
      */
     public PasswordType getPassword() {
         return password;
@@ -95,7 +92,6 @@ public class PrincipalAuthenticationMechanismType {
      * Sets the value of the password property.
      *
      * @param value allowed object is {@link PasswordType }
-     *
      */
     public void setPassword(PasswordType value) {
         this.password = value;
@@ -105,7 +101,6 @@ public class PrincipalAuthenticationMechanismType {
      * Gets the value of the restrictedPassword property.
      *
      * @return possible object is {@link RestrictedPasswordType }
-     *
      */
     public RestrictedPasswordType getRestrictedPassword() {
         return restrictedPassword;
@@ -115,7 +110,6 @@ public class PrincipalAuthenticationMechanismType {
      * Sets the value of the restrictedPassword property.
      *
      * @param value allowed object is {@link RestrictedPasswordType }
-     *
      */
     public void setRestrictedPassword(RestrictedPasswordType value) {
         this.restrictedPassword = value;
@@ -125,7 +119,6 @@ public class PrincipalAuthenticationMechanismType {
      * Gets the value of the token property.
      *
      * @return possible object is {@link TokenType }
-     *
      */
     public TokenType getToken() {
         return token;
@@ -135,7 +128,6 @@ public class PrincipalAuthenticationMechanismType {
      * Sets the value of the token property.
      *
      * @param value allowed object is {@link TokenType }
-     *
      */
     public void setToken(TokenType value) {
         this.token = value;
@@ -145,7 +137,6 @@ public class PrincipalAuthenticationMechanismType {
      * Gets the value of the smartcard property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getSmartcard() {
         return smartcard;
@@ -155,7 +146,6 @@ public class PrincipalAuthenticationMechanismType {
      * Sets the value of the smartcard property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setSmartcard(ExtensionOnlyType value) {
         this.smartcard = value;
@@ -165,7 +155,6 @@ public class PrincipalAuthenticationMechanismType {
      * Gets the value of the activationPin property.
      *
      * @return possible object is {@link ActivationPinType }
-     *
      */
     public ActivationPinType getActivationPin() {
         return activationPin;
@@ -175,7 +164,6 @@ public class PrincipalAuthenticationMechanismType {
      * Sets the value of the activationPin property.
      *
      * @param value allowed object is {@link ActivationPinType }
-     *
      */
     public void setActivationPin(ActivationPinType value) {
         this.activationPin = value;
@@ -185,7 +173,8 @@ public class PrincipalAuthenticationMechanismType {
      * Gets the value of the extension property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to the
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the
      * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
      * extension property.
      *
@@ -199,8 +188,6 @@ public class PrincipalAuthenticationMechanismType {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link ExtensionType }
-     *
-     *
      */
     public List<ExtensionType> getExtension() {
         if (extension == null) {
@@ -213,7 +200,6 @@ public class PrincipalAuthenticationMechanismType {
      * Gets the value of the preauth property.
      *
      * @return possible object is {@link BigInteger }
-     *
      */
     public BigInteger getPreauth() {
         return preauth;
@@ -223,7 +209,6 @@ public class PrincipalAuthenticationMechanismType {
      * Sets the value of the preauth property.
      *
      * @param value allowed object is {@link BigInteger }
-     *
      */
     public void setPreauth(BigInteger value) {
         this.preauth = value;

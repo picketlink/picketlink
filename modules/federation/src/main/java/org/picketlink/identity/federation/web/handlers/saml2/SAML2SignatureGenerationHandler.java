@@ -18,15 +18,6 @@
 package org.picketlink.identity.federation.web.handlers.saml2;
 
 import org.picketlink.common.constants.GeneralConstants;
-import static org.picketlink.common.util.StringUtil.isNotNull;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
-
-import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.DocumentUtil;
@@ -42,12 +33,13 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 
 import static org.picketlink.common.util.StringUtil.isNotNull;
 
 /**
  * Handles SAML2 Signature
- * 
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 12, 2009
  */
@@ -118,7 +110,7 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
         SAML2Signature samlSignature = new SAML2Signature();
         Node nextSibling = samlSignature.getNextSiblingOfIssuer(samlDocument);
         samlSignature.setNextSibling(nextSibling);
-        if(x509Certificate != null){
+        if (x509Certificate != null) {
             samlSignature.setX509Certificate(x509Certificate);
         }
         samlSignature.signSAMLDocument(samlDocument, keypair);

@@ -35,8 +35,7 @@ package org.picketlink.identity.federation.ws.trust;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class RequestedProofTokenType extends SimpleAnyType {
+
 }

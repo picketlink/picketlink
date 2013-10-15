@@ -24,6 +24,7 @@ package org.picketlink.identity.federation.core.constants;
  * @since Feb 23, 2009
  */
 public interface PicketLinkFederationConstants {
+
     /**
      * Flag to indicate whether JAXB Schema Validation is turned on
      */

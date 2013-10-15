@@ -31,8 +31,6 @@ import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
@@ -44,15 +42,17 @@ import java.security.cert.Certificate;
  * @since Jan 12, 2009
  */
 public class KeyStoreUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     /**
      * Get the KeyStore
      *
      * @param keyStoreFile
      * @param storePass
+     *
      * @return
+     *
      * @throws GeneralSecurityException
      * @throws IOException
      */
@@ -66,7 +66,9 @@ public class KeyStoreUtil {
      *
      * @param fileURL
      * @param storePass
+     *
      * @return
+     *
      * @throws GeneralSecurityException
      * @throws IOException
      */
@@ -84,7 +86,9 @@ public class KeyStoreUtil {
      *
      * @param url
      * @param storePass
+     *
      * @return
+     *
      * @throws GeneralSecurityException
      * @throws IOException
      */
@@ -100,7 +104,9 @@ public class KeyStoreUtil {
      *
      * @param ksStream
      * @param storePass
+     *
      * @return
+     *
      * @throws GeneralSecurityException
      * @throws IOException
      * @throws IllegalArgumentException if ksStream is null
@@ -117,7 +123,9 @@ public class KeyStoreUtil {
      * Generate a Key Pair
      *
      * @param algo (RSA, DSA etc)
+     *
      * @return
+     *
      * @throws GeneralSecurityException
      */
     public static KeyPair generateKeyPair(String algo) throws GeneralSecurityException {
@@ -131,11 +139,12 @@ public class KeyStoreUtil {
      * @param ks
      * @param alias
      * @param password
+     *
      * @return
+     *
      * @throws GeneralSecurityException
      */
-    public static PublicKey getPublicKey(KeyStore ks, String alias, char[] password) throws KeyStoreException,
-            NoSuchAlgorithmException, GeneralSecurityException {
+    public static PublicKey getPublicKey(KeyStore ks, String alias, char[] password) throws GeneralSecurityException {
         PublicKey publicKey = null;
 
         // Get private key
@@ -163,6 +172,7 @@ public class KeyStoreUtil {
      * @param storePass
      * @param alias
      * @param cert
+     *
      * @throws GeneralSecurityException
      * @throws IOException
      */

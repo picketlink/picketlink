@@ -35,7 +35,7 @@ import javax.xml.stream.events.StartElement;
  * @since Nov 11, 2010
  */
 public class WSTRequestSecurityTokenResponseCollectionParser implements ParserNamespaceSupport {
-    
+
     /**
      * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
      */

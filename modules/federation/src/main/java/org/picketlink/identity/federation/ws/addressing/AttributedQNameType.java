@@ -34,8 +34,6 @@ import javax.xml.namespace.QName;
  *   &lt;/simpleContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class AttributedQNameType extends BaseAddressingType {
 
@@ -45,7 +43,6 @@ public class AttributedQNameType extends BaseAddressingType {
      * Gets the value of the value property.
      *
      * @return possible object is {@link QName }
-     *
      */
     public QName getValue() {
         return value;
@@ -55,7 +52,6 @@ public class AttributedQNameType extends BaseAddressingType {
      * Sets the value of the value property.
      *
      * @param value allowed object is {@link QName }
-     *
      */
     public void setValue(QName value) {
         this.value = value;

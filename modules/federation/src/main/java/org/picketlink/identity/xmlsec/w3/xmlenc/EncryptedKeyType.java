@@ -38,8 +38,6 @@ package org.picketlink.identity.xmlsec.w3.xmlenc;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class EncryptedKeyType extends EncryptedType {
 
@@ -51,7 +49,6 @@ public class EncryptedKeyType extends EncryptedType {
      * Gets the value of the referenceList property.
      *
      * @return possible object is {@link ReferenceList }
-     *
      */
     public ReferenceList getReferenceList() {
         return referenceList;
@@ -61,7 +58,6 @@ public class EncryptedKeyType extends EncryptedType {
      * Sets the value of the referenceList property.
      *
      * @param value allowed object is {@link ReferenceList }
-     *
      */
     public void setReferenceList(ReferenceList value) {
         this.referenceList = value;
@@ -71,7 +67,6 @@ public class EncryptedKeyType extends EncryptedType {
      * Gets the value of the carriedKeyName property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getCarriedKeyName() {
         return carriedKeyName;
@@ -81,7 +76,6 @@ public class EncryptedKeyType extends EncryptedType {
      * Sets the value of the carriedKeyName property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setCarriedKeyName(String value) {
         this.carriedKeyName = value;
@@ -91,7 +85,6 @@ public class EncryptedKeyType extends EncryptedType {
      * Gets the value of the recipient property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getRecipient() {
         return recipient;
@@ -101,7 +94,6 @@ public class EncryptedKeyType extends EncryptedType {
      * Sets the value of the recipient property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setRecipient(String value) {
         this.recipient = value;

@@ -30,6 +30,7 @@ import java.util.List;
  * @since Oct 12, 2009
  */
 public class EmptyRoleGenerator implements RoleGenerator {
+
     /**
      * @see {@code RoleGenerator#generateRoles(Principal)}
      */

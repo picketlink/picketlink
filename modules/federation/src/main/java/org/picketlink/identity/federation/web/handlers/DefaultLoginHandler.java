@@ -34,9 +34,9 @@ import java.util.Properties;
  * @since Aug 18, 2009
  */
 public class DefaultLoginHandler implements ILoginHandler {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private static Properties props = new Properties();
 
     static {

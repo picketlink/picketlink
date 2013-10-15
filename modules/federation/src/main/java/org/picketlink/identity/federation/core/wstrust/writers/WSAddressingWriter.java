@@ -36,6 +36,7 @@ import static org.picketlink.identity.federation.core.wsa.WSAddressingConstants.
  * @since Nov 5, 2010
  */
 public class WSAddressingWriter {
+
     private XMLStreamWriter writer;
 
     public WSAddressingWriter(XMLStreamWriter writer) {
