@@ -67,6 +67,8 @@
     <module>modules/social</module>
     <module>modules/oauth</module>
     <module>modules/rest</module>
+
+    <module>bom</module>
   </modules>
 
   <dependencyManagement>

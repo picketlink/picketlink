@@ -6,265 +6,345 @@
          xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:ns="http://docbook.org/ns/docbook">
   <title>Overview</title>
-  
+
+  <section>
+    <title>What is PicketLink?</title>
+
+    <para>
+      PicketLink is an Application Security Framework for Java EE applications.  It provides features for authenticating users,
+      authorizing access to the business methods of your application, managing your application's users, groups, roles and
+      permissions, plus much more.  The following diagram presents a high level overview of the PicketLink modules and the
+      main features provided by those modules:
+    </para>
+
+    <mediaobject>
+      <imageobject role="fo">
+        <imagedata fileref="diagrams/overview.png" align="center" scalefit="1"/>
+      </imageobject>
+      <imageobject role="html">
+        <imagedata fileref="diagrams/overview.png" align="center"/>
+      </imageobject>
+    </mediaobject>
+
+  </section>
+
+  <section>
+    <title>Where do I get started?</title>
+
+    <para>
+      Depending on exactly which PicketLink features you'd like to use, getting started can be as simple as adding the
+      PicketLink jar libraries to your project (see <xref linkend="picketlink-overview-maven"/> below for more info)
+      and writing a few lines of code.  To get started using PicketLink Identity Management to manage the users and other
+      identity objects in your application, you can head straight to <xref linkend="picketlink-idm-overview-5min"/>.  If you don't
+      wish to use PicketLink IDM but would like to use PicketLink for authentication in your Java EE application but control the
+      authentication process yourself then head to <xref linkend="picketlink-authentication-basic"/> for simplistic example which
+      you may adapt for your own application.  If you wish to use SAML SSO then you can head to <xref linkend="picketlink-federation"/>.
+    </para>
+
+    <para>
+      Here's some additional resources also to help you get started:
+    </para>
+
     <section>
-      <title>What is PicketLink?</title>
-      
-      <para>
-        PicketLink is an Application Security Framework for Java EE applications.  It provides features for authenticating users,
-        authorizing access to the business methods of your application, managing your application's users, groups, roles and
-        permissions, plus much more.  The following diagram presents a high level overview of the PicketLink modules and the 
-        main features provided by those modules:
-      </para>
-      
-      <mediaobject>
-        <imageobject role="fo">
-          <imagedata fileref="diagrams/overview.png" align="center" scalefit="1"/>
-        </imageobject>
-        <imageobject role="html">
-          <imagedata fileref="diagrams/overview.png" align="center"/>
-        </imageobject>
-      </mediaobject>       
-      
-    </section>
-    
-    <section>
-      <title>Where do I get started?</title>
-      
-      <para>
-        Depending on exactly which PicketLink features you'd like to use, getting started can be as simple as adding the
-        PicketLink jar libraries to your project (see <xref linkend="picketlink-overview-maven"/> below for more info)
-        and writing a few lines of code.  To get started using PicketLink Identity Management to manage the users and other
-        identity objects in your application, you can head straight to <xref linkend="picketlink-idm-overview-5min"/>.  If you don't
-        wish to use PicketLink IDM but would like to use PicketLink for authentication in your Java EE application but control the
-        authentication process yourself then head to <xref linkend="picketlink-authentication-basic"/> for simplistic example which 
-        you may adapt for your own application.  If you wish to use SAML SSO then you can head to <xref linkend="picketlink-federation"/>.
-      </para>
-      
-      <para>
-        Here's some additional resources also to help you get started:
-      </para>
-      
-      <section>
-        <title>QuickStarts</title>
-        
-        <para>
-          The PicketLink QuickStarts can be found at 
-          <ulink url="https://github.com/picketlink/picketlink-quickstarts">https://github.com/picketlink/picketlink-quickstarts</ulink>.
-        </para>
-        
-        <para>
-          Quickstarts are self-contained, concise examples that generally demonstrate at most one or two features.  The PicketLink
-          quickstarts at GitHub provide working, buildable code that shows the usage of a number of authentication and authorization
-          features.
-        </para>
-      </section>
-      
-      <section>
-        <title>API Documentation</title>
-        
-        <para>
-          The latest version of the PicketLink API documentation can be found at 
-          <ulink url="http://docs.jboss.org/picketlink/2/latest/api/">http://docs.jboss.org/picketlink/2/latest/api/</ulink>.
-          This handy reference describes the user-facing classes and methods provided by the PicketLink libraries.
-        </para>
-        
-      </section>
-    
-    </section>
-    
-    <section>
-      <title>Modules</title>
-      
-      <section>
-        <title>Base module</title>
-        
-        <para>
-          The base module provides the integration framework required to use PicketLink within a Java EE application.  
-          It defines a flexible authentication API that allows pluggable authentication mechanisms to be easy configured,
-          with a sensible default authentication policy that delegates to the identity management subsystem. It provides
-          session-scoped authentication tracking for web applications and other session-capable clients, plus a
-          customisable permissions SPI that supports a flexible range of authorization mechanisms for object-level security.
-          It is the "glue" that integrates all of the PicketLink modules together to provide a cohesive API, and also provides
-          <glossterm linkend="cdi">CDI</glossterm> producers to allow you to inject the PicketLink API objects directly into 
-          your application's beans.
-        </para>
-        
-        <para>
-          The base module libraries are as follows:
-        </para>
-        
-        <itemizedlist>
-          <listitem>
-            <para>
-              <literal>picketlink-api</literal> - API for PicketLink's base module.
-            </para>
-          </listitem>
-          <listitem>
-            <para>
-              <literal>picketlink-impl</literal> - Internal implementation classes for the base API.
-            </para>
-          </listitem>
-        </itemizedlist>        
-      </section>
-      
-      <section>
-        <title>Identity Management</title>
-        
-        <para>
-          The Identity Management module defines the base identity model; a collection of interfaces and classes
-          that represent the identity constructs (such as users, groups and roles) used throughout PicketLink (see
-          the Identity Management chapter for more details).  As such, it is a required module and must always be 
-          included in any application deployments that use PicketLink for security. It also provides a uniform API 
-          for managing the identity objects within your application.   The Identity Management module has been designed
-          with minimal dependencies and may be used in a Java SE environment, however the recommended environment is
-          Java EE in conjunction with the base module.
-        </para>
-        
-        <para>
-          Libraries are as follows:
-        </para>
-        
-        <itemizedlist>
-          <listitem>
-            <para>
-              <literal>picketlink-idm-api</literal> - PicketLink's Identity Management (IDM) API.  This library defines the 
-              Identity Model central to all of PicketLink, and all of the identity management-related interfaces.
-            </para>
-          </listitem>
-          <listitem>
-            <para>
-              <literal>picketlink-idm-impl</literal> - Internal implementation classes for the IDM API.
-            </para>
-          </listitem>
-        </itemizedlist>        
-      </section>
-      
-      <section>
-        <title>Federation</title>
-        
-        <para>
-          The Federation module is an optional module that implements a number of Federated Identity standards, 
-          such as SAML (both version 1.1 and 2.0), WS-Trust and OpenID.
-        </para>
-      </section>
-    
-    </section>
-    
-    <section>
-      <title>License</title>
-      
-      <para>
-        PicketLink is licensed under the Apache License Version 2, the terms and conditions of which can be found at
-        <ulink url="http://www.apache.org/licenses/LICENSE-2.0.html">apache.org</ulink>.
-      </para>
-    </section>
-    
-    <section id="picketlink-overview-maven">
-      <title>Maven Dependencies</title>
-      
-      <para>
-        The PicketLink libraries are available from the Maven Central Repository.  To use PicketLink in your Maven-based
-        project, it is recommended that you first define a version property for PicketLink in your project's 
-        <literal>pom.xml</literal> file like so:
-      </para>
-      
-      <programlisting language="XML"><![CDATA[<properties>
-  <picketlink.version>]]>&project.version;<![CDATA[</picketlink.version>
-</properties>]]></programlisting>
+      <title>QuickStarts</title>
 
       <para>
-        For a typical application, it is suggested that you include the following PicketLink dependencies:
+        The PicketLink QuickStarts can be found at
+        <ulink url="https://github.com/picketlink/picketlink-quickstarts">https://github.com/picketlink/picketlink-quickstarts</ulink>.
       </para>
 
-      <programlisting language="XML"><![CDATA[<dependencies>
-  <dependency>
+      <para>
+        Quickstarts are self-contained, concise examples that generally demonstrate at most one or two features.  The PicketLink
+        quickstarts at GitHub provide working, buildable code that shows the usage of a number of authentication and authorization
+        features.
+      </para>
+    </section>
+
+    <section>
+      <title>API Documentation</title>
+
+      <para>
+        The latest version of the PicketLink API documentation can be found at
+        <ulink url="http://docs.jboss.org/picketlink/2/latest/api/">http://docs.jboss.org/picketlink/2/latest/api/</ulink>.
+        This handy reference describes the user-facing classes and methods provided by the PicketLink libraries.
+      </para>
+
+    </section>
+
+  </section>
+
+  <section>
+    <title>Modules</title>
+
+    <section>
+      <title>Base module</title>
+
+      <para>
+        The base module provides the integration framework required to use PicketLink within a Java EE application.
+        It defines a flexible authentication API that allows pluggable authentication mechanisms to be easy configured,
+        with a sensible default authentication policy that delegates to the identity management subsystem. It provides
+        session-scoped authentication tracking for web applications and other session-capable clients, plus a
+        customisable permissions SPI that supports a flexible range of authorization mechanisms for object-level security.
+        It is the "glue" that integrates all of the PicketLink modules together to provide a cohesive API, and also provides
+        <glossterm linkend="cdi">CDI</glossterm> producers to allow you to inject the PicketLink API objects directly into
+        your application's beans.
+      </para>
+
+      <para>
+        The base module libraries are as follows:
+      </para>
+
+      <itemizedlist>
+        <listitem>
+          <para>
+            <literal>picketlink-api</literal> - API for PicketLink's base module.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <literal>picketlink-impl</literal> - Internal implementation classes for the base API.
+          </para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>Identity Management</title>
+
+      <para>
+        The Identity Management module defines the base identity model; a collection of interfaces and classes
+        that represent the identity constructs (such as users, groups and roles) used throughout PicketLink (see
+        the Identity Management chapter for more details).  As such, it is a required module and must always be
+        included in any application deployments that use PicketLink for security. It also provides a uniform API
+        for managing the identity objects within your application.   The Identity Management module has been designed
+        with minimal dependencies and may be used in a Java SE environment, however the recommended environment is
+        Java EE in conjunction with the base module.
+      </para>
+
+      <para>
+        Libraries are as follows:
+      </para>
+
+      <itemizedlist>
+        <listitem>
+          <para>
+            <literal>picketlink-idm-api</literal> - PicketLink's Identity Management (IDM) API.  This library defines the
+            Identity Model central to all of PicketLink, and all of the identity management-related interfaces.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <literal>picketlink-idm-impl</literal> - Internal implementation classes for the IDM API.
+          </para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>Federation</title>
+
+      <para>
+        The Federation module is an optional module that implements a number of Federated Identity standards,
+        such as SAML (both version 1.1 and 2.0), WS-Trust and OpenID.
+      </para>
+    </section>
+
+  </section>
+
+  <section>
+    <title>License</title>
+
+    <para>
+      PicketLink is licensed under the Apache License Version 2, the terms and conditions of which can be found at
+      <ulink url="http://www.apache.org/licenses/LICENSE-2.0.html">apache.org</ulink>.
+    </para>
+  </section>
+
+  <section id="picketlink-overview-maven">
+    <title>Maven Dependencies</title>
+
+    <para>
+      The PicketLink libraries are available from the Maven Central Repository. The dependencies can be easily configured
+      in your Maven-based project by using the PicketLink Bill of Materials(BOM). A BOM is a very handy tool to properly manage
+      your dependencies, their versions and keep your project in sync with the libraries supported and distributed by a specific
+      PicketLink version.
+    </para>
+
+    <para>
+      For most applications using Java EE 6.0, the <emphasis>picketlink-javaee-6.0</emphasis> BOM can be used to define the
+      PicketLink and Java EE 6.0 specification APIs dependencies to your project.
+    </para>
+
+    <programlisting language="XML"><![CDATA[<properties>
+  <!-- PicketLink dependency versions -->
+  <version.picketlink.javaee.bom>]]>&project.version;<![CDATA[</version.picketlink.javaee.bom>
+</properties>
+
+<dependencyManagement>
+  <dependencies>
+    <!-- Dependency Management for PicketLink and Java EE 6.0. -->
+    <dependency>
       <groupId>org.picketlink</groupId>
-      <artifactId>picketlink-api</artifactId>
-      <scope>compile</scope>
-      <version>${picketlink.version}</version>
+      <artifactId>picketlink-javaee-6.0</artifactId>
+      <version>${version.picketlink.javaee.bom}</version>
+      <scope>import</scope>
+      <type>pom</type>
+    </dependency>
+  </dependencies>
+</dependencyManagement>]]></programlisting>
+
+    <para>
+      Once the BOM is included, required PicketLink dependencies may be added to the section of your pom.xml.
+      When using a BOM you don't need to specify their versions because this is automatically managed, the version in use depends
+      on the BOM's version. For example, the configuration above is defining a version &project.version; of the <emphasis>picketlink-javaee-6.0</emphasis> BOM, which means
+      you'll be using version &project.version; of the PicketLink libraries.
+    </para>
+
+    <para>For a typical application, it is suggested that you include the following PicketLink dependencies:</para>
+
+    <programlisting language="XML"><![CDATA[<dependencies>
+<!-- Import the PicketLink API, we deploy this as library with the application,
+        and can compile against it -->
+  <dependency>
+    <groupId>org.picketlink</groupId>
+    <artifactId>picketlink-api</artifactId>
   </dependency>
-  
-  <dependency>
-      <groupId>org.picketlink</groupId>
-      <artifactId>picketlink-impl</artifactId>
-      <scope>runtime</scope>
-      <version>${picketlink.version}</version>
-  </dependency>]]></programlisting>
-  
-      <para>
-        The identity management library is a required dependency of the base module and so will be automatically included.  If you
-        <emphasis>don't</emphasis> wish to use the base module (for example in a Java SE environment) and want to use the PicketLink
-        IDM library on its own, then only add the following dependencies:
-      </para>
 
-      <programlisting language="XML"><![CDATA[<dependencies>
+  <!-- Import the PicketLink implementation, we deploy this as library with the application,
+        but don't compile against it -->
+  <dependency>
+    <groupId>org.picketlink</groupId>
+    <artifactId>picketlink-impl</artifactId>
+    <scope>runtime</scope>
+  </dependency>
+</dependencies>]]></programlisting>
+
+    <para>
+      PicketLink also provides a specific BOM with the Apache Deltaspike(core and security modules) dependencies if you want to use it in conjunction with PicketLink.
+    </para>
+
+    <programlisting language="XML"><![CDATA[<properties>
+  <!-- PicketLink dependency versions -->
+  <version.picketlink.javaee.bom>]]>&project.version;<![CDATA[</version.picketlink.javaee.bom>
+</properties>
+
+<dependencyManagement>
+  <dependencies>
+    <!-- Dependency Management for PicketLink and Apache Deltaspike. -->
+    <dependency>
+      <groupId>org.picketlink</groupId>
+      <artifactId>picketlink-javaee-6.0-with-deltaspike</artifactId>
+      <version>${version.picketlink.javaee.bom}</version>
+      <scope>import</scope>
+      <type>pom</type>
+    </dependency>
+  </dependencies>
+</dependencyManagement>]]></programlisting>
+
+    <para>
+      The identity management library is a required dependency of the base module and so will be automatically included.  If you
+      <emphasis>don't</emphasis> wish to use the base module and want to use the PicketLink IDM library on its own, then only add the following dependencies:
+    </para>
+
+    <programlisting language="XML"><![CDATA[<dependencies>
   <dependency>
       <groupId>org.picketlink</groupId>
       <artifactId>picketlink-idm-api</artifactId>
       <scope>compile</scope>
-      <version>${picketlink.version}</version>
   </dependency>
   
   <dependency>
       <groupId>org.picketlink</groupId>
       <artifactId>picketlink-idm-impl</artifactId>
       <scope>runtime</scope>
-      <version>${picketlink.version}</version>
   </dependency>]]></programlisting>
 
-      <para>
-        If you wish to use PicketLink's Identity Management features and want to include the default database schema
-        (see the Identity Management chapter for more details) then configure the following dependency also:
-      </para>
+    <para>
+      If you wish to use PicketLink's Identity Management features and want to include the default database schema
+      (see the <link linkend='picketlink-idm-overview'>Identity Management</link> chapter for more details) then configure the following dependency also:
+    </para>
 
-      <programlisting language="XML"><![CDATA[  <dependency>
+    <programlisting language="XML"><![CDATA[  <dependency>
     <groupId>org.picketlink</groupId>
     <artifactId>picketlink-idm-simple-schema</artifactId>
-    <version>${picketlink.version}</version>
   </dependency>]]></programlisting>
 
-    </section>
-    <section id="picketlink-overview-installer">
-      <title>PicketLink Installer</title>
+    <para>
+      Another way to configure the PicketLink dependencies (without using the PicketLink BOM) is to manually define them in your project's <emphasis>pom.xml</emphasis> file like so:
+    </para>
 
+    <programlisting language="XML"><![CDATA[<properties>
+  <picketlink.version>]]>&project.version;<![CDATA[</picketlink.version>
+</properties>
+
+<dependencies>
+  <dependency>
+      <groupId>org.picketlink</groupId>
+      <artifactId>picketlink-idm-api</artifactId>
+      <scope>compile</scope>
+      <version>${picketlink.version}</version>
+  </dependency>
+
+  <dependency>
+      <groupId>org.picketlink</groupId>
+      <artifactId>picketlink-idm-impl</artifactId>
+      <scope>runtime</scope>
+      <version>${picketlink.version}</version>
+  </dependency>
+</dependencies>]]></programlisting>
+
+    <para>
+      This last option may be more suitable for projects that don't use Java EE (for example in a Java SE environment).
+    </para>
+
+    <note>
       <para>
-        The PicketLink Installer is a simple Apache Ant script that applies all the necessary changes to your
-        JBoss Enterprise Application Platform 6.1 installation, including:
+        We strongly recommend using a BOM to configure your project with the PicketLink dependencies. This can avoid
+        some very common and tricky issues like keep the versions in the project using the artifacts in sync with the versions distributed in a release.
       </para>
-      <itemizedlist>
-        <listitem>
-          <para>
-            Updates the PicketLink module with the latest libraries.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            Installs the PicketLink Subsystem.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            Configures some of the PicketLink Quickstarts. Specially the PicketLink Federation examples.
-            What means you can start using them to get a picture of the SAML Single Sign-On and other features provided by PicketLink Federation. !
-          </para>
-        </listitem>
-      </itemizedlist>
-      <important>
+    </note>
+
+  </section>
+  <section id="picketlink-overview-installer">
+    <title>PicketLink Installer</title>
+
+    <para>
+      The PicketLink Installer is a simple Apache Ant script that applies all the necessary changes to your
+      JBoss Enterprise Application Platform 6.1 installation, including:
+    </para>
+    <itemizedlist>
+      <listitem>
         <para>
-          The installer is not a required step in order to get you started with PicketLink. But if you want the PicketLink Subsystem installed and
-          the PicketLink module updated (in order to avoid ship the libraries inside your deployment) in your JBoss Enterprise Application Platform installation, it can be very useful.
+          Updates the PicketLink module with the latest libraries.
         </para>
-      </important>
+      </listitem>
+      <listitem>
+        <para>
+          Installs the PicketLink Subsystem.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Configures some of the PicketLink Quickstarts. Specially the PicketLink Federation examples.
+          What means you can start using them to get a picture of the SAML Single Sign-On and other features provided by PicketLink Federation. !
+        </para>
+      </listitem>
+    </itemizedlist>
+    <important>
       <para>
-        The installer can be obtained from <ulink url="https://repository.jboss.org/nexus/content/groups/public/org/picketlink/picketlink-installer/1.1.3.Final/picketlink-installer-1.1.3.Final.zip">JBoss Nexus Repository</ulink>. Once you've downloaded,
-        extract the ZIP file, enter the directory that was created and execute the following command:
+        The installer is not a required step in order to get you started with PicketLink. But if you want the PicketLink Subsystem installed and
+        the PicketLink module updated (in order to avoid ship the libraries inside your deployment) in your JBoss Enterprise Application Platform installation, it can be very useful.
       </para>
-      <programlisting language="XML"><![CDATA[user@host picketlink-installer-1.1.3.Final]$ ant]]></programlisting>
-      <para>
-        Now you should be prompted for the full path of your JBoss Application Server installation.
-      </para>
-      <programlisting language="XML"><![CDATA[prepare:
+    </important>
+    <para>
+      The installer can be obtained from <ulink url="https://repository.jboss.org/nexus/content/groups/public/org/picketlink/picketlink-installer/1.1.3.Final/picketlink-installer-1.1.3.Final.zip">JBoss Nexus Repository</ulink>. Once you've downloaded,
+      extract the ZIP file, enter the directory that was created and execute the following command:
+    </para>
+    <programlisting language="XML"><![CDATA[user@host picketlink-installer-1.1.3.Final]$ ant]]></programlisting>
+    <para>
+      Now you should be prompted for the full path of your JBoss Application Server installation.
+    </para>
+    <programlisting language="XML"><![CDATA[prepare:
      [echo]
      [echo]       ####################################################################################
      [echo]       Welcome to the PicketLink Installer
@@ -272,9 +352,9 @@
      [echo]       This installer will update your JBoss Enterprise Application Platform 6 installation with the
      [echo]       following libraries and their dependencies:
      [echo]
-     [echo]       - PicketLink Core 2.5.2.Final
-     [echo]       - PicketLink Identity Management 2.5.2.Final
-     [echo]       - PicketLink Federation 2.5.2.Final
+     [echo]       - PicketLink Core]]> &project.version;<![CDATA[
+     [echo]       - PicketLink Identity Management]]> &project.version;<![CDATA[
+     [echo]       - PicketLink Federation]]> &project.version;<![CDATA[
      [echo]       - PicketLink Federation Quickstarts 2.1.8.Final
      [echo]       - PicketLink Subsystem 1.1.1.Final
      [echo]
@@ -282,20 +362,20 @@
      [echo]       ####################################################################################
      [echo]
     [input] Please enter the path to your JBoss Enterprise Application Platform 6 installation:]]></programlisting>
-      <para>
-        And it is done !
-      </para>
-    </section>
-    <section>
-      <title>Help us improve the docs!</title>
-      
-      <para>
-        We're always looking for ways to improve this documentation.  If you think that we can enhance the way that any 
-        of PicketLink's features or concepts are explained, or even if you just spot a typo or grammatical error then please
-        let us know on the PicketLink forums (you can find a link to the forums at 
-        <ulink url="http://www.picketlink.org">www.picketlink.org</ulink>).  We appreciate any and all feedback that is provided.
-      </para>
-    
-    </section>
+    <para>
+      And it is done !
+    </para>
+  </section>
+  <section>
+    <title>Help us improve the docs!</title>
+
+    <para>
+      We're always looking for ways to improve this documentation.  If you think that we can enhance the way that any
+      of PicketLink's features or concepts are explained, or even if you just spot a typo or grammatical error then please
+      let us know on the PicketLink forums (you can find a link to the forums at
+      <ulink url="http://www.picketlink.org">www.picketlink.org</ulink>).  We appreciate any and all feedback that is provided.
+    </para>
+
+  </section>
 
 </chapter>
