@@ -42,14 +42,13 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *           &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}ISDN"/>
  *           &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}ADSL"/>
  *         &lt;/choice>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Extension" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Extension"
+ * maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class OriginalAuthenticatorTransportProtocolType extends ExtensionListType {
 
@@ -68,7 +67,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Gets the value of the http property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getHTTP() {
         return http;
@@ -78,7 +76,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Sets the value of the http property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setHTTP(ExtensionOnlyType value) {
         this.http = value;
@@ -88,7 +85,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Gets the value of the ssl property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getSSL() {
         return ssl;
@@ -98,7 +94,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Sets the value of the ssl property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setSSL(ExtensionOnlyType value) {
         this.ssl = value;
@@ -108,7 +103,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Gets the value of the mobileNetworkNoEncryption property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getMobileNetworkNoEncryption() {
         return mobileNetworkNoEncryption;
@@ -118,7 +112,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Sets the value of the mobileNetworkNoEncryption property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setMobileNetworkNoEncryption(ExtensionOnlyType value) {
         this.mobileNetworkNoEncryption = value;
@@ -128,7 +121,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Gets the value of the mobileNetworkRadioEncryption property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getMobileNetworkRadioEncryption() {
         return mobileNetworkRadioEncryption;
@@ -138,7 +130,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Sets the value of the mobileNetworkRadioEncryption property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setMobileNetworkRadioEncryption(ExtensionOnlyType value) {
         this.mobileNetworkRadioEncryption = value;
@@ -148,7 +139,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Gets the value of the mobileNetworkEndToEndEncryption property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getMobileNetworkEndToEndEncryption() {
         return mobileNetworkEndToEndEncryption;
@@ -158,7 +148,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Sets the value of the mobileNetworkEndToEndEncryption property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setMobileNetworkEndToEndEncryption(ExtensionOnlyType value) {
         this.mobileNetworkEndToEndEncryption = value;
@@ -168,7 +157,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Gets the value of the wtls property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getWTLS() {
         return wtls;
@@ -178,7 +166,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Sets the value of the wtls property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setWTLS(ExtensionOnlyType value) {
         this.wtls = value;
@@ -188,7 +175,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Gets the value of the ipSec property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getIPSec() {
         return ipSec;
@@ -198,7 +184,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Sets the value of the ipSec property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setIPSec(ExtensionOnlyType value) {
         this.ipSec = value;
@@ -208,7 +193,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Gets the value of the pstn property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getPSTN() {
         return pstn;
@@ -218,7 +202,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Sets the value of the pstn property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setPSTN(ExtensionOnlyType value) {
         this.pstn = value;
@@ -228,7 +211,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Gets the value of the isdn property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getISDN() {
         return isdn;
@@ -238,7 +220,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Sets the value of the isdn property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setISDN(ExtensionOnlyType value) {
         this.isdn = value;
@@ -248,7 +229,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Gets the value of the adsl property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getADSL() {
         return adsl;
@@ -258,7 +238,6 @@ public class OriginalAuthenticatorTransportProtocolType extends ExtensionListTyp
      * Sets the value of the adsl property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setADSL(ExtensionOnlyType value) {
         this.adsl = value;

@@ -36,17 +36,15 @@ package org.picketlink.identity.federation.ws.trust;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ClaimsType extends SimpleAnyType {
+
     protected String dialect;
 
     /**
      * Gets the value of the dialect property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getDialect() {
         return dialect;
@@ -56,7 +54,6 @@ public class ClaimsType extends SimpleAnyType {
      * Sets the value of the dialect property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setDialect(String value) {
         this.dialect = value;

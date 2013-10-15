@@ -20,7 +20,8 @@ package org.picketlink.identity.federation.saml.v1.protocol;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
 
 /**
- * <complexType name="SubjectQueryAbstractType" abstract="true"> <complexContent> <extension base="samlp:QueryAbstractType">
+ * <complexType name="SubjectQueryAbstractType" abstract="true"> <complexContent> <extension
+ * base="samlp:QueryAbstractType">
  * <sequence> <element ref="saml:Subject"/> </sequence>
  *
  * </extension> </complexContent> </complexType>
@@ -29,6 +30,7 @@ import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
  * @since Jun 22, 2011
  */
 public class SAML11SubjectQueryAbstractType extends SAML11QueryAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     protected SAML11SubjectType subject;

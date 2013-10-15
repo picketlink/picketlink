@@ -26,6 +26,7 @@ import java.io.Serializable;
  * @since Nov 24, 2010
  */
 public class AuthnContextDeclType implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     private Object value;

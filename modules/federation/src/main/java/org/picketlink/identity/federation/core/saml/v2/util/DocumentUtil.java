@@ -19,8 +19,10 @@ package org.picketlink.identity.federation.core.saml.v2.util;
 
 /**
  * PLINK-158: Maintain backward compatibility
+ *
  * @author Anil Saldhana
  * @since June 20, 2013
  */
 public class DocumentUtil extends org.picketlink.common.util.DocumentUtil {
+
 }

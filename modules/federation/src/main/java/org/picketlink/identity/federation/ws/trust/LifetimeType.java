@@ -31,17 +31,18 @@ import org.picketlink.identity.federation.ws.wss.utility.AttributedDateTime;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element ref="{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd}Created" minOccurs="0"/>
- *         &lt;element ref="{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd}Expires" minOccurs="0"/>
+ *         &lt;element ref="{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd}Created"
+ * minOccurs="0"/>
+ *         &lt;element ref="{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd}Expires"
+ * minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class LifetimeType {
+
     protected AttributedDateTime created;
 
     protected AttributedDateTime expires;
@@ -50,7 +51,6 @@ public class LifetimeType {
      * Gets the value of the created property.
      *
      * @return possible object is {@link AttributedDateTime }
-     *
      */
     public AttributedDateTime getCreated() {
         return created;
@@ -60,7 +60,6 @@ public class LifetimeType {
      * Sets the value of the created property.
      *
      * @param value allowed object is {@link AttributedDateTime }
-     *
      */
     public void setCreated(AttributedDateTime value) {
         this.created = value;
@@ -70,7 +69,6 @@ public class LifetimeType {
      * Gets the value of the expires property.
      *
      * @return possible object is {@link AttributedDateTime }
-     *
      */
     public AttributedDateTime getExpires() {
         return expires;
@@ -80,7 +78,6 @@ public class LifetimeType {
      * Sets the value of the expires property.
      *
      * @param value allowed object is {@link AttributedDateTime }
-     *
      */
     public void setExpires(AttributedDateTime value) {
         this.expires = value;

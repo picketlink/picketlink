@@ -36,9 +36,10 @@ import java.util.Iterator;
  * @version $Revision: 1 $
  */
 class SecurityActions {
+
     static SecurityContext createSecurityContext() throws PrivilegedActionException {
         SecurityManager sm = System.getSecurityManager();
-        
+
         if (sm != null) {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<SecurityContext>() {
                 public SecurityContext run() throws Exception {
@@ -56,14 +57,14 @@ class SecurityActions {
 
     static MBeanServer getJBossMBeanServer() {
         SecurityManager sm = System.getSecurityManager();
-        
-        if (sm !=  null) {
+
+        if (sm != null) {
             return AccessController.doPrivileged(new PrivilegedAction<MBeanServer>() {
                 public MBeanServer run() {
                     // Differences in JBAS5.1, 6.0 with the "jboss" mbean server.
                     MBeanServer cached = null;
 
-                    for (Iterator<MBeanServer> i = MBeanServerFactory.findMBeanServer(null).iterator(); i.hasNext();) {
+                    for (Iterator<MBeanServer> i = MBeanServerFactory.findMBeanServer(null).iterator(); i.hasNext(); ) {
                         MBeanServer server = i.next();
 
                         String defaultDomain = server.getDefaultDomain();
@@ -86,7 +87,7 @@ class SecurityActions {
             // Differences in JBAS5.1, 6.0 with the "jboss" mbean server.
             MBeanServer cached = null;
 
-            for (Iterator<MBeanServer> i = MBeanServerFactory.findMBeanServer(null).iterator(); i.hasNext();) {
+            for (Iterator<MBeanServer> i = MBeanServerFactory.findMBeanServer(null).iterator(); i.hasNext(); ) {
                 MBeanServer server = i.next();
 
                 String defaultDomain = server.getDefaultDomain();
@@ -102,7 +103,7 @@ class SecurityActions {
             }
             if (cached != null)
                 return cached; // We did not find one with jboss but there is "DefaultDomain" which is the norm in AS6
-            
+
             throw new IllegalStateException(ErrorCodes.NULL_VALUE + "No 'jboss' MBeanServer found!");
         }
     }

@@ -20,7 +20,6 @@ package org.picketlink.identity.federation.core.parsers.saml;
 import org.picketlink.common.ErrorCodes;
 import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
-import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.parsers.ParserNamespaceSupport;
 import org.picketlink.common.util.StaxParserUtil;
@@ -42,6 +41,7 @@ import javax.xml.stream.events.StartElement;
  * @since July 1, 2011
  */
 public class SAMLArtifactResponseParser extends SAMLStatusResponseTypeParser implements ParserNamespaceSupport {
+
     private final String ARTIFACT_RESPONSE = JBossSAMLConstants.ARTIFACT_RESPONSE.get();
 
     /**
@@ -99,8 +99,10 @@ public class SAMLArtifactResponseParser extends SAMLStatusResponseTypeParser imp
      * Parse the attributes at the response element
      *
      * @param startElement
+     *
      * @return
-     * @throws ConfigurationException
+     *
+     * @throws ParsingException
      */
     protected StatusResponseType parseBaseAttributes(StartElement startElement) throws ParsingException {
         ArtifactResponseType response = new ArtifactResponseType(super.parseBaseAttributes(startElement));

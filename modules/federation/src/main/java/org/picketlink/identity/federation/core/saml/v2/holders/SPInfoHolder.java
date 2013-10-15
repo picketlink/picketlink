@@ -29,6 +29,7 @@ package org.picketlink.identity.federation.core.saml.v2.holders;
  * @since Dec 10, 2008
  */
 public class SPInfoHolder {
+
     private String requestID;
     private String responseDestinationURI;
     private String issuer;

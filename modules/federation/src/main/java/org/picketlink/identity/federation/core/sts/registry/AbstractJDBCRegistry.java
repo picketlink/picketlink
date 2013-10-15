@@ -38,6 +38,7 @@ import java.sql.Statement;
  * @since August 06, 2013
  */
 public class AbstractJDBCRegistry {
+
     protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
     protected DataSource dataSource;
 
@@ -50,7 +51,7 @@ public class AbstractJDBCRegistry {
             Context initContext = new InitialContext();
             Context envContext = (Context) initContext.lookup("java:comp/env");
             dataSource = (DataSource) envContext.lookup(jndiName);
-            if(dataSource == null){
+            if (dataSource == null) {
                 throw logger.datasourceIsNull();
             }
         } catch (NamingException e) {

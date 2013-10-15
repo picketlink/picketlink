@@ -22,5 +22,6 @@ package org.picketlink.identity.federation.saml.v1.assertion;
  * @since Jun 22, 2011
  */
 public class SAML11ConditionType extends SAML11ConditionAbstractType {
+
     private static final long serialVersionUID = 1L;
 }

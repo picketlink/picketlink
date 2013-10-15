@@ -45,7 +45,7 @@ import javax.xml.stream.events.StartElement;
  * @since June 24, 2011
  */
 public class SAML11RequestParser implements ParserNamespaceSupport {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     protected SAML11RequestType parseRequiredAttributes(StartElement startElement) throws ParsingException {

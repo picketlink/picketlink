@@ -20,6 +20,7 @@ package org.picketlink.social.standalone.fb;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.picketlink.social.standalone.oauth.OAuthConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,15 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
- 
-import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.picketlink.social.standalone.oauth.OAuthConstants;
-
 /**
  * Processor to perform Facebook interaction
  *
@@ -55,6 +47,7 @@ import org.picketlink.social.standalone.oauth.OAuthConstants;
  * @since Sep 22, 2011
  */
 public class FacebookProcessor {
+
     public static final String FB_AUTH_STATE_SESSION_ATTRIBUTE = "FB_AUTH_STATE_SESSION_ATTRIBUTE";
     protected static Logger log = Logger.getLogger(FacebookProcessor.class);
     protected boolean trace = log.isTraceEnabled();
@@ -70,7 +63,9 @@ public class FacebookProcessor {
 
     public enum STATES {
         AUTH, AUTHZ, FINISH
-    };
+    }
+
+    ;
 
     protected String clientID;
     protected String clientSecret;
@@ -202,10 +197,10 @@ public class FacebookProcessor {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    } 
-    
+    }
+
     private Principal readInIdentity(HttpServletRequest request, HttpServletResponse response, String accessToken,
-            String returnUrl) {
+                                     String returnUrl) {
         FacebookPrincipal facebookPrincipal = null;
         try {
             String urlString = new StringBuilder(FacebookConstants.PROFILE_ENDPOINT_URL).append("?access_token=")

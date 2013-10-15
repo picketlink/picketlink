@@ -36,7 +36,8 @@ import java.util.List;
 
 /**
  * <p>
- * A Controller that can act as the front door for parsing or when you need to locate a parser that is capable of parsing a
+ * A Controller that can act as the front door for parsing or when you need to locate a parser that is capable of
+ * parsing a
  * {@code QName}
  * <p>
  *
@@ -44,6 +45,7 @@ import java.util.List;
  * @since Oct 14, 2010
  */
 public class ParserController {
+
     private static List<ParserNamespaceSupport> parsers = new ArrayList<ParserNamespaceSupport>();
 
     private static RuntimePermission PARSER_PERM = new RuntimePermission("org.picketlink.parser.permission");
@@ -63,7 +65,9 @@ public class ParserController {
         add(new WSTCancelTargetParser());
         add(new WSTRequestSecurityTokenParser());
         add(new WSTRequestSecurityTokenCollectionParser());
-    };
+    }
+
+    ;
 
     /**
      * <p>
@@ -88,6 +92,7 @@ public class ParserController {
      * Get an {@code ParserNamespaceSupport} that supports parsing the qname
      *
      * @param qname
+     *
      * @return A supporting parser or null
      */
     public static ParserNamespaceSupport get(QName qname) {
@@ -103,8 +108,10 @@ public class ParserController {
 
     /**
      * <p>
-     * Clear the registered parsers. <b>Note:</b> You really need to have a reason to perform this operation. Once you have
-     * cleared the parsers, you have the opportunity to register new parsers with {@code #add(ParserNamespaceSupport)} call.
+     * Clear the registered parsers. <b>Note:</b> You really need to have a reason to perform this operation. Once you
+     * have
+     * cleared the parsers, you have the opportunity to register new parsers with {@code #add(ParserNamespaceSupport)}
+     * call.
      * </p>
      *
      * <p>

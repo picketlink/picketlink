@@ -31,7 +31,7 @@ import org.picketlink.idm.credential.Password;
 @Named("loginCredentials")
 @RequestScoped
 public class DefaultLoginCredentials extends AbstractBaseCredentials {
-    
+
     private Object credential;
     private String userId;
 
@@ -43,7 +43,7 @@ public class DefaultLoginCredentials extends AbstractBaseCredentials {
         if (userId == null) {
             throw new IllegalArgumentException("User id can not be null.");
         }
-        
+
         this.userId = userId;
     }
 
@@ -70,7 +70,7 @@ public class DefaultLoginCredentials extends AbstractBaseCredentials {
         if (password == null) {
             throw new IllegalArgumentException("Password can not be null.");
         }
-        
+
         this.credential = new Password(password.toCharArray());
     }
 
@@ -82,6 +82,6 @@ public class DefaultLoginCredentials extends AbstractBaseCredentials {
 
     @Override
     public String toString() {
-        return "DefaultLoginCredentials[" + (userId != null ? userId : "unknown" ) + "]";
+        return "DefaultLoginCredentials[" + (userId != null ? userId : "unknown") + "]";
     }
 }

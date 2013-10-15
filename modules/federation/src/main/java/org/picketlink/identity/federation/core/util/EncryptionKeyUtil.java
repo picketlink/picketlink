@@ -28,12 +28,15 @@ import java.security.GeneralSecurityException;
  * @since Feb 4, 2009
  */
 public class EncryptionKeyUtil {
+
     /**
      * Generate a secret key useful for encryption/decryption
      *
      * @param encAlgo
      * @param keySize Length of the key (if 0, defaults to 128 bits)
+     *
      * @return
+     *
      * @throws GeneralSecurityException
      */
     public static SecretKey getSecretKey(String encAlgo, int keySize) throws GeneralSecurityException {

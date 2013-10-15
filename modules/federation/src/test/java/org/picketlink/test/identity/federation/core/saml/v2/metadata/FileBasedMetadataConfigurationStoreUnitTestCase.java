@@ -39,6 +39,7 @@ import static org.junit.Assert.fail;
  * @since Apr 28, 2009
  */
 public class FileBasedMetadataConfigurationStoreUnitTestCase {
+
     String pkgName = "org.picketlink.identity.federation.saml.v2.metadata";
 
     String id = "test";
@@ -47,13 +48,13 @@ public class FileBasedMetadataConfigurationStoreUnitTestCase {
     public void setup() throws Exception {
         // commented to allow build from jenkins openshift
         String userHome = System.getProperty("user.home");
-        
+
         String testsUserHome = System.getProperty("user.home.tests");
-        
+
         if (testsUserHome != null) {
             userHome = testsUserHome;
         }
-        
+
         if (StringUtil.isNotNull(userHome) && "?".equals(userHome)) {
             System.setProperty("user.home", System.getProperty("user.dir"));
         } else {

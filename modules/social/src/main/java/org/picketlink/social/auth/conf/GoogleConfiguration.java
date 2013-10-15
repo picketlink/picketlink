@@ -29,14 +29,14 @@ public interface GoogleConfiguration extends CommonConfiguration {
      *
      * @return accessType
      */
-    public String getAccessType();
+    String getAccessType();
 
     /**
      * Get the application name registered on Google+ . Value is not important (actually it could be any value)
      *
      * @return applicationName
      */
-    public String getApplicationName();
+    String getApplicationName();
 
     /**
      * Get random algorithm, which will be used to generate "state" parameters (prevention from CSRF attacks)
@@ -45,5 +45,5 @@ public interface GoogleConfiguration extends CommonConfiguration {
      *
      * @return name of random algorithm
      */
-    public String getRandomAlgorithm();
+    String getRandomAlgorithm();
 }

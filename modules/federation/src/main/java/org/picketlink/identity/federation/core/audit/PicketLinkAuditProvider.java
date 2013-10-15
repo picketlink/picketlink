@@ -29,9 +29,9 @@ import org.picketlink.common.PicketLinkLoggerFactory;
  * @author anil saldhana
  */
 public class PicketLinkAuditProvider extends LogAuditProvider implements AuditProvider {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     public PicketLinkAuditProvider() {
         super();
     }
@@ -40,7 +40,7 @@ public class PicketLinkAuditProvider extends LogAuditProvider implements AuditPr
     public void audit(AuditEvent auditEvent) {
         if (auditEvent instanceof PicketLinkAuditEvent) {
             if (!logger.isInfoEnabled())
-                return; 
+                return;
 
             PicketLinkAuditEvent picketLinkAuditEvent = (PicketLinkAuditEvent) auditEvent;
             logger.auditEvent(picketLinkAuditEvent.toString());

@@ -95,6 +95,7 @@ import java.util.Map;
  *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
+
 /**
  * <p>
  * </p>
@@ -365,7 +366,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Obtains the {@code RequestedAttachedReference} that indicate how to reference the returned token when that token doesn't
+     * Obtains the {@code RequestedAttachedReference} that indicate how to reference the returned token when that token
+     * doesn't
      * support references using URI fragments (XML ID).
      * </p>
      *
@@ -377,7 +379,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Sets the {@code RequestedAttachedReference} that indicate how to reference the returned token when that token doesn't
+     * Sets the {@code RequestedAttachedReference} that indicate how to reference the returned token when that token
+     * doesn't
      * support references using URI fragments (XML ID).
      * </p>
      *
@@ -390,7 +393,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Obtains the {@code RequestedUnattachedReference} that specifies to indicate how to reference the token when it is not
+     * Obtains the {@code RequestedUnattachedReference} that specifies to indicate how to reference the token when it is
+     * not
      * placed inside the message.
      * </p>
      *
@@ -402,7 +406,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Sets the {@code RequestedUnattachedReference} that specifies to indicate how to reference the token when it is not placed
+     * Sets the {@code RequestedUnattachedReference} that specifies to indicate how to reference the token when it is
+     * not placed
      * inside the message.
      * </p>
      *
@@ -438,7 +443,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Obtains the {@code RequestedTokenCancelled} section of the response, if it has been set. The presence of this element
+     * Obtains the {@code RequestedTokenCancelled} section of the response, if it has been set. The presence of this
+     * element
      * indicates that the security token specified in the cancel request has been successfully canceled by the STS.
      * </p>
      *
@@ -451,7 +457,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Sets the {@code RequestedTokenCancelled} section of the response. This element is used to inform the client that the
+     * Sets the {@code RequestedTokenCancelled} section of the response. This element is used to inform the client that
+     * the
      * token specified in a cancel request has been successfully canceled by the STS.
      * </p>
      *
@@ -582,7 +589,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
      * Obtains the identity on whose behalf the token request was made.
      * </p>
      *
-     * @return a reference to the {@code OnBehalfOfType} that represents the identity on whose behalf the token request was
+     * @return a reference to the {@code OnBehalfOfType} that represents the identity on whose behalf the token request
+     *         was
      *         made.
      */
     public OnBehalfOfType getOnBehalfOf() {
@@ -603,7 +611,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Obtains the issuer of the token included in the request in the scenarios where the requestor is obtaining a token on
+     * Obtains the issuer of the token included in the request in the scenarios where the requestor is obtaining a token
+     * on
      * behalf of another party.
      * </p>
      *
@@ -615,7 +624,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Sets the issuer of the token included in the request in scenarios where the requestor is obtaining a token on behalf of
+     * Sets the issuer of the token included in the request in scenarios where the requestor is obtaining a token on
+     * behalf of
      * another party.
      * </p>
      *
@@ -743,7 +753,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Obtains the {@code Encryption} section of the response. The {@code Encryption} element indicates that the requestor
+     * Obtains the {@code Encryption} section of the response. The {@code Encryption} element indicates that the
+     * requestor
      * desires any returned secrets in issued security tokens to be encrypted.
      * </p>
      *
@@ -755,7 +766,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Sets the {@code Encryption} section of the response. The {@code Encryption} element indicates that the requestor desires
+     * Sets the {@code Encryption} section of the response. The {@code Encryption} element indicates that the requestor
+     * desires
      * any returned secrets in issued security tokens to be encrypted.
      * </p>
      *
@@ -814,7 +826,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Obtains the {@code ProofEncryption} section of the response. The {@code ProofEncryption} indicates that the requestor
+     * Obtains the {@code ProofEncryption} section of the response. The {@code ProofEncryption} indicates that the
+     * requestor
      * desires any returned secrets in issued security tokens to be encrypted.
      * </p>
      *
@@ -826,7 +839,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Sets the {@code ProofEncryption} section of the response. The {@code ProofEncryption} indicates that the requestor
+     * Sets the {@code ProofEncryption} section of the response. The {@code ProofEncryption} indicates that the
+     * requestor
      * desires any returned secrets in issued security tokens to be encrypted.
      * </p>
      *
@@ -931,8 +945,10 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Indicates whether the requested token has been marked as "forwardable" or not. In general, this flag is used when a token
-     * is normally bound to the requestor's machine or service. Using this flag, the returned token MAY be used from any source
+     * Indicates whether the requested token has been marked as "forwardable" or not. In general, this flag is used when
+     * a token
+     * is normally bound to the requestor's machine or service. Using this flag, the returned token MAY be used from any
+     * source
      * machine so long as the key is correctly proven.
      * </p>
      *
@@ -944,12 +960,15 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Specifies whether the requested token has been marked as "forwardable" or not. In general, this flag is used when a token
-     * is normally bound to the requestor's machine or service. Using this flag, the returned token MAY be used from any source
+     * Specifies whether the requested token has been marked as "forwardable" or not. In general, this flag is used when
+     * a token
+     * is normally bound to the requestor's machine or service. Using this flag, the returned token MAY be used from any
+     * source
      * machine so long as the key is correctly proven.
      * </p>
      *
-     * @param forwardable {@code true} if the requested token has been marked as "forwardable"; {@code false} otherwise.
+     * @param forwardable {@code true} if the requested token has been marked as "forwardable"; {@code false}
+     * otherwise.
      */
     public void setForwardable(boolean forwardable) {
         this.forwardable = forwardable;
@@ -958,7 +977,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Indicates whether the requested token has been marked as "delegatable" or not. Using this flag, the returned token MAY be
+     * Indicates whether the requested token has been marked as "delegatable" or not. Using this flag, the returned
+     * token MAY be
      * delegated to another party.
      * </p>
      *
@@ -970,11 +990,13 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Specifies whether the requested token has been marked as "delegatable" or not. Using this flag, the returned token MAY be
+     * Specifies whether the requested token has been marked as "delegatable" or not. Using this flag, the returned
+     * token MAY be
      * delegated to another party.
      * </p>
      *
-     * @param delegatable {@code true} if the requested token has been marked as "delegatable"; {@code false} otherwise.
+     * @param delegatable {@code true} if the requested token has been marked as "delegatable"; {@code false}
+     * otherwise.
      */
     public void setDelegatable(boolean delegatable) {
         this.delegatable = delegatable;
@@ -983,7 +1005,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Obtains the {@code Policy} that was associated with the request. The policy specifies defaults that can be overridden by
+     * Obtains the {@code Policy} that was associated with the request. The policy specifies defaults that can be
+     * overridden by
      * the previous properties.
      * </p>
      *
@@ -995,7 +1018,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Sets the {@code Policy} in the response. The policy specifies defaults that can be overridden by the previous properties.
+     * Sets the {@code Policy} in the response. The policy specifies defaults that can be overridden by the previous
+     * properties.
      * </p>
      *
      * @param policy the {@code Policy} instance to be set.
@@ -1063,7 +1087,8 @@ public class RequestSecurityTokenResponse implements BaseRequestSecurityTokenRes
 
     /**
      * <p>
-     * Obtains a map that contains attributes that aren't bound to any typed property on the response. This is a live reference,
+     * Obtains a map that contains attributes that aren't bound to any typed property on the response. This is a live
+     * reference,
      * so attributes can be added/changed/removed directly. For this reason, there is no setter method.
      * </p>
      *

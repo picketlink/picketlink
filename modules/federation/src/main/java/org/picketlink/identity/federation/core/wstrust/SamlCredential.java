@@ -43,12 +43,11 @@ import java.io.StringWriter;
  * Credential that wraps a SAML Assertion.
  *
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
- *
  */
 public final class SamlCredential implements Serializable {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private static final long serialVersionUID = -8496414959425288835L;
 
     private static final TransformerFactory TRANSFORMER_FACTORY = TransformerUtil.getTransformerFactory();

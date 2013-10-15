@@ -34,7 +34,7 @@ import java.util.TimeZone;
 
 /**
  * Util class dealing with xml based time
- * 
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jan 6, 2009
  */
@@ -44,10 +44,12 @@ public class XMLTimeUtil {
 
     /**
      * Add additional time in miliseconds
-     * 
+     *
      * @param value calendar whose value needs to be updated
      * @param milis
+     *
      * @return calendar value with the addition
+     *
      * @throws ConfigurationException
      */
     public static XMLGregorianCalendar add(XMLGregorianCalendar value, long milis) throws ConfigurationException {
@@ -65,10 +67,12 @@ public class XMLTimeUtil {
 
     /**
      * Subtract some miliseconds from the time value
-     * 
+     *
      * @param value
      * @param milis miliseconds entered in a positive value
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     public static XMLGregorianCalendar subtract(XMLGregorianCalendar value, long milis) throws ConfigurationException {
@@ -78,11 +82,14 @@ public class XMLTimeUtil {
     }
 
     /**
-     * Returns a XMLGregorianCalendar in the timezone specified. If the timezone is not valid, then the timezone falls back to
+     * Returns a XMLGregorianCalendar in the timezone specified. If the timezone is not valid, then the timezone falls
+     * back to
      * "GMT"
-     * 
+     *
      * @param timezone
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     public static XMLGregorianCalendar getIssueInstant(String timezone) throws ConfigurationException {
@@ -102,8 +109,9 @@ public class XMLTimeUtil {
 
     /**
      * Get the current instant of time
-     * 
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     public static XMLGregorianCalendar getIssueInstant() throws ConfigurationException {
@@ -125,8 +133,9 @@ public class XMLTimeUtil {
 
     /**
      * Convert the minutes into miliseconds
-     * 
+     *
      * @param valueInMins
+     *
      * @return
      */
     public static long inMilis(int valueInMins) {
@@ -135,10 +144,11 @@ public class XMLTimeUtil {
 
     /**
      * Validate that the current time falls between the two boundaries
-     * 
+     *
      * @param now
      * @param notbefore
      * @param notOnOrAfter
+     *
      * @return
      */
     public static boolean isValid(XMLGregorianCalendar now, XMLGregorianCalendar notbefore, XMLGregorianCalendar notOnOrAfter) {
@@ -159,12 +169,16 @@ public class XMLTimeUtil {
     }
 
     /**
-     * Given a string, get the Duration object. The string can be an ISO 8601 period representation (Eg.: P10M) or a numeric
-     * value. If a ISO 8601 period, the duration will reflect the defined format. If a numeric (Eg.: 1000) the duration will
+     * Given a string, get the Duration object. The string can be an ISO 8601 period representation (Eg.: P10M) or a
+     * numeric
+     * value. If a ISO 8601 period, the duration will reflect the defined format. If a numeric (Eg.: 1000) the duration
+     * will
      * be calculated in milliseconds.
-     * 
+     *
      * @param timeValue
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static Duration parseAsDuration(String timeValue) throws ParsingException {
@@ -179,7 +193,7 @@ public class XMLTimeUtil {
         } catch (DatatypeConfigurationException e) {
             throw logger.parserError(e);
         }
-        
+
         try {
             // checks if it is a ISO 8601 period. If not it must be a numeric value.
             if (timeValue.startsWith("P")) {
@@ -194,9 +208,11 @@ public class XMLTimeUtil {
 
     /**
      * Given a string representing xml time, parse into {@code XMLGregorianCalendar}
-     * 
+     *
      * @param timeString
+     *
      * @return
+     *
      * @throws ParsingException
      */
     public static XMLGregorianCalendar parse(String timeString) throws ParsingException {
@@ -212,20 +228,22 @@ public class XMLTimeUtil {
 
     /**
      * Create a new {@link DatatypeFactory}
+     *
      * @return
+     *
      * @throws DatatypeConfigurationException
      */
     public static DatatypeFactory newDatatypeFactory() throws DatatypeConfigurationException {
         boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP, "false")
                 .equalsIgnoreCase("true");
         ClassLoader prevTCCL = SecurityActions.getTCCL();
-        try{
-            if(tccl_jaxp){
+        try {
+            if (tccl_jaxp) {
                 SecurityActions.setTCCL(XMLTimeUtil.class.getClassLoader());
             }
             return DatatypeFactory.newInstance();
-        }finally{
-            if(tccl_jaxp){
+        } finally {
+            if (tccl_jaxp) {
                 SecurityActions.setTCCL(prevTCCL);
             }
         }

@@ -44,10 +44,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ResponseType extends StatusResponseType {
+
     private static final long serialVersionUID = 1L;
 
     protected List<RTChoiceType> assertions = new ArrayList<ResponseType.RTChoiceType>();
@@ -106,6 +105,7 @@ public class ResponseType extends StatusResponseType {
     }
 
     public static class RTChoiceType {
+
         private AssertionType assertion;
 
         private EncryptedAssertionType encryptedAssertion;

@@ -42,7 +42,7 @@ import java.util.HashMap;
  * @since May 26, 2009
  */
 public class JAXBUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     public static final String W3C_XML_SCHEMA_NS_URI = "http://www.w3.org/2001/XMLSchema";
@@ -59,7 +59,9 @@ public class JAXBUtil {
      *
      * @param pkgName The package name for the jaxb context
      * @param schemaLocation location of the schema to validate against
+     *
      * @return Marshaller
+     *
      * @throws JAXBException
      * @throws SAXException
      */
@@ -77,7 +79,9 @@ public class JAXBUtil {
      * Get the JAXB Marshaller
      *
      * @param pkgName The package name for the jaxb context
+     *
      * @return Marshaller
+     *
      * @throws JAXBException
      */
     public static Marshaller getMarshaller(String pkgName) throws JAXBException {
@@ -95,7 +99,9 @@ public class JAXBUtil {
      * Get the JAXB Unmarshaller
      *
      * @param pkgName The package name for the jaxb context
+     *
      * @return unmarshaller
+     *
      * @throws JAXBException
      */
     public static Unmarshaller getUnmarshaller(String pkgName) throws JAXBException {
@@ -109,7 +115,9 @@ public class JAXBUtil {
      * Get the JAXB Unmarshaller for a selected set of package names
      *
      * @param pkgNames
+     *
      * @return
+     *
      * @throws JAXBException
      */
     public static Unmarshaller getUnmarshaller(String... pkgNames) throws JAXBException {
@@ -128,7 +136,9 @@ public class JAXBUtil {
      *
      * @param pkgName The package name for the jaxb context
      * @param schemaLocation location of the schema to validate against
+     *
      * @return unmarshaller
+     *
      * @throws JAXBException
      * @throws SAXException
      */

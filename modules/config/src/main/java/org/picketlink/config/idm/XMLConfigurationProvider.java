@@ -24,6 +24,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.reflection.Reflections;
 import org.picketlink.config.PicketLinkConfigParser;
@@ -38,17 +39,18 @@ import org.picketlink.idm.config.annotation.ParameterConfigID;
 
 /**
  * Creating IDM runtime from parsed XML configuration
- * 
+ *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 public class XMLConfigurationProvider {
 
-    public static final ClassLoader[] IDM_CLASSLOADERS = { IdentityManager.class.getClassLoader(), XMLConfigurationProvider.class.getClassLoader() };
+    public static final ClassLoader[] IDM_CLASSLOADERS = {IdentityManager.class.getClassLoader(), XMLConfigurationProvider.class.getClassLoader()};
 
     /**
      * Create and initialize IdentityConfigurationBuilder and fill it with content from XML configuration
      *
      * @param inputStream stream with XML configuration
+     *
      * @return initialized builder
      */
     public IdentityConfigurationBuilder readIDMConfiguration(InputStream inputStream) {
@@ -110,7 +112,7 @@ public class XMLConfigurationProvider {
                     if (paramsCount == requiredParamsCount) {
                         return candidate;
                         // Otherwise if last parameter is array (varargs), we can have more parameters provided from configuration
-                    } else if (requiredParamsCount+1 >= paramsCount && paramsCount >= 1 && params[paramsCount-1].isArray()) {
+                    } else if (requiredParamsCount + 1 >= paramsCount && paramsCount >= 1 && params[paramsCount - 1].isArray()) {
                         return candidate;
                     }
                 }
@@ -125,7 +127,7 @@ public class XMLConfigurationProvider {
         Class<?>[] paramTypes = builderMethod.getParameterTypes();
 
         boolean[] paramsResolved = new boolean[unparsedParameters.size()];
-        for (int i=0 ; i<unparsedParameters.size() ; i++) {
+        for (int i = 0; i < unparsedParameters.size(); i++) {
             paramsResolved[i] = false;
         }
 
@@ -167,7 +169,7 @@ public class XMLConfigurationProvider {
 
             Class<?> expectedParamType;
             // Handle the case when last parameter of current builder method is 'varargs' parameters
-            if (paramIndex >= paramTypes.length-1 && paramTypes[paramTypes.length - 1].isArray()) {
+            if (paramIndex >= paramTypes.length - 1 && paramTypes[paramTypes.length - 1].isArray()) {
                 expectedParamType = paramTypes[paramTypes.length - 1].getComponentType();
             } else {
                 expectedParamType = paramTypes[paramIndex];
@@ -190,19 +192,19 @@ public class XMLConfigurationProvider {
      * Return mapping of names of ParameterConfigID to indexes of current parameter.
      *
      * Example: For method like:
-     * public String test2(@ParameterConfigID(name="firstArg") String firstArg, @ParameterConfigID(name="secondArg") String secondArg, Object... lastArgs);
+     * public String test2(@ParameterConfigID(name="firstArg") String firstArg, @ParameterConfigID(name="secondArg")
+     * String secondArg, Object... lastArgs);
      *
      * The result will be map(("firstArg" -> 0),("secondArg" -> 1))
-     *
      */
     private Map<String, Integer> getParamConfigIdAnnotationIndexes(Method builderMethod) {
         Map<String, Integer> paramConfigAnnotationIndexes = new HashMap<String, Integer>();
         Annotation[][] annotations = builderMethod.getParameterAnnotations();
-        for (int i=0 ; i<annotations.length; i++) {
+        for (int i = 0; i < annotations.length; i++) {
             Annotation[] currentParamAnnotations = annotations[i];
             for (Annotation currentAnnotation : currentParamAnnotations) {
                 if (currentAnnotation instanceof ParameterConfigID) {
-                    String paramAnnotationName = ((ParameterConfigID)currentAnnotation).name();
+                    String paramAnnotationName = ((ParameterConfigID) currentAnnotation).name();
                     paramConfigAnnotationIndexes.put(paramAnnotationName, i);
                     break;
                 }
@@ -215,28 +217,30 @@ public class XMLConfigurationProvider {
     /**
      * Convert parameters to be passed to varargs method, so that last parameter will be array.
      *
-     * Example: We have method myMethod(String param1, Integer param2, String... param3), which means that expectedParamsLength=3 and arrayType=String.class
+     * Example: We have method myMethod(String param1, Integer param2, String... param3), which means that
+     * expectedParamsLength=3 and arrayType=String.class
      * and we have params array like {"String1", 23, "String2", "String3"} .
      * Then result will be array like {"String1", 23 {"String2", "String3"}}
      *
      * @param params params from XML configuration
      * @param expectedParamsLength length of result array (Declared number of method parameters)
      * @param arrayType Type of one item in varargs array
+     *
      * @return converted array with last parameter as array (this last parameter represents varargs argument)
      */
     private Object[] varargsConvert(Object[] params, int expectedParamsLength, Class<?> arrayType) {
         Object[] result = new Object[expectedParamsLength];
         int normalParamsLength = expectedParamsLength - 1;
         int varargsArrayLength = params.length - normalParamsLength;
-        Object[] varargsArray = (Object[])Array.newInstance(arrayType, varargsArrayLength);
+        Object[] varargsArray = (Object[]) Array.newInstance(arrayType, varargsArrayLength);
 
         // First copy previous (non-varargs) parameters
-        for (int i=0 ; i<normalParamsLength ; i++) {
+        for (int i = 0; i < normalParamsLength; i++) {
             result[i] = params[i];
         }
 
         // Now fill varargs array
-        for (int i=0 ; i<varargsArrayLength ; i++) {
+        for (int i = 0; i < varargsArrayLength; i++) {
             varargsArray[i] = params[i + normalParamsLength];
         }
 

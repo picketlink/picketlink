@@ -50,7 +50,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
-import static org.picketlink.common.util.StringUtil.*;
+import static org.picketlink.common.util.StringUtil.isNotNull;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * A processor util at the SP
@@ -82,7 +83,7 @@ public class ServiceProviderBaseProcessor {
      * Construct
      *
      * @param postBinding Whether it is the Post Binding
-     * @param serviceURL  Service URL of the SP
+     * @param serviceURL Service URL of the SP
      */
     public ServiceProviderBaseProcessor(boolean postBinding, String serviceURL, PicketLinkType configuration) {
         this.postBinding = postBinding;
@@ -224,10 +225,9 @@ public class ServiceProviderBaseProcessor {
      * <p> Returns the PublicKey to be used to verify signatures for SAML tokens issued by the IDP. </p>
      *
      * @return
+     *
      * @throws org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException
-     *
      * @throws org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException
-     *
      */
     protected PublicKey getIDPPublicKey() throws TrustKeyConfigurationException, TrustKeyProcessingException {
         if (this.keyManager == null) {

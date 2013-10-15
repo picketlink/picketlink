@@ -23,7 +23,8 @@ import javax.persistence.Id;
 
 /**
  * <p>
- * {@code RevokedToken} is a simple JPA entity used by the {@code JPABasedRevocationRegistry} to persist the ids of the revoked
+ * {@code RevokedToken} is a simple JPA entity used by the {@code JPABasedRevocationRegistry} to persist the ids of the
+ * revoked
  * security tokens.
  * </p>
  *

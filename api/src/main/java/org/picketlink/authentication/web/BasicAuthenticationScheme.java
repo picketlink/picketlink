@@ -26,6 +26,7 @@ import java.io.IOException;
 import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.picketlink.common.util.Base64;
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.credential.DefaultLoginCredentials;
@@ -34,7 +35,6 @@ import org.picketlink.credential.DefaultLoginCredentials;
  * @author Shane Bryzak
  * @author anil saldhana
  * @author Pedro Igor
- * 
  */
 public class BasicAuthenticationScheme implements HTTPAuthenticationScheme {
 
@@ -101,6 +101,6 @@ public class BasicAuthenticationScheme implements HTTPAuthenticationScheme {
             password = token.substring(delim + 1);
         }
 
-        return new String[] { username, password };
+        return new String[]{username, password};
     }
 }

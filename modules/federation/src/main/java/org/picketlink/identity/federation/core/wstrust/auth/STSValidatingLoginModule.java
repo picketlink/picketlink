@@ -27,7 +27,8 @@ import javax.security.auth.login.LoginException;
 import java.io.IOException;
 
 /**
- * JAAS LoginModule for JBoss STS (Security Token Service) that validates security tokens. </p> This LoginModule only performs
+ * JAAS LoginModule for JBoss STS (Security Token Service) that validates security tokens. </p> This LoginModule only
+ * performs
  * validation of existing SAML Assertions and does not issue any such Assertions.
  *
  * <h3>Configuration example</h3>
@@ -36,7 +37,8 @@ import java.io.IOException;
  * {@code
  * <application-policy name="saml-validate-token">
  *   <authentication>
- *     <login-module code="org.picketlink.identity.federation.core.wstrust.auth.STSValidatingLoginModule" flag="required">
+ *     <login-module code="org.picketlink.identity.federation.core.wstrust.auth.STSValidatingLoginModule"
+ * flag="required">
  *       <module-option name="configFile">/sts-client.properties</module-option>
  *     </login-module>
  *   </authentication>
@@ -52,6 +54,7 @@ public class STSValidatingLoginModule extends AbstractSTSLoginModule {
      * This method will validate the token with the configured STS.
      *
      * @return Element The token that was validated.
+     *
      * @throws LoginException If it was not possible to validate the token for any reason.
      */
     public Element invokeSTS(final STSClient stsClient) throws WSTrustException, LoginException {
@@ -63,9 +66,9 @@ public class STSValidatingLoginModule extends AbstractSTSLoginModule {
                 token = getSamlTokenFromCaller();
 
             final boolean result = stsClient.validateToken(token);
-            
+
             logger.debug("SAML Token Validation result: " + result);
-            
+
             if (result == false) {
                 // Throw an exception as returing false only says that this login module should be ignored.
                 throw logger.authCouldNotValidateSAMLToken(token);
@@ -82,7 +85,7 @@ public class STSValidatingLoginModule extends AbstractSTSLoginModule {
     private Element getSamlTokenFromCaller() throws UnsupportedCallbackException, LoginException, IOException {
         final TokenCallback callback = new TokenCallback();
 
-        getCallbackHandler().handle(new Callback[] { callback });
+        getCallbackHandler().handle(new Callback[]{callback});
 
         final Element token = (Element) callback.getToken();
         if (token == null)

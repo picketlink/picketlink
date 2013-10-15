@@ -30,9 +30,9 @@ import java.util.Map;
  * Test util methods.
  *
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
- *
  */
 public final class Util {
+
     private Util() {
     }
 

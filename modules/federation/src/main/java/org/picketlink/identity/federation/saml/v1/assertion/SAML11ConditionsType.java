@@ -25,14 +25,17 @@ import java.util.List;
 
 /**
  * <complexType name="ConditionsType"> <choice minOccurs="0" maxOccurs="unbounded"> <element
- * ref="saml:AudienceRestrictionCondition"/> <element ref="saml:DoNotCacheCondition"/> <element ref="saml:Condition"/> </choice>
- * <attribute name="NotBefore" type="dateTime" use="optional"/> <attribute name="NotOnOrAfter" type="dateTime" use="optional"/>
+ * ref="saml:AudienceRestrictionCondition"/> <element ref="saml:DoNotCacheCondition"/> <element ref="saml:Condition"/>
+ * </choice>
+ * <attribute name="NotBefore" type="dateTime" use="optional"/> <attribute name="NotOnOrAfter" type="dateTime"
+ * use="optional"/>
  * </complexType>
  *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011
  */
 public class SAML11ConditionsType extends CommonConditionsType {
+
     private static final long serialVersionUID = 1L;
 
     public List<SAML11ConditionAbstractType> conditions = new ArrayList<SAML11ConditionAbstractType>();

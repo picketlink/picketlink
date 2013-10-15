@@ -61,9 +61,9 @@ import java.io.StringWriter;
  * @since Jan 14, 2009
  */
 public class DocumentUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private static DocumentBuilderFactory documentBuilderFactory;
 
     /**
@@ -71,6 +71,7 @@ public class DocumentUtil {
      *
      * @param doc
      * @param node
+     *
      * @return
      */
     public static boolean containsNode(Document doc, Node node) {
@@ -89,6 +90,7 @@ public class DocumentUtil {
      * Create a new document
      *
      * @return
+     *
      * @throws ParserConfigurationException
      */
     public static Document createDocument() throws ConfigurationException {
@@ -106,7 +108,9 @@ public class DocumentUtil {
      * Create a document with the root element of the form &lt;someElement xmlns="customNamespace"
      *
      * @param baseNamespace
+     *
      * @return
+     *
      * @throws ProcessingException
      */
     public static Document createDocumentWithBaseNamespace(String baseNamespace, String localPart) throws ProcessingException {
@@ -125,7 +129,9 @@ public class DocumentUtil {
      * Parse a document from the string
      *
      * @param docString
+     *
      * @return
+     *
      * @throws IOException
      * @throws SAXException
      * @throws ParserConfigurationException
@@ -138,7 +144,9 @@ public class DocumentUtil {
      * Parse a document from a reader
      *
      * @param reader
+     *
      * @return
+     *
      * @throws ParsingException
      * @throws ParserConfigurationException
      * @throws IOException
@@ -162,7 +170,9 @@ public class DocumentUtil {
      * Get Document from a file
      *
      * @param file
+     *
      * @return
+     *
      * @throws ParserConfigurationException
      * @throws IOException
      * @throws SAXException
@@ -185,7 +195,9 @@ public class DocumentUtil {
      * Get Document from an inputstream
      *
      * @param is
+     *
      * @return
+     *
      * @throws ParserConfigurationException
      * @throws IOException
      * @throws SAXException
@@ -208,7 +220,9 @@ public class DocumentUtil {
      * Marshall a document into a String
      *
      * @param signedDoc
+     *
      * @return
+     *
      * @throws TransformerFactoryConfigurationError
      * @throws TransformerException
      */
@@ -232,7 +246,9 @@ public class DocumentUtil {
      * Marshall a DOM Element as string
      *
      * @param element
+     *
      * @return
+     *
      * @throws TransformerFactoryConfigurationError
      * @throws TransformerException
      */
@@ -253,16 +269,12 @@ public class DocumentUtil {
     }
 
     /**
-     * <p>
-     * Get an element from the document given its {@link QName}
-     * </p>
-     * <p>
-     * First an attempt to get the element based on its namespace is made, failing which an element with the localpart ignoring
-     * any namespace is returned.
-     * </p>
+     * <p> Get an element from the document given its {@link QName} </p> <p> First an attempt to get the element based
+     * on its namespace is made, failing which an element with the localpart ignoring any namespace is returned. </p>
      *
      * @param doc
      * @param elementQName
+     *
      * @return
      */
     public static Element getElement(Document doc, QName elementQName) {
@@ -276,18 +288,15 @@ public class DocumentUtil {
         }
         return (Element) nl.item(0);
     }
-    
+
     /**
-     * <p>
-     * Get an child element from the parent element given its {@link QName}
-     * </p>
-     * <p>
-     * First an attempt to get the element based on its namespace is made, failing which an element with the localpart ignoring
-     * any namespace is returned.
-     * </p>
+     * <p> Get an child element from the parent element given its {@link QName} </p> <p> First an attempt to get the
+     * element based on its namespace is made, failing which an element with the localpart ignoring any namespace is
+     * returned. </p>
      *
      * @param doc
      * @param elementQName
+     *
      * @return
      */
     public static Element getChildElement(Element doc, QName elementQName) {
@@ -306,7 +315,9 @@ public class DocumentUtil {
      * Stream a DOM Node as an input stream
      *
      * @param node
+     *
      * @return
+     *
      * @throws TransformerFactoryConfigurationError
      * @throws TransformerException
      */
@@ -318,7 +329,9 @@ public class DocumentUtil {
      * Get the {@link Source} as an {@link InputStream}
      *
      * @param source
+     *
      * @return
+     *
      * @throws ConfigurationException
      * @throws ProcessingException
      */
@@ -340,7 +353,9 @@ public class DocumentUtil {
      * Stream a DOM Node as a String
      *
      * @param node
+     *
      * @return
+     *
      * @throws ProcessingException
      * @throws TransformerFactoryConfigurationError
      * @throws TransformerException
@@ -369,13 +384,15 @@ public class DocumentUtil {
      * @param nodeName
      * @param attributeName
      * @param attributeValue
+     *
      * @return
+     *
      * @throws XPathException
      * @throws TransformerFactoryConfigurationError
      * @throws TransformerException
      */
     public static Node getNodeWithAttribute(Document document, final String nsURI, String nodeName, String attributeName,
-            String attributeValue) throws XPathException, TransformerFactoryConfigurationError, TransformerException {
+                                            String attributeValue) throws XPathException, TransformerFactoryConfigurationError, TransformerException {
         NodeList nl = document.getElementsByTagNameNS(nsURI, nodeName);
         int len = nl != null ? nl.getLength() : 0;
 
@@ -399,6 +416,7 @@ public class DocumentUtil {
      * DOM3 method: Normalize the document with namespaces
      *
      * @param doc
+     *
      * @return
      */
     public static Document normalizeNamespaces(Document doc) {
@@ -412,6 +430,7 @@ public class DocumentUtil {
      * Get a {@link Source} given a {@link Document}
      *
      * @param doc
+     *
      * @return
      */
     public static Source getXMLSource(Document doc) {
@@ -422,6 +441,7 @@ public class DocumentUtil {
      * Get the document as a string while ignoring any exceptions
      *
      * @param doc
+     *
      * @return
      */
     public static String asString(Document doc) {
@@ -447,7 +467,7 @@ public class DocumentUtil {
         try {
             Transformer transformer = TransformerUtil.getTransformer();
             DOMResult result = new DOMResult();
-            TransformerUtil.transform(transformer,source, result);
+            TransformerUtil.transform(transformer, source, result);
             return result.getNode();
         } catch (ParsingException te) {
             throw logger.processingError(te);
@@ -458,7 +478,7 @@ public class DocumentUtil {
         try {
             Transformer transformer = TransformerUtil.getTransformer();
             DOMResult result = new DOMResult();
-            TransformerUtil.transform(transformer,source, result);
+            TransformerUtil.transform(transformer, source, result);
             return (Document) result.getNode();
         } catch (ParsingException te) {
             throw logger.processingError(te);
@@ -471,19 +491,17 @@ public class DocumentUtil {
         for (int i = 0; i < list.getLength(); i++) {
             // Get child node
             Node childNode = list.item(i);
-            
+
             logger.trace("Node=" + childNode.getNamespaceURI() + "::" + childNode.getLocalName());
-            
+
             // Visit child node
             visit(childNode, level + 1);
         }
     }
 
     /**
-     * <p>
-     * Creates a namespace aware {@link DocumentBuilderFactory}. The returned instance is cached and shared between different
-     * threads.
-     * </p>
+     * <p> Creates a namespace aware {@link DocumentBuilderFactory}. The returned instance is cached and shared between
+     * different threads. </p>
      *
      * @return
      */

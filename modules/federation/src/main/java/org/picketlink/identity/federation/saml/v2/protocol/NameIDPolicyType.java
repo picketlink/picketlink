@@ -37,10 +37,9 @@ import java.net.URI;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class NameIDPolicyType {
+
     protected URI format;
     protected String spNameQualifier;
     protected Boolean allowCreate;
@@ -49,7 +48,6 @@ public class NameIDPolicyType {
      * Gets the value of the format property.
      *
      * @return possible object is {@link String }
-     *
      */
     public URI getFormat() {
         return format;
@@ -59,7 +57,6 @@ public class NameIDPolicyType {
      * Sets the value of the format property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setFormat(URI value) {
         this.format = value;
@@ -69,7 +66,6 @@ public class NameIDPolicyType {
      * Gets the value of the spNameQualifier property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getSPNameQualifier() {
         return spNameQualifier;
@@ -79,7 +75,6 @@ public class NameIDPolicyType {
      * Sets the value of the spNameQualifier property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setSPNameQualifier(String value) {
         this.spNameQualifier = value;
@@ -89,7 +84,6 @@ public class NameIDPolicyType {
      * Gets the value of the allowCreate property.
      *
      * @return possible object is {@link Boolean }
-     *
      */
     public Boolean isAllowCreate() {
         return allowCreate;
@@ -99,7 +93,6 @@ public class NameIDPolicyType {
      * Sets the value of the allowCreate property.
      *
      * @param value allowed object is {@link Boolean }
-     *
      */
     public void setAllowCreate(Boolean value) {
         this.allowCreate = value;

@@ -28,5 +28,6 @@ import java.util.Set;
  * @since Sep 14, 2009
  */
 public class StatementLocal {
+
     public static ThreadLocal<Set<StatementAbstractType>> statements = new InheritableThreadLocal<Set<StatementAbstractType>>();
 }

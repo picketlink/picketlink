@@ -36,6 +36,7 @@ import java.util.Map;
  * @since Jan 4, 2011
  */
 public class FileBasedTokenRegistry extends FileBasedSTSOperations implements SecurityTokenRegistry {
+
     protected static final String FILE_NAME = "token.registry";
 
     // the file that stores the tokens.
@@ -130,6 +131,7 @@ public class FileBasedTokenRegistry extends FileBasedSTSOperations implements Se
     }
 
     protected static class TokenHolder implements Serializable {
+
         private static final long serialVersionUID = 1L;
 
         String id;

@@ -41,9 +41,9 @@ import java.net.URI;
  * @since Nov 2, 2010
  */
 public abstract class SAMLRequestAbstractParser {
-    
+
     protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     protected String id;
 
     protected String version;
@@ -73,6 +73,7 @@ public abstract class SAMLRequestAbstractParser {
      *
      * @param startElement
      * @param request
+     *
      * @throws ParsingException
      */
     protected void parseBaseAttributes(StartElement startElement, RequestAbstractType request) throws ParsingException {

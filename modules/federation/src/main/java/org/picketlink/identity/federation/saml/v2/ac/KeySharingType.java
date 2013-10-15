@@ -46,8 +46,6 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "KeySharingType")
@@ -58,7 +56,6 @@ public class KeySharingType {
 
     /**
      * Gets the value of the sharing property.
-     *
      */
     public boolean isSharing() {
         return sharing;
@@ -66,7 +63,6 @@ public class KeySharingType {
 
     /**
      * Sets the value of the sharing property.
-     *
      */
     public void setSharing(boolean value) {
         this.sharing = value;

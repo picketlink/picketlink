@@ -50,12 +50,10 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ActivationLimitType", propOrder = { "activationLimitDuration", "activationLimitUsages",
-        "activationLimitSession" })
+@XmlType(name = "ActivationLimitType", propOrder = {"activationLimitDuration", "activationLimitUsages",
+        "activationLimitSession"})
 public class ActivationLimitType {
 
     @XmlElement(name = "ActivationLimitDuration")
@@ -69,7 +67,6 @@ public class ActivationLimitType {
      * Gets the value of the activationLimitDuration property.
      *
      * @return possible object is {@link ActivationLimitDurationType }
-     *
      */
     public ActivationLimitDurationType getActivationLimitDuration() {
         return activationLimitDuration;
@@ -79,7 +76,6 @@ public class ActivationLimitType {
      * Sets the value of the activationLimitDuration property.
      *
      * @param value allowed object is {@link ActivationLimitDurationType }
-     *
      */
     public void setActivationLimitDuration(ActivationLimitDurationType value) {
         this.activationLimitDuration = value;
@@ -89,7 +85,6 @@ public class ActivationLimitType {
      * Gets the value of the activationLimitUsages property.
      *
      * @return possible object is {@link ActivationLimitUsagesType }
-     *
      */
     public ActivationLimitUsagesType getActivationLimitUsages() {
         return activationLimitUsages;
@@ -99,7 +94,6 @@ public class ActivationLimitType {
      * Sets the value of the activationLimitUsages property.
      *
      * @param value allowed object is {@link ActivationLimitUsagesType }
-     *
      */
     public void setActivationLimitUsages(ActivationLimitUsagesType value) {
         this.activationLimitUsages = value;
@@ -109,7 +103,6 @@ public class ActivationLimitType {
      * Gets the value of the activationLimitSession property.
      *
      * @return possible object is {@link ActivationLimitSessionType }
-     *
      */
     public ActivationLimitSessionType getActivationLimitSession() {
         return activationLimitSession;
@@ -119,7 +112,6 @@ public class ActivationLimitType {
      * Sets the value of the activationLimitSession property.
      *
      * @param value allowed object is {@link ActivationLimitSessionType }
-     *
      */
     public void setActivationLimitSession(ActivationLimitSessionType value) {
         this.activationLimitSession = value;

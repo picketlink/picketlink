@@ -48,10 +48,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ManageNameIDRequestType extends RequestAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     protected NameIDType nameID;
@@ -72,7 +71,6 @@ public class ManageNameIDRequestType extends RequestAbstractType {
      * Gets the value of the nameID property.
      *
      * @return possible object is {@link NameIDType }
-     *
      */
     public NameIDType getNameID() {
         return nameID;
@@ -82,7 +80,6 @@ public class ManageNameIDRequestType extends RequestAbstractType {
      * Sets the value of the nameID property.
      *
      * @param value allowed object is {@link NameIDType }
-     *
      */
     public void setNameID(NameIDType value) {
         this.nameID = value;
@@ -92,7 +89,6 @@ public class ManageNameIDRequestType extends RequestAbstractType {
      * Gets the value of the encryptedID property.
      *
      * @return possible object is {@link EncryptedElementType }
-     *
      */
     public EncryptedElementType getEncryptedID() {
         return encryptedID;
@@ -102,7 +98,6 @@ public class ManageNameIDRequestType extends RequestAbstractType {
      * Sets the value of the encryptedID property.
      *
      * @param value allowed object is {@link EncryptedElementType }
-     *
      */
     public void setEncryptedID(EncryptedElementType value) {
         this.encryptedID = value;
@@ -112,7 +107,6 @@ public class ManageNameIDRequestType extends RequestAbstractType {
      * Gets the value of the newID property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getNewID() {
         return newID;
@@ -122,7 +116,6 @@ public class ManageNameIDRequestType extends RequestAbstractType {
      * Sets the value of the newID property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setNewID(String value) {
         this.newID = value;
@@ -132,7 +125,6 @@ public class ManageNameIDRequestType extends RequestAbstractType {
      * Gets the value of the newEncryptedID property.
      *
      * @return possible object is {@link EncryptedElementType }
-     *
      */
     public EncryptedElementType getNewEncryptedID() {
         return newEncryptedID;
@@ -142,7 +134,6 @@ public class ManageNameIDRequestType extends RequestAbstractType {
      * Sets the value of the newEncryptedID property.
      *
      * @param value allowed object is {@link EncryptedElementType }
-     *
      */
     public void setNewEncryptedID(EncryptedElementType value) {
         this.newEncryptedID = value;
@@ -152,7 +143,6 @@ public class ManageNameIDRequestType extends RequestAbstractType {
      * Gets the value of the terminate property.
      *
      * @return possible object is {@link TerminateType }
-     *
      */
     public TerminateType getTerminate() {
         return terminate;
@@ -162,7 +152,6 @@ public class ManageNameIDRequestType extends RequestAbstractType {
      * Sets the value of the terminate property.
      *
      * @param value allowed object is {@link TerminateType }
-     *
      */
     public void setTerminate(TerminateType value) {
         this.terminate = value;

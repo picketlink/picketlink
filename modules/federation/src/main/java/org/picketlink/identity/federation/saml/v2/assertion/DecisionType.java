@@ -34,7 +34,6 @@ package org.picketlink.identity.federation.saml.v2.assertion;
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
- *
  */
 public enum DecisionType {
     PERMIT("Permit"), DENY("Deny"), INDETERMINATE("Indeterminate");

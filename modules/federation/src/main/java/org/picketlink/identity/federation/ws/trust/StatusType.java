@@ -36,8 +36,6 @@ package org.picketlink.identity.federation.ws.trust;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class StatusType {
 
@@ -49,7 +47,6 @@ public class StatusType {
      * Gets the value of the code property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getCode() {
         return code;
@@ -59,7 +56,6 @@ public class StatusType {
      * Sets the value of the code property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setCode(String value) {
         this.code = value;
@@ -69,7 +65,6 @@ public class StatusType {
      * Gets the value of the reason property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getReason() {
         return reason;
@@ -79,7 +74,6 @@ public class StatusType {
      * Sets the value of the reason property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setReason(String value) {
         this.reason = value;

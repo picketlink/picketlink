@@ -32,9 +32,9 @@ import java.util.Map;
  * @since Aug 31, 2009
  */
 public class DelegatedAttributeManager implements AttributeManager {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private AttributeManager delegate = new EmptyAttributeManager();
 
     public DelegatedAttributeManager() {

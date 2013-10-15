@@ -23,6 +23,5 @@
 // Generated on: 2008.12.08 at 05:45:20 PM CST
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "urn:oasis:names:tc:SAML:2.0:ac", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
-package org.picketlink.identity.federation.saml.v2.ac;
+@javax.xml.bind.annotation.XmlSchema(namespace = "urn:oasis:names:tc:SAML:2.0:ac", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED) package org.picketlink.identity.federation.saml.v2.ac;
 

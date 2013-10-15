@@ -35,7 +35,6 @@ package org.picketlink.identity.federation.saml.v2.protocol;
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
- *
  */
 public enum AuthnContextComparisonType {
     EXACT("exact"), MINIMUM("minimum"), MAXIMUM("maximum"), BETTER("better");

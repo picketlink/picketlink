@@ -49,7 +49,7 @@ public class WSTrustComputedKeyAlgorithmTestCase {
         WSTrustParser parser = new WSTrustParser();
         RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse(configStream);
         assertEquals("http://docs.oasis-open.org/ws-sx/ws-trust/200512/CK/PSHA1", requestToken.getComputedKeyAlgorithm().toASCIIString());
-        
+
         // Now for the writing part
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);

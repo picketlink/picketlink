@@ -48,11 +48,9 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ProblemActionType", propOrder = { "action", "soapAction" })
+@XmlType(name = "ProblemActionType", propOrder = {"action", "soapAction"})
 public class ProblemActionType extends BaseAddressingType {
 
     protected AttributedURIType action;
@@ -63,7 +61,6 @@ public class ProblemActionType extends BaseAddressingType {
      * Gets the value of the action property.
      *
      * @return possible object is {@link AttributedURIType }
-     *
      */
     public AttributedURIType getAction() {
         return action;
@@ -73,7 +70,6 @@ public class ProblemActionType extends BaseAddressingType {
      * Sets the value of the action property.
      *
      * @param value allowed object is {@link AttributedURIType }
-     *
      */
     public void setAction(AttributedURIType value) {
         this.action = value;
@@ -83,7 +79,6 @@ public class ProblemActionType extends BaseAddressingType {
      * Gets the value of the soapAction property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getSoapAction() {
         return soapAction;
@@ -93,7 +88,6 @@ public class ProblemActionType extends BaseAddressingType {
      * Sets the value of the soapAction property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setSoapAction(String value) {
         this.soapAction = value;

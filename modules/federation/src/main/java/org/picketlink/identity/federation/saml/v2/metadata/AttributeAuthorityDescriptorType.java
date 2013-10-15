@@ -36,20 +36,21 @@ import java.util.List;
  *     &lt;extension base="{urn:oasis:names:tc:SAML:2.0:metadata}RoleDescriptorType">
  *       &lt;sequence>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AttributeService" maxOccurs="unbounded"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AssertionIDRequestService" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AssertionIDRequestService" maxOccurs="unbounded"
+ * minOccurs="0"/>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}NameIDFormat" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AttributeProfile" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AttributeProfile" maxOccurs="unbounded"
+ * minOccurs="0"/>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:assertion}Attribute" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/extension>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 
 public class AttributeAuthorityDescriptorType extends RoleDescriptorType {
+
     protected List<EndpointType> attributeService = new ArrayList<EndpointType>();
 
     protected List<EndpointType> assertionIDRequestService = new ArrayList<EndpointType>();
@@ -158,8 +159,6 @@ public class AttributeAuthorityDescriptorType extends RoleDescriptorType {
      * Gets the value of the attributeService property.
      * <p>
      * Objects of the following type(s) are allowed in the list {@link EndpointType }
-     *
-     *
      */
     public List<EndpointType> getAttributeService() {
         return Collections.unmodifiableList(this.attributeService);
@@ -170,8 +169,6 @@ public class AttributeAuthorityDescriptorType extends RoleDescriptorType {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link EndpointType }
-     *
-     *
      */
     public List<EndpointType> getAssertionIDRequestService() {
         return Collections.unmodifiableList(this.assertionIDRequestService);
@@ -190,8 +187,6 @@ public class AttributeAuthorityDescriptorType extends RoleDescriptorType {
      * Gets the value of the attributeProfile property.
      * <p>
      * Objects of the following type(s) are allowed in the list {@link String }
-     *
-     *
      */
     public List<String> getAttributeProfile() {
         return Collections.unmodifiableList(this.attributeProfile);
@@ -201,8 +196,6 @@ public class AttributeAuthorityDescriptorType extends RoleDescriptorType {
      * Gets the value of the attribute property.
      * <p>
      * Objects of the following type(s) are allowed in the list {@link AttributeType }
-     *
-     *
      */
     public List<AttributeType> getAttribute() {
         return Collections.unmodifiableList(this.attribute);

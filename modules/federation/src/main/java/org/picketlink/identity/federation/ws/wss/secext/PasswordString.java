@@ -35,17 +35,15 @@ package org.picketlink.identity.federation.ws.wss.secext;
  *   &lt;/simpleContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class PasswordString extends AttributedString {
+
     protected String type;
 
     /**
      * Gets the value of the type property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getType() {
         return type;
@@ -55,7 +53,6 @@ public class PasswordString extends AttributedString {
      * Sets the value of the type property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setType(String value) {
         this.type = value;

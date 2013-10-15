@@ -62,7 +62,7 @@ import java.net.URL;
  * @since Jul 30, 2009
  */
 public class SOAPSAMLXACML {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     /**
@@ -71,7 +71,9 @@ public class SOAPSAMLXACML {
      * @param endpoint
      * @param issuer
      * @param xacmlRequest
+     *
      * @return
+     *
      * @throws ProcessingException
      * @throws SOAPException
      * @throws ParsingException
@@ -154,6 +156,7 @@ public class SOAPSAMLXACML {
     }
 
     public static class Result {
+
         private Element fault = null;
 
         private final DecisionType decisionType;

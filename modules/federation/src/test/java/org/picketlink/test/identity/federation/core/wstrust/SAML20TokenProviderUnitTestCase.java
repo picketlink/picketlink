@@ -159,7 +159,8 @@ public class SAML20TokenProviderUnitTestCase {
 
     /**
      * <p>
-     * This method tests the creation of SAMLV.20 assertions that contain a proof-of-possession token - that is, assertions that
+     * This method tests the creation of SAMLV.20 assertions that contain a proof-of-possession token - that is,
+     * assertions that
      * use the Holder Of Key confirmation method.
      * </p>
      *
@@ -294,12 +295,15 @@ public class SAML20TokenProviderUnitTestCase {
 
     /**
      * <p>
-     * Creates a {@code WSTrustRequestContext} using the specified lifetime. The created context is used in the issuing test
+     * Creates a {@code WSTrustRequestContext} using the specified lifetime. The created context is used in the issuing
+     * test
      * scenarios.
      * </p>
      *
      * @param lifetime the {@code Lifetime} of the assertion to be issued.
+     *
      * @return the constructed {@code WSTrustRequestHandler} instance.
+     *
      * @throws Exception if an error occurs while creating the context.
      */
     private WSTrustRequestContext createIssuingContext(Lifetime lifetime) throws Exception {
@@ -322,7 +326,9 @@ public class SAML20TokenProviderUnitTestCase {
      * </p>
      *
      * @param assertion an {@code Element} representing the SAMLV2.0 assertion to be validated.
+     *
      * @return the constructed {@code WSTrustRequestContext} instance.
+     *
      * @throws Exception if an error occurs while creating the validating context.
      */
     private WSTrustRequestContext createValidatingContext(Element assertion) throws Exception {
@@ -348,7 +354,9 @@ public class SAML20TokenProviderUnitTestCase {
      * @param keyStoreFile the name of the file that contains a JKS keystore.
      * @param passwd the keystore password.
      * @param certificateAlias the alias of a certificate in the keystore.
+     *
      * @return a reference to the {@code Certificate} stored under the given alias.
+     *
      * @throws Exception if an error occurs while handling the keystore.
      */
     private Certificate getCertificate(String keyStoreFile, String passwd, String certificateAlias) throws Exception {

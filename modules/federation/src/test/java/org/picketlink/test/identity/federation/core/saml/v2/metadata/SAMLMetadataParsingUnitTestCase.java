@@ -47,6 +47,7 @@ import static org.junit.Assert.assertTrue;
  * @since Jan 31, 2011
  */
 public class SAMLMetadataParsingUnitTestCase {
+
     @Test
     public void testEntitiesDescriptor() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();

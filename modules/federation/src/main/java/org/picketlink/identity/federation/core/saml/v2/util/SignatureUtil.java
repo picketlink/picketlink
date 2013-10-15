@@ -22,7 +22,6 @@ import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.Base64;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
@@ -51,14 +50,15 @@ import java.security.interfaces.RSAPublicKey;
  * @since Dec 16, 2008
  */
 public class SignatureUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     /**
      * Marshall a SignatureType to output stream
      *
      * @param signature
      * @param os
+     *
      * @throws SAXException
      * @throws JAXBException
      */
@@ -69,11 +69,12 @@ public class SignatureUtil {
          * JAXBUtil.getValidatingMarshaller(pkgName, schemaLocation); marshaller.marshal(jsig, os);
          */
     }
-    
+
     /**
      * Get the XML Signature URI for the algo (RSA, DSA)
      *
      * @param algo
+     *
      * @return
      */
     public static String getXMLSignatureAlgorithmURI(String algo) {
@@ -92,7 +93,9 @@ public class SignatureUtil {
      *
      * @param stringToBeSigned
      * @param signingKey
+     *
      * @return
+     *
      * @throws GeneralSecurityException
      */
     public static byte[] sign(String stringToBeSigned, PrivateKey signingKey) throws GeneralSecurityException {
@@ -114,7 +117,9 @@ public class SignatureUtil {
      * @param signedContent
      * @param signatureValue
      * @param validatingKey
+     *
      * @return
+     *
      * @throws GeneralSecurityException
      */
     public static boolean validate(byte[] signedContent, byte[] signatureValue, PublicKey validatingKey)
@@ -143,11 +148,13 @@ public class SignatureUtil {
      * @param signatureValue
      * @param signatureAlgorithm
      * @param validatingCert
+     *
      * @return
+     *
      * @throws GeneralSecurityException
      */
     public static boolean validate(byte[] signedContent, byte[] signatureValue, String signatureAlgorithm,
-            X509Certificate validatingCert) throws GeneralSecurityException {
+                                   X509Certificate validatingCert) throws GeneralSecurityException {
         if (signedContent == null)
             throw logger.nullArgumentError("signedContent");
         if (signatureValue == null)
@@ -163,39 +170,41 @@ public class SignatureUtil {
         sig.update(signedContent);
         return sig.verify(signatureValue);
     }
-    
 
 
     /**
      * Given a dsig:DSAKeyValue element, return {@link DSAKeyValueType}
+     *
      * @param element
+     *
      * @return
-     * @throws ProcessingException
+     *
+     * @throws ParsingException
      */
     public static DSAKeyValueType getDSAKeyValue(Element element) throws ParsingException {
         DSAKeyValueType dsa = new DSAKeyValueType();
-        NodeList nl  = element.getChildNodes();
+        NodeList nl = element.getChildNodes();
         int length = nl.getLength();
 
-        for(int i = 0; i < length; i++){
-            Node node  = nl.item(i);
-            if(node instanceof Element){
+        for (int i = 0; i < length; i++) {
+            Node node = nl.item(i);
+            if (node instanceof Element) {
                 Element childElement = (Element) node;
                 String tag = childElement.getLocalName();
-                
+
                 byte[] text = childElement.getTextContent().getBytes();
-                
-                if(WSTrustConstants.XMLDSig.P.equals(tag)){
+
+                if (WSTrustConstants.XMLDSig.P.equals(tag)) {
                     dsa.setP(text);
-                } else if(WSTrustConstants.XMLDSig.Q.equals(tag)){
+                } else if (WSTrustConstants.XMLDSig.Q.equals(tag)) {
                     dsa.setQ(text);
-                } else if(WSTrustConstants.XMLDSig.G.equals(tag)){
+                } else if (WSTrustConstants.XMLDSig.G.equals(tag)) {
                     dsa.setG(text);
-                } else if(WSTrustConstants.XMLDSig.Y.equals(tag)){
+                } else if (WSTrustConstants.XMLDSig.Y.equals(tag)) {
                     dsa.setY(text);
-                } else if(WSTrustConstants.XMLDSig.SEED.equals(tag)){
+                } else if (WSTrustConstants.XMLDSig.SEED.equals(tag)) {
                     dsa.setSeed(text);
-                } else if(WSTrustConstants.XMLDSig.PGEN_COUNTER.equals(tag)){
+                } else if (WSTrustConstants.XMLDSig.PGEN_COUNTER.equals(tag)) {
                     dsa.setPgenCounter(text);
                 }
             }
@@ -203,29 +212,32 @@ public class SignatureUtil {
 
         return dsa;
     }
-    
+
     /**
      * Given a dsig:DSAKeyValue element, return {@link DSAKeyValueType}
+     *
      * @param element
+     *
      * @return
-     * @throws ProcessingException
+     *
+     * @throws ParsingException
      */
     public static RSAKeyValueType getRSAKeyValue(Element element) throws ParsingException {
         RSAKeyValueType rsa = new RSAKeyValueType();
-        NodeList nl  = element.getChildNodes();
+        NodeList nl = element.getChildNodes();
         int length = nl.getLength();
 
-        for(int i = 0; i < length; i++){
-            Node node  = nl.item(i);
-            if(node instanceof Element){
+        for (int i = 0; i < length; i++) {
+            Node node = nl.item(i);
+            if (node instanceof Element) {
                 Element childElement = (Element) node;
                 String tag = childElement.getLocalName();
-                
+
                 byte[] text = childElement.getTextContent().getBytes();
-                
-                if(WSTrustConstants.XMLDSig.MODULUS.equals(tag)){
+
+                if (WSTrustConstants.XMLDSig.MODULUS.equals(tag)) {
                     rsa.setModulus(text);
-                } else if(WSTrustConstants.XMLDSig.EXPONENT.equals(tag)){
+                } else if (WSTrustConstants.XMLDSig.EXPONENT.equals(tag)) {
                     rsa.setExponent(text);
                 }
             }
@@ -240,7 +252,9 @@ public class SignatureUtil {
      * </p>
      *
      * @param key the {@code PublicKey} that will be represented as a {@code KeyValueType}.
-     * @return the constructed {@code KeyValueType} or {@code null} if the specified key is neither a DSA nor a RSA key.
+     *
+     * @return the constructed {@code KeyValueType} or {@code null} if the specified key is neither a DSA nor a RSA
+     *         key.
      */
     public static KeyValueType createKeyValue(PublicKey key) {
         if (key instanceof RSAPublicKey) {

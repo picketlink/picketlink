@@ -44,6 +44,7 @@ import static org.junit.Assert.assertTrue;
  * @since Oct 18, 2010
  */
 public class WSTrustIssueTestCase {
+
     @Test
     public void testIssue() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();
@@ -55,12 +56,12 @@ public class WSTrustIssueTestCase {
         assertEquals("testcontext", requestToken.getContext());
         assertEquals(WSTrustConstants.ISSUE_REQUEST, requestToken.getRequestType().toASCIIString());
         assertEquals(SAMLUtil.SAML2_TOKEN_TYPE, requestToken.getTokenType().toASCIIString());
-        
+
         RenewingType renewingType = requestToken.getRenewing();
         assertNotNull(renewingType);
         assertTrue(renewingType.isAllow());
         assertFalse(renewingType.isOK());
-        
+
         // Now for the writing part
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);

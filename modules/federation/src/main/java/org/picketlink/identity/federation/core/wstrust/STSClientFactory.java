@@ -25,6 +25,7 @@ import org.picketlink.common.exceptions.ParsingException;
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
  */
 public final class STSClientFactory {
+
     private static final STSClientFactory INSTANCE = new STSClientFactory();
 
     private STSClientFactory() {

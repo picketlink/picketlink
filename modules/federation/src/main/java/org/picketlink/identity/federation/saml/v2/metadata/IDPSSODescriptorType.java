@@ -36,9 +36,12 @@ import java.util.List;
  *     &lt;extension base="{urn:oasis:names:tc:SAML:2.0:metadata}SSODescriptorType">
  *       &lt;sequence>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}SingleSignOnService" maxOccurs="unbounded"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}NameIDMappingService" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AssertionIDRequestService" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AttributeProfile" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}NameIDMappingService" maxOccurs="unbounded"
+ * minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AssertionIDRequestService" maxOccurs="unbounded"
+ * minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AttributeProfile" maxOccurs="unbounded"
+ * minOccurs="0"/>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:assertion}Attribute" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *       &lt;attribute name="WantAuthnRequestsSigned" type="{http://www.w3.org/2001/XMLSchema}boolean" />
@@ -46,10 +49,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class IDPSSODescriptorType extends SSODescriptorType {
+
     protected List<EndpointType> singleSignOnService = new ArrayList<EndpointType>();
 
     protected List<EndpointType> nameIDMappingService = new ArrayList<EndpointType>();
@@ -188,7 +190,8 @@ public class IDPSSODescriptorType extends SSODescriptorType {
      * Gets the value of the attributeProfile property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to the
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the
      * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
      * attributeProfile property.
      *
@@ -205,8 +208,6 @@ public class IDPSSODescriptorType extends SSODescriptorType {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link AttributeType }
-     *
-     *
      */
     public List<AttributeType> getAttribute() {
         return Collections.unmodifiableList(this.attribute);
@@ -216,7 +217,6 @@ public class IDPSSODescriptorType extends SSODescriptorType {
      * Gets the value of the wantAuthnRequestsSigned property.
      *
      * @return possible object is {@link Boolean }
-     *
      */
     public Boolean isWantAuthnRequestsSigned() {
         return wantAuthnRequestsSigned;
@@ -226,7 +226,6 @@ public class IDPSSODescriptorType extends SSODescriptorType {
      * Sets the value of the wantAuthnRequestsSigned property.
      *
      * @param value allowed object is {@link Boolean }
-     *
      */
     public void setWantAuthnRequestsSigned(Boolean value) {
         this.wantAuthnRequestsSigned = value;

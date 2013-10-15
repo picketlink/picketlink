@@ -35,8 +35,7 @@ package org.picketlink.identity.federation.ws.addressing;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ReferenceParametersType extends AnyAddressingType {
+
 }

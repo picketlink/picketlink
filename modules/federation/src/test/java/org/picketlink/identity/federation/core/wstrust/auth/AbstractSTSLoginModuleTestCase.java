@@ -30,12 +30,13 @@ import java.util.Map;
 
 import static org.mockito.Mockito.mock;
 
-/***
+/**
  * Unit test for {@link AbstractSTSLoginModule}.
  *
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
  */
 public class AbstractSTSLoginModuleTestCase extends TestCase {
+
     private STSClient stsClient;
 
     public void setUp() {
@@ -110,6 +111,7 @@ public class AbstractSTSLoginModuleTestCase extends TestCase {
     }
 
     class FakeSTSLoginModule extends AbstractSTSLoginModule {
+
         private Element token;
         private final STSClient client;
 

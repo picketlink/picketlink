@@ -38,17 +38,15 @@ import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class SignChallengeType extends AnyAddressingType {
+
     protected String challenge;
 
     /**
      * Gets the value of the challenge property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getChallenge() {
         return challenge;
@@ -58,7 +56,6 @@ public class SignChallengeType extends AnyAddressingType {
      * Sets the value of the challenge property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setChallenge(String value) {
         this.challenge = value;

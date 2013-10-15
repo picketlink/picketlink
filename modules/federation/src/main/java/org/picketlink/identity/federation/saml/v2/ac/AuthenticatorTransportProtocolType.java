@@ -62,12 +62,10 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "AuthenticatorTransportProtocolType", propOrder = { "http", "ssl", "mobileNetworkNoEncryption",
-        "mobileNetworkRadioEncryption", "mobileNetworkEndToEndEncryption", "wtls", "ipSec", "pstn", "isdn", "adsl", "extension" })
+@XmlType(name = "AuthenticatorTransportProtocolType", propOrder = {"http", "ssl", "mobileNetworkNoEncryption",
+        "mobileNetworkRadioEncryption", "mobileNetworkEndToEndEncryption", "wtls", "ipSec", "pstn", "isdn", "adsl", "extension"})
 public class AuthenticatorTransportProtocolType {
 
     @XmlElement(name = "HTTP")
@@ -97,7 +95,6 @@ public class AuthenticatorTransportProtocolType {
      * Gets the value of the http property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getHTTP() {
         return http;
@@ -107,7 +104,6 @@ public class AuthenticatorTransportProtocolType {
      * Sets the value of the http property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setHTTP(ExtensionOnlyType value) {
         this.http = value;
@@ -117,7 +113,6 @@ public class AuthenticatorTransportProtocolType {
      * Gets the value of the ssl property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getSSL() {
         return ssl;
@@ -127,7 +122,6 @@ public class AuthenticatorTransportProtocolType {
      * Sets the value of the ssl property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setSSL(ExtensionOnlyType value) {
         this.ssl = value;
@@ -137,7 +131,6 @@ public class AuthenticatorTransportProtocolType {
      * Gets the value of the mobileNetworkNoEncryption property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getMobileNetworkNoEncryption() {
         return mobileNetworkNoEncryption;
@@ -147,7 +140,6 @@ public class AuthenticatorTransportProtocolType {
      * Sets the value of the mobileNetworkNoEncryption property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setMobileNetworkNoEncryption(ExtensionOnlyType value) {
         this.mobileNetworkNoEncryption = value;
@@ -157,7 +149,6 @@ public class AuthenticatorTransportProtocolType {
      * Gets the value of the mobileNetworkRadioEncryption property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getMobileNetworkRadioEncryption() {
         return mobileNetworkRadioEncryption;
@@ -167,7 +158,6 @@ public class AuthenticatorTransportProtocolType {
      * Sets the value of the mobileNetworkRadioEncryption property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setMobileNetworkRadioEncryption(ExtensionOnlyType value) {
         this.mobileNetworkRadioEncryption = value;
@@ -177,7 +167,6 @@ public class AuthenticatorTransportProtocolType {
      * Gets the value of the mobileNetworkEndToEndEncryption property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getMobileNetworkEndToEndEncryption() {
         return mobileNetworkEndToEndEncryption;
@@ -187,7 +176,6 @@ public class AuthenticatorTransportProtocolType {
      * Sets the value of the mobileNetworkEndToEndEncryption property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setMobileNetworkEndToEndEncryption(ExtensionOnlyType value) {
         this.mobileNetworkEndToEndEncryption = value;
@@ -197,7 +185,6 @@ public class AuthenticatorTransportProtocolType {
      * Gets the value of the wtls property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getWTLS() {
         return wtls;
@@ -207,7 +194,6 @@ public class AuthenticatorTransportProtocolType {
      * Sets the value of the wtls property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setWTLS(ExtensionOnlyType value) {
         this.wtls = value;
@@ -217,7 +203,6 @@ public class AuthenticatorTransportProtocolType {
      * Gets the value of the ipSec property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getIPSec() {
         return ipSec;
@@ -227,7 +212,6 @@ public class AuthenticatorTransportProtocolType {
      * Sets the value of the ipSec property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setIPSec(ExtensionOnlyType value) {
         this.ipSec = value;
@@ -237,7 +221,6 @@ public class AuthenticatorTransportProtocolType {
      * Gets the value of the pstn property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getPSTN() {
         return pstn;
@@ -247,7 +230,6 @@ public class AuthenticatorTransportProtocolType {
      * Sets the value of the pstn property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setPSTN(ExtensionOnlyType value) {
         this.pstn = value;
@@ -257,7 +239,6 @@ public class AuthenticatorTransportProtocolType {
      * Gets the value of the isdn property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getISDN() {
         return isdn;
@@ -267,7 +248,6 @@ public class AuthenticatorTransportProtocolType {
      * Sets the value of the isdn property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setISDN(ExtensionOnlyType value) {
         this.isdn = value;
@@ -277,7 +257,6 @@ public class AuthenticatorTransportProtocolType {
      * Gets the value of the adsl property.
      *
      * @return possible object is {@link ExtensionOnlyType }
-     *
      */
     public ExtensionOnlyType getADSL() {
         return adsl;
@@ -287,7 +266,6 @@ public class AuthenticatorTransportProtocolType {
      * Sets the value of the adsl property.
      *
      * @param value allowed object is {@link ExtensionOnlyType }
-     *
      */
     public void setADSL(ExtensionOnlyType value) {
         this.adsl = value;
@@ -297,7 +275,8 @@ public class AuthenticatorTransportProtocolType {
      * Gets the value of the extension property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to the
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the
      * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
      * extension property.
      *
@@ -311,8 +290,6 @@ public class AuthenticatorTransportProtocolType {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link ExtensionType }
-     *
-     *
      */
     public List<ExtensionType> getExtension() {
         if (extension == null) {

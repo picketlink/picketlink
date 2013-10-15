@@ -26,11 +26,13 @@ import java.io.IOException;
  * @since Jan 4, 2011
  */
 public interface SecurityTokenRegistry {
+
     /**
      * Add a token to the registry with the given id
      *
      * @param tokenID
      * @param token
+     *
      * @throws {@code IOException}
      */
     void addToken(String tokenID, Object token) throws IOException;
@@ -40,6 +42,7 @@ public interface SecurityTokenRegistry {
      *
      * @param tokenID
      * @param token
+     *
      * @throws {@code IOException}
      */
     void removeToken(String tokenID) throws IOException;
@@ -48,6 +51,7 @@ public interface SecurityTokenRegistry {
      * Given the id, return a token
      *
      * @param tokenID
+     *
      * @return
      */
     Object getToken(String tokenID);

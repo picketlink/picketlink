@@ -20,7 +20,8 @@ package org.picketlink.identity.federation.saml.v1.assertion;
 /**
  * <simpleType name="DecisionType"> <restriction base="string">
  *
- * <enumeration value="Permit"/> <enumeration value="Deny"/> <enumeration value="Indeterminate"/> </restriction> </simpleType>
+ * <enumeration value="Permit"/> <enumeration value="Deny"/> <enumeration value="Indeterminate"/> </restriction>
+ * </simpleType>
  *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011

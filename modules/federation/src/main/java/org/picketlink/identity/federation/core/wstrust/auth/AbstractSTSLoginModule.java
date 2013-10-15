@@ -68,8 +68,10 @@ import java.util.Set;
  *
  * Subclasses are required to implement {@link #invokeSTS(STSClient)()} to perform their specific actions.
  *
- * <h3>Configuration</h3> Concrete implementations specify from where the username and credentials should be read from. <lu> <li>
- * Callback handler, {@link NameCallback} and {@link PasswordCallback}.</li> <li>From the login modules options configuration.</li>
+ * <h3>Configuration</h3> Concrete implementations specify from where the username and credentials should be read from.
+ * <lu> <li>
+ * Callback handler, {@link NameCallback} and {@link PasswordCallback}.</li> <li>From the login modules options
+ * configuration.</li>
  * <li>From the login modules earlier in the login modules stack.</li> </lu>
  *
  * <h3>Configuration example</h3> 1. Callbackhandler configuration:
@@ -117,8 +119,11 @@ import java.util.Set;
  * </pre>
  *
  * <h3>Password stacking</h3> Password stacking can be configured which means that a Login module configured with
- * 'password-stacking' set to 'true' will set the username and password in the shared state map. Login modules that come after
- * can set 'password-stacking' to 'useFirstPass' which means that that login module will use the username and password from the
+ * 'password-stacking' set to 'true' will set the username and password in the shared state map. Login modules that
+ * come
+ * after
+ * can set 'password-stacking' to 'useFirstPass' which means that that login module will use the username and password
+ * from the
  * shared map.
  * <p/>
  * </pre> 4. Mapping Provider configuration:
@@ -126,32 +131,38 @@ import java.util.Set;
  * <pre>
  * {@code
  * <application-policy name="saml-issue-token">
- *   <authentication>
- *     <login-module code="org.picketlink.identity.federation.core.wstrust.auth.STSIssuingLoginModule" flag="required">
- *       <module-option name="configFile">/sts-client.properties</module-option>
- *       <module-option name="password-stacking">useFirstPass</module-option>
- *     </login-module>
- *     <mapping>
- *       <mapping-module code="org.picketlink.identity.federation.bindings.jboss.auth.mapping.STSPrincipalMappingProvider" type="principal"/>
- *       <mapping-module code="org.picketlink.identity.federation.bindings.jboss.auth.mapping.STSGroupMappingProvider" type="role"/>
- *     </mapping>
- *   </authentication>
+ * <authentication>
+ * <login-module code="org.picketlink.identity.federation.core.wstrust.auth.STSIssuingLoginModule" flag="required">
+ * <module-option name="configFile">/sts-client.properties</module-option>
+ * <module-option name="password-stacking">useFirstPass</module-option>
+ * </login-module>
+ * <mapping>
+ * <mapping-module code="org.picketlink.identity.federation.bindings.jboss.auth.mapping.STSPrincipalMappingProvider"
+ * type="principal"/>
+ * <mapping-module code="org.picketlink.identity.federation.bindings.jboss.auth.mapping.STSGroupMappingProvider"
+ * type="role"/>
+ * </mapping>
+ * </authentication>
  * </application-policy>
  * }
  * </pre>
  *
  * <h3>Mapping Providers</h3>
- * Principal and Role mapping providers may be configured on subclasses of this login module and be leveraged to populate the
- * JAAS Subject with appropriate user id and roles. The token is made available to the mapping providers so that identity
+ * Principal and Role mapping providers may be configured on subclasses of this login module and be leveraged to
+ * populate the
+ * JAAS Subject with appropriate user id and roles. The token is made available to the mapping providers so that
+ * identity
  * information may be extracted.
  * <p/>
  *
- * Subclasses can define more configuration options by overriding initialize. Also note that subclasses are not forced to put
+ * Subclasses can define more configuration options by overriding initialize. Also note that subclasses are not forced
+ * to put
  * configuration options in a file. They can all be set as options just like the 'configFile' is specified above.
  *
  * <h3>Additional Configuration</h3>
  * <p>
- * roleKey: By default, the saml attributes with key "Role" are assumed to represent user roles. You can configure a comma
+ * roleKey: By default, the saml attributes with key "Role" are assumed to represent user roles. You can configure a
+ * comma
  * separated list of string values to represent the attribute names for user roles.
  * </p>
  *
@@ -159,12 +170,14 @@ import java.util.Set;
  * cache.invalidation: set it to true if you require invalidation of JBoss Auth Cache at SAML Principal expiration.
  * </p>
  * <p>
- * jboss.security.security_domain: name of the security domain where this login module is configured. This is only required if
+ * jboss.security.security_domain: name of the security domain where this login module is configured. This is only
+ * required if
  * the cache.invalidation option is configured.
  * </p>
  *
  * <p>
- * inject.callerprincipal: set it to true if you want to add a group principal called "CallerPrincipal" with the roles from the
+ * inject.callerprincipal: set it to true if you want to add a group principal called "CallerPrincipal" with the roles
+ * from the
  * assertion, into the subject
  * </p>
  *
@@ -172,7 +185,7 @@ import java.util.Set;
  * @author Anil.Saldhana@redhat.com
  */
 public abstract class AbstractSTSLoginModule implements LoginModule {
-    
+
     protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     /**
@@ -304,7 +317,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
      * @param options The options that were specified for this login module.
      */
     public void initialize(final Subject subject, final CallbackHandler callbackHandler, final Map<String, ?> sharedState,
-            final Map<String, ?> options) {
+                           final Map<String, ?> options) {
         this.subject = subject;
         this.callbackHandler = callbackHandler;
         this.options = options;
@@ -458,7 +471,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
         final NameCallback nameCallback = new NameCallback("user:");
         final PasswordCallback passwordCallback = new PasswordCallback("password:", true);
         try {
-            getCallbackHandler().handle(new Callback[] { nameCallback, passwordCallback });
+            getCallbackHandler().handle(new Callback[]{nameCallback, passwordCallback});
             String userNameStr = nameCallback.getName();
             if (StringUtil.isNotNull(userNameStr)) {
                 builder.username(userNameStr);
@@ -478,7 +491,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private void setPasswordStackingCredentials(final Builder builder) {
         final Map sharedState = this.sharedState;
         sharedState.put("javax.security.auth.login.name", builder.getUsername());
@@ -548,7 +561,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
         this.samlToken = samlToken;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     protected void setSharedToken(final Object token) {
         if (sharedState == null)
             return;
@@ -593,12 +606,11 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
         if (sharedName == null) {
             return null;
         } else if (sharedName instanceof String) {
-            return (String)sharedName;
+            return (String) sharedName;
+        } else if (sharedName instanceof Principal) {
+            return ((Principal) sharedName).getName();
         }
-        else if (sharedName instanceof Principal) {
-            return ((Principal)sharedName).getName();
-        }
-        
+
         // TODO: change to proper message
         throw new RuntimeException("sharedState javax.security.auth.login.name is supposed to contain String or Principal, but contains " + sharedName.getClass().getName());
     }

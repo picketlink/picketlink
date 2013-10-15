@@ -41,6 +41,7 @@ import java.util.Date;
  * @since August 06, 2013
  */
 public class JDBCTokenRegistry extends AbstractJDBCRegistry implements SecurityTokenRegistry {
+
     public JDBCTokenRegistry() {
         super("jdbc/picketlink-sts");
     }
@@ -53,7 +54,7 @@ public class JDBCTokenRegistry extends AbstractJDBCRegistry implements SecurityT
      * @see SecurityTokenRegistry#addToken(String, Object)
      */
     public void addToken(String tokenID, Object token) throws IOException {
-        if(dataSource == null){
+        if (dataSource == null) {
             throw logger.datasourceIsNull();
         }
         String insertTableSQL = "INSERT INTO TOKEN_REGISTRY" + "(TOKEN_ID, TOKEN, CREATED_DATE) VALUES" + "(?,?,?)";
@@ -73,7 +74,7 @@ public class JDBCTokenRegistry extends AbstractJDBCRegistry implements SecurityT
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new IOException(e);
-        }finally {
+        } finally {
             safeClose(preparedStatement);
             safeClose(conn);
         }
@@ -83,7 +84,7 @@ public class JDBCTokenRegistry extends AbstractJDBCRegistry implements SecurityT
      * @see SecurityTokenRegistry#removeToken(String)
      */
     public void removeToken(String tokenID) throws IOException {
-        if(dataSource == null){
+        if (dataSource == null) {
             throw logger.datasourceIsNull();
         }
         String deleteSQL = "DELETE FROM TOKEN_REGISTRY WHERE TOKEN_ID = ?";
@@ -131,7 +132,7 @@ public class JDBCTokenRegistry extends AbstractJDBCRegistry implements SecurityT
     }
 
     private String getLOB(String tokenID) throws IOException {
-        if(dataSource == null){
+        if (dataSource == null) {
             throw logger.datasourceIsNull();
         }
         String selectSQL = "select TOKEN from TOKEN_REGISTRY where TOKEN_ID = ?";

@@ -28,6 +28,7 @@ import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
  * @since Dec 10, 2008
  */
 public class IDPInfoHolder {
+
     private String subjectConfirmationMethod = JBossSAMLURIConstants.SUBJECT_CONFIRMATION_BEARER.get();
     private String nameIDFormat = JBossSAMLURIConstants.NAMEID_FORMAT_TRANSIENT.get();
     private String nameIDFormatValue;

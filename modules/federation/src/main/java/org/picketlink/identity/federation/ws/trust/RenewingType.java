@@ -34,8 +34,6 @@ package org.picketlink.identity.federation.ws.trust;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class RenewingType {
 
@@ -47,7 +45,6 @@ public class RenewingType {
      * Gets the value of the allow property.
      *
      * @return possible object is {@link Boolean }
-     *
      */
     public Boolean isAllow() {
         return allow;
@@ -57,7 +54,6 @@ public class RenewingType {
      * Sets the value of the allow property.
      *
      * @param value allowed object is {@link Boolean }
-     *
      */
     public void setAllow(Boolean value) {
         this.allow = value;
@@ -67,7 +63,6 @@ public class RenewingType {
      * Gets the value of the ok property.
      *
      * @return possible object is {@link Boolean }
-     *
      */
     public Boolean isOK() {
         return ok;
@@ -77,7 +72,6 @@ public class RenewingType {
      * Sets the value of the ok property.
      *
      * @param value allowed object is {@link Boolean }
-     *
      */
     public void setOK(Boolean value) {
         this.ok = value;

@@ -39,6 +39,7 @@ import static org.junit.Assert.assertTrue;
  * @since Feb 6, 2009
  */
 public class DocumentUtilUnitTestCase {
+
     String EncryptionSpecNS = "http://www.w3.org/2001/04/xmlenc#";
     String TAG_ENCRYPTEDDATA = "EncryptedData";
     String TAG_ENCRYPTEDKEY = "EncryptedKey";

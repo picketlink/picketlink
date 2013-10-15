@@ -32,6 +32,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Feb 15, 2012
  */
 public class SPRedirectMetadataConfigurationProviderUnitTestCase {
+
     @Test
     public void testSPType() throws ProcessingException {
         SPRedirectMetadataConfigurationProvider provider = new SPRedirectMetadataConfigurationProvider();

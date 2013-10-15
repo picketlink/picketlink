@@ -27,6 +27,7 @@ import java.security.Principal;
  * @since Feb 21, 2012
  */
 public class SerializablePrincipal implements Principal, Serializable {
+
     private static final long serialVersionUID = -4732505034437816312L;
 
     private final String name;

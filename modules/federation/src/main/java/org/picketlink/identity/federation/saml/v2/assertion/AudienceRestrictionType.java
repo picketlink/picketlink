@@ -41,10 +41,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class AudienceRestrictionType extends ConditionAbstractType implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     protected List<URI> audience = new ArrayList<URI>();

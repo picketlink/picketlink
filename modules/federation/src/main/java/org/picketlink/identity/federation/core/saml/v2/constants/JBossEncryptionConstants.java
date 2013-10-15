@@ -27,6 +27,7 @@ import java.util.Map;
  * @since Feb 4, 2009
  */
 public class JBossEncryptionConstants {
+
     private static Map<String, String> algoToXmlEncURL = new HashMap<String, String>();
 
     static {

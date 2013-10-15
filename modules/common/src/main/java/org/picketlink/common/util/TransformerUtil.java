@@ -63,15 +63,16 @@ import java.util.Stack;
  * @since Oct 22, 2010
  */
 public class TransformerUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private static TransformerFactory transformerFactory;
-    
+
     /**
      * Get the Default Transformer
      *
      * @return
+     *
      * @throws ConfigurationException
      */
     public static Transformer getTransformer() throws ConfigurationException {
@@ -83,17 +84,19 @@ public class TransformerUtil {
         } catch (TransformerFactoryConfigurationError e) {
             throw logger.configurationError(e);
         }
-        
+
         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
         transformer.setOutputProperty(OutputKeys.INDENT, "no");
-        
+
         return transformer;
     }
 
     /**
-     * <p>Creates a {@link TransformerFactory}. The returned instance is cached and shared between different threads.</p>
+     * <p>Creates a {@link TransformerFactory}. The returned instance is cached and shared between different
+     * threads.</p>
      *
      * @return
+     *
      * @throws TransformerFactoryConfigurationError
      */
     public static TransformerFactory getTransformerFactory() throws TransformerFactoryConfigurationError {
@@ -101,13 +104,13 @@ public class TransformerUtil {
             boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP, "false")
                     .equalsIgnoreCase("true");
             ClassLoader prevTCCL = SecurityActions.getTCCL();
-            try{
-                if(tccl_jaxp){
+            try {
+                if (tccl_jaxp) {
                     SecurityActions.setTCCL(TransformerUtil.class.getClassLoader());
                 }
                 transformerFactory = TransformerFactory.newInstance();
             } finally {
-                if(tccl_jaxp){
+                if (tccl_jaxp) {
                     SecurityActions.setTCCL(prevTCCL);
                 }
             }
@@ -117,10 +120,11 @@ public class TransformerUtil {
     }
 
     /**
-     * Get the Custom Stax Source to DOM result transformer that has been written to get over the JDK transformer bugs (JDK6) as
-     * well as the issue of Xalan installing its Transformer (which does not support stax).
+     * Get the Custom Stax Source to DOM result transformer that has been written to get over the JDK transformer bugs
+     * (JDK6) as well as the issue of Xalan installing its Transformer (which does not support stax).
      *
      * @return
+     *
      * @throws ConfigurationException
      */
     public static Transformer getStaxSourceToDomResultTransformer() throws ConfigurationException {
@@ -133,10 +137,11 @@ public class TransformerUtil {
      * @param transformer
      * @param stax
      * @param result
+     *
      * @throws ParsingException
      */
     public static void transform(Transformer transformer, StAXSource stax, DOMResult result) throws ParsingException {
-        transform(transformer, (Source)stax, result);
+        transform(transformer, (Source) stax, result);
     }
 
     /**
@@ -145,20 +150,21 @@ public class TransformerUtil {
      * @param transformer
      * @param source
      * @param result
+     *
      * @throws ParsingException
      */
     public static void transform(Transformer transformer, Source source, DOMResult result) throws ParsingException {
-        boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP,"false").equalsIgnoreCase("true");
+        boolean tccl_jaxp = SystemPropertiesUtil.getSystemProperty(GeneralConstants.TCCL_JAXP, "false").equalsIgnoreCase("true");
         ClassLoader prevCL = SecurityActions.getTCCL();
         try {
-            if(tccl_jaxp){
+            if (tccl_jaxp) {
                 SecurityActions.setTCCL(TransformerUtil.class.getClassLoader());
             }
             transformer.transform(source, result);
         } catch (TransformerException e) {
             throw logger.parserError(e);
-        }finally{
-            if(tccl_jaxp){
+        } finally {
+            if (tccl_jaxp) {
                 SecurityActions.setTCCL(prevCL);
             }
         }

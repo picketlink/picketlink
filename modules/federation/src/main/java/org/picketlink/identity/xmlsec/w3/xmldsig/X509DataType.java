@@ -17,8 +17,6 @@
  */
 package org.picketlink.identity.xmlsec.w3.xmldsig;
 
-import org.w3c.dom.Element;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -48,10 +46,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class X509DataType {
+
     protected List<Object> x509IssuerSerialOrX509SKIOrX509SubjectName = new ArrayList<Object>();
 
     public void add(Object obj) {
@@ -66,7 +63,7 @@ public class X509DataType {
      * Gets the value of the x509IssuerSerialOrX509SKIOrX509SubjectName property.
      *
      * <p>
-     * Objects of the following type(s) are allowed in the list {@link Element } {@link Object }
+     * Objects of the following type(s) are allowed in the list {@link org.w3c.dom.Element } {@link Object }
      */
     public List<Object> getDataObjects() {
         return Collections.unmodifiableList(this.x509IssuerSerialOrX509SKIOrX509SubjectName);

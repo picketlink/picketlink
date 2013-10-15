@@ -47,6 +47,7 @@ import static org.junit.Assert.assertTrue;
  * @since Jun 3, 2009
  */
 public class AssertionUtilUnitTestCase {
+
     @Test
     public void testValidAssertion() throws Exception {
         NameIDType nameIdType = new NameIDType();

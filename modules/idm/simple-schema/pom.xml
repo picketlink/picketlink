@@ -10,6 +10,7 @@
 
    <artifactId>picketlink-idm-simple-schema</artifactId>
    <packaging>jar</packaging>
+
    <name>PicketLink Identity Management - Simple JPA Entity Model</name>
 
    <dependencies>

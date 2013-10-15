@@ -51,11 +51,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "KeyActivationType", propOrder = { "activationPin", "extension" })
+@XmlType(name = "KeyActivationType", propOrder = {"activationPin", "extension"})
 public class KeyActivationType {
 
     @XmlElement(name = "ActivationPin")
@@ -67,7 +65,6 @@ public class KeyActivationType {
      * Gets the value of the activationPin property.
      *
      * @return possible object is {@link ActivationPinType }
-     *
      */
     public ActivationPinType getActivationPin() {
         return activationPin;
@@ -77,7 +74,6 @@ public class KeyActivationType {
      * Sets the value of the activationPin property.
      *
      * @param value allowed object is {@link ActivationPinType }
-     *
      */
     public void setActivationPin(ActivationPinType value) {
         this.activationPin = value;
@@ -87,7 +83,8 @@ public class KeyActivationType {
      * Gets the value of the extension property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to the
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the
      * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
      * extension property.
      *
@@ -101,8 +98,6 @@ public class KeyActivationType {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link ExtensionType }
-     *
-     *
      */
     public List<ExtensionType> getExtension() {
         if (extension == null) {

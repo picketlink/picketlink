@@ -27,11 +27,12 @@ import static junit.framework.Assert.assertNotNull;
 
 /**
  * PLINK-144 : PicketLink STS should not choke on WS-Policy 1.5 Tags
- * 
+ *
  * @author Anil Saldhana
  * @since May 20, 2013
  */
 public class WSTrustRSTWithWSPolicy15TestCase {
+
     @Test
     public void parseRSTWithWSP_15() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();

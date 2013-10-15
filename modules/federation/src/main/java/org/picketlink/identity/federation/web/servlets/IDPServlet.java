@@ -97,6 +97,7 @@ import static org.picketlink.common.util.StringUtil.isNotNull;
  * @since Aug 13, 2009
  */
 public class IDPServlet extends HttpServlet {
+
     private static final long serialVersionUID = 1L;
 
     private static Logger log = Logger.getLogger(IDPServlet.class);
@@ -403,121 +404,121 @@ public class IDPServlet extends HttpServlet {
                 }
 
             } else
-            // Send valid saml response after processing the request
-            if (samlRequestMessage != null) {
-                // Get the SAML Request Message
-                RequestAbstractType requestAbstractType = null;
+                // Send valid saml response after processing the request
+                if (samlRequestMessage != null) {
+                    // Get the SAML Request Message
+                    RequestAbstractType requestAbstractType = null;
 
-                try {
-                    samlDocumentHolder = webRequestUtil.getSAMLDocumentHolder(samlRequestMessage);
-                    samlObject = samlDocumentHolder.getSamlObject();
+                    try {
+                        samlDocumentHolder = webRequestUtil.getSAMLDocumentHolder(samlRequestMessage);
+                        samlObject = samlDocumentHolder.getSamlObject();
 
-                    boolean isPost = webRequestUtil.hasSAMLRequestInPostProfile();
-                    boolean isValid = validate(request.getRemoteAddr(), request.getQueryString(), new SessionHolder(
-                            samlRequestMessage, null), isPost);
+                        boolean isPost = webRequestUtil.hasSAMLRequestInPostProfile();
+                        boolean isValid = validate(request.getRemoteAddr(), request.getQueryString(), new SessionHolder(
+                                samlRequestMessage, null), isPost);
 
-                    if (!isValid)
-                        throw new GeneralSecurityException(ErrorCodes.VALIDATION_CHECK_FAILED + "Validation check failed");
+                        if (!isValid)
+                            throw new GeneralSecurityException(ErrorCodes.VALIDATION_CHECK_FAILED + "Validation check failed");
 
-                    String issuer = null;
-                    IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
-                    ProtocolContext protocolContext = new HTTPContext(request, response, context);
-                    // Create the request/response
-                    SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext,
-                            idpIssuer.getIssuer(), samlDocumentHolder, HANDLER_TYPE.IDP);
-                    saml2HandlerRequest.setRelayState(relayState);
+                        String issuer = null;
+                        IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
+                        ProtocolContext protocolContext = new HTTPContext(request, response, context);
+                        // Create the request/response
+                        SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext,
+                                idpIssuer.getIssuer(), samlDocumentHolder, HANDLER_TYPE.IDP);
+                        saml2HandlerRequest.setRelayState(relayState);
 
-                    // Set the options on the handler request
-                    Map<String, Object> requestOptions = new HashMap<String, Object>();
-                    requestOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
-                    requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
+                        // Set the options on the handler request
+                        Map<String, Object> requestOptions = new HashMap<String, Object>();
+                        requestOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
+                        requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
 
-                    Map<String, Object> attribs = this.attribManager.getAttributes(userPrincipal, attributeKeys);
-                    requestOptions.put(GeneralConstants.ATTRIBUTES, attribs);
+                        Map<String, Object> attribs = this.attribManager.getAttributes(userPrincipal, attributeKeys);
+                        requestOptions.put(GeneralConstants.ATTRIBUTES, attribs);
 
-                    saml2HandlerRequest.setOptions(requestOptions);
+                        saml2HandlerRequest.setOptions(requestOptions);
 
-                    List<String> roles = (List<String>) session.getAttribute(GeneralConstants.ROLES_ID);
-                    if (roles == null) {
-                        roles = roleGenerator.generateRoles(userPrincipal);
-                        session.setAttribute(GeneralConstants.ROLES_ID, roles);
+                        List<String> roles = (List<String>) session.getAttribute(GeneralConstants.ROLES_ID);
+                        if (roles == null) {
+                            roles = roleGenerator.generateRoles(userPrincipal);
+                            session.setAttribute(GeneralConstants.ROLES_ID, roles);
+                        }
+
+                        SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
+
+                        Set<SAML2Handler> handlers = chain.handlers();
+
+                        if (samlObject instanceof RequestAbstractType) {
+                            requestAbstractType = (RequestAbstractType) samlObject;
+                            issuer = requestAbstractType.getIssuer().getValue();
+                            webRequestUtil.isTrusted(issuer);
+
+                            if (handlers != null) {
+                                for (SAML2Handler handler : handlers) {
+                                    handler.handleRequestType(saml2HandlerRequest, saml2HandlerResponse);
+                                    willSendRequest = saml2HandlerResponse.getSendRequest();
+                                }
+                            }
+                        } else
+                            throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + "Unknown type:"
+                                    + samlObject.getClass().getName());
+
+                        samlResponse = saml2HandlerResponse.getResultingDocument();
+                        relayState = saml2HandlerResponse.getRelayState();
+
+                        destination = saml2HandlerResponse.getDestination();
+
+                    } catch (IssuerNotTrustedException e) {
+                        if (trace)
+                            log.trace("Exception:", e);
+
+                        samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get(),
+                                this.identityURL, this.signOutgoingMessages);
+                    } catch (ParsingException e) {
+                        if (trace)
+                            log.trace("Exception:", e);
+
+                        samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
+                                this.identityURL, this.signOutgoingMessages);
+                    } catch (ConfigurationException e) {
+                        if (trace)
+                            log.trace("Exception:", e);
+
+                        samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
+                                this.identityURL, this.signOutgoingMessages);
+                    } catch (IssueInstantMissingException e) {
+                        if (trace)
+                            log.trace("Exception:", e);
+
+                        samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
+                                this.identityURL, this.signOutgoingMessages);
+                    } catch (GeneralSecurityException e) {
+                        if (trace)
+                            log.trace("Security Exception:", e);
+
+                        samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
+                                this.identityURL, this.signOutgoingMessages);
+                    } catch (Exception e) {
+                        if (trace)
+                            log.trace("Exception:", e);
+
+                        samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
+                                this.identityURL, this.signOutgoingMessages);
                     }
 
-                    SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
-
-                    Set<SAML2Handler> handlers = chain.handlers();
-
-                    if (samlObject instanceof RequestAbstractType) {
-                        requestAbstractType = (RequestAbstractType) samlObject;
-                        issuer = requestAbstractType.getIssuer().getValue();
-                        webRequestUtil.isTrusted(issuer);
-
-                        if (handlers != null) {
-                            for (SAML2Handler handler : handlers) {
-                                handler.handleRequestType(saml2HandlerRequest, saml2HandlerResponse);
-                                willSendRequest = saml2HandlerResponse.getSendRequest();
-                            }
-                        }
-                    } else
-                        throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + "Unknown type:"
-                                + samlObject.getClass().getName());
-
-                    samlResponse = saml2HandlerResponse.getResultingDocument();
-                    relayState = saml2HandlerResponse.getRelayState();
-
-                    destination = saml2HandlerResponse.getDestination();
-
-                } catch (IssuerNotTrustedException e) {
+                } else {
+                    log.error("No SAML Request Message");
                     if (trace)
-                        log.trace("Exception:", e);
+                        log.trace("Referer=" + referer);
 
-                    samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get(),
-                            this.identityURL, this.signOutgoingMessages);
-                } catch (ParsingException e) {
-                    if (trace)
-                        log.trace("Exception:", e);
-
-                    samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
-                            this.identityURL, this.signOutgoingMessages);
-                } catch (ConfigurationException e) {
-                    if (trace)
-                        log.trace("Exception:", e);
-
-                    samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
-                            this.identityURL, this.signOutgoingMessages);
-                } catch (IssueInstantMissingException e) {
-                    if (trace)
-                        log.trace("Exception:", e);
-
-                    samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
-                            this.identityURL, this.signOutgoingMessages);
-                } catch (GeneralSecurityException e) {
-                    if (trace)
-                        log.trace("Security Exception:", e);
-
-                    samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
-                            this.identityURL, this.signOutgoingMessages);
-                } catch (Exception e) {
-                    if (trace)
-                        log.trace("Exception:", e);
-
-                    samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
-                            this.identityURL, this.signOutgoingMessages);
+                    try {
+                        sendErrorResponseToSP(referer, response, relayState, webRequestUtil);
+                        return;
+                    } catch (ConfigurationException e) {
+                        if (trace)
+                            log.trace(e);
+                    }
                 }
-
-            } else {
-                log.error("No SAML Request Message");
-                if (trace)
-                    log.trace("Referer=" + referer);
-
-                try {
-                    sendErrorResponseToSP(referer, response, relayState, webRequestUtil);
-                    return;
-                } catch (ConfigurationException e) {
-                    if (trace)
-                        log.trace(e);
-                }
-            }
 
             try {
                 if (samlResponse == null)
@@ -549,7 +550,7 @@ public class IDPServlet extends HttpServlet {
     }
 
     protected void sendErrorResponseToSP(String referrer, HttpServletResponse response, String relayState,
-            IDPWebRequestUtil webRequestUtil) throws ServletException, IOException, ConfigurationException {
+                                         IDPWebRequestUtil webRequestUtil) throws ServletException, IOException, ConfigurationException {
         if (trace)
             log.trace("About to send error response to SP:" + referrer);
 
@@ -581,6 +582,7 @@ public class IDPServlet extends HttpServlet {
     }
 
     protected static class SessionHolder {
+
         String samlRequest;
 
         String signature;

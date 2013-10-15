@@ -43,6 +43,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Oct 12, 2010
  */
 public class WSTrustBatchValidateParsingTestCase {
+
     @Test
     public void testWST_BatchValidate() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();

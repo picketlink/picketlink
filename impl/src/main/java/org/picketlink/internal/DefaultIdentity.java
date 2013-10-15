@@ -18,12 +18,6 @@
 
 package org.picketlink.internal;
 
-import java.io.Serializable;
-import javax.enterprise.context.SessionScoped;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.inject.Inject;
-import javax.inject.Named;
 import org.picketlink.Identity;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.AuthenticationException;
@@ -43,15 +37,21 @@ import org.picketlink.authentication.event.PreLoggedOutEvent;
 import org.picketlink.authentication.internal.IdmAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.permission.PermissionResolver;
+
+import javax.enterprise.context.SessionScoped;
+import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.io.Serializable;
 
 /**
  * Default Identity implementation
  */
 @SessionScoped
 @Named("identity")
-public class DefaultIdentity implements Identity
-{
+public class DefaultIdentity implements Identity {
+
     private static final long serialVersionUID = 3696702275353144429L;
 
     @Inject
@@ -67,7 +67,7 @@ public class DefaultIdentity implements Identity
     @Inject
     private Instance<IdmAuthenticator> idmAuthenticatorInstance;
 
-    //@Inject 
+    //@Inject
     //private PermissionResolver permissionResolver;
 
     /**
@@ -77,32 +77,26 @@ public class DefaultIdentity implements Identity
 
     private Account account;
 
-    public boolean isLoggedIn() 
-    {
+    public boolean isLoggedIn() {
         // If there is an account set, then the account is logged in.
         return this.account != null;
     }
 
     @Override
-    public Account getAccount()
-    {
+    public Account getAccount() {
         return this.account;
     }
 
     @Override
-    public AuthenticationResult login()
-    {
-        try 
-        {
-            if (isLoggedIn())
-            {
+    public AuthenticationResult login() {
+        try {
+            if (isLoggedIn()) {
                 throw new UserAlreadyLoggedInException("active agent: " + this.account.toString());
             }
 
             Account validatedAccount = authenticate();
 
-            if (validatedAccount != null)
-            {
+            if (validatedAccount != null) {
                 if (!validatedAccount.isEnabled()) {
                     throw new LockedAccountException("Account [" + validatedAccount + "] is disabled.");
                 }
@@ -113,16 +107,14 @@ public class DefaultIdentity implements Identity
 
             handleUnsuccesfulLoginAttempt(null);
             return AuthenticationResult.FAILED;
-        } 
-        catch (Throwable e) 
-        {
+        } catch (Throwable e) {
             handleUnsuccesfulLoginAttempt(e);
 
             if (AuthenticationException.class.isInstance(e)) {
                 throw (AuthenticationException) e;
             }
 
-            throw new AuthenticationException("Login failed with a unexpected error.", e);            
+            throw new AuthenticationException("Login failed with a unexpected error.", e);
         }
     }
 
@@ -134,7 +126,7 @@ public class DefaultIdentity implements Identity
     protected void handleUnsuccesfulLoginAttempt(Throwable e) {
         if (e != null) {
             if (UnexpectedCredentialException.class.isInstance(e)) {
-              //X TODO discuss special handling of UnexpectedCredentialException                
+                //X TODO discuss special handling of UnexpectedCredentialException
             } else if (UserAlreadyLoggedInException.class.isInstance(e)) {
                 beanManager.fireEvent(new AlreadyLoggedInEvent());
             } else if (LockedAccountException.class.isInstance(e)) {
@@ -145,18 +137,15 @@ public class DefaultIdentity implements Identity
         beanManager.fireEvent(new LoginFailedEvent(e));
     }
 
-    protected Account authenticate() throws AuthenticationException
-    {
+    protected Account authenticate() throws AuthenticationException {
         Account validatedAccount = null;
 
-        if (authenticating) 
-        {
+        if (authenticating) {
             authenticating = false; //X TODO discuss it
             throw new IllegalStateException("Authentication already in progress.");
         }
 
-        try 
-        {
+        try {
             authenticating = true;
 
             beanManager.fireEvent(new PreAuthenticateEvent());
@@ -165,44 +154,35 @@ public class DefaultIdentity implements Identity
                     idmAuthenticatorInstance.get() :
                     authenticatorInstance.get();
 
-            if (authenticator == null)
-            {
+            if (authenticator == null) {
                 throw new AuthenticationException("No Authenticator has been configured.");
             }
 
             authenticator.authenticate();
 
-            if (authenticator.getStatus() == null) 
-            {
+            if (authenticator.getStatus() == null) {
                 throw new AuthenticationException("Authenticator must return a valid authentication status");
             }
 
-            if (authenticator.getStatus() == AuthenticationStatus.SUCCESS)
-            {
+            if (authenticator.getStatus() == AuthenticationStatus.SUCCESS) {
                 validatedAccount = authenticator.getAccount();
                 postAuthenticate(authenticator);
-            } 
-        } 
-        catch (AuthenticationException e) {
+            }
+        } catch (AuthenticationException e) {
             throw (AuthenticationException) e;
-        } catch (Throwable ex) 
-        {
+        } catch (Throwable ex) {
             throw new AuthenticationException("Authentication failed.", ex);
-        }
-        finally
-        {
+        } finally {
             authenticating = false;
         }
 
         return validatedAccount;
     }
 
-    protected void postAuthenticate(Authenticator authenticator)
-    {
+    protected void postAuthenticate(Authenticator authenticator) {
         authenticator.postAuthenticate();
 
-        if (!authenticator.getStatus().equals(AuthenticationStatus.SUCCESS))
-        {
+        if (!authenticator.getStatus().equals(AuthenticationStatus.SUCCESS)) {
             return;
         }
 
@@ -210,15 +190,12 @@ public class DefaultIdentity implements Identity
     }
 
     @Override
-    public void logout() 
-    {
+    public void logout() {
         logout(true);
     }
 
-    protected void logout(boolean invalidateLoginCredential)
-    {
-        if (isLoggedIn())
-        {
+    protected void logout(boolean invalidateLoginCredential) {
+        if (isLoggedIn()) {
             beanManager.fireEvent(new PreLoggedOutEvent(this.account));
 
             PostLoggedOutEvent postLoggedOutEvent = new PostLoggedOutEvent(this.account);
@@ -232,24 +209,20 @@ public class DefaultIdentity implements Identity
     /**
      * Resets all security state and loginCredential
      */
-    private void unAuthenticate(boolean invalidateLoginCredential)
-    {
+    private void unAuthenticate(boolean invalidateLoginCredential) {
         this.account = null;
 
-        if (invalidateLoginCredential)
-        {
+        if (invalidateLoginCredential) {
             loginCredential.invalidate();
         }
     }
 
-    public boolean hasPermission(Object resource, String operation)
-    {
+    public boolean hasPermission(Object resource, String operation) {
         return false;
         //return permissionResolver.resolvePermission(account, resource, operation);
     }
 
-    public boolean hasPermission(Class<?> resourceClass, Serializable identifier, String operation)
-    {
+    public boolean hasPermission(Class<?> resourceClass, Serializable identifier, String operation) {
         return false;
         // return permissionResolver.resolvePermission(account, resourceClass, identifier, operation);
     }

@@ -49,6 +49,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Oct 12, 2010
  */
 public class WSTrustRenewTargetParsingTestCase {
+
     @Test
     public void testWST_RenewTarget() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();

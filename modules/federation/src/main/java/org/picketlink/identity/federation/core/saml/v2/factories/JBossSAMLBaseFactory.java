@@ -34,6 +34,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * @since Dec 9, 2008
  */
 public class JBossSAMLBaseFactory {
+
     /**
      * Create an empty attribute statement
      *
@@ -47,6 +48,7 @@ public class JBossSAMLBaseFactory {
      * Create an attribute type given a role name
      *
      * @param roleName
+     *
      * @return
      */
     public static AttributeType createAttributeForRole(String roleName) {
@@ -64,6 +66,7 @@ public class JBossSAMLBaseFactory {
      * Create an AttributeStatement given an attribute
      *
      * @param attributeValue
+     *
      * @return
      */
     public static AttributeStatementType createAttributeStatement(String attributeValue) {
@@ -79,6 +82,7 @@ public class JBossSAMLBaseFactory {
      * Create a Subject confirmation type given the method
      *
      * @param method
+     *
      * @return
      */
     public static SubjectConfirmationType createSubjectConfirmation(String method) {
@@ -93,10 +97,11 @@ public class JBossSAMLBaseFactory {
      * @param inResponseTo
      * @param destinationURI
      * @param issueInstant
+     *
      * @return
      */
     public static SubjectConfirmationDataType createSubjectConfirmationData(String inResponseTo, String destinationURI,
-            XMLGregorianCalendar issueInstant) {
+                                                                            XMLGregorianCalendar issueInstant) {
         SubjectConfirmationDataType subjectConfirmationData = new SubjectConfirmationDataType();
         subjectConfirmationData.setInResponseTo(inResponseTo);
         subjectConfirmationData.setRecipient(destinationURI);
@@ -119,6 +124,7 @@ public class JBossSAMLBaseFactory {
      * Return the NameIDType for the issuer
      *
      * @param issuerID
+     *
      * @return
      */
     public static NameIDType getIssuer(String issuerID) {

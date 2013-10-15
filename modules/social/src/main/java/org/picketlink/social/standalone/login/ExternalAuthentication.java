@@ -62,12 +62,15 @@ import java.util.regex.Pattern;
 
 /**
  * Perform external authentication using Facebook Connect and Google OpenID
+ *
  * @author anil saldhana
  * @since Sep 19, 2012
  */
 public class ExternalAuthentication {
+
     protected static Logger log = Logger.getLogger(ExternalAuthentication.class);
     protected boolean trace = log.isTraceEnabled();
+
     private enum AUTH_PROVIDERS {
         FACEBOOK, OPENID;
     }
@@ -95,7 +98,10 @@ public class ExternalAuthentication {
 
     private enum STATES {
         AUTH, AUTHZ, FINISH
-    };
+    }
+
+    ;
+
     private enum Providers {
         GOOGLE("https://www.google.com/accounts/o8/id"), YAHOO("https://me.yahoo.com/"), MYSPACE("myspace.com"), MYOPENID(
                 "https://myopenid.com/");
@@ -110,7 +116,7 @@ public class ExternalAuthentication {
             return name;
         }
     }
- 
+
     /**
      * A comma separated string that represents the roles the web app needs to pass authorization
      *
@@ -165,14 +171,16 @@ public class ExternalAuthentication {
      */
     public void setFacebookScope(String facebookScope) {
         this.facebookScope = getSystemPropertyAsString(facebookScope);
-    } 
+    }
 
     /**
      * Authenticate the request
      *
      * @param request
      * @param response
+     *
      * @return
+     *
      * @throws IOException
      * @throws {@link RuntimeException} when the response is not of type catalina response object
      */
@@ -286,7 +294,7 @@ public class ExternalAuthentication {
         }
         return false;
     }
-    
+
     public boolean initialFacebookInteraction(HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession();
         Map<String, String> params = new HashMap<String, String>();
@@ -331,8 +339,8 @@ public class ExternalAuthentication {
         httpSession.setAttribute("STATE", STATES.FINISH.name());
         return true;
     }
-    
-    public Principal getFacebookPrincipal(HttpServletRequest request, HttpServletResponse response) { 
+
+    public Principal getFacebookPrincipal(HttpServletRequest request, HttpServletResponse response) {
         Principal facebookPrincipal = handleFacebookAuthenticationResponse(request, response);
         if (facebookPrincipal == null)
             return null;
@@ -340,7 +348,7 @@ public class ExternalAuthentication {
         request.getSession().setAttribute("PRINCIPAL", facebookPrincipal);
         return facebookPrincipal;
     }
-    
+
     protected Principal handleFacebookAuthenticationResponse(HttpServletRequest request, HttpServletResponse response) {
         String error = request.getParameter(OAuthConstants.ERROR_PARAMETER);
         if (error != null) {
@@ -369,7 +377,7 @@ public class ExternalAuthentication {
             return readInIdentity(request, response, accessToken, returnUrl);
         }
     }
-    
+
     protected URLConnection sendFacebookAccessTokenRequest(String returnUrl, String authorizationCode, HttpServletResponse response) {
         String returnUri = returnURL;
 
@@ -392,7 +400,7 @@ public class ExternalAuthentication {
             throw new RuntimeException(e);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private boolean prepareAndSendAuthRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         // Figure out the service url
@@ -432,7 +440,7 @@ public class ExternalAuthentication {
         }
         return false;
     }
-    
+
     private void determineServiceUrl(String service) {
         openIdServiceUrl = Providers.GOOGLE.get();
         if (StringUtil.isNotNull(service)) {
@@ -446,7 +454,7 @@ public class ExternalAuthentication {
                 openIdServiceUrl = Providers.MYOPENID.get();
         }
     }
-    
+
     private String createFacebookQueryString(Map<String, String> params) {
         StringBuilder queryString = new StringBuilder();
         boolean first = true;
@@ -471,9 +479,9 @@ public class ExternalAuthentication {
         }
         return queryString.toString();
     }
-    
+
     private Principal readInIdentity(HttpServletRequest request, HttpServletResponse response, String accessToken,
-            String returnUrl) {
+                                     String returnUrl) {
         FacebookPrincipal facebookPrincipal = null;
         try {
             String urlString = new StringBuilder(FacebookConstants.PROFILE_ENDPOINT_URL).append("?access_token=")
@@ -505,7 +513,7 @@ public class ExternalAuthentication {
 
         return facebookPrincipal;
     }
-    
+
     private String readUrlContent(URLConnection connection) {
         StringBuilder result = new StringBuilder();
         try {
@@ -520,7 +528,7 @@ public class ExternalAuthentication {
         }
         return result.toString();
     }
-    
+
     private Map<String, String> formUrlDecode(String encodedData) {
         Map<String, String> params = new HashMap<String, String>();
         String[] elements = encodedData.split("&");
@@ -541,7 +549,7 @@ public class ExternalAuthentication {
         }
         return params;
     }
-    
+
     /**
      * <p>
      * Get the system property value if the string is of the format ${sysproperty}
@@ -561,6 +569,7 @@ public class ExternalAuthentication {
      * </p>
      *
      * @param str
+     *
      * @return
      */
     private String getSystemPropertyAsString(String str) {
@@ -590,7 +599,7 @@ public class ExternalAuthentication {
         }
         return str;
     }
-    
+
     @SuppressWarnings("unchecked")
     public Principal processIncomingAuthResult(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Principal principal = null;
@@ -649,7 +658,7 @@ public class ExternalAuthentication {
         }
         return principal;
     }
-    
+
     private OpenIdPrincipal createOpenIDPrincipal(String identifier, URL openIdProvider, Map<String, List<String>> attributes) {
         return new OpenIdPrincipal(identifier, openIdProvider, attributes);
     }

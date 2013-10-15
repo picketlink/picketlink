@@ -33,6 +33,7 @@ import java.util.Locale;
  * @since Oct 7, 2009
  */
 public class MockHttpServletResponse implements HttpServletResponse {
+
     private PrintWriter printWriter;
 
     public void setOutputStream(final OutputStream os) {

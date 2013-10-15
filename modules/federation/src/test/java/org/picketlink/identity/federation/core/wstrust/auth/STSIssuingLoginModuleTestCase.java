@@ -39,6 +39,7 @@ import static org.mockito.Mockito.when;
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
  */
 public class STSIssuingLoginModuleTestCase extends TestCase {
+
     private STSClient stsClient;
 
     public void setUp() {
@@ -66,7 +67,7 @@ public class STSIssuingLoginModuleTestCase extends TestCase {
         // Simulate Phase 2
         assertTrue(loginModule.commit());
 
-        final Set<SamlCredential> samlCredentials = subject.<SamlCredential> getPublicCredentials(SamlCredential.class);
+        final Set<SamlCredential> samlCredentials = subject.<SamlCredential>getPublicCredentials(SamlCredential.class);
         assertEquals(1, samlCredentials.size());
     }
 
@@ -98,6 +99,7 @@ public class STSIssuingLoginModuleTestCase extends TestCase {
     }
 
     private class FakeSTSIssuingLoginModule extends STSIssuingLoginModule {
+
         private STSClient client;
 
         public FakeSTSIssuingLoginModule(final STSClient client) {

@@ -44,6 +44,7 @@ import static org.junit.Assert.assertEquals;
  * @since Oct 18, 2010
  */
 public class WSTrustIssuePublicCertificateTestCase {
+
     @Test
     public void testPublicCert() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();

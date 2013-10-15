@@ -20,13 +20,15 @@ package org.picketlink.identity.federation.saml.v1.assertion;
 import java.net.URI;
 
 /**
- * <complexType name="AttributeDesignatorType"> <attribute name="AttributeName" type="string" use="required"/> <attribute
+ * <complexType name="AttributeDesignatorType"> <attribute name="AttributeName" type="string" use="required"/>
+ * <attribute
  * name="AttributeNamespace" type="anyURI" use="required"/> </complexType>
  *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011
  */
 public class SAML11AttributeDesignatorType {
+
     protected String attributeName;
 
     protected URI attributeNamespace;

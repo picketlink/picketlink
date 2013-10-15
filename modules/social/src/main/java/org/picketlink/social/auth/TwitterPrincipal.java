@@ -24,6 +24,7 @@ import java.security.Principal;
 
 /**
  * Represents a {@link java.security.Principal} via Twitter login
+ *
  * @author anil saldhana
  * @since Oct 3, 2012
  */
@@ -32,10 +33,11 @@ public class TwitterPrincipal implements Principal, Serializable {
     private static final long serialVersionUID = 1L;
 
     private String name;
-    
-    public TwitterPrincipal(User user){
+
+    public TwitterPrincipal(User user) {
         name = user.getName();
     }
+
     @Override
     public String getName() {
         return name;

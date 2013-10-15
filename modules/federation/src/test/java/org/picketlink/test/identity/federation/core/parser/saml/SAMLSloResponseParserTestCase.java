@@ -45,6 +45,7 @@ import static org.picketlink.common.constants.JBossSAMLURIConstants.PROTOCOL_NSU
  * @since Nov 3, 2010
  */
 public class SAMLSloResponseParserTestCase extends AbstractParserTest {
+
     @Test
     public void testSAMLResponseParse() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();

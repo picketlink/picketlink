@@ -30,6 +30,7 @@ import java.util.Set;
  * @since Apr 27, 2009
  */
 public interface IMetadataConfigurationStore {
+
     /**
      * <p>
      * Perform any bootstrap or initialization the store needs.
@@ -57,7 +58,9 @@ public interface IMetadataConfigurationStore {
      * Get the Trusted Providers
      *
      * @param id
+     *
      * @return a map of name of provider, metadata urls
+     *
      * @throws {@link IOException}
      * @throws {@link ClassNotFoundException}
      */
@@ -68,6 +71,7 @@ public interface IMetadataConfigurationStore {
      *
      * @param id
      * @param trusted
+     *
      * @throws {@link IOException}
      */
     void persistTrustedProviders(String id, Map<String, String> trusted) throws IOException;
@@ -77,6 +81,7 @@ public interface IMetadataConfigurationStore {
      *
      * @param entity
      * @param id An unique identifier useful for retrieval
+     *
      * @throws {@link IOException}
      */
     void persist(EntityDescriptorType entity, String id) throws IOException;
@@ -85,7 +90,9 @@ public interface IMetadataConfigurationStore {
      * Load the descriptor from the external data sink
      *
      * @param id unique identifier used during persistence
+     *
      * @return
+     *
      * @throws {@link IOException}
      */
     EntityDescriptorType load(String id) throws IOException;

@@ -21,8 +21,6 @@ import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.common.exceptions.TrustKeyConfigurationException;
-import org.picketlink.common.exceptions.TrustKeyProcessingException;
 import org.picketlink.config.federation.PicketLinkType;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
@@ -70,7 +68,9 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
      * @param httpContext
      * @param handlers
      * @param chainLock a lock that needs to be used to process the chain of handlers
+     *
      * @return
+     *
      * @throws ProcessingException
      * @throws IOException
      * @throws ParsingException
@@ -86,8 +86,7 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
     }
 
     private SAML2HandlerResponse processHandlersChain(HTTPContext httpContext, Set<SAML2Handler> handlers, Lock chainLock,
-            SAMLDocumentHolder documentHolder) throws ConfigurationException, ProcessingException,
-            TrustKeyConfigurationException, TrustKeyProcessingException, IOException {
+                                                      SAMLDocumentHolder documentHolder) throws ConfigurationException, ProcessingException, IOException {
         // Create the request/response
         SAML2HandlerRequest saml2HandlerRequest = getSAML2HandlerRequest(documentHolder, httpContext);
         SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
@@ -132,7 +131,7 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
             logger.samlResponseFromIDPParsingFailed();
             throw pe;
         }
-        
+
 
         return saml2Response.getSamlDocumentHolder();
     }

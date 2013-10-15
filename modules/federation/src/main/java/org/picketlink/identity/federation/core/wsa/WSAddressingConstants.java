@@ -24,6 +24,7 @@ package org.picketlink.identity.federation.core.wsa;
  * @since Nov 5, 2010
  */
 public interface WSAddressingConstants {
+
     String ADDRESS = "Address";
     String ENDPOINT_REFERENCE = "EndpointReference";
     String WSA_PREFIX = "wsa";

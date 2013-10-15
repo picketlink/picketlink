@@ -49,6 +49,7 @@ import static org.junit.Assert.assertTrue;
  * @since Jan 21, 2009
  */
 public class ConfigUnitTestCase {
+
     String config = "config/test-config-";
 
     @Test

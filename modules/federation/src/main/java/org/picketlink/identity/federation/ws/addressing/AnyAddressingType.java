@@ -17,8 +17,6 @@
  */
 package org.picketlink.identity.federation.ws.addressing;
 
-import org.w3c.dom.Element;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,14 +26,14 @@ import java.util.List;
  * @since May 17, 2011
  */
 public class AnyAddressingType extends BaseAddressingType {
+
     protected List<Object> any = new ArrayList<Object>();
 
     /**
      * Gets the value of the any property.
      *
      * <p>
-     * Objects of the following type(s) are allowed in the list {@link Object } {@link Element }
-     *
+     * Objects of the following type(s) are allowed in the list {@link Object } {@link StackTraceElement }
      */
     public List<Object> getAny() {
         return Collections.unmodifiableList(this.any);

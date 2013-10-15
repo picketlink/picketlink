@@ -146,7 +146,8 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
-     * This test verifies that the STS service can read and load all configuration parameters correctly. The configuration file
+     * This test verifies that the STS service can read and load all configuration parameters correctly. The
+     * configuration file
      * (picketlink-sts.xml) looks like the following:
      *
      * <pre>
@@ -157,8 +158,10 @@ public class PicketLinkSTSUnitTestCase {
      *         &lt;Auth Key=&quot;KeyStorePass&quot; Value=&quot;testpass&quot;/&gt;
      *         &lt;Auth Key=&quot;SigningKeyAlias&quot; Value=&quot;sts&quot;/&gt;
      *         &lt;Auth Key=&quot;SigningKeyPass&quot; Value=&quot;keypass&quot;/&gt;
-     *         &lt;ValidatingAlias Key=&quot;http://services.testcorp.org/provider1&quot; Value=&quot;service1&quot;/&gt;
-     *         &lt;ValidatingAlias Key=&quot;http://services.testcorp.org/provider2&quot; Value=&quot;service2&quot;/&gt;
+     *         &lt;ValidatingAlias Key=&quot;http://services.testcorp.org/provider1&quot;
+     * Value=&quot;service1&quot;/&gt;
+     *         &lt;ValidatingAlias Key=&quot;http://services.testcorp.org/provider2&quot;
+     * Value=&quot;service2&quot;/&gt;
      *     &lt;/KeyProvider&gt;
      *     &lt;RequestHandler&gt;org.jboss.identity.federation.core.wstrust.StandardRequestHandler&lt;/RequestHandler&gt;
      *     &lt;TokenProviders&gt;
@@ -179,9 +182,11 @@ public class PicketLinkSTSUnitTestCase {
      *             TokenElementNS=&quot;urn:oasis:names:tc:SAML:2.0:assertion&quot;/&gt;/&gt;
      *     &lt;/TokenProviders&gt;
      *     &lt;ServiceProviders&gt;
-     *         &lt;ServiceProvider Endpoint=&quot;http://services.testcorp.org/provider1&quot; TokenType=&quot;http://www.tokens.org/SpecialToken&quot;
+     *         &lt;ServiceProvider Endpoint=&quot;http://services.testcorp.org/provider1&quot;
+     * TokenType=&quot;http://www.tokens.org/SpecialToken&quot;
      *             TruststoreAlias=&quot;service1&quot;/&gt;
-     *         &lt;ServiceProvider Endpoint=&quot;http://services.testcorp.org/provider2&quot; TokenType=&quot;http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0&quot;
+     *         &lt;ServiceProvider Endpoint=&quot;http://services.testcorp.org/provider2&quot;
+     * TokenType=&quot;http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0&quot;
      *             TruststoreAlias=&quot;service2&quot;/&gt;
      *     &lt;/ServiceProviders&gt;
      *    &lt;/PicketLinkSTS&gt;    *
@@ -264,8 +269,10 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
-     * This tests sends a security token request to PicketLinkSTS custom {@code SpecialTokenProvider}. The returned response is
-     * verified to make sure the expected tokens have been returned by the service. The token that is generated in this test
+     * This tests sends a security token request to PicketLinkSTS custom {@code SpecialTokenProvider}. The returned
+     * response is
+     * verified to make sure the expected tokens have been returned by the service. The token that is generated in this
+     * test
      * looks as follows:
      *
      * <pre>
@@ -318,7 +325,8 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
-     * This tests sends a SAMLV2.0 security token request to PicketLinkSTS. This request should be handled by the standard
+     * This tests sends a SAMLV2.0 security token request to PicketLinkSTS. This request should be handled by the
+     * standard
      * {@code SAML20TokenProvider} and should result in a SAMLV2.0 assertion that looks like the following:
      *
      * <pre>
@@ -371,8 +379,8 @@ public class PicketLinkSTSUnitTestCase {
     /**
      * Use SOAP12
      *
-     * @see #testInvokeSAML20()
      * @throws Exception
+     * @see #testInvokeSAML20()
      */
     @Test
     public void testInvokeSAML20WithSOAP12() throws Exception {
@@ -396,8 +404,10 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
-     * This test requests a token to the STS using the {@code AppliesTo} to identify the service provider. The STS must be able
-     * to find out the type of the token that must be issued using the service provider URI. In this specific case, the request
+     * This test requests a token to the STS using the {@code AppliesTo} to identify the service provider. The STS must
+     * be able
+     * to find out the type of the token that must be issued using the service provider URI. In this specific case, the
+     * request
      * should be handled by the custom {@code SpecialTokenProvider}.
      * </p>
      *
@@ -421,8 +431,10 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
-     * This test requests a token to the STS using the {@code AppliesTo} to identify the service provider. The STS must be able
-     * to find out the type of the token that must be issued using the service provider URI. In this specific case, the request
+     * This test requests a token to the STS using the {@code AppliesTo} to identify the service provider. The STS must
+     * be able
+     * to find out the type of the token that must be issued using the service provider URI. In this specific case, the
+     * request
      * should be handled by the standard {@code SAML20TokenProvider}.
      * </p>
      *
@@ -456,8 +468,10 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
-     * This test requests a SAMLV2.0 assertion on behalf of another identity. The STS must issue an assertion for the identity
-     * contained in the {@code OnBehalfOf} section of the WS-Trust request (and not for the identity that sent the request).
+     * This test requests a SAMLV2.0 assertion on behalf of another identity. The STS must issue an assertion for the
+     * identity
+     * contained in the {@code OnBehalfOf} section of the WS-Trust request (and not for the identity that sent the
+     * request).
      * </p>
      *
      * @throws Exception if an error occurs while running the test.
@@ -483,8 +497,10 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
-     * This test requests a SAMLV2.0 assertion and requires a symmetric key to be used as a proof-of-possession token. As the
-     * request doesn't contain any client-specified key, the STS is responsible for generating a random key and use this key as
+     * This test requests a SAMLV2.0 assertion and requires a symmetric key to be used as a proof-of-possession token.
+     * As the
+     * request doesn't contain any client-specified key, the STS is responsible for generating a random key and use this
+     * key as
      * the proof token. The WS-Trust response should contain the STS-generated key.
      * </p>
      *
@@ -527,9 +543,12 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
-     * This test requests a SAMLV2.0 assertion and requires a symmetric key to be used as a proof-of-possession token. In this
-     * case, the client supplies a secret key in the WS-Trust request, so the STS should combine the client- specified key with
-     * the STS-generated key and use this combined key as the proof token. The WS-Trust response should include the STS key to
+     * This test requests a SAMLV2.0 assertion and requires a symmetric key to be used as a proof-of-possession token.
+     * In this
+     * case, the client supplies a secret key in the WS-Trust request, so the STS should combine the client- specified
+     * key with
+     * the STS-generated key and use this combined key as the proof token. The WS-Trust response should include the STS
+     * key to
      * allow reconstruction of the combined key and the algorithm used to combine the keys.
      * </p>
      *
@@ -589,7 +608,8 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
-     * This test requests a SAMLV2.0 assertion and sends a X.509 certificate to be used as the proof-of-possession token. The
+     * This test requests a SAMLV2.0 assertion and sends a X.509 certificate to be used as the proof-of-possession
+     * token. The
      * STS must include the specified certificate in the SAML subject confirmation.
      * </p>
      *
@@ -623,7 +643,8 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
-     * This test requests a SAMLV2.0 assertion and sends a public key to be used as the proof-of-possession token. The STS must
+     * This test requests a SAMLV2.0 assertion and sends a public key to be used as the proof-of-possession token. The
+     * STS must
      * include the specified public key in the SAML subject confirmation.
      * </p>
      *
@@ -659,7 +680,8 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
-     * This test case first generates a SAMLV1.1 assertion and then sends a WS-Trust validate message to the STS to get the
+     * This test case first generates a SAMLV1.1 assertion and then sends a WS-Trust validate message to the STS to get
+     * the
      * assertion validated, checking the validation results.
      * </p>
      *
@@ -728,7 +750,8 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
-     * This test case first generates a SAMLV2.0 assertion and then sends a WS-Trust validate message to the STS to get the
+     * This test case first generates a SAMLV2.0 assertion and then sends a WS-Trust validate message to the STS to get
+     * the
      * assertion validated, checking the validation results.
      * </p>
      *
@@ -795,7 +818,8 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
-     * This test case first generates a SAMLV1.1 assertion and then sends a WS-Trust renew message to the STS to get the
+     * This test case first generates a SAMLV1.1 assertion and then sends a WS-Trust renew message to the STS to get
+     * the
      * assertion renewed (i.e. get a new assertion with an updated lifetime).
      * </p>
      *
@@ -851,7 +875,8 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
-     * This test case first generates a SAMLV2.0 assertion and then sends a WS-Trust renew message to the STS to get the
+     * This test case first generates a SAMLV2.0 assertion and then sends a WS-Trust renew message to the STS to get
+     * the
      * assertion renewed (i.e. get a new assertion with an updated lifetime).
      * </p>
      *
@@ -907,7 +932,8 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
-     * This test case first generates a SAMLV1.1 assertion and then sends a WS-Trust cancel message to the STS to cancel the
+     * This test case first generates a SAMLV1.1 assertion and then sends a WS-Trust cancel message to the STS to cancel
+     * the
      * assertion. A canceled assertion cannot be renewed or considered valid anymore.
      * </p>
      *
@@ -993,7 +1019,8 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
-     * This test case first generates a SAMLV2.0 assertion and then sends a WS-Trust cancel message to the STS to cancel the
+     * This test case first generates a SAMLV2.0 assertion and then sends a WS-Trust cancel message to the STS to cancel
+     * the
      * assertion. A canceled assertion cannot be renewed or considered valid anymore.
      * </p>
      *
@@ -1078,7 +1105,8 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
-     * This test tries to request a token of an unknown type, checking if an exception is correctly thrown by the security token
+     * This test tries to request a token of an unknown type, checking if an exception is correctly thrown by the
+     * security token
      * service.
      * </p>
      *
@@ -1332,6 +1360,7 @@ public class PicketLinkSTSUnitTestCase {
      * </p>
      *
      * @param baseResponse a reference to the WS-Trust response that was sent by the STS.
+     *
      * @throws Exception if one of the validation performed fail.
      */
     private void validateCustomTokenResponse(BaseRequestSecurityTokenResponse baseResponse) throws Exception {
@@ -1365,7 +1394,7 @@ public class PicketLinkSTSUnitTestCase {
     }
 
     private SAML11AssertionType validateSAML11AssertionResponse(BaseRequestSecurityTokenResponse baseResponse, String context,
-            String principal, String confirmationMethod) throws Exception {
+                                                                String principal, String confirmationMethod) throws Exception {
 
         // =============================== WS-Trust Security Token Response Validation ===============================//
 
@@ -1454,12 +1483,15 @@ public class PicketLinkSTSUnitTestCase {
      * @param context the expected name of the response context.
      * @param principal the principal that is expected to be seen in the assertion subject.
      * @param confirmationMethod the confirmation method that is expected to be seen in the assertion subject.
-     * @return the SAMLV2.0 assertion that has been extracted from the response. This object can be used by the test methods to
+     *
+     * @return the SAMLV2.0 assertion that has been extracted from the response. This object can be used by the test
+     *         methods to
      *         perform extra validations depending on the scenario being tested.
+     *
      * @throws Exception if an error occurs while performing the validation.
      */
     private AssertionType validateSAMLAssertionResponse(BaseRequestSecurityTokenResponse baseResponse, String context,
-            String principal, String confirmationMethod) throws Exception {
+                                                        String principal, String confirmationMethod) throws Exception {
 
         // =============================== WS-Trust Security Token Response Validation ===============================//
 
@@ -1526,19 +1558,22 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
-     * Validates the contents of the specified {@code SubjectConfirmationType} when the {@code HOLDER_OF_KEY} confirmation
+     * Validates the contents of the specified {@code SubjectConfirmationType} when the {@code HOLDER_OF_KEY}
+     * confirmation
      * method has been used.
      * </p>
      *
      * @param subjectConfirmation the {@code SubjectConfirmationType} to be validated.
      * @param keyType the type of the proof-of-possession key (Symmetric or Public).
      * @param certificate the certificate used in the Public Key scenarios.
-     * @param usePublicKey {@code true} if the certificate's Public Key was used as the proof-of-possession token; {@code false}
-     *        otherwise.
+     * @param usePublicKey {@code true} if the certificate's Public Key was used as the proof-of-possession token;
+     * {@code false}
+     * otherwise.
+     *
      * @throws Exception if an error occurs while performing the validation.
      */
     private void validateHolderOfKeyContents(SubjectConfirmationType subjectConfirmation, String keyType,
-            Certificate certificate, boolean usePublicKey) throws Exception {
+                                             Certificate certificate, boolean usePublicKey) throws Exception {
         SubjectConfirmationDataType subjConfirmationDataType = subjectConfirmation.getSubjectConfirmationData();
         assertNotNull("Unexpected null subject confirmation data", subjConfirmationDataType);
         KeyInfoType keyInfo = (KeyInfoType) subjConfirmationDataType.getAnyType();
@@ -1591,6 +1626,7 @@ public class PicketLinkSTSUnitTestCase {
      * @param requestType a {@code String} that represents the WS-Trust request type.
      * @param tokenType a {@code String} that represents the requested token type.
      * @param appliesToString a {@code String} that represents the URL of a service provider.
+     *
      * @return the constructed {@code RequestSecurityToken} object.
      */
     private RequestSecurityToken createRequest(String context, String requestType, String tokenType, String appliesToString) {
@@ -1610,6 +1646,7 @@ public class PicketLinkSTSUnitTestCase {
      * </p>
      *
      * @return an {@code Element} representing the unknown token.
+     *
      * @throws Exception if an error occurs while creating the token.
      */
     private Element createUnknownToken() throws Exception {
@@ -1633,7 +1670,9 @@ public class PicketLinkSTSUnitTestCase {
      * @param keyStoreFile the name of the file that contains a JKS keystore.
      * @param passwd the keystore password.
      * @param certificateAlias the alias of a certificate in the keystore.
+     *
      * @return a reference to the {@code Certificate} stored under the given alias.
+     *
      * @throws Exception if an error occurs while handling the keystore.
      */
     private Certificate getCertificate(String keyStoreFile, String passwd, String certificateAlias) throws Exception {
@@ -1661,6 +1700,7 @@ public class PicketLinkSTSUnitTestCase {
      * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
      */
     class TestSTS extends PicketLinkSTS {
+
         private String configFileName = "sts/picketlink-sts.xml";
         private boolean soap12 = false;
 

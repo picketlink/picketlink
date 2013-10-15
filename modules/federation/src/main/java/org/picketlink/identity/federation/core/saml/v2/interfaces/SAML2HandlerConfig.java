@@ -24,4 +24,5 @@ package org.picketlink.identity.federation.core.saml.v2.interfaces;
  * @since Oct 10, 2009
  */
 public interface SAML2HandlerConfig extends SAML2MapBasedConfig {
+
 }

@@ -44,13 +44,13 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class XACMLPolicyQueryType extends RequestAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     public static class ChoiceType {
+
         private RequestType request;
 
         private TargetType target;

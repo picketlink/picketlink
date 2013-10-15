@@ -64,7 +64,6 @@ import org.w3c.dom.Node;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -83,7 +82,7 @@ import static org.picketlink.common.constants.JBossSAMLURIConstants.PROTOCOL_NSU
  * @since Jan 5, 2009
  */
 public class SAML2Response {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     private SAMLDocumentHolder samlDocumentHolder = null;
@@ -93,6 +92,7 @@ public class SAML2Response {
      *
      * @param id
      * @param issuer
+     *
      * @return
      */
     public AssertionType createAssertion(String id, NameIDType issuer) {
@@ -104,6 +104,7 @@ public class SAML2Response {
      *
      * @param authnContextDeclRef such as JBossSAMLURIConstants.AC_PASSWORD_PROTECTED_TRANSPORT
      * @param issueInstant
+     *
      * @return
      */
     public AuthnStatementType createAuthnStatement(String authnContextDeclRef, XMLGregorianCalendar issueInstant) {
@@ -127,10 +128,11 @@ public class SAML2Response {
      * @param decision
      * @param evidence
      * @param actions
+     *
      * @return
      */
     public AuthzDecisionStatementType createAuthzDecisionStatementType(String resource, DecisionType decision,
-            EvidenceType evidence, ActionType... actions) {
+                                                                       EvidenceType evidence, ActionType... actions) {
         AuthzDecisionStatementType authzDecST = new AuthzDecisionStatementType();
         authzDecST.setResource(resource);
         authzDecST.setDecision(decision);
@@ -145,19 +147,22 @@ public class SAML2Response {
     }
 
     /**
-     * Construct a {@link ResponseType} without calling PicketLink STS for the assertion. The {@link AssertionType} is generated
+     * Construct a {@link ResponseType} without calling PicketLink STS for the assertion. The {@link AssertionType} is
+     * generated
      * within this method
      *
      * @param ID id of the {@link ResponseType}
      * @param sp
      * @param idp
      * @param issuerInfo
+     *
      * @return
+     *
      * @throws ConfigurationException
      * @throws ProcessingException
      */
     public ResponseType createResponseType(String ID, SPInfoHolder sp, IDPInfoHolder idp, IssuerInfoHolder issuerInfo,
-            AssertionType assertion) throws ConfigurationException, ProcessingException {
+                                           AssertionType assertion) throws ConfigurationException, ProcessingException {
         String responseDestinationURI = sp.getResponseDestinationURI();
 
         XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant();
@@ -186,7 +191,7 @@ public class SAML2Response {
         subjectConfirmation.setSubjectConfirmationData(subjectConfirmationData);
 
         subjectType.addConfirmation(subjectConfirmation);
-        
+
         ConditionsType conditions = assertion.getConditions();
         // Update the subjectConfirmationData expiry based on the assertion
         if (conditions != null) {
@@ -218,7 +223,9 @@ public class SAML2Response {
      * @param sp holder with the information about the Service Provider
      * @param idp holder with the information on the Identity Provider
      * @param issuerInfo holder with information on the issuer
+     *
      * @return
+     *
      * @throws ConfigurationException
      * @throws ProcessingException
      */
@@ -272,7 +279,7 @@ public class SAML2Response {
         // Update the subjectConfirmationData expiry based on the assertion
         if (conditions != null) {
             subjectConfirmationData.setNotOnOrAfter(conditions.getNotOnOrAfter());
-            
+
             //Add conditions -> AudienceRestriction
             AudienceRestrictionType audience = new AudienceRestrictionType();
             audience.addAudience(URI.create(sp.getIssuer()));
@@ -307,7 +314,9 @@ public class SAML2Response {
      * @param ID
      * @param issuerInfo
      * @param assertion
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     public ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, AssertionType assertion)
@@ -321,7 +330,9 @@ public class SAML2Response {
      * @param ID
      * @param issuerInfo
      * @param encryptedAssertion a DOM {@link Element} that represents an encrypted assertion
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     public ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, Element encryptedAssertion)
@@ -334,6 +345,7 @@ public class SAML2Response {
      *
      * @param assertion
      * @param durationInMilis
+     *
      * @throws ConfigurationException
      * @throws IssueInstantMissingException
      */
@@ -346,7 +358,9 @@ public class SAML2Response {
      * Get an encrypted assertion from the stream
      *
      * @param is
+     *
      * @return
+     *
      * @throws ParsingException
      * @throws ProcessingException
      * @throws ConfigurationException
@@ -368,7 +382,9 @@ public class SAML2Response {
      * Read an assertion from an input stream
      *
      * @param is
+     *
      * @return
+     *
      * @throws ParsingException
      * @throws ProcessingException
      * @throws ConfigurationException
@@ -396,7 +412,9 @@ public class SAML2Response {
      * Read a ResponseType from an input stream
      *
      * @param is
+     *
      * @return
+     *
      * @throws ParsingException
      * @throws ConfigurationException
      */
@@ -419,7 +437,9 @@ public class SAML2Response {
      * Read a {@code SAML2Object} from an input stream
      *
      * @param is
+     *
      * @return
+     *
      * @throws ParsingException
      * @throws ConfigurationException
      * @throws ProcessingException
@@ -450,7 +470,9 @@ public class SAML2Response {
      * Convert an EncryptedElement into a Document
      *
      * @param encryptedElementType
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     public Document convert(EncryptedElementType encryptedElementType) throws ConfigurationException {
@@ -467,10 +489,12 @@ public class SAML2Response {
      * Convert a SAML2 Response into a Document
      *
      * @param responseType
+     *
      * @return
+     *
      * @throws ParsingException
      * @throws ConfigurationException
-     * @throws ParserConfigurationException
+     * @throws ProcessingException
      */
     public Document convert(StatusResponseType responseType) throws ProcessingException, ConfigurationException,
             ParsingException {
@@ -493,6 +517,7 @@ public class SAML2Response {
      *
      * @param responseType
      * @param os
+     *
      * @throws ProcessingException
      */
     public void marshall(ResponseType responseType, OutputStream os) throws ProcessingException {
@@ -505,6 +530,7 @@ public class SAML2Response {
      *
      * @param responseType
      * @param writer
+     *
      * @throws ProcessingException
      */
     public void marshall(ResponseType responseType, Writer writer) throws ProcessingException {

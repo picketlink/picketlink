@@ -36,6 +36,7 @@ import java.net.URLEncoder;
  * @since Dec 11, 2008
  */
 public class DeflateEncodingDecodingUnitTestCase extends TestCase {
+
     public void testDeflateEncoding() throws Exception {
         AuthnRequestType authnRequest = (new SAML2Request()).createAuthnRequestType(IDGenerator.create("ID_"), "http://sp",
                 "http://localhost:8080/idp", "http://sp");

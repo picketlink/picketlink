@@ -25,12 +25,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
- * Unit Test {@link StringUtil#getSystemPropertyAsString(String)} that parses a string that represents a system property
+ * Unit Test {@link StringUtil#getSystemPropertyAsString(String)} that parses a string that represents a system
+ * property
  *
  * @author Anil.Saldhana@redhat.com
  * @since Feb 22, 2011
  */
 public class SystemPropertyAsStringUnitTestCase {
+
     @Before
     public void setup() {
         System.setProperty("test", "anil");

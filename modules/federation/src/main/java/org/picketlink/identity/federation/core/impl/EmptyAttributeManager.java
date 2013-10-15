@@ -31,6 +31,7 @@ import java.util.Map;
  * @since Sep 10, 2009
  */
 public class EmptyAttributeManager implements AttributeManager {
+
     /**
      * @see AttributeManager#getAttributes(Principal, List)
      */

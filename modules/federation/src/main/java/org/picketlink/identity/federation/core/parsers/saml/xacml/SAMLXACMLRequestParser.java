@@ -43,6 +43,7 @@ import javax.xml.stream.events.XMLEvent;
  * @since Dec 16, 2010
  */
 public class SAMLXACMLRequestParser extends SAMLRequestAbstractParser implements ParserNamespaceSupport {
+
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
         StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
         String tag = StaxParserUtil.getStartElementName(startElement);

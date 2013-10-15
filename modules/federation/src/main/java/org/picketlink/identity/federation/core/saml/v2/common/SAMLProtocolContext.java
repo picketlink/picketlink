@@ -45,6 +45,7 @@ import java.util.List;
  * @since Dec 30, 2010
  */
 public class SAMLProtocolContext implements ProtocolContext {
+
     protected NameIDType issuerID;
 
     protected SubjectType subjectType;

@@ -48,10 +48,9 @@ import java.security.spec.RSAPublicKeySpec;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class RSAKeyValueType implements KeyValueType {
+
     protected byte[] modulus;
     protected byte[] exponent;
 
@@ -93,16 +92,18 @@ public class RSAKeyValueType implements KeyValueType {
 
     /**
      * Convert to the JDK representation of a RSA Public Key
+     *
      * @return
+     *
      * @throws ProcessingException
      */
-    public RSAPublicKey convertToPublicKey() throws ProcessingException{
+    public RSAPublicKey convertToPublicKey() throws ProcessingException {
         BigInteger bigModulus = new BigInteger(1, massage(Base64.decode(new String(modulus))));
         BigInteger bigEx = new BigInteger(1, massage(Base64.decode(new String(exponent))));
 
         try {
             KeyFactory rsaKeyFactory = KeyFactory.getInstance("rsa");
-            RSAPublicKeySpec kspec = new RSAPublicKeySpec(bigModulus,bigEx);
+            RSAPublicKeySpec kspec = new RSAPublicKeySpec(bigModulus, bigEx);
             return (RSAPublicKey) rsaKeyFactory.generatePublic(kspec);
         } catch (Exception e) {
             throw new ProcessingException(e);
@@ -111,23 +112,25 @@ public class RSAKeyValueType implements KeyValueType {
 
     /**
      * Convert to the JDK representation of a RSA Private Key
+     *
      * @return
+     *
      * @throws ProcessingException
      */
-    public RSAPrivateKey convertToPrivateKey() throws ProcessingException{
+    public RSAPrivateKey convertToPrivateKey() throws ProcessingException {
         BigInteger bigModulus = new BigInteger(1, massage(Base64.decode(new String(modulus))));
         BigInteger bigEx = new BigInteger(1, massage(Base64.decode(new String(exponent))));
 
         try {
             KeyFactory rsaKeyFactory = KeyFactory.getInstance("rsa");
-            RSAPrivateKeySpec kspec = new RSAPrivateKeySpec(bigModulus,bigEx);
+            RSAPrivateKeySpec kspec = new RSAPrivateKeySpec(bigModulus, bigEx);
             return (RSAPrivateKey) rsaKeyFactory.generatePrivate(kspec);
         } catch (Exception e) {
             throw new ProcessingException(e);
         }
     }
 
-    public String toString(){
+    public String toString() {
         String prefix = WSTrustConstants.XMLDSig.DSIG_PREFIX;
         String colon = ":";
         String left = "<";
@@ -150,8 +153,8 @@ public class RSAKeyValueType implements KeyValueType {
         return sb.toString();
     }
 
-    private byte[] massage(byte[] byteArray){
-        if (byteArray[0] == 0){
+    private byte[] massage(byte[] byteArray) {
+        if (byteArray[0] == 0) {
             byte[] substring = new byte[byteArray.length - 1];
             System.arraycopy(byteArray, 1, substring, 0, byteArray.length - 1);
             return substring;

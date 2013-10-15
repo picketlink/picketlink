@@ -46,6 +46,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Feb 11, 2011
  */
 public class SAMLMetadataWriterUnitTestCase {
+
     @Test
     public void testWriteSPSSODescriptor() throws Exception {
         String fileName = "saml2/metadata/sp-entitydescriptor.xml";

@@ -76,7 +76,7 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
         if (token == null)
             throw logger.wsTrustNullCancelTargetError();
         Element assertionElement = (Element) token.getFirstChild();
-        if (!this.isSAMLAssertion(assertionElement)) 
+        if (!this.isSAMLAssertion(assertionElement))
             throw logger.assertionInvalidError();
 
         // get the assertion ID and add it to the canceled assertions set.
@@ -84,7 +84,7 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
         this.revocationRegistry.revokeToken(SAMLUtil.SAML11_TOKEN_TYPE, assertionId);
 
         String absoluteKI = this.properties.get(USE_ABSOLUTE_KEYIDENTIFIER);
-        if(absoluteKI != null && "true".equalsIgnoreCase(absoluteKI)){
+        if (absoluteKI != null && "true".equalsIgnoreCase(absoluteKI)) {
             useAbsoluteKeyIdentifier = true;
         }
     }
@@ -174,7 +174,7 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
 
         // set the SAML assertion attached reference.
         String keyIdentifierValue = assertionID;
-        if(!useAbsoluteKeyIdentifier){
+        if (!useAbsoluteKeyIdentifier) {
             keyIdentifierValue = "#" + keyIdentifierValue;
         }
         KeyIdentifierType keyIdentifier = WSTrustUtil.createKeyIdentifier(SAMLUtil.SAML11_VALUE_TYPE, keyIdentifierValue);
@@ -356,6 +356,7 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
      * </p>
      *
      * @param element the {@code Element} being verified.
+     *
      * @return {@code true} if the element is a SAMLV1.1 assertion; {@code false} otherwise.
      */
     private boolean isSAMLAssertion(Element element) {

@@ -31,11 +31,15 @@ import javax.xml.crypto.dsig.CanonicalizationMethod;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="KeyProvider" type="{urn:picketlink:identity-federation:config:1.0}KeyProviderType" minOccurs="0"/>
+ *         &lt;element name="KeyProvider" type="{urn:picketlink:identity-federation:config:1.0}KeyProviderType"
+ * minOccurs="0"/>
  *         &lt;element name="RequestHandler" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
- *         &lt;element name="ClaimsProcessors" type="{urn:picketlink:identity-federation:config:1.0}ClaimsProcessorsType" minOccurs="0"/>
- *         &lt;element name="TokenProviders" type="{urn:picketlink:identity-federation:config:1.0}TokenProvidersType" minOccurs="0"/>
- *         &lt;element name="ServiceProviders" type="{urn:picketlink:identity-federation:config:1.0}ServiceProvidersType" minOccurs="0"/>
+ *         &lt;element name="ClaimsProcessors" type="{urn:picketlink:identity-federation:config:1.0}ClaimsProcessorsType"
+ * minOccurs="0"/>
+ *         &lt;element name="TokenProviders" type="{urn:picketlink:identity-federation:config:1.0}TokenProvidersType"
+ * minOccurs="0"/>
+ *         &lt;element name="ServiceProviders" type="{urn:picketlink:identity-federation:config:1.0}ServiceProvidersType"
+ * minOccurs="0"/>
  *       &lt;/sequence>
  *       &lt;attribute name="STSName" type="{http://www.w3.org/2001/XMLSchema}string" default="PicketLinkSTS" />
  *       &lt;attribute name="TokenTimeout" type="{http://www.w3.org/2001/XMLSchema}int" default="3600" />
@@ -47,8 +51,6 @@ import javax.xml.crypto.dsig.CanonicalizationMethod;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class STSType {
 
@@ -78,7 +80,6 @@ public class STSType {
      * Gets the value of the keyProvider property.
      *
      * @return possible object is {@link KeyProviderType }
-     *
      */
     public KeyProviderType getKeyProvider() {
         return keyProvider;
@@ -88,7 +89,6 @@ public class STSType {
      * Sets the value of the keyProvider property.
      *
      * @param value allowed object is {@link KeyProviderType }
-     *
      */
     public void setKeyProvider(KeyProviderType value) {
         this.keyProvider = value;
@@ -98,7 +98,6 @@ public class STSType {
      * Gets the value of the requestHandler property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getRequestHandler() {
         return requestHandler;
@@ -108,7 +107,6 @@ public class STSType {
      * Sets the value of the requestHandler property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setRequestHandler(String value) {
         this.requestHandler = value;
@@ -118,7 +116,6 @@ public class STSType {
      * Gets the value of the claimsProcessors property.
      *
      * @return possible object is {@link ClaimsProcessorsType }
-     *
      */
     public ClaimsProcessorsType getClaimsProcessors() {
         return claimsProcessors;
@@ -128,7 +125,6 @@ public class STSType {
      * Sets the value of the claimsProcessors property.
      *
      * @param value allowed object is {@link ClaimsProcessorsType }
-     *
      */
     public void setClaimsProcessors(ClaimsProcessorsType value) {
         this.claimsProcessors = value;
@@ -138,7 +134,6 @@ public class STSType {
      * Gets the value of the tokenProviders property.
      *
      * @return possible object is {@link TokenProvidersType }
-     *
      */
     public TokenProvidersType getTokenProviders() {
         return tokenProviders;
@@ -148,7 +143,6 @@ public class STSType {
      * Sets the value of the tokenProviders property.
      *
      * @param value allowed object is {@link TokenProvidersType }
-     *
      */
     public void setTokenProviders(TokenProvidersType value) {
         this.tokenProviders = value;
@@ -158,7 +152,6 @@ public class STSType {
      * Gets the value of the serviceProviders property.
      *
      * @return possible object is {@link ServiceProvidersType }
-     *
      */
     public ServiceProvidersType getServiceProviders() {
         return serviceProviders;
@@ -168,7 +161,6 @@ public class STSType {
      * Sets the value of the serviceProviders property.
      *
      * @param value allowed object is {@link ServiceProvidersType }
-     *
      */
     public void setServiceProviders(ServiceProvidersType value) {
         this.serviceProviders = value;
@@ -178,7 +170,6 @@ public class STSType {
      * Gets the value of the stsName property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getSTSName() {
         if (stsName == null) {
@@ -192,7 +183,6 @@ public class STSType {
      * Sets the value of the stsName property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setSTSName(String value) {
         this.stsName = value;
@@ -202,7 +192,6 @@ public class STSType {
      * Gets the value of the tokenTimeout property.
      *
      * @return possible object is {@link Integer }
-     *
      */
     public int getTokenTimeout() {
         if (tokenTimeout == null) {
@@ -216,7 +205,6 @@ public class STSType {
      * Sets the value of the tokenTimeout property.
      *
      * @param value allowed object is {@link Integer }
-     *
      */
     public void setTokenTimeout(Integer value) {
         this.tokenTimeout = value;
@@ -226,7 +214,6 @@ public class STSType {
      * Gets the value of the signToken property.
      *
      * @return possible object is {@link Boolean }
-     *
      */
     public boolean isSignToken() {
         if (signToken == null) {
@@ -240,7 +227,6 @@ public class STSType {
      * Sets the value of the signToken property.
      *
      * @param value allowed object is {@link Boolean }
-     *
      */
     public void setSignToken(Boolean value) {
         this.signToken = value;
@@ -250,7 +236,6 @@ public class STSType {
      * Gets the value of the encryptToken property.
      *
      * @return possible object is {@link Boolean }
-     *
      */
     public boolean isEncryptToken() {
         if (encryptToken == null) {
@@ -264,7 +249,6 @@ public class STSType {
      * Sets the value of the encryptToken property.
      *
      * @param value allowed object is {@link Boolean }
-     *
      */
     public void setEncryptToken(Boolean value) {
         this.encryptToken = value;
@@ -274,7 +258,6 @@ public class STSType {
      * Gets the value of the canonicalizationMethod property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getCanonicalizationMethod() {
         if (canonicalizationMethod == null)
@@ -287,7 +270,6 @@ public class STSType {
      * Sets the value of the canonicalizationMethod property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setCanonicalizationMethod(String canonicalizationMethod) {
         this.canonicalizationMethod = canonicalizationMethod;
@@ -297,17 +279,15 @@ public class STSType {
      * Sets the value of the clockSkew property.
      *
      * @param value allowed object is {@link Integer }
-     *
      */
     public void setClockSkew(Integer clockSkew) {
         this.clockSkew = clockSkew;
     }
-    
+
     /**
      * Gets the value of the clockSkew property.
      *
      * @return possible object is {@link Integer }
-     *
      */
     public int getClockSkew() {
         if (this.clockSkew == null) {

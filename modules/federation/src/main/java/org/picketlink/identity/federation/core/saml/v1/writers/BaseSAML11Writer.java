@@ -27,9 +27,9 @@ import javax.xml.stream.XMLStreamWriter;
  * @since Jun 27, 2011
  */
 public abstract class BaseSAML11Writer {
-    
+
     protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     protected static String PROTOCOL_PREFIX = "samlp";
 
     protected static String ASSERTION_PREFIX = "saml";

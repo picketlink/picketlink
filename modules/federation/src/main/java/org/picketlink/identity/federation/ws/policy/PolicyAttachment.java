@@ -51,18 +51,18 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = { "appliesTo", "policyOrPolicyReference", "any" })
+@XmlType(name = "", propOrder = {"appliesTo", "policyOrPolicyReference", "any"})
 @XmlRootElement(name = "PolicyAttachment")
 public class PolicyAttachment extends AnyAddressingType {
+
     protected AppliesTo appliesTo;
 
     protected List<PolicyChoice> theChoices = new ArrayList<PolicyChoice>();
 
     public static class PolicyChoice {
+
         private Policy thePolicy;
 
         private PolicyReference thePolicyRef;
@@ -88,7 +88,6 @@ public class PolicyAttachment extends AnyAddressingType {
      * Gets the value of the appliesTo property.
      *
      * @return possible object is {@link AppliesTo }
-     *
      */
     public AppliesTo getAppliesTo() {
         return appliesTo;
@@ -98,7 +97,6 @@ public class PolicyAttachment extends AnyAddressingType {
      * Sets the value of the appliesTo property.
      *
      * @param value allowed object is {@link AppliesTo }
-     *
      */
     public void setAppliesTo(AppliesTo value) {
         this.appliesTo = value;

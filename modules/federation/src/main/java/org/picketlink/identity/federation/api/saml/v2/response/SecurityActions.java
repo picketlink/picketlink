@@ -24,19 +24,22 @@ import java.security.PrivilegedAction;
  * Privileged Blocks
  */
 class SecurityActions {
+
     /**
      * <p>
-     * Loads a {@link Class} using the <code>fullQualifiedName</code> supplied. This method tries first to load from the
+     * Loads a {@link Class} using the <code>fullQualifiedName</code> supplied. This method tries first to load from
+     * the
      * specified {@link Class}, if not found it will try to load from using TCL.
      * </p>
      *
      * @param theClass
      * @param fullQualifiedName
+     *
      * @return
      */
     static Class<?> loadClass(final Class<?> theClass, final String fullQualifiedName) {
         SecurityManager sm = System.getSecurityManager();
-        
+
         if (sm != null) {
             return AccessController.doPrivileged(new PrivilegedAction<Class<?>>() {
                 public Class<?> run() {
@@ -69,11 +72,12 @@ class SecurityActions {
      *
      * @param classLoader
      * @param fullQualifiedName
+     *
      * @return
      */
     static Class<?> loadClass(final ClassLoader classLoader, final String fullQualifiedName) {
         SecurityManager sm = System.getSecurityManager();
-        
+
         if (sm != null) {
             return AccessController.doPrivileged(new PrivilegedAction<Class<?>>() {
                 public Class<?> run() {
@@ -94,10 +98,12 @@ class SecurityActions {
     }
 
     /**
-     * <p>Returns a system property value using the specified <code>key</code>. If not found the <code>defaultValue</code> will be returned.</p>
+     * <p>Returns a system property value using the specified <code>key</code>. If not found the
+     * <code>defaultValue</code> will be returned.</p>
      *
      * @param key
      * @param defaultValue
+     *
      * @return
      */
     static String getSystemProperty(final String key, final String defaultValue) {

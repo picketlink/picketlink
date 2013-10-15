@@ -23,16 +23,19 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <complexType name="AuthorizationDecisionStatementType"> <complexContent> <extension base="saml:SubjectStatementAbstractType">
+ * <complexType name="AuthorizationDecisionStatementType"> <complexContent> <extension
+ * base="saml:SubjectStatementAbstractType">
  * <sequence> <element ref="saml:Action" maxOccurs="unbounded"/> <element ref="saml:Evidence" minOccurs="0"/>
  *
- * </sequence> <attribute name="Resource" type="anyURI" use="required"/> <attribute name="Decision" type="saml:DecisionType"
+ * </sequence> <attribute name="Resource" type="anyURI" use="required"/> <attribute name="Decision"
+ * type="saml:DecisionType"
  * use="required"/> </extension> </complexContent> </complexType>
  *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011
  */
 public class SAML11AuthorizationDecisionStatementType extends SAML11SubjectStatementType {
+
     private static final long serialVersionUID = 1L;
 
     protected List<SAML11ActionType> actions = new ArrayList<SAML11ActionType>();

@@ -43,6 +43,7 @@ import static org.junit.Assert.assertEquals;
  * @since Oct 12, 2010
  */
 public class WSTrustValidateSamlTestCase {
+
     @Test
     public void testWST_ValidateSaml() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();

@@ -28,15 +28,17 @@ import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACML
  * @since Jul 30, 2009
  */
 public class XACMLContextFactory {
+
     /**
      * Create an XACML Authorization Decision Statement Type
      *
      * @param request
      * @param response
+     *
      * @return
      */
     public static XACMLAuthzDecisionStatementType createXACMLAuthzDecisionStatementType(RequestType request,
-            ResponseType response) {
+                                                                                        ResponseType response) {
         XACMLAuthzDecisionStatementType xacmlStatement = new XACMLAuthzDecisionStatementType();
         xacmlStatement.setRequest(request);
         xacmlStatement.setResponse(response);

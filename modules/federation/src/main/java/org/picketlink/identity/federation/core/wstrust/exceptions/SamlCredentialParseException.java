@@ -19,6 +19,7 @@
 package org.picketlink.identity.federation.core.wstrust.exceptions;
 
 public class SamlCredentialParseException extends WSTrustGeneralException {
+
     private static final long serialVersionUID = 8877976632951911364L;
 
     public SamlCredentialParseException() {

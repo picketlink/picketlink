@@ -36,9 +36,9 @@ import java.util.Map;
  */
 public class FileBasedEntityMetadataProvider extends AbstractMetadataProvider implements
         IMetadataProvider<EntityDescriptorType> {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private static final String FILENAME_KEY = "FileName";
 
     private String fileName;

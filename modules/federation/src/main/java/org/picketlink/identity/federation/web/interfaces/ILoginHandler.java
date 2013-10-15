@@ -26,13 +26,16 @@ import javax.security.auth.login.LoginException;
  * @since Aug 18, 2009
  */
 public interface ILoginHandler {
+
     /**
      * Authenticate the user
      *
      * @param username username
      * @param credential credential
+     *
      * @return true - authenticated
+     *
      * @throws LoginException
      */
-    public boolean authenticate(String username, Object credential) throws LoginException;
+    boolean authenticate(String username, Object credential) throws LoginException;
 }

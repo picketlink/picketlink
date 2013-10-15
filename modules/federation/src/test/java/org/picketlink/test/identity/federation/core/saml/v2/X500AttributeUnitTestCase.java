@@ -48,6 +48,7 @@ import java.util.Map;
  * @since Sep 14, 2009
  */
 public class X500AttributeUnitTestCase extends TestCase {
+
     public void testX500Marshalling() throws Exception {
         Map<String, Object> attributes = new HashMap<String, Object>();
         attributes.put(X500SAMLProfileConstants.EMAIL_ADDRESS.getFriendlyName(), "test@a");

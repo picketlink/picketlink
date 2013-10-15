@@ -41,7 +41,8 @@ import java.util.List;
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AffiliateMember" maxOccurs="unbounded"/>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}KeyDescriptor" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
- *       &lt;attribute name="affiliationOwnerID" use="required" type="{urn:oasis:names:tc:SAML:2.0:metadata}entityIDType" />
+ *       &lt;attribute name="affiliationOwnerID" use="required" type="{urn:oasis:names:tc:SAML:2.0:metadata}entityIDType"
+ * />
  *       &lt;attribute name="validUntil" type="{http://www.w3.org/2001/XMLSchema}dateTime" />
  *       &lt;attribute name="cacheDuration" type="{http://www.w3.org/2001/XMLSchema}duration" />
  *       &lt;attribute name="ID" type="{http://www.w3.org/2001/XMLSchema}ID" />
@@ -49,10 +50,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class AffiliationDescriptorType extends TypeWithOtherAttributes {
+
     protected SignatureType signature;
 
     protected ExtensionsType extensions;
@@ -73,7 +73,6 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes {
      * Gets the value of the signature property.
      *
      * @return possible object is {@link SignatureType }
-     *
      */
     public SignatureType getSignature() {
         return signature;
@@ -83,7 +82,6 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes {
      * Sets the value of the signature property.
      *
      * @param value allowed object is {@link SignatureType }
-     *
      */
     public void setSignature(SignatureType value) {
         this.signature = value;
@@ -93,7 +91,6 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes {
      * Gets the value of the extensions property.
      *
      * @return possible object is {@link ExtensionsType }
-     *
      */
     public ExtensionsType getExtensions() {
         return extensions;
@@ -103,7 +100,6 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes {
      * Sets the value of the extensions property.
      *
      * @param value allowed object is {@link ExtensionsType }
-     *
      */
     public void setExtensions(ExtensionsType value) {
         this.extensions = value;
@@ -113,7 +109,8 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes {
      * Gets the value of the affiliateMember property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to the
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the
      * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
      * affiliateMember property.
      *
@@ -127,8 +124,6 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link String }
-     *
-     *
      */
     public List<String> getAffiliateMember() {
         if (affiliateMember == null) {
@@ -141,7 +136,8 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes {
      * Gets the value of the keyDescriptor property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to the
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the
      * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
      * keyDescriptor property.
      *
@@ -155,8 +151,6 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link KeyDescriptorType }
-     *
-     *
      */
     public List<KeyDescriptorType> getKeyDescriptor() {
         if (keyDescriptor == null) {
@@ -169,7 +163,6 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes {
      * Gets the value of the affiliationOwnerID property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getAffiliationOwnerID() {
         return affiliationOwnerID;
@@ -179,7 +172,6 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes {
      * Sets the value of the affiliationOwnerID property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setAffiliationOwnerID(String value) {
         this.affiliationOwnerID = value;
@@ -189,7 +181,6 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes {
      * Gets the value of the validUntil property.
      *
      * @return possible object is {@link XMLGregorianCalendar }
-     *
      */
     public XMLGregorianCalendar getValidUntil() {
         return validUntil;
@@ -199,7 +190,6 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes {
      * Sets the value of the validUntil property.
      *
      * @param value allowed object is {@link XMLGregorianCalendar }
-     *
      */
     public void setValidUntil(XMLGregorianCalendar value) {
         this.validUntil = value;
@@ -209,7 +199,6 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes {
      * Gets the value of the cacheDuration property.
      *
      * @return possible object is {@link Duration }
-     *
      */
     public Duration getCacheDuration() {
         return cacheDuration;
@@ -219,7 +208,6 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes {
      * Sets the value of the cacheDuration property.
      *
      * @param value allowed object is {@link Duration }
-     *
      */
     public void setCacheDuration(Duration value) {
         this.cacheDuration = value;
@@ -229,7 +217,6 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes {
      * Gets the value of the id property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getID() {
         return id;
@@ -239,7 +226,6 @@ public class AffiliationDescriptorType extends TypeWithOtherAttributes {
      * Sets the value of the id property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setID(String value) {
         this.id = value;

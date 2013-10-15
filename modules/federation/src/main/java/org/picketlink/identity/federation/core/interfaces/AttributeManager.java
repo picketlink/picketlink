@@ -28,11 +28,13 @@ import java.util.Map;
  * @since Aug 31, 2009
  */
 public interface AttributeManager {
+
     /**
      * Given a set of keys, get back attributes
      *
      * @param userPrincipal Principal for whom attributes need to be retrieved
      * @param attributeKeys
+     *
      * @return
      */
     Map<String, Object> getAttributes(Principal userPrincipal, List<String> attributeKeys);

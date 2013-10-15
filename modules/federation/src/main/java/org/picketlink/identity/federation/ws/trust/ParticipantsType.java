@@ -33,18 +33,19 @@ import java.util.List;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="Primary" type="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}ParticipantType" minOccurs="0"/>
- *         &lt;element name="Participant" type="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}ParticipantType" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="Primary" type="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}ParticipantType"
+ * minOccurs="0"/>
+ *         &lt;element name="Participant" type="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}ParticipantType"
+ * maxOccurs="unbounded" minOccurs="0"/>
  *         &lt;any/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ParticipantsType extends SimpleAnyType {
+
     protected ParticipantType primary;
 
     protected List<ParticipantType> participant = new ArrayList<ParticipantType>();
@@ -53,7 +54,6 @@ public class ParticipantsType extends SimpleAnyType {
      * Gets the value of the primary property.
      *
      * @return possible object is {@link ParticipantType }
-     *
      */
     public ParticipantType getPrimary() {
         return primary;
@@ -63,7 +63,6 @@ public class ParticipantsType extends SimpleAnyType {
      * Sets the value of the primary property.
      *
      * @param value allowed object is {@link ParticipantType }
-     *
      */
     public void setPrimary(ParticipantType value) {
         this.primary = value;
@@ -82,8 +81,6 @@ public class ParticipantsType extends SimpleAnyType {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link ParticipantType }
-     *
-     *
      */
     public List<ParticipantType> getParticipant() {
         return Collections.unmodifiableList(this.participant);

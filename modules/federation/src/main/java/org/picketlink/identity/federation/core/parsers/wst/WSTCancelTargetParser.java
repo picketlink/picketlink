@@ -36,9 +36,9 @@ import javax.xml.stream.events.StartElement;
  * @since Oct 13, 2010
  */
 public class WSTCancelTargetParser implements ParserNamespaceSupport {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     /**
      * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
      */

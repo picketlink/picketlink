@@ -34,9 +34,8 @@ import java.io.Serializable;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public abstract class ConditionAbstractType implements Serializable {
+
     private static final long serialVersionUID = 1L;
 }

@@ -18,17 +18,21 @@
 
 package org.picketlink.authentication.web.support;
 
-import java.util.*;
-import java.util.Map.Entry;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * <p>
  * This class is a representation of the state of a previous {@link HttpServletRequest} instance.
  * </p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 public class SavedRequest {

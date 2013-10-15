@@ -47,8 +47,6 @@ import java.math.BigInteger;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ActivationLimitUsagesType")
@@ -61,7 +59,6 @@ public class ActivationLimitUsagesType {
      * Gets the value of the number property.
      *
      * @return possible object is {@link BigInteger }
-     *
      */
     public BigInteger getNumber() {
         return number;
@@ -71,7 +68,6 @@ public class ActivationLimitUsagesType {
      * Sets the value of the number property.
      *
      * @param value allowed object is {@link BigInteger }
-     *
      */
     public void setNumber(BigInteger value) {
         this.number = value;

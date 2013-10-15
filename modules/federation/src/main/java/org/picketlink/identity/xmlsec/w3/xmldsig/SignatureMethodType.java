@@ -33,7 +33,8 @@ import java.util.List;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="HMACOutputLength" type="{http://www.w3.org/2000/09/xmldsig#}HMACOutputLengthType" minOccurs="0"/>
+ *         &lt;element name="HMACOutputLength" type="{http://www.w3.org/2000/09/xmldsig#}HMACOutputLengthType"
+ * minOccurs="0"/>
  *         &lt;any/>
  *       &lt;/sequence>
  *       &lt;attribute name="Algorithm" use="required" type="{http://www.w3.org/2001/XMLSchema}anyURI" />
@@ -41,10 +42,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class SignatureMethodType {
+
     protected List<Object> content = new ArrayList<Object>();
     protected String algorithm;
 
@@ -69,7 +69,6 @@ public class SignatureMethodType {
      * Gets the value of the algorithm property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getAlgorithm() {
         return algorithm;
@@ -79,7 +78,6 @@ public class SignatureMethodType {
      * Sets the value of the algorithm property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setAlgorithm(String value) {
         this.algorithm = value;

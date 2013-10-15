@@ -20,7 +20,6 @@ package org.picketlink.identity.federation.ws.wss.utility;
 import org.picketlink.identity.federation.ws.addressing.BaseAddressingType;
 
 /**
- *
  * This type is for elements whose [children] is an anyURI and can have arbitrary attributes.
  *
  *
@@ -39,8 +38,6 @@ import org.picketlink.identity.federation.ws.addressing.BaseAddressingType;
  *   &lt;/simpleContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 
 public class AttributedURI extends BaseAddressingType {
@@ -53,7 +50,6 @@ public class AttributedURI extends BaseAddressingType {
      * Gets the value of the value property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getValue() {
         return value;
@@ -63,7 +59,6 @@ public class AttributedURI extends BaseAddressingType {
      * Sets the value of the value property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setValue(String value) {
         this.value = value;
@@ -73,7 +68,6 @@ public class AttributedURI extends BaseAddressingType {
      * Gets the value of the id property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getId() {
         return id;
@@ -83,7 +77,6 @@ public class AttributedURI extends BaseAddressingType {
      * Sets the value of the id property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setId(String value) {
         this.id = value;

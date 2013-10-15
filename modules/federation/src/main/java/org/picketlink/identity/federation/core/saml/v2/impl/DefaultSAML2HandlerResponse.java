@@ -30,6 +30,7 @@ import java.util.List;
  * @since Oct 1, 2009
  */
 public class DefaultSAML2HandlerResponse implements SAML2HandlerResponse {
+
     private Document document;
     private String relayState;
     private List<String> roles = new ArrayList<String>();
@@ -158,16 +159,16 @@ public class DefaultSAML2HandlerResponse implements SAML2HandlerResponse {
         return this.postBinding;
     }
 
-   /**
-    * @see SAML2HandlerResponse#setDestinationQueryStringWithSignature(String)
-    */
+    /**
+     * @see SAML2HandlerResponse#setDestinationQueryStringWithSignature(String)
+     */
     public void setDestinationQueryStringWithSignature(String destinationQueryStringWithSignature) {
         this.destinationQueryStringWithSignature = destinationQueryStringWithSignature;
     }
 
-   /**
-    * @see SAML2HandlerResponse#getDestinationQueryStringWithSignature()
-    */
+    /**
+     * @see SAML2HandlerResponse#getDestinationQueryStringWithSignature()
+     */
     public String getDestinationQueryStringWithSignature() {
         return this.destinationQueryStringWithSignature;
     }

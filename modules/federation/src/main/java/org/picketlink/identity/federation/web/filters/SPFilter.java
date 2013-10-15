@@ -120,6 +120,7 @@ import static org.picketlink.common.util.StringUtil.isNotNull;
  * @since Aug 21, 2009
  */
 public class SPFilter implements Filter {
+
     private static Logger log = Logger.getLogger(SPFilter.class);
 
     private final boolean trace = log.isTraceEnabled();
@@ -519,7 +520,9 @@ public class SPFilter implements Filter {
      *
      * @param serviceURL URL of the service
      * @param identityURL URL of the identity provider
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     private AuthnRequestType createSAMLRequest(String serviceURL, String identityURL) throws ConfigurationException {
@@ -545,7 +548,7 @@ public class SPFilter implements Filter {
     }
 
     protected void sendToDestination(Document samlDocument, String relayState, String destination,
-            HttpServletResponse response, boolean request) throws IOException, SAXException, GeneralSecurityException {
+                                     HttpServletResponse response, boolean request) throws IOException, SAXException, GeneralSecurityException {
         if (!ignoreSignatures) {
             SAML2Signature samlSignature = new SAML2Signature();
 
@@ -628,7 +631,9 @@ public class SPFilter implements Filter {
      * @param request entire request from IDP
      * @param responseType ResponseType that has been generated
      * @param serverEnvironment tomcat,jboss etc
+     *
      * @return
+     *
      * @throws AssertionExpiredException
      */
     public Principal handleSAMLResponse(HttpServletRequest request, ResponseType responseType) throws ConfigurationException,

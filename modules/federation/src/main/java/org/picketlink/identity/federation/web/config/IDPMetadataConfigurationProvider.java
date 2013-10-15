@@ -37,7 +37,8 @@ import java.net.URI;
 
 /**
  * <p>
- * An instance of {@link SAMLConfigurationProvider} that can be used to generate the IDP configuration using SAML2 Metadata.
+ * An instance of {@link SAMLConfigurationProvider} that can be used to generate the IDP configuration using SAML2
+ * Metadata.
  * </p>
  * <p>
  * This provider uses the following in sequence whichever is available:
@@ -51,6 +52,7 @@ import java.net.URI;
  * @since Feb 15, 2012
  */
 public class IDPMetadataConfigurationProvider extends AbstractSAMLConfigurationProvider implements SAMLConfigurationProvider {
+
     public static final String IDP_MD_FILE = "idp-metadata.xml";
 
     /**
@@ -62,11 +64,11 @@ public class IDPMetadataConfigurationProvider extends AbstractSAMLConfigurationP
             try {
                 EntitiesDescriptorType entities = parseMDFile();
                 IDPSSODescriptorType idpSSO = CoreConfigUtil.getIDPDescriptor(entities);
-                
+
                 if (idpSSO != null) {
                     idpType = CoreConfigUtil.getIDPType(idpSSO);
                 }
-                
+
                 configureTrustedDomainsFromMetadata(idpType, entities);
             } catch (ParsingException e) {
                 throw logger.processingError(e);
@@ -100,10 +102,11 @@ public class IDPMetadataConfigurationProvider extends AbstractSAMLConfigurationP
         SAMLParser parser = new SAMLParser();
         return (EntitiesDescriptorType) parser.parse(is);
     }
-    
+
     /**
-     * <p>Configures the IDP trusted domains by looking at {@link SPSSODescriptorType} definitions along the metadata.</p>
-     * 
+     * <p>Configures the IDP trusted domains by looking at {@link SPSSODescriptorType} definitions along the
+     * metadata.</p>
+     *
      * @param idpType
      * @param entities
      */
@@ -111,15 +114,15 @@ public class IDPMetadataConfigurationProvider extends AbstractSAMLConfigurationP
         if (idpType.getTrust() == null) {
             idpType.setTrust(new TrustType());
         }
-        
+
         for (Object entityDescriptorObj : entities.getEntityDescriptor()) {
             EntityDescriptorType entityDescriptorType = (EntityDescriptorType) entityDescriptorObj;
             SPSSODescriptorType spDescriptor = CoreConfigUtil.getSPDescriptor(entityDescriptorType);
-            
+
             if (spDescriptor != null) {
                 for (IndexedEndpointType assertionConsumerService : spDescriptor.getAssertionConsumerService()) {
                     URI location = assertionConsumerService.getLocation();
-                    
+
                     idpType.getTrust().addDomain(location.getHost());
                 }
             }

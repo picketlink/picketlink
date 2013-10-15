@@ -41,10 +41,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class NameIDMappingResponseType extends StatusResponseType {
+
     private static final long serialVersionUID = 1L;
 
     protected NameIDType nameID;
@@ -59,7 +58,6 @@ public class NameIDMappingResponseType extends StatusResponseType {
      * Gets the value of the nameID property.
      *
      * @return possible object is {@link NameIDType }
-     *
      */
     public NameIDType getNameID() {
         return nameID;
@@ -69,7 +67,6 @@ public class NameIDMappingResponseType extends StatusResponseType {
      * Sets the value of the nameID property.
      *
      * @param value allowed object is {@link NameIDType }
-     *
      */
     public void setNameID(NameIDType value) {
         this.nameID = value;
@@ -79,7 +76,6 @@ public class NameIDMappingResponseType extends StatusResponseType {
      * Gets the value of the encryptedID property.
      *
      * @return possible object is {@link EncryptedElementType }
-     *
      */
     public EncryptedElementType getEncryptedID() {
         return encryptedID;
@@ -89,7 +85,6 @@ public class NameIDMappingResponseType extends StatusResponseType {
      * Sets the value of the encryptedID property.
      *
      * @param value allowed object is {@link EncryptedElementType }
-     *
      */
     public void setEncryptedID(EncryptedElementType value) {
         this.encryptedID = value;

@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since Sep 17, 2009
  */
 public class IdentityServer implements HttpSessionListener {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     // Configurable count for the active session count
@@ -55,6 +55,7 @@ public class IdentityServer implements HttpSessionListener {
     private IdentityParticipantStack stack = new STACK();
 
     public static class STACK implements IdentityParticipantStack {
+
         private final ConcurrentHashMap<String, Stack<String>> sessionParticipantsMap = new ConcurrentHashMap<String, Stack<String>>();
 
         private final ConcurrentHashMap<String, Set<String>> inTransitMap = new ConcurrentHashMap<String, Set<String>>();
@@ -241,9 +242,9 @@ public class IdentityServer implements HttpSessionListener {
         --activeSessionCount;
 
         String id = sessionEvent.getSession().getId();
-        
+
         logger.samlIdentityServerSessionDestroyed(id, activeSessionCount);
-        
+
         stack.removeSession(id);
     }
 }

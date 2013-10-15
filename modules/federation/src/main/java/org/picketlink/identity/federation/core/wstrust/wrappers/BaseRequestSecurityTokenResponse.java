@@ -25,4 +25,5 @@ package org.picketlink.identity.federation.core.wstrust.wrappers;
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public interface BaseRequestSecurityTokenResponse {
+
 }

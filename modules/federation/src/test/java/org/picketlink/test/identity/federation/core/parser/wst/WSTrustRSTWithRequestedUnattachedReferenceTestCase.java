@@ -39,6 +39,7 @@ import static org.junit.Assert.assertNotNull;
  * @since May 20, 2013
  */
 public class WSTrustRSTWithRequestedUnattachedReferenceTestCase {
+
     @Test
     public void parseRSTWithWSP_15() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();
@@ -46,15 +47,15 @@ public class WSTrustRSTWithRequestedUnattachedReferenceTestCase {
 
         WSTrustParser parser = new WSTrustParser();
         RequestSecurityTokenResponseCollection requestTokenResponseCollection = (RequestSecurityTokenResponseCollection) parser.parse(configStream);
-        
+
         RequestSecurityTokenResponse requestSecurityTokenResponse = requestTokenResponseCollection.getRequestSecurityTokenResponses().get(0);
-        
+
         RequestedReferenceType requestedUnattachedReference = requestSecurityTokenResponse.getRequestedUnattachedReference();
-        
+
         assertNotNull(requestedUnattachedReference);
-        
+
         SecurityTokenReferenceType securityTokenReference = requestedUnattachedReference.getSecurityTokenReference();
-        
+
         assertNotNull(securityTokenReference);
     }
 }

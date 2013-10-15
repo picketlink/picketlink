@@ -33,7 +33,8 @@ import java.io.InputStream;
 
 /**
  * <p>
- * An instance of {@link SAMLConfigurationProvider} that can be used to generate the SP configuration for the HTTP-POST binding
+ * An instance of {@link SAMLConfigurationProvider} that can be used to generate the SP configuration for the HTTP-POST
+ * binding
  * using SAML2 Metadata.
  * </p>
  * <p>
@@ -48,6 +49,7 @@ import java.io.InputStream;
  * @since Feb 15, 2012
  */
 public class SPPostMetadataConfigurationProvider extends AbstractSAMLConfigurationProvider implements SAMLConfigurationProvider {
+
     public static final String SP_MD_FILE = "sp-metadata.xml";
 
     public static final String bindingURI = JBossSAMLURIConstants.SAML_HTTP_POST_BINDING.get();
@@ -76,7 +78,7 @@ public class SPPostMetadataConfigurationProvider extends AbstractSAMLConfigurati
         } else {
             throw logger.nullValueError(SP_MD_FILE);
         }
-        
+
         if (configParsedSPType != null) {
             spType.importFrom(configParsedSPType);
         }

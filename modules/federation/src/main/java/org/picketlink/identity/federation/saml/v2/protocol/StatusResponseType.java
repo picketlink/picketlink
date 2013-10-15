@@ -50,10 +50,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class StatusResponseType extends CommonResponseType implements SAML2Object {
+
     private static final long serialVersionUID = 1L;
 
     protected NameIDType issuer;
@@ -91,7 +90,6 @@ public class StatusResponseType extends CommonResponseType implements SAML2Objec
      * Gets the value of the issuer property.
      *
      * @return possible object is {@link NameIDType }
-     *
      */
     public NameIDType getIssuer() {
         return issuer;
@@ -101,7 +99,6 @@ public class StatusResponseType extends CommonResponseType implements SAML2Objec
      * Sets the value of the issuer property.
      *
      * @param value allowed object is {@link NameIDType }
-     *
      */
     public void setIssuer(NameIDType value) {
         this.issuer = value;
@@ -111,7 +108,6 @@ public class StatusResponseType extends CommonResponseType implements SAML2Objec
      * Gets the value of the extensions property.
      *
      * @return possible object is {@link ExtensionsType }
-     *
      */
     public ExtensionsType getExtensions() {
         return extensions;
@@ -121,7 +117,6 @@ public class StatusResponseType extends CommonResponseType implements SAML2Objec
      * Sets the value of the extensions property.
      *
      * @param value allowed object is {@link ExtensionsType }
-     *
      */
     public void setExtensions(ExtensionsType value) {
         this.extensions = value;
@@ -131,7 +126,6 @@ public class StatusResponseType extends CommonResponseType implements SAML2Objec
      * Gets the value of the status property.
      *
      * @return possible object is {@link StatusType }
-     *
      */
     public StatusType getStatus() {
         return status;
@@ -141,7 +135,6 @@ public class StatusResponseType extends CommonResponseType implements SAML2Objec
      * Sets the value of the status property.
      *
      * @param value allowed object is {@link StatusType }
-     *
      */
     public void setStatus(StatusType value) {
         this.status = value;
@@ -151,7 +144,6 @@ public class StatusResponseType extends CommonResponseType implements SAML2Objec
      * Gets the value of the version property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getVersion() {
         return version;
@@ -161,7 +153,6 @@ public class StatusResponseType extends CommonResponseType implements SAML2Objec
      * Gets the value of the destination property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getDestination() {
         return destination;
@@ -171,7 +162,6 @@ public class StatusResponseType extends CommonResponseType implements SAML2Objec
      * Sets the value of the destination property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setDestination(String value) {
         this.destination = value;
@@ -181,7 +171,6 @@ public class StatusResponseType extends CommonResponseType implements SAML2Objec
      * Gets the value of the consent property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getConsent() {
         return consent;
@@ -191,7 +180,6 @@ public class StatusResponseType extends CommonResponseType implements SAML2Objec
      * Sets the value of the consent property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setConsent(String value) {
         this.consent = value;

@@ -44,13 +44,12 @@ import java.security.PrivilegedAction;
  * This is a Singleton Class.
  * </p>
  *
- * @see {@code #instance()}
- *
  * @author Anil.Saldhana@redhat.com
+ * @see {@code #instance()}
  * @since Dec 27, 2010
  */
 public class PicketLinkCoreSTS {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     public static final RuntimePermission rte = new RuntimePermission("org.picketlink.sts");
@@ -110,6 +109,7 @@ public class PicketLinkCoreSTS {
      * Issue a security token
      *
      * @param protocolContext
+     *
      * @throws ProcessingException
      * @throws {@link SecurityException} if the caller does not have a runtime permission for "org.picketlink.sts"
      */
@@ -130,11 +130,13 @@ public class PicketLinkCoreSTS {
 
     /**
      * <p>
-     * Renews the security token contained in the specified request context. This method is used when a previously generated
+     * Renews the security token contained in the specified request context. This method is used when a previously
+     * generated
      * token has expired, generating a new version of the same token with different expiration semantics.
      * </p>
      *
      * @param protocolContext the {@code ProtocolContext} that contains the token to be renewed.
+     *
      * @throws ProcessingException if an error occurs while renewing the security token.
      * @throws {@link SecurityException} if the caller does not have a runtime permission for "org.picketlink.sts"
      */
@@ -158,11 +160,13 @@ public class PicketLinkCoreSTS {
 
     /**
      * <p>
-     * Cancels the token contained in the specified request context. A security token is usually canceled when one wants to make
+     * Cancels the token contained in the specified request context. A security token is usually canceled when one wants
+     * to make
      * sure that the token will not be used anymore. A security token can't be renewed once it has been canceled.
      * </p>
      *
      * @param protocolContext the {@code ProtocolContext} that contains the token to be canceled.
+     *
      * @throws ProcessingException if an error occurs while canceling the security token.
      * @throws {@link SecurityException} if the caller does not have a runtime permission for "org.picketlink.sts"
      */
@@ -186,11 +190,13 @@ public class PicketLinkCoreSTS {
 
     /**
      * <p>
-     * Evaluates the validity of the token contained in the specified request context and sets the result in the context itself.
+     * Evaluates the validity of the token contained in the specified request context and sets the result in the context
+     * itself.
      * The result can be a status, a new token, or both.
      * </p>
      *
      * @param protocolContext the {@code ProtocolContext} that contains the token to be validated.
+     *
      * @throws ProcessingException if an error occurs while validating the security token.
      * @throws {@link SecurityException} if the caller does not have a runtime permission for "org.picketlink.sts"
      */
@@ -299,7 +305,7 @@ public class PicketLinkCoreSTS {
             STSConfiguration configuration = new PicketLinkSTSConfiguration(stsConfig);
 
             logger.stsConfigurationFileLoaded(fileName);
-            
+
             return configuration;
         } catch (Exception e) {
             throw logger.stsConfigurationFileParsingError(e);

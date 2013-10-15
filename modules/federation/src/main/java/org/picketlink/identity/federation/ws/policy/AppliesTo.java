@@ -37,8 +37,7 @@ import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class AppliesTo extends AnyAddressingType {
+
 }

@@ -32,7 +32,7 @@ import java.security.Security;
  * @since 07-May-2012
  */
 public class ProvidersUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     /**

@@ -20,7 +20,6 @@ package org.picketlink.identity.federation.ws.wss.utility;
 import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
 
 /**
- *
  * This complex type ties together the timestamp related elements into a composite type.
  *
  *
@@ -35,8 +34,10 @@ import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element ref="{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd}Created" minOccurs="0"/>
- *         &lt;element ref="{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd}Expires" minOccurs="0"/>
+ *         &lt;element ref="{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd}Created"
+ * minOccurs="0"/>
+ *         &lt;element ref="{http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd}Expires"
+ * minOccurs="0"/>
  *         &lt;choice maxOccurs="unbounded" minOccurs="0">
  *           &lt;any/>
  *         &lt;/choice>
@@ -46,10 +47,9 @@ import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class TimestampType extends AnyAddressingType {
+
     protected AttributedDateTime created;
 
     protected AttributedDateTime expires;
@@ -60,7 +60,6 @@ public class TimestampType extends AnyAddressingType {
      * Gets the value of the created property.
      *
      * @return possible object is {@link AttributedDateTime }
-     *
      */
     public AttributedDateTime getCreated() {
         return created;
@@ -70,7 +69,6 @@ public class TimestampType extends AnyAddressingType {
      * Sets the value of the created property.
      *
      * @param value allowed object is {@link AttributedDateTime }
-     *
      */
     public void setCreated(AttributedDateTime value) {
         this.created = value;
@@ -80,7 +78,6 @@ public class TimestampType extends AnyAddressingType {
      * Gets the value of the expires property.
      *
      * @return possible object is {@link AttributedDateTime }
-     *
      */
     public AttributedDateTime getExpires() {
         return expires;
@@ -90,7 +87,6 @@ public class TimestampType extends AnyAddressingType {
      * Sets the value of the expires property.
      *
      * @param value allowed object is {@link AttributedDateTime }
-     *
      */
     public void setExpires(AttributedDateTime value) {
         this.expires = value;
@@ -100,7 +96,6 @@ public class TimestampType extends AnyAddressingType {
      * Gets the value of the id property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getId() {
         return id;
@@ -110,7 +105,6 @@ public class TimestampType extends AnyAddressingType {
      * Sets the value of the id property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setId(String value) {
         this.id = value;

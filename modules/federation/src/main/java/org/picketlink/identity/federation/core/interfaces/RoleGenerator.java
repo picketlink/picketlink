@@ -27,10 +27,12 @@ import java.util.List;
  * @since Jan 21, 2009
  */
 public interface RoleGenerator {
+
     /**
      * Generate roles given a principal
      *
      * @param principal
+     *
      * @return
      */
     List<String> generateRoles(Principal principal);

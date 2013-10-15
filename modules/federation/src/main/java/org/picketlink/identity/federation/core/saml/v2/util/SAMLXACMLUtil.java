@@ -40,10 +40,10 @@ import java.io.ByteArrayOutputStream;
  * @since Dec 20, 2010
  */
 public class SAMLXACMLUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
-    public final static String XACML_PKG_PATH = "org.jboss.security.xacml.core.model.context";
+
+    public static final String XACML_PKG_PATH = "org.jboss.security.xacml.core.model.context";
 
     public static JAXBContext getJAXBContext() throws JAXBException {
         return JAXBContext.newInstance(XACML_PKG_PATH);

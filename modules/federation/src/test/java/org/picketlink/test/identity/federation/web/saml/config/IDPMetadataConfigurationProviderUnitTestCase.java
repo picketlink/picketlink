@@ -35,6 +35,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Feb 15, 2012
  */
 public class IDPMetadataConfigurationProviderUnitTestCase {
+
     @Test
     public void testIDPType() throws ProcessingException {
         IDPMetadataConfigurationProvider provider = new IDPMetadataConfigurationProvider();

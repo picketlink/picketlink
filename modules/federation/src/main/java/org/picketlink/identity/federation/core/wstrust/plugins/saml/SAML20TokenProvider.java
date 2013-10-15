@@ -65,9 +65,9 @@ import java.util.Map;
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public class SAML20TokenProvider extends AbstractSecurityTokenProvider implements SecurityTokenProvider {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private SAML20TokenAttributeProvider attributeProvider;
 
     private boolean useAbsoluteKeyIdentifier = false;
@@ -99,7 +99,7 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
         }
 
         String absoluteKI = this.properties.get(USE_ABSOLUTE_KEYIDENTIFIER);
-        if(absoluteKI != null && "true".equalsIgnoreCase(absoluteKI)){
+        if (absoluteKI != null && "true".equalsIgnoreCase(absoluteKI)) {
             useAbsoluteKeyIdentifier = true;
         }
     }
@@ -177,9 +177,9 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
         NameIDType nameID = SAMLAssertionFactory.createNameID(null, "urn:picketlink:identity-federation", subjectName);
         SubjectType subject = SAMLAssertionFactory.createSubject(nameID, subjectConfirmation);
 
-        
+
         List<StatementAbstractType> statements = new ArrayList<StatementAbstractType>();
-        
+
         // create the attribute statements if necessary.
         Map<String, Object> claimedAttributes = context.getClaimedAttributes();
         if (claimedAttributes != null) {
@@ -215,7 +215,7 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
 
         // set the SAML assertion attached reference.
         String keyIdentifierValue = assertionID;
-        if(!useAbsoluteKeyIdentifier){
+        if (!useAbsoluteKeyIdentifier) {
             keyIdentifierValue = "#" + keyIdentifierValue;
         }
         KeyIdentifierType keyIdentifier = WSTrustUtil.createKeyIdentifier(SAMLUtil.SAML2_VALUE_TYPE, keyIdentifierValue);
@@ -359,6 +359,7 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
      * </p>
      *
      * @param element the {@code Element} being verified.
+     *
      * @return {@code true} if the element is a SAMLV2.0 assertion; {@code false} otherwise.
      */
     private boolean isAssertion(Element element) {

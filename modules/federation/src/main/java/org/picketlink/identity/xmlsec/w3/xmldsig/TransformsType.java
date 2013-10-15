@@ -40,10 +40,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class TransformsType {
+
     protected List<TransformType> transform = new ArrayList<TransformType>();
 
     public void addTransformsType(TransformType tt) {
@@ -58,8 +57,6 @@ public class TransformsType {
      * Gets the value of the transform property.
      * <p>
      * Objects of the following type(s) are allowed in the list {@link TransformType }
-     *
-     *
      */
     public List<TransformType> getTransform() {
         return Collections.unmodifiableList(this.transform);

@@ -41,6 +41,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Jul 1, 2011
  */
 public class SAMLArtifactResolveParserTestCase {
+
     @Test
     public void testSAMLArtifactResolveParse() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();

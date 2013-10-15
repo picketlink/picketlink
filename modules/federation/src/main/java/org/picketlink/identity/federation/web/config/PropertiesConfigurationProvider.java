@@ -32,16 +32,17 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * A properties file based {@link SAMLConfigurationProvider}. For the IDP configuration, a idp_config.properties is expected.
+ * A properties file based {@link SAMLConfigurationProvider}. For the IDP configuration, a idp_config.properties is
+ * expected.
  * For the SP configuration, a sp_config.properties is expected.
  *
  * @author Anil.Saldhana@redhat.com
  * @since Aug 9, 2011
  */
 public class PropertiesConfigurationProvider implements SAMLConfigurationProvider {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     public static final String IDP_FILE = "idp_config.properties";
 
     public static final String SP_FILE = "sp_config.properties";

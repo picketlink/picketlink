@@ -32,9 +32,8 @@ import java.util.List;
 
 /**
  * Decorator for IdentityManager that provides secured identity management operations
- * 
- * @author Shane Bryzak
  *
+ * @author Shane Bryzak
  */
 @Typed(SecuredIdentityManager.class)
 public class SecuredIdentityManager implements IdentityManager {

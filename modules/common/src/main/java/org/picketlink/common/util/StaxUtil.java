@@ -44,15 +44,16 @@ import java.util.Stack;
  * @since Oct 19, 2010
  */
 public class StaxUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private static ThreadLocal<Stack<String>> registeredNSStack = new ThreadLocal<Stack<String>>();
 
     /**
      * Flush the stream writer
      *
      * @param writer
+     *
      * @throws ProcessingException
      */
     public static void flush(XMLStreamWriter writer) throws ProcessingException {
@@ -67,7 +68,9 @@ public class StaxUtil {
      * Get an {@code XMLEventWriter}
      *
      * @param outStream
+     *
      * @return
+     *
      * @throws ProcessingException
      */
     public static XMLEventWriter getXMLEventWriter(final OutputStream outStream) throws ProcessingException {
@@ -83,7 +86,9 @@ public class StaxUtil {
      * Get an {@code XMLStreamWriter}
      *
      * @param outStream
+     *
      * @return
+     *
      * @throws ProcessingException
      */
     public static XMLStreamWriter getXMLStreamWriter(final OutputStream outStream) throws ProcessingException {
@@ -99,7 +104,9 @@ public class StaxUtil {
      * Get an {@code XMLStreamWriter}
      *
      * @param writer {@code Writer}
+     *
      * @return
+     *
      * @throws ProcessingException
      */
     public static XMLStreamWriter getXMLStreamWriter(final Writer writer) throws ProcessingException {
@@ -126,6 +133,7 @@ public class StaxUtil {
      * @param writer
      * @param prefix
      * @param nsURI
+     *
      * @throws ProcessingException
      */
     public static void setPrefix(XMLStreamWriter writer, String prefix, String nsURI) throws ProcessingException {
@@ -142,6 +150,7 @@ public class StaxUtil {
      * @param writer
      * @param attributeName QName of the attribute
      * @param attributeValue
+     *
      * @throws ProcessingException
      */
     public static void writeAttribute(XMLStreamWriter writer, String attributeName, QName attributeValue)
@@ -155,6 +164,7 @@ public class StaxUtil {
      * @param writer
      * @param attributeName QName of the attribute
      * @param attributeValue
+     *
      * @throws ProcessingException
      */
     public static void writeAttribute(XMLStreamWriter writer, QName attributeName, String attributeValue)
@@ -173,6 +183,7 @@ public class StaxUtil {
      * @param writer
      * @param localName localpart
      * @param value value of the attribute
+     *
      * @throws ProcessingException
      */
     public static void writeAttribute(XMLStreamWriter writer, String localName, String value) throws ProcessingException {
@@ -190,6 +201,7 @@ public class StaxUtil {
      * @param localName localpart
      * @param type typically xsi:type
      * @param value value of the attribute
+     *
      * @throws ProcessingException
      */
     public static void writeAttribute(XMLStreamWriter writer, String localName, String type, String value)
@@ -209,6 +221,7 @@ public class StaxUtil {
      * @param localName localpart
      * @param type typically xsi:type
      * @param value value of the attribute
+     *
      * @throws ProcessingException
      */
     public static void writeAttribute(XMLStreamWriter writer, String prefix, String localName, String type, String value)
@@ -225,6 +238,7 @@ public class StaxUtil {
      *
      * @param writer
      * @param value
+     *
      * @throws ProcessingException
      */
     public static void writeCharacters(XMLStreamWriter writer, String value) throws ProcessingException {
@@ -240,6 +254,7 @@ public class StaxUtil {
      *
      * @param writer
      * @param value
+     *
      * @throws ProcessingException
      */
     public static void writeCData(XMLStreamWriter writer, String value) throws ProcessingException {
@@ -255,6 +270,7 @@ public class StaxUtil {
      *
      * @param writer
      * @param ns
+     *
      * @throws ProcessingException
      */
     public static void writeDefaultNameSpace(XMLStreamWriter writer, String ns) throws ProcessingException {
@@ -270,6 +286,7 @@ public class StaxUtil {
      *
      * @param writer
      * @param node
+     *
      * @throws ProcessingException
      */
     public static void writeDOMNode(XMLStreamWriter writer, Node node) throws ProcessingException {
@@ -304,6 +321,7 @@ public class StaxUtil {
      *
      * @param writer
      * @param domElement
+     *
      * @throws ProcessingException
      */
     public static void writeDOMElement(XMLStreamWriter writer, Element domElement) throws ProcessingException {
@@ -365,6 +383,7 @@ public class StaxUtil {
      * @param writer
      * @param prefix prefix
      * @param ns Namespace URI
+     *
      * @throws ProcessingException
      */
     public static void writeNameSpace(XMLStreamWriter writer, String prefix, String ns) throws ProcessingException {
@@ -382,6 +401,7 @@ public class StaxUtil {
      * @param prefix
      * @param localPart
      * @param ns
+     *
      * @throws ProcessingException
      */
     public static void writeStartElement(XMLStreamWriter writer, String prefix, String localPart, String ns)
@@ -394,11 +414,11 @@ public class StaxUtil {
     }
 
     /**
-     * <p>
-     * Write an end element. The stream writer keeps track of which start element needs to be closed with an end tag.
-     * </p>
+     * <p> Write an end element. The stream writer keeps track of which start element needs to be closed with an end
+     * tag. </p>
      *
      * @param writer
+     *
      * @throws ProcessingException
      */
     public static void writeEndElement(XMLStreamWriter writer) throws ProcessingException {

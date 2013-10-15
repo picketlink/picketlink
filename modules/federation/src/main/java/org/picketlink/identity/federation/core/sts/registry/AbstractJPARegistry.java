@@ -26,7 +26,6 @@ import javax.persistence.Persistence;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
  */
 public abstract class AbstractJPARegistry {
 
@@ -43,9 +42,9 @@ public abstract class AbstractJPARegistry {
             throw logger.nullArgumentError("JPA configuration name");
         this.factory = Persistence.createEntityManagerFactory(configuration);
     }
-    
+
     protected EntityManagerFactory getEntityManagerFactory() {
         return this.factory;
     }
-    
+
 }

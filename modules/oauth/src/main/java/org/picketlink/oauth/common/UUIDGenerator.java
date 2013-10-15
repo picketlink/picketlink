@@ -20,6 +20,7 @@ package org.picketlink.oauth.common;
 import java.util.UUID;
 
 public class UUIDGenerator implements ValueGenerator {
+
     private static final long serialVersionUID = -1272605436601842123L;
 
     @Override

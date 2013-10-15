@@ -20,7 +20,6 @@ package org.picketlink.identity.federation.core.parsers.wsa;
 import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.parsers.AbstractParser;
-import org.picketlink.common.parsers.ParserNamespaceSupport;
 import org.picketlink.common.util.StaxParserUtil;
 import org.picketlink.identity.federation.ws.addressing.AttributedURIType;
 import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
@@ -40,12 +39,13 @@ import javax.xml.stream.events.XMLEvent;
  * @since Oct 14, 2010
  */
 public class WSAddressingParser extends AbstractParser {
+
     public static final String ENDPOINT_REFERENCE = "EndpointReference";
 
     public static final String ADDRESS = "Address";
 
     /**
-     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
+     * @see {@link org.picketlink.common.parsers.ParserNamespaceSupport#parse(XMLEventReader)}
      */
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
         while (xmlEventReader.hasNext()) {
@@ -88,7 +88,7 @@ public class WSAddressingParser extends AbstractParser {
     }
 
     /**
-     * @see {@link ParserNamespaceSupport#supports(QName)}
+     * @see {@link org.picketlink.common.parsers.ParserNamespaceSupport#supports(QName)}
      */
     public boolean supports(QName qname) {
         return WSTrustConstants.WSA_NS.equals(qname.getNamespaceURI());

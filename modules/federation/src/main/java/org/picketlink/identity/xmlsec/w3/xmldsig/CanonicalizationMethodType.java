@@ -38,10 +38,9 @@ import java.net.URI;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class CanonicalizationMethodType {
+
     protected URI algorithm;
     private Object content;
 
@@ -61,7 +60,6 @@ public class CanonicalizationMethodType {
      * Gets the value of the algorithm property.
      *
      * @return possible object is {@link String }
-     *
      */
     public URI getAlgorithm() {
         return algorithm;

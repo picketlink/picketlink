@@ -38,10 +38,9 @@ import java.math.BigInteger;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class X509IssuerSerialType {
+
     protected String x509IssuerName;
     protected BigInteger x509SerialNumber;
 
@@ -49,7 +48,6 @@ public class X509IssuerSerialType {
      * Gets the value of the x509IssuerName property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getX509IssuerName() {
         return x509IssuerName;
@@ -59,7 +57,6 @@ public class X509IssuerSerialType {
      * Sets the value of the x509IssuerName property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setX509IssuerName(String value) {
         this.x509IssuerName = value;
@@ -69,7 +66,6 @@ public class X509IssuerSerialType {
      * Gets the value of the x509SerialNumber property.
      *
      * @return possible object is {@link BigInteger }
-     *
      */
     public BigInteger getX509SerialNumber() {
         return x509SerialNumber;
@@ -79,7 +75,6 @@ public class X509IssuerSerialType {
      * Sets the value of the x509SerialNumber property.
      *
      * @param value allowed object is {@link BigInteger }
-     *
      */
     public void setX509SerialNumber(BigInteger value) {
         this.x509SerialNumber = value;
