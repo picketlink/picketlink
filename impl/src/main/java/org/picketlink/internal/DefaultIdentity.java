@@ -68,7 +68,8 @@ public class DefaultIdentity implements Identity {
     @Inject
     private Instance<IdmAuthenticator> idmAuthenticatorInstance;
 
-    private PermissionResolver permissionResolver;
+    @Inject
+    private transient PermissionResolver permissionResolver;
 
     /**
      * Flag indicating whether we are currently authenticating

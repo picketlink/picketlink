@@ -25,8 +25,10 @@ import org.kie.api.runtime.KieSession;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.permission.spi.PermissionVoter;
 
-
 /**
+ * A PermissionVoter implementation that uses Drools to provide rule-based permission checks. A
+ * PermissionCheck object is created and inserted into the Drools session object, upon which all
+ * rules are then fired.
  *
  * @author Shane Bryzak
  *
@@ -41,13 +43,25 @@ public class DroolsPermissionVoter implements PermissionVoter {
 
     @Override
     public VotingResult hasPermission(IdentityType recipient, Object resource, String operation) {
+        VotingResult result = VotingResult.DENY;
+
         KieSession session = securityRules.newKieSession();
 
+        PermissionCheck check = new PermissionCheck(recipient, resource, operation);
+
+        session.insert(check);
         session.fireAllRules();
-        // TODO Auto-generated method stub
-        return null;
+
+        if (check.isGranted()) {
+            result = VotingResult.ALLOW;
+        }
+
+        return result;
     }
 
+    /**
+     * Rule-based permission checks only work with the actual resource instance, not with the identifier.
+     */
     @Override
     public VotingResult hasPermission(IdentityType recipient, Class<?> resourceClass, Serializable identifier, String operation) {
         return VotingResult.NOT_APPLICABLE;

@@ -19,6 +19,7 @@
 package org.picketlink.producer;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -43,7 +44,12 @@ public class PermissionResolverProducer {
     public void init(Instance<PermissionVoter> votersInstance) {
         List<PermissionVoter> voters = new ArrayList<PermissionVoter>();
 
-        // TODO populate the voters
+        if (!votersInstance.isUnsatisfied()) {
+            Iterator<PermissionVoter> voterIterator = votersInstance.iterator();
+            while (voterIterator.hasNext()) {
+                voters.add(voterIterator.next());
+            }
+        }
 
         resolver = new PermissionResolver(voters);
     }
