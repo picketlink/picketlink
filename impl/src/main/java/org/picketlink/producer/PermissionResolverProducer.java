@@ -39,7 +39,7 @@ public class PermissionResolverProducer {
 
     private PermissionResolver resolver;
 
-    @Inject 
+    @Inject
     public void init(Instance<PermissionVoter> votersInstance) {
         List<PermissionVoter> voters = new ArrayList<PermissionVoter>();
 
