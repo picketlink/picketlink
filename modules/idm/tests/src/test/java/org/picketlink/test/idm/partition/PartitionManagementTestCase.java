@@ -57,6 +57,31 @@ public class PartitionManagementTestCase extends AbstractPartitionManagerTestCas
     }
 
     @Test
+    public void testLookupById() {
+        PartitionManager partitionManager = getPartitionManager();
+
+        Realm realmA = new Realm("Realm A");
+
+        partitionManager.add(realmA);
+
+        Tier tierA = new Tier("Tier A");
+
+        partitionManager.add(tierA);
+
+        Realm lookedUpRealmA = partitionManager.lookupById(Realm.class, realmA.getId());
+
+        assertNotNull(lookedUpRealmA.getId());
+        assertEquals(realmA.getId(), lookedUpRealmA.getId());
+
+        Tier lookedUpTierA = partitionManager.lookupById(Tier.class, tierA.getId());
+
+        assertNotNull(lookedUpTierA.getId());
+        assertEquals(tierA.getId(), lookedUpTierA.getId());
+
+        assertNull(partitionManager.lookupById(Tier.class, realmA.getId()));
+    }
+
+    @Test
     public void testRemovePartitionWithIdentityTypes() {
         PartitionManager partitionManager = getPartitionManager();
         Realm somePartition = new Realm("somePartition");
