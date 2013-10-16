@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * <p>A class used to build the configuration for identity stores. Only a single configuration can exists for a given

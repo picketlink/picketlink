@@ -35,10 +35,9 @@ import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class RequestedAttributeType extends AttributeType {
+
     private static final long serialVersionUID = 1L;
 
     public RequestedAttributeType(String name) {
@@ -51,7 +50,6 @@ public class RequestedAttributeType extends AttributeType {
      * Gets the value of the isRequired property.
      *
      * @return possible object is {@link Boolean }
-     *
      */
     public Boolean isIsRequired() {
         return isRequired;
@@ -61,7 +59,6 @@ public class RequestedAttributeType extends AttributeType {
      * Sets the value of the isRequired property.
      *
      * @param value allowed object is {@link Boolean }
-     *
      */
     public void setIsRequired(Boolean value) {
         this.isRequired = value;

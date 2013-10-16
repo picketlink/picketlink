@@ -43,6 +43,7 @@ import static org.mockito.Mockito.when;
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
  */
 public class STSValidatingLoginModuleTestCase extends TestCase {
+
     private STSClient stsClient;
 
     public void setUp() {
@@ -65,7 +66,7 @@ public class STSValidatingLoginModuleTestCase extends TestCase {
         // Simulate Phase 2
         assertTrue(loginModule.commit());
 
-        final Set<SamlCredential> samlCredentials = subject.<SamlCredential> getPublicCredentials(SamlCredential.class);
+        final Set<SamlCredential> samlCredentials = subject.<SamlCredential>getPublicCredentials(SamlCredential.class);
         assertEquals(1, samlCredentials.size());
     }
 
@@ -108,7 +109,7 @@ public class STSValidatingLoginModuleTestCase extends TestCase {
         // Simulate Phase 2
         assertTrue(loginModule.commit());
 
-        final Set<SamlCredential> samlCredentials = subject.<SamlCredential> getPublicCredentials(SamlCredential.class);
+        final Set<SamlCredential> samlCredentials = subject.<SamlCredential>getPublicCredentials(SamlCredential.class);
         assertEquals(1, samlCredentials.size());
     }
 
@@ -119,6 +120,7 @@ public class STSValidatingLoginModuleTestCase extends TestCase {
     }
 
     private class TestCallbackHandler implements CallbackHandler {
+
         private final Object token;
 
         public TestCallbackHandler(final Object token) {
@@ -135,6 +137,7 @@ public class STSValidatingLoginModuleTestCase extends TestCase {
     }
 
     private class FakeSTSValidatingLoginModule extends STSValidatingLoginModule {
+
         private STSClient client;
 
         public FakeSTSValidatingLoginModule(final STSClient client) {

@@ -30,7 +30,7 @@ import java.io.IOException;
  * @since Jan 4, 2011
  */
 public abstract class FileBasedSTSOperations {
-    
+
     protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     protected File directory;
@@ -52,6 +52,7 @@ public abstract class FileBasedSTSOperations {
      * Create a file with the provided name
      *
      * @param fileName
+     *
      * @return {@code File} handle
      */
     protected File create(String fileName) {

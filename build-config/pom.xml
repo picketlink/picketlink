@@ -6,8 +6,11 @@
 		<version>2.5.3-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
+
 	<artifactId>picketlink-build-config</artifactId>
-	<name>PicketLink Build Configuration</name>
+
+  <name>PicketLink Build Configuration</name>
+
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>

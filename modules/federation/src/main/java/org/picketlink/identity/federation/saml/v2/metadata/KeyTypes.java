@@ -33,7 +33,6 @@ package org.picketlink.identity.federation.saml.v2.metadata;
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
- *
  */
 public enum KeyTypes {
     ENCRYPTION("encryption"), SIGNING("signing");

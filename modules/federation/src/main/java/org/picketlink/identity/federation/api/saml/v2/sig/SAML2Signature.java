@@ -17,21 +17,6 @@
  */
 package org.picketlink.identity.federation.api.saml.v2.sig;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.PublicKey;
-import java.security.cert.X509Certificate;
-
-import javax.xml.crypto.MarshalException;
-import javax.xml.crypto.dsig.DigestMethod;
-import javax.xml.crypto.dsig.SignatureMethod;
-import javax.xml.crypto.dsig.XMLSignatureException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.xpath.XPathException;
-
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.JBossSAMLConstants;
@@ -61,6 +46,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
+import java.security.cert.X509Certificate;
 
 /**
  * Class that deals with SAML2 Signature
@@ -70,9 +56,9 @@ import java.security.PublicKey;
  * @since May 26, 2009
  */
 public class SAML2Signature {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private static final String ID_ATTRIBUTE_NAME = "ID";
 
     private String signatureMethod = SignatureMethod.RSA_SHA1;
@@ -110,6 +96,7 @@ public class SAML2Signature {
      * Set to false, if you do not want to include keyinfo in the signature
      *
      * @param val
+     *
      * @since v2.0.1
      */
     public void setSignatureIncludeKeyInfo(boolean val) {
@@ -125,6 +112,7 @@ public class SAML2Signature {
      * This method needs to be called before any of the sign methods.
      *
      * @param x509Certificate
+     *
      * @since v2.5.0
      */
     public void setX509Certificate(X509Certificate x509Certificate) {
@@ -138,7 +126,9 @@ public class SAML2Signature {
      * @param keypair Key Pair
      * @param digestMethod (Example: DigestMethod.SHA1)
      * @param signatureMethod (Example: SignatureMethod.DSA_SHA1)
+     *
      * @return
+     *
      * @throws ParserConfigurationException
      * @throws IOException
      * @throws SAXException
@@ -167,7 +157,9 @@ public class SAML2Signature {
      * @param keypair Key Pair
      * @param digestMethod (Example: DigestMethod.SHA1)
      * @param signatureMethod (Example: SignatureMethod.DSA_SHA1)
+     *
      * @return
+     *
      * @throws ParserConfigurationException
      * @throws XMLSignatureException
      * @throws MarshalException
@@ -194,7 +186,9 @@ public class SAML2Signature {
      * @param keyPair Key Pair
      * @param digestMethod (Example: DigestMethod.SHA1)
      * @param signatureMethod (Example: SignatureMethod.DSA_SHA1)
+     *
      * @return
+     *
      * @throws ParserConfigurationException
      * @throws XMLSignatureException
      * @throws MarshalException
@@ -215,7 +209,7 @@ public class SAML2Signature {
             dto.setReferenceURI(referenceURI);
             dto.setNextSibling(sibling);
 
-            if(x509Certificate != null){
+            if (x509Certificate != null) {
                 dto.setX509Certificate(x509Certificate);
             }
 
@@ -231,7 +225,9 @@ public class SAML2Signature {
      * @param idValueOfAssertion
      * @param keypair
      * @param referenceURI
+     *
      * @return
+     *
      * @throws ParserConfigurationException
      * @throws TransformerException
      * @throws TransformerFactoryConfigurationError
@@ -262,7 +258,9 @@ public class SAML2Signature {
      * @param idValueOfAssertion
      * @param keypair
      * @param referenceURI
+     *
      * @return
+     *
      * @throws ParserConfigurationException
      * @throws XPathException
      * @throws TransformerFactoryConfigurationError
@@ -282,6 +280,7 @@ public class SAML2Signature {
      *
      * @param samlDocument
      * @param keypair
+     *
      * @throws ProcessingException
      */
     public void signSAMLDocument(Document samlDocument, KeyPair keypair) throws ProcessingException {
@@ -299,7 +298,9 @@ public class SAML2Signature {
      *
      * @param signedDocument
      * @param publicKey
+     *
      * @return
+     *
      * @throws ProcessingException
      */
     public boolean validate(Document signedDocument, PublicKey publicKey) throws ProcessingException {
@@ -315,7 +316,9 @@ public class SAML2Signature {
 
     /**
      * Given a {@link Document}, find the {@link Node} which is the sibling of the Issuer element
+     *
      * @param doc
+     *
      * @return
      */
     public Node getNextSiblingOfIssuer(Document doc) {
@@ -331,7 +334,8 @@ public class SAML2Signature {
 
     /**
      * <p>
-     * Sets the IDness of the ID attribute. Santuario 1.5.1 does not assumes IDness based on attribute names anymore. This
+     * Sets the IDness of the ID attribute. Santuario 1.5.1 does not assumes IDness based on attribute names anymore.
+     * This
      * method should be called before signing/validating a saml document.
      * </p>
      *

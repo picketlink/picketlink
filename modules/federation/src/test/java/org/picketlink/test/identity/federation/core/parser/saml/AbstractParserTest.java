@@ -33,6 +33,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Jun 30, 2011
  */
 public class AbstractParserTest {
+
     public void validateSchema(String value) throws Exception {
         System.setProperty("jaxp.debug", "true");
         Validator validator = JAXPValidationUtil.validator();

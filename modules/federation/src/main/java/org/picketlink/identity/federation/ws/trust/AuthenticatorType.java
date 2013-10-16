@@ -38,10 +38,9 @@ import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class AuthenticatorType extends AnyAddressingType {
+
     protected byte[] combinedHash;
 
     /**

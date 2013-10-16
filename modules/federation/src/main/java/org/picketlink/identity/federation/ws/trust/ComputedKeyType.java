@@ -18,6 +18,7 @@
 package org.picketlink.identity.federation.ws.trust;
 
 public class ComputedKeyType {
+
     private String algorithm;
 
     /**

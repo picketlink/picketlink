@@ -38,10 +38,9 @@ import org.picketlink.identity.federation.ws.addressing.BaseAddressingType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ReferenceType extends BaseAddressingType {
+
     protected String uri;
 
     protected String valueType;
@@ -50,7 +49,6 @@ public class ReferenceType extends BaseAddressingType {
      * Gets the value of the uri property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getURI() {
         return uri;
@@ -60,7 +58,6 @@ public class ReferenceType extends BaseAddressingType {
      * Sets the value of the uri property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setURI(String value) {
         this.uri = value;
@@ -70,7 +67,6 @@ public class ReferenceType extends BaseAddressingType {
      * Gets the value of the valueType property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getValueType() {
         return valueType;
@@ -80,7 +76,6 @@ public class ReferenceType extends BaseAddressingType {
      * Sets the value of the valueType property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setValueType(String value) {
         this.valueType = value;

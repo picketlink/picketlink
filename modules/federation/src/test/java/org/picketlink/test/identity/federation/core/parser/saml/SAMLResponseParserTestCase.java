@@ -61,6 +61,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Nov 2, 2010
  */
 public class SAMLResponseParserTestCase extends AbstractParserTest {
+
     @Test
     public void testSAMLResponseParse() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();

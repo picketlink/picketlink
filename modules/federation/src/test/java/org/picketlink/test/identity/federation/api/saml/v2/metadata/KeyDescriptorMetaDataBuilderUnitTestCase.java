@@ -32,6 +32,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Apr 20, 2009
  */
 public class KeyDescriptorMetaDataBuilderUnitTestCase {
+
     @Test
     public void testCreateKeyDescriptor() {
         Element keyInfo = KeyInfoBuilder.createKeyInfo("testKey");

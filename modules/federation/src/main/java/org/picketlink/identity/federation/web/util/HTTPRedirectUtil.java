@@ -27,12 +27,15 @@ import java.io.IOException;
  * @since Dec 15, 2008
  */
 public class HTTPRedirectUtil {
+
     /**
-     * Send the response to the redirected destination while adding the character encoding of "UTF-8" as well as adding headers
+     * Send the response to the redirected destination while adding the character encoding of "UTF-8" as well as adding
+     * headers
      * for cache-control and Pragma
      *
      * @param destination Destination URI where the response needs to redirect
      * @param response HttpServletResponse
+     *
      * @throws IOException
      */
     public static void sendRedirectForRequestor(String destination, HttpServletResponse response) throws IOException {

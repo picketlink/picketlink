@@ -40,7 +40,8 @@ import java.util.List;
  *             &lt;element ref="{urn:oasis:names:tc:SAML:2.0:assertion}NameID"/>
  *             &lt;element ref="{urn:oasis:names:tc:SAML:2.0:assertion}EncryptedID"/>
  *           &lt;/choice>
- *           &lt;element ref="{urn:oasis:names:tc:SAML:2.0:assertion}SubjectConfirmation" maxOccurs="unbounded" minOccurs="0"/>
+ *           &lt;element ref="{urn:oasis:names:tc:SAML:2.0:assertion}SubjectConfirmation" maxOccurs="unbounded"
+ * minOccurs="0"/>
  *         &lt;/sequence>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:assertion}SubjectConfirmation" maxOccurs="unbounded"/>
  *       &lt;/choice>
@@ -48,10 +49,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class SubjectType implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     protected List<SubjectConfirmationType> subjectConfirmation = new ArrayList<SubjectConfirmationType>();
@@ -113,6 +113,7 @@ public class SubjectType implements Serializable {
     }
 
     public static class STSubType implements Serializable {
+
         private static final long serialVersionUID = -4073731807610876524L;
 
         private BaseIDAbstractType baseID;

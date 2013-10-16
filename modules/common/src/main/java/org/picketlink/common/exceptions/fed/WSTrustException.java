@@ -27,6 +27,7 @@ import java.security.GeneralSecurityException;
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public class WSTrustException extends GeneralSecurityException {
+
     private static final long serialVersionUID = -232066282004315310L;
 
     /**
@@ -51,7 +52,7 @@ public class WSTrustException extends GeneralSecurityException {
     public WSTrustException(String message, Throwable cause) {
         super(message, cause);
     }
-    
+
     /**
      * <p>
      * Creates an instance of {@code WSTrustException} using the specified {@link Throwable}.

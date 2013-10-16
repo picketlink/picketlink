@@ -191,11 +191,13 @@ public class SAML2InResponseToVerificationHandlerUnitTestCase extends TestCase {
      * @param samlReqDoc Document for generated SAML Request object
      * @param httpContext httpContext
      * @param handlerConfig handlerConfig
+     *
      * @return SAML2HandlerResponse after receiving response from IDP
+     *
      * @throws Exception
      */
     private SAML2HandlerResponse sendRequestToIdp(AuthnRequestType authnRequest, Document samlReqDoc, HTTPContext httpContext,
-            SAML2HandlerConfig handlerConfig) throws Exception {
+                                                  SAML2HandlerConfig handlerConfig) throws Exception {
         // Generate handler request and handler response for IDP
         IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
         SAMLDocumentHolder docHolder = new SAMLDocumentHolder(authnRequest, samlReqDoc);
@@ -248,7 +250,7 @@ public class SAML2InResponseToVerificationHandlerUnitTestCase extends TestCase {
     }
 
     private HandlerContext getHandlerRequestAndResponse(HTTPContext httpContext, IssuerInfoHolder issuerInfo,
-            String responseString) throws Exception {
+                                                        String responseString) throws Exception {
         ResponseType responseType = getResponseTypeFromString(responseString);
         SAML2Response saml2Response = new SAML2Response();
         Document doc = saml2Response.convert(responseType);
@@ -261,6 +263,7 @@ public class SAML2InResponseToVerificationHandlerUnitTestCase extends TestCase {
     }
 
     private class HandlerContext {
+
         private final SAML2HandlerRequest request;
 
         private final SAML2HandlerResponse response;

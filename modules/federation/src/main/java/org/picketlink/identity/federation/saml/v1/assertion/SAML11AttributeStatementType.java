@@ -22,7 +22,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <complexType name="AttributeStatementType"> <complexContent> <extension base="saml:SubjectStatementAbstractType"> <sequence>
+ * <complexType name="AttributeStatementType"> <complexContent> <extension base="saml:SubjectStatementAbstractType">
+ * <sequence>
  * <element ref="saml:Attribute" maxOccurs="unbounded"/>
  *
  * </sequence> </extension> </complexContent> </complexType>
@@ -31,6 +32,7 @@ import java.util.List;
  * @since Jun 22, 2011
  */
 public class SAML11AttributeStatementType extends SAML11SubjectStatementType {
+
     private static final long serialVersionUID = 1L;
 
     protected List<SAML11AttributeType> attribute = new ArrayList<SAML11AttributeType>();

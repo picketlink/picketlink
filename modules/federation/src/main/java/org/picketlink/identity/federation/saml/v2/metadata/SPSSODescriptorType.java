@@ -34,7 +34,8 @@ import java.util.List;
  *     &lt;extension base="{urn:oasis:names:tc:SAML:2.0:metadata}SSODescriptorType">
  *       &lt;sequence>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AssertionConsumerService" maxOccurs="unbounded"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AttributeConsumingService" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AttributeConsumingService" maxOccurs="unbounded"
+ * minOccurs="0"/>
  *       &lt;/sequence>
  *       &lt;attribute name="AuthnRequestsSigned" type="{http://www.w3.org/2001/XMLSchema}boolean" />
  *       &lt;attribute name="WantAssertionsSigned" type="{http://www.w3.org/2001/XMLSchema}boolean" />
@@ -42,10 +43,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class SPSSODescriptorType extends SSODescriptorType {
+
     protected List<IndexedEndpointType> assertionConsumerService = new ArrayList<IndexedEndpointType>();
 
     protected List<AttributeConsumingServiceType> attributeConsumingService = new ArrayList<AttributeConsumingServiceType>();
@@ -116,7 +116,6 @@ public class SPSSODescriptorType extends SSODescriptorType {
      * Gets the value of the authnRequestsSigned property.
      *
      * @return possible object is {@link Boolean }
-     *
      */
     public Boolean isAuthnRequestsSigned() {
         return authnRequestsSigned;
@@ -126,7 +125,6 @@ public class SPSSODescriptorType extends SSODescriptorType {
      * Sets the value of the authnRequestsSigned property.
      *
      * @param value allowed object is {@link Boolean }
-     *
      */
     public void setAuthnRequestsSigned(Boolean value) {
         this.authnRequestsSigned = value;
@@ -136,7 +134,6 @@ public class SPSSODescriptorType extends SSODescriptorType {
      * Gets the value of the wantAssertionsSigned property.
      *
      * @return possible object is {@link Boolean }
-     *
      */
     public Boolean isWantAssertionsSigned() {
         return wantAssertionsSigned;
@@ -146,7 +143,6 @@ public class SPSSODescriptorType extends SSODescriptorType {
      * Sets the value of the wantAssertionsSigned property.
      *
      * @param value allowed object is {@link Boolean }
-     *
      */
     public void setWantAssertionsSigned(Boolean value) {
         this.wantAssertionsSigned = value;

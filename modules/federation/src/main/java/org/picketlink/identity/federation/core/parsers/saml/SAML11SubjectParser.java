@@ -46,9 +46,9 @@ import java.net.URI;
  * @since Oct 12, 2010
  */
 public class SAML11SubjectParser implements ParserNamespaceSupport {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     /**
      * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
      */

@@ -32,6 +32,7 @@ import java.util.Set;
  * @since Oct 1, 2009
  */
 public class DefaultSAML2HandlerChain implements SAML2HandlerChain {
+
     private Set<SAML2Handler> handlers = new LinkedHashSet<SAML2Handler>();
 
     /**

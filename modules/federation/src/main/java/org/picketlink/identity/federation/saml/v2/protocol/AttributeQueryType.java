@@ -42,10 +42,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class AttributeQueryType extends SubjectQueryAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     protected List<AttributeType> attribute = new ArrayList<AttributeType>();

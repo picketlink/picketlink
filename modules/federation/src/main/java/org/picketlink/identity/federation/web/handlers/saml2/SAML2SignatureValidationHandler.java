@@ -127,6 +127,7 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
      * </p>
      *
      * @param httpContext
+     *
      * @throws org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException
      * @throws ProcessingException
      */

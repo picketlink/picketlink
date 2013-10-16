@@ -22,20 +22,18 @@ import org.picketlink.idm.model.Account;
 
 /**
  * This event is raised just before the user un-authenticates
- * 
+ *
  * @author Shane Bryzak
  */
-public class PreLoggedOutEvent 
-{
+public class PreLoggedOutEvent {
+
     private Account account;
 
-    public PreLoggedOutEvent(Account account)
-    {
+    public PreLoggedOutEvent(Account account) {
         this.account = account;
     }
 
-    public Account getAccount()
-    {
+    public Account getAccount() {
         return account;
     }
 }

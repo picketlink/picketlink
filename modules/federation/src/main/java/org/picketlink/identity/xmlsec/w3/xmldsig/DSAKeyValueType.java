@@ -57,10 +57,9 @@ import java.security.spec.DSAPublicKeySpec;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class DSAKeyValueType implements KeyValueType {
+
     protected byte[] p;
     protected byte[] q;
     protected byte[] g;
@@ -197,10 +196,12 @@ public class DSAKeyValueType implements KeyValueType {
 
     /**
      * Convert to the JDK representation of a DSA Public Key
+     *
      * @return
+     *
      * @throws ProcessingException
      */
-    public DSAPublicKey convertToPublicKey() throws ProcessingException{
+    public DSAPublicKey convertToPublicKey() throws ProcessingException {
         BigInteger BigY, BigP, BigQ, BigG;
 
         BigY = new BigInteger(1, massage(Base64.decode(new String(y))));
@@ -216,13 +217,15 @@ public class DSAKeyValueType implements KeyValueType {
             throw new ProcessingException(e);
         }
     }
-    
+
     /**
      * Convert to the JDK representation of a DSA Private Key
+     *
      * @return
+     *
      * @throws ProcessingException
      */
-    public DSAPrivateKey convertToPrivateKey() throws ProcessingException{
+    public DSAPrivateKey convertToPrivateKey() throws ProcessingException {
         BigInteger BigY, BigP, BigQ, BigG;
 
         BigY = new BigInteger(1, massage(Base64.decode(new String(y))));
@@ -239,7 +242,7 @@ public class DSAKeyValueType implements KeyValueType {
         }
     }
 
-    public String toString(){
+    public String toString() {
         String prefix = WSTrustConstants.XMLDSig.DSIG_PREFIX;
         String colon = ":";
         String left = "<";
@@ -250,37 +253,37 @@ public class DSAKeyValueType implements KeyValueType {
 
         sb.append(left).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.DSA_KEYVALUE).append(right);
 
-        if(p != null){
+        if (p != null) {
             sb.append(left).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.P).append(right);
             sb.append(new String(getP()));
             sb.append(left).append(slash).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.P).append(right);
         }
 
-        if(q != null){
+        if (q != null) {
             sb.append(left).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.Q).append(right);
             sb.append(new String(getQ()));
             sb.append(left).append(slash).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.Q).append(right);
         }
 
-        if(g != null){
+        if (g != null) {
             sb.append(left).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.G).append(right);
             sb.append(new String(getG()));
             sb.append(left).append(slash).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.G).append(right);
         }
 
-        if(y != null){
+        if (y != null) {
             sb.append(left).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.Y).append(right);
             sb.append(new String(getY()));
             sb.append(left).append(slash).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.Y).append(right);
         }
 
-        if(seed != null){
+        if (seed != null) {
             sb.append(left).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.SEED).append(right);
             sb.append(new String(getSeed()));
             sb.append(left).append(slash).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.SEED).append(right);
         }
 
-        if(pgenCounter != null){
+        if (pgenCounter != null) {
             sb.append(left).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.PGEN_COUNTER).append(right);
             sb.append(new String(getPgenCounter()));
             sb.append(left).append(slash).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.PGEN_COUNTER).append(right);
@@ -290,8 +293,8 @@ public class DSAKeyValueType implements KeyValueType {
         return sb.toString();
     }
 
-    private byte[] massage(byte[] byteArray){
-        if (byteArray[0] == 0){
+    private byte[] massage(byte[] byteArray) {
+        if (byteArray[0] == 0) {
             byte[] substring = new byte[byteArray.length - 1];
             System.arraycopy(byteArray, 1, substring, 0, byteArray.length - 1);
             return substring;

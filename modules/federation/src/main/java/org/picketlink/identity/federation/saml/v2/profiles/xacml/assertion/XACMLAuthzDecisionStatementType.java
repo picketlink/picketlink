@@ -40,10 +40,9 @@ import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractTyp
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class XACMLAuthzDecisionStatementType extends StatementAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     public static final String XSI_TYPE = "xacml-saml:XACMLAuthzDecisionStatementType";
@@ -56,7 +55,6 @@ public class XACMLAuthzDecisionStatementType extends StatementAbstractType {
      * Gets the value of the response property.
      *
      * @return possible object is {@link ResponseType }
-     *
      */
     public ResponseType getResponse() {
         return response;
@@ -66,7 +64,6 @@ public class XACMLAuthzDecisionStatementType extends StatementAbstractType {
      * Sets the value of the response property.
      *
      * @param value allowed object is {@link ResponseType }
-     *
      */
     public void setResponse(ResponseType value) {
         this.response = value;
@@ -76,7 +73,6 @@ public class XACMLAuthzDecisionStatementType extends StatementAbstractType {
      * Gets the value of the request property.
      *
      * @return possible object is {@link RequestType }
-     *
      */
     public RequestType getRequest() {
         return request;
@@ -86,7 +82,6 @@ public class XACMLAuthzDecisionStatementType extends StatementAbstractType {
      * Sets the value of the request property.
      *
      * @param value allowed object is {@link RequestType }
-     *
      */
     public void setRequest(RequestType value) {
         this.request = value;

@@ -34,7 +34,8 @@ import java.util.List;
  *     &lt;extension base="{urn:oasis:names:tc:SAML:2.0:metadata}RoleDescriptorType">
  *       &lt;sequence>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AuthnQueryService" maxOccurs="unbounded"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AssertionIDRequestService" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}AssertionIDRequestService" maxOccurs="unbounded"
+ * minOccurs="0"/>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}NameIDFormat" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/extension>
@@ -43,6 +44,7 @@ import java.util.List;
  * </pre>
  */
 public class AuthnAuthorityDescriptorType extends RoleDescriptorType {
+
     protected List<EndpointType> authnQueryService = new ArrayList<EndpointType>();
 
     protected List<EndpointType> assertionIDRequestService = new ArrayList<EndpointType>();
@@ -111,8 +113,6 @@ public class AuthnAuthorityDescriptorType extends RoleDescriptorType {
      * Gets the value of the authnQueryService property.
      * <p>
      * Objects of the following type(s) are allowed in the list {@link EndpointType }
-     *
-     *
      */
     public List<EndpointType> getAuthnQueryService() {
         return Collections.unmodifiableList(this.authnQueryService);
@@ -122,8 +122,6 @@ public class AuthnAuthorityDescriptorType extends RoleDescriptorType {
      * Gets the value of the assertionIDRequestService property.
      * <p>
      * Objects of the following type(s) are allowed in the list {@link EndpointType }
-     *
-     *
      */
     public List<EndpointType> getAssertionIDRequestService() {
         return Collections.unmodifiableList(this.assertionIDRequestService);
@@ -133,8 +131,6 @@ public class AuthnAuthorityDescriptorType extends RoleDescriptorType {
      * Gets the value of the nameIDFormat property.
      * <p>
      * Objects of the following type(s) are allowed in the list {@link String }
-     *
-     *
      */
     public List<String> getNameIDFormat() {
         return Collections.unmodifiableList(this.nameIDFormat);

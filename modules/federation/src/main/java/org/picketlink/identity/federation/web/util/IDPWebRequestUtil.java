@@ -58,7 +58,7 @@ import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.util.StringTokenizer;
 
-import static org.picketlink.common.util.StringUtil.*;
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 /**
  * Request Util <b> Not thread safe</b>
@@ -149,6 +149,7 @@ public class IDPWebRequestUtil {
      * Verify that the issuer is trusted
      *
      * @param issuer
+     *
      * @throws IssuerNotTrustedException
      */
     public void isTrusted(String issuer) throws IssuerNotTrustedException {
@@ -183,6 +184,7 @@ public class IDPWebRequestUtil {
      * Send a response
      *
      * @param holder
+     *
      * @throws GeneralSecurityException
      * @throws IOException
      */
@@ -239,6 +241,7 @@ public class IDPWebRequestUtil {
      *
      * @param urlEncodedResponse
      * @param urlEncodedRelayState
+     *
      * @return
      */
     public String getDestination(String urlEncodedResponse, String urlEncodedRelayState, boolean supportSignature,
@@ -277,7 +280,9 @@ public class IDPWebRequestUtil {
      * @param status
      * @param identityURL
      * @param supportSignature
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     public Document getErrorResponse(String responseURL, String status, String identityURL, boolean supportSignature) {
@@ -335,7 +340,9 @@ public class IDPWebRequestUtil {
      * Given a SP or IDP issuer from the assertion, return the host
      *
      * @param domainURL
+     *
      * @return
+     *
      * @throws IOException
      */
     private static String getDomain(String domainURL) throws IOException {
@@ -344,6 +351,7 @@ public class IDPWebRequestUtil {
     }
 
     public class WebRequestUtilHolder {
+
         private Document responseDoc;
 
         private String relayState;

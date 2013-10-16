@@ -38,6 +38,7 @@ import java.util.concurrent.locks.Lock;
  * @since Oct 27, 2009
  */
 public class SAMLHandlerChainProcessor {
+
     private final Set<SAML2Handler> handlers = new LinkedHashSet<SAML2Handler>();
     private final PicketLinkType configuration;
 
@@ -47,7 +48,7 @@ public class SAMLHandlerChainProcessor {
     }
 
     public void callHandlerChain(SAML2Object samlObject, SAML2HandlerRequest saml2HandlerRequest,
-            SAML2HandlerResponse saml2HandlerResponse, HTTPContext httpContext, Lock chainLock) throws ProcessingException,
+                                 SAML2HandlerResponse saml2HandlerResponse, HTTPContext httpContext, Lock chainLock) throws ProcessingException,
             IOException {
         try {
             if (this.configuration.getHandlers().isLocking()) {

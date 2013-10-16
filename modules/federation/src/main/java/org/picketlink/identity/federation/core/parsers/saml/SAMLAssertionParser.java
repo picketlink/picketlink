@@ -59,6 +59,7 @@ import javax.xml.stream.events.XMLEvent;
  * @since Oct 12, 2010
  */
 public class SAMLAssertionParser implements ParserNamespaceSupport {
+
     private final String ASSERTION = JBossSAMLConstants.ASSERTION.get();
 
     public AssertionType fromElement(Element element) throws ConfigurationException, ProcessingException, ParsingException {

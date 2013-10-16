@@ -50,11 +50,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ExtensionOnlyType", propOrder = { "extension" })
+@XmlType(name = "ExtensionOnlyType", propOrder = {"extension"})
 public class ExtensionOnlyType {
 
     @XmlElement(name = "Extension")
@@ -64,7 +62,8 @@ public class ExtensionOnlyType {
      * Gets the value of the extension property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to the
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the
      * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
      * extension property.
      *
@@ -78,8 +77,6 @@ public class ExtensionOnlyType {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link ExtensionType }
-     *
-     *
      */
     public List<ExtensionType> getExtension() {
         if (extension == null) {

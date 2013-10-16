@@ -50,6 +50,7 @@ import java.util.concurrent.locks.Lock;
  * @since Oct 27, 2009
  */
 public class ServiceProviderSAMLRequestProcessor extends ServiceProviderBaseProcessor {
+
     /**
      * Construct
      *
@@ -67,7 +68,9 @@ public class ServiceProviderSAMLRequestProcessor extends ServiceProviderBaseProc
      * @param httpContext
      * @param handlers
      * @param chainLock A Lock on the chain of handlers that needs to be used for locking
+     *
      * @return
+     *
      * @throws ProcessingException
      * @throws IOException
      * @throws ParsingException
@@ -118,12 +121,12 @@ public class ServiceProviderSAMLRequestProcessor extends ServiceProviderBaseProc
 
                 // This is the case with signatures disabled
                 if (destinationQuery == null) {
-                   boolean areWeSendingRequest = saml2HandlerResponse.getSendRequest();
-                   String samlMsg = DocumentUtil.getDocumentAsString(samlResponseDocument);
+                    boolean areWeSendingRequest = saml2HandlerResponse.getSendRequest();
+                    String samlMsg = DocumentUtil.getDocumentAsString(samlResponseDocument);
 
-                   String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMsg.getBytes("UTF-8"));
-                   destinationQuery = RedirectBindingUtil.getDestinationQueryString(base64Request, relayState,
-                         areWeSendingRequest);
+                    String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMsg.getBytes("UTF-8"));
+                    destinationQuery = RedirectBindingUtil.getDestinationQueryString(base64Request, relayState,
+                            areWeSendingRequest);
                 }
 
                 RedirectBindingUtilDestHolder holder = new RedirectBindingUtilDestHolder();
@@ -147,12 +150,13 @@ public class ServiceProviderSAMLRequestProcessor extends ServiceProviderBaseProc
      * @param relayState
      * @param response
      * @param willSendRequest are we sending Request or Response to IDP
+     *
      * @throws ProcessingException
      * @throws ConfigurationException
      * @throws IOException
      */
     protected void sendRequestToIDP(String destination, Document samlDocument, String relayState, HttpServletResponse response,
-            boolean willSendRequest) throws ProcessingException, ConfigurationException, IOException {
+                                    boolean willSendRequest) throws ProcessingException, ConfigurationException, IOException {
         String samlMessage = DocumentUtil.getDocumentAsString(samlDocument);
         samlMessage = PostBindingUtil.base64Encode(samlMessage);
         PostBindingUtil.sendPost(new DestinationInfoHolder(destination, samlMessage, relayState), response, willSendRequest);

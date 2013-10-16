@@ -30,9 +30,10 @@ import javax.xml.stream.events.XMLEvent;
 
 /**
  * <p>Abstract entity descriptor parser, which provides common parser functionality</p>
+ *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public abstract class AbstractDescriptorParser extends AbstractParser{
+public abstract class AbstractDescriptorParser extends AbstractParser {
 
     protected XMLEventReader filterWhiteSpaceCharacters(XMLEventReader xmlEventReader) throws ParsingException {
 
@@ -40,21 +41,21 @@ public abstract class AbstractDescriptorParser extends AbstractParser{
 
         try {
             xmlEventReader = xmlInputFactory.createFilteredReader(xmlEventReader, new EventFilter() {
-               public boolean accept(XMLEvent xmlEvent) {
-                   // We are going to disregard characters that are new line and whitespace
-                   if (xmlEvent.isCharacters()) {
-                       Characters chars = xmlEvent.asCharacters();
-                       String data = chars.getData();
-                       data = valid(data) ? data.trim() : null;
-                       return valid(data);
-                   } else {
-                       return xmlEvent.isStartElement() || xmlEvent.isEndElement();
-                   }
-               }
+                public boolean accept(XMLEvent xmlEvent) {
+                    // We are going to disregard characters that are new line and whitespace
+                    if (xmlEvent.isCharacters()) {
+                        Characters chars = xmlEvent.asCharacters();
+                        String data = chars.getData();
+                        data = valid(data) ? data.trim() : null;
+                        return valid(data);
+                    } else {
+                        return xmlEvent.isStartElement() || xmlEvent.isEndElement();
+                    }
+                }
 
-               private boolean valid(String str) {
-                   return str != null && str.length() > 0;
-               }
+                private boolean valid(String str) {
+                    return str != null && str.length() > 0;
+                }
             });
             return xmlEventReader;
         } catch (XMLStreamException e) {

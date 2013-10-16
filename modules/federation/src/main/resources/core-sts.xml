@@ -1,13 +1,15 @@
 <PicketLinkSTS xmlns="urn:picketlink:identity-federation:config:1.0"
-	STSName="PicketLinkCoreSTS" TokenTimeout="7200" EncryptToken="false">
-	<TokenProviders>
-        <TokenProvider ProviderClass="org.picketlink.identity.federation.core.saml.v2.providers.SAML20AssertionTokenProvider"
+               STSName="PicketLinkCoreSTS" TokenTimeout="7200" EncryptToken="false">
+  <TokenProviders>
+    <TokenProvider
+            ProviderClass="org.picketlink.identity.federation.core.saml.v2.providers.SAML20AssertionTokenProvider"
             TokenType="urn:oasis:names:tc:SAML:2.0:assertion"
-	        TokenElement="Assertion"
-	        TokenElementNS="urn:oasis:names:tc:SAML:2.0:assertion"/>
-	    <TokenProvider ProviderClass="org.picketlink.identity.federation.core.saml.v1.providers.SAML11AssertionTokenProvider"
+            TokenElement="Assertion"
+            TokenElementNS="urn:oasis:names:tc:SAML:2.0:assertion"/>
+    <TokenProvider
+            ProviderClass="org.picketlink.identity.federation.core.saml.v1.providers.SAML11AssertionTokenProvider"
             TokenType="urn:oasis:names:tc:SAML:1.0:assertion"
-	        TokenElement="Assertion"
-	        TokenElementNS="urn:oasis:names:tc:SAML:1.0:assertion"/>
-	    </TokenProviders>
+            TokenElement="Assertion"
+            TokenElementNS="urn:oasis:names:tc:SAML:1.0:assertion"/>
+  </TokenProviders>
 </PicketLinkSTS>

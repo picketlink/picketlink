@@ -66,6 +66,7 @@ import static org.picketlink.common.util.StringUtil.isNotNull;
  * @since Apr 22, 2009
  */
 public class MetadataServlet extends HttpServlet {
+
     private static final long serialVersionUID = 1L;
 
     private static Logger log = Logger.getLogger(MetadataServlet.class);

@@ -33,8 +33,6 @@ package org.picketlink.identity.federation.saml.v2.ac;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class ActivationLimitSessionType {
 

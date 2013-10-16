@@ -20,7 +20,6 @@ package org.picketlink.test.identity.federation.web.saml.handlers;
 import org.junit.Test;
 import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
-import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.config.federation.ProviderType;
 import org.picketlink.config.federation.SPType;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
@@ -30,28 +29,26 @@ import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerC
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerConfig;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerResponse;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.*;
-import org.picketlink.identity.federation.saml.v2.SAML2Object;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerConfig;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
-import org.picketlink.identity.federation.web.handlers.saml2.SAML2AuthenticationHandler;
 import org.picketlink.identity.federation.web.handlers.saml2.SAML2LogOutHandler;
 import org.picketlink.test.identity.federation.web.mock.MockHttpServletRequest;
 import org.picketlink.test.identity.federation.web.mock.MockHttpServletResponse;
 import org.picketlink.test.identity.federation.web.mock.MockHttpSession;
 import org.picketlink.test.identity.federation.web.mock.MockServletContext;
-import org.w3c.dom.Document;
 
 import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * Unit test the {@link SAML2LogoutHandler}
+ *
  * @author Anil Saldhana
  * @since June 03, 2013
  */
@@ -91,7 +88,7 @@ public class SAML2LogOutHandlerUnitTestCase {
         request.setTypeOfRequestToBeGenerated(SAML2HandlerRequest.GENERATE_REQUEST_TYPE.AUTH);
 
         SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
-        handler.handleStatusResponseType(request,response);
+        handler.handleStatusResponseType(request, response);
     }
 
     private StatusResponseType getIDPStatusResponseForSAMLResponder() throws Exception {

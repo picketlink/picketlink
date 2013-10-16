@@ -42,9 +42,9 @@ import javax.servlet.http.HttpSession;
  * @since Oct 7, 2009
  */
 public abstract class BaseSAML2Handler implements SAML2Handler {
-    
-protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+
     protected SAML2HandlerConfig handlerConfig = null;
     protected SAML2HandlerChainConfig handlerChainConfig = null;
 
@@ -62,7 +62,7 @@ protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogg
     public void initChainConfig(SAML2HandlerChainConfig handlerChainConfig) throws ConfigurationException {
         this.handlerChainConfig = handlerChainConfig;
         this.providerConfig = (ProviderType) this.handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION);
-        
+
         if (!isSupportedProviderType(this.providerConfig)) {
             throw logger.unsupportedType(this.providerConfig.getClass().getName());
         }
@@ -106,14 +106,14 @@ protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogg
         HTTPContext context = (HTTPContext) request.getContext();
         return context.getRequest().getSession(false);
     }
-    
+
     protected ProviderType getProviderconfig() {
         return this.providerConfig;
     }
-    
+
     /**
      * <p>Checks if the given {@link ProviderType} is supported by the handler.</p>
-     * 
+     *
      * @return
      */
     private boolean isSupportedProviderType(ProviderType providerType) {

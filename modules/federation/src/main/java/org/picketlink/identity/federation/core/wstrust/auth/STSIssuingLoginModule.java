@@ -24,9 +24,6 @@ import org.w3c.dom.Element;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.login.LoginException;
 import java.util.Map;
 
 /**
@@ -48,14 +45,14 @@ import java.util.Map;
  * }
  * </pre>
  *
- * This login module expects to be created with a callback handler that can handle {@link NameCallback} and a
- * {@link PasswordCallback}, which should be match the username and password for whom a security token will be issued.
+ * This login module expects to be created with a callback handler that can handle {@link javax.security.auth.callback.NameCallback} and a
+ * {@link javax.security.auth.callback.PasswordCallback}, which should be match the username and password for whom a security token will be issued.
  * <p/>
  *
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
- *
  */
 public class STSIssuingLoginModule extends AbstractSTSLoginModule {
+
     public static final String ENDPOINT_OPTION = "endpointURI";
 
     public static final String TOKEN_TYPE_OPTION = "tokenType";
@@ -66,7 +63,7 @@ public class STSIssuingLoginModule extends AbstractSTSLoginModule {
 
     @Override
     public void initialize(final Subject subject, final CallbackHandler callbackHandler, final Map<String, ?> sharedState,
-            final Map<String, ?> options) {
+                           final Map<String, ?> options) {
         super.initialize(subject, callbackHandler, sharedState, options);
 
         endpointURI = (String) options.get(ENDPOINT_OPTION);
@@ -81,7 +78,8 @@ public class STSIssuingLoginModule extends AbstractSTSLoginModule {
      * This method will issue a token for the configured user.
      *
      * @return Element The issued element.
-     * @throws LoginException If an error occurs while trying to perform the authentication.
+     *
+     * @throws javax.security.auth.login.LoginException If an error occurs while trying to perform the authentication.
      */
     public Element invokeSTS(final STSClient stsClient) throws WSTrustException {
         return stsClient.issueToken(endpointURI, tokenType);

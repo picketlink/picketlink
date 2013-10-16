@@ -29,6 +29,7 @@ import java.net.URI;
  * @since Jun 22, 2011
  */
 public class SAML11NameIdentifierType implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     protected String nameQualifier;

@@ -27,6 +27,7 @@ import java.security.Principal;
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public class TestPrincipal implements Principal {
+
     private final String name;
 
     /**

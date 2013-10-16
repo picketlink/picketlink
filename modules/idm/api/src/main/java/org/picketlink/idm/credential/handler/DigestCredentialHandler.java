@@ -34,10 +34,11 @@ import org.picketlink.idm.spi.IdentityContext;
 import java.util.Date;
 import java.util.List;
 
-import static org.picketlink.common.util.StringUtil.*;
-import static org.picketlink.idm.IDMMessages.*;
-import static org.picketlink.idm.credential.util.CredentialUtils.*;
-import static org.picketlink.idm.credential.util.DigestUtil.*;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.credential.util.CredentialUtils.isCurrentCredential;
+import static org.picketlink.idm.credential.util.DigestUtil.calculateA2;
+import static org.picketlink.idm.credential.util.DigestUtil.calculateDigest;
 
 /**
  * <p>

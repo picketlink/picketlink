@@ -23,21 +23,22 @@ import java.security.Principal;
 
 /**
  * An implementation of {@link HttpServletRequestWrapper}
+ *
  * @author anil saldhana
  * @since Sep 19, 2012
  */
 public class SocialRequestWrapper extends HttpServletRequestWrapper {
-    
+
     protected Principal userPrincipal = null;
 
     protected HttpServletRequest delegate = null;
-    
+
     public SocialRequestWrapper(HttpServletRequest request) {
         super(request);
         this.delegate = request;
     }
-    
-    public void setUserPrincipal(Principal principal){
+
+    public void setUserPrincipal(Principal principal) {
         this.userPrincipal = principal;
     }
 

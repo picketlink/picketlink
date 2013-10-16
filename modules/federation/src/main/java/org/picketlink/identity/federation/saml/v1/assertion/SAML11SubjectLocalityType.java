@@ -25,6 +25,7 @@ package org.picketlink.identity.federation.saml.v1.assertion;
  * @since Jun 22, 2011
  */
 public class SAML11SubjectLocalityType {
+
     protected String ipAddress;
 
     protected String dnsAddress;

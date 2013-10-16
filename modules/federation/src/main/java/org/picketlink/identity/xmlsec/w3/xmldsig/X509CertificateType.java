@@ -18,6 +18,7 @@
 package org.picketlink.identity.xmlsec.w3.xmldsig;
 
 public class X509CertificateType {
+
     private byte[] encodedCertificate;
 
     public byte[] getEncodedCertificate() {

@@ -44,14 +44,16 @@ import java.io.InputStream;
  * @author anil saldhana
  */
 public class PicketLinkAuditHelper {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private AuditManager auditManager = null;
 
     /**
      * Create a {@link PicketLinkAuditHelper}
+     *
      * @param securityDomainName the security domain name
+     *
      * @throws ConfigurationException
      */
     public PicketLinkAuditHelper(String securityDomainName) throws ConfigurationException {
@@ -79,8 +81,11 @@ public class PicketLinkAuditHelper {
     /**
      * Given the servlet context, determine the security domain by which
      * the web app is secured.
+     *
      * @param servletContext
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     public static String getSecurityDomainName(ServletContext servletContext) throws ConfigurationException {

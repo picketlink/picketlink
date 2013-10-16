@@ -1,23 +1,23 @@
 /*
- * JBoss, Home of Professional Open Source.
- * Copyright 2012, Red Hat, Inc., and individual contributors
- * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors.
+ *JBoss, Home of Professional Open Source.
+ *Copyright 2012, Red Hat, Inc., and individual contributors
+ *as indicated by the @author tags. See the copyright.txt file in the
+ *distribution for a full listing of individual contributors.
  *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
+ *This is free software; you can redistribute it and/or modify it
+ *under the terms of the GNU Lesser General Public License as
+ *published by the Free Software Foundation; either version 2.1 of
+ *the License, or (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
+ *This software is distributed in the hope that it will be useful,
+ *but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ *Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ *You should have received a copy of the GNU Lesser General Public
+ *License along with this software; if not, write to the Free
+ *Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ *02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
 package org.picketlink.common;
@@ -50,13 +50,11 @@ import static org.picketlink.common.ErrorCodes.UNKNOWN_START_ELEMENT;
 import static org.picketlink.common.ErrorCodes.UNKNOWN_TAG;
 
 /**
- * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
+ *@author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
 
-/**
- * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- */
+/**@author <a href="mailto:psilva@redhat.com">Pedro Silva</a> */
 public class DefaultPicketLinkLogger implements PicketLinkLogger {
 
     private Logger logger = Logger.getLogger(PicketLinkLogger.class.getPackage().getName());
@@ -66,9 +64,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#info(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#info(java.lang.String)
      */
     @Override
     public void info(String message) {
@@ -78,9 +76,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#debug(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#debug(java.lang.String)
      */
     @Override
     public void debug(String message) {
@@ -90,9 +88,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#trace(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#trace(java.lang.String)
      */
     @Override
     public void trace(String message) {
@@ -102,8 +100,8 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
+     *(non-Javadoc)
+     *
      * @see org.picketlink.identity.federation.PicketLinkLogger#trace(java.lang.String, java.lang.Throwable)
      */
     @Override
@@ -114,9 +112,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#trace(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#trace(java.lang.Throwable)
      */
     @Override
     public void trace(Throwable t) {
@@ -126,9 +124,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#error(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#error(java.lang.Throwable)
      */
     @Override
     public void error(Throwable t) {
@@ -136,9 +134,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#nullArgument(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#nullArgument(java.lang.String)
      */
     @Override
     public IllegalArgumentException nullArgumentError(String argument) {
@@ -146,9 +144,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#shouldNotBeTheSame(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#shouldNotBeTheSame(java.lang.String)
      */
     @Override
     public IllegalArgumentException shouldNotBeTheSameError(String string) {
@@ -157,9 +155,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#resourceNotFound(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#resourceNotFound(java.lang.String)
      */
     @Override
     public ProcessingException resourceNotFound(String resource) {
@@ -167,9 +165,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#processingError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#processingError(java.lang.Throwable)
      */
     @Override
     public ProcessingException processingError(Throwable t) {
@@ -177,9 +175,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#unsupportedType(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#unsupportedType(java.lang.String)
      */
     @Override
     public RuntimeException unsupportedType(String name) {
@@ -187,9 +185,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#signatureError(java.lang.Throwable)
      */
     @Override
     public XMLSignatureException signatureError(Throwable e) {
@@ -197,9 +195,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#nullValue(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#nullValue(java.lang.String)
      */
     @Override
     public RuntimeException nullValueError(String nullValue) {
@@ -207,9 +205,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#notImplementedYet()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#notImplementedYet()
      */
     @Override
     public RuntimeException notImplementedYet(String feature) {
@@ -217,9 +215,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#auditNullAuditManager()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#auditNullAuditManager()
      */
     @Override
     public IllegalStateException auditNullAuditManager() {
@@ -227,9 +225,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#isInfoEnabled()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#isInfoEnabled()
      */
     @Override
     public boolean isInfoEnabled() {
@@ -237,9 +235,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#auditEvent(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#auditEvent(java.lang.String)
      */
     @Override
     public void auditEvent(String auditEvent) {
@@ -247,9 +245,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#injectedValueMissing(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#injectedValueMissing(java.lang.String)
      */
     @Override
     public RuntimeException injectedValueMissing(String value) {
@@ -257,9 +255,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#keystoreSetup()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#keystoreSetup()
      */
     @Override
     public void keyStoreSetup() {
@@ -267,9 +265,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#keyStoreNullStore()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#keyStoreNullStore()
      */
     @Override
     public IllegalStateException keyStoreNullStore() {
@@ -277,9 +275,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#keyStoreNullPublicKeyForAlias(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#keyStoreNullPublicKeyForAlias(java.lang.String)
      */
     @Override
     public void keyStoreNullPublicKeyForAlias(String alias) {
@@ -287,9 +285,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#keyStoreConfigurationError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#keyStoreConfigurationError(java.lang.Throwable)
      */
     @Override
     public TrustKeyConfigurationException keyStoreConfigurationError(Throwable t) {
@@ -297,9 +295,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#keyStoreProcessingError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#keyStoreProcessingError(java.lang.Throwable)
      */
     @Override
     public TrustKeyProcessingException keyStoreProcessingError(Throwable t) {
@@ -307,9 +305,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#keyStoreMissingDomainAlias(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#keyStoreMissingDomainAlias(java.lang.String)
      */
     @Override
     public IllegalStateException keyStoreMissingDomainAlias(String domain) {
@@ -317,9 +315,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#keyStoreNullSigningKeyPass()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#keyStoreNullSigningKeyPass()
      */
     @Override
     public RuntimeException keyStoreNullSigningKeyPass() {
@@ -327,9 +325,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#keyStoreNotLocated(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#keyStoreNotLocated(java.lang.String)
      */
     @Override
     public RuntimeException keyStoreNotLocated(String keyStore) {
@@ -337,9 +335,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#keyStoreNullAlias()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#keyStoreNullAlias()
      */
     @Override
     public IllegalStateException keyStoreNullAlias() {
@@ -347,9 +345,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#parserUnknownEndElement(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#parserUnknownEndElement(java.lang.String)
      */
     @Override
     public RuntimeException parserUnknownEndElement(String endElementName) {
@@ -357,9 +355,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#parseUnknownTag(java.lang.String, javax.xml.stream.Location)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#parseUnknownTag(java.lang.String, javax.xml.stream.Location)
      */
     @Override
     public RuntimeException parserUnknownTag(String tag, Location location) {
@@ -367,9 +365,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#parseRequiredAttribute(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#parseRequiredAttribute(java.lang.String)
      */
     @Override
     public ParsingException parserRequiredAttribute(String string) {
@@ -377,10 +375,10 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#parserUnknownStartElement(java.lang.String,
-     * javax.xml.stream.Location)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#parserUnknownStartElement(java.lang.String,
+     *javax.xml.stream.Location)
      */
     @Override
     public RuntimeException parserUnknownStartElement(String elementName, Location location) {
@@ -388,9 +386,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#parserNullStartElement()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#parserNullStartElement()
      */
     @Override
     public IllegalStateException parserNullStartElement() {
@@ -398,9 +396,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#parserUnknownXSI(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#parserUnknownXSI(java.lang.String)
      */
     @Override
     public ParsingException parserUnknownXSI(String xsiTypeValue) {
@@ -408,9 +406,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedEndTag(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedEndTag(java.lang.String)
      */
     @Override
     public ParsingException parserExpectedEndTag(String tagName) {
@@ -418,9 +416,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#parserException(java.lang.Exception)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#parserException(java.lang.Exception)
      */
     @Override
     public ParsingException parserException(Throwable t) {
@@ -428,9 +426,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedTextValue(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedTextValue(java.lang.String)
      */
     @Override
     public ParsingException parserExpectedTextValue(String string) {
@@ -438,9 +436,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedXSI(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedXSI(java.lang.String)
      */
     @Override
     public RuntimeException parserExpectedXSI(String expectedXsi) {
@@ -448,9 +446,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedTag(java.lang.String, java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedTag(java.lang.String, java.lang.String)
      */
     @Override
     public RuntimeException parserExpectedTag(String tag, String foundElementTag) {
@@ -458,9 +456,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#parserFailed()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#parserFailed()
      */
     @Override
     public RuntimeException parserFailed(String elementName) {
@@ -468,9 +466,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#parserUnableParsingNullToken()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#parserUnableParsingNullToken()
      */
     @Override
     public ParsingException parserUnableParsingNullToken() {
@@ -478,9 +476,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#parserError(java.lang.Exception)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#parserError(java.lang.Exception)
      */
     @Override
     public ParsingException parserError(Throwable t) {
@@ -488,9 +486,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#pdpMessageProcessingError(java.lang.Exception)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#pdpMessageProcessingError(java.lang.Exception)
      */
     @Override
     public RuntimeException xacmlPDPMessageProcessingError(Throwable t) {
@@ -498,9 +496,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#fileNotLocated(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#fileNotLocated(java.lang.String)
      */
     @Override
     public IllegalStateException fileNotLocated(String policyConfigFileName) {
@@ -508,9 +506,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#optionNotSet(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#optionNotSet(java.lang.String)
      */
     @Override
     public IllegalStateException optionNotSet(String option) {
@@ -518,9 +516,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#securityTokenRegistryNotSpecified()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#securityTokenRegistryNotSpecified()
      */
     @Override
     public void stsTokenRegistryNotSpecified() {
@@ -528,9 +526,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#securityTokenRegistryInvalidType(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#securityTokenRegistryInvalidType(java.lang.String)
      */
     @Override
     public void stsTokenRegistryInvalidType(String tokenRegistryOption) {
@@ -538,9 +536,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#securityTokenRegistryInstantiationError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#securityTokenRegistryInstantiationError()
      */
     @Override
     public void stsTokenRegistryInstantiationError() {
@@ -548,9 +546,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#revocationRegistryNotSpecified()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#revocationRegistryNotSpecified()
      */
     @Override
     public void stsRevocationRegistryNotSpecified() {
@@ -558,9 +556,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#revocationRegistryInvalidType(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#revocationRegistryInvalidType(java.lang.String)
      */
     @Override
     public void stsRevocationRegistryInvalidType(String registryOption) {
@@ -568,9 +566,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#revocationRegistryInstantiationError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#revocationRegistryInstantiationError()
      */
     @Override
     public void stsRevocationRegistryInstantiationError() {
@@ -578,9 +576,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#assertionExpiredError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#assertionExpiredError()
      */
     @Override
     public ProcessingException samlAssertionExpiredError() {
@@ -588,9 +586,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#assertionInvalidError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#assertionInvalidError()
      */
     @Override
     public ProcessingException assertionInvalidError() {
@@ -603,9 +601,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#writerNullValueError(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#writerNullValueError(java.lang.String)
      */
     @Override
     public ProcessingException writerNullValueError(String value) {
@@ -613,9 +611,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#writerUnsupportedAttributeValueError(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#writerUnsupportedAttributeValueError(java.lang.String)
      */
     @Override
     public RuntimeException writerUnsupportedAttributeValueError(String value) {
@@ -623,9 +621,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#issuerInfoMissingStatusCodeError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#issuerInfoMissingStatusCodeError()
      */
     @Override
     public IllegalArgumentException issuerInfoMissingStatusCodeError() {
@@ -633,9 +631,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#classNotLoadedError(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#classNotLoadedError(java.lang.String)
      */
     @Override
     public ProcessingException classNotLoadedError(String fqn) {
@@ -643,9 +641,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#couldNotCreateInstance(java.lang.String, java.lang.Exception)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#couldNotCreateInstance(java.lang.String, java.lang.Exception)
      */
     @Override
     public ProcessingException couldNotCreateInstance(String fqn, Throwable t) {
@@ -653,9 +651,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#systemPropertyMissingError(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#systemPropertyMissingError(java.lang.String)
      */
     @Override
     public RuntimeException systemPropertyMissingError(String property) {
@@ -663,9 +661,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#metaDataIdentityProviderLoadingError(java.lang.Exception)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#metaDataIdentityProviderLoadingError(java.lang.Exception)
      */
     @Override
     public void samlMetaDataIdentityProviderLoadingError(Throwable t) {
@@ -673,9 +671,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#metaDataServiceProviderLoadingError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#metaDataServiceProviderLoadingError(java.lang.Throwable)
      */
     @Override
     public void samlMetaDataServiceProviderLoadingError(Throwable t) {
@@ -683,9 +681,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureAssertionValidationError(java.lang.Exception)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#signatureAssertionValidationError(java.lang.Exception)
      */
     @Override
     public void signatureAssertionValidationError(Throwable t) {
@@ -693,9 +691,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#assertionExpired(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#assertionExpired(java.lang.String)
      */
     @Override
     public void samlAssertionExpired(String id) {
@@ -703,9 +701,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#unknownObjectType(java.lang.Object)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#unknownObjectType(java.lang.Object)
      */
     @Override
     public RuntimeException unknownObjectType(Object attrValue) {
@@ -713,10 +711,10 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.picketlink.identity.federation.PicketLinkLogger#configurationError(javax.xml.parsers.ParserConfigurationException)
+     *(non-Javadoc)
+     *
+     *@see
+     *org.picketlink.identity.federation.PicketLinkLogger#configurationError(javax.xml.parsers.ParserConfigurationException)
      */
     @Override
     public ConfigurationException configurationError(Throwable t) {
@@ -724,9 +722,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureUnknownAlgo(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#signatureUnknownAlgo(java.lang.String)
      */
     @Override
     public RuntimeException signatureUnknownAlgo(String algo) {
@@ -734,9 +732,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#invalidArgumentError(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#invalidArgumentError(java.lang.String)
      */
     @Override
     public IllegalArgumentException invalidArgumentError(String message) {
@@ -744,9 +742,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsNoTokenProviderError(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsNoTokenProviderError(java.lang.String)
      */
     @Override
     public ProcessingException stsNoTokenProviderError(String configuration, String protocolContext) {
@@ -754,9 +752,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsConfigurationFileNotFoundTCL(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsConfigurationFileNotFoundTCL(java.lang.String)
      */
     @Override
     public void stsConfigurationFileNotFoundTCL(String fileName) {
@@ -764,9 +762,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsConfigurationFileNotFoundClassLoader(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsConfigurationFileNotFoundClassLoader(java.lang.String)
      */
     @Override
     public void stsConfigurationFileNotFoundClassLoader(String fileName) {
@@ -774,9 +772,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsUsingDefaultConfiguration(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsUsingDefaultConfiguration(java.lang.String)
      */
     @Override
     public void stsUsingDefaultConfiguration(String fileName) {
@@ -784,9 +782,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsConfigurationFileLoaded(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsConfigurationFileLoaded(java.lang.String)
      */
     @Override
     public void stsConfigurationFileLoaded(String fileName) {
@@ -794,9 +792,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsConfigurationFileParsingError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsConfigurationFileParsingError(java.lang.Throwable)
      */
     @Override
     public ConfigurationException stsConfigurationFileParsingError(Throwable t) {
@@ -804,9 +802,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#notSerializableError(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#notSerializableError(java.lang.String)
      */
     @Override
     public IOException notSerializableError(String message) {
@@ -814,9 +812,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#trustKeyCreationError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#trustKeyCreationError()
      */
     @Override
     public void trustKeyManagerCreationError(Throwable t) {
@@ -824,9 +822,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#error(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#error(java.lang.String)
      */
     @Override
     public void error(String message) {
@@ -834,9 +832,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#couldNotGetXMLSchema(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#couldNotGetXMLSchema(java.lang.Throwable)
      */
     @Override
     public void xmlCouldNotGetSchema(Throwable t) {
@@ -844,9 +842,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#isTraceEnabled()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#isTraceEnabled()
      */
     @Override
     public boolean isTraceEnabled() {
@@ -854,9 +852,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#isDebugEnabled()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#isDebugEnabled()
      */
     @Override
     public boolean isDebugEnabled() {
@@ -864,9 +862,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jceProviderCouldNotBeLoaded(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#jceProviderCouldNotBeLoaded(java.lang.Throwable)
      */
     @Override
     public void jceProviderCouldNotBeLoaded(String name, Throwable t) {
@@ -875,9 +873,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#writerInvalidKeyInfoNullContent()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#writerInvalidKeyInfoNullContent()
      */
     @Override
     public ProcessingException writerInvalidKeyInfoNullContentError() {
@@ -885,9 +883,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#notEqualError(java.lang.String, java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#notEqualError(java.lang.String, java.lang.String)
      */
     @Override
     public RuntimeException notEqualError(String first, String second) {
@@ -895,9 +893,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#wrongTypeError(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#wrongTypeError(java.lang.String)
      */
     @Override
     public IllegalArgumentException wrongTypeError(String message) {
@@ -905,9 +903,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#encryptUnknownAlgoError(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#encryptUnknownAlgoError(java.lang.String)
      */
     @Override
     public RuntimeException encryptUnknownAlgoError(String certAlgo) {
@@ -915,9 +913,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#domMissingDocElementError(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#domMissingDocElementError(java.lang.String)
      */
     @Override
     public IllegalStateException domMissingDocElementError(String element) {
@@ -925,9 +923,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#domMissingElementError(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#domMissingElementError(java.lang.String)
      */
     @Override
     public IllegalStateException domMissingElementError(String element) {
@@ -935,9 +933,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsWSInvalidTokenRequestError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsWSInvalidTokenRequestError()
      */
     @Override
     public WebServiceException stsWSInvalidTokenRequestError() {
@@ -945,9 +943,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsWSError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsWSError(java.lang.Throwable)
      */
     @Override
     public WebServiceException stsWSError(Throwable t) {
@@ -955,9 +953,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsWSConfigurationError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsWSConfigurationError(java.lang.Throwable)
      */
     @Override
     public WebServiceException stsWSConfigurationError(Throwable t) {
@@ -965,9 +963,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsWSInvalidRequestTypeError(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsWSInvalidRequestTypeError(java.lang.String)
      */
     @Override
     public WSTrustException stsWSInvalidRequestTypeError(String requestType) {
@@ -975,9 +973,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsWSHandlingTokenRequestError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsWSHandlingTokenRequestError(java.lang.Throwable)
      */
     @Override
     public WebServiceException stsWSHandlingTokenRequestError(Throwable t) {
@@ -985,9 +983,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsWSResponseWritingError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsWSResponseWritingError(java.lang.Throwable)
      */
     @Override
     public WebServiceException stsWSResponseWritingError(Throwable t) {
@@ -1000,9 +998,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsPublicKeyError(java.lang.String, java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsPublicKeyError(java.lang.String, java.lang.Throwable)
      */
     @Override
     public RuntimeException stsPublicKeyError(String serviceName, Throwable t) {
@@ -1010,9 +1008,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsSigningKeyPairError(java.lang.Exception)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsSigningKeyPairError(java.lang.Exception)
      */
     @Override
     public RuntimeException stsSigningKeyPairError(Throwable t) {
@@ -1020,9 +1018,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsPublicKeyCertError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsPublicKeyCertError(java.lang.Throwable)
      */
     @Override
     public RuntimeException stsPublicKeyCertError(Throwable t) {
@@ -1030,9 +1028,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#tokenTimeoutNotSpecified()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#tokenTimeoutNotSpecified()
      */
     @Override
     public void stsTokenTimeoutNotSpecified() {
@@ -1040,9 +1038,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsCombinedSecretKeyError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsCombinedSecretKeyError(java.lang.Throwable)
      */
     @Override
     public WSTrustException wsTrustCombinedSecretKeyError(Throwable t) {
@@ -1050,9 +1048,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsClientPublicKeyError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsClientPublicKeyError()
      */
     @Override
     public WSTrustException wsTrustClientPublicKeyError() {
@@ -1060,9 +1058,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsError(java.lang.Throwable)
      */
     @Override
     public WSTrustException stsError(Throwable t) {
@@ -1070,9 +1068,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureInvalidError(java.lang.String, java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#signatureInvalidError(java.lang.String, java.lang.Throwable)
      */
     @Override
     public XMLSignatureException signatureInvalidError(String message, Throwable t) {
@@ -1080,9 +1078,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsSecurityTokenSignatureNotVerified()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsSecurityTokenSignatureNotVerified()
      */
     @Override
     public void stsSecurityTokenSignatureNotVerified() {
@@ -1091,9 +1089,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#encryptProcessError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#encryptProcessError(java.lang.Throwable)
      */
     @Override
     public RuntimeException encryptProcessError(Throwable t) {
@@ -1101,9 +1099,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsSecurityTokenShouldBeEncrypted()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsSecurityTokenShouldBeEncrypted()
      */
     @Override
     public void stsSecurityTokenShouldBeEncrypted() {
@@ -1111,9 +1109,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsUnableToDecodePasswordError(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsUnableToDecodePasswordError(java.lang.String)
      */
     @Override
     public RuntimeException unableToDecodePasswordError(String password) {
@@ -1121,9 +1119,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#couldNotLoadProperties(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#couldNotLoadProperties(java.lang.String)
      */
     @Override
     public IllegalStateException couldNotLoadProperties(String configFile) {
@@ -1131,9 +1129,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsKeyInfoTypeCreationError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsKeyInfoTypeCreationError(java.lang.Throwable)
      */
     @Override
     public WSTrustException stsKeyInfoTypeCreationError(Throwable t) {
@@ -1141,9 +1139,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsSecretKeyNotEncrypted()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsSecretKeyNotEncrypted()
      */
     @Override
     public void stsSecretKeyNotEncrypted() {
@@ -1151,9 +1149,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authCouldNotIssueSAMLToken()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authCouldNotIssueSAMLToken()
      */
     @Override
     public LoginException authCouldNotIssueSAMLToken() {
@@ -1161,9 +1159,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authLoginError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authLoginError(java.lang.Throwable)
      */
     @Override
     public LoginException authLoginError(Throwable t) {
@@ -1175,9 +1173,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authCouldNotCreateWSTrustClient(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authCouldNotCreateWSTrustClient(java.lang.Throwable)
      */
     @Override
     public IllegalStateException authCouldNotCreateWSTrustClient(Throwable t) {
@@ -1185,9 +1183,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionWithoutExpiration(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionWithoutExpiration(java.lang.String)
      */
     @Override
     public void samlAssertionWithoutExpiration(String id) {
@@ -1195,9 +1193,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authCouldNotValidateSAMLToken(org.w3c.dom.Element)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authCouldNotValidateSAMLToken(org.w3c.dom.Element)
      */
     @Override
     public LoginException authCouldNotValidateSAMLToken(Element token) {
@@ -1205,9 +1203,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authCouldNotLocateSecurityToken()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authCouldNotLocateSecurityToken()
      */
     @Override
     public LoginException authCouldNotLocateSecurityToken() {
@@ -1215,9 +1213,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#wsTrustNullCancelTargetError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#wsTrustNullCancelTargetError()
      */
     @Override
     public ProcessingException wsTrustNullCancelTargetError() {
@@ -1225,9 +1223,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#saml11MarshallError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#saml11MarshallError(java.lang.Throwable)
      */
     @Override
     public ProcessingException samlAssertionMarshallError(Throwable t) {
@@ -1235,9 +1233,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#wsTrustNullRenewTargetError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#wsTrustNullRenewTargetError()
      */
     @Override
     public ProcessingException wsTrustNullRenewTargetError() {
@@ -1245,9 +1243,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#saml11UnmarshallError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#saml11UnmarshallError(java.lang.Throwable)
      */
     @Override
     public ProcessingException samlAssertionUnmarshallError(Throwable t) {
@@ -1255,9 +1253,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlAssertionRevokedCouldNotRenew()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlAssertionRevokedCouldNotRenew()
      */
     @Override
     public ProcessingException samlAssertionRevokedCouldNotRenew(String id) {
@@ -1266,9 +1264,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#wsTrustNullValidationTargetError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#wsTrustNullValidationTargetError()
      */
     @Override
     public ProcessingException wsTrustNullValidationTargetError() {
@@ -1276,9 +1274,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsWrongAttributeProviderTypeNotInstalled(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsWrongAttributeProviderTypeNotInstalled(java.lang.String)
      */
     @Override
     public void stsWrongAttributeProviderTypeNotInstalled(String attributeProviderClassName) {
@@ -1287,9 +1285,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsAttributeProviderInstationError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#stsAttributeProviderInstationError(java.lang.Throwable)
      */
     @Override
     public void attributeProviderInstationError(Throwable t) {
@@ -1297,9 +1295,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlAssertion(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlAssertion(java.lang.String)
      */
     @Override
     public void samlAssertion(String nodeAsString) {
@@ -1307,10 +1305,10 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#wsTrustUnableToGetDataTypeFactory(javax.xml.datatype.
-     * DatatypeConfigurationException)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#wsTrustUnableToGetDataTypeFactory(javax.xml.datatype.
+     *DatatypeConfigurationException)
      */
     @Override
     public RuntimeException wsTrustUnableToGetDataTypeFactory(Throwable t) {
@@ -1318,9 +1316,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#wsTrustValidationStatusCodeMissing()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#wsTrustValidationStatusCodeMissing()
      */
     @Override
     public ProcessingException wsTrustValidationStatusCodeMissing() {
@@ -1328,9 +1326,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#identityServerActiveSessionCount(int)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#identityServerActiveSessionCount(int)
      */
     @Override
     public void samlIdentityServerActiveSessionCount(int activeSessionCount) {
@@ -1338,9 +1336,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#identityServerSessionCreated(java.lang.String, int)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#identityServerSessionCreated(java.lang.String, int)
      */
     @Override
     public void samlIdentityServerSessionCreated(String id, int activeSessionCount) {
@@ -1348,9 +1346,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#identityServerSessionDestroyed(java.lang.String, int)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#identityServerSessionDestroyed(java.lang.String, int)
      */
     @Override
     public void samlIdentityServerSessionDestroyed(String id, int activeSessionCount) {
@@ -1358,9 +1356,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#unknowCredentialType(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#unknowCredentialType(java.lang.String)
      */
     @Override
     public RuntimeException unknowCredentialType(String name) {
@@ -1368,9 +1366,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerRoleGeneratorSetupError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerRoleGeneratorSetupError(java.lang.Throwable)
      */
     @Override
     public void samlHandlerRoleGeneratorSetupError(Throwable t) {
@@ -1383,9 +1381,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerAuthnRequestIsNull()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerAuthnRequestIsNull()
      */
     @Override
     public ProcessingException samlHandlerAuthnRequestIsNull() {
@@ -1393,9 +1391,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerAuthenticationError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerAuthenticationError(java.lang.Throwable)
      */
     @Override
     public void samlHandlerAuthenticationError(Throwable t) {
@@ -1403,9 +1401,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerNoAssertionFromIDP()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerNoAssertionFromIDP()
      */
     @Override
     public IllegalArgumentException samlHandlerNoAssertionFromIDP() {
@@ -1413,9 +1411,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerNullEncryptedAssertion()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerNullEncryptedAssertion()
      */
     @Override
     public ProcessingException samlHandlerNullEncryptedAssertion() {
@@ -1423,9 +1421,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerIDPAuthenticationFailedError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerIDPAuthenticationFailedError()
      */
     @Override
     public SecurityException samlHandlerIDPAuthenticationFailedError() {
@@ -1433,11 +1431,11 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.picketlink.identity.federation.PicketLinkLogger#assertionExpiredError(org.picketlink.identity.federation.core.saml
-     * .v2.exceptions.AssertionExpiredException)
+     *(non-Javadoc)
+     *
+     *@see
+     *org.picketlink.identity.federation.PicketLinkLogger#assertionExpiredError(org.picketlink.identity.federation.core.saml
+     *.v2.exceptions.AssertionExpiredException)
      */
     @Override
     public ProcessingException assertionExpiredError(AssertionExpiredException aee) {
@@ -1445,9 +1443,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#unsupportedRoleType(java.lang.Object)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#unsupportedRoleType(java.lang.Object)
      */
     @Override
     public RuntimeException unsupportedRoleType(Object attrValue) {
@@ -1455,10 +1453,10 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerFailedInResponseToVerification(java.lang.String,
-     * java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerFailedInResponseToVerification(java.lang.String,
+     *java.lang.String)
      */
     @Override
     public void samlHandlerFailedInResponseToVerification(String inResponseTo, String authnRequestId) {
@@ -1467,9 +1465,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerFailedInResponseToVerificarionError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerFailedInResponseToVerificarionError()
      */
     @Override
     public ProcessingException samlHandlerFailedInResponseToVerificarionError() {
@@ -1477,9 +1475,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerIssuerNotTrustedError(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerIssuerNotTrustedError(java.lang.String)
      */
     @Override
     public IssuerNotTrustedException samlIssuerNotTrustedError(String issuer) {
@@ -1487,9 +1485,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerIssuerNotTrustedError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerIssuerNotTrustedError(java.lang.Throwable)
      */
     @Override
     public IssuerNotTrustedException samlIssuerNotTrustedException(Throwable t) {
@@ -1497,9 +1495,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerTrustElementMissingError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerTrustElementMissingError()
      */
     @Override
     public ConfigurationException samlHandlerTrustElementMissingError() {
@@ -1507,9 +1505,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerIdentityServerNotFound()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerIdentityServerNotFound()
      */
     @Override
     public ProcessingException samlHandlerIdentityServerNotFoundError() {
@@ -1517,9 +1515,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerPrincipalNotFoundError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerPrincipalNotFoundError()
      */
     @Override
     public ProcessingException samlHandlerPrincipalNotFoundError() {
@@ -1527,9 +1525,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerKeyPairNotFound()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerKeyPairNotFound()
      */
     @Override
     public void samlHandlerKeyPairNotFound() {
@@ -1537,9 +1535,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerKeyPairNotFoundError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerKeyPairNotFoundError()
      */
     @Override
     public ProcessingException samlHandlerKeyPairNotFoundError() {
@@ -1547,10 +1545,10 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.picketlink.identity.federation.PicketLinkLogger#samlHandlerErrorSigningRedirectBindingMessage(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see
+     *org.picketlink.identity.federation.PicketLinkLogger#samlHandlerErrorSigningRedirectBindingMessage(java.lang.Throwable)
      */
     @Override
     public void samlHandlerErrorSigningRedirectBindingMessage(Throwable t) {
@@ -1558,11 +1556,11 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSigningRedirectBindingMessageError(org.picketlink.identity
-     * .federation.core.exceptions.ConfigurationException)
+     *(non-Javadoc)
+     *
+     *@see
+     *org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSigningRedirectBindingMessageError(org.picketlink.identity
+     *.federation.core.exceptions.ConfigurationException)
      */
     @Override
     public RuntimeException samlHandlerSigningRedirectBindingMessageError(Throwable t) {
@@ -1570,9 +1568,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureValidationError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#signatureValidationError()
      */
     @Override
     public SignatureValidationException samlHandlerSignatureValidationFailed() {
@@ -1580,9 +1578,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerErrorValidatingSignature(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerErrorValidatingSignature(java.lang.Throwable)
      */
     @Override
     public void samlHandlerErrorValidatingSignature(Throwable t) {
@@ -1590,9 +1588,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerInvalidSignatureError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerInvalidSignatureError()
      */
     @Override
     public ProcessingException samlHandlerInvalidSignatureError() {
@@ -1600,9 +1598,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSignatureNorPresentError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSignatureNorPresentError()
      */
     @Override
     public ProcessingException samlHandlerSignatureNotPresentError() {
@@ -1616,9 +1614,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerChainProcessingError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerChainProcessingError(java.lang.Throwable)
      */
     @Override
     public RuntimeException samlHandlerChainProcessingError(Throwable t) {
@@ -1626,9 +1624,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#trustKeyManagerMissing()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#trustKeyManagerMissing()
      */
     @Override
     public TrustKeyConfigurationException trustKeyManagerMissing() {
@@ -1636,9 +1634,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlBase64DecodingError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlBase64DecodingError(java.lang.Throwable)
      */
     @Override
     public void samlBase64DecodingError(Throwable t) {
@@ -1646,9 +1644,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlParsingError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlParsingError(java.lang.Throwable)
      */
     @Override
     public void samlParsingError(Throwable t) {
@@ -1656,9 +1654,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#attributeManagerMappingContextNull()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#attributeManagerMappingContextNull()
      */
     @Override
     public void mappingContextNull() {
@@ -1666,9 +1664,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#attributeManagerError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#attributeManagerError(java.lang.Throwable)
      */
     @Override
     public void attributeManagerError(Throwable t) {
@@ -1681,9 +1679,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authFailedToCreatePrincipal(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authFailedToCreatePrincipal(java.lang.Throwable)
      */
     @Override
     public LoginException authFailedToCreatePrincipal(Throwable t) {
@@ -1696,9 +1694,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authSharedCredentialIsNotSAMLCredential()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authSharedCredentialIsNotSAMLCredential()
      */
     @Override
     public LoginException authSharedCredentialIsNotSAMLCredential(String className) {
@@ -1707,9 +1705,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authSTSConfigFileNotFound()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authSTSConfigFileNotFound()
      */
     @Override
     public LoginException authSTSConfigFileNotFound() {
@@ -1717,9 +1715,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authErrorHandlingCallback(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authErrorHandlingCallback(java.lang.Throwable)
      */
     @Override
     public LoginException authErrorHandlingCallback(Throwable t) {
@@ -1731,9 +1729,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authInvalidSAMLAssertionBySTS()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authInvalidSAMLAssertionBySTS()
      */
     @Override
     public LoginException authInvalidSAMLAssertionBySTS() {
@@ -1742,9 +1740,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authAssertionValidationValies(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authAssertionValidationValies(java.lang.Throwable)
      */
     @Override
     public LoginException authAssertionValidationError(Throwable t) {
@@ -1756,9 +1754,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authFailedToParseSAMLAssertion(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authFailedToParseSAMLAssertion(java.lang.Throwable)
      */
     @Override
     public LoginException authFailedToParseSAMLAssertion(Throwable t) {
@@ -1769,9 +1767,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionPasingFailed(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionPasingFailed(java.lang.Throwable)
      */
     @Override
     public void samlAssertionPasingFailed(Throwable t) {
@@ -1779,9 +1777,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authNullKeyStoreFromSecurityDomainError(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authNullKeyStoreFromSecurityDomainError(java.lang.String)
      */
     @Override
     public LoginException authNullKeyStoreFromSecurityDomainError(String name) {
@@ -1789,9 +1787,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authNullKeyStoreAliasFromSecurityDomain(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authNullKeyStoreAliasFromSecurityDomain(java.lang.String)
      */
     @Override
     public LoginException authNullKeyStoreAliasFromSecurityDomainError(String name) {
@@ -1806,9 +1804,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLInvalidSignature()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authSAMLInvalidSignature()
      */
     @Override
     public LoginException authSAMLInvalidSignatureError() {
@@ -1817,9 +1815,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionExpiredError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionExpiredError()
      */
     @Override
     public LoginException authSAMLAssertionExpiredError() {
@@ -1828,9 +1826,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionIssuingFailed(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionIssuingFailed(java.lang.Throwable)
      */
     @Override
     public void authSAMLAssertionIssuingFailed(Throwable t) {
@@ -1838,9 +1836,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToCreateBinaryToken(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToCreateBinaryToken(java.lang.Throwable)
      */
     @Override
     public void jbossWSUnableToCreateBinaryToken(Throwable t) {
@@ -1848,9 +1846,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToCreateSecurityToken()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToCreateSecurityToken()
      */
     @Override
     public void jbossWSUnableToCreateSecurityToken() {
@@ -1858,9 +1856,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToWriteSOAPMessage(java.lang.Exception)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToWriteSOAPMessage(java.lang.Exception)
      */
     @Override
     public void jbossWSUnableToWriteSOAPMessage(Throwable t) {
@@ -1868,9 +1866,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToLoadJBossWSSEConfigError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToLoadJBossWSSEConfigError()
      */
     @Override
     public RuntimeException jbossWSUnableToLoadJBossWSSEConfigError() {
@@ -1878,9 +1876,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSAuthorizationFailed()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#jbossWSAuthorizationFailed()
      */
     @Override
     public RuntimeException jbossWSAuthorizationFailed() {
@@ -1888,9 +1886,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSErrorGettingOperationName(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#jbossWSErrorGettingOperationName(java.lang.Throwable)
      */
     @Override
     public void jbossWSErrorGettingOperationName(Throwable t) {
@@ -1898,9 +1896,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLCredentialNotAvailable()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authSAMLCredentialNotAvailable()
      */
     @Override
     public LoginException authSAMLCredentialNotAvailable() {
@@ -1908,10 +1906,10 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#unableToInstantiateHandler(java.lang.String,
-     * java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#unableToInstantiateHandler(java.lang.String,
+     *java.lang.Throwable)
      */
     @Override
     public RuntimeException authUnableToInstantiateHandler(String token, Throwable t) {
@@ -1919,9 +1917,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToCreateSSLSocketFactory(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToCreateSSLSocketFactory(java.lang.Throwable)
      */
     @Override
     public RuntimeException jbossWSUnableToCreateSSLSocketFactory(Throwable t) {
@@ -1929,9 +1927,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToFindSSLSocketFactory()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToFindSSLSocketFactory()
      */
     @Override
     public RuntimeException jbossWSUnableToFindSSLSocketFactory() {
@@ -1939,9 +1937,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authUnableToGetIdentityFromSubject()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authUnableToGetIdentityFromSubject()
      */
     @Override
     public RuntimeException authUnableToGetIdentityFromSubject() {
@@ -1949,9 +1947,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionNullOrEmpty()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionNullOrEmpty()
      */
     @Override
     public RuntimeException authSAMLAssertionNullOrEmpty() {
@@ -1959,9 +1957,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUncheckedAndRolesCannotBeTogether()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUncheckedAndRolesCannotBeTogether()
      */
     @Override
     public ProcessingException jbossWSUncheckedAndRolesCannotBeTogether() {
@@ -1969,9 +1967,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPHandlingSAML11Error(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlIDPHandlingSAML11Error(java.lang.Throwable)
      */
     @Override
     public void samlIDPHandlingSAML11Error(Throwable t) {
@@ -1979,9 +1977,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPValidationCheckFailed()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlIDPValidationCheckFailed()
      */
     @Override
     public GeneralSecurityException samlIDPValidationCheckFailed() {
@@ -1989,9 +1987,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPRequestProcessingError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlIDPRequestProcessingError(java.lang.Throwable)
      */
     @Override
     public void samlIDPRequestProcessingError(Throwable t) {
@@ -1999,10 +1997,10 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.picketlink.identity.federation.PicketLinkLogger#samlIDPUnableToSetParticipantStackUsingDefault(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see
+     *org.picketlink.identity.federation.PicketLinkLogger#samlIDPUnableToSetParticipantStackUsingDefault(java.lang.Throwable)
      */
     @Override
     public void samlIDPUnableToSetParticipantStackUsingDefault(Throwable t) {
@@ -2010,9 +2008,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerConfigurationError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerConfigurationError(java.lang.Throwable)
      */
     @Override
     public void samlHandlerConfigurationError(Throwable t) {
@@ -2020,9 +2018,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPSettingCanonicalizationMethod(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlIDPSettingCanonicalizationMethod(java.lang.String)
      */
     @Override
     public void samlIDPSettingCanonicalizationMethod(String canonicalizationMethod) {
@@ -2030,9 +2028,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPConfigurationError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlIDPConfigurationError(java.lang.Throwable)
      */
     @Override
     public RuntimeException samlIDPConfigurationError(Throwable t) {
@@ -2040,9 +2038,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#configurationFileMissing(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#configurationFileMissing(java.lang.String)
      */
     @Override
     public RuntimeException configurationFileMissing(String configFile) {
@@ -2050,9 +2048,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPInstallingDefaultSTSConfig()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlIDPInstallingDefaultSTSConfig()
      */
     @Override
     public void samlIDPInstallingDefaultSTSConfig() {
@@ -2060,9 +2058,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#warn(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#warn(java.lang.String)
      */
     @Override
     public void warn(String message) {
@@ -2070,9 +2068,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPFallingBackToLocalFormAuthentication()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlSPFallingBackToLocalFormAuthentication()
      */
     @Override
     public void samlSPFallingBackToLocalFormAuthentication() {
@@ -2080,9 +2078,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#unableLocalAuthentication(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#unableLocalAuthentication(java.lang.Throwable)
      */
     @Override
     public IOException unableLocalAuthentication(Throwable t) {
@@ -2090,9 +2088,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPUnableToGetIDPDescriptorFromMetadata()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlSPUnableToGetIDPDescriptorFromMetadata()
      */
     @Override
     public void samlSPUnableToGetIDPDescriptorFromMetadata() {
@@ -2100,9 +2098,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPConfigurationError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlSPConfigurationError(java.lang.Throwable)
      */
     @Override
     public RuntimeException samlSPConfigurationError(Throwable t) {
@@ -2110,9 +2108,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPSettingCanonicalizationMethod(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlSPSettingCanonicalizationMethod(java.lang.String)
      */
     @Override
     public void samlSPSettingCanonicalizationMethod(String canonicalizationMethod) {
@@ -2120,9 +2118,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPCouldNotDispatchToLogoutPage(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlSPCouldNotDispatchToLogoutPage(java.lang.String)
      */
     @Override
     public void samlSPCouldNotDispatchToLogoutPage(String logOutPage) {
@@ -2130,9 +2128,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#usingLoggerImplementation(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#usingLoggerImplementation(java.lang.String)
      */
     @Override
     public void usingLoggerImplementation(String className) {
@@ -2140,9 +2138,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlResponseFromIDPParsingFailed()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlResponseFromIDPParsingFailed()
      */
     @Override
     public void samlResponseFromIDPParsingFailed() {
@@ -2150,9 +2148,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#auditSecurityDomainNotFound(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#auditSecurityDomainNotFound(java.lang.Throwable)
      */
     @Override
     public ConfigurationException auditSecurityDomainNotFound(Throwable t) {
@@ -2162,9 +2160,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#auditAuditManagerNotFound(java.lang.String, java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#auditAuditManagerNotFound(java.lang.String, java.lang.Throwable)
      */
     @Override
     public ConfigurationException auditAuditManagerNotFound(String location, Throwable t) {
@@ -2172,9 +2170,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIssueInstantMissingError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlIssueInstantMissingError()
      */
     @Override
     public IssueInstantMissingException samlIssueInstantMissingError() {
@@ -2182,9 +2180,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPResponseNotCatalinaResponse()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlSPResponseNotCatalinaResponse()
      */
     @Override
     public RuntimeException samlSPResponseNotCatalinaResponseError(Object response) {
@@ -2192,9 +2190,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlLogoutError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlLogoutError(java.lang.Throwable)
      */
     @Override
     public void samlLogoutError(Throwable t) {
@@ -2202,9 +2200,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlErrorPageForwardError(java.lang.String, java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlErrorPageForwardError(java.lang.String, java.lang.Throwable)
      */
     @Override
     public void samlErrorPageForwardError(String errorPage, Throwable t) {
@@ -2212,9 +2210,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPHandleRequestError(java.lang.Throwable)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlSPHandleRequestError(java.lang.Throwable)
      */
     @Override
     public void samlSPHandleRequestError(Throwable t) {
@@ -2222,9 +2220,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPProcessingExceptionError()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlSPProcessingExceptionError()
      */
     @Override
     public IOException samlSPProcessingExceptionError(Throwable t) {
@@ -2232,9 +2230,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlInvalidProtocolBinding()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlInvalidProtocolBinding()
      */
     @Override
     public IllegalArgumentException samlInvalidProtocolBinding() {
@@ -2242,9 +2240,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerServiceProviderConfigNotFound()
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerServiceProviderConfigNotFound()
      */
     @Override
     public IllegalStateException samlHandlerServiceProviderConfigNotFound() {
@@ -2253,9 +2251,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSecurityTokenAlreadyPersisted(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlSecurityTokenAlreadyPersisted(java.lang.String)
      */
     @Override
     public void samlSecurityTokenAlreadyPersisted(String id) {
@@ -2263,17 +2261,17 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSecurityTokenNotFoundInRegistry(java.lang.String)
+     *(non-Javadoc)
+     *
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlSecurityTokenNotFoundInRegistry(java.lang.String)
      */
     @Override
     public void samlSecurityTokenNotFoundInRegistry(String id) {
         warn("Security Token with id=" + id + " was not found in the registry.");
     }
 
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlMetaDataFailedToCreateCacheDuration(java.lang.String)
+    /*(non-Javadoc)
+     *@see org.picketlink.identity.federation.PicketLinkLogger#samlMetaDataFailedToCreateCacheDuration(java.lang.String)
      */
     @Override
     public IllegalArgumentException samlMetaDataFailedToCreateCacheDuration(String timeValue) {
@@ -2291,16 +2289,16 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
         return new ConfigurationException("No configuration provided for the Service Provider.");
     }
 
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#securityDomainNotFound()
+    /*(non-Javadoc)
+     *@see org.picketlink.identity.federation.PicketLinkLogger#securityDomainNotFound()
      */
     @Override
     public ConfigurationException securityDomainNotFound() {
         return new ConfigurationException("The security domain name could not be found. Check your jboss-web.xml.");
     }
 
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authenticationManagerError(org.picketlink.identity.federation.core.exceptions.ConfigurationException)
+    /*(non-Javadoc)
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authenticationManagerError(org.picketlink.identity.federation.core.exceptions.ConfigurationException)
      */
     @Override
     public void authenticationManagerError(ConfigurationException e) {
@@ -2311,8 +2309,8 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
         logger.error(msg, e);
     }
 
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authorizationManagerError(org.picketlink.identity.federation.core.exceptions.ConfigurationException)
+    /*(non-Javadoc)
+     *@see org.picketlink.identity.federation.PicketLinkLogger#authorizationManagerError(org.picketlink.identity.federation.core.exceptions.ConfigurationException)
      */
     @Override
     public void authorizationManagerError(ConfigurationException e) {

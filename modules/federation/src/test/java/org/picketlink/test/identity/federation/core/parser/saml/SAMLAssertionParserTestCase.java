@@ -59,6 +59,7 @@ import static org.junit.Assert.assertNotNull;
  * @since Oct 12, 2010
  */
 public class SAMLAssertionParserTestCase extends AbstractParserTest {
+
     @Test
     public void testSAMLAssertionParsing() throws Exception {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();
@@ -274,7 +275,7 @@ public class SAMLAssertionParserTestCase extends AbstractParserTest {
 
     /**
      * PLINK2-10 and PLINK-143 : SAML2 Attribute Value should support nested elements
-     * 
+     *
      * @throws Exception
      */
     @Test

@@ -54,11 +54,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "TechnicalProtectionBaseType", propOrder = { "privateKeyProtection", "secretKeyProtection", "extension" })
+@XmlType(name = "TechnicalProtectionBaseType", propOrder = {"privateKeyProtection", "secretKeyProtection", "extension"})
 public class TechnicalProtectionBaseType {
 
     @XmlElement(name = "PrivateKeyProtection")
@@ -72,7 +70,6 @@ public class TechnicalProtectionBaseType {
      * Gets the value of the privateKeyProtection property.
      *
      * @return possible object is {@link PrivateKeyProtectionType }
-     *
      */
     public PrivateKeyProtectionType getPrivateKeyProtection() {
         return privateKeyProtection;
@@ -82,7 +79,6 @@ public class TechnicalProtectionBaseType {
      * Sets the value of the privateKeyProtection property.
      *
      * @param value allowed object is {@link PrivateKeyProtectionType }
-     *
      */
     public void setPrivateKeyProtection(PrivateKeyProtectionType value) {
         this.privateKeyProtection = value;
@@ -92,7 +88,6 @@ public class TechnicalProtectionBaseType {
      * Gets the value of the secretKeyProtection property.
      *
      * @return possible object is {@link SecretKeyProtectionType }
-     *
      */
     public SecretKeyProtectionType getSecretKeyProtection() {
         return secretKeyProtection;
@@ -102,7 +97,6 @@ public class TechnicalProtectionBaseType {
      * Sets the value of the secretKeyProtection property.
      *
      * @param value allowed object is {@link SecretKeyProtectionType }
-     *
      */
     public void setSecretKeyProtection(SecretKeyProtectionType value) {
         this.secretKeyProtection = value;
@@ -112,7 +106,8 @@ public class TechnicalProtectionBaseType {
      * Gets the value of the extension property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to the
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the
      * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
      * extension property.
      *
@@ -126,8 +121,6 @@ public class TechnicalProtectionBaseType {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link ExtensionType }
-     *
-     *
      */
     public List<ExtensionType> getExtension() {
         if (extension == null) {

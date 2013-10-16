@@ -43,11 +43,11 @@ public interface GeneralConstants {
     String ATTRIBUTE_CHOOSE_FRIENDLY_NAME = "ATTRIBUTE_CHOOSE_FRIENDLY_NAME";
 
     String ATTIBUTE_MANAGER = "ATTRIBUTE_MANAGER";
-    
+
     String AUDIT_ENABLE = "picketlink.audit.enable";
 
     String AUDIT_HELPER = "AUDIT_HELPER";
-    
+
     String AUDIT_SECURITY_DOMAIN = "picketlink.audit.securitydomain";
 
     String CONFIGURATION = "CONFIGURATION";
@@ -55,7 +55,7 @@ public interface GeneralConstants {
     String CONFIG_FILE_LOCATION = "/WEB-INF/picketlink.xml";
 
     String CONFIG_PROVIDER = "CONFIG_PROVIDER";
-    
+
     String CONTEXT_PATH = "CONTEXT_PATH";
 
     String DEPRECATED_CONFIG_FILE_LOCATION = "/WEB-INF/picketlink-idfed.xml";
@@ -103,7 +103,7 @@ public interface GeneralConstants {
     String SAML_SIG_ALG_REQUEST_KEY = "SigAlg";
 
     String SAML_SIGNATURE_REQUEST_KEY = "Signature";
-    
+
     String SAML_IDP_STRICT_POST_BINDING = "SAML_IDP_STRICT_POST_BINDING";
 
     // Should JAXP Factory operations cache the TCCL and revert after operation?
@@ -114,13 +114,13 @@ public interface GeneralConstants {
     String TIMEZONE_DEFAULT = "TIMEZONE_DEFAULT";
 
     String DECRYPTING_KEY = "DECRYPTING_KEY";
-    
+
     String SP_SSO_METADATA_DESCRIPTOR = "SP_SSO_METADATA_DESCRIPTOR";
 
     String SENDER_PUBLIC_KEY = "SENDER_PUBLIC_KEY";
 
     String SIGN_OUTGOING_MESSAGES = "SIGN_OUTGOING_MESSAGES";
-    
+
     String SUPPORTS_SIGNATURES = "SUPPORTS_SIGNATURES";
 
     String SESSION_ATTRIBUTE_MAP = "SESSION_ATTRIBUTE_MAP";
@@ -133,9 +133,10 @@ public interface GeneralConstants {
     String ERROR_PAGE_NAME = "/error.jsp";
     String SAML_ENC_KEY_SIZE = "SAML_ENC_KEY_SIZE";
     String SAML_ENC_ALGORITHM = "SAML_ENC_ALGORITHM";
-    
+
     /**
-     * <p>{@link SAML2AuthenticationHandler} configuration option to set the assertion into the {@link HttpSession}.</p>
+     * <p>{@link SAML2AuthenticationHandler} configuration option to set the assertion into the {@link
+     * HttpSession}.</p>
      */
     String ASSERTION_SESSION_ATTRIBUTE_NAME = "ASSERTION_SESSION_ATTRIBUTE_NAME";
 

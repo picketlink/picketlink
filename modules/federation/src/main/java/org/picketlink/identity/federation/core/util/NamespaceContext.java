@@ -25,17 +25,14 @@ import java.util.Map;
 /**
  * Helper class in process of parsing signature out of SAML token.
  * usage example:
- *   <code> 
- *   xpath.setNamespaceContext(
- *       NamespaceContext.create()
- *           .addNsUriPair(xmlSignatureNSPrefix, JBossSAMLURIConstants.XMLDSIG_NSURI.get())
- *   );
- *   </code>
- *                       
+ * <code>
+ * xpath.setNamespaceContext(
+ * NamespaceContext.create()
+ * .addNsUriPair(xmlSignatureNSPrefix, JBossSAMLURIConstants.XMLDSIG_NSURI.get())
+ * );
+ * </code>
  *
- * 
  * @author Peter Skopek: pskopek at redhat dot com
- * 
  */
 
 public class NamespaceContext implements javax.xml.namespace.NamespaceContext {
@@ -51,7 +48,7 @@ public class NamespaceContext implements javax.xml.namespace.NamespaceContext {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * javax.xml.namespace.NamespaceContext#getNamespaceURI(java.lang.String)
      */
@@ -61,7 +58,7 @@ public class NamespaceContext implements javax.xml.namespace.NamespaceContext {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.xml.namespace.NamespaceContext#getPrefix(java.lang.String)
      */
     public String getPrefix(String namespaceURI) {
@@ -76,7 +73,7 @@ public class NamespaceContext implements javax.xml.namespace.NamespaceContext {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.xml.namespace.NamespaceContext#getPrefixes(java.lang.String)
      */
     public Iterator<String> getPrefixes(String namespaceURI) {
@@ -89,7 +86,8 @@ public class NamespaceContext implements javax.xml.namespace.NamespaceContext {
     }
 
     /**
-     * Create new NamespaceContext for use. 
+     * Create new NamespaceContext for use.
+     *
      * @return
      */
     public static NamespaceContext create() {

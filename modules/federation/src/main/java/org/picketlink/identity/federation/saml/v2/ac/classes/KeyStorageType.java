@@ -29,13 +29,12 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  * &lt;complexType name="KeyStorageType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="medium" use="required" type="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}mediumType" />
+ *       &lt;attribute name="medium" use="required" type="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}mediumType"
+ * />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class KeyStorageType {
 
@@ -45,7 +44,6 @@ public class KeyStorageType {
      * Gets the value of the medium property.
      *
      * @return possible object is {@link MediumType }
-     *
      */
     public MediumType getMedium() {
         return medium;
@@ -55,7 +53,6 @@ public class KeyStorageType {
      * Sets the value of the medium property.
      *
      * @param value allowed object is {@link MediumType }
-     *
      */
     public void setMedium(MediumType value) {
         this.medium = value;

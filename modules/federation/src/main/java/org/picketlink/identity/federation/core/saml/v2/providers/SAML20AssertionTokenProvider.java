@@ -51,6 +51,7 @@ import java.util.Map;
  * <p>
  * This token provider does not handle the SAML20 Token Profile of the Oasis WS-Trust Specification.
  *
+ * @author Anil.Saldhana@redhat.com
  * @see {@code SAML20TokenProvider}
  *      </p>
  *      <p>
@@ -62,11 +63,10 @@ import java.util.Map;
  *      <p>
  *      CLOCK_SKEW: specify the clock skew of the conditions for assertion in miliseconds. (Example: 2000 = 2secs)
  *      </p>
- *
- * @author Anil.Saldhana@redhat.com
  * @since Dec 30, 2010
  */
 public class SAML20AssertionTokenProvider extends AbstractSecurityTokenProvider implements SecurityTokenProvider {
+
     public static final String NS = JBossSAMLURIConstants.ASSERTION_NSURI.get();
 
     private long ASSERTION_VALIDITY = 5000; // 5secs in milis
@@ -226,7 +226,6 @@ public class SAML20AssertionTokenProvider extends AbstractSecurityTokenProvider 
     }
 
     /**
-     *
      * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#tokenType()
      */
     public String tokenType() {

@@ -26,20 +26,26 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <complexType name="AssertionType"> <sequence> <element ref="saml:Conditions" minOccurs="0"/> <element ref="saml:Advice"
- * minOccurs="0"/> <choice maxOccurs="unbounded"> <element ref="saml:Statement"/> <element ref="saml:SubjectStatement"/>
+ * <complexType name="AssertionType"> <sequence> <element ref="saml:Conditions" minOccurs="0"/> <element
+ * ref="saml:Advice"
+ * minOccurs="0"/> <choice maxOccurs="unbounded"> <element ref="saml:Statement"/> <element
+ * ref="saml:SubjectStatement"/>
  * <element ref="saml:AuthenticationStatement"/> <element ref="saml:AuthorizationDecisionStatement"/> <element
  * ref="saml:AttributeStatement"/> </choice>
  *
- * <element ref="ds:Signature" minOccurs="0"/> </sequence> <attribute name="MajorVersion" type="integer" use="required"/>
- * <attribute name="MinorVersion" type="integer" use="required"/> <attribute name="AssertionID" type="ID" use="required"/>
- * <attribute name="Issuer" type="string" use="required"/> <attribute name="IssueInstant" type="dateTime" use="required"/>
+ * <element ref="ds:Signature" minOccurs="0"/> </sequence> <attribute name="MajorVersion" type="integer"
+ * use="required"/>
+ * <attribute name="MinorVersion" type="integer" use="required"/> <attribute name="AssertionID" type="ID"
+ * use="required"/>
+ * <attribute name="Issuer" type="string" use="required"/> <attribute name="IssueInstant" type="dateTime"
+ * use="required"/>
  * </complexType>
  *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 21, 2011
  */
 public class SAML11AssertionType extends CommonAssertionType {
+
     private static final long serialVersionUID = 1L;
 
     protected int majorVersion = 1;

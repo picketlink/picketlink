@@ -36,16 +36,18 @@ import java.util.Map;
  * @since Oct 1, 2009
  */
 public class DefaultSAML2HandlerRequest implements SAML2HandlerRequest {
+
     private ProtocolContext protocolContext = null;
     private NameIDType issuer;
-    private SAMLDocumentHolder documentHolder;;
+    private SAMLDocumentHolder documentHolder;
+    ;
     private HANDLER_TYPE handlerType;
     private Map<String, Object> options = new HashMap<String, Object>();
     private GENERATE_REQUEST_TYPE generateRequestType;
     private String relayState;
 
     public DefaultSAML2HandlerRequest(ProtocolContext protocolContext, NameIDType issuer,
-            SAMLDocumentHolder samlDocumentHolder, HANDLER_TYPE handlerType) {
+                                      SAMLDocumentHolder samlDocumentHolder, HANDLER_TYPE handlerType) {
         this.protocolContext = protocolContext;
         this.issuer = issuer;
         this.documentHolder = samlDocumentHolder;

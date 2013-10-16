@@ -64,14 +64,16 @@ import java.util.Set;
  * @since Jun 3, 2009
  */
 public class AssertionUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     /**
      * Given {@code AssertionType}, convert it into a String
      *
      * @param assertion
+     *
      * @return
+     *
      * @throws ProcessingException
      */
     public static String asString(AssertionType assertion) throws ProcessingException {
@@ -85,15 +87,17 @@ public class AssertionUtil {
      * Given {@code AssertionType}, convert it into a DOM Document.
      *
      * @param assertion
+     *
      * @return
+     *
      * @throws ProcessingException
      */
     public static Document asDocument(AssertionType assertion) throws ProcessingException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos));
-        
+
         writer.write(assertion);
-        
+
         try {
             return DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
         } catch (Exception e) {
@@ -106,6 +110,7 @@ public class AssertionUtil {
      *
      * @param id
      * @param issuer
+     *
      * @return
      */
     public static SAML11AssertionType createSAML11Assertion(String id, XMLGregorianCalendar issueInstant, String issuer) {
@@ -119,6 +124,7 @@ public class AssertionUtil {
      *
      * @param id
      * @param issuer
+     *
      * @return
      */
     public static AssertionType createAssertion(String id, NameIDType issuer) {
@@ -137,6 +143,7 @@ public class AssertionUtil {
      * Given a user name, create a {@code SubjectType} that can then be inserted into an assertion
      *
      * @param userName
+     *
      * @return
      */
     public static SubjectType createAssertionSubject(String userName) {
@@ -155,6 +162,7 @@ public class AssertionUtil {
      * @param name Name of the attribute
      * @param nameFormat name format uri
      * @param attributeValues an object array of attribute values
+     *
      * @return
      */
     public static AttributeType createAttribute(String name, String nameFormat, Object... attributeValues) {
@@ -176,12 +184,13 @@ public class AssertionUtil {
      * <p>
      * There is no clock skew added.
      *
-     * @see {{@link #createTimedConditions(AssertionType, long, long)}
-     *      </p>
      * @param assertion
      * @param durationInMilis
+     *
      * @throws ConfigurationException
      * @throws IssueInstantMissingException
+     * @see {{@link #createTimedConditions(AssertionType, long, long)}
+     *      </p>
      */
     public static void createTimedConditions(AssertionType assertion, long durationInMilis) throws ConfigurationException,
             IssueInstantMissingException {
@@ -201,6 +210,7 @@ public class AssertionUtil {
      *
      * @param assertion
      * @param durationInMilis
+     *
      * @throws ConfigurationException
      * @throws IssueInstantMissingException
      */
@@ -226,6 +236,7 @@ public class AssertionUtil {
      *
      * @param assertion
      * @param durationInMilis
+     *
      * @throws ConfigurationException
      * @throws IssueInstantMissingException
      */
@@ -250,6 +261,7 @@ public class AssertionUtil {
      *
      * @param assertionElement
      * @param publicKey the {@link PublicKey}
+     *
      * @return
      */
     public static boolean isSignatureValid(Element assertionElement, PublicKey publicKey) {
@@ -269,7 +281,9 @@ public class AssertionUtil {
      * Check whether the assertion has expired
      *
      * @param assertion
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     public static boolean hasExpired(AssertionType assertion) throws ConfigurationException {
@@ -283,9 +297,9 @@ public class AssertionUtil {
             XMLGregorianCalendar notOnOrAfter = conditionsType.getNotOnOrAfter();
 
             logger.trace("Now=" + now.toXMLFormat() + " ::notBefore=" + notBefore.toXMLFormat() + " ::notOnOrAfter=" + notOnOrAfter);
-            
+
             expiry = !XMLTimeUtil.isValid(now, notBefore, notOnOrAfter);
-            
+
             if (expiry) {
                 logger.samlAssertionExpired(assertion.getID());
             }
@@ -296,12 +310,15 @@ public class AssertionUtil {
     }
 
     /**
-     * Verify whether the assertion has expired. You can add in a clock skew to adapt to conditions where in the IDP and SP are
+     * Verify whether the assertion has expired. You can add in a clock skew to adapt to conditions where in the IDP and
+     * SP are
      * out of sync.
      *
      * @param assertion
      * @param clockSkewInMilis in miliseconds
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     public static boolean hasExpired(AssertionType assertion, long clockSkewInMilis) throws ConfigurationException {
@@ -331,7 +348,9 @@ public class AssertionUtil {
      * Check whether the assertion has expired
      *
      * @param assertion
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     public static boolean hasExpired(SAML11AssertionType assertion) throws ConfigurationException {
@@ -343,9 +362,9 @@ public class AssertionUtil {
             XMLGregorianCalendar now = XMLTimeUtil.getIssueInstant();
             XMLGregorianCalendar notBefore = conditionsType.getNotBefore();
             XMLGregorianCalendar notOnOrAfter = conditionsType.getNotOnOrAfter();
-            
+
             logger.trace("Now=" + now.toXMLFormat() + " ::notBefore=" + notBefore.toXMLFormat() + " ::notOnOrAfter=" + notOnOrAfter);
-            
+
             expiry = !XMLTimeUtil.isValid(now, notBefore, notOnOrAfter);
             if (expiry) {
                 logger.samlAssertionExpired(assertion.getID());
@@ -357,12 +376,15 @@ public class AssertionUtil {
     }
 
     /**
-     * Verify whether the assertion has expired. You can add in a clock skew to adapt to conditions where in the IDP and SP are
+     * Verify whether the assertion has expired. You can add in a clock skew to adapt to conditions where in the IDP and
+     * SP are
      * out of sync.
      *
      * @param assertion
      * @param clockSkewInMilis in miliseconds
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     public static boolean hasExpired(SAML11AssertionType assertion, long clockSkewInMilis) throws ConfigurationException {
@@ -378,7 +400,7 @@ public class AssertionUtil {
             XMLGregorianCalendar updatedOnOrAfter = XMLTimeUtil.add(notOnOrAfter, clockSkewInMilis);
 
             logger.trace("Now=" + now.toXMLFormat() + " ::notBefore=" + notBefore.toXMLFormat() + " ::notOnOrAfter=" + notOnOrAfter);
-            
+
             expiry = !XMLTimeUtil.isValid(now, updatedNotBefore, updatedOnOrAfter);
             if (expiry) {
                 logger.samlAssertionExpired(assertion.getID());
@@ -393,6 +415,7 @@ public class AssertionUtil {
      * Extract the expiration time from an {@link AssertionType}
      *
      * @param assertion
+     *
      * @return
      */
     public static XMLGregorianCalendar getExpiration(AssertionType assertion) {
@@ -410,6 +433,7 @@ public class AssertionUtil {
      *
      * @param assertion The {@link AssertionType}
      * @param roleKeys a list of string values representing the role keys. The list can be null.
+     *
      * @return
      */
     public static List<String> getRoles(AssertionType assertion, List<String> roleKeys) {
@@ -448,6 +472,7 @@ public class AssertionUtil {
      *
      * @param assertion The {@link SAML11AssertionType}
      * @param roleKeys a list of string values representing the role keys. The list can be null.
+     *
      * @return
      */
     public static List<String> getRoles(SAML11AssertionType assertion, List<String> roleKeys) {

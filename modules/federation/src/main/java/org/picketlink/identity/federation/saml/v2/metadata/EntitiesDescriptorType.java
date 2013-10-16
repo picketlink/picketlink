@@ -52,10 +52,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class EntitiesDescriptorType {
+
     protected Element signature;
 
     protected ExtensionsType extensions;
@@ -74,7 +73,6 @@ public class EntitiesDescriptorType {
      * Gets the value of the signature property.
      *
      * @return possible object is {@link Element }
-     *
      */
     public Element getSignature() {
         return signature;
@@ -84,7 +82,6 @@ public class EntitiesDescriptorType {
      * Sets the value of the signature property.
      *
      * @param value allowed object is {@link Element }
-     *
      */
     public void setSignature(Element value) {
         this.signature = value;
@@ -94,7 +91,6 @@ public class EntitiesDescriptorType {
      * Gets the value of the extensions property.
      *
      * @return possible object is {@link ExtensionsType }
-     *
      */
     public ExtensionsType getExtensions() {
         return extensions;
@@ -104,7 +100,6 @@ public class EntitiesDescriptorType {
      * Sets the value of the extensions property.
      *
      * @param value allowed object is {@link ExtensionsType }
-     *
      */
     public void setExtensions(ExtensionsType value) {
         this.extensions = value;
@@ -131,9 +126,8 @@ public class EntitiesDescriptorType {
     /**
      * Gets the value of the entityDescriptorOrEntitiesDescriptor property.
      * <p>
-     * Objects of the following type(s) are allowed in the list {@link EntitiesDescriptorType } {@link EntityDescriptorType }
-     *
-     *
+     * Objects of the following type(s) are allowed in the list {@link EntitiesDescriptorType } {@link
+     * EntityDescriptorType }
      */
     public List<Object> getEntityDescriptor() {
         return Collections.unmodifiableList(this.entityDescriptor);
@@ -143,7 +137,6 @@ public class EntitiesDescriptorType {
      * Gets the value of the validUntil property.
      *
      * @return possible object is {@link XMLGregorianCalendar }
-     *
      */
     public XMLGregorianCalendar getValidUntil() {
         return validUntil;
@@ -153,7 +146,6 @@ public class EntitiesDescriptorType {
      * Sets the value of the validUntil property.
      *
      * @param value allowed object is {@link XMLGregorianCalendar }
-     *
      */
     public void setValidUntil(XMLGregorianCalendar value) {
         this.validUntil = value;
@@ -163,7 +155,6 @@ public class EntitiesDescriptorType {
      * Gets the value of the cacheDuration property.
      *
      * @return possible object is {@link Duration }
-     *
      */
     public Duration getCacheDuration() {
         return cacheDuration;
@@ -173,7 +164,6 @@ public class EntitiesDescriptorType {
      * Sets the value of the cacheDuration property.
      *
      * @param value allowed object is {@link Duration }
-     *
      */
     public void setCacheDuration(Duration value) {
         this.cacheDuration = value;
@@ -183,7 +173,6 @@ public class EntitiesDescriptorType {
      * Gets the value of the id property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getID() {
         return id;
@@ -193,7 +182,6 @@ public class EntitiesDescriptorType {
      * Sets the value of the id property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setID(String value) {
         this.id = value;
@@ -203,7 +191,6 @@ public class EntitiesDescriptorType {
      * Gets the value of the name property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getName() {
         return name;
@@ -213,7 +200,6 @@ public class EntitiesDescriptorType {
      * Sets the value of the name property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setName(String value) {
         this.name = value;

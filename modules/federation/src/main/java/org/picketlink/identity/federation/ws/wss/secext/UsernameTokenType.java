@@ -41,10 +41,9 @@ import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class UsernameTokenType extends AnyAddressingType {
+
     protected AttributedString username;
 
     protected String id;
@@ -53,7 +52,6 @@ public class UsernameTokenType extends AnyAddressingType {
      * Gets the value of the username property.
      *
      * @return possible object is {@link AttributedString }
-     *
      */
     public AttributedString getUsername() {
         return username;
@@ -63,7 +61,6 @@ public class UsernameTokenType extends AnyAddressingType {
      * Sets the value of the username property.
      *
      * @param value allowed object is {@link AttributedString }
-     *
      */
     public void setUsername(AttributedString value) {
         this.username = value;
@@ -73,7 +70,6 @@ public class UsernameTokenType extends AnyAddressingType {
      * Gets the value of the id property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getId() {
         return id;
@@ -83,7 +79,6 @@ public class UsernameTokenType extends AnyAddressingType {
      * Sets the value of the id property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setId(String value) {
         this.id = value;

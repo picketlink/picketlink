@@ -42,8 +42,6 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 
 public class OrganizationType extends TypeWithOtherAttributes {
@@ -114,7 +112,6 @@ public class OrganizationType extends TypeWithOtherAttributes {
      * Gets the value of the extensions property.
      *
      * @return possible object is {@link ExtensionsType }
-     *
      */
     public ExtensionsType getExtensions() {
         return extensions;
@@ -124,7 +121,6 @@ public class OrganizationType extends TypeWithOtherAttributes {
      * Sets the value of the extensions property.
      *
      * @param value allowed object is {@link ExtensionsType }
-     *
      */
     public void setExtensions(ExtensionsType value) {
         this.extensions = value;
@@ -135,7 +131,6 @@ public class OrganizationType extends TypeWithOtherAttributes {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link LocalizedNameType }
-     *
      */
     public List<LocalizedNameType> getOrganizationName() {
         return Collections.unmodifiableList(this.organizationName);
@@ -146,8 +141,6 @@ public class OrganizationType extends TypeWithOtherAttributes {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link LocalizedNameType }
-     *
-     *
      */
     public List<LocalizedNameType> getOrganizationDisplayName() {
         return Collections.unmodifiableList(this.organizationDisplayName);
@@ -155,7 +148,6 @@ public class OrganizationType extends TypeWithOtherAttributes {
 
     /**
      * Gets the value of the organizationURL property.
-     *
      */
     public List<LocalizedURIType> getOrganizationURL() {
         return Collections.unmodifiableList(this.organizationURL);

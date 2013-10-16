@@ -33,8 +33,9 @@ import java.util.UUID;
  * @author Anil.Saldhana@redhat.com
  * @since Oct 7, 2009
  */
-@SuppressWarnings({ "deprecation", "unchecked", "rawtypes" })
+@SuppressWarnings({"deprecation", "unchecked", "rawtypes"})
 public class MockHttpSession implements HttpSession {
+
     private boolean valid = true;
 
     private Map<String, Object> attribs = new HashMap<String, Object>();

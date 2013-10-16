@@ -53,12 +53,10 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "AuthnMethodBaseType", propOrder = { "principalAuthenticationMechanism", "authenticator",
-        "authenticatorTransportProtocol", "extension" })
+@XmlType(name = "AuthnMethodBaseType", propOrder = {"principalAuthenticationMechanism", "authenticator",
+        "authenticatorTransportProtocol", "extension"})
 public class AuthnMethodBaseType {
 
     @XmlElement(name = "PrincipalAuthenticationMechanism")
@@ -74,7 +72,6 @@ public class AuthnMethodBaseType {
      * Gets the value of the principalAuthenticationMechanism property.
      *
      * @return possible object is {@link PrincipalAuthenticationMechanismType }
-     *
      */
     public PrincipalAuthenticationMechanismType getPrincipalAuthenticationMechanism() {
         return principalAuthenticationMechanism;
@@ -84,7 +81,6 @@ public class AuthnMethodBaseType {
      * Sets the value of the principalAuthenticationMechanism property.
      *
      * @param value allowed object is {@link PrincipalAuthenticationMechanismType }
-     *
      */
     public void setPrincipalAuthenticationMechanism(PrincipalAuthenticationMechanismType value) {
         this.principalAuthenticationMechanism = value;
@@ -94,7 +90,6 @@ public class AuthnMethodBaseType {
      * Gets the value of the authenticator property.
      *
      * @return possible object is {@link AuthenticatorBaseType }
-     *
      */
     public AuthenticatorBaseType getAuthenticator() {
         return authenticator;
@@ -104,7 +99,6 @@ public class AuthnMethodBaseType {
      * Sets the value of the authenticator property.
      *
      * @param value allowed object is {@link AuthenticatorBaseType }
-     *
      */
     public void setAuthenticator(AuthenticatorBaseType value) {
         this.authenticator = value;
@@ -114,7 +108,6 @@ public class AuthnMethodBaseType {
      * Gets the value of the authenticatorTransportProtocol property.
      *
      * @return possible object is {@link AuthenticatorTransportProtocolType }
-     *
      */
     public AuthenticatorTransportProtocolType getAuthenticatorTransportProtocol() {
         return authenticatorTransportProtocol;
@@ -124,7 +117,6 @@ public class AuthnMethodBaseType {
      * Sets the value of the authenticatorTransportProtocol property.
      *
      * @param value allowed object is {@link AuthenticatorTransportProtocolType }
-     *
      */
     public void setAuthenticatorTransportProtocol(AuthenticatorTransportProtocolType value) {
         this.authenticatorTransportProtocol = value;
@@ -134,7 +126,8 @@ public class AuthnMethodBaseType {
      * Gets the value of the extension property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to the
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the
      * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
      * extension property.
      *
@@ -148,8 +141,6 @@ public class AuthnMethodBaseType {
      *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link ExtensionType }
-     *
-     *
      */
     public List<ExtensionType> getExtension() {
         if (extension == null) {

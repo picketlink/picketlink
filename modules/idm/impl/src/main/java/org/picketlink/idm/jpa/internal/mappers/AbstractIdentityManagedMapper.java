@@ -23,7 +23,7 @@ import org.picketlink.idm.model.AttributedType;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * @author pedroigor

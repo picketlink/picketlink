@@ -30,14 +30,16 @@ import java.util.GregorianCalendar;
 
 /**
  * <p>
- * This class represents a WS-Trust {@code Lifetime}. It wraps the JAXB {@code LifetimeType} and offer methods that allows for
- * easy retrieval of the creation and expiration times as {@code XMLGregorianCalendar} and {@code GregorianCalendar} objects.
+ * This class represents a WS-Trust {@code Lifetime}. It wraps the JAXB {@code LifetimeType} and offer methods that
+ * allows for
+ * easy retrieval of the creation and expiration times as {@code XMLGregorianCalendar} and {@code GregorianCalendar}
+ * objects.
  * </p>
  *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public class Lifetime {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     private final LifetimeType delegate;
@@ -84,7 +86,7 @@ public class Lifetime {
      * </p>
      *
      * @param lifetime a reference to the {@code LifetimeType} instance that contains the information used in the
-     *        {@code Lifetime} construction.
+     * {@code Lifetime} construction.
      */
     public Lifetime(LifetimeType lifetime) {
         if (lifetime == null)

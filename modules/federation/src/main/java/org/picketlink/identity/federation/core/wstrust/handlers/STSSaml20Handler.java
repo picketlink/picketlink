@@ -17,8 +17,6 @@
  */
 package org.picketlink.identity.federation.core.wstrust.handlers;
 
-import org.picketlink.common.constants.WSTrustConstants;
-
 import javax.xml.namespace.QName;
 
 import static org.picketlink.common.constants.WSTrustConstants.SAML2_ASSERTION_NS;
@@ -32,6 +30,7 @@ import static org.picketlink.common.constants.WSTrustConstants.WSSE_NS;
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
  */
 public class STSSaml20Handler extends STSSecurityHandler {
+
     /**
      * Qualified name for WSSE Security Header ({@link WSTrustConstants#WSSE_NS}:"Security")
      */

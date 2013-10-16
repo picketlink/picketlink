@@ -29,6 +29,7 @@ import org.w3c.dom.Document;
  * @since Aug 13, 2009
  */
 public class SAMLDocumentHolder {
+
     private SAML2Object samlObject;
     private Document samlDocument;
 

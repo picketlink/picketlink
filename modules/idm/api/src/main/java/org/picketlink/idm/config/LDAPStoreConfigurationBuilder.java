@@ -30,7 +30,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.picketlink.common.util.StringUtil.*;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * <p>{@link IdentityStoreConfigurationBuilder} implementation which knows how to build a

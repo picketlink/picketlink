@@ -30,21 +30,26 @@ import java.util.Set;
 
 /**
  * <p>
- * {@code FileBasedRevocationRegistry} is a revocation registry implementation that uses a file to store the ids of the revoked
- * (canceled) security tokens. By default all ids are stored in $HOME/picketlink-store/sts/revoked.ids but a different location
+ * {@code FileBasedRevocationRegistry} is a revocation registry implementation that uses a file to store the ids of the
+ * revoked
+ * (canceled) security tokens. By default all ids are stored in $HOME/picketlink-store/sts/revoked.ids but a different
+ * location
  * can be specified through the constructor that takes the file name as a parameter.
  * </p>
  * <p>
- * NOTE: this implementation use a local cache to avoid reading the file system every time a revocation check is made, making
- * this registry a bad choice for distributed scenarios. Even though the registry file is updated whenever a new id is revoked,
- * each node in the cluster will have its own cached view and thus a token that has been canceled by one node may be accepted by
+ * NOTE: this implementation use a local cache to avoid reading the file system every time a revocation check is made,
+ * making
+ * this registry a bad choice for distributed scenarios. Even though the registry file is updated whenever a new id is
+ * revoked,
+ * each node in the cluster will have its own cached view and thus a token that has been canceled by one node may be
+ * accepted by
  * another live node as the caches are not refreshed or synchronized.
  * </p>
  *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public class FileBasedRevocationRegistry extends FileBasedSTSOperations implements RevocationRegistry {
-    
+
     protected static final String FILE_NAME = "revoked.ids";
 
     // this set contains the ids of the revoked security tokens.
@@ -114,7 +119,8 @@ public class FileBasedRevocationRegistry extends FileBasedSTSOperations implemen
 
     /**
      * <p>
-     * This method loads the ids of the revoked assertions from the registry file. All retrieved ids are set in the local cache
+     * This method loads the ids of the revoked assertions from the registry file. All retrieved ids are set in the
+     * local cache
      * of revoked ids.
      * </p>
      */

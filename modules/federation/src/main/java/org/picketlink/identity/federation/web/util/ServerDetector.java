@@ -24,6 +24,7 @@ package org.picketlink.identity.federation.web.util;
  * @since Sep 11, 2009
  */
 public class ServerDetector {
+
     private boolean jboss = false;
 
     private boolean tomcat = false;

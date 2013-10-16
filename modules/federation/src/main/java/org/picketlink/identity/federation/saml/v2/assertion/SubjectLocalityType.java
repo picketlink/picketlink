@@ -36,10 +36,9 @@ import java.io.Serializable;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class SubjectLocalityType implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     protected String address;
@@ -50,7 +49,6 @@ public class SubjectLocalityType implements Serializable {
      * Gets the value of the address property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getAddress() {
         return address;
@@ -60,7 +58,6 @@ public class SubjectLocalityType implements Serializable {
      * Sets the value of the address property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setAddress(String value) {
         this.address = value;
@@ -70,7 +67,6 @@ public class SubjectLocalityType implements Serializable {
      * Gets the value of the dnsName property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getDNSName() {
         return dnsName;
@@ -80,7 +76,6 @@ public class SubjectLocalityType implements Serializable {
      * Sets the value of the dnsName property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setDNSName(String value) {
         this.dnsName = value;

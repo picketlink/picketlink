@@ -27,7 +27,8 @@ import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import javax.servlet.http.HttpSession;
 
 /**
- * Handler is useful on SP side. It's used for verification that InResponseId from SAML Authentication Response is same as ID of
+ * Handler is useful on SP side. It's used for verification that InResponseId from SAML Authentication Response is same
+ * as ID of
  * previously sent SAML Authentication request
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>

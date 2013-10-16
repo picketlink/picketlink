@@ -24,10 +24,12 @@ import java.util.Map;
  * @since Oct 12, 2009
  */
 public interface SAML2MapBasedConfig {
+
     /**
      * Does the config contain the key?
      *
      * @param key
+     *
      * @return
      */
     boolean containsKey(String key);
@@ -36,9 +38,10 @@ public interface SAML2MapBasedConfig {
      * Get a parameter from the chain config
      *
      * @param parameterName
+     *
      * @return
      */
-    public Object getParameter(String parameterName);
+    Object getParameter(String parameterName);
 
     /**
      * Add a parameter
@@ -46,7 +49,7 @@ public interface SAML2MapBasedConfig {
      * @param parameterName
      * @param value
      */
-    public void addParameter(String parameterName, Object value);
+    void addParameter(String parameterName, Object value);
 
     /**
      * Set the options

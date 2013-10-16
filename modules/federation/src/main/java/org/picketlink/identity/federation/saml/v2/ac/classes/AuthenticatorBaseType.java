@@ -38,8 +38,7 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class AuthenticatorBaseType extends OriginalAuthenticatorBaseType {
+
 }

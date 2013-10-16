@@ -34,8 +34,6 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class KeySharingType {
 
@@ -43,7 +41,6 @@ public class KeySharingType {
 
     /**
      * Gets the value of the sharing property.
-     *
      */
     public boolean isSharing() {
         return sharing;
@@ -51,7 +48,6 @@ public class KeySharingType {
 
     /**
      * Sets the value of the sharing property.
-     *
      */
     public void setSharing(boolean value) {
         this.sharing = value;

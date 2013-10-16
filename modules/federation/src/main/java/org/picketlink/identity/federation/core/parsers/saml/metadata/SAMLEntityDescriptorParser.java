@@ -63,9 +63,9 @@ import java.util.List;
  * @since Dec 14, 2010
  */
 public class SAMLEntityDescriptorParser extends AbstractDescriptorParser implements ParserNamespaceSupport {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private final String EDT = JBossSAMLConstants.ENTITY_DESCRIPTOR.get();
 
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
@@ -526,7 +526,7 @@ public class SAMLEntityDescriptorParser extends AbstractDescriptorParser impleme
     }
 
     private AttributeConsumingServiceType parseAttributeConsumingService(XMLEventReader xmlEventReader,
-            StartElement startElement) throws ParsingException {
+                                                                         StartElement startElement) throws ParsingException {
         startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
 
         Attribute indexAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.INDEX.get()));

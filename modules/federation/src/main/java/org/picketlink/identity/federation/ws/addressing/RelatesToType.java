@@ -28,15 +28,15 @@ package org.picketlink.identity.federation.ws.addressing;
  * &lt;complexType name="RelatesToType">
  *   &lt;simpleContent>
  *     &lt;extension base="&lt;http://www.w3.org/2001/XMLSchema>anyURI">
- *       &lt;attribute name="RelationshipType" type="{http://www.w3.org/2005/08/addressing}RelationshipTypeOpenEnum" default="http://www.w3.org/2005/08/addressing/reply" />
+ *       &lt;attribute name="RelationshipType" type="{http://www.w3.org/2005/08/addressing}RelationshipTypeOpenEnum"
+ * default="http://www.w3.org/2005/08/addressing/reply" />
  *     &lt;/extension>
  *   &lt;/simpleContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class RelatesToType extends BaseAddressingType {
+
     protected String value;
 
     protected String relationshipType;
@@ -45,7 +45,6 @@ public class RelatesToType extends BaseAddressingType {
      * Gets the value of the value property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getValue() {
         return value;
@@ -55,7 +54,6 @@ public class RelatesToType extends BaseAddressingType {
      * Sets the value of the value property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setValue(String value) {
         this.value = value;
@@ -65,7 +63,6 @@ public class RelatesToType extends BaseAddressingType {
      * Gets the value of the relationshipType property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getRelationshipType() {
         if (relationshipType == null) {
@@ -79,7 +76,6 @@ public class RelatesToType extends BaseAddressingType {
      * Sets the value of the relationshipType property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setRelationshipType(String value) {
         this.relationshipType = value;

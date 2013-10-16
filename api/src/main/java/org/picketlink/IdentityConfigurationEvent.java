@@ -29,20 +29,19 @@ import org.picketlink.idm.config.IdentityConfigurationBuilder;
  * <p>The state of the {@link IdentityConfigurationBuilder} depends on the following situations:</p>
  *
  * <ul>
- *     <li>If no {@link org.picketlink.idm.config.IdentityConfiguration} was produced, the builder is just an empty
- *     instance, with no configuration.</li>
- *     <li>If any {@link org.picketlink.idm.config.IdentityConfiguration} was produced, the builder is already
- *     populated with those configurations.</li>
+ * <li>If no {@link org.picketlink.idm.config.IdentityConfiguration} was produced, the builder is just an empty
+ * instance, with no configuration.</li>
+ * <li>If any {@link org.picketlink.idm.config.IdentityConfiguration} was produced, the builder is already
+ * populated with those configurations.</li>
  * </ul>
  *
  * <p>If the observer of this event does not provide any additional configuration and no {@link org.picketlink.idm
  * .config.IdentityConfiguration} was produced, the default configuration will be used.</p>
- * 
- * @author Shane Bryzak
  *
+ * @author Shane Bryzak
  */
 public class IdentityConfigurationEvent {
-    
+
     private IdentityConfigurationBuilder config;
 
     public IdentityConfigurationEvent(IdentityConfigurationBuilder config) {

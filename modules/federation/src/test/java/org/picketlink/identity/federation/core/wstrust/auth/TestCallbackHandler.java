@@ -28,9 +28,9 @@ import java.io.IOException;
  * Simple callback handler for unit tests.
  *
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
- *
  */
 public class TestCallbackHandler implements CallbackHandler {
+
     private final String username;
     private final String password;
 

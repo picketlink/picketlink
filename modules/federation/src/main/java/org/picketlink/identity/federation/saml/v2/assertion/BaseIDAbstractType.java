@@ -37,6 +37,7 @@ import java.io.Serializable;
  * @since Nov 24, 2010
  */
 public abstract class BaseIDAbstractType implements Serializable {
+
     private static final long serialVersionUID = 1L;
     private String nameQualifier;
     private String sPNameQualifier;

@@ -39,7 +39,7 @@
       <!-- The full pattern: Date MS Priority [Category] (Thread:NDC) Message\n
       <param name="ConversionPattern" value="%d %-5r %-5p [%c] (%t:%x) %m%n"/>
        -->
-    </layout>	    
+    </layout>
   </appender>
 
   <!-- ============================== -->
@@ -80,5 +80,5 @@
     <appender-ref ref="CONSOLE"/>
     <appender-ref ref="FILE"/>
   </root>
-  
+
 </log4j:configuration>

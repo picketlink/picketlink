@@ -50,9 +50,9 @@ import static org.picketlink.identity.federation.core.wsse.WSSecurityConstants.W
  * @since Nov 8, 2010
  */
 public class WSSecurityWriter {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private final XMLStreamWriter writer;
 
     public WSSecurityWriter(XMLStreamWriter writer) {

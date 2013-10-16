@@ -26,14 +26,15 @@ import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 /**
  * Holds info about the issuer for saml messages creation
  *
- * @author Anil.Saldhana@redhat.com
  * @param <JBossSAMLConstants>
+ *
+ * @author Anil.Saldhana@redhat.com
  * @since Dec 10, 2008
  */
 public class IssuerInfoHolder {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private NameIDType issuer;
 
     private String statusCodeURI = JBossSAMLURIConstants.STATUS_SUCCESS.get();

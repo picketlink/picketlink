@@ -40,17 +40,15 @@ import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class EmbeddedType extends AnyAddressingType {
+
     protected String valueType;
 
     /**
      * Gets the value of the valueType property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getValueType() {
         return valueType;
@@ -60,7 +58,6 @@ public class EmbeddedType extends AnyAddressingType {
      * Sets the value of the valueType property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setValueType(String value) {
         this.valueType = value;

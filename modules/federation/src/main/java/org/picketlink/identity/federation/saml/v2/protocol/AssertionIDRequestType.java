@@ -40,10 +40,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class AssertionIDRequestType extends RequestAbstractType {
+
     private static final long serialVersionUID = 1L;
 
     protected List<String> assertionIDRef = new ArrayList<String>();
@@ -72,7 +71,6 @@ public class AssertionIDRequestType extends RequestAbstractType {
 
     /**
      * Gets the value of the assertionIDRef property.
-     *
      */
     public List<String> getAssertionIDRef() {
         return Collections.unmodifiableList(this.assertionIDRef);

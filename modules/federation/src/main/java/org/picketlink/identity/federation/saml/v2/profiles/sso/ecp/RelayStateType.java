@@ -35,8 +35,6 @@ package org.picketlink.identity.federation.saml.v2.profiles.sso.ecp;
  *   &lt;/simpleContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class RelayStateType {
 
@@ -48,7 +46,6 @@ public class RelayStateType {
      * Gets the value of the value property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getValue() {
         return value;
@@ -58,7 +55,6 @@ public class RelayStateType {
      * Sets the value of the value property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setValue(String value) {
         this.value = value;
@@ -68,7 +64,6 @@ public class RelayStateType {
      * Gets the value of the mustUnderstand property.
      *
      * @return possible object is {@link String }
-     *
      */
     public Boolean isMustUnderstand() {
         return mustUnderstand;
@@ -78,7 +73,6 @@ public class RelayStateType {
      * Sets the value of the mustUnderstand property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setMustUnderstand(Boolean value) {
         this.mustUnderstand = value;
@@ -88,7 +82,6 @@ public class RelayStateType {
      * Gets the value of the actor property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getActor() {
         return actor;
@@ -98,7 +91,6 @@ public class RelayStateType {
      * Sets the value of the actor property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setActor(String value) {
         this.actor = value;

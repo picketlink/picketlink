@@ -31,6 +31,7 @@ import java.io.Serializable;
  * @since Jun 22, 2011
  */
 public class SAML11StatusType implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     protected SAML11StatusCodeType statusCode;

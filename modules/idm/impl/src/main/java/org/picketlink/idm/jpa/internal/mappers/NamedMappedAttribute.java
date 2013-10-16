@@ -20,8 +20,8 @@ package org.picketlink.idm.jpa.internal.mappers;
 import org.picketlink.common.properties.Property;
 import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
 
-import static org.picketlink.common.util.StringUtil.*;
-import static org.picketlink.idm.IDMMessages.*;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * @author pedroigor

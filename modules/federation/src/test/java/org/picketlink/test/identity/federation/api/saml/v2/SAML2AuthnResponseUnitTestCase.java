@@ -37,6 +37,7 @@ import java.io.ByteArrayOutputStream;
  * @since Dec 9, 2008
  */
 public class SAML2AuthnResponseUnitTestCase {
+
     @Test
     public void testResponseTypeCreation() throws Exception {
         // Initialize the Core STS

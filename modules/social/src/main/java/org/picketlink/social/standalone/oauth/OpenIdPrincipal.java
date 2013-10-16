@@ -32,6 +32,7 @@ import java.util.Map;
  * @since Jan 30, 2010
  */
 public class OpenIdPrincipal implements Principal, Serializable {
+
     private static final long serialVersionUID = 4404673070085740561L;
 
     private String identifier;
@@ -40,8 +41,8 @@ public class OpenIdPrincipal implements Principal, Serializable {
 
     private Map<String, List<String>> attributes;
 
-    private String firstName, lastName,email, fullName;
-    
+    private String firstName, lastName, email, fullName;
+
     public OpenIdPrincipal(String identifier, URL openIdProvider, Map<String, List<String>> attributes) {
         super();
         this.identifier = identifier;
@@ -103,36 +104,37 @@ public class OpenIdPrincipal implements Principal, Serializable {
         return "OpenIdPrincipal [identifier=" + identifier + ", openIdProvider=" + openIdProvider + ", attributes="
                 + attributes + "]";
     }
-    private void process(){
-        if(attributes != null){
-         // Try the full name
+
+    private void process() {
+        if (attributes != null) {
+            // Try the full name
             List<String> values = attributes.get("ax_fullName");
-            if (values != null && values.size() > 0){ 
+            if (values != null && values.size() > 0) {
                 fullName = values.get(0);
-            }else {
+            } else {
                 values = attributes.get("fullname"); // Yahoo
-                if (values != null && values.size() > 0){
+                if (values != null && values.size() > 0) {
                     fullName = values.get(0);
-                } 
+                }
             }
             values = attributes.get("ax_firstName");
-            if (values != null && values.size() > 0) { 
+            if (values != null && values.size() > 0) {
                 firstName = values.get(0);
             }
 
             // Try the last name
             values = attributes.get("ax_lastName");
-            if (values != null && values.size() > 0){
+            if (values != null && values.size() > 0) {
                 lastName = values.get(0);
-            } 
-            
-            if(fullName == null){
+            }
+
+            if (fullName == null) {
                 fullName = firstName + " " + lastName;
             }
-            
+
             // Email
             values = attributes.get("ax_email");
-            if (values != null && values.size() > 0){
+            if (values != null && values.size() > 0) {
                 email = values.get(0);
             }
         }

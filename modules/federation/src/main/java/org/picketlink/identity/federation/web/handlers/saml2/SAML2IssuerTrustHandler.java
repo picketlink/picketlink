@@ -72,20 +72,21 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
     }
 
     private class IDPTrustHandler {
+
         public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response, IDPType idpConfiguration)
                 throws ProcessingException {
             RequestAbstractType requestType = (RequestAbstractType) request.getSAML2Object();
-            
+
             if (requestType == null)
                 throw logger.nullValueError("AuthnRequest");
-            
+
             String issuer = requestType.getIssuer().getValue();
 
             trustIssuer(idpConfiguration, issuer);
         }
 
         public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response,
-                IDPType idpConfiguration) throws ProcessingException {
+                                             IDPType idpConfiguration) throws ProcessingException {
             String issuer = request.getIssuer().getValue();
 
             trustIssuer(idpConfiguration, issuer);
@@ -101,7 +102,7 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
                     String domainsTrusted = idpTrust.getDomains();
 
                     logger.trace("Domains that IDP trusts = " + domainsTrusted + " and issuer domain = " + issuerDomain);
-                    
+
                     if (domainsTrusted.indexOf(issuerDomain) < 0) {
                         // Let us do string parts checking
                         StringTokenizer st = new StringTokenizer(domainsTrusted, ",");
@@ -109,7 +110,7 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
                             String uriBit = st.nextToken();
 
                             logger.trace("Matching uri bit = " + uriBit);
-                            
+
                             if (issuerDomain.indexOf(uriBit) > 0) {
                                 logger.trace("Matched " + uriBit + " trust for " + issuerDomain);
                                 return;
@@ -126,6 +127,7 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
     }
 
     private class SPTrustHandler {
+
         public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response, ProviderType spConfiguration)
                 throws ProcessingException {
             trustIssuer(spConfiguration, request);
@@ -150,8 +152,8 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
                 if (spTrust != null) {
                     String domainsTrusted = spTrust.getDomains();
 
-                    logger.trace("Domains that SP trusts = " + domainsTrusted +" and issuer domain = " + issuerDomain);
-                    
+                    logger.trace("Domains that SP trusts = " + domainsTrusted + " and issuer domain = " + issuerDomain);
+
                     if (domainsTrusted.indexOf(issuerDomain) < 0) {
                         // Let us do string parts checking
                         StringTokenizer st = new StringTokenizer(domainsTrusted, ",");
@@ -159,7 +161,7 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
                             String uriBit = st.nextToken();
 
                             logger.trace("Matching uri bit = " + uriBit);
-                            
+
                             if (issuerDomain.indexOf(uriBit) > 0) {
                                 logger.trace("Matched " + uriBit + " trust for " + issuerDomain);
                                 return;
@@ -185,19 +187,21 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
      * Given a SP or IDP issuer from the assertion, return the host
      *
      * @param domainURL
+     *
      * @return
+     *
      * @throws IOException
      */
     private static String getDomain(String domainURL) throws IOException {
-       try {
-          URL url = new URL(domainURL);
-          return url.getHost();
-       }
-       // This could be the case if argument is not full URL (like "google.com" or "google.com/a/mydomain.com")
-       catch (MalformedURLException me) {
-          domainURL = "http://" + domainURL;
-          URL url = new URL(domainURL);
-          return url.getHost();
-       }
+        try {
+            URL url = new URL(domainURL);
+            return url.getHost();
+        }
+        // This could be the case if argument is not full URL (like "google.com" or "google.com/a/mydomain.com")
+        catch (MalformedURLException me) {
+            domainURL = "http://" + domainURL;
+            URL url = new URL(domainURL);
+            return url.getHost();
+        }
     }
 }

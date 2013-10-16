@@ -27,6 +27,7 @@ import java.util.Set;
  * @since Oct 1, 2009
  */
 public interface SAML2HandlerChain {
+
     /**
      * Number of handlers
      *
@@ -45,6 +46,7 @@ public interface SAML2HandlerChain {
      * Add an handler
      *
      * @param handler
+     *
      * @return whether add was successful
      */
     boolean add(SAML2Handler handler);
@@ -53,6 +55,7 @@ public interface SAML2HandlerChain {
      * Add a collection of handlers
      *
      * @param handlers
+     *
      * @return
      */
     boolean addAll(Collection<SAML2Handler> handlers);
@@ -61,6 +64,7 @@ public interface SAML2HandlerChain {
      * Remove an handler
      *
      * @param handler
+     *
      * @return whether remove was successful
      */
     boolean remove(SAML2Handler handler);
@@ -69,6 +73,7 @@ public interface SAML2HandlerChain {
      * Remove a collection of handlers
      *
      * @param handlers
+     *
      * @return
      */
     boolean removeAll(Collection<SAML2Handler> handlers);

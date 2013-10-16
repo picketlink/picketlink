@@ -32,6 +32,7 @@ import java.io.ByteArrayOutputStream;
  * @since Nov 8, 2010
  */
 public class DomElementToStaxWritingTestCase {
+
     @Test
     public void testDOM2Stax() throws Exception {
         String xml = "<a xmlns=\'urn:hello\' >  <b> <c/> <d xmlns=\'urn:t\' test=\'tt\'/> </b></a>";

@@ -27,15 +27,16 @@ import java.security.PublicKey;
 import java.util.Map;
 
 /**
- * <p>Base implementation of {@link IMetadataProvider}, which provides common functionality for other implementations.</p>
- * 
+ * <p>Base implementation of {@link IMetadataProvider}, which provides common functionality for other
+ * implementations.</p>
+ *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 public abstract class AbstractFileBasedMetadataProvider<T> extends AbstractMetadataProvider
-      implements IMetadataProvider<T> {
+        implements IMetadataProvider<T> {
 
     protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     public static final String FILENAME_KEY = "FileName";
 
     private String fileName;
@@ -56,19 +57,19 @@ public abstract class AbstractFileBasedMetadataProvider<T> extends AbstractMetad
             throw logger.optionNotSet("FileName");
     }
 
-   public void injectEncryptionKey(PublicKey publicKey) {
-       this.encryptionKey = publicKey;
-   }
+    public void injectEncryptionKey(PublicKey publicKey) {
+        this.encryptionKey = publicKey;
+    }
 
-   public void injectFileStream(InputStream fileStream) {
-       this.metadataFileStream = fileStream;
-   }
+    public void injectFileStream(InputStream fileStream) {
+        this.metadataFileStream = fileStream;
+    }
 
-   public void injectSigningKey(PublicKey publicKey) {
-       this.signingKey = publicKey;
-   }
+    public void injectSigningKey(PublicKey publicKey) {
+        this.signingKey = publicKey;
+    }
 
-   public String requireFileInjection() {
-       return this.fileName;
-   }
+    public String requireFileInjection() {
+        return this.fileName;
+    }
 }

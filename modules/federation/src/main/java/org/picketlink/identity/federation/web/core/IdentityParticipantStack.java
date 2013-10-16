@@ -29,6 +29,7 @@ public interface IdentityParticipantStack {
      * Peek at the most recent participant in the session
      *
      * @param sessionID
+     *
      * @return
      */
     String peek(String sessionID);
@@ -37,6 +38,7 @@ public interface IdentityParticipantStack {
      * Remove the most recent participant in the session
      *
      * @param sessionID
+     *
      * @return
      */
     String pop(String sessionID);
@@ -53,6 +55,7 @@ public interface IdentityParticipantStack {
      * For a given identity session, return the number of participants
      *
      * @param sessionID
+     *
      * @return
      */
     int getParticipants(String sessionID);
@@ -62,6 +65,7 @@ public interface IdentityParticipantStack {
      *
      * @param sessionID
      * @param participant
+     *
      * @return
      */
     boolean registerTransitParticipant(String sessionID, String participant);
@@ -71,6 +75,7 @@ public interface IdentityParticipantStack {
      *
      * @param sessionID
      * @param participant
+     *
      * @return
      */
     boolean deRegisterTransitParticipant(String sessionID, String participant);
@@ -79,6 +84,7 @@ public interface IdentityParticipantStack {
      * Return the number of participants in transit
      *
      * @param sessionID
+     *
      * @return
      */
     int getNumOfParticipantsInTransit(String sessionID);
@@ -92,6 +98,7 @@ public interface IdentityParticipantStack {
      * </p>
      *
      * @param participant
+     *
      * @return
      */
     Boolean getBinding(String participant);

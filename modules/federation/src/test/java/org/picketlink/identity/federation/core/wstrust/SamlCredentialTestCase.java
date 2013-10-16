@@ -33,6 +33,7 @@ import java.io.StringReader;
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
  */
 public class SamlCredentialTestCase extends TestCase {
+
     private Element assertionElement;
     private InputSource expectedAssertion;
 

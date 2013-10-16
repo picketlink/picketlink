@@ -43,6 +43,7 @@ import java.net.URI;
  * @since Oct 14, 2010
  */
 public class SAMLConditionsParser implements ParserNamespaceSupport {
+
     /**
      * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
      */
@@ -111,7 +112,7 @@ public class SAMLConditionsParser implements ParserNamespaceSupport {
                 StaxParserUtil.getNextStartElement(xmlEventReader);
                 OneTimeUseType oneTimeUseCondition = new OneTimeUseType();
                 conditions.addCondition(oneTimeUseCondition);
-                
+
                 // Get the end tag
                 EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
                 StaxParserUtil.matches(endElement, JBossSAMLConstants.ONE_TIME_USE.get());
@@ -136,7 +137,9 @@ public class SAMLConditionsParser implements ParserNamespaceSupport {
      * Parse the <audiencerestriction/> element
      *
      * @param xmlEventReader
+     *
      * @return
+     *
      * @throws ParsingException
      */
     private AudienceRestrictionType getAudienceRestriction(XMLEventReader xmlEventReader) throws ParsingException {

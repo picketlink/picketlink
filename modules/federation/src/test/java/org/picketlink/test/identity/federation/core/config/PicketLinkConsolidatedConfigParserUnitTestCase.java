@@ -52,10 +52,10 @@ public class PicketLinkConsolidatedConfigParserUnitTestCase {
         IDPType idp = (IDPType) picketlink.getIdpOrSP();
         assertNotNull(idp);
         assertTrue(picketlink.isEnableAudit());
-        
+
         // asserts the StrictPostBinding attribute. Default is true, but for this test it was changed to true in the configuration file. 
         assertFalse(idp.isStrictPostBinding());
-        
+
         assertEquals("TestIdentityParticipantStack", idp.getIdentityParticipantStack());
     }
 
@@ -90,7 +90,7 @@ public class PicketLinkConsolidatedConfigParserUnitTestCase {
         assertNotNull(sts);
         assertTrue(picketlink.isEnableAudit());
     }
-    
+
     @Test
     public void testHandlers() throws ParsingException {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();

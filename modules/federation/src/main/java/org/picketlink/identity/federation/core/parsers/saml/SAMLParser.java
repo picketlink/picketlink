@@ -22,7 +22,6 @@ import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.parsers.AbstractParser;
-import org.picketlink.common.parsers.ParserNamespaceSupport;
 import org.picketlink.common.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntitiesDescriptorParser;
 import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntityDescriptorParser;
@@ -41,8 +40,9 @@ import javax.xml.stream.events.XMLEvent;
  * @since Oct 12, 2010
  */
 public class SAMLParser extends AbstractParser {
+
     /**
-     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
+     * @see {@link org.picketlink.common.parsers.ParserNamespaceSupport#parse(XMLEventReader)}
      */
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
         while (xmlEventReader.hasNext()) {
@@ -129,7 +129,7 @@ public class SAMLParser extends AbstractParser {
     }
 
     /**
-     * @see {@link ParserNamespaceSupport#supports(QName)}
+     * @see {@link org.picketlink.common.parsers.ParserNamespaceSupport#supports(QName)}
      */
     public boolean supports(QName qname) {
         return JBossSAMLURIConstants.ASSERTION_NSURI.get().equals(qname.getNamespaceURI());

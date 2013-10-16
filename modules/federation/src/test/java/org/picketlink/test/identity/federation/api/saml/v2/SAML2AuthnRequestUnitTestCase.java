@@ -46,6 +46,7 @@ import static org.junit.Assert.assertTrue;
  * @since Dec 8, 2008
  */
 public class SAML2AuthnRequestUnitTestCase {
+
     /**
      * Test reading a saml2 authn request
      *

@@ -77,7 +77,7 @@ public class SAMLIssuerTrustHandlerUnitTestCase extends TestCase {
 
         // Create request and response
         SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, null, documentHolder,
-              SAML2Handler.HANDLER_TYPE.IDP);
+                SAML2Handler.HANDLER_TYPE.IDP);
         SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
 
         // Test localhost
@@ -95,8 +95,7 @@ public class SAMLIssuerTrustHandlerUnitTestCase extends TestCase {
             issuerTrustHandler.handleRequestType(request, response);
 
             fail("www.evil.com is non-trusted domain");
-        }
-        catch (ProcessingException pe) {
+        } catch (ProcessingException pe) {
             Assert.assertEquals(pe.getCause().getClass(), IssuerNotTrustedException.class);
         }
 

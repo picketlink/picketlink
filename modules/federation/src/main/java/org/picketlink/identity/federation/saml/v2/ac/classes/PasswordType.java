@@ -33,15 +33,14 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Length" minOccurs="0"/>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Alphabet" minOccurs="0"/>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Generation" minOccurs="0"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Extension" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:ac:classes:AuthenticatedTelephony}Extension"
+ * maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *       &lt;attribute name="ExternalVerification" type="{http://www.w3.org/2001/XMLSchema}anyURI" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class PasswordType extends ExtensionListType {
 
@@ -54,7 +53,6 @@ public class PasswordType extends ExtensionListType {
      * Gets the value of the length property.
      *
      * @return possible object is {@link LengthType }
-     *
      */
     public LengthType getLength() {
         return length;
@@ -64,7 +62,6 @@ public class PasswordType extends ExtensionListType {
      * Sets the value of the length property.
      *
      * @param value allowed object is {@link LengthType }
-     *
      */
     public void setLength(LengthType value) {
         this.length = value;
@@ -74,7 +71,6 @@ public class PasswordType extends ExtensionListType {
      * Gets the value of the alphabet property.
      *
      * @return possible object is {@link AlphabetType }
-     *
      */
     public AlphabetType getAlphabet() {
         return alphabet;
@@ -84,7 +80,6 @@ public class PasswordType extends ExtensionListType {
      * Sets the value of the alphabet property.
      *
      * @param value allowed object is {@link AlphabetType }
-     *
      */
     public void setAlphabet(AlphabetType value) {
         this.alphabet = value;
@@ -94,7 +89,6 @@ public class PasswordType extends ExtensionListType {
      * Gets the value of the generation property.
      *
      * @return possible object is {@link Generation }
-     *
      */
     public Generation getGeneration() {
         return generation;
@@ -104,7 +98,6 @@ public class PasswordType extends ExtensionListType {
      * Sets the value of the generation property.
      *
      * @param value allowed object is {@link Generation }
-     *
      */
     public void setGeneration(Generation value) {
         this.generation = value;
@@ -114,7 +107,6 @@ public class PasswordType extends ExtensionListType {
      * Gets the value of the externalVerification property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getExternalVerification() {
         return externalVerification;
@@ -124,7 +116,6 @@ public class PasswordType extends ExtensionListType {
      * Sets the value of the externalVerification property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setExternalVerification(String value) {
         this.externalVerification = value;

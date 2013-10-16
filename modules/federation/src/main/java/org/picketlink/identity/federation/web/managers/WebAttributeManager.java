@@ -32,9 +32,9 @@ import java.util.Map;
  * @since Sep 10, 2009
  */
 public class WebAttributeManager implements AttributeManager {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     /**
      * @see AttributeManager#getAttributes(Principal, List)
      */

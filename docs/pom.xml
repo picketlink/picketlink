@@ -13,8 +13,7 @@
   <packaging>jdocbook</packaging>
 
   <name>PicketLink Reference Documentation</name>
-  <description>
-  </description>
+  <description>PicketLink Reference Documentation</description>
 
   <build>
     <pluginManagement>

@@ -41,10 +41,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class TransformsType {
+
     protected List<TransformType> transform = new ArrayList<TransformType>();
 
     public void add(TransformType tt) {

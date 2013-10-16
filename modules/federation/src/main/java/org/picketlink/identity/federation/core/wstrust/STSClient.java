@@ -61,9 +61,9 @@ import java.util.Map;
  * @since Aug 29, 2009
  */
 public class STSClient {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private final ThreadLocal<Dispatch<Source>> dispatchLocal = new InheritableThreadLocal<Dispatch<Source>>();
 
     private final String targetNS = "http://org.picketlink.trust/sts/";
@@ -92,7 +92,8 @@ public class STSClient {
      * Constructor that creates the {@link Dispatch} for use.
      * </p>
      * <p>
-     * If you need to customize the ws properties, it is suggested to preconstruct a {@link Dispatch} object and use the default
+     * If you need to customize the ws properties, it is suggested to preconstruct a {@link Dispatch} object and use the
+     * default
      * no-arg constructor followed by a {@linkplain #setDispatch(Dispatch)} call
      * </p>
      *
@@ -108,7 +109,7 @@ public class STSClient {
         wspAppliesTo = config.getWspAppliesTo();
 
         soapBinding = config.getSoapBinding();
-        
+
         Service jaxwsService = Service.create(service);
         jaxwsService.addPort(portName, soapBinding, config.getEndPointAddress());
         Dispatch<Source> dispatch = jaxwsService.createDispatch(portName, Source.class, Mode.PAYLOAD);
@@ -139,7 +140,9 @@ public class STSClient {
      * Issue a token
      *
      * @param tokenType
+     *
      * @return
+     *
      * @throws WSTrustException
      */
     public Element issueToken(String tokenType) throws WSTrustException {
@@ -160,9 +163,13 @@ public class STSClient {
     /**
      * Issues a Security Token for the ultimate recipient of the token.
      *
-     * @param endpointURI - The ultimate recipient of the token. This will be set at the AppliesTo for the RequestSecurityToken
-     *        which is an optional element so it may be null.
-     * @return Element - The Security Token Element which will be of the TokenType configured for the endpointURI passed in.
+     * @param endpointURI - The ultimate recipient of the token. This will be set at the AppliesTo for the
+     * RequestSecurityToken
+     * which is an optional element so it may be null.
+     *
+     * @return Element - The Security Token Element which will be of the TokenType configured for the endpointURI passed
+     *         in.
+     *
      * @throws WSTrustException
      */
     public Element issueTokenForEndpoint(String endpointURI) throws WSTrustException {
@@ -175,13 +182,17 @@ public class STSClient {
     }
 
     /**
-     * Issues a Security Token from the STS. This methods has the option of specifying one or both of endpointURI/tokenType but
+     * Issues a Security Token from the STS. This methods has the option of specifying one or both of
+     * endpointURI/tokenType but
      * at least one must specified.
      *
-     * @param endpointURI - The ultimate recipient of the token. This will be set at the AppliesTo for the RequestSecurityToken
-     *        which is an optional element so it may be null.
+     * @param endpointURI - The ultimate recipient of the token. This will be set at the AppliesTo for the
+     * RequestSecurityToken
+     * which is an optional element so it may be null.
      * @param tokenType - The type of security token to be issued.
+     *
      * @return Element - The Security Token Element issued.
+     *
      * @throws IllegalArgumentException If neither endpointURI nor tokenType was specified.
      * @throws WSTrustException
      */
@@ -203,11 +214,14 @@ public class STSClient {
      * Issues a security token on behalf of the specified principal.
      * </p>
      *
-     * @param endpointURI the ultimate recipient of the token. This will be set at the AppliesTo for the RequestSecurityToken
-     *        which is an optional element so it may be null.
+     * @param endpointURI the ultimate recipient of the token. This will be set at the AppliesTo for the
+     * RequestSecurityToken
+     * which is an optional element so it may be null.
      * @param tokenType the type of the token to be issued.
      * @param principal the {@code Principal} to whom the token will be issued.
+     *
      * @return an {@code Element} representing the issued security token.
+     *
      * @throws IllegalArgumentException If neither endpointURI nor tokenType was specified.
      * @throws WSTrustException if an error occurs while issuing the security token.
      */
@@ -249,7 +263,9 @@ public class STSClient {
      * Issue a token
      *
      * @param request
+     *
      * @return
+     *
      * @throws WSTrustException
      */
     public Element issueToken(RequestSecurityToken request) throws WSTrustException {
@@ -306,7 +322,9 @@ public class STSClient {
      *
      * @param tokenType
      * @param token
+     *
      * @return
+     *
      * @throws WSTrustException
      */
     public Element renewToken(String tokenType, Element token) throws WSTrustException {
@@ -358,7 +376,9 @@ public class STSClient {
      * Validate a token
      *
      * @param token
+     *
      * @return
+     *
      * @throws WSTrustException
      */
     public boolean validateToken(Element token) throws WSTrustException {
@@ -375,7 +395,7 @@ public class STSClient {
         DOMSource requestSource = this.createSourceFromRequest(request);
 
         Source response = dispatchLocal.get().invoke(requestSource);
-        
+
         try {
             InputStream stream = DocumentUtil.getNodeAsStream(DocumentUtil.getNodeFromSource(response));
             RequestSecurityTokenResponseCollection responseCollection = (RequestSecurityTokenResponseCollection) new WSTrustParser()
@@ -399,7 +419,9 @@ public class STSClient {
      * </p>
      *
      * @param securityToken the security token to be canceled.
+     *
      * @return {@code true} if the token has been canceled by the STS; {@code false} otherwise.
+     *
      * @throws WSTrustException if an error occurs while processing the cancel request.
      */
     public boolean cancelToken(Element securityToken) throws WSTrustException {

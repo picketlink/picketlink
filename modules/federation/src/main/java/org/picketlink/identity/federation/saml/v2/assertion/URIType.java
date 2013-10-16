@@ -26,5 +26,6 @@ import java.net.URI;
  * @since Nov 24, 2010
  */
 public interface URIType {
+
     URI getValue();
 }

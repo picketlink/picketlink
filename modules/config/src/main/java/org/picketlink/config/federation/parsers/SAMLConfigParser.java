@@ -49,10 +49,11 @@ import javax.xml.stream.events.XMLEvent;
  * @since Feb 4, 2011
  */
 public class SAMLConfigParser extends AbstractParser {
+
     public static final String BINDING_TYPE = "BindingType";
 
     public static final String ERROR_PAGE = "ErrorPage";
-    
+
     public static final String LOGOUT_PAGE = "LogOutPage";
 
     public static final String IDP = "PicketLinkIDP";
@@ -90,7 +91,7 @@ public class SAMLConfigParser extends AbstractParser {
     public static final String ROLE_GENERATOR = "RoleGenerator";
 
     public static final String ENCRYPT = "Encrypt";
-    
+
     public static final String HOSTED_URI = "HostedURI";
 
     public static final String ATTRIBUTE_MANAGER = "AttributeManager";
@@ -98,7 +99,7 @@ public class SAMLConfigParser extends AbstractParser {
     public static final String CANONICALIZATION_METHOD = "CanonicalizationMethod";
 
     public static final String HANDLERS = "Handlers";
-    
+
     public static final String HANDLERS_CHAIN_CLASS = "ChainClass";
 
     public static final String HANDLERS_CHAIN_LOCKING = "Locking";
@@ -112,9 +113,9 @@ public class SAMLConfigParser extends AbstractParser {
     public static final String SERVER_ENVIRONMENT = "ServerEnvironment";
 
     public static final String SUPPORTS_SIGNATURES = "SupportsSignatures";
-    
+
     public static final String IDENTITY_PARTICIPANT_STACK = "IdentityParticipantStack";
-    
+
     public static final String STRICT_POST_BINDING = "StrictPostBinding";
 
     public static final String SSL_CLIENT_AUTHENTICATION = "SSLClientAuthentication";
@@ -184,7 +185,7 @@ public class SAMLConfigParser extends AbstractParser {
 
         QName attributeQName = new QName("", ROLE_GENERATOR);
         Attribute attribute = startElement.getAttributeByName(attributeQName);
-        
+
         if (attribute != null)
             idp.setRoleGenerator(StaxParserUtil.getAttributeValue(attribute));
 
@@ -192,7 +193,7 @@ public class SAMLConfigParser extends AbstractParser {
         attribute = startElement.getAttributeByName(attributeQName);
         if (attribute != null)
             idp.setEncrypt(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));
-        
+
         attributeQName = new QName("", HOSTED_URI);
         attribute = startElement.getAttributeByName(attributeQName);
         if (attribute != null)
@@ -212,7 +213,7 @@ public class SAMLConfigParser extends AbstractParser {
         attribute = startElement.getAttributeByName(attributeQName);
         if (attribute != null)
             idp.setStrictPostBinding(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));
-        
+
         attributeQName = new QName("", SUPPORTS_SIGNATURES);
         attribute = startElement.getAttributeByName(attributeQName);
         if (attribute != null) {

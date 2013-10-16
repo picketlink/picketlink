@@ -36,17 +36,15 @@ package org.picketlink.identity.federation.ws.trust;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class UseKeyType extends SimpleAnyType {
+
     protected String sig;
 
     /**
      * Gets the value of the sig property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getSig() {
         return sig;
@@ -56,7 +54,6 @@ public class UseKeyType extends SimpleAnyType {
      * Sets the value of the sig property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setSig(String value) {
         this.sig = value;

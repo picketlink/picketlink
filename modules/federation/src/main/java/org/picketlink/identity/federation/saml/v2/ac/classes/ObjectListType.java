@@ -28,6 +28,7 @@ import java.util.List;
  * @since Feb 3, 2011
  */
 public class ObjectListType {
+
     protected List<Object> content = new ArrayList<Object>();
 
     public void add(Object obj) {

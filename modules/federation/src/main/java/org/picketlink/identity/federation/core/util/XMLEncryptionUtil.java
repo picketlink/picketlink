@@ -39,16 +39,17 @@ import java.security.PublicKey;
 import java.util.HashMap;
 
 /**
- * Utility for XML Encryption <b>Note: </b> This utility is currently using Apache XML Security library API. JSR-106 is not yet
+ * Utility for XML Encryption <b>Note: </b> This utility is currently using Apache XML Security library API. JSR-106 is
+ * not yet
  * final. Until that happens,we rely on the non-standard API.
  *
  * @author Anil.Saldhana@redhat.com
  * @since May 4, 2009
  */
 public class XMLEncryptionUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     static {
         // Initialize the Apache XML Security Library
         org.apache.xml.security.Init.init();
@@ -69,6 +70,7 @@ public class XMLEncryptionUtil {
     private static HashMap<String, EncryptionAlgorithm> algorithms = new HashMap<String, EncryptionAlgorithm>(4);
 
     private static class EncryptionAlgorithm {
+
         EncryptionAlgorithm(String jceName, String xmlSecName, int size) {
             this.jceName = jceName;
             this.xmlSecName = xmlSecName;
@@ -96,6 +98,7 @@ public class XMLEncryptionUtil {
      * Given the JCE algorithm, get the XML Encryption URL
      *
      * @param certAlgo
+     *
      * @return
      */
     public static String getEncryptionURL(String certAlgo) {
@@ -109,6 +112,7 @@ public class XMLEncryptionUtil {
      * Given the JCE algorithm, get the XML Encryption KeySize
      *
      * @param certAlgo
+     *
      * @return
      */
     public static int getEncryptionKeySize(String certAlgo) {
@@ -124,7 +128,8 @@ public class XMLEncryptionUtil {
      * </p>
      * <p>
      * Data is encrypted with a SecretKey. Then the key needs to be transported to the other end where it is needed for
-     * decryption. For the Key transport, the SecretKey is encrypted with the recipient's public key. At the receiving end, the
+     * decryption. For the Key transport, the SecretKey is encrypted with the recipient's public key. At the receiving
+     * end, the
      * receiver can decrypt the Secret Key using his private key.s
      * </p>
      *
@@ -132,11 +137,13 @@ public class XMLEncryptionUtil {
      * @param keyToBeEncrypted Symmetric Key (SecretKey)
      * @param keyUsedToEncryptSecretKey Asymmetric Key (Public Key)
      * @param keySize Length of the key
+     *
      * @return
+     *
      * @throws ProcessingException
      */
     public static EncryptedKey encryptKey(Document document, SecretKey keyToBeEncrypted, PublicKey keyUsedToEncryptSecretKey,
-            int keySize) throws ProcessingException {
+                                          int keySize) throws ProcessingException {
         XMLCipher keyCipher = null;
         String pubKeyAlg = keyUsedToEncryptSecretKey.getAlgorithm();
 
@@ -152,7 +159,8 @@ public class XMLEncryptionUtil {
     }
 
     /**
-     * Given an element in a Document, encrypt the element and replace the element in the document with the encrypted data
+     * Given an element in a Document, encrypt the element and replace the element in the document with the encrypted
+     * data
      *
      * @param elementQName QName of the element that we like to encrypt
      * @param publicKey
@@ -160,11 +168,13 @@ public class XMLEncryptionUtil {
      * @param keySize
      * @param wrappingElementQName A QName of an element that will wrap the encrypted element
      * @param addEncryptedKeyInKeyInfo Need for the EncryptedKey to be placed in ds:KeyInfo
+     *
      * @return
+     *
      * @throws ProcessingException
      */
     public static void encryptElement(QName elementQName, Document document, PublicKey publicKey, SecretKey secretKey,
-            int keySize, QName wrappingElementQName, boolean addEncryptedKeyInKeyInfo) throws ProcessingException {
+                                      int keySize, QName wrappingElementQName, boolean addEncryptedKeyInKeyInfo) throws ProcessingException {
         if (elementQName == null)
             throw logger.nullArgumentError("elementQName");
         if (document == null)
@@ -242,7 +252,8 @@ public class XMLEncryptionUtil {
 
     /**
      * <p>
-     * Encrypts an element in a XML document using the specified public key, secret key, and key size. This method doesn't wrap
+     * Encrypts an element in a XML document using the specified public key, secret key, and key size. This method
+     * doesn't wrap
      * the encrypted element in a new element. Instead, it replaces the element with its encrypted version.
      * </p>
      * <p>
@@ -277,6 +288,7 @@ public class XMLEncryptionUtil {
      * @param publicKey the {@code PublicKey} that must be used to encrypt the secret key.
      * @param secretKey the {@code SecretKey} used to encrypt the specified element.
      * @param keySize the size (in bits) of the secret key.
+     *
      * @throws ProcessingException if an error occurs while encrypting the element with the specified params.
      */
     public static void encryptElement(Document document, Element element, PublicKey publicKey, SecretKey secretKey, int keySize)
@@ -323,7 +335,8 @@ public class XMLEncryptionUtil {
     }
 
     /**
-     * Encrypt the root document element inside a Document. <b>NOTE:</> The document root element will be replaced by the
+     * Encrypt the root document element inside a Document. <b>NOTE:</> The document root element will be replaced by
+     * the
      * wrapping element.
      *
      * @param document Document that contains an element to encrypt
@@ -332,12 +345,14 @@ public class XMLEncryptionUtil {
      * @param keySize Length of key
      * @param wrappingElementQName QName of the element to be used to wrap around the cipher data.
      * @param addEncryptedKeyInKeyInfo Should the encrypted key be inside a KeyInfo or added as a peer of Cipher Data
+     *
      * @return An element that has the wrappingElementQName
+     *
      * @throws ProcessingException
      * @throws ConfigurationException
      */
     public static Element encryptElementInDocument(Document document, PublicKey publicKey, SecretKey secretKey, int keySize,
-            QName wrappingElementQName, boolean addEncryptedKeyInKeyInfo) throws ProcessingException, ConfigurationException {
+                                                   QName wrappingElementQName, boolean addEncryptedKeyInKeyInfo) throws ProcessingException, ConfigurationException {
         String wrappingElementPrefix = wrappingElementQName.getPrefix();
         if (wrappingElementPrefix == null || wrappingElementPrefix == "")
             throw logger.wrongTypeError("Wrapping element prefix invalid");
@@ -406,7 +421,9 @@ public class XMLEncryptionUtil {
      *
      * @param documentWithEncryptedElement
      * @param privateKey key need to unwrap the encryption key
+     *
      * @return the document with the encrypted element replaced by the data element
+     *
      * @throws XMLEncryptionException
      * @throws ProcessingException
      */
@@ -478,6 +495,7 @@ public class XMLEncryptionUtil {
      *
      * @param publicKeyAlgo
      * @param keySize
+     *
      * @return
      */
     private static String getXMLEncryptionURLForKeyUnwrap(String publicKeyAlgo, int keySize) {
@@ -503,6 +521,7 @@ public class XMLEncryptionUtil {
      *
      * @param secretKey
      * @param keySize
+     *
      * @return
      */
     private static String getXMLEncryptionURL(String algo, int keySize) {

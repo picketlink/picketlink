@@ -36,10 +36,9 @@ package org.picketlink.identity.xmlsec.w3.xmlenc;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class CipherDataType {
+
     protected byte[] cipherValue;
     protected CipherReferenceType cipherReference;
 
@@ -65,7 +64,6 @@ public class CipherDataType {
      * Gets the value of the cipherReference property.
      *
      * @return possible object is {@link CipherReferenceType }
-     *
      */
     public CipherReferenceType getCipherReference() {
         return cipherReference;
@@ -75,7 +73,6 @@ public class CipherDataType {
      * Sets the value of the cipherReference property.
      *
      * @param value allowed object is {@link CipherReferenceType }
-     *
      */
     public void setCipherReference(CipherReferenceType value) {
         this.cipherReference = value;

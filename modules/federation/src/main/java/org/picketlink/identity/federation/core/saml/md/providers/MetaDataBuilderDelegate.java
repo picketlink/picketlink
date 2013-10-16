@@ -45,15 +45,16 @@ import java.util.List;
  * @since Apr 19, 2009
  */
 public class MetaDataBuilderDelegate {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     /**
      * Create an Endpoint (SingleSignOnEndpoint or SingleLogoutEndpoint)
      *
      * @param binding
      * @param location
      * @param responseLocation
+     *
      * @return
      */
     public static EndpointType createEndpoint(String binding, String location, String responseLocation) {
@@ -69,10 +70,11 @@ public class MetaDataBuilderDelegate {
      * @param organizationDisplayName
      * @param organizationURL
      * @param lang
+     *
      * @return
      */
     public static OrganizationType createOrganization(String organizationName, String organizationDisplayName,
-            String organizationURL, String lang) {
+                                                      String organizationURL, String lang) {
         if (organizationName == null)
             throw logger.nullArgumentError("organizationName");
         if (organizationDisplayName == null)
@@ -105,6 +107,7 @@ public class MetaDataBuilderDelegate {
      * Create an Entity Descriptor
      *
      * @param idpOrSPDescriptor a descriptor for either the IDP or SSO
+     *
      * @return
      */
     public static EntityDescriptorType createEntityDescriptor(SSODescriptorType idpOrSPDescriptor) {
@@ -129,10 +132,11 @@ public class MetaDataBuilderDelegate {
      * @param sloEndPoint
      * @param attributes
      * @param org
+     *
      * @return
      */
     public static IDPSSODescriptorType createIDPSSODescriptor(boolean requestsSigned, KeyDescriptorType keyDescriptorType,
-            EndpointType ssoEndPoint, EndpointType sloEndPoint, List<AttributeType> attributes, OrganizationType org) {
+                                                              EndpointType ssoEndPoint, EndpointType sloEndPoint, List<AttributeType> attributes, OrganizationType org) {
         List<String> emptyList = new ArrayList<String>();
         IDPSSODescriptorType idp = new IDPSSODescriptorType(emptyList);
         idp.addSingleSignOnService(ssoEndPoint);
@@ -156,10 +160,11 @@ public class MetaDataBuilderDelegate {
      * @param sloEndPoint
      * @param attributes
      * @param org
+     *
      * @return
      */
     public static SPSSODescriptorType createSPSSODescriptor(boolean requestsSigned, KeyDescriptorType keyDescriptorType,
-            EndpointType sloEndPoint, List<AttributeType> attributes, OrganizationType org) {
+                                                            EndpointType sloEndPoint, List<AttributeType> attributes, OrganizationType org) {
         List<String> protocolEnumList = new ArrayList<String>();
         protocolEnumList.add(JBossSAMLURIConstants.PROTOCOL_NSURI.get());
 

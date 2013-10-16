@@ -35,7 +35,6 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
- *
  */
 public enum NymType {
 

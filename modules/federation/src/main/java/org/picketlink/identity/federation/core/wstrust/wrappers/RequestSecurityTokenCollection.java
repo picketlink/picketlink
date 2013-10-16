@@ -26,7 +26,8 @@ import java.util.List;
 
 /**
  * <p>
- * This class represents a WS-Trust {@code RequestSecurityTokenCollection}. It wraps the JAXB representation of the security
+ * This class represents a WS-Trust {@code RequestSecurityTokenCollection}. It wraps the JAXB representation of the
+ * security
  * token collection request.
  * </p>
  *
@@ -53,7 +54,8 @@ public class RequestSecurityTokenCollection implements BaseRequestSecurityToken 
      * Creates an instance of {@code RequestSecurityTokenCollection} using the specified delegate.
      * </p>
      *
-     * @param delegate the JAXB {@code RequestSecurityTokenCollectionType} that represents a WS-Trust request collection.
+     * @param delegate the JAXB {@code RequestSecurityTokenCollectionType} that represents a WS-Trust request
+     * collection.
      */
     public RequestSecurityTokenCollection(RequestSecurityTokenCollectionType delegate) {
         this.delegate = delegate;
@@ -64,7 +66,8 @@ public class RequestSecurityTokenCollection implements BaseRequestSecurityToken 
 
     /**
      * <p>
-     * Obtains the collection of {@code RequestSecurityToken} objects. The returned collection is immutable, so addition or
+     * Obtains the collection of {@code RequestSecurityToken} objects. The returned collection is immutable, so addition
+     * or
      * removal of requests must be carried by the appropriate add/remove methods.
      * </p>
      *

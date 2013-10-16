@@ -30,6 +30,7 @@ import java.net.URI;
  * @since Jun 22, 2011
  */
 public class SAML11AuthorityBindingType {
+
     protected QName authorityKind;
 
     protected URI location;

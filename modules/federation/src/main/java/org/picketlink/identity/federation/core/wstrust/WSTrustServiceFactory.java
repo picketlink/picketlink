@@ -32,7 +32,7 @@ import java.util.Map;
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public class WSTrustServiceFactory {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     private static final WSTrustServiceFactory factory = new WSTrustServiceFactory();
@@ -62,6 +62,7 @@ public class WSTrustServiceFactory {
      * </p>
      *
      * @param configuration a reference to the {@code STSConfiguration}.
+     *
      * @return a reference to the constructed {@code WSTrustRequestHandler} object.
      */
     public WSTrustRequestHandler createRequestHandler(String handlerClassName, STSConfiguration configuration) {
@@ -83,8 +84,10 @@ public class WSTrustServiceFactory {
      * </p>
      *
      * @param providerClass the FQN of the {@code SecurityTokenProvider} to be instantiated.
-     * @param properties a {@code Map<String, String>} containing the properties that have been configured for the token
-     *        provider.
+     * @param properties a {@code Map<String, String>} containing the properties that have been configured for the
+     * token
+     * provider.
+     *
      * @return a reference to the constructed {@code SecurityTokenProvider} object.
      */
     public SecurityTokenProvider createTokenProvider(String providerClass, Map<String, String> properties) {
@@ -102,13 +105,16 @@ public class WSTrustServiceFactory {
 
     /**
      * <p>
-     * Constructs and returns a {@code ClaimsProcessor} from the specified class name. The processor is initialized with the
+     * Constructs and returns a {@code ClaimsProcessor} from the specified class name. The processor is initialized with
+     * the
      * specified properties map.
      * </p>
      *
      * @param processorClass the FQN of the {@code ClaimsProcessor} to be instantiated.
-     * @param properties a {@code Map<String, String>} containing the properties that have been configured for the claims
-     *        processor.
+     * @param properties a {@code Map<String, String>} containing the properties that have been configured for the
+     * claims
+     * processor.
+     *
      * @return a reference to the constructed {@code ClaimsProcessor} object.
      */
     public ClaimsProcessor createClaimsProcessor(String processorClass, Map<String, String> properties) {

@@ -41,6 +41,7 @@ import java.security.Principal;
  * @since Aug 21, 2009
  */
 public class IDPLoginServlet extends HttpServlet {
+
     private static final long serialVersionUID = 1L;
 
     private transient ServletContext context;

@@ -71,7 +71,9 @@ public class OpenIDProcessor {
 
     private enum STATES {
         AUTH, AUTHZ, FINISH
-    };
+    }
+
+    ;
 
     private enum Providers {
         GOOGLE("https://www.google.com/accounts/o8/id"), YAHOO("https://me.yahoo.com/"), MYSPACE("myspace.com"), MYOPENID(
@@ -107,6 +109,7 @@ public class OpenIDProcessor {
      * Initialize the processor
      *
      * @param requiredRoles
+     *
      * @throws MessageException
      * @throws ConsumerException
      */
@@ -229,7 +232,7 @@ public class OpenIDProcessor {
                     attributes);
             request.getSession().setAttribute("PRINCIPAL", openIDPrincipal);
 
-            
+
         } else {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
         }
@@ -238,7 +241,7 @@ public class OpenIDProcessor {
 
     private OpenIdPrincipal createPrincipal(String identifier, URL openIdProvider, Map<String, List<String>> attributes) {
         return new OpenIdPrincipal(identifier, openIdProvider, attributes);
-    } 
+    }
 
     private void determineServiceUrl(String service) {
         openIdServiceUrl = Providers.GOOGLE.get();

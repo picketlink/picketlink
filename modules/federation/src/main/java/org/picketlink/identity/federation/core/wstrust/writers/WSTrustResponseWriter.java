@@ -50,9 +50,9 @@ import java.util.List;
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public class WSTrustResponseWriter {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private final XMLStreamWriter writer;
 
     /**
@@ -62,7 +62,9 @@ public class WSTrustResponseWriter {
      * </p>
      *
      * @param stream the where the response is to be written.
-     * @throws ProcessingException if an error occurs when creating the {@code XMLStreamWriter} for the specified stream.
+     *
+     * @throws ProcessingException if an error occurs when creating the {@code XMLStreamWriter} for the specified
+     * stream.
      */
     public WSTrustResponseWriter(OutputStream stream) throws ProcessingException {
         this.writer = StaxUtil.getXMLStreamWriter(stream);
@@ -70,11 +72,14 @@ public class WSTrustResponseWriter {
 
     /**
      * <p>
-     * Creates a {@code WSTrustResponseWriter} instance that writes WS-Trust response messages to the specified {@code Result}.
+     * Creates a {@code WSTrustResponseWriter} instance that writes WS-Trust response messages to the specified {@code
+     * Result}.
      * </p>
      *
      * @param result the {@code Result} object where the response is to be written.
-     * @throws ProcessingException if an error occurs when creating the {@code XMLStreamWriter} for the specified result.
+     *
+     * @throws ProcessingException if an error occurs when creating the {@code XMLStreamWriter} for the specified
+     * result.
      */
     public WSTrustResponseWriter(Result result) throws ProcessingException {
         this.writer = StaxUtil.getXMLStreamWriter(result);
@@ -82,7 +87,8 @@ public class WSTrustResponseWriter {
 
     /**
      * <p>
-     * Creates a {@code WSTrustResponseWriter} instance that uses the specified {@code XMLStreamWriter} to write the WS-Trust
+     * Creates a {@code WSTrustResponseWriter} instance that uses the specified {@code XMLStreamWriter} to write the
+     * WS-Trust
      * response messages.
      * </p>
      *
@@ -94,10 +100,12 @@ public class WSTrustResponseWriter {
 
     /**
      * <p>
-     * Writes the WS-Trust response message represented by the specified {@code RequestSecurityTokenResponseCollection} object.
+     * Writes the WS-Trust response message represented by the specified {@code RequestSecurityTokenResponseCollection}
+     * object.
      * </p>
      *
      * @param collection the object that contains the WS-Trust response message to be written.
+     *
      * @throws ProcessingException if an error occurs while writing the response message.
      */
     public void write(RequestSecurityTokenResponseCollection collection) throws ProcessingException {

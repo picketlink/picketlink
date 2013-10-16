@@ -19,22 +19,20 @@
 package org.picketlink.authentication;
 
 /**
- * <p>Thrown during the authentication process to indicate that credentials are not supported or could not be handled.</p>
+ * <p>Thrown during the authentication process to indicate that credentials are not supported or could not be
+ * handled.</p>
  *
  * @author Shane Bryzak
- *
  */
-public class UnexpectedCredentialException extends AuthenticationException
-{
+public class UnexpectedCredentialException extends AuthenticationException {
+
     private static final long serialVersionUID = 4827200587997989123L;
 
-    public UnexpectedCredentialException(String message)
-    {
+    public UnexpectedCredentialException(String message) {
         super(message);
     }
 
-    public UnexpectedCredentialException(String message, Throwable cause)
-    {
+    public UnexpectedCredentialException(String message, Throwable cause) {
         super(message, cause);
     }
 }

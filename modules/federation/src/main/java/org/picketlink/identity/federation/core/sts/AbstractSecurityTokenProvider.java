@@ -125,13 +125,9 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
 
         // check if a revocation registry option has been set.
         String registryOption = this.properties.get(REVOCATION_REGISTRY);
-        if (registryOption == null)
-
-        {
+        if (registryOption == null) {
             logger.stsRevocationRegistryNotSpecified();
-        } else
-
-        {
+        } else {
             // if a file is to be used as registry, check if the user has specified the file name.
             if ("FILE".equalsIgnoreCase(registryOption)) {
                 String registryFile = this.properties.get(REVOCATION_REGISTRY_FILE);

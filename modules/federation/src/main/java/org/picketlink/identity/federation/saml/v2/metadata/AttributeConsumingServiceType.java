@@ -34,7 +34,8 @@ import java.util.List;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}ServiceName" maxOccurs="unbounded"/>
- *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}ServiceDescription" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}ServiceDescription" maxOccurs="unbounded"
+ * minOccurs="0"/>
  *         &lt;element ref="{urn:oasis:names:tc:SAML:2.0:metadata}RequestedAttribute" maxOccurs="unbounded"/>
  *       &lt;/sequence>
  *       &lt;attribute name="index" use="required" type="{http://www.w3.org/2001/XMLSchema}unsignedShort" />
@@ -43,10 +44,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class AttributeConsumingServiceType {
+
     protected List<LocalizedNameType> serviceName = new ArrayList<LocalizedNameType>();
 
     protected List<LocalizedNameType> serviceDescription = new ArrayList<LocalizedNameType>();
@@ -65,8 +65,6 @@ public class AttributeConsumingServiceType {
      * Add serviceName
      * <p>
      * Objects of the following type(s) are allowed in the list {@link LocalizedNameType }
-     *
-     *
      */
     public void addServiceName(LocalizedNameType service) {
         this.serviceName.add(service);
@@ -76,8 +74,6 @@ public class AttributeConsumingServiceType {
      * Add serviceDescription.
      * <p>
      * Objects of the following type(s) are allowed in the list {@link LocalizedNameType }
-     *
-     *
      */
     public void addServiceDescription(LocalizedNameType desc) {
         this.serviceDescription.add(desc);
@@ -87,7 +83,6 @@ public class AttributeConsumingServiceType {
      * Add requestedAttribute
      * <p>
      * Objects of the following type(s) are allowed in the list {@link RequestedAttributeType }
-     *
      */
     public void addRequestedAttribute(RequestedAttributeType req) {
         this.requestedAttribute.add(req);
@@ -97,8 +92,6 @@ public class AttributeConsumingServiceType {
      * remove serviceName
      * <p>
      * Objects of the following type(s) are allowed in the list {@link LocalizedNameType }
-     *
-     *
      */
     public void removeServiceName(LocalizedNameType service) {
         this.serviceName.remove(service);
@@ -108,8 +101,6 @@ public class AttributeConsumingServiceType {
      * remove serviceDescription.
      * <p>
      * Objects of the following type(s) are allowed in the list {@link LocalizedNameType }
-     *
-     *
      */
     public void removeServiceDescription(LocalizedNameType desc) {
         this.serviceDescription.remove(desc);
@@ -119,7 +110,6 @@ public class AttributeConsumingServiceType {
      * remove requestedAttribute
      * <p>
      * Objects of the following type(s) are allowed in the list {@link RequestedAttributeType }
-     *
      */
     public void removeRequestedAttribute(RequestedAttributeType req) {
         this.requestedAttribute.remove(req);
@@ -129,8 +119,6 @@ public class AttributeConsumingServiceType {
      * Gets the value of the serviceName property.
      * <p>
      * Objects of the following type(s) are allowed in the list {@link LocalizedNameType }
-     *
-     *
      */
     public List<LocalizedNameType> getServiceName() {
         return Collections.unmodifiableList(this.serviceName);
@@ -140,8 +128,6 @@ public class AttributeConsumingServiceType {
      * Gets the value of the serviceDescription property.
      * <p>
      * Objects of the following type(s) are allowed in the list {@link LocalizedNameType }
-     *
-     *
      */
     public List<LocalizedNameType> getServiceDescription() {
         return Collections.unmodifiableList(this.serviceDescription);
@@ -151,8 +137,6 @@ public class AttributeConsumingServiceType {
      * Gets the value of the requestedAttribute property.
      * <p>
      * Objects of the following type(s) are allowed in the list {@link RequestedAttributeType }
-     *
-     *
      */
     public List<RequestedAttributeType> getRequestedAttribute() {
         return Collections.unmodifiableList(this.requestedAttribute);
@@ -160,7 +144,6 @@ public class AttributeConsumingServiceType {
 
     /**
      * Gets the value of the index property.
-     *
      */
     public int getIndex() {
         return index;
@@ -170,7 +153,6 @@ public class AttributeConsumingServiceType {
      * Gets the value of the isDefault property.
      *
      * @return possible object is {@link Boolean }
-     *
      */
     public Boolean isIsDefault() {
         return isDefault;
@@ -180,7 +162,6 @@ public class AttributeConsumingServiceType {
      * Sets the value of the isDefault property.
      *
      * @param value allowed object is {@link Boolean }
-     *
      */
     public void setIsDefault(Boolean value) {
         this.isDefault = value;

@@ -22,7 +22,7 @@ import org.picketlink.idm.spi.RelationshipPolicy;
 
 import java.util.List;
 
-import static java.util.Collections.*;
+import static java.util.Collections.unmodifiableList;
 
 /**
  * <p>Consolidates all the configuration that should be used to initialize and start the IDM subsystem.</p>

@@ -17,8 +17,6 @@
  */
 package org.picketlink.identity.federation.ws.policy;
 
-import org.w3c.dom.Element;
-
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -54,19 +52,17 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "OperatorContentType", propOrder = { "policyOrAllOrExactlyOne" })
-@XmlSeeAlso({ Policy.class })
+@XmlType(name = "OperatorContentType", propOrder = {"policyOrAllOrExactlyOne"})
+@XmlSeeAlso({Policy.class})
 public class OperatorContentType {
 
     @XmlElementRefs({
             @XmlElementRef(name = "Policy", namespace = "http://schemas.xmlsoap.org/ws/2004/09/policy", type = Policy.class),
             @XmlElementRef(name = "PolicyReference", namespace = "http://schemas.xmlsoap.org/ws/2004/09/policy", type = PolicyReference.class),
             @XmlElementRef(name = "ExactlyOne", namespace = "http://schemas.xmlsoap.org/ws/2004/09/policy", type = JAXBElement.class),
-            @XmlElementRef(name = "All", namespace = "http://schemas.xmlsoap.org/ws/2004/09/policy", type = JAXBElement.class) })
+            @XmlElementRef(name = "All", namespace = "http://schemas.xmlsoap.org/ws/2004/09/policy", type = JAXBElement.class)})
     @XmlAnyElement(lax = true)
     protected List<Object> policyOrAllOrExactlyOne;
 
@@ -74,7 +70,8 @@ public class OperatorContentType {
      * Gets the value of the policyOrAllOrExactlyOne property.
      *
      * <p>
-     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to the
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to
+     * the
      * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
      * policyOrAllOrExactlyOne property.
      *
@@ -87,11 +84,10 @@ public class OperatorContentType {
      *
      *
      * <p>
-     * Objects of the following type(s) are allowed in the list {@link PolicyReference } {@link Element } {@link JAXBElement }
+     * Objects of the following type(s) are allowed in the list {@link PolicyReference } {@link org.w3c.dom.Element } {@link
+     * JAXBElement }
      * {@code <}{@link OperatorContentType }{@code >} {@link Policy } {@link Object } {@link JAXBElement }{@code <}
      * {@link OperatorContentType }{@code >}
-     *
-     *
      */
     public List<Object> getPolicyOrAllOrExactlyOne() {
         if (policyOrAllOrExactlyOne == null) {

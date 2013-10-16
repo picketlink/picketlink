@@ -21,7 +21,6 @@ import org.picketlink.common.ErrorCodes;
 import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.parsers.AbstractParser;
-import org.picketlink.common.parsers.ParserNamespaceSupport;
 import org.picketlink.common.util.StaxParserUtil;
 import org.picketlink.identity.federation.ws.wss.secext.AttributedString;
 import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
@@ -45,9 +44,9 @@ import javax.xml.stream.events.XMLEvent;
  * @since Oct 14, 2010
  */
 public class WSSecurityParser extends AbstractParser {
-    
+
     /**
-     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
+     * @see {@link org.picketlink.common.parsers.ParserNamespaceSupport#parse(XMLEventReader)}
      */
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
         while (xmlEventReader.hasNext()) {

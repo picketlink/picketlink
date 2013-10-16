@@ -51,9 +51,9 @@ import javax.xml.stream.events.XMLEvent;
  * @since Oct 12, 2010
  */
 public class SAMLSubjectParser implements ParserNamespaceSupport {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     /**
      * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
      */

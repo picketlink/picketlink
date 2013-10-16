@@ -17,8 +17,6 @@
  */
 package org.picketlink.identity.xmlsec.w3.xmldsig;
 
-import org.w3c.dom.Element;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,10 +47,9 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class PGPDataType {
+
     protected List<Object> content = new ArrayList<Object>();
 
     public void add(Object obj) {
@@ -66,7 +63,7 @@ public class PGPDataType {
     /**
      * Gets the value of the content property.
      * <p>
-     * Objects of the following type(s) are allowed in the list {@link Element } {@link Object } {@link String }
+     * Objects of the following type(s) are allowed in the list {@link org.w3c.dom.Element } {@link Object } {@link String }
      */
     public List<Object> getContent() {
         return Collections.unmodifiableList(this.content);

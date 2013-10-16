@@ -41,10 +41,8 @@ import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -61,9 +59,9 @@ import java.net.URL;
  * @since Jan 5, 2009
  */
 public class SAML2Request {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     private SAMLDocumentHolder samlDocumentHolder = null;
 
     private String nameIDFormat = JBossSAMLURIConstants.NAMEID_FORMAT_TRANSIENT.get();
@@ -84,11 +82,13 @@ public class SAML2Request {
      * @param assertionConsumerURL
      * @param destination
      * @param issuerValue
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     public AuthnRequestType createAuthnRequestType(String id, String assertionConsumerURL, String destination,
-            String issuerValue) throws ConfigurationException {
+                                                   String issuerValue) throws ConfigurationException {
         XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant();
 
         AuthnRequestType authnRequest = new AuthnRequestType(id, issueInstant);
@@ -118,12 +118,15 @@ public class SAML2Request {
      * Get AuthnRequestType from a file
      *
      * @param fileName file with the serialized AuthnRequestType
+     *
      * @return AuthnRequestType
+     *
      * @throws ParsingException
      * @throws ProcessingException
      * @throws ConfigurationException
-     * @throws IllegalArgumentException if the input fileName is null IllegalStateException if the InputStream from the fileName
-     *         is null
+     * @throws IllegalArgumentException if the input fileName is null IllegalStateException if the InputStream from the
+     * fileName
+     * is null
      */
     public AuthnRequestType getAuthnRequestType(String fileName) throws ConfigurationException, ProcessingException,
             ParsingException {
@@ -146,7 +149,9 @@ public class SAML2Request {
      * Get the Underlying SAML2Object from the input stream
      *
      * @param is
+     *
      * @return
+     *
      * @throws IOException
      * @throws ParsingException
      */
@@ -169,7 +174,9 @@ public class SAML2Request {
      * Get a Request Type from Input Stream
      *
      * @param is
+     *
      * @return
+     *
      * @throws ProcessingException
      * @throws ConfigurationException
      * @throws
@@ -194,7 +201,9 @@ public class SAML2Request {
      * Get the AuthnRequestType from an input stream
      *
      * @param is Inputstream containing the AuthnRequest
+     *
      * @return
+     *
      * @throws ParsingException
      * @throws ProcessingException
      * @throws ConfigurationException
@@ -228,7 +237,9 @@ public class SAML2Request {
      * Create a Logout Request
      *
      * @param issuer
+     *
      * @return
+     *
      * @throws ConfigurationException
      */
     public LogoutRequestType createLogoutRequest(String issuer) throws ConfigurationException {
@@ -247,7 +258,9 @@ public class SAML2Request {
      * Return the DOM object
      *
      * @param rat
+     *
      * @return
+     *
      * @throws ProcessingException
      * @throws ParsingException
      * @throws ConfigurationException
@@ -269,8 +282,12 @@ public class SAML2Request {
      * Convert a SAML2 Response into a Document
      *
      * @param responseType
+     *
      * @return
-     * @throws ParserConfigurationException
+     *
+     * @throws ProcessingException
+     * @throws ParsingException
+     * @throws ConfigurationException
      */
     public Document convert(ResponseType responseType) throws ProcessingException, ParsingException, ConfigurationException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -286,6 +303,7 @@ public class SAML2Request {
      *
      * @param requestType
      * @param os
+     *
      * @throws SAXException
      */
     public void marshall(RequestAbstractType requestType, OutputStream os) throws ProcessingException {
@@ -303,6 +321,7 @@ public class SAML2Request {
      *
      * @param requestType
      * @param writer
+     *
      * @throws SAXException
      */
     public void marshall(RequestAbstractType requestType, Writer writer) throws ProcessingException {

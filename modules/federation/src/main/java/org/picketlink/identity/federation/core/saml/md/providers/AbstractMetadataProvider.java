@@ -26,11 +26,13 @@ import java.util.Map;
  * @since Apr 21, 2009
  */
 public abstract class AbstractMetadataProvider {
+
     protected Map<String, String> options;
 
     /**
-     * @see IMetadataProvider#init(Map)
      * @param options
+     *
+     * @see IMetadataProvider#init(Map)
      */
     public void init(Map<String, String> options) {
         this.options = options;

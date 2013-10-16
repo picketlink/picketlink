@@ -39,8 +39,6 @@ import java.util.Map;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 public class Policy extends OperatorContentType {
 
@@ -54,7 +52,6 @@ public class Policy extends OperatorContentType {
      * Gets the value of the name property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getName() {
         return name;
@@ -64,7 +61,6 @@ public class Policy extends OperatorContentType {
      * Sets the value of the name property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setName(String value) {
         this.name = value;
@@ -74,7 +70,6 @@ public class Policy extends OperatorContentType {
      * Gets the value of the id property.
      *
      * @return possible object is {@link String }
-     *
      */
     public String getId() {
         return id;
@@ -84,7 +79,6 @@ public class Policy extends OperatorContentType {
      * Sets the value of the id property.
      *
      * @param value allowed object is {@link String }
-     *
      */
     public void setId(String value) {
         this.id = value;
@@ -106,9 +100,9 @@ public class Policy extends OperatorContentType {
      * <p>
      * the map is keyed by the name of the attribute and the value is the string value of the attribute.
      *
-     * the map returned by this method is live, and you can add new attribute by updating the map directly. Because of this
+     * the map returned by this method is live, and you can add new attribute by updating the map directly. Because of
+     * this
      * design, there's no setter.
-     *
      *
      * @return always non-null
      */
