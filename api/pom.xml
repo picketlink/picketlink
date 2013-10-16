@@ -1,44 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
+  <parent>
+    <groupId>org.picketlink</groupId>
+    <artifactId>picketlink-parent</artifactId>
+    <version>2.5.3-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>picketlink-api</artifactId>
+  <packaging>jar</packaging>
+
+  <name>PicketLink API</name>
+
+  <dependencies>
+    <dependency>
       <groupId>org.picketlink</groupId>
-      <artifactId>picketlink-parent</artifactId>
-    	<version>2.5.3-SNAPSHOT</version>
-    	<relativePath>../pom.xml</relativePath>
-    </parent>
+      <artifactId>picketlink-idm-api</artifactId>
+    </dependency>
 
-    <artifactId>picketlink-api</artifactId>
-    <packaging>jar</packaging>
+    <dependency>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
-    <name>PicketLink API</name>
+    <dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>jboss-logging</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
-    <dependencies>
-      <dependency>
-        <groupId>org.picketlink</groupId>
-        <artifactId>picketlink-idm-api</artifactId>
-      </dependency>
+    <dependency>
+      <groupId>org.jboss.spec.javax.servlet</groupId>
+      <artifactId>jboss-servlet-api_3.0_spec</artifactId>
+      <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
 
-      <dependency>
-        <groupId>javax.enterprise</groupId>
-        <artifactId>cdi-api</artifactId>
-        <scope>provided</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.logging</groupId>
-        <artifactId>jboss-logging</artifactId>
-        <scope>provided</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.spec.javax.servlet</groupId>
-        <artifactId>jboss-servlet-api_3.0_spec</artifactId>
-        <scope>provided</scope>
-        <optional>true</optional>
-      </dependency>
-
-    </dependencies>
-
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 </project>
