@@ -67,8 +67,8 @@ public class DefaultIdentity implements Identity
     @Inject
     private Instance<IdmAuthenticator> idmAuthenticatorInstance;
 
-    //@Inject 
-    //private PermissionResolver permissionResolver;
+    @Inject 
+    private PermissionResolver permissionResolver;
 
     /**
      * Flag indicating whether we are currently authenticating
@@ -244,13 +244,11 @@ public class DefaultIdentity implements Identity
 
     public boolean hasPermission(Object resource, String operation)
     {
-        return false;
-        //return permissionResolver.resolvePermission(account, resource, operation);
+        return permissionResolver.resolvePermission(account, resource, operation);
     }
 
     public boolean hasPermission(Class<?> resourceClass, Serializable identifier, String operation)
     {
-        return false;
-        // return permissionResolver.resolvePermission(account, resourceClass, identifier, operation);
+        return permissionResolver.resolvePermission(account, resourceClass, identifier, operation);
     }
 }
