@@ -238,7 +238,7 @@ public interface IDMMessages {
     SecurityConfigurationException configCouldNotCreateConfiguration(@Cause Exception sce);
 
     @Message(id = 714, value = "Invalid configuration [%s].")
-    SecurityConfigurationException configInvalidConfiguration(String name);
+    SecurityConfigurationException configInvalidConfiguration(String name, @Cause Throwable t);
 
     @Message(id = 715, value = "Multiple configuration with credential support.")
     SecurityConfigurationException configMultipleConfigurationsFoundWithCredentialSupport();
