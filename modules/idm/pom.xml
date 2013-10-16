@@ -32,7 +32,7 @@
     <module>simple-schema</module>
     <module>complex-schema</module>
     <module>tests</module>
-    <module>drools</module>
+    <!--<module>drools</module>-->
   </modules>
 
   <build>
