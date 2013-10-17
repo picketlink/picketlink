@@ -20,7 +20,6 @@ package org.picketlink.test.idm.testers;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.basic.Agent;
 import org.picketlink.idm.model.basic.Grant;
 import org.picketlink.idm.model.basic.Group;
@@ -29,7 +28,7 @@ import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.util.LDAPEmbeddedServer;
 
-import static org.picketlink.idm.ldap.internal.LDAPConstants.*;
+import static org.picketlink.common.constants.LDAPConstants.*;
 
 /**
  * @author pedroigor

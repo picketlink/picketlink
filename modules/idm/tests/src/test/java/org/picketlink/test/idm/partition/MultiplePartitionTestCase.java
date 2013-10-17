@@ -41,7 +41,7 @@ import java.io.Serializable;
 
 import static junit.framework.Assert.*;
 import static org.junit.Assert.assertEquals;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.*;
+import static org.picketlink.common.constants.LDAPConstants.*;
 
 /**
  * @author pedroigor

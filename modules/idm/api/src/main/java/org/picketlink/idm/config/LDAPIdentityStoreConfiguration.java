@@ -38,14 +38,14 @@ import java.util.Set;
 
 public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfiguration {
 
-    private String ldapURL;
+    private final String ldapURL;
     private String factoryName = "com.sun.jndi.ldap.LdapCtxFactory";
     private String authType = "simple";
     private String protocol;
-    private String bindDN;
-    private String bindCredential;
+    private final String bindDN;
+    private final String bindCredential;
+    private final boolean activeDirectory;
     private String standardAttributesFileName = "standardattributes.txt";
-    private boolean isActiveDirectory = false;
     private Properties additionalProperties = new Properties();
 
     private String baseDN;
@@ -56,6 +56,7 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             String bindDN,
             String bindCredential,
             String baseDN,
+            final boolean activeDirectory,
             Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig, Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
             List<ContextInitializer> contextInitializers,
@@ -63,10 +64,11 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             Set<Class<? extends CredentialHandler>> credentialHandlers,
             boolean supportsCredential) {
         super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers,
-         false, supportsCredential);
+                false, supportsCredential);
         this.ldapURL = url;
         this.bindDN = bindDN;
         this.bindCredential = bindCredential;
+        this.activeDirectory = activeDirectory;
         this.baseDN = baseDN;
         this.mappingConfig = mappingConfig;
     }
@@ -108,7 +110,7 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
     }
 
     public boolean isActiveDirectory() {
-        return this.isActiveDirectory;
+        return this.activeDirectory;
     }
 
     public Properties getAdditionalProperties() {
@@ -160,5 +162,9 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
     @Override
     public boolean supportsPartition() {
         return false;
+    }
+
+    public String getUniqueIdentifierAttributeName() {
+        return this.isActiveDirectory() ? "objectGUID" : "entryUUID";
     }
 }

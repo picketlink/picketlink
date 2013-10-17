@@ -217,7 +217,7 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
                                               final String id) {
         FilePartition filePartition = this.fileDataSource.getPartitions().get(id);
 
-        if (filePartition != null) {
+        if (filePartition != null && partitionClass.isInstance(filePartition.getEntry())) {
             return (P) cloneAttributedType(context, filePartition.getEntry());
         }
 

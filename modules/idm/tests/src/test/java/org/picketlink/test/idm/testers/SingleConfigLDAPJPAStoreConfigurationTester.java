@@ -36,7 +36,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import static org.picketlink.idm.ldap.internal.LDAPConstants.*;
+import static org.picketlink.common.constants.LDAPConstants.*;
 
 /**
  * @author pedroigor
