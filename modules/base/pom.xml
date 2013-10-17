@@ -9,10 +9,10 @@
     <relativePath>../../pom.xml</relativePath>
   </parent>
 
-  <artifactId>picketlink-idm-parent</artifactId>
+  <artifactId>picketlink-base-parent</artifactId>
   <packaging>pom</packaging>
 
-  <name>PicketLink IDM Parent</name>
+  <name>PicketLink Base Parent</name>
 
   <dependencies>
     <dependency>
@@ -29,10 +29,6 @@
   <modules>
     <module>api</module>
     <module>impl</module>
-    <module>simple-schema</module>
-    <module>complex-schema</module>
-    <module>tests</module>
-    <module>drools</module>
   </modules>
 
   <build>
