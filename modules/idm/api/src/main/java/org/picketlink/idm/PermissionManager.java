@@ -24,7 +24,7 @@ public interface PermissionManager {
      * @param permission
      * @return
      */
-    List<Permission> listPermissions(Object resource, String permission);
+    List<Permission> listPermissions(Object resource, String operation);
 
     /**
      * Grant the specified permission

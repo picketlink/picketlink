@@ -43,7 +43,7 @@ public class DroolsPermissionVoter implements PermissionVoter {
 
     @Override
     public VotingResult hasPermission(IdentityType recipient, Object resource, String operation) {
-        VotingResult result = VotingResult.DENY;
+        VotingResult result = VotingResult.NOT_APPLICABLE;
 
         KieSession session = securityRules.newKieSession();
 
