@@ -19,6 +19,7 @@ package org.picketlink.idm.model.basic;
 
 import org.picketlink.idm.model.AbstractIdentityType;
 import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.model.annotation.InheritsPrivileges;
 import org.picketlink.idm.model.annotation.Unique;
 import org.picketlink.idm.query.QueryParameter;
 
@@ -106,6 +107,7 @@ public class Group extends AbstractIdentityType {
         return name;
     }
 
+    @InheritsPrivileges
     @AttributeProperty
     public Group getParentGroup() {
         return this.parentGroup;

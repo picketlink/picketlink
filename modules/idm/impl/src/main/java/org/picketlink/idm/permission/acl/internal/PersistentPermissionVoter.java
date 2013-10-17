@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.PermissionManager;
+import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.permission.spi.PermissionVoter;
@@ -30,12 +31,15 @@ public class PersistentPermissionVoter implements PermissionVoter {
         VotingResult result = VotingResult.NOT_APPLICABLE;
 
         PermissionManager pm = partitionManager.createPermissionManager(recipient.getPartition());
+        RelationshipManager rm = partitionManager.createRelationshipManager();
         List<Permission> permissions = pm.listPermissions(resource, operation);
 
         // TODO we also need to support permissions inherited via relationships (i.e. group memberships, etc)
         for (Permission permission : permissions) {
-            if (recipient.getId().equals(permission.getRecipient()) &&
-                    recipient.getPartition().getId().equals(permission.getRecipient().getPartition().getId())) {
+            if (recipient.equals(permission.getAssignee())) {
+                result = VotingResult.ALLOW;
+                break;
+            } else if (rm.inheritsPrivileges(recipient, permission.getAssignee())) {
                 result = VotingResult.ALLOW;
                 break;
             }

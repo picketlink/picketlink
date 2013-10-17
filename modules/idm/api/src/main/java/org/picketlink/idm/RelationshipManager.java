@@ -17,6 +17,7 @@
  */
 package org.picketlink.idm;
 
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.query.RelationshipQuery;
 
@@ -72,4 +73,14 @@ public interface RelationshipManager {
      * @return
      */
     <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType);
+
+    /**
+     * Returns true if the specified identity inherits privileges assigned to the specified assignee,
+     * either via a relationship or a direct reference from the identity (or a combination of these)
+     *
+     * @param identity
+     * @param assignee
+     * @return
+     */
+    boolean inheritsPrivileges(IdentityType identity, IdentityType assignee);
 }

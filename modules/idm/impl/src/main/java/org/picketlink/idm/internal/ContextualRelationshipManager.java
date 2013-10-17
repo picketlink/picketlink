@@ -22,6 +22,7 @@ import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
@@ -149,5 +150,11 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
         }
 
         return null;
+    }
+
+    @Override
+    public boolean inheritsPrivileges(IdentityType identity, IdentityType assignee) {
+        // TODO Auto-generated method stub
+        return false;
     }
 }

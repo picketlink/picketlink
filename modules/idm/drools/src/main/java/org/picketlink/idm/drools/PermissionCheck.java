@@ -10,20 +10,20 @@ import org.picketlink.idm.model.IdentityType;
  */
 public class PermissionCheck {
 
-    private final IdentityType recipient;
+    private final IdentityType assignee;
     private final Object resource;
     private final String operation;
 
     private boolean granted = false;
 
-    public PermissionCheck(IdentityType recipient, Object resource, String operation) {
-        this.recipient = recipient;
+    public PermissionCheck(IdentityType assignee, Object resource, String operation) {
+        this.assignee = assignee;
         this.resource = resource;
         this.operation = operation;
     }
 
-    public IdentityType getRecipient() {
-        return recipient;
+    public IdentityType getAssignee() {
+        return assignee;
     }
 
     public Object getResource() {

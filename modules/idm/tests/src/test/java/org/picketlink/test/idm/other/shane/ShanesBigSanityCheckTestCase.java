@@ -457,7 +457,7 @@ public class ShanesBigSanityCheckTestCase {
 
         // Assert the permission properties are correctly set
         assert p.getResource().equals(c1);
-        assert p.getRecipient().equals(u);
+        assert p.getAssignee().equals(u);
         assert Customer.PERMISSION_READ.equals(p.getOperation());
     }
 }

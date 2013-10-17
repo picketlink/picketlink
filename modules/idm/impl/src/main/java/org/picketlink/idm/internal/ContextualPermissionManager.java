@@ -2,6 +2,7 @@ package org.picketlink.idm.internal;
 
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.picketlink.idm.IdGenerator;
@@ -28,6 +29,18 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
 
     @Override
     public List<Permission> listPermissions(Object resource) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier, String operation) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -69,7 +82,7 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
     }
 
     @Override
-    public List<String> listPermissionTypes(Object resource) {
+    public List<String> listOperations(Class<?> resourceClass) {
         // TODO Auto-generated method stub
         return null;
     }

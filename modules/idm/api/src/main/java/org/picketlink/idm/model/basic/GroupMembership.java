@@ -21,6 +21,7 @@ package org.picketlink.idm.model.basic;
 import org.picketlink.idm.model.AbstractAttributedType;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.annotation.InheritsPrivileges;
 import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
@@ -60,6 +61,7 @@ public class GroupMembership extends AbstractAttributedType implements Relations
         this.group = group;
     }
 
+    @InheritsPrivileges("group")
     public Account getMember() {
         return member;
     }

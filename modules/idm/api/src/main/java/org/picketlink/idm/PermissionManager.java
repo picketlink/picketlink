@@ -1,5 +1,6 @@
 package org.picketlink.idm;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.picketlink.idm.permission.Permission;
@@ -19,12 +20,32 @@ public interface PermissionManager {
     List<Permission> listPermissions(Object resource);
 
     /**
-     * Return a list of all permissions for the specified resource, of the specified permission type
+     * Returns a list of all Permissions for the specified resource identifier
+     *
+     * @param resourceClass
+     * @param identifier
+     * @return
+     */
+    List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier);
+
+    /**
+     * Return a list of all permissions for the specified resource, with the specified operation
+     *
      * @param resource
      * @param permission
      * @return
      */
     List<Permission> listPermissions(Object resource, String operation);
+
+    /**
+     * Returns a list of all Permissions for the specified resource identifier, with the specified operation
+     *
+     * @param resourceClass
+     * @param identifier
+     * @param operation
+     * @return
+     */
+    List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier, String operation);
 
     /**
      * Grant the specified permission
@@ -71,5 +92,5 @@ public interface PermissionManager {
      * @param resource
      * @return
      */
-    List<String> listPermissionTypes(Object resource);
+    List<String> listOperations(Class<?> resourceClass);
 }
