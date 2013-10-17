@@ -46,6 +46,7 @@ public class LDAPStoreConfigurationBuilder extends
     private String baseDN;
     private String bindDN;
     private String bindCredential;
+    private boolean activeDirectory;
     private Set<LDAPMappingConfigurationBuilder> mappingBuilders = new HashSet<LDAPMappingConfigurationBuilder>();
 
     public LDAPStoreConfigurationBuilder(IdentityStoresConfigurationBuilder builder) {
@@ -97,6 +98,17 @@ public class LDAPStoreConfigurationBuilder extends
     }
 
     /**
+     * <p>Sets the attribute name used as the unique identifier for entries.</p>
+     *
+     * @param uniqueIdentifierAttributeName
+     * @return
+     */
+    public LDAPStoreConfigurationBuilder activeDirectory(boolean activeDirectory) {
+        this.activeDirectory = activeDirectory;
+        return this;
+    }
+
+    /**
      * <p>Maps a specific {@link AttributedType}.</p>
      *
      * @param attributedType
@@ -127,6 +139,7 @@ public class LDAPStoreConfigurationBuilder extends
                 this.bindDN,
                 this.bindCredential,
                 this.baseDN,
+                this.activeDirectory,
                 mappingConfig,
                 getSupportedTypes(),
                 getUnsupportedTypes(),
@@ -171,6 +184,7 @@ public class LDAPStoreConfigurationBuilder extends
         this.bindCredential = configuration.getBindCredential();
         this.bindDN = configuration.getBindDN();
         this.url = configuration.getLdapURL();
+        this.activeDirectory = configuration.isActiveDirectory();
 
         for (Class<? extends AttributedType> attributedType: configuration.getMappingConfig().keySet()) {
             LDAPMappingConfiguration mappingConfiguration = configuration.getMappingConfig().get(attributedType);

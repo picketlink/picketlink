@@ -17,12 +17,14 @@
  */
 package org.picketlink.idm.ldap.internal;
 
+import org.picketlink.common.constants.LDAPConstants;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.common.util.ClassUtil;
+import org.picketlink.common.util.LDAPUtil;
 import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
@@ -58,18 +60,17 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import static java.util.Map.Entry;
+import static org.picketlink.common.constants.LDAPConstants.COMMA;
+import static org.picketlink.common.constants.LDAPConstants.CREATE_TIMESTAMP;
+import static org.picketlink.common.constants.LDAPConstants.EQUAL;
+import static org.picketlink.common.constants.LDAPConstants.GROUP_OF_ENTRIES;
+import static org.picketlink.common.constants.LDAPConstants.GROUP_OF_NAMES;
+import static org.picketlink.common.constants.LDAPConstants.MEMBER;
+import static org.picketlink.common.constants.LDAPConstants.OBJECT_CLASS;
 import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.COMMA;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CREATE_TIMESTAMP;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.ENTRY_UUID;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.EQUAL;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.GROUP_OF_NAMES;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
 
 /**
  * An IdentityStore implementation backed by an LDAP directory
@@ -112,8 +113,10 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
             entryAttributes.put(objectClassAttribute);
 
-            if (ldapEntryConfig.getObjectClasses().contains(GROUP_OF_NAMES)) {
-                entryAttributes.put(MEMBER, "cn=empty-member," + getConfig().getBaseDN());
+            if (ldapEntryConfig.getObjectClasses().contains(GROUP_OF_NAMES)
+                    || ldapEntryConfig.getObjectClasses().contains(GROUP_OF_ENTRIES)
+                    || ldapEntryConfig.getObjectClasses().contains(LDAPConstants.GROUP_OF_UNIQUE_NAMES)) {
+                entryAttributes.put(MEMBER, getEmptyAttributeValue());
             }
 
             this.operationManager.createSubContext(getBindingDN(attributedType), entryAttributes);
@@ -225,6 +228,10 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                         }
                     }
 
+                    if (attribute.size() == 0) {
+                        attribute.add(getEmptyAttributeValue());
+                    }
+
                     this.operationManager.modifyAttribute(getBindingDN(relationalAttributedType), attribute);
                 }
             } catch (NamingException e) {
@@ -254,7 +261,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                             if (relationshipAttribute != null && relationshipAttribute.contains(bindingDN)) {
                                 relationshipAttribute.remove(bindingDN);
                                 if (relationshipAttribute.size() == 0) {
-                                    relationshipAttribute.add(getEmptyMemberDN());
+                                    relationshipAttribute.add(getEmptyAttributeValue());
                                 }
                                 this.operationManager.modifyAttribute(result.getNameInNamespace(), relationshipAttribute);
                             }
@@ -641,7 +648,28 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                     attributes.put(attribute);
                 }
 
-                attribute.add(getBindingDN(relType));
+                String memberDN = getBindingDN(relType);
+                List<String> removeMembers = new ArrayList<String>();
+                NamingEnumeration all = attribute.getAll();
+
+                while (all.hasMore()) {
+                    Object next = all.next();
+
+                    if (next.toString().trim().equals(getEmptyAttributeValue().trim())) {
+                        removeMembers.add(getEmptyAttributeValue());
+                        removeMembers.add(getEmptyAttributeValue().trim());
+                    }
+
+                    if (next.toString().toLowerCase().equals(memberDN.toLowerCase())) {
+                        removeMembers.add(next.toString());
+                    }
+                }
+
+                for (String memberToRemove: removeMembers) {
+                    attribute.remove(memberToRemove);
+                }
+
+                attribute.add(memberDN);
 
                 this.operationManager.modifyAttribute(getBindingDN(relationalAttributedType), attribute);
             }
@@ -669,8 +697,8 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 javax.naming.directory.Attribute ldapAttribute = ldapAttributes.next();
                 Object value = ldapAttribute.get();
 
-                if (ldapAttribute.getID().equals(ENTRY_UUID)) {
-                    attributedType.setId(value.toString());
+                if (ldapAttribute.getID().toLowerCase().equals(getConfig().getUniqueIdentifierAttributeName().toLowerCase())) {
+                    attributedType.setId(decodeEntryUUID(value));
                 } else {
                     List<Property<Object>> properties = PropertyQueries
                             .createQuery(attributedType.getClass())
@@ -679,7 +707,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                     for (Property property : properties) {
                         String ldapAttributeName = mappingConfig.getMappedProperties().get(property.getName());
 
-                        if (ldapAttributeName != null && ldapAttributeName.equals(ldapAttribute.getID())) {
+                        if (ldapAttributeName != null && ldapAttributeName.toLowerCase().equals(ldapAttribute.getID().toLowerCase())) {
                             if (property.getJavaClass().equals(Date.class)) {
                                 property.setValue(attributedType, parseLDAPDate(value.toString()));
                             } else {
@@ -737,6 +765,18 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         return attributedType;
     }
 
+    private String decodeEntryUUID(final Object entryUUID) {
+        String id;
+
+        if (getConfig().isActiveDirectory()) {
+            id = LDAPUtil.decodeObjectGUID((byte[]) entryUUID);
+        } else {
+            id = entryUUID.toString();
+        }
+
+        return id;
+    }
+
     private String getBindingName(AttributedType attributedType) {
         LDAPMappingConfiguration mappingConfig = getMappingConfig(attributedType.getClass());
         Property<String> idProperty = mappingConfig.getIdProperty();
@@ -762,7 +802,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                     propertyValue = getBindingDN(referencedType);
                 } else {
                     if (propertyValue == null || isNullOrEmpty(propertyValue.toString())) {
-                        propertyValue = " ";
+                        propertyValue = getEmptyAttributeValue();
                     }
                 }
 
@@ -771,10 +811,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         }
 
         return ldapEntryAttributes;
-    }
-
-    private String getCustomAttributesDN(AttributedType attributedType) {
-        return CN + "=custom-attributes" + COMMA + getBindingDN(attributedType);
     }
 
     private LDAPMappingConfiguration getMappingConfig(Class<? extends AttributedType> attributedType) {
@@ -844,6 +880,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
      * </ul>
      *
      * @param dateText the date string.
+     *
      * @return the Date.
      */
     private Date parseLDAPDate(String dateText) {
@@ -876,11 +913,11 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
     }
 
     private boolean isEmptyMember(final String value) {
-        return value.contains(getEmptyMemberDN());
+        return value.contains(getEmptyAttributeValue());
     }
 
-    private String getEmptyMemberDN() {
-        return "cn=empty-member," + getConfig().getBaseDN();
+    private String getEmptyAttributeValue() {
+        return " ";
     }
 
 }

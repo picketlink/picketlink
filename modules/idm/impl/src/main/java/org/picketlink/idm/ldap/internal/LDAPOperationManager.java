@@ -18,6 +18,7 @@
 
 package org.picketlink.idm.ldap.internal;
 
+import org.picketlink.common.constants.LDAPConstants;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 
 import javax.naming.Binding;
@@ -40,12 +41,18 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import static javax.naming.directory.SearchControls.SUBTREE_SCOPE;
+import static org.picketlink.common.constants.LDAPConstants.CREATE_TIMESTAMP;
+import static org.picketlink.common.constants.LDAPConstants.EQUAL;
+import static org.picketlink.common.util.LDAPUtil.convertObjectGUIToByteString;
+
 /**
  * <p>
  * This class provides a set of operations to manage LDAP trees.
  * </p>
  * <p>
- * A different {@link DirContext} is used to perform authentication. The reason is that while managing the ldap tree information
+ * A different {@link DirContext} is used to perform authentication. The reason is that while managing the ldap tree
+ * information
  * bindings are not allowed. Also, instead of creating a new {@link DirContext} each time we reuse it.
  * </p>
  *
@@ -103,6 +110,10 @@ public class LDAPOperationManager {
             env.setProperty((String) key, additionalProperties.getProperty((String) key));
         }
 
+        if (config.isActiveDirectory()) {
+            env.put("java.naming.ldap.attributes.binary", LDAPConstants.OBJECT_GUID);
+        }
+
         LdapContext context = null;
 
         context = new InitialLdapContext(env, null);
@@ -138,27 +149,29 @@ public class LDAPOperationManager {
 
     /**
      * <p>
-     * Modifies the given {@link Attribute} instance using the given DN. This method performs a REPLACE_ATTRIBUTE operation.
+     * Modifies the given {@link Attribute} instance using the given DN. This method performs a REPLACE_ATTRIBUTE
+     * operation.
      * </p>
      *
      * @param dn
      * @param attribute
      */
     public void modifyAttribute(String dn, Attribute attribute) {
-        ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REPLACE_ATTRIBUTE, attribute) };
+        ModificationItem[] mods = new ModificationItem[]{new ModificationItem(DirContext.REPLACE_ATTRIBUTE, attribute)};
         modifyAttributes(dn, mods);
     }
 
     /**
      * <p>
-     * Removes the given {@link Attribute} instance using the given DN. This method performs a REMOVE_ATTRIBUTE operation.
+     * Removes the given {@link Attribute} instance using the given DN. This method performs a REMOVE_ATTRIBUTE
+     * operation.
      * </p>
      *
      * @param dn
      * @param attribute
      */
     public void removeAttribute(String dn, Attribute attribute) {
-        ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REMOVE_ATTRIBUTE, attribute) };
+        ModificationItem[] mods = new ModificationItem[]{new ModificationItem(DirContext.REMOVE_ATTRIBUTE, attribute)};
         modifyAttributes(dn, mods);
     }
 
@@ -171,7 +184,7 @@ public class LDAPOperationManager {
      * @param attribute
      */
     public void addAttribute(String dn, Attribute attribute) {
-        ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.ADD_ATTRIBUTE, attribute) };
+        ModificationItem[] mods = new ModificationItem[]{new ModificationItem(DirContext.ADD_ATTRIBUTE, attribute)};
         modifyAttributes(dn, mods);
     }
 
@@ -208,7 +221,9 @@ public class LDAPOperationManager {
      * </p>
      *
      * @param dn
+     *
      * @return
+     *
      * @throws NamingException
      */
     @SuppressWarnings("unchecked")
@@ -227,6 +242,7 @@ public class LDAPOperationManager {
      *
      * @param baseDN
      * @param attributesToSearch
+     *
      * @return
      */
     public <T extends Object> List<T> removeEntryById(String baseDN, String id) {
@@ -237,7 +253,7 @@ public class LDAPOperationManager {
         try {
             Attributes attributesToSearch = new BasicAttributes(true);
 
-            attributesToSearch.put(new BasicAttribute(LDAPConstants.ENTRY_UUID, id));
+            attributesToSearch.put(new BasicAttribute(getUniqueIdentifierAttributeName(), id));
 
             answer = getContext().search(baseDN, attributesToSearch);
 
@@ -268,12 +284,13 @@ public class LDAPOperationManager {
      * @param filter
      * @param attributesToReturn
      * @param searchControls
+     *
      * @return
      */
     public NamingEnumeration<SearchResult> search(String baseDN, String filter, String[] attributesToReturn,
-            SearchControls searchControls) {
+                                                  SearchControls searchControls) {
 
-        searchControls.setReturningAttributes(new String[] { "*", LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP });
+        searchControls.setReturningAttributes(new String[]{"*", getUniqueIdentifierAttributeName(), CREATE_TIMESTAMP});
 
         try {
             return getContext().search(baseDN, filter, attributesToReturn, searchControls);
@@ -285,23 +302,33 @@ public class LDAPOperationManager {
     public NamingEnumeration<SearchResult> search(String baseDN, String filter) throws NamingException {
         SearchControls cons = new SearchControls();
 
-        cons.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        cons.setSearchScope(SUBTREE_SCOPE);
         cons.setReturningObjFlag(true);
-        cons.setReturningAttributes(new String[] { "*", LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP });
+        cons.setReturningAttributes(new String[]{"*", getUniqueIdentifierAttributeName(), CREATE_TIMESTAMP});
 
         return getContext().search(baseDN, filter, cons);
     }
 
     public NamingEnumeration<SearchResult> lookupById(String baseDN, String id) {
         try {
-            String filter = "(&(objectClass=*)(" + LDAPConstants.ENTRY_UUID + LDAPConstants.EQUAL + id + "))";
+            String filter = null;
+
+            if (this.config.isActiveDirectory()) {
+                String strObjectGUID = "<GUID=" + id + ">";
+                Attributes attributes = this.context.getAttributes(strObjectGUID);
+                byte[] objectGUID = (byte[]) attributes.get(LDAPConstants.OBJECT_GUID).get();
+
+                filter = "(&(objectClass=*)(" + getUniqueIdentifierAttributeName() + EQUAL + convertObjectGUIToByteString(objectGUID) + "))";
+            } else {
+                filter = "(&(objectClass=*)(" + getUniqueIdentifierAttributeName() + EQUAL + id + "))";
+            }
 
             SearchControls cons = new SearchControls();
 
-            cons.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            cons.setSearchScope(SUBTREE_SCOPE);
             cons.setReturningObjFlag(false);
             cons.setCountLimit(1);
-            cons.setReturningAttributes(new String[] { "*", LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP });
+            cons.setReturningAttributes(new String[]{"*", getUniqueIdentifierAttributeName(), CREATE_TIMESTAMP});
 
             return getContext().search(baseDN, filter, cons);
         } catch (NamingException e) {
@@ -349,11 +376,13 @@ public class LDAPOperationManager {
 
     /**
      * <p>
-     * Checks if the attribute with the given name is a managed attributes. Managed attributes are the ones defined in the
+     * Checks if the attribute with the given name is a managed attributes. Managed attributes are the ones defined in
+     * the
      * underlying schema or those defined in the managed attribute list.
      * </p>
      *
      * @param attributeName
+     *
      * @return
      */
     public boolean isManagedAttribute(String attributeName) {
@@ -375,6 +404,7 @@ public class LDAPOperationManager {
      * </p>
      *
      * @param attributeName
+     *
      * @return
      */
     public boolean checkAttributePresence(String attributeName) {
@@ -399,6 +429,7 @@ public class LDAPOperationManager {
      *
      * @param dn
      * @param password
+     *
      * @return
      */
     public boolean authenticate(String dn, String password) {
@@ -442,6 +473,10 @@ public class LDAPOperationManager {
 
     private LdapContext getContext() {
         return this.context;
+    }
+
+    private String getUniqueIdentifierAttributeName() {
+        return this.config.getUniqueIdentifierAttributeName();
     }
 
 }
