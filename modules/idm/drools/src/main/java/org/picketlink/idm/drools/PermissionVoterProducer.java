@@ -4,8 +4,11 @@ import java.io.InputStream;
 
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
+import javax.servlet.ServletContext;
 
+import org.apache.deltaspike.servlet.api.Web;
 import org.kie.api.KieBase;
+import org.kie.api.KieBaseConfiguration;
 import org.kie.api.KieServices;
 import org.kie.api.builder.KieBuilder;
 import org.kie.api.builder.KieFileSystem;
@@ -38,12 +41,12 @@ public class PermissionVoterProducer {
      * a configuration defined within a war file - see DROOLS-299 in JIRA
      */
     @Inject
-    public void init(@Web ServletContext context) {
+    public void init(@Web ServletContext servletContext) {
         KieServices kServices = KieServices.Factory.get();
 
         KieResources kieResources = kServices.getResources();
         KieFileSystem kieFileSystem = kServices.newKieFileSystem();
-        InputStream in = getClass().getResourceAsStream(SECURITY_RULES);
+        InputStream in = servletContext.getResourceAsStream(SECURITY_RULES);
         String path = "src/main/resources/optaplanner-kie-namespace/" + SECURITY_RULES;
         kieFileSystem.write(path, kieResources.newInputStreamResource(in, "UTF-8"));
 
@@ -63,13 +66,12 @@ public class PermissionVoterProducer {
 
 
         //KieContainer kContainer = kServices.getKieClasspathContainer();
-        //kContainer = KieServices.Factory.get().getKieClasspathContainer();
 
-        KieBase kBase = kieContainer.getKieBase("security");
+        //KieBase kBase = kieContainer.getKieBase("security");
         //KieSession ks = kc.newKieSession("ksession1");
 
-        //KieBaseConfiguration kieBaseConfiguration = kieServices.newKieBaseConfiguration();
-        //kBase = kieContainer.newKieBase(kieBaseConfiguration);
+        KieBaseConfiguration kieBaseConfiguration = kServices.newKieBaseConfiguration();
+        KieBase kBase = kieContainer.newKieBase(kieBaseConfiguration);
 
         voter = new DroolsPermissionVoter(kBase);
     }

@@ -13,6 +13,10 @@
 	<packaging>jar</packaging>
 
 	<name>PicketLink Identity Management Drools Integration</name>
+	
+	<properties>
+	  <deltaspike.version>0.5</deltaspike.version>
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -40,6 +44,27 @@
 	    <groupId>org.drools</groupId>
 	    <artifactId>drools-compiler</artifactId>
 	  </dependency>
+
+    <!-- We only need DeltaSpike and the Servlet API as a workaround to support injection of the ServletContext.  We can remove this once DROOLS-299 is resolved -->	  
+    <dependency>
+        <groupId>org.apache.deltaspike.modules</groupId>
+        <artifactId>deltaspike-servlet-module-api</artifactId>
+        <version>${deltaspike.version}</version>
+        <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+        <groupId>org.apache.deltaspike.modules</groupId>
+        <artifactId>deltaspike-servlet-module-impl</artifactId>
+        <version>${deltaspike.version}</version>
+        <scope>runtime</scope>
+    </dependency>
+    
+    <dependency>
+        <groupId>org.jboss.spec.javax.servlet</groupId>
+        <artifactId>jboss-servlet-api_3.0_spec</artifactId>
+        <scope>provided</scope>
+    </dependency>
 	  
 	</dependencies>
 
