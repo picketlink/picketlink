@@ -32,7 +32,16 @@
     <module>simple-schema</module>
     <module>complex-schema</module>
     <module>tests</module>
-    <module>drools</module>
+    <!--<module>drools</module>-->
   </modules>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

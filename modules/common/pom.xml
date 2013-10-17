@@ -7,25 +7,12 @@
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
+
   <artifactId>picketlink-common</artifactId>
   <packaging>jar</packaging>
 
   <name>PicketLink Common</name>
-  <url>http://labs.jboss.org/portal/picketlink/</url>
   <description>PicketLink Common Code</description>
-
-  <licenses>
-    <license>
-      <name>Apache License, Version 2.0</name>
-      <distribution>repo</distribution>
-      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-    </license>
-  </licenses>
-
-  <organization>
-    <name>JBoss Inc.</name>
-    <url>http://www.jboss.org</url>
-  </organization>
 
   <dependencies>
     <dependency>
@@ -38,5 +25,14 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

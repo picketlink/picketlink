@@ -131,7 +131,7 @@ public class IdentityConfigurationBuilder extends Builder<List<IdentityConfigura
             try {
                 identityConfigBuilder.validate();
             } catch (Exception e) {
-                throw MESSAGES.configInvalidConfiguration(identityConfigBuilder.getName());
+                throw MESSAGES.configInvalidConfiguration(identityConfigBuilder.getName(), e);
             }
         }
     }
