@@ -15,15 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.idm.ldap.internal;
+package org.picketlink.common.constants;
 
 /**
- * Define commonly used ldap constants
+ * <p>Define commonly used ldap constants.</p>
  *
  * @author anil saldhana
  * @since Aug 31, 2012
  */
 public interface LDAPConstants {
+
     String GIVENNAME = "givenname";
     String CN = "cn";
     String SN = "sn";
@@ -33,6 +34,8 @@ public interface LDAPConstants {
     String OBJECT_CLASS = "objectclass";
     String UID = "uid";
     String GROUP_OF_NAMES = "groupOfNames";
+    String GROUP_OF_ENTRIES = "groupOfEntries";
+    String GROUP_OF_UNIQUE_NAMES = "groupOfUniqueNames";
 
     String COMMA = ",";
     String EQUAL = "=";
@@ -42,6 +45,7 @@ public interface LDAPConstants {
     String CUSTOM_ATTRIBUTE_CREATE_DATE = "createDate";
     String CUSTOM_ATTRIBUTE_EXPIRY_DATE = "expiryDate";
     String ENTRY_UUID = "entryUUID";
+    String OBJECT_GUID = "objectGUID";
     String CREATE_TIMESTAMP = "createTimeStamp";
 
 }

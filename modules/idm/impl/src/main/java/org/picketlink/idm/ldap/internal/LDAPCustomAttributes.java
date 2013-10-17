@@ -17,6 +17,8 @@
  */
 package org.picketlink.idm.ldap.internal;
 
+import org.picketlink.common.constants.LDAPConstants;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
