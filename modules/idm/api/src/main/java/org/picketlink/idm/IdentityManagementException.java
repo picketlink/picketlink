@@ -18,12 +18,14 @@
 
 package org.picketlink.idm;
 
+import org.picketlink.common.exceptions.PicketLinkException;
+
 /**
  * This exception is thrown if there is an error during an identity management operation.
  *
  * @author Shane Bryzak
  */
-public class IdentityManagementException extends SecurityException {
+public class IdentityManagementException extends PicketLinkException {
     private static final long serialVersionUID = -1607577358422916393L;
 
     public IdentityManagementException() {

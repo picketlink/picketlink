@@ -18,14 +18,14 @@
 
 package org.picketlink.social.standalone.oauth;
 
-import org.picketlink.SecurityException;
+import org.picketlink.common.exceptions.PicketLinkException;
 
 /**
  * Exception when calling some operations on Social network (OAuth provider)
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class SocialException extends SecurityException {
+public class SocialException extends PicketLinkException {
 
     private static final long serialVersionUID = -7034897190745766989L;
 

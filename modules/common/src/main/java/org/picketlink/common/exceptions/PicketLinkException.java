@@ -15,28 +15,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.idm;
+package org.picketlink.common.exceptions;
 
 /**
- * Any exception that is raised by the security module extends from this runtime exception class, making it easy for other
- * modules and extensions to catch all security-related exceptions in a single catch block, if need be.
+ * <p>Any exception that is raised by the security module extends from this runtime exception class, making it easy for
+ * other modules and extensions to catch all security-related exceptions in a single catch block, if need be.
+ * </p>
+ *
+ * <p>This class is used as the root instead of {@link SecurityException} to avoid confusion and potential conflicts. Eg.: many other
+ * frameworks and products (eg.: JEE containers) relies on the {@link SecurityException} to perform some special handling.</p>
  */
-public abstract class SecurityException extends RuntimeException {
+public abstract class PicketLinkException extends RuntimeException {
+
     private static final long serialVersionUID = 789326682407249952L;
 
-    public SecurityException() {
+    public PicketLinkException() {
         super();
     }
 
-    public SecurityException(String message, Throwable cause) {
+    public PicketLinkException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public SecurityException(String message) {
+    public PicketLinkException(String message) {
         super(message);
     }
 
-    public SecurityException(Throwable cause) {
+    public PicketLinkException(Throwable cause) {
         super(cause);
     }
 }

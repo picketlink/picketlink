@@ -438,13 +438,12 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         }
     }
 
-    public void add(Partition partition) throws IdentityManagementException, OperationNotSupportedException {
+    public void add(Partition partition) throws IdentityManagementException {
         add(partition, null);
     }
 
     @Override
-    public void add(Partition partition, String configurationName) throws IdentityManagementException,
-            OperationNotSupportedException {
+    public void add(Partition partition, String configurationName) throws IdentityManagementException {
         checkPartitionManagementSupported();
 
         if (partition == null) {
@@ -479,7 +478,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     @Override
-    public void update(Partition partition) throws IdentityManagementException, OperationNotSupportedException {
+    public void update(Partition partition) throws IdentityManagementException {
         checkPartitionManagementSupported();
         checkIfPartitionExists(partition);
 
@@ -508,7 +507,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     @Override
-    public void remove(Partition partition) {
+    public void remove(Partition partition) throws IdentityManagementException {
         checkPartitionManagementSupported();
         checkIfPartitionExists(partition);
 
