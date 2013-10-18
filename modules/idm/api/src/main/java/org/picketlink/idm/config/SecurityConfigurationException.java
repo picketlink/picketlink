@@ -17,13 +17,13 @@
  */
 package org.picketlink.idm.config;
 
-import org.picketlink.idm.SecurityException;
+import org.picketlink.idm.IdentityManagementException;
 
 /**
  * This exception is thrown when a problem is found with the Security API configuration
- *
  */
-public class SecurityConfigurationException extends SecurityException {
+public class SecurityConfigurationException extends IdentityManagementException {
+
     private static final long serialVersionUID = -8895836939958745981L;
 
     public SecurityConfigurationException() {

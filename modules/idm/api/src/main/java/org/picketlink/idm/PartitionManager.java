@@ -17,7 +17,6 @@
  */
 package org.picketlink.idm;
 
-import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.model.Partition;
 
 import java.io.Serializable;
@@ -51,23 +50,24 @@ public interface PartitionManager extends Serializable {
      * <code>Realm.DEFAULT_REALM</code>. This partition must exists before calling this method,
      * otherwise an exception will be thrown.</p>
      *
-     * <p>The returned {@link IdentityManager} instance is not thread-safe.</p>
+     * @return A partition-scoped IdentityManager instance for the default realm. The returned instance is not
+     *         thread-safe.
      *
-     * @return
      * @throws IdentityManagementException if the default partition does not exists or any error occurs during the
      * creation of the {@link IdentityManager} instance.
      */
     IdentityManager createIdentityManager() throws IdentityManagementException;
 
     /**
-     * <p>Creates an {@link IdentityManager} for the specified partition</p>
+     * <p>Creates an {@link IdentityManager} for the specified partition.</p>
      *
-     * <p>The given <code>partition</code> must exists before calling this method, otherwise an exception will be thrown.</p>
+     * @param partition The partition instance where identity management operations will be scoped. The given
+     * <code>partition</code> must exists before calling this method, otherwise an exception will be
+     * thrown.
      *
-     * <p>The returned {@link IdentityManager} instance is not thread-safe.</p>
+     * @return A partition-scoped IdentityManager instance for a given partition. The returned instance is not
+     *         thread-safe.
      *
-     * @param partition
-     * @return
      * @throws IdentityManagementException if the default partition does not exists or any error occurs during the
      * creation of the instance.
      */
@@ -77,25 +77,28 @@ public interface PartitionManager extends Serializable {
      * Creates a {@link PermissionManager} for the default partition.
      *
      * @return
-     * @throws IdentityManagementException
+     *
+     * @throws IdentityManagementException If any error occurs during the creation of the instance.
      */
     PermissionManager createPermissionManager() throws IdentityManagementException;
 
     /**
      * Creates a {@link PermissionManager} for the specified partition.
      *
-     * @param partition
-     * @return
-     * @throws IdentityManagementException
+     * @param partition The partition instance where permission operations will be scoped. The given
+     * <code>partition</code> must exists before calling this method, otherwise an exception will be
+     * thrown.
+     *
+     * @return A partition-scoped PermissionManager instance for a given partition.
+     *
+     * @throws IdentityManagementException if the default partition does not exists or any error occurs during the
+     * creation of the instance.
      */
     PermissionManager createPermissionManager(Partition partition) throws IdentityManagementException;
 
     /**
-     * <p>Creates an {@link RelationshipManager} for the specified partition.</p>
+     * <p>Creates an {@link RelationshipManager}.</p>
      *
-     * <p>The returned {@link RelationshipManager} instance is not thread-safe.</p>
-     *
-     * @return
      * @throws IdentityManagementException if any error occurs during the creation of the instance.
      */
     RelationshipManager createRelationshipManager() throws IdentityManagementException;
@@ -103,16 +106,12 @@ public interface PartitionManager extends Serializable {
     /**
      * <p>Return the partition specified by the partition class and name.</p>
      *
-     * <p>The <code>partitionClass</code> can be any sub-type of {@link Partition}. In this case only partitions of a
-     * specific sub-type will be considered.
-     * </p>
+     * @param partitionClass It can be any sub-type of Partition. In this case only partitions of a specific sub-type
+     * will be considered. If it equals the Partition type this method may return any of its sub-types.
+     * @param name The name of the partition. It can not me null.
      *
-     * <p>If <code>partitionClass</code> equals the {@link Partition} type this method may return any of its
-     * sub-types with the given <code>name</code>.</p>
-     *
-     * @param partitionClass
-     * @param name
      * @return
+     *
      * @throws IdentityManagementException if any error occurs during the retrieval.
      */
     <T extends Partition> T getPartition(Class<T> partitionClass, String name) throws IdentityManagementException;
@@ -120,15 +119,11 @@ public interface PartitionManager extends Serializable {
     /**
      * <p>Return all {@link Partition} instances for a given <code>partitionClass</code>.</p>
      *
-     * <p>The <code>partitionClass</code> can be any sub-type of {@link Partition}. In this case only partitions of a
-     * specific sub-type will be considered.
-     * </p>
+     * @param partitionClass It can be any sub-type of Partition. In this case only partitions of a specific sub-type
+     * will be considered. If it equals the Partition type this method may return any of its sub-types.
      *
-     * <p>If <code>partitionClass</code> equals the {@link Partition} type this method may return any of its
-     * sub-types.</p>
-     *
-     * @param partitionClass
      * @return
+     *
      * @throws IdentityManagementException if any error occurs during the retrieval.
      */
     <T extends Partition> List<T> getPartitions(Class<T> partitionClass) throws IdentityManagementException;
@@ -136,16 +131,15 @@ public interface PartitionManager extends Serializable {
     /**
      * <p>Return the partition specified by the partition class and identifier.</p>
      *
-     * <p>The <code>partitionClass</code> can be any sub-type of {@link Partition}. In this case only partitions of a
-     * specific sub-type will be considered.
-     * </p>
-     *
      * <p>If <code>partitionClass</code> equals the {@link Partition} type this method may return any of its
      * sub-types with the given <code>id</code>.</p>
      *
-     * @param partitionClass
-     * @param id
+     * @param partitionClass It can be any sub-type of Partition. In this case only partitions of a specific sub-type
+     * will be considered. If it equals the Partition type this method may return any of its sub-types.
+     * @param id The identifier of the partition. It can not be null.
+     *
      * @return
+     *
      * @throws IdentityManagementException if any error occurs during the retrieval.
      */
     <T extends Partition> T lookupById(final Class<T> partitionClass, String id) throws IdentityManagementException;
@@ -157,34 +151,32 @@ public interface PartitionManager extends Serializable {
      * with a reference to this configuration.</p>
      *
      * @param partition
+     *
      * @throws IdentityManagementException if any error occurs during the creation.
-     * @throws OperationNotSupportedException if partition management is not enabled/supported.
      */
-    void add(Partition partition) throws IdentityManagementException, OperationNotSupportedException;
+    void add(Partition partition) throws IdentityManagementException;
 
     /**
      * <p>Adds a new partition with a reference to the given <code>configurationName</code>.</p>
      *
      * @param partition
      * @param configurationName
+     *
      * @throws IdentityManagementException if the <code>configurationName</code> does not exists or if any error occurs
      * during the creation.
-     * @throws OperationNotSupportedException if partition management is not enabled/supported.
      */
-    void add(Partition partition, String configurationName) throws IdentityManagementException, OperationNotSupportedException;
+    void add(Partition partition, String configurationName) throws IdentityManagementException;
 
     /**
      * <p>Updates the attributes of the specified partition.</p>
      *
-     * <p>Before calling this method make sure the <code>partition</code> references a valid instance that points
-     * to a partition already stored with its identifier.</p>
+     * @param partition The given <code>partition</code> must exists before calling this method, otherwise an exception
+     * will be
+     * thrown.
      *
-     * @param partition
-     * @throws IdentityManagementException if no partition exists with the id of the given <code>partition</code> or
-     * if any error occurs during the update.
-     * @throws OperationNotSupportedException if partition management is not enabled/supported.
+     * @throws IdentityManagementException if no partition exists or if any error occurs during the update.
      */
-    void update(Partition partition) throws IdentityManagementException, OperationNotSupportedException;
+    void update(Partition partition) throws IdentityManagementException;
 
     /**
      * <p>Removes the specified partition.</p>
@@ -192,11 +184,12 @@ public interface PartitionManager extends Serializable {
      * <p>Before calling this method make sure the <code>partition</code> references a valid instance that points
      * to a partition already stored with its identifier.</p>
      *
-     * @param partition
-     * @throws IdentityManagementException if no partition exists with the id of the given <code>partition</code> or
-     * if any error occurs during the update.
-     * @throws OperationNotSupportedException if partition management is not enabled/supported.
+     * @param partition The given <code>partition</code> must exists before calling this method, otherwise an exception
+     * will be
+     * thrown.
+     *
+     * @throws IdentityManagementException if no partition exists or if any error occurs during the update.
      */
-    void remove(Partition partition) throws IdentityManagementException, OperationNotSupportedException;
+    void remove(Partition partition) throws IdentityManagementException;
 
 }

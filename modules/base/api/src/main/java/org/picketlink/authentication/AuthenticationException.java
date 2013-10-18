@@ -18,14 +18,14 @@
 
 package org.picketlink.authentication;
 
-import org.picketlink.SecurityException;
+import org.picketlink.common.exceptions.PicketLinkException;
 
 /**
  * Thrown if there is an error during the authentication process
  *
  * @author Shane Bryzak
  */
-public class AuthenticationException extends SecurityException {
+public class AuthenticationException extends PicketLinkException {
 
     private static final long serialVersionUID = -7486433031372506270L;
 
