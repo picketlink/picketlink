@@ -67,15 +67,6 @@ public interface IdentityStoreConfiguration {
 
     /**
      * <p>
-     * Initializes the store configuration with the specified {@link FeatureSet}.
-     * </p>
-     *
-     * @throws SecurityConfigurationException
-     */
-    void init() throws SecurityConfigurationException;
-
-    /**
-     * <p>
      * Adds a {@link ContextInitializer} instance which will be used to initialize {@link IdentityContext}s for
      * this configuration.
      * </p>
