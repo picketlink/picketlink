@@ -23,6 +23,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
 import org.picketlink.idm.jpa.annotations.CredentialClass;
 import org.picketlink.idm.jpa.annotations.EffectiveDate;
 import org.picketlink.idm.jpa.annotations.ExpiryDate;
@@ -48,9 +51,11 @@ public abstract class AbstractCredentialTypeEntity implements Serializable {
     @CredentialClass
     private String typeName;
 
+    @Temporal(TemporalType.DATE)
     @EffectiveDate
     private Date effectiveDate;
 
+    @Temporal(TemporalType.DATE)
     @ExpiryDate
     private Date expiryDate;
 
