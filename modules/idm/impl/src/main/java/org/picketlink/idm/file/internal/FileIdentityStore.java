@@ -64,6 +64,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Map.Entry;
 import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
+import static org.picketlink.common.util.ClassUtil.newInstance;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.credential.util.CredentialUtils.getCurrentCredential;
 
@@ -147,43 +149,30 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
 
     @Override
     public void add(IdentityContext identityContext, Partition partition, String configurationName) {
-        try {
-            partition.setId(identityContext.getIdGenerator().generate());
+        partition.setId(identityContext.getIdGenerator().generate());
 
-            FilePartition filePartition = new FilePartition(cloneAttributedType(identityContext, partition), configurationName);
+        FilePartition filePartition = new FilePartition(cloneAttributedType(identityContext, partition), configurationName);
 
-            this.fileDataSource.getPartitions().put(filePartition.getId(), filePartition);
+        this.fileDataSource.getPartitions().put(filePartition.getId(), filePartition);
 
-            this.fileDataSource.flushPartitions(filePartition);
-        } catch (Exception e) {
-            partition.setId(null);
-            throw MESSAGES.attributedTypeAddFailed(partition, e);
-        }
+        this.fileDataSource.flushPartitions(filePartition);
     }
 
     @Override
     public void update(IdentityContext identityContext, Partition partition) {
-        try {
-            FilePartition filePartition = resolve(partition.getClass(), partition.getName());
+        FilePartition filePartition = resolve(partition.getClass(), partition.getName());
 
-            this.fileDataSource.getPartitions().put(partition.getId(),
-                    new FilePartition(cloneAttributedType(identityContext, partition), filePartition.getConfigurationName()));
-            this.fileDataSource.flushPartitions();
-        } catch (Exception e) {
-            throw MESSAGES.attributedTypeUpdateFailed(partition, e);
-        }
+        this.fileDataSource.getPartitions().put(partition.getId(),
+                new FilePartition(cloneAttributedType(identityContext, partition), filePartition.getConfigurationName()));
+        this.fileDataSource.flushPartitions();
     }
 
     @Override
     public void remove(IdentityContext identityContext, Partition partition) {
-        try {
-            FilePartition filePartition = resolve(partition.getClass(), partition.getName());
+        FilePartition filePartition = resolve(partition.getClass(), partition.getName());
 
-            this.fileDataSource.getPartitions().remove(filePartition.getId());
-            this.fileDataSource.flushPartitions();
-        } catch (Exception e) {
-            throw MESSAGES.attributedTypeRemoveFailed(partition, e);
-        }
+        this.fileDataSource.getPartitions().remove(filePartition.getId());
+        this.fileDataSource.flushPartitions();
     }
 
     @Override
@@ -226,7 +215,13 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
 
     @Override
     public String getConfigurationName(IdentityContext identityContext, Partition partition) {
-        return resolve(partition.getClass(), partition.getName()).getConfigurationName();
+        FilePartition filePartition = resolve(partition.getClass(), partition.getName());
+
+        if (isNullOrEmpty(filePartition.getConfigurationName())) {
+            throw MESSAGES.partitionWithNoConfigurationName(partition);
+        }
+
+        return filePartition.getConfigurationName();
     }
 
     @Override
@@ -571,7 +566,9 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
      * <p>Resolves the corresponding {@link FilePartition} for the given {@link Partition}.</p>
      *
      * @param partition
+     *
      * @return
+     *
      * @throws IdentityManagementException if no {@link FilePartition} exists for the given partition
      */
     private FilePartition resolve(Class<? extends Partition> type, String name) throws IdentityManagementException {
@@ -590,9 +587,9 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
         T clonedAttributedType = null;
 
         try {
-            clonedAttributedType = (T) attributedType.getClass().newInstance();
+            clonedAttributedType = (T) newInstance(attributedType.getClass());
         } catch (Exception e) {
-            MESSAGES.instantiationError(attributedType.getClass(), e);
+            throw MESSAGES.instantiationError(attributedType.getClass(), e);
         }
 
         clonedAttributedType.setId(attributedType.getId());

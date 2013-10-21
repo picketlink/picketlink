@@ -23,8 +23,8 @@ import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
-import org.picketlink.common.util.ClassUtil;
 import org.picketlink.common.util.LDAPUtil;
+import org.picketlink.idm.IDMInternalLog;
 import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
@@ -68,6 +68,7 @@ import static org.picketlink.common.constants.LDAPConstants.GROUP_OF_NAMES;
 import static org.picketlink.common.constants.LDAPConstants.MEMBER;
 import static org.picketlink.common.constants.LDAPConstants.OBJECT_CLASS;
 import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
+import static org.picketlink.common.util.ClassUtil.newInstance;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
@@ -88,6 +89,10 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
     @Override
     public void setup(LDAPIdentityStoreConfiguration config) {
         super.setup(config);
+
+        if (config.isActiveDirectory()) {
+            IDMInternalLog.LDAP_STORE_LOGGER.ldapActiveDirectoryConfiguration();
+        }
 
         try {
             this.operationManager = new LDAPOperationManager(getConfig());
@@ -687,7 +692,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
             Attributes attributes = searchResult.getAttributes();
 
             if (attributedType == null) {
-                attributedType = getConfig().getSupportedTypeByBaseDN(entryDN).newInstance();
+                attributedType = newInstance(getConfig().getSupportedTypeByBaseDN(entryDN));
             }
 
             LDAPMappingConfiguration mappingConfig = getMappingConfig(attributedType.getClass());
@@ -909,7 +914,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
     }
 
     private <V extends Relationship> V createRelationshipInstance(Class<V> relationshipClass) throws InstantiationException, IllegalAccessException {
-        return (V) ClassUtil.loadClass(getClass(), relationshipClass.getName()).newInstance();
+        return (V) newInstance(relationshipClass);
     }
 
     private boolean isEmptyMember(final String value) {

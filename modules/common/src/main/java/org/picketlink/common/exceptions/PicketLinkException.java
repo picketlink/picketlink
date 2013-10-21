@@ -25,7 +25,7 @@ package org.picketlink.common.exceptions;
  * <p>This class is used as the root instead of {@link SecurityException} to avoid confusion and potential conflicts. Eg.: many other
  * frameworks and products (eg.: JEE containers) relies on the {@link SecurityException} to perform some special handling.</p>
  */
-public abstract class PicketLinkException extends RuntimeException {
+public class PicketLinkException extends RuntimeException {
 
     private static final long serialVersionUID = 789326682407249952L;
 

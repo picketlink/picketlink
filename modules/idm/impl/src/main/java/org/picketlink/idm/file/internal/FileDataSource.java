@@ -36,20 +36,21 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.picketlink.idm.IDMLogger.LOGGER;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.file.internal.FileUtils.createFileIfNotExists;
 import static org.picketlink.idm.file.internal.FileUtils.delete;
 import static org.picketlink.idm.file.internal.FileUtils.readObject;
+import static org.picketlink.idm.IDMInternalLog.FILE_STORE_LOGGER;
 
 /**
  * @author Pedro Silva
- *
  */
 public class FileDataSource {
 
     /**
      * <p>
-     * Default buffer length when flushing changes to the filesystem. The higher the value greater will be the throughput.
+     * Default buffer length when flushing changes to the filesystem. The higher the value greater will be the
+     * throughput.
      * </p>
      */
     private static final int FLUSH_BYTE_BUFFER = 1024;
@@ -68,7 +69,8 @@ public class FileDataSource {
 
     /**
      * <p>
-     * Holds all stored {@link FilePartition} instances loaded from the filesystem. This {@link Map} is also used to persist
+     * Holds all stored {@link FilePartition} instances loaded from the filesystem. This {@link Map} is also used to
+     * persist
      * information to the filesystem.
      * </p>
      */
@@ -76,7 +78,8 @@ public class FileDataSource {
 
     /**
      * <p>
-     * Holds all stored {@link FileRelationship} instances loaded from the filesystem. This {@link Map} is also used to persist
+     * Holds all stored {@link FileRelationship} instances loaded from the filesystem. This {@link Map} is also used to
+     * persist
      * information to the filesystem.
      * </p>
      */
@@ -84,7 +87,8 @@ public class FileDataSource {
 
     /**
      * <p>
-     * Holds all stored {@link FileAttribute} instances loaded from the filesystem. This {@link Map} is also used to persist
+     * Holds all stored {@link FileAttribute} instances loaded from the filesystem. This {@link Map} is also used to
+     * persist
      * information to the filesystem.
      * </p>
      */
@@ -92,7 +96,8 @@ public class FileDataSource {
 
     /**
      * <p>
-     * Holds all stored {@link FileAttributedType} instances loaded from the filesystem. This {@link Map} is also used to persist
+     * Holds all stored {@link FileAttributedType} instances loaded from the filesystem. This {@link Map} is also used
+     * to persist
      * information to the filesystem.
      * </p>
      */
@@ -165,14 +170,14 @@ public class FileDataSource {
 
         if (workingDirectoryFile.exists()) {
             if (this.configuration.isAlwaysCreateFiles()) {
-                LOGGER.fileConfigAlwaysCreateWorkingDir(workingDirectoryFile.getPath());
+                FILE_STORE_LOGGER.fileConfigAlwaysCreateWorkingDir(workingDirectoryFile.getPath());
                 delete(workingDirectoryFile);
             }
         }
 
         workingDirectoryFile.mkdirs();
 
-        LOGGER.fileConfigUsingWorkingDir(workingDirectoryFile.getPath());
+        FILE_STORE_LOGGER.fileConfigUsingWorkingDir(workingDirectoryFile.getPath());
     }
 
     private void init() {
@@ -211,7 +216,7 @@ public class FileDataSource {
         this.attributedTypes = attrubtedTypes;
 
         if (this.configuration.isAsyncWrite()) {
-            LOGGER.debugf("Async write enabled. Using thread pool of size %s", this.configuration.getAsyncThreadPool());
+            FILE_STORE_LOGGER.fileAsyncWriteEnabled(this.configuration.getAsyncThreadPool());
             this.executorService = Executors.newFixedThreadPool(this.configuration.getAsyncThreadPool());
         }
     }
@@ -220,10 +225,14 @@ public class FileDataSource {
         this.partitions = readObject(partitionsFile);
 
         if (this.partitions == null) {
-            LOGGER.debugf("No partitions to load from %s", partitionsFile.getPath());
+            if (isDebugEnabled()) {
+                FILE_STORE_LOGGER.debugf("No partitions to load from %s", partitionsFile.getPath());
+            }
             this.partitions = new ConcurrentHashMap<String, FilePartition>();
         } else {
-            LOGGER.infof("Loading %s Partitions from %s", this.partitions.size(), partitionsFile.getPath());
+            if (isDebugEnabled()) {
+                FILE_STORE_LOGGER.debugf("Loading [%s] Partition(s) from %s", this.partitions.size(), partitionsFile.getPath());
+            }
 
             Set<Entry<String, FilePartition>> entrySet = this.partitions.entrySet();
 
@@ -236,7 +245,9 @@ public class FileDataSource {
     private void initPartition(String partitionId) {
         FilePartition filePartition = this.partitions.get(partitionId);
 
-        LOGGER.debugf("Initializing Partition [%s] with id [%s].", filePartition.getId(), partitionId);
+        if (isDebugEnabled()) {
+            FILE_STORE_LOGGER.debugf("Initializing Partition [%s] with id [%s].", filePartition.getEntry().getName(), partitionId);
+        }
 
         File agentsFile = createFileIfNotExists(getWorkingDirFile(partitionId + File.separator + IDENTITY_TYPES__FILE_NAME));
 
@@ -248,7 +259,9 @@ public class FileDataSource {
 
         filePartition.setIdentityTypes(identityTypes);
 
-        LOGGER.debugf("Loaded Agents for Partition [%s].", filePartition.getId());
+        if (isDebugEnabled()) {
+            FILE_STORE_LOGGER.debugf("Loaded Identity Types [%s] for Partition [%s].", filePartition.getIdentityTypes().size(), filePartition.getId());
+        }
 
         File credentialsFile = createFileIfNotExists(getWorkingDirFile(partitionId + File.separator + CREDENTIALS_FILE_NAME));
 
@@ -260,11 +273,19 @@ public class FileDataSource {
 
         filePartition.setCredentials(credentials);
 
-        LOGGER.debugf("Loaded Credentials for Partition [%s].", filePartition.getId());
+        if (isDebugEnabled()) {
+            FILE_STORE_LOGGER.debugf("Loaded Credentials [%s] for Partition [%s].", filePartition.getCredentials().size(), filePartition.getId());
+        }
     }
 
     private String getWorkingDir() {
-        return this.configuration.getWorkingDir();
+        String workingDir = this.configuration.getWorkingDir();
+
+        if (isNullOrEmpty(workingDir)) {
+            workingDir = DEFAULT_WORKING_DIR;
+        }
+
+        return workingDir;
     }
 
     private void flush(final FilePartition partition, final String fileName, final Object object) {
@@ -285,7 +306,7 @@ public class FileDataSource {
         }
     }
 
-    private synchronized  void  performFlush(final String fileName, final Object object) {
+    private synchronized void performFlush(final String fileName, final Object object) {
         ObjectOutputStream oos = null;
         ByteArrayOutputStream bos = null;
         RandomAccessFile randomAccessFile = null;
@@ -332,4 +353,9 @@ public class FileDataSource {
     private File getWorkingDirFile(String name) {
         return new File(getWorkingDir() + File.separator + name);
     }
+
+    private boolean isDebugEnabled() {
+        return FILE_STORE_LOGGER.isDebugEnabled();
+    }
+
 }

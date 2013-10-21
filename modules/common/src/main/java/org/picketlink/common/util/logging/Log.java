@@ -20,36 +20,19 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.idm;
+package org.picketlink.common.util.logging;
 
 import org.jboss.logging.BasicLogger;
-import org.jboss.logging.LogMessage;
-import org.jboss.logging.Logger;
-import org.jboss.logging.Logger.Level;
-import org.jboss.logging.Message;
-import org.jboss.logging.MessageLogger;
 
 /**
+ * <p>PicketLink's log abstraction layer on top of JBoss Logging, providing the base interface for any module-specific logger
+ * interface.</p>
+ *
+ * <p>Subtypes will usually be module-specific loggers, providing additional logging messages for their domain.</p>
+ *
  * @author Pedro Silva
  *
  */
-@MessageLogger(projectCode = "PLIDM")
-public interface IDMLogger extends BasicLogger {
-
-    IDMLogger LOGGER = Logger.getMessageLogger(IDMLogger.class, IDMLogger.class.getPackage().getName());
-
-    // General logging messages. Ids 1000-1099.
-    @LogMessage(level = Level.INFO)
-    @Message(id = 1000, value = "Bootstrapping PicketLink Identity Manager")
-    void identityManagerBootstrapping();
-
-    // File store logging messages. Ids 1100-1199.
-    @LogMessage(level = Level.INFO)
-    @Message(id = 1100, value = "Using working directory [%s].")
-    void fileConfigUsingWorkingDir(String path);
-
-    @LogMessage(level = Level.WARN)
-    @Message(id = 1101, value = "Working directory [%s] is marked to be always created. All your existing data will be lost.")
-    void fileConfigAlwaysCreateWorkingDir(String path);
+public interface Log extends BasicLogger {
 
 }

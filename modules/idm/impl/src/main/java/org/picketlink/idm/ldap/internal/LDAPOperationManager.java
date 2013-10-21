@@ -45,6 +45,7 @@ import static javax.naming.directory.SearchControls.SUBTREE_SCOPE;
 import static org.picketlink.common.constants.LDAPConstants.CREATE_TIMESTAMP;
 import static org.picketlink.common.constants.LDAPConstants.EQUAL;
 import static org.picketlink.common.util.LDAPUtil.convertObjectGUIToByteString;
+import static org.picketlink.idm.IDMInternalLog.LDAP_STORE_LOGGER;
 
 /**
  * <p>
@@ -80,10 +81,13 @@ public class LDAPOperationManager {
         env.setProperty(Context.SECURITY_AUTHENTICATION, this.config.getAuthType());
 
         String protocol = this.config.getProtocol();
+
         if (protocol != null) {
             env.setProperty(Context.SECURITY_PROTOCOL, protocol);
         }
+
         String bindDN = this.config.getBindDN();
+
         char[] bindCredential = null;
 
         if (this.config.getBindCredential() != null) {
@@ -96,6 +100,7 @@ public class LDAPOperationManager {
         }
 
         String url = this.config.getLdapURL();
+
         if (url == null) {
             throw new RuntimeException("url");
         }
@@ -114,11 +119,11 @@ public class LDAPOperationManager {
             env.put("java.naming.ldap.attributes.binary", LDAPConstants.OBJECT_GUID);
         }
 
-        LdapContext context = null;
+        if (LDAP_STORE_LOGGER.isDebugEnabled()) {
+            LDAP_STORE_LOGGER.debugf("Creating LdapContext using properties: [%s]", env);
+        }
 
-        context = new InitialLdapContext(env, null);
-
-        return context;
+        return new InitialLdapContext(env, null);
     }
 
     /**
@@ -132,6 +137,8 @@ public class LDAPOperationManager {
         try {
             context.bind(dn, object);
         } catch (NamingException e) {
+            LDAP_STORE_LOGGER.errorf(e, "Could not bind object [%s] using DN [%s]", object, dn);
+
             if (e instanceof CommunicationException) {
                 // Discard context and try to recover from LDAP server communication breakage
                 try {
@@ -200,6 +207,8 @@ public class LDAPOperationManager {
         try {
             context.rebind(dn, object);
         } catch (NamingException e) {
+            LDAP_STORE_LOGGER.errorf("Could not re-bind object [%s] using DN [%s]", object, dn, e);
+
             if (e instanceof CommunicationException) {
                 // Discard context and try to recover from LDAP server communication breakage
                 try {
@@ -231,6 +240,7 @@ public class LDAPOperationManager {
         try {
             return (T) context.lookup(dn);
         } catch (NamingException e) {
+            LDAP_STORE_LOGGER.errorf(e, "Could not lookup entry using DN [%s]", dn);
             return null;
         }
     }
@@ -262,6 +272,7 @@ public class LDAPOperationManager {
                 destroySubcontext(sr.getNameInNamespace());
             }
         } catch (NamingException e) {
+            LDAP_STORE_LOGGER.errorf(e, "Could not remove entry from DN [%s] and id [%s]", baseDN, id);
             throw new RuntimeException(e);
         } finally {
             if (answer != null) {
@@ -275,30 +286,6 @@ public class LDAPOperationManager {
         return result;
     }
 
-    /**
-     * <p>
-     * Searches the LDAP tree.
-     * </p>
-     *
-     * @param baseDN
-     * @param filter
-     * @param attributesToReturn
-     * @param searchControls
-     *
-     * @return
-     */
-    public NamingEnumeration<SearchResult> search(String baseDN, String filter, String[] attributesToReturn,
-                                                  SearchControls searchControls) {
-
-        searchControls.setReturningAttributes(new String[]{"*", getUniqueIdentifierAttributeName(), CREATE_TIMESTAMP});
-
-        try {
-            return getContext().search(baseDN, filter, attributesToReturn, searchControls);
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public NamingEnumeration<SearchResult> search(String baseDN, String filter) throws NamingException {
         SearchControls cons = new SearchControls();
 
@@ -306,13 +293,18 @@ public class LDAPOperationManager {
         cons.setReturningObjFlag(true);
         cons.setReturningAttributes(new String[]{"*", getUniqueIdentifierAttributeName(), CREATE_TIMESTAMP});
 
-        return getContext().search(baseDN, filter, cons);
+        try {
+            return getContext().search(baseDN, filter, cons);
+        } catch (NamingException e) {
+            LDAP_STORE_LOGGER.errorf(e, "Could not query server using DN [%s] and filter [%s]", baseDN, filter);
+            throw e;
+        }
     }
 
     public NamingEnumeration<SearchResult> lookupById(String baseDN, String id) {
-        try {
-            String filter = null;
+        String filter = null;
 
+        try {
             if (this.config.isActiveDirectory()) {
                 String strObjectGUID = "<GUID=" + id + ">";
                 Attributes attributes = this.context.getAttributes(strObjectGUID);
@@ -332,6 +324,7 @@ public class LDAPOperationManager {
 
             return getContext().search(baseDN, filter, cons);
         } catch (NamingException e) {
+            LDAP_STORE_LOGGER.errorf(e, "Could not query server using DN [%s] and filter [%s]", baseDN, filter);
             throw new RuntimeException(e);
         }
     }
@@ -345,32 +338,30 @@ public class LDAPOperationManager {
      */
     public void destroySubcontext(String dn) {
         try {
-            destroyRecursively(dn);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+            NamingEnumeration<Binding> enumeration = null;
 
-    public void destroyRecursively(String dn) {
-        NamingEnumeration<Binding> enumeration = null;
-
-        try {
-            enumeration = getContext().listBindings(dn);
-
-            while (enumeration.hasMore()) {
-                Binding binding = enumeration.next();
-                String name = binding.getNameInNamespace();
-
-                destroyRecursively(name);
-            }
-            getContext().unbind(dn);
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        } finally {
             try {
-                enumeration.close();
-            } catch (Exception e) {
+                enumeration = getContext().listBindings(dn);
+
+                while (enumeration.hasMore()) {
+                    Binding binding = enumeration.next();
+                    String name = binding.getNameInNamespace();
+
+                    destroySubcontext(name);
+                }
+
+                getContext().unbind(dn);
+            } catch (NamingException e) {
+                throw new RuntimeException(e);
+            } finally {
+                try {
+                    enumeration.close();
+                } catch (Exception e) {
+                }
             }
+        } catch (Exception e) {
+            LDAP_STORE_LOGGER.errorf(e, "Could not unbind DN [%s]", dn);
+            throw new RuntimeException(e);
         }
     }
 
@@ -438,6 +429,10 @@ public class LDAPOperationManager {
             this.authenticationContext.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
             this.authenticationContext.lookup(dn);
         } catch (Exception e) {
+            if (LDAP_STORE_LOGGER.isDebugEnabled()) {
+                LDAP_STORE_LOGGER.debugf(e, "Authentication failed for DN [%s]", dn);
+            }
+
             return false;
         }
 
@@ -446,8 +441,19 @@ public class LDAPOperationManager {
 
     private void modifyAttributes(String dn, ModificationItem[] mods) {
         try {
+            if (LDAP_STORE_LOGGER.isDebugEnabled()) {
+                LDAP_STORE_LOGGER.debugf("Modifying attributes for entry [%s]: [", dn);
+
+                for (ModificationItem item: mods) {
+                    LDAP_STORE_LOGGER.debugf("  Op [%s]: %s = %s", item.getModificationOp(), item.getAttribute().getID(), item.getAttribute().get());
+                }
+
+                LDAP_STORE_LOGGER.debugf("]");
+            }
+
             context.modifyAttributes(dn, mods);
         } catch (NamingException e) {
+            LDAP_STORE_LOGGER.errorf(e, "Could not modify attribute for DN [%s].", dn);
             if (e instanceof CommunicationException) {
                 // Discard context and try to recover from LDAP server communication breakage
                 try {
@@ -465,8 +471,23 @@ public class LDAPOperationManager {
 
     public void createSubContext(String name, Attributes attributes) {
         try {
+            if (LDAP_STORE_LOGGER.isDebugEnabled()) {
+                LDAP_STORE_LOGGER.debugf("Creating entry [%s] with attributes: [", name);
+
+                NamingEnumeration<? extends Attribute> all = attributes.getAll();
+
+                while (all.hasMore()) {
+                    Attribute attribute = all.next();
+
+                    LDAP_STORE_LOGGER.debugf("  %s = %s", attribute.getID(), attribute.get());
+                }
+
+                LDAP_STORE_LOGGER.debugf("]");
+            }
+
             getContext().createSubcontext(name, attributes);
         } catch (NamingException e) {
+            LDAP_STORE_LOGGER.errorf(e, "Could not create entry [%s].", name);
             throw new RuntimeException("Error creating subcontext [" + name + "]", e);
         }
     }

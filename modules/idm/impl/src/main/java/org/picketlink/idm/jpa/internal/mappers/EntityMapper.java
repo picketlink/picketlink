@@ -38,7 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static java.util.Map.Entry;
-import static org.picketlink.common.util.ClassUtil.loadClass;
+import static org.picketlink.common.util.ClassUtil.newInstance;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
@@ -161,7 +161,7 @@ public class EntityMapper {
             }
 
             try {
-                attributedType = (P) loadClass(getClass(), getTypeProperty().getValue(entityInstance).toString()).newInstance();
+                attributedType = (P) newInstance(entityInstance.getClass(), getTypeProperty().getValue(entityInstance).toString());
 
                 EntityMapping entityMapping = getMappingsFor(attributedType.getClass());
 
@@ -291,7 +291,6 @@ public class EntityMapper {
         Entry<Property, Property> ownerProperty = entityMapper.getProperty(attributedType.getClass(), OwnerReference.class);
 
         if (ownerProperty == null) {
-//            throw new IdentityManagementException("Referenced entity [" + entityMapper.getEntityType() + "] not mapped with @OwnerReference.");
             return Collections.emptyList();
         }
 
@@ -303,9 +302,15 @@ public class EntityMapper {
 
         childQuery.setParameter("owner", ownerEntity);
 
-        List childs = childQuery.getResultList();
+        return childQuery.getResultList();
+    }
 
-        return childs;
+    public Object createEntity() {
+        try {
+            return newInstance(getEntityType(), getEntityType().getName());
+        } catch (Exception e) {
+            throw MESSAGES.instantiationError(getEntityType(), e);
+        }
     }
 
     private <V extends AttributedType> void populate(V attributedType, Object entityInstance, EntityManager entityManager) {
@@ -455,11 +460,7 @@ public class EntityMapper {
             }
 
             if (entityInstance == null) {
-                try {
-                    entityInstance = getEntityType().newInstance();
-                } catch (Exception e) {
-                    throw MESSAGES.instantiationError(getEntityType(), e);
-                }
+                entityInstance = createEntity();
             }
         }
 
@@ -482,4 +483,5 @@ public class EntityMapper {
     public int hashCode() {
         return entityType.hashCode();
     }
+
 }

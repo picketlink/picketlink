@@ -88,4 +88,21 @@ public class IdentityConfiguration {
     public int hashCode() {
         return super.hashCode();
     }
+
+    /**
+     * <p>Check if the configuration supports credential management.</p>
+     *
+     * <p>Credential management is supported if any of the configured identity stores support it.</p>
+     *
+     * @return True if the configuration supports credential. Otherwise is false.
+     */
+    public boolean supportsCredential() {
+        for (IdentityStoreConfiguration storeConfiguration: getStoreConfiguration()) {
+            if (storeConfiguration.supportsCredential()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

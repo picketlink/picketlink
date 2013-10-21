@@ -45,11 +45,11 @@ public class IdentityTypeEntity extends AttributedTypeEntity {
     @IdentityClass
     private String typeName;
 
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @AttributeValue
     private Date createdDate;
 
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @AttributeValue
     private Date expirationDate;
 

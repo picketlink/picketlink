@@ -87,7 +87,9 @@ import java.util.Map;
 
 import static java.util.Map.Entry;
 import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
+import static org.picketlink.common.util.ClassUtil.newInstance;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.IDMInternalLog.JPA_STORE_LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
@@ -121,9 +123,15 @@ public class JPAIdentityStore
     public void setup(JPAIdentityStoreConfiguration config) {
         super.setup(config);
 
+        if (config.getContextInitializers().isEmpty()) {
+            JPA_STORE_LOGGER.jpaContextInitializerNotProvided();
+        }
+
         for (Class<?> entityType : config.getEntityTypes()) {
             configureEntityMapper(entityType);
         }
+
+        logEntityMappers();
     }
 
     @Override
@@ -195,8 +203,8 @@ public class JPAIdentityStore
 
         String configurationName = configurationNameProperty.getValue().getValue(partitionEntity).toString();
 
-        if (configurationName == null) {
-            throw new IdentityManagementException("No configuration name defined for partition [" + partition + "].");
+        if (isNullOrEmpty(configurationName)) {
+            throw MESSAGES.partitionWithNoConfigurationName(partition);
         }
 
         return configurationName;
@@ -251,7 +259,7 @@ public class JPAIdentityStore
 
         List<P> result = new ArrayList<P>();
 
-        for (Object entity: query.getResultList()) {
+        for (Object entity : query.getResultList()) {
             result.add((P) entityMapper.createType(entity, entityManager));
         }
 
@@ -464,7 +472,7 @@ public class JPAIdentityStore
             }
 
             for (Object entity : query.getResultList()) {
-                result.add(rootMapper.<V>createType(entityManager.find(rootMapper.getEntityType(),entity),
+                result.add(rootMapper.<V>createType(entityManager.find(rootMapper.getEntityType(), entity),
                         entityManager));
             }
         }
@@ -655,13 +663,7 @@ public class JPAIdentityStore
         EntityManager entityManager = getEntityManager(context);
 
         for (Serializable attributeValue : (Serializable[]) values) {
-            Object attributeEntity = null;
-
-            try {
-                attributeEntity = attributeMapper.getEntityType().newInstance();
-            } catch (Exception e) {
-                throw MESSAGES.instantiationError(attributeMapper.getEntityType(), e);
-            }
+            Object attributeEntity = attributeMapper.createEntity();
 
             attributeNameProperty.setValue(attributeEntity, attribute.getName());
             attributeValueProperty.setValue(attributeEntity, Base64.encodeObject(attributeValue));
@@ -680,14 +682,7 @@ public class JPAIdentityStore
     @Override
     public void storeCredential(IdentityContext context, Account account, CredentialStorage storage) {
         EntityMapper credentialMapper = getCredentialAttributeMapper(storage.getClass());
-        Object newCredential = null;
-
-        try {
-            newCredential = credentialMapper.getEntityType().newInstance();
-        } catch (Exception e) {
-            throw MESSAGES.instantiationError(credentialMapper.getEntityType(), e);
-        }
-
+        Object newCredential = credentialMapper.createEntity();
         EntityManager entityManager = getEntityManager(context);
 
         for (EntityMapping entityMapping : credentialMapper.getEntityMappings()) {
@@ -758,7 +753,6 @@ public class JPAIdentityStore
     }
 
 
-
     @Override
     public <V extends Relationship> int countQueryResults(IdentityContext context, RelationshipQuery<V> query) {
         return 0;  //TODO: Implement countQueryResults
@@ -785,10 +779,12 @@ public class JPAIdentityStore
 
     /**
      * <p>Returns all {@link EntityMapper} instances used to map the given {@link AttributedType}. Only mappers for
-     * {@link IdentityManaged} annotated entity classes are considered, what means that this method can only be used when
+     * {@link IdentityManaged} annotated entity classes are considered, what means that this method can only be used
+     * when
      * trying to persist or populate @{link AttributedType} instances.</p>
      *
      * @param attributedType
+     *
      * @return
      */
     public List<EntityMapper> getMapperFor(Class<? extends AttributedType> attributedType) {
@@ -1002,7 +998,7 @@ public class JPAIdentityStore
             EntityMapper credentialMapper = getCredentialAttributeMapper(storageType);
 
             try {
-                storage = storageType.newInstance();
+                storage = newInstance(storageType);
             } catch (Exception e) {
                 throw MESSAGES.instantiationError(storageType, e);
             }
@@ -1267,14 +1263,7 @@ public class JPAIdentityStore
         EntityMapper relationshipMemberMapper = getEntityMapperForProperty(RelationshipMember.class);
 
         for (Property<IdentityType> prop : props) {
-            Object relationshipIdentity = null;
-
-            try {
-                relationshipIdentity = relationshipMemberMapper.getEntityType().newInstance();
-            } catch (Exception e) {
-                throw MESSAGES.instantiationError(relationshipMemberMapper.getEntityType(), e);
-            }
-
+            Object relationshipIdentity = relationshipMemberMapper.createEntity();
             IdentityType identityType = prop.getValue(relationship);
 
             if (identityType != null) {
@@ -1304,7 +1293,8 @@ public class JPAIdentityStore
     }
 
     /**
-     * <p> Creates an {@link EntityMapper} for the given mapped entity. This method looks first for the owner references
+     * <p> Creates an {@link EntityMapper} for the given mapped entity. This method looks first for the owner
+     * references
      * in order to have them configured first. The order is important to make sure the entities are created or updated
      * in the correct order of dependency.
      * <p/>
@@ -1343,5 +1333,53 @@ public class JPAIdentityStore
         }
 
         return (EntityManager) context.getParameter(INVOCATION_CTX_ENTITY_MANAGER);
+    }
+
+    private void logEntityMappers() {
+        if (JPA_STORE_LOGGER.isDebugEnabled()) {
+            JPA_STORE_LOGGER.debug("Supported EntityMappers: [");
+
+            for (EntityMapper entityMapper : this.entityMappers) {
+                JPA_STORE_LOGGER.debugf(" %s: [", entityMapper.getEntityType());
+
+                JPA_STORE_LOGGER.debugf("  Is root: %s", entityMapper.isRoot());
+                JPA_STORE_LOGGER.debugf("  Mappings: [");
+
+                for (EntityMapping entityMapping : entityMapper.getEntityMappings()) {
+                    JPA_STORE_LOGGER.debugf("   %s: ", entityMapping.getSupportedType());
+                    JPA_STORE_LOGGER.debugf("    Owner Type: %s", entityMapping.getOwnerType());
+
+                    if (entityMapping.getTypeProperty() != null) {
+                        JPA_STORE_LOGGER.debugf("    Has type property: %s", entityMapping.getTypeProperty().getName());
+                    }
+
+                    for (Property property : entityMapping.getProperties().keySet()) {
+                        JPA_STORE_LOGGER.debugf("     Property: %s, %s", property.getName(), property.getJavaClass());
+
+                        Property mappedProperty = entityMapping.getProperties().get(property);
+
+                        if (mappedProperty != null) {
+                            StringBuffer propertyAnnotations = new StringBuffer();
+
+                            for (Annotation annotation : mappedProperty.getAnnotatedElement().getAnnotations()) {
+                                if (propertyAnnotations.length() != 0) {
+                                    propertyAnnotations.append(",");
+                                }
+
+                                propertyAnnotations.append(annotation.annotationType());
+                            }
+
+                            JPA_STORE_LOGGER.debugf("      Mapped Property: %s, %s, annotations [%s]", mappedProperty.getName(), mappedProperty.getJavaClass(), propertyAnnotations);
+                        }
+                    }
+                }
+
+                JPA_STORE_LOGGER.debugf("   ]");
+                JPA_STORE_LOGGER.debugf("  ]");
+                JPA_STORE_LOGGER.debug(" ]");
+            }
+
+            JPA_STORE_LOGGER.debug("]");
+        }
     }
 }
