@@ -46,6 +46,8 @@
 	  </dependency>
 
     <!-- We only need DeltaSpike and the Servlet API as a workaround to support injection of the ServletContext.  We can remove this once DROOLS-299 is resolved -->	  
+
+<!--
     <dependency>
         <groupId>org.apache.deltaspike.modules</groupId>
         <artifactId>deltaspike-servlet-module-api</artifactId>
@@ -65,6 +67,8 @@
         <artifactId>jboss-servlet-api_3.0_spec</artifactId>
         <scope>provided</scope>
     </dependency>
+    
+    -->
 	  
 	</dependencies>
 
