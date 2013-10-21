@@ -35,7 +35,6 @@ import java.util.Set;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
-import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.util.IDMUtil.isTypeOperationSupported;
 
@@ -89,34 +88,6 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
         this.supportsAttribute = supportsAttribute;
         this.supportsCredential = supportsCredential;
     }
-
-    @Override
-    public final void init() throws SecurityConfigurationException {
-        initConfig();
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debugf("FeatureSet for %s", this);
-            LOGGER.debug("Features [");
-
-            // FIXME
-            //for (Entry<FeatureGroup, Set<FeatureOperation>> entry : getSupportedFeatures().entrySet()) {
-            //    LOGGER.debugf("%s.%s", entry.getKey(), entry.getValue());
-            // }
-
-            LOGGER.debug("]");
-
-            LOGGER.debug("Relationships [");
-
-            // FIXME
-            //for (Entry<Class<? extends Relationship>, Set<FeatureOperation>> entry : getSupportedRelationships().entrySet()) {
-            //    LOGGER.debugf("%s.%s", entry.getKey(), entry.getValue());
-            //}
-
-            LOGGER.debug("]");
-        }
-    }
-
-    protected abstract void initConfig();
 
     @Override
     public void addContextInitializer(ContextInitializer contextInitializer) {

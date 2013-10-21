@@ -39,7 +39,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 /**
- * <p>This interface acts as a Logger Facade for PicketLink, from which exceptions and messages should be created or
+ * <p>This interface acts as a Log Facade for PicketLink, from which exceptions and messages should be created or
  * logged.</p> <p>As PicketLink supports multiple containers and its versions, the main objective of this interface is
  * to abstract the logging aspects from the code and provide different logging implementations for each supported
  * binding/container.</p>

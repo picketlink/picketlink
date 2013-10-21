@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.picketlink.idm.IDMLog.IDENTITY_STORE_LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
@@ -43,7 +44,23 @@ public abstract class AbstractIdentityStore<C extends IdentityStoreConfiguration
 
     @Override
     public void setup(C config) {
+        IDENTITY_STORE_LOGGER.storeInitializing(getClass());
+
         this.configuration = config;
+
+        if (IDENTITY_STORE_LOGGER.isDebugEnabled()) {
+            IDENTITY_STORE_LOGGER.debugf("[%s]: [", this.configuration);
+            IDENTITY_STORE_LOGGER.debugf("  Type: %s", this.configuration.getIdentityStoreType());
+            IDENTITY_STORE_LOGGER.debugf("  Supports partition: %s", this.configuration.supportsPartition());
+            IDENTITY_STORE_LOGGER.debugf("  Supports attribute: %s", this.configuration.supportsAttribute());
+            IDENTITY_STORE_LOGGER.debugf("  Supports credential: %s", this.configuration.supportsCredential());
+            IDENTITY_STORE_LOGGER.debugf("  Credential Handlers: %s", this.configuration.getCredentialHandlers());
+            IDENTITY_STORE_LOGGER.debugf("  Supported types: %s", this.configuration.getSupportedTypes().keySet());
+            IDENTITY_STORE_LOGGER.debugf("  Unsupported types: %s", this.configuration.getUnsupportedTypes().keySet());
+            IDENTITY_STORE_LOGGER.debugf("  Context Initializers: %s", this.configuration.getContextInitializers());
+            IDENTITY_STORE_LOGGER.debug("]");
+        }
+
         initializeCredentialHandlers();
     }
 
@@ -58,10 +75,19 @@ public abstract class AbstractIdentityStore<C extends IdentityStoreConfiguration
 
         if (IdentityType.class.isInstance(attributedType)) {
             IdentityType identityType = (IdentityType) attributedType;
+
             identityType.setPartition(context.getPartition());
+
+            if (isTraceEnabled()) {
+                IDENTITY_STORE_LOGGER.tracef("Type with identifier [%s] belongs to partition [%s][%s]", attributedType.getId(), context.getPartition().getName(), context.getPartition());
+            }
         }
 
         addAttributedType(context, attributedType);
+
+        if (isTraceEnabled()) {
+            IDENTITY_STORE_LOGGER.tracef("Type with identifier [%s] successfully added to identity store [%s].", attributedType.getId(), this);
+        }
     }
 
     @Override
@@ -72,28 +98,50 @@ public abstract class AbstractIdentityStore<C extends IdentityStoreConfiguration
         }
 
         updateAttributedType(context, attributedType);
+
+        if (isTraceEnabled()) {
+            IDENTITY_STORE_LOGGER.tracef("Type with identifier [%s] successfully updated to identity store [%s].", attributedType.getId(), this);
+        }
     }
 
     @Override
     public void remove(IdentityContext context, AttributedType attributedType) {
+        if (isTraceEnabled()) {
+            IDENTITY_STORE_LOGGER.tracef("Preparing to remove type [%s] with identifier [%s] using identity store [%s]", attributedType.getClass(), attributedType.getId(), this);
+        }
+
         if (IdentityType.class.isInstance(attributedType)) {
             IdentityType identityType = (IdentityType) attributedType;
             identityType.setPartition(context.getPartition());
         }
 
         removeAttributedType(context, attributedType);
+
+        if (isTraceEnabled()) {
+            IDENTITY_STORE_LOGGER.tracef("Type with identifier [%s] successfully removed from identity store [%s].", attributedType.getId(), this);
+        }
     }
 
     @Override
     public void validateCredentials(IdentityContext context, Credentials credentials) {
         Class<? extends CredentialHandler> credentialHandler = getCredentialHandler(credentials);
+
         this.credentialHandlers.get(credentialHandler).validate(context, credentials, this);
+
+        if (isTraceEnabled()) {
+            IDENTITY_STORE_LOGGER.tracef("Credentials validated [%s][%s] using identity store [%s]. Status [%s]", credentials.getClass(), credentials, this, credentials.getStatus());
+        }
     }
 
     @Override
     public void updateCredential(IdentityContext context, Account account, Object credential, Date effectiveDate, Date expiryDate) {
         Class<? extends CredentialHandler> credentialHandler = getCredentialHandler(credential);
+
         this.credentialHandlers.get(credentialHandler).update(context, account, credential, this, effectiveDate, expiryDate);
+
+        if (isTraceEnabled()) {
+            IDENTITY_STORE_LOGGER.tracef("Credential updated [%s][%s] using identity store [%s].", credential.getClass(), credential, this);
+        }
     }
 
     protected abstract void addAttributedType(IdentityContext context, AttributedType attributedType);
@@ -142,6 +190,10 @@ public abstract class AbstractIdentityStore<C extends IdentityStoreConfiguration
 
             this.credentialHandlers.put(handlerType, credentialHandler);
         }
+    }
+
+    private boolean isTraceEnabled() {
+        return IDENTITY_STORE_LOGGER.isTraceEnabled();
     }
 
 }

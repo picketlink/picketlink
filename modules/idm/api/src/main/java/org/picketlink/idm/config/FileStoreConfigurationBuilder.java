@@ -33,7 +33,7 @@ package org.picketlink.idm.config;
 public class FileStoreConfigurationBuilder extends
         IdentityStoreConfigurationBuilder<FileIdentityStoreConfiguration, FileStoreConfigurationBuilder> {
 
-    private String workingDirectory = "/tmp/pl-idm";
+    private String workingDirectory;
     private boolean preserveState = false;
     private boolean asyncWrite = false;
     private int asyncWriteThreadPool = 5;
@@ -109,10 +109,6 @@ public class FileStoreConfigurationBuilder extends
     @Override
     protected void validate() {
         super.validate();
-
-        if (this.workingDirectory == null) {
-            throw new SecurityConfigurationException("You must provide a not null working directory.");
-        }
 
         if (this.asyncWriteThreadPool <= 0) {
             throw new SecurityConfigurationException("The thread pool size must be greater than zero.");

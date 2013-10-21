@@ -17,15 +17,15 @@
  */
 package org.picketlink.idm.config;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import org.picketlink.idm.credential.handler.CredentialHandler;
+import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.spi.ContextInitializer;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.picketlink.idm.credential.handler.CredentialHandler;
-import org.picketlink.idm.model.AttributedType;
-import org.picketlink.idm.spi.ContextInitializer;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Defines the configuration for a JPA based IdentityStore implementation.
@@ -54,9 +54,6 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
 
         this.entityTypes = entityTypes;
     }
-
-    @Override
-    protected void initConfig() {  }
 
     public Set<Class<?>> getEntityTypes() {
         return this.entityTypes;

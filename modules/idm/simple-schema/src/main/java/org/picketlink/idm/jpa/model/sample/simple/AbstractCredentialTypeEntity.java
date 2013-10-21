@@ -51,11 +51,11 @@ public abstract class AbstractCredentialTypeEntity implements Serializable {
     @CredentialClass
     private String typeName;
 
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @EffectiveDate
     private Date effectiveDate;
 
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @ExpiryDate
     private Date expiryDate;
 

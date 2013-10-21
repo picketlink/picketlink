@@ -170,7 +170,11 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
             throw MESSAGES.nullArgument("Credentials");
         }
 
-        storeSelector.getStoreForCredentialOperation(this, credentials.getClass()).validateCredentials(this, credentials);
+        try {
+            storeSelector.getStoreForCredentialOperation(this, credentials.getClass()).validateCredentials(this, credentials);
+        } catch (Exception e) {
+            throw MESSAGES.credentialValidationFailed(credentials, e);
+        }
     }
 
     @Override
@@ -186,8 +190,11 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
             throw MESSAGES.nullArgument("Credential");
         }
 
-        storeSelector.getStoreForCredentialOperation(this, credential.getClass())
-                .updateCredential(this, account, credential, effectiveDate, expiryDate);
+        try {
+            storeSelector.getStoreForCredentialOperation(this, credential.getClass()).updateCredential(this, account, credential, effectiveDate, expiryDate);
+        } catch (Exception e) {
+            throw MESSAGES.credentialUpdateFailed(account, credential, e);
+        }
     }
 
     @Override
@@ -195,15 +202,19 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
         checkIfIdentityTypeExists(account);
 
         if (storageClass == null) {
-            throw  MESSAGES.nullArgument("CredentialStorage type");
+            throw MESSAGES.nullArgument("CredentialStorage type");
         }
 
-        for (CredentialStore credentialStore: this.storeSelector.getStoresForCredentialStorage(this, storageClass)) {
-            T credentialStorage = (T) credentialStore.retrieveCurrentCredential(this, account, storageClass);
+        try {
+            for (CredentialStore credentialStore : this.storeSelector.getStoresForCredentialStorage(this, storageClass)) {
+                T credentialStorage = (T) credentialStore.retrieveCurrentCredential(this, account, storageClass);
 
-            if (credentialStorage != null) {
-                return credentialStorage;
+                if (credentialStorage != null) {
+                    return credentialStorage;
+                }
             }
+        } catch (Exception e) {
+            throw MESSAGES.credentialRetrievalFailed(account, storageClass, e);
         }
 
         return null;
@@ -219,8 +230,12 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
 
         List<T> storages = new ArrayList<T>();
 
-        for (CredentialStore credentialStore: this.storeSelector.getStoresForCredentialStorage(this, storageClass)) {
-            storages.addAll(credentialStore.retrieveCredentials(this, account, storageClass));
+        try {
+            for (CredentialStore credentialStore : this.storeSelector.getStoresForCredentialStorage(this, storageClass)) {
+                storages.addAll(credentialStore.retrieveCredentials(this, account, storageClass));
+            }
+        } catch (Exception e) {
+            throw MESSAGES.credentialRetrievalFailed(account, storageClass, e);
         }
 
         return storages;

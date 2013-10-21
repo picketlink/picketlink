@@ -53,7 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
 
 /**
  *
@@ -127,11 +127,6 @@ public class CustomIdentityStoreTestCase {
                 Object> credentialHandlerProperties, Set<Class<? extends CredentialHandler>> credentialHandlers) {
             super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties,
                     credentialHandlers, false, false);
-        }
-
-        @Override
-        protected void initConfig() {
-
         }
 
         @Override

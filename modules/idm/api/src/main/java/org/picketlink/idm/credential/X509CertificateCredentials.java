@@ -95,4 +95,9 @@ public class X509CertificateCredentials extends AbstractBaseCredentials implemen
     public boolean isTrusted() {
         return this.trusted;
     }
+
+    @Override
+    public String toString() {
+        return "userName: " + getUsername();
+    }
 }

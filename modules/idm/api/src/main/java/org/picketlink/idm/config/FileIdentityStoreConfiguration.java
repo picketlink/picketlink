@@ -59,10 +59,6 @@ public class FileIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         this.asyncThreadPool = asyncWriteThreadPool;
     }
 
-    @Override
-    protected void initConfig() throws SecurityConfigurationException {
-    }
-
     public String getWorkingDir() {
         return this.workingDir;
     }

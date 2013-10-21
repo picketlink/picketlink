@@ -40,7 +40,6 @@
   <!-- ============================== -->
 
   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
-    <param name="Threshold" value="ERROR"/>
     <param name="Target" value="System.out"/>
 
     <layout class="org.apache.log4j.PatternLayout">
@@ -52,18 +51,52 @@
   <!-- Limit categories -->
   <!-- ================ -->
 
+  <!-- Disable Apache DS logging -->
   <category name="org.apache">
     <priority value="OFF"/>
   </category>
-
   <category name="JdbmTable">
+    <priority value="OFF"/>
+  </category>
+  <category name="LOG_CHANGES">
+    <priority value="OFF"/>
+  </category>
+  <category name="JdbmIndex">
+    <priority value="OFF"/>
+  </category>
+  <category name="DupsCursor">
     <priority value="OFF"/>
   </category>
 
   <category name="org.hibernate">
     <priority value="OFF"/>
   </category>
-  
+
+  <!-- PicketLink IDM Root category. All logging messages. -->
+  <category name="org.picketlink.idm">
+    <priority value="DEBUG"/>
+  </category>
+
+  <!-- PicketLink IDM Identity Store category. Only messages from identity stores. -->
+  <category name="org.picketlink.idm.identity.store">
+    <priority value="DEBUG"/>
+  </category>
+
+  <!-- PicketLink IDM File Identity Store category. -->
+  <category name="org.picketlink.idm.identity.store.file">
+    <priority value="INFO"/>
+  </category>
+
+  <!-- PicketLink IDM JPA Identity Store category. -->
+  <category name="org.picketlink.idm.identity.store.jpa">
+    <priority value="DEBUG"/>
+  </category>
+
+  <!-- PicketLink IDM LDAP Identity Store category. -->
+  <category name="org.picketlink.idm.identity.store.ldap">
+    <priority value="INFO"/>
+  </category>
+
   <!-- ======================= -->
   <!-- Setup the Root category -->
   <!-- ======================= -->
