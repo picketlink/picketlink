@@ -74,12 +74,12 @@
 
   <!-- PicketLink IDM Root category. All logging messages. -->
   <category name="org.picketlink.idm">
-    <priority value="DEBUG"/>
+    <priority value="INFO"/>
   </category>
 
   <!-- PicketLink IDM Identity Store category. Only messages from identity stores. -->
   <category name="org.picketlink.idm.identity.store">
-    <priority value="DEBUG"/>
+    <priority value="INFO"/>
   </category>
 
   <!-- PicketLink IDM File Identity Store category. -->
@@ -89,7 +89,7 @@
 
   <!-- PicketLink IDM JPA Identity Store category. -->
   <category name="org.picketlink.idm.identity.store.jpa">
-    <priority value="DEBUG"/>
+    <priority value="INFO"/>
   </category>
 
   <!-- PicketLink IDM LDAP Identity Store category. -->
