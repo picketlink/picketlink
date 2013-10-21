@@ -37,7 +37,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Inherited
 public @interface AllowedPermission {
-    String name();
+    String operation();
 
     long mask() default 0L;
 }

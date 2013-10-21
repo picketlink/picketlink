@@ -16,9 +16,9 @@ import org.picketlink.idm.permission.annotations.AllowedPermissions;
  */
 @Entity
 @AllowedPermissions({
-    @AllowedPermission(mask = 1, name = "READ"),
-    @AllowedPermission(mask = 2, name = "UPDATE"),
-    @AllowedPermission(mask = 4, name = "DELETE")
+    @AllowedPermission(mask = 1, operation = "READ"),
+    @AllowedPermission(mask = 2, operation = "UPDATE"),
+    @AllowedPermission(mask = 4, operation = "DELETE")
 })
 public class Customer implements Serializable {
 

@@ -52,7 +52,7 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
                 AllowedPermission[] permissions = p.value();
                 if (permissions != null) {
                     for (AllowedPermission permission : permissions) {
-                        actions.put(permission.name(), permission.mask());
+                        actions.put(permission.operation(), permission.mask());
 
                         if (permission.mask() != 0) {
                             useMask = true;
