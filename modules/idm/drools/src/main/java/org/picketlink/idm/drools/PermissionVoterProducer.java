@@ -1,22 +1,13 @@
 package org.picketlink.idm.drools;
 
-import java.io.InputStream;
-
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import javax.servlet.ServletContext;
 
-import org.apache.deltaspike.servlet.api.Web;
-import org.kie.api.KieBase;
-import org.kie.api.KieBaseConfiguration;
-import org.kie.api.KieServices;
-import org.kie.api.builder.KieBuilder;
-import org.kie.api.builder.KieFileSystem;
-import org.kie.api.builder.Message;
-import org.kie.api.builder.Results;
-import org.kie.api.io.KieResources;
-import org.kie.api.runtime.KieContainer;
+import org.kie.api.cdi.KSession;
+import org.kie.api.runtime.KieSession;
 import org.picketlink.idm.permission.spi.PermissionVoter;
+//import javax.servlet.ServletContext;
+//import org.apache.deltaspike.servlet.api.Web;
 
 /**
  * Produces a DroolsPermissionVoter if a security rules drl file is found.
@@ -28,11 +19,11 @@ public class PermissionVoterProducer {
 
     private static final String SECURITY_RULES = "/WEB-INF/classes/security/security-rules.drl";
 
-    /* THIS DOESN'T WORK YET - SEE DROOLS-299
+    /* THIS DOESN'T WORK YET - SEE DROOLS-299*/
     @Inject
     @KSession("ksession1")
     KieSession kSession;
-*/
+
 
     private DroolsPermissionVoter voter;
 
@@ -40,7 +31,7 @@ public class PermissionVoterProducer {
      * This is all a nasty hack for now until Drools 6 supports injection of rules based on
      * a configuration defined within a war file - see DROOLS-299 in JIRA
      */
-    @Inject
+    /*@Inject
     public void init(@Web ServletContext servletContext) {
         KieServices kServices = KieServices.Factory.get();
 
@@ -74,7 +65,7 @@ public class PermissionVoterProducer {
         KieBase kBase = kieContainer.newKieBase(kieBaseConfiguration);
 
         voter = new DroolsPermissionVoter(kBase);
-    }
+    }*/
 
     @Produces
     public PermissionVoter createPermissionVoter() {

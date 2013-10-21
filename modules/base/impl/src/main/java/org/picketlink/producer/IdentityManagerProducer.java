@@ -22,6 +22,7 @@ import org.picketlink.IdentityConfigurationEvent;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.PermissionManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
@@ -134,6 +135,12 @@ public class IdentityManagerProducer {
     @RequestScoped
     public RelationshipManager createRelationshipManager() {
         return this.partitionManager.createRelationshipManager();
+    }
+
+    @Produces
+    @RequestScoped
+    public PermissionManager createPermissionManager() {
+        return this.partitionManager.createPermissionManager();
     }
 
     private boolean isPartitionSupported(final List<IdentityConfiguration> configurations) {

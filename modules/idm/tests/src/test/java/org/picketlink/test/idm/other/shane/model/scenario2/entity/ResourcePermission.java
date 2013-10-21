@@ -6,8 +6,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-import org.picketlink.idm.jpa.annotations.PermissionGrant;
-import org.picketlink.idm.jpa.annotations.PermissionRecipient;
+import org.picketlink.idm.jpa.annotations.PermissionOperation;
+import org.picketlink.idm.jpa.annotations.PermissionAssignee;
 import org.picketlink.idm.jpa.annotations.PermissionResourceClass;
 import org.picketlink.idm.jpa.annotations.PermissionResourceIdentifier;
 import org.picketlink.idm.jpa.annotations.entity.PermissionManaged;
@@ -26,7 +26,7 @@ public class ResourcePermission implements Serializable {
     @Id @GeneratedValue
     private Long id;
 
-    @PermissionRecipient
+    @PermissionAssignee
     private String recipient;
 
     @PermissionResourceClass
@@ -35,7 +35,7 @@ public class ResourcePermission implements Serializable {
     @PermissionResourceIdentifier
     private String resourceIdentifier;
 
-    @PermissionGrant
+    @PermissionOperation
     private String grants;
 
     public Long getId() {

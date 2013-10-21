@@ -34,7 +34,6 @@ public class PersistentPermissionVoter implements PermissionVoter {
         RelationshipManager rm = partitionManager.createRelationshipManager();
         List<Permission> permissions = pm.listPermissions(resource, operation);
 
-        // TODO we also need to support permissions inherited via relationships (i.e. group memberships, etc)
         for (Permission permission : permissions) {
             if (recipient.equals(permission.getAssignee())) {
                 result = VotingResult.ALLOW;

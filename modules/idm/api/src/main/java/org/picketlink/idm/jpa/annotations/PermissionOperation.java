@@ -10,7 +10,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Marks the property of an entity bean that represents the recipient of a resource permission
+ * Marks the property of an entity bean that represents the permissions granted for a resource.  This value will
+ * either be a bitmask integer (for resources annotated with @AllowedPermissions) or a comma-separated list of
+ * arbitrary permission String values
  *
  * @author Shane Bryzak
  *
@@ -19,6 +21,6 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RUNTIME)
 @Inherited
-public @interface PermissionRecipient {
+public @interface PermissionOperation {
 
 }
