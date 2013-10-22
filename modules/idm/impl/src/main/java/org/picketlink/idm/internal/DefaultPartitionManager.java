@@ -501,20 +501,22 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
         if (identityConfiguration != null && identityConfiguration.supportsCredential()) {
             for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
-                for (@SuppressWarnings("rawtypes") Class<? extends CredentialHandler> handlerClass : storeConfig.getCredentialHandlers()) {
-                    if (handlerClass.isAnnotationPresent(SupportsCredentials.class)) {
-                        for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).credentialClass()) {
-                            if (cls.isAssignableFrom(credentialClass)) {
-                                IdentityStore<?> identityStore = null;
-                                try {
-                                    store = getIdentityStoreAndInitializeContext(context, identityConfiguration, storeConfig);
-                                } catch (ClassCastException cce) {
-                                    throw MESSAGES.storeUnexpectedType(identityStore.getClass(), CredentialStore.class);
-                                }
+                if (storeConfig.supportsCredential()) {
+                    for (@SuppressWarnings("rawtypes") Class<? extends CredentialHandler> handlerClass : storeConfig.getCredentialHandlers()) {
+                        if (handlerClass.isAnnotationPresent(SupportsCredentials.class)) {
+                            for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).credentialClass()) {
+                                if (cls.isAssignableFrom(credentialClass)) {
+                                    IdentityStore<?> identityStore = null;
+                                    try {
+                                        store = getIdentityStoreAndInitializeContext(context, identityConfiguration, storeConfig);
+                                    } catch (ClassCastException cce) {
+                                        throw MESSAGES.storeUnexpectedType(identityStore.getClass(), CredentialStore.class);
+                                    }
 
-                                // if we found a specific handler for the credential, immediately return.
-                                if (cls.equals(credentialClass)) {
-                                    return store;
+                                    // if we found a specific handler for the credential, immediately return.
+                                    if (cls.equals(credentialClass)) {
+                                        return store;
+                                    }
                                 }
                             }
                         }
