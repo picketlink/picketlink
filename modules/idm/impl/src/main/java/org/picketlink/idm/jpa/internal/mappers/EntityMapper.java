@@ -28,6 +28,7 @@ import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
 import org.picketlink.idm.jpa.internal.AttributeList;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.Partition;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -86,7 +87,9 @@ public class EntityMapper {
                     AttributedType ownerType = (AttributedType) propertyValue;
 
                     if (ownerType == null || ownerType.getId() == null) {
-                        throw new IdentityManagementException("Owner does not exists or was not provided.");
+                        if (isPartitionSupported(ownerType.getClass())) {
+                            throw new IdentityManagementException("Owner does not exists or was not provided.");
+                        }
                     }
 
                     mappedValue = this.store.getOwnerEntity(ownerType, mappedProperty, entityManager);
@@ -172,12 +175,14 @@ public class EntityMapper {
 
                     if (mappedProperty.getAnnotatedElement().isAnnotationPresent(OwnerReference.class)) {
                         if (mappedValue == null) {
-                            throw new IdentityManagementException("Owner does not exists or was not provided.");
+                            if (isPartitionSupported(property.getJavaClass())) {
+                                throw new IdentityManagementException("Owner does not exists or was not provided.");
+                            }
+                        } else {
+                            EntityMapper entityMapper = this.store.getMapperForEntity(mappedValue.getClass());
+
+                            propertyValue = entityMapper.createType(mappedValue, entityManager);
                         }
-
-                        EntityMapper entityMapper = this.store.getMapperForEntity(mappedValue.getClass());
-
-                        propertyValue = entityMapper.createType(mappedValue, entityManager);
                     } else {
                         // if the property maps to a mapped type is because we have a many-to-one relationship
                         // this is the case when a type has a hierarchy
@@ -277,6 +282,16 @@ public class EntityMapper {
 
     public boolean isRoot() {
         return getTypeProperty() != null;
+    }
+
+    public boolean isPersist() {
+        for (EntityMapping entityMapping : getEntityMappings()) {
+            if (entityMapping.getTypeProperty() != null) {
+                return entityMapping.isPersist();
+            }
+        }
+
+        return true;
     }
 
     public List getAssociatedEntities(AttributedType attributedType, EntityMapper entityMapper, EntityManager entityManager) {
@@ -465,6 +480,10 @@ public class EntityMapper {
         }
 
         return entityInstance;
+    }
+
+    private boolean isPartitionSupported(Class<?> type) {
+        return Partition.class.isAssignableFrom(type) && this.store.getConfig().supportsPartition();
     }
 
     @Override

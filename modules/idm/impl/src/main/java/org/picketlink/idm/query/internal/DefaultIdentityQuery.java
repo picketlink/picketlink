@@ -18,7 +18,6 @@
 
 package org.picketlink.idm.query.internal;
 
-import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
@@ -27,6 +26,7 @@ import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreSelector;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,13 +40,13 @@ import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
  * Default IdentityQuery implementation.
  *
  * @param <T>
+ *
  * @author Shane Bryzak
  */
 public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQuery<T> {
 
     private final Map<QueryParameter, Object[]> parameters = new LinkedHashMap<QueryParameter, Object[]>();
     private final IdentityContext context;
-    private final IdentityStore<?> identityStore;
     private final Class<T> identityType;
     private final StoreSelector storeSelector;
     private int offset;
@@ -58,8 +58,6 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
         this.context = context;
         this.storeSelector = storeSelector;
         this.identityType = identityType;
-        this.identityStore = this.storeSelector.getStoreForIdentityOperation(
-                context, IdentityStore.class, identityType, IdentityStoreConfiguration.IdentityOperation.read);
 
     }
 
@@ -127,10 +125,14 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
 
     @Override
     public List<T> getResultList() {
-        List<T> result = null;
+        List<T> result = new ArrayList<T>();
 
         try {
-            result = this.identityStore.fetchQueryResults(context, this);
+            Set<IdentityStore<?>> identityStores = this.storeSelector.getStoresForIdentityQuery(this.context, this.getIdentityType());
+
+            for (IdentityStore<?> store : identityStores) {
+                result.addAll(store.fetchQueryResults(this.context, this));
+            }
 
             AttributeStore<?> attributeStore = this.storeSelector.getStoreForAttributeOperation(context);
 
@@ -148,7 +150,15 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
 
     @Override
     public int getResultCount() {
-        return this.identityStore.countQueryResults(context, this);
+        int count = 0;
+
+        Set<IdentityStore<?>> identityStores = this.storeSelector.getStoresForIdentityQuery(this.context, this.getIdentityType());
+
+        for (IdentityStore<?> store : identityStores) {
+            count = count + store.countQueryResults(this.context, this);
+        }
+
+        return count;
     }
 
     @Override

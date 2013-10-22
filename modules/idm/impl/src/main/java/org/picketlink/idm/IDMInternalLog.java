@@ -5,6 +5,7 @@ import org.jboss.logging.Logger;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
 import org.picketlink.common.logging.LogFactory;
+import org.picketlink.idm.model.AttributedType;
 
 import static org.picketlink.idm.IDMInternalLog.PICKETLINK_IDM_PROJECT_CODE;
 
@@ -48,10 +49,13 @@ public interface IDMInternalLog extends IDMLog {
     @Message(id=1200, value = "LDAP Store is configured for Active Directory.")
     void ldapActiveDirectoryConfiguration();
 
+    @LogMessage(level = Logger.Level.WARN)
+    @Message(id=1201, value = "LDAP Store does not support relationship updates [%s].")
+    void ldapRelationshipUpdateNotSupported(AttributedType attributedType);
+
     // JPA store logging messages. Ids 1300-1399
 
     @LogMessage(level = Logger.Level.INFO)
     @Message(id=1300, value = "No ContextInitializer provided for the JPA Store. The store maybe be unable to retrieve the EntityManager instance to perform operations.")
     void jpaContextInitializerNotProvided();
-
 }

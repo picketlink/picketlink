@@ -30,6 +30,7 @@ import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPUserGroupJPARoleConfigurationTester;
 import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
 
 import java.util.List;
@@ -47,7 +48,8 @@ import static org.junit.Assert.assertNotNull;
  * 
  */
 @Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
-        LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
+        LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class,
+        LDAPUserGroupJPARoleConfigurationTester.class})
 public class UserQueryTestCase extends AgentQueryTestCase<User> {
 
     public UserQueryTestCase(IdentityConfigurationTester builder) {

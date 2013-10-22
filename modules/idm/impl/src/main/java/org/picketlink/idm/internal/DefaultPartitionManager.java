@@ -69,8 +69,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
-import static org.picketlink.idm.IDMLog.ROOT_LOGGER;
 import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
+import static org.picketlink.idm.IDMLog.ROOT_LOGGER;
 import static org.picketlink.idm.util.IDMUtil.isTypeSupported;
 import static org.picketlink.idm.util.IDMUtil.toSet;
 
@@ -202,91 +202,6 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private <T extends IdentityStore> T createIdentityStore(IdentityStoreConfiguration storeConfiguration) {
-        Class<T> storeClass = (Class<T>) storeConfiguration.getIdentityStoreType();
-
-        if (storeClass == null) {
-            // If no store class is configured, default to the built-in types for known configurations
-            if (FileIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
-                storeClass = (Class<T>) FileIdentityStore.class;
-            } else if (JPAIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
-                storeClass = (Class<T>) JPAIdentityStore.class;
-            } else if (LDAPIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
-                storeClass = (Class<T>) LDAPIdentityStore.class;
-            }
-        }
-
-        if (storeClass == null) {
-            throw MESSAGES.configUnknownStoreForConfiguration(storeConfiguration);
-        }
-
-        T store = null;
-
-        try {
-            if (storeConfiguration instanceof AbstractIdentityStoreConfiguration) {
-                ((AbstractIdentityStoreConfiguration) storeConfiguration).setIdentityStoreType(storeClass);
-            }
-
-            store = storeClass.newInstance();
-        } catch (Exception ex) {
-            throw MESSAGES.configCouldNotCreateStore(storeClass, storeConfiguration, ex);
-        }
-
-        store.setup(storeConfiguration);
-
-        return store;
-    }
-
-    private IdentityConfiguration getConfigurationByName(String name) {
-        for (IdentityConfiguration config : this.configurations) {
-            if (name.equals(config.getName())) {
-                return config;
-            }
-        }
-
-        throw MESSAGES.partitionNoConfigurationFound(name);
-    }
-
-    private IdentityConfiguration getConfigurationForPartition(Partition partition) {
-        IdentityConfiguration identityConfiguration = lookupPartitionConfiguration(partition);
-
-        if (identityConfiguration == null) {
-            throw MESSAGES.partitionReferencesInvalidConfiguration(partition);
-        }
-
-        return identityConfiguration;
-    }
-
-    private IdentityConfiguration lookupPartitionConfiguration(Partition partition) {
-        if (!partitionConfigurations.containsKey(partition)) {
-            IdentityContext context = createIdentityContext();
-            PartitionStore<?> store = getStoreForPartitionOperation(context);
-            partitionConfigurations.put(partition, getConfigurationByName(store.getConfigurationName(context, partition)));
-        }
-
-        return partitionConfigurations.get(partition);
-    }
-
-    private IdentityContext createIdentityContext() {
-        return new AbstractIdentityContext(null, this.eventBridge, this.idGenerator) {
-            @Override
-            public EventBridge getEventBridge() {
-                return eventBridge;
-            }
-
-            @Override
-            public IdGenerator getIdGenerator() {
-                return idGenerator;
-            }
-
-            @Override
-            public Partition getPartition() {
-                return null;
-            }
-        };
-    }
-
     @Override
     public IdentityManager createIdentityManager() throws IdentityManagementException {
         return createIdentityManager(DEFAULT_REALM);
@@ -351,11 +266,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             T partition = getStoreForPartitionOperation(context).<T>get(context, partitionClass, name);
 
             if (partition != null) {
-                AttributeStore<?> attributeStore = getStoreForAttributeOperation(context);
-
-                if (attributeStore != null) {
-                    attributeStore.loadAttributes(context, partition);
-                }
+                loadAttributes(context, (T) partition);
             }
 
             return partition;
@@ -370,33 +281,25 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             throw MESSAGES.nullArgument("Partition class");
         }
 
-        List<T> partitions = null;
+        List<T> partitions = new ArrayList<T>();
 
         if (partitionManagementConfig == null) {
-            partitions = new ArrayList<T>();
-
             partitions.add((T) createDefaultPartition());
+        } else {
+            try {
+                IdentityContext context = createIdentityContext();
 
-            return partitions;
-        }
+                partitions.addAll(getStoreForPartitionOperation(context).<T>get(context, partitionClass));
 
-        try {
-            IdentityContext context = createIdentityContext();
-
-            partitions = getStoreForPartitionOperation(context).<T>get(context, partitionClass);
-
-            for (T partition : partitions) {
-                AttributeStore<?> attributeStore = getStoreForAttributeOperation(context);
-
-                if (attributeStore != null) {
-                    attributeStore.loadAttributes(context, partition);
+                for (T partition : partitions) {
+                    loadAttributes(context, partition);
                 }
+            } catch (Exception e) {
+                throw MESSAGES.partitionGetFailed(partitionClass, "not specified", e);
             }
-
-            return partitions;
-        } catch (Exception e) {
-            throw MESSAGES.partitionGetFailed(partitionClass, "not specified", e);
         }
+
+        return partitions;
     }
 
     @Override
@@ -418,11 +321,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             T partition = getStoreForPartitionOperation(context).<T>lookupById(context, partitionClass, id);
 
             if (partition != null) {
-                AttributeStore<?> attributeStore = getStoreForAttributeOperation(context);
-
-                if (attributeStore != null) {
-                    attributeStore.loadAttributes(context, partition);
-                }
+                loadAttributes(context, (T) partition);
             }
 
             return partition;
@@ -543,18 +442,36 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             identityConfiguration = this.configurations.iterator().next();
         }
 
-        T identityStore = null;
+        return lookupStore(context, identityConfiguration, type, operation);
+    }
 
-        if (identityConfiguration == null) {
-            for (IdentityConfiguration configuration : this.configurations) {
-                identityStore = lookupStore(context, configuration, type, operation);
+    @Override
+    public Set<IdentityStore<?>> getStoresForIdentityQuery(final IdentityContext context, final Class<? extends IdentityType> identityType) {
+        Set<IdentityStore<?>> identityStores = new HashSet<IdentityStore<?>>();
 
-                if (identityStore != null) {
-                    break;
+        for (IdentityConfiguration configuration : this.configurations) {
+            for (IdentityStoreConfiguration storeConfig : configuration.getStoreConfiguration()) {
+                if (storeConfig.supportsType(identityType, IdentityOperation.read)) {
+                    identityStores.add(getIdentityStoreAndInitializeContext(context, configuration, storeConfig));
                 }
             }
-        } else {
-            identityStore = lookupStore(context, identityConfiguration, type, operation);
+        }
+
+        if (identityStores.isEmpty()) {
+            throw MESSAGES.attributedTypeUnsupportedOperation(identityType, IdentityOperation.read, identityType, IdentityOperation.read);
+        }
+
+        return identityStores;
+    }
+
+    public <T extends IdentityStore<?>> T lookupStore(IdentityContext context, IdentityConfiguration configuration,
+                                                      Class<? extends AttributedType> type, IdentityOperation operation) {
+        T identityStore = null;
+
+        for (IdentityStoreConfiguration storeConfig : configuration.getStoreConfiguration()) {
+            if (storeConfig.supportsType(type, operation)) {
+                identityStore = getIdentityStoreAndInitializeContext(context, configuration, storeConfig);
+            }
         }
 
         if (identityStore == null) {
@@ -562,20 +479,6 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         }
 
         return identityStore;
-    }
-
-    public <T extends IdentityStore<?>> T lookupStore(IdentityContext context, IdentityConfiguration configuration,
-                                                      Class<? extends AttributedType> type, IdentityOperation operation) {
-        for (IdentityStoreConfiguration storeConfig : configuration.getStoreConfiguration()) {
-            if (storeConfig.supportsType(type, operation)) {
-                @SuppressWarnings("unchecked")
-                T store = (T) stores.get(configuration).get(storeConfig);
-                storeConfig.initializeContext(context, store);
-                return store;
-            }
-        }
-
-        return null;
     }
 
     @Override
@@ -596,27 +499,23 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             }
         }
 
-        for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
-            if (!storeConfig.supportsCredential()) {
-                continue;
-            }
+        if (identityConfiguration != null && identityConfiguration.supportsCredential()) {
+            for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
+                for (@SuppressWarnings("rawtypes") Class<? extends CredentialHandler> handlerClass : storeConfig.getCredentialHandlers()) {
+                    if (handlerClass.isAnnotationPresent(SupportsCredentials.class)) {
+                        for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).credentialClass()) {
+                            if (cls.isAssignableFrom(credentialClass)) {
+                                IdentityStore<?> identityStore = null;
+                                try {
+                                    store = getIdentityStoreAndInitializeContext(context, identityConfiguration, storeConfig);
+                                } catch (ClassCastException cce) {
+                                    throw MESSAGES.storeUnexpectedType(identityStore.getClass(), CredentialStore.class);
+                                }
 
-            for (@SuppressWarnings("rawtypes") Class<? extends CredentialHandler> handlerClass : storeConfig.getCredentialHandlers()) {
-                if (handlerClass.isAnnotationPresent(SupportsCredentials.class)) {
-                    for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).credentialClass()) {
-                        if (cls.isAssignableFrom(credentialClass)) {
-                            IdentityStore<?> identityStore = null;
-                            try {
-                                identityStore = stores.get(identityConfiguration).get(storeConfig);
-                                store = (T) identityStore;
-                                storeConfig.initializeContext(context, store);
-                            } catch (ClassCastException cce) {
-                                throw MESSAGES.storeUnexpectedType(identityStore.getClass(), CredentialStore.class);
-                            }
-
-                            // if we found a specific handler for the credential, immediately return.
-                            if (cls.equals(credentialClass)) {
-                                return store;
+                                // if we found a specific handler for the credential, immediately return.
+                                if (cls.equals(credentialClass)) {
+                                    return store;
+                                }
                             }
                         }
                     }
@@ -641,7 +540,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
         // Check if the partition can manage its own relationship
         if (partitions.size() == 1) {
-            IdentityConfiguration config = null;
+            IdentityConfiguration config;
 
             if (this.partitionManagementConfig != null) {
                 config = getConfigurationForPartition(partitions.iterator().next());
@@ -652,8 +551,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             if (config.getRelationshipPolicy().isSelfRelationshipSupported(relationshipClass)) {
                 for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
                     if (storeConfig.supportsType(relationshipClass, operation)) {
-                        store = stores.get(config).get(storeConfig);
-                        storeConfig.initializeContext(context, store);
+                        store = getIdentityStoreAndInitializeContext(context, config, storeConfig);
                     }
                 }
             }
@@ -664,8 +562,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                 if (config.getRelationshipPolicy().isGlobalRelationshipSupported(relationshipClass)) {
                     for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
                         if (storeConfig.supportsType(relationshipClass, operation)) {
-                            store = stores.get(config).get(storeConfig);
-                            storeConfig.initializeContext(context, store);
+                            store = getIdentityStoreAndInitializeContext(context, config, storeConfig);
                         }
                     }
                 }
@@ -680,12 +577,15 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                     // found one
                     for (IdentityStoreConfiguration storeConfig : cfg.getStoreConfiguration()) {
                         if (storeConfig.supportsType(relationshipClass, operation)) {
-                            store = stores.get(cfg).get(storeConfig);
-                            storeConfig.initializeContext(context, store);
+                            store = getIdentityStoreAndInitializeContext(context, cfg, storeConfig);
                         }
                     }
                 }
             }
+        }
+
+        if (store == null) {
+            throw MESSAGES.attributedTypeUnsupportedOperation(relationshipClass, operation, relationshipClass, operation);
         }
 
         return store;
@@ -704,9 +604,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                         config.getRelationshipPolicy().isSelfRelationshipSupported(relationshipClass)) {
                     for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
                         if (storeConfig.supportsType(relationshipClass, IdentityOperation.create)) {
-                            IdentityStore<?> store = stores.get(config).get(storeConfig);
-                            storeConfig.initializeContext(context, store);
-                            result.add(store);
+                            result.add(getIdentityStoreAndInitializeContext(context, config, storeConfig));
                         }
                     }
                 }
@@ -717,9 +615,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                 if (config.getRelationshipPolicy().isGlobalRelationshipSupported(relationshipClass)) {
                     for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
                         if (storeConfig.supportsType(relationshipClass, IdentityOperation.create)) {
-                            IdentityStore<?> store = stores.get(config).get(storeConfig);
-                            storeConfig.initializeContext(context, store);
-                            result.add(store);
+                            result.add(getIdentityStoreAndInitializeContext(context, config, storeConfig));
                         }
                     }
                 }
@@ -731,19 +627,17 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     @Override
     public <T extends PartitionStore<?>> T getStoreForPartitionOperation(IdentityContext context) {
-        Map<IdentityStoreConfiguration, IdentityStore<?>> configStores = stores.get(partitionManagementConfig);
+        Map<IdentityStoreConfiguration, IdentityStore<?>> configStores = stores.get(this.partitionManagementConfig);
 
         for (IdentityStoreConfiguration cfg : configStores.keySet()) {
             if (cfg.supportsType(Partition.class, IdentityOperation.create)) {
-                T store = null;
+                T store = getIdentityStoreAndInitializeContext(context, this.partitionManagementConfig, cfg);
 
-                try {
-                    store = (T) configStores.get(cfg);
-                    cfg.initializeContext(context, store);
-                    return store;
-                } catch (ClassCastException cce) {
+                if (!PartitionStore.class.isInstance(store)) {
                     throw MESSAGES.storeUnexpectedType(store.getClass(), PartitionStore.class);
                 }
+
+                return store;
             }
         }
 
@@ -757,15 +651,13 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
             for (IdentityStoreConfiguration cfg : configStores.keySet()) {
                 if (cfg.supportsAttribute()) {
-                    T store = null;
+                    T store = getIdentityStoreAndInitializeContext(context, this.attributeManagementConfig, cfg);
 
-                    try {
-                        store = (T) configStores.get(cfg);
-                        cfg.initializeContext(context, store);
-                        return store;
-                    } catch (ClassCastException cce) {
+                    if (!AttributeStore.class.isInstance(store)) {
                         throw MESSAGES.storeUnexpectedType(store.getClass(), AttributeStore.class);
                     }
+
+                    return store;
                 }
             }
         }
@@ -800,6 +692,87 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         return credentialStores;
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private <T extends IdentityStore> T createIdentityStore(IdentityStoreConfiguration storeConfiguration) {
+        Class<T> storeClass = (Class<T>) storeConfiguration.getIdentityStoreType();
+
+        if (storeClass == null) {
+            // If no store class is configured, default to the built-in types for known configurations
+            if (FileIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
+                storeClass = (Class<T>) FileIdentityStore.class;
+            } else if (JPAIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
+                storeClass = (Class<T>) JPAIdentityStore.class;
+            } else if (LDAPIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
+                storeClass = (Class<T>) LDAPIdentityStore.class;
+            }
+        }
+
+        if (storeClass == null) {
+            throw MESSAGES.configUnknownStoreForConfiguration(storeConfiguration);
+        }
+
+        try {
+            if (storeConfiguration instanceof AbstractIdentityStoreConfiguration) {
+                ((AbstractIdentityStoreConfiguration) storeConfiguration).setIdentityStoreType(storeClass);
+            }
+
+            T store = storeClass.newInstance();
+
+            store.setup(storeConfiguration);
+
+            return store;
+        } catch (Exception ex) {
+            throw MESSAGES.configCouldNotCreateStore(storeClass, storeConfiguration, ex);
+        }
+    }
+
+    private IdentityConfiguration getConfigurationByName(String name) {
+        for (IdentityConfiguration config : this.configurations) {
+            if (name.equals(config.getName())) {
+                return config;
+            }
+        }
+
+        throw MESSAGES.partitionNoConfigurationFound(name);
+    }
+
+    private IdentityConfiguration getConfigurationForPartition(Partition partition) {
+        if (!this.partitionConfigurations.containsKey(partition)) {
+            IdentityContext context = createIdentityContext();
+            PartitionStore<?> store = getStoreForPartitionOperation(context);
+
+            partitionConfigurations.put(partition, getConfigurationByName(store.getConfigurationName(context, partition)));
+        }
+
+        IdentityConfiguration identityConfiguration = partitionConfigurations.get(partition);
+
+        if (identityConfiguration == null) {
+            throw MESSAGES.partitionReferencesInvalidConfiguration(partition);
+        }
+
+        return identityConfiguration;
+    }
+
+    private IdentityContext createIdentityContext() {
+        return new AbstractIdentityContext(null, this.eventBridge, this.idGenerator) {
+            @Override
+            public EventBridge getEventBridge() {
+                return eventBridge;
+            }
+
+            @Override
+            public IdGenerator getIdGenerator() {
+                return idGenerator;
+            }
+
+            @Override
+            public Partition getPartition() {
+                return null;
+            }
+        };
+    }
+
+
     private String getDefaultConfigurationName() {
         // If there is a configuration with the default configuration name, return that name
         for (IdentityConfiguration config : configurations) {
@@ -826,7 +799,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                 if (identityPartition != null
                         && isTypeSupported((Class<? extends IdentityType>) type, toSet(identityPartition.supportedTypes()),
                         toSet(identityPartition.unsupportedTypes())) == -1) {
-                    throw new IdentityManagementException("Partition [" + partition + "] does not support type [" + type + "].");
+                    throw MESSAGES.partitionUnsupportedType(partition, type);
                 }
             }
         }
@@ -898,6 +871,35 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         return storedPartition;
     }
 
+    /**
+     * <p>Returns a {@link IdentityStore} instance considering the given {@link IdentityConfiguration} and {@link
+     * IdentityStoreConfiguration}.</p>
+     *
+     * <p>Before returning the instance, the {@link IdentityContext} is initialized.</p>
+     *
+     * @param context
+     * @param configuration
+     * @param storeConfig
+     * @param <T>
+     *
+     * @return
+     */
+    private <T extends IdentityStore<?>> T getIdentityStoreAndInitializeContext(final IdentityContext context, final IdentityConfiguration configuration, final IdentityStoreConfiguration storeConfig) {
+        IdentityStore<?> store = this.stores.get(configuration).get(storeConfig);
+
+        storeConfig.initializeContext(context, store);
+
+        return (T) store;
+    }
+
+    private <T extends Partition> void loadAttributes(final IdentityContext context, final T partition) {
+        AttributeStore<?> attributeStore = getStoreForAttributeOperation(context);
+
+        if (attributeStore != null) {
+            attributeStore.loadAttributes(context, partition);
+        }
+    }
+
     private void logConfiguration(final Collection<IdentityConfiguration> configurations) {
         for (IdentityConfiguration identityConfiguration : configurations) {
             if (ROOT_LOGGER.isDebugEnabled()) {
@@ -910,7 +912,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
                 List<Class<?>> supportedTypes = new ArrayList<Class<?>>();
 
-                for (IdentityStoreConfiguration storeConfiguration: identityConfiguration.getStoreConfiguration()) {
+                for (IdentityStoreConfiguration storeConfiguration : identityConfiguration.getStoreConfiguration()) {
                     supportedTypes.addAll(storeConfiguration.getSupportedTypes().keySet());
                 }
 

@@ -31,8 +31,14 @@ import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPUserGroupJPARoleConfigurationTester;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * <p>
@@ -42,7 +48,7 @@ import static org.junit.Assert.*;
  * @author Pedro Silva
  * 
  */
-@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class})
+@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
 public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
 
     private static final String DEFAULT_TIER_NAME = "Default Tier";
@@ -110,6 +116,7 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
     }
 
     @Test
+    @Configuration (exclude = LDAPUserGroupJPARoleConfigurationTester.class)
     public void testGroupsForTier() throws Exception {
         IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
@@ -172,6 +179,7 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
     }
 
     @Test
+    @Configuration (exclude = LDAPUserGroupJPARoleConfigurationTester.class)
     public void testCreateSameGroupDifferentTiers() throws Exception {
         IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 
@@ -209,6 +217,7 @@ public class TierManagementTestCase extends AbstractPartitionTestCase<Tier> {
     }
 
     @Test
+    @Configuration (exclude = LDAPUserGroupJPARoleConfigurationTester.class)
     public void testCreateSameGroupDifferentRealms() throws Exception {
         IdentityManager applicationA = createIdentityManagerForTier(APPLICATION_A_TIER_NAME);
 

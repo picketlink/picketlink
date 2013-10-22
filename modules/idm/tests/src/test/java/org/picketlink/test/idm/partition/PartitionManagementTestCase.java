@@ -15,15 +15,20 @@ import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPUserGroupJPARoleConfigurationTester;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author  Pedro Igor
  */
-@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class})
+@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
 public class PartitionManagementTestCase extends AbstractPartitionManagerTestCase  {
 
     public PartitionManagementTestCase(final IdentityConfigurationTester visitor) {
@@ -82,6 +87,7 @@ public class PartitionManagementTestCase extends AbstractPartitionManagerTestCas
     }
 
     @Test
+    @Configuration (exclude = {LDAPUserGroupJPARoleConfigurationTester.class})
     public void testRemovePartitionWithIdentityTypes() {
         PartitionManager partitionManager = getPartitionManager();
         Realm somePartition = new Realm("somePartition");
@@ -144,4 +150,67 @@ public class PartitionManagementTestCase extends AbstractPartitionManagerTestCas
         assertNull(BasicModel.getUser(identityManager, userB.getLoginName()));
         assertNull(BasicModel.getUser(identityManager, userC.getLoginName()));
     }
+
+    @Test
+    public void testRemovePartitionWithRoles() {
+        PartitionManager partitionManager = getPartitionManager();
+        Realm somePartition = new Realm("somePartition");
+
+        partitionManager.add(somePartition);
+
+        IdentityManager identityManager = partitionManager.createIdentityManager(somePartition);
+
+        User userA = new User("userA");
+
+        identityManager.add(userA);
+
+        User userB = new User("userB");
+
+        identityManager.add(userB);
+
+        User userC = new User("userC");
+
+        identityManager.add(userC);
+
+        assertNotNull(BasicModel.getUser(identityManager, userA.getLoginName()));
+        assertNotNull(BasicModel.getUser(identityManager, userB.getLoginName()));
+        assertNotNull(BasicModel.getUser(identityManager, userC.getLoginName()));
+
+        Role roleA = new Role("roleA");
+
+        identityManager.add(roleA);
+
+        Role roleB = new Role("roleB");
+
+        identityManager.add(roleB);
+
+        Role roleC = new Role("roleC");
+
+        identityManager.add(roleC);
+
+        assertNotNull(BasicModel.getRole(identityManager, roleA.getName()));
+        assertNotNull(BasicModel.getRole(identityManager, roleB.getName()));
+        assertNotNull(BasicModel.getRole(identityManager, roleC.getName()));
+
+        RelationshipManager relationshipManager = partitionManager.createRelationshipManager();
+
+        BasicModel.grantRole(relationshipManager, userA, roleA);
+        BasicModel.grantRole(relationshipManager, userB, roleB);
+        BasicModel.grantRole(relationshipManager, userC, roleC);
+
+        assertTrue(BasicModel.hasRole(relationshipManager, userA, roleA));
+        assertTrue(BasicModel.hasRole(relationshipManager, userB, roleB));
+        assertTrue(BasicModel.hasRole(relationshipManager, userC, roleC));
+
+        partitionManager.remove(somePartition);
+
+        partitionManager.add(somePartition);
+
+        identityManager = partitionManager.createIdentityManager(somePartition);
+
+        assertNull(BasicModel.getRole(identityManager, roleA.getName()));
+        assertNull(BasicModel.getRole(identityManager, roleB.getName()));
+        assertNull(BasicModel.getRole(identityManager, roleC.getName()));
+    }
+
 }

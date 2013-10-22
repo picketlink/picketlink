@@ -32,6 +32,7 @@ import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPUserGroupJPARoleConfigurationTester;
 import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
 
 import java.util.Calendar;
@@ -51,7 +52,7 @@ import static org.junit.Assert.*;
  * 
  */
 @Configuration(include = {SingleConfigLDAPJPAStoreConfigurationTester.class, JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
-        LDAPStoreConfigurationTester.class})
+        LDAPStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
 public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase {
 
     public PasswordCredentialTestCase(IdentityConfigurationTester builder) {
@@ -127,7 +128,7 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
     public void testExpiration() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
@@ -161,7 +162,7 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
     public void testResetPassword() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
@@ -262,7 +263,7 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
     public void testUserDisabled() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
@@ -289,7 +290,7 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
     public void testRandomSaltGeneration() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
@@ -315,7 +316,7 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
     public void testRetrieveCurrentCredential() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");

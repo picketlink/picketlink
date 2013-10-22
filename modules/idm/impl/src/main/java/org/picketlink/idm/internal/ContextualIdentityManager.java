@@ -92,7 +92,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
         checkIfIdentityTypeExists(identityType);
 
         try {
-            storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, IdentityType.class, IdentityOperation.update)
+            storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, identityType.getClass(), IdentityOperation.update)
                     .update(this, identityType);
 
             removeAttributes(identityType);
@@ -117,7 +117,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
 
             removeAllAttributes(identityType);
 
-            storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, IdentityType.class, IdentityOperation.delete)
+            storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, identityType.getClass(), IdentityOperation.delete)
                     .remove(this, identityType);
         } catch (Exception e) {
             throw MESSAGES.attributedTypeRemoveFailed(identityType, e);

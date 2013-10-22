@@ -121,7 +121,7 @@ public class ConfigurationTestCase {
         builder.buildAll();
     }
 
-    @Test (expected = OperationNotSupportedException.class)
+    @Test (expected = IdentityManagementException.class)
     public void failNoIdentityType() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
