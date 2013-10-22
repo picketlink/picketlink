@@ -100,6 +100,9 @@ public interface IDMInternalMessages extends IDMMessages {
     @Message(id = 410, value = "Could not create contextual PermissionManager for Partition [%s].")
     IdentityManagementException partitionCouldNotCreatePermissionManager(Partition partition);
 
+    @Message(id = 411, value = "Partition [%s] does not support type [%s].")
+    IdentityManagementException partitionUnsupportedType(Partition partition, Class<? extends AttributedType> type);
+
     @Message(value = "A Partition [%s] with name [%s] already exists.")
     IdentityManagementException partitionAlreadyExistsWithName(Class<? extends Partition> type, String name);
 

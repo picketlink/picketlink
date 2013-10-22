@@ -304,17 +304,24 @@ public class LDAPOperationManager {
     public NamingEnumeration<SearchResult> lookupById(String baseDN, String id) {
         String filter = null;
 
-        try {
-            if (this.config.isActiveDirectory()) {
-                String strObjectGUID = "<GUID=" + id + ">";
+        if (this.config.isActiveDirectory()) {
+            String strObjectGUID = "<GUID=" + id + ">";
+
+            try {
                 Attributes attributes = this.context.getAttributes(strObjectGUID);
                 byte[] objectGUID = (byte[]) attributes.get(LDAPConstants.OBJECT_GUID).get();
 
                 filter = "(&(objectClass=*)(" + getUniqueIdentifierAttributeName() + EQUAL + convertObjectGUIToByteString(objectGUID) + "))";
-            } else {
-                filter = "(&(objectClass=*)(" + getUniqueIdentifierAttributeName() + EQUAL + id + "))";
+            } catch (NamingException ne) {
+                return createEmptyEnumeration();
             }
+        }
 
+        if (filter == null) {
+            filter = "(&(objectClass=*)(" + getUniqueIdentifierAttributeName() + EQUAL + id + "))";
+        }
+
+        try {
             SearchControls cons = new SearchControls();
 
             cons.setSearchScope(SUBTREE_SCOPE);
@@ -498,6 +505,35 @@ public class LDAPOperationManager {
 
     private String getUniqueIdentifierAttributeName() {
         return this.config.getUniqueIdentifierAttributeName();
+    }
+
+    private NamingEnumeration<SearchResult> createEmptyEnumeration() {
+        return new NamingEnumeration<SearchResult>() {
+            @Override
+            public SearchResult next() throws NamingException {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public boolean hasMore() throws NamingException {
+                return false;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public void close() throws NamingException {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public boolean hasMoreElements() {
+                return false;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public SearchResult nextElement() {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+        };
     }
 
 }

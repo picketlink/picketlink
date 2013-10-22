@@ -43,6 +43,12 @@ public class EntityMapping {
     private final Map<Property, Property> properties;
     private final Class<?> supportedType;
     private Property typeProperty;
+    private boolean persist = true;
+
+    public EntityMapping(Class<?> managedType, boolean persist) {
+        this(managedType);
+        this.persist = persist;
+    }
 
     public EntityMapping(Class<?> managedType) {
         this.supportedType = managedType;
@@ -68,6 +74,10 @@ public class EntityMapping {
             }
         }, property);
         this.typeProperty = property;
+    }
+
+    public boolean isPersist() {
+        return this.persist;
     }
 
     public Map<Property, Property> getProperties() {

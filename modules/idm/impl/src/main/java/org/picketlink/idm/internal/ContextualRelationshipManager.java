@@ -32,7 +32,7 @@ import org.picketlink.idm.spi.StoreSelector;
 import java.io.Serializable;
 import java.util.List;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
 
 /**
  * Default implementation for RelationshipManager.
@@ -57,9 +57,13 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
             MESSAGES.nullArgument("Relationship");
         }
 
-        storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.create).add(this, relationship);
+        try {
+            storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.create).add(this, relationship);
 
-        addAttributes(relationship);
+            addAttributes(relationship);
+        } catch (Exception e) {
+            throw MESSAGES.attributedTypeAddFailed(relationship, e);
+        }
     }
 
     @Override
@@ -68,10 +72,14 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
             MESSAGES.nullArgument("Relationship");
         }
 
-        storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.update).update(this, relationship);
+        try {
+            storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.update).update(this, relationship);
 
-        removeAttributes(relationship);
-        addAttributes(relationship);
+            removeAttributes(relationship);
+            addAttributes(relationship);
+        } catch (Exception e) {
+            throw MESSAGES.attributedTypeUpdateFailed(relationship, e);
+        }
     }
 
     @Override
@@ -80,15 +88,19 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
             MESSAGES.nullArgument("Relationship");
         }
 
-        List<? extends Relationship> result = createRelationshipQuery(relationship.getClass()).setParameter
-                (Relationship.ID, relationship.getId())
-                .getResultList();
+        try {
+            List<? extends Relationship> result = createRelationshipQuery(relationship.getClass()).setParameter
+                    (Relationship.ID, relationship.getId())
+                    .getResultList();
 
-        if (!result.isEmpty()) {
-            removeAllAttributes(relationship);
+            if (!result.isEmpty()) {
+                removeAllAttributes(relationship);
+            }
+
+            storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.delete).remove(this, relationship);
+        } catch (Exception e) {
+            throw MESSAGES.attributedTypeRemoveFailed(relationship, e);
         }
-
-        storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.delete).remove(this, relationship);
     }
 
     @Override

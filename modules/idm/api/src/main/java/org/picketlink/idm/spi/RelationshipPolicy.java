@@ -18,10 +18,10 @@
 
 package org.picketlink.idm.spi;
 
+import org.picketlink.idm.model.Relationship;
+
 import java.util.Collections;
 import java.util.Set;
-
-import org.picketlink.idm.model.Relationship;
 
 /**
  * The relationship policy determines how and where relationships between identities are stored.
@@ -67,6 +67,7 @@ public class RelationshipPolicy {
                 return true;
             }
         }
-        return false;
+
+        return Relationship.class.equals(relationshipClass) && !this.globalManagedRelationships.isEmpty();
     }
 }

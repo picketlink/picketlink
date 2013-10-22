@@ -70,7 +70,6 @@ import static org.picketlink.common.properties.query.TypedPropertyCriteria.Match
 import static org.picketlink.common.util.ClassUtil.newInstance;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * An IdentityStore implementation backed by an LDAP directory
@@ -174,24 +173,24 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
     public void updateAttributedType(IdentityContext context, AttributedType attributedType) {
         // this store does not support updation of relationship types
         if (Relationship.class.isInstance(attributedType)) {
-            throw MESSAGES.attributedTypeUnsupportedOperation(attributedType.getClass(),
-                    IdentityOperation.update, attributedType.getClass(), IdentityOperation.update);
-        }
+            IDMInternalLog.LDAP_STORE_LOGGER.ldapRelationshipUpdateNotSupported(attributedType);
+        } else {
 
-        BasicAttributes updatedAttributes = extractAttributes(attributedType);
+            BasicAttributes updatedAttributes = extractAttributes(attributedType);
 
-        NamingEnumeration<javax.naming.directory.Attribute> attributes = updatedAttributes.getAll();
+            NamingEnumeration<javax.naming.directory.Attribute> attributes = updatedAttributes.getAll();
 
-        String bindingDN = getBindingDN(attributedType);
+            String bindingDN = getBindingDN(attributedType);
 
-        try {
-            while (attributes.hasMore()) {
-                this.operationManager.modifyAttribute(bindingDN, attributes.next());
+            try {
+                while (attributes.hasMore()) {
+                    this.operationManager.modifyAttribute(bindingDN, attributes.next());
+                }
+            } catch (NamingException ne) {
+                throw new IdentityManagementException("Could not update attributes.", ne);
+            } finally {
+                safeClose(attributes);
             }
-        } catch (NamingException ne) {
-            throw new IdentityManagementException("Could not update attributes.", ne);
-        } finally {
-            safeClose(attributes);
         }
     }
 
@@ -308,6 +307,11 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 safeClose(search);
             }
 
+            return results;
+        }
+
+        // the ldap store does not support queries based on root types. Except if based on the identifier.
+        if (IdentityType.class.equals(identityQuery.getIdentityType())) {
             return results;
         }
 
@@ -667,7 +671,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                     }
                 }
 
-                for (String memberToRemove: removeMembers) {
+                for (String memberToRemove : removeMembers) {
                     attribute.remove(memberToRemove);
                 }
 

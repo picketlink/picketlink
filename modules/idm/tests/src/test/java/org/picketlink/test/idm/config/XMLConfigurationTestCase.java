@@ -82,7 +82,6 @@ public class XMLConfigurationTestCase {
         IdentityConfiguration config = configs.get(0);
         assertEquals("SIMPLE_LDAP_STORE_CONFIG", config.getName());
 
-        assertFalse(config.getRelationshipPolicy().isGlobalRelationshipSupported(Relationship.class));
         assertTrue(config.getRelationshipPolicy().isGlobalRelationshipSupported(Grant.class));
         assertTrue(config.getRelationshipPolicy().isGlobalRelationshipSupported(GroupMembership.class));
 

@@ -26,6 +26,7 @@ import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPUserGroupJPARoleConfigurationTester;
 
 import java.util.List;
 
@@ -37,7 +38,7 @@ import static org.junit.Assert.*;
  * @author Pedro Silva
  *
  */
-@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class})
+@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
 public class CustomPartitionTestCase extends AbstractPartitionTestCase<CustomPartitionTestCase.CustomPartition> {
 
     public static final String CUSTOM_PARTITION_NAME = "Custom Partition";

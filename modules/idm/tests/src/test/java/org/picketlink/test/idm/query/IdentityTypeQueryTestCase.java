@@ -33,6 +33,7 @@ import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPUserGroupJPARoleConfigurationTester;
 import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
 
 import java.util.List;
@@ -46,8 +47,7 @@ import static junit.framework.Assert.*;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
-        SingleConfigLDAPJPAStoreConfigurationTester.class})
+@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class})
 public class IdentityTypeQueryTestCase extends AbstractPartitionManagerTestCase {
 
     public IdentityTypeQueryTestCase(IdentityConfigurationTester builder) {
@@ -55,7 +55,6 @@ public class IdentityTypeQueryTestCase extends AbstractPartitionManagerTestCase 
     }
 
     @Test
-    @Configuration (exclude = SingleConfigLDAPJPAStoreConfigurationTester.class)
     public void testFindByDifferentRealms() {
         IdentityManager identityManager = getIdentityManager();
 
@@ -125,7 +124,6 @@ public class IdentityTypeQueryTestCase extends AbstractPartitionManagerTestCase 
     }
 
     @Test
-    @Configuration (exclude = SingleConfigLDAPJPAStoreConfigurationTester.class)
     public void testFindByDifferentTiers() {
         getPartitionManager().add(new Tier("Application A"));
 

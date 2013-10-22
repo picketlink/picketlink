@@ -139,10 +139,14 @@ public class JPAIdentityStore
         EntityManager entityManager = getEntityManager(context);
 
         for (EntityMapper entityMapper : getMapperFor(attributedType.getClass())) {
-            entityMapper.persist(attributedType, entityManager);
+            if (entityMapper.isPersist()) {
+                entityMapper.persist(attributedType, entityManager);
+            }
 
-            if (entityMapper.isRoot() && Relationship.class.isInstance(attributedType)) {
-                storeRelationshipMembers((Relationship) attributedType, entityManager);
+            if (Relationship.class.isInstance(attributedType)) {
+                if (entityMapper.isRoot()) {
+                    storeRelationshipMembers((Relationship) attributedType, entityManager);
+                }
             }
         }
 
@@ -419,7 +423,7 @@ public class JPAIdentityStore
                 Object entity = entityManager.find(rootMapper.getEntityType(), parameter[0]);
 
                 if (entity != null) {
-                    result.add(rootMapper.<V>createType(entity, entityManager));
+                    result.add(getRootMapperForEntity(entity.getClass()).<V>createType(entity, entityManager));
                 }
             }
         } else {
@@ -575,10 +579,13 @@ public class JPAIdentityStore
                                 return Collections.emptyList();
                             }
 
-                            if (getConfig().supportsType(identityType.getClass(), IdentityOperation.create)) {
-                                identityTypeIdentifiers.add(identityType.getId());
-                            } else {
+                            EntityMapper relationshipMemberMapper = getEntityMapperForProperty(RelationshipMember.class);
+                            Property<Object> identityTypeProperty = relationshipMemberMapper.getProperty(RelationshipMember.class).getValue();
+
+                            if (identityTypeProperty.getJavaClass().equals(String.class)) {
                                 identityTypeIdentifiers.add(RelationshipReference.formatId(identityType));
+                            } else {
+                                identityTypeIdentifiers.add(identityType.getId());
                             }
                         }
 
@@ -944,7 +951,7 @@ public class JPAIdentityStore
         EntityMapper relMapper = getRootMapper(Relationship.class);
 
         T relationshipType = relMapper.createType(relationshipObject, entityManager);
-        boolean supportsType = getConfig().supportsType(IdentityType.class, IdentityOperation.create);
+        boolean supportsType = !identityProperty.getJavaClass().equals(String.class);
 
         RelationshipReference reference = null;
 
@@ -1247,16 +1254,11 @@ public class JPAIdentityStore
             if (identityType != null) {
                 Property<Object> identityTypeProperty = relationshipMemberMapper.getProperty(RelationshipMember.class).getValue();
 
-                if (getConfig().supportsType(identityType.getClass(), IdentityOperation.create)) {
-                    identityTypeProperty.setValue(relationshipIdentity, getRootEntity(identityType, entityManager));
-                } else {
-                    if (!String.class.equals(identityTypeProperty.getJavaClass())) {
-                        throw new IdentityManagementException("This store does not support type [" + identityType
-                                .getClass() + "]. @RelationshipMember should reference a String field to store " +
-                                "only ids.");
-                    }
-
+                // in this case we hold only the reference to the identity type identifier
+                if (identityTypeProperty.getJavaClass().equals(String.class)) {
                     identityTypeProperty.setValue(relationshipIdentity, RelationshipReference.formatId(identityType));
+                } else {
+                    identityTypeProperty.setValue(relationshipIdentity, getRootEntity(identityType, entityManager));
                 }
 
                 Property<Object> descriptorProperty = relationshipMemberMapper.getProperty(RelationshipDescriptor.class).getValue();

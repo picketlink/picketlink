@@ -18,35 +18,36 @@
 
 package org.picketlink.idm.spi;
 
-import java.util.Set;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.permission.acl.spi.PermissionStore;
+
+import java.util.Set;
 
 /**
  * Returns the correct IdentityStore instances for certain operation types, for a given Partition
  *
  * @author Shane Bryzak
- *
  */
 public interface StoreSelector {
 
     /**
-     *
      * @param context
      * @param feature
      * @param operation
+     *
      * @return
      */
     <T extends IdentityStore<?>> T getStoreForIdentityOperation(IdentityContext context, Class<T> storeType,
-            Class<? extends AttributedType> type, IdentityOperation operation);
+                                                                Class<? extends AttributedType> type, IdentityOperation operation);
 
     /**
-     *
      * @param context
+     *
      * @return
      */
     <T extends CredentialStore<?>> T getStoreForCredentialOperation(IdentityContext context, Class<?> credentialClass);
@@ -55,24 +56,26 @@ public interface StoreSelector {
      * Returns the IdentityStore that manages relationships of the specified type, for the specified partition/s.
      *
      * @param relationship
+     *
      * @return
      */
     IdentityStore<?> getStoreForRelationshipOperation(IdentityContext context, Class<? extends Relationship> relationshipClass,
-            Relationship relationship, IdentityOperation operation);
+                                                      Relationship relationship, IdentityOperation operation);
 
     /**
-     *
      * @param context
      * @param relationshipClass
+     *
      * @return
      */
     Set<IdentityStore<?>> getStoresForRelationshipQuery(IdentityContext context, Class<? extends Relationship> relationshipClass,
-            Set<Partition> partitions);
+                                                        Set<Partition> partitions);
 
     /**
      * Returns a PermissionStore instance
      *
      * @param context
+     *
      * @return
      */
     PermissionStore getStoreForPermissionOperation(IdentityContext context);
@@ -92,10 +95,24 @@ public interface StoreSelector {
     <T extends AttributeStore<?>> T getStoreForAttributeOperation(IdentityContext context);
 
     /**
-     * <p>Returns all available {@link CredentialStore} instances that support the given {@link CredentialStorage} type.</p>
+     * <p>Returns all available {@link CredentialStore} instances that support the given {@link CredentialStorage}
+     * type.</p>
      *
      * @param context
+     *
      * @return
      */
     Set<CredentialStore<?>> getStoresForCredentialStorage(IdentityContext context, Class<? extends CredentialStorage> storageClass);
+
+    /**
+     * <p>Returns all available {@link IdentityStore} instances that support the given {@link IdentityType} type.</p>
+     *
+     * <p>This method is particularly useful when querying identity types using a base type.</p>
+     *
+     * @param context
+     * @param identityType
+     *
+     * @return
+     */
+    Set<IdentityStore<?>> getStoresForIdentityQuery(IdentityContext context, Class<? extends IdentityType> identityType);
 }

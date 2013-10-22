@@ -34,6 +34,7 @@ import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPUserGroupJPARoleConfigurationTester;
 import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
 
 import java.io.Serializable;
@@ -50,12 +51,12 @@ import static org.junit.Assert.assertTrue;
  * <p>
  * Test case for {@link GroupMembership} basic management operations.
  * </p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
  */
-@Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
-        LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
+@Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
+        LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class,
+        LDAPUserGroupJPARoleConfigurationTester.class})
 public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
     public GroupMembershipTestCase(IdentityConfigurationTester builder) {
@@ -84,7 +85,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
     }
 
     @Test
-    @Configuration(exclude = LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
     public void testUpdate() throws Exception {
         User someUser = createUser();
         Group someGroup = createGroup();
@@ -105,7 +106,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
 
         groupMembership.setAttribute(new Attribute<String>("attribute1", "1"));
-        groupMembership.setAttribute(new Attribute<String[]>("attribute2", new String[] { "1", "2", "3" }));
+        groupMembership.setAttribute(new Attribute<String[]>("attribute2", new String[]{"1", "2", "3"}));
 
         relationshipManager.update(groupMembership);
 
@@ -121,7 +122,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         assertNotNull(groupMembership.getAttribute("attribute2"));
 
         assertEquals("1", groupMembership.getAttribute("attribute1").getValue());
-        assertEquals(3, groupMembership.<String[]> getAttribute("attribute2").getValue().length);
+        assertEquals(3, groupMembership.<String[]>getAttribute("attribute2").getValue().length);
     }
 
     @Test
@@ -149,7 +150,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         User someUser = createUser("someUser");
         Group groupB = createGroup("b", "a");
         Group groupA = groupB.getParentGroup();
-        
+
         assertNotNull(groupA);
 
         IdentityManager identityManager = getIdentityManager();
@@ -162,18 +163,18 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         identityManager.remove(groupB);
         identityManager.remove(groupA);
-        
+
         // group testing path is /a/b 
         assertFalse(BasicModel.isMember(relationshipManager, someUser, groupB));
 
         groupB = createGroup("b", "a");
 
         groupA = groupB.getParentGroup();
-        
+
         Group groupC = createGroupWithParent("c", groupB);
 
         BasicModel.addToGroup(relationshipManager, someUser, groupC);
-        
+
         // group testing path is /a/b/c
         assertTrue(BasicModel.isMember(relationshipManager, someUser, groupA));
         assertTrue(BasicModel.isMember(relationshipManager, someUser, groupB));
@@ -186,15 +187,15 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         groupA = createGroup("a", null);
 
         groupB = createGroupWithParent("b", groupA);
-        
+
         groupC = createGroupWithParent("c", groupB);
-        
+
         Group groupD = createGroupWithParent("d", groupC);
-        
+
         Group qaGroup = createGroupWithParent("QA Group", groupC);
-                
+
         Group anotherGroupB = createGroupWithParent("b", qaGroup);
-        
+
         // group testing paths are: /a/b/c/QA Group/b and /a/b/c/d
         BasicModel.addToGroup(relationshipManager, someUser, anotherGroupB);
 
@@ -207,7 +208,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         BasicModel.removeFromGroup(relationshipManager, someUser, anotherGroupB);
         BasicModel.addToGroup(relationshipManager, someUser, groupD);
-        
+
         assertTrue(BasicModel.isMember(relationshipManager, someUser, groupA));
         assertTrue(BasicModel.isMember(relationshipManager, someUser, groupB));
         assertTrue(BasicModel.isMember(relationshipManager, someUser, groupD));
@@ -223,9 +224,9 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
         BasicModel.addToGroup(relationshipManager, someUser, someGroup);
-        
+
         identityManager.remove(someUser);
-        
+
         assertFalse(BasicModel.isMember(relationshipManager, someUser, someGroup));
     }
 
@@ -255,7 +256,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
     }
 
     @Test
-    @Configuration(exclude = LDAPStoreConfigurationTester.class)
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
     public void testLargeAttributeValue() throws Exception {
         User someUser = createUser();
         Group someGroup = createGroup();
@@ -271,31 +272,31 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
         for (int i = 0; i < 100; i++) {
             val[i] = i;
         }
-        
+
         groupMembership.setAttribute(new Attribute<Serializable>("Values", val));
 
         relationshipManager.update(groupMembership);
-        
+
         RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
-        
+
         query.setParameter(GroupMembership.MEMBER, someUser);
         query.setParameter(GroupMembership.GROUP, someGroup);
 
         List<GroupMembership> result = query.getResultList();
-        
+
         assertFalse(result.isEmpty());
-        
+
         GroupMembership updatedIdentityType = result.get(0);
 
         Integer[] retrievedVal = updatedIdentityType.<Integer[]>getAttribute("Values").getValue();
 
-        for (Integer value: retrievedVal) {
+        for (Integer value : retrievedVal) {
             assertTrue(contains(retrievedVal, value));
         }
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
     public void testSetOneValuedAttribute() throws Exception {
         User someUser = createUser();
         Group someGroup = createGroup();
@@ -328,7 +329,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
     public void testSetMultiValuedAttribute() throws Exception {
         User someUser = createUser();
         Group someGroup = createGroup();
@@ -339,7 +340,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         relationshipManager.add(groupMembership);
 
-        groupMembership.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
+        groupMembership.setAttribute(new Attribute<String[]>("multi-valued", new String[]{"1", "2", "3"}));
 
         relationshipManager.update(groupMembership);
 
@@ -364,11 +365,11 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         Arrays.sort(values);
 
-        assertTrue(Arrays.equals(values, new String[] { "1", "2", "3" }));
+        assertTrue(Arrays.equals(values, new String[]{"1", "2", "3"}));
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
     public void testSetMultipleAttributes() throws Exception {
         User someUser = createUser();
         Group someGroup = createGroup();
@@ -398,21 +399,21 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         GroupMembership updatedIdentityType = result.get(0);
 
-        assertNotNull(updatedIdentityType.<String> getAttribute("QuestionTotal"));
-        assertNotNull(updatedIdentityType.<String> getAttribute("Question1"));
-        assertNotNull(updatedIdentityType.<String> getAttribute("Question1Answer"));
-        assertNotNull(updatedIdentityType.<String> getAttribute("Question2"));
-        assertNotNull(updatedIdentityType.<String> getAttribute("Question2Answer"));
+        assertNotNull(updatedIdentityType.<String>getAttribute("QuestionTotal"));
+        assertNotNull(updatedIdentityType.<String>getAttribute("Question1"));
+        assertNotNull(updatedIdentityType.<String>getAttribute("Question1Answer"));
+        assertNotNull(updatedIdentityType.<String>getAttribute("Question2"));
+        assertNotNull(updatedIdentityType.<String>getAttribute("Question2Answer"));
 
-        assertEquals("2", updatedIdentityType.<String> getAttribute("QuestionTotal").getValue());
-        assertEquals("What is favorite toy?", updatedIdentityType.<String> getAttribute("Question1").getValue());
-        assertEquals("Gum", updatedIdentityType.<String> getAttribute("Question1Answer").getValue());
-        assertEquals("What is favorite word?", updatedIdentityType.<String> getAttribute("Question2").getValue());
-        assertEquals("Hi", updatedIdentityType.<String> getAttribute("Question2Answer").getValue());
+        assertEquals("2", updatedIdentityType.<String>getAttribute("QuestionTotal").getValue());
+        assertEquals("What is favorite toy?", updatedIdentityType.<String>getAttribute("Question1").getValue());
+        assertEquals("Gum", updatedIdentityType.<String>getAttribute("Question1Answer").getValue());
+        assertEquals("What is favorite word?", updatedIdentityType.<String>getAttribute("Question2").getValue());
+        assertEquals("Hi", updatedIdentityType.<String>getAttribute("Question2Answer").getValue());
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
     public void testUpdateAttribute() throws Exception {
         User someUser = createUser();
         Group someGroup = createGroup();
@@ -423,7 +424,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         relationshipManager.add(groupMembership);
 
-        groupMembership.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
+        groupMembership.setAttribute(new Attribute<String[]>("multi-valued", new String[]{"1", "2", "3"}));
 
         relationshipManager.update(groupMembership);
 
@@ -442,7 +443,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         assertNotNull(multiValuedAttribute);
 
-        multiValuedAttribute.setValue(new String[] { "3", "4", "5" });
+        multiValuedAttribute.setValue(new String[]{"3", "4", "5"});
 
         updatedIdentityType.setAttribute(multiValuedAttribute);
 
@@ -468,11 +469,11 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         Arrays.sort(values);
 
-        assertTrue(Arrays.equals(values, new String[] { "3", "4", "5" }));
+        assertTrue(Arrays.equals(values, new String[]{"3", "4", "5"}));
     }
 
     @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class})
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
     public void testRemoveAttribute() throws Exception {
         User someUser = createUser();
         Group someGroup = createGroup();
@@ -483,7 +484,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         relationshipManager.add(groupMembership);
 
-        groupMembership.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
+        groupMembership.setAttribute(new Attribute<String[]>("multi-valued", new String[]{"1", "2", "3"}));
 
         relationshipManager.update(groupMembership);
 
@@ -535,7 +536,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
-        query.setParameter(GroupMembership.MEMBER, new Object[] { user });
+        query.setParameter(GroupMembership.MEMBER, new Object[]{user});
 
         List<GroupMembership> result = query.getResultList();
 
@@ -560,7 +561,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
-        query.setParameter(GroupMembership.MEMBER, new Object[] { user });
+        query.setParameter(GroupMembership.MEMBER, new Object[]{user});
 
         result = query.getResultList();
 
@@ -573,7 +574,7 @@ public class GroupMembershipTestCase extends AbstractPartitionManagerTestCase {
 
         query = relationshipManager.createRelationshipQuery(GroupMembership.class);
 
-        query.setParameter(GroupMembership.MEMBER, new Object[] { user });
+        query.setParameter(GroupMembership.MEMBER, new Object[]{user});
 
         result = query.getResultList();
 

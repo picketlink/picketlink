@@ -27,11 +27,11 @@ import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.basic.BasicModel;
 import org.picketlink.idm.model.basic.Grant;
 import org.picketlink.idm.model.basic.Group;
 import org.picketlink.idm.model.basic.GroupMembership;
 import org.picketlink.idm.model.basic.Role;
-import org.picketlink.idm.model.basic.BasicModel;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
@@ -40,19 +40,23 @@ import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPUserGroupJPARoleConfigurationTester;
 import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.picketlink.test.idm.relationship.CustomRelationshipTestCase.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.picketlink.test.idm.relationship.CustomRelationshipTestCase.CustomRelationship;
 
 /**
  * @author Pedro Silva
  *
  */
 @Configuration(include= {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
-        SingleConfigLDAPJPAStoreConfigurationTester.class, LDAPStoreConfigurationTester.class})
+        SingleConfigLDAPJPAStoreConfigurationTester.class, LDAPStoreConfigurationTester.class,
+        LDAPUserGroupJPARoleConfigurationTester.class})
 public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase {
 
     public RelationshipQueryTestCase(IdentityConfigurationTester builder) {
@@ -60,7 +64,7 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
     }
 
     @Test
-    @Configuration (exclude = LDAPStoreConfigurationTester.class)
+    @Configuration (exclude = {LDAPStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
     public void testFindById() throws Exception {
         User user = createUser("user");
         Role role = createRole("role");
@@ -110,6 +114,34 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
         result = query.getResultList();
 
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @Configuration (exclude = LDAPStoreConfigurationTester.class)
+    public void testFindGrantRelationshipId() throws Exception {
+        User user = createUser("user");
+        Role role = createRole("role");
+        Group group = createGroup("group");
+
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
+
+        Grant grant = new Grant();
+
+        grant.setAssignee(user);
+        grant.setRole(role);
+
+        relationshipManager.add(grant);
+
+        RelationshipQuery<? extends Relationship> query = relationshipManager.createRelationshipQuery(Relationship
+                .class);
+
+        query.setParameter(Relationship.ID, grant.getId());
+
+        List<? extends Relationship> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals(grant.getId(), result.get(0).getId());
     }
 
     @Test
@@ -164,38 +196,38 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
     @Configuration(exclude = LDAPStoreConfigurationTester.class)
     public void testFindByAttributes() throws Exception {
         User someUser = createUser("someUser");
-        Group someGroup = createGroup("someGroup");
+        Role someRole = createRole("someRole");
 
-        GroupMembership groupMembership = new GroupMembership(someUser, someGroup);
+        Grant grant = new Grant(someUser, someRole);
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        relationshipManager.add(groupMembership);
+        relationshipManager.add(grant);
 
-        RelationshipQuery<GroupMembership> query = relationshipManager.createRelationshipQuery(GroupMembership.class);
+        RelationshipQuery<Grant> query = relationshipManager.createRelationshipQuery(Grant.class);
 
         query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute1"), "1");
 
-        List<GroupMembership> result = query.getResultList();
+        List<Grant> result = query.getResultList();
 
         assertTrue(result.isEmpty());
 
-        groupMembership.setAttribute(new Attribute<String>("attribute1", "1"));
-        groupMembership.setAttribute(new Attribute<String[]>("attribute2", new String[] { "1", "2", "3" }));
+        grant.setAttribute(new Attribute<String>("attribute1", "1"));
+        grant.setAttribute(new Attribute<String[]>("attribute2", new String[]{"1", "2", "3"}));
 
-        relationshipManager.update(groupMembership);
+        relationshipManager.update(grant);
 
         result = query.getResultList();
 
         assertEquals(1, result.size());
-        assertEquals(groupMembership.getId(), result.get(0).getId());
+        assertEquals(grant.getId(), result.get(0).getId());
 
-        groupMembership = result.get(0);
+        grant = result.get(0);
 
-        assertEquals(someUser.getId(), groupMembership.getMember().getId());
-        assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
+        assertEquals(someUser.getId(), grant.getAssignee().getId());
+        assertEquals(someRole.getId(), grant.getRole().getId());
 
-        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
+        query = relationshipManager.createRelationshipQuery(Grant.class);
 
         query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute1"), "2");
 
@@ -203,7 +235,7 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
 
         assertTrue(result.isEmpty());
 
-        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
+        query = relationshipManager.createRelationshipQuery(Grant.class);
 
         query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute3"), "2");
 
@@ -211,7 +243,7 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
 
         assertTrue(result.isEmpty());
 
-        query = relationshipManager.createRelationshipQuery(GroupMembership.class);
+        query = relationshipManager.createRelationshipQuery(Grant.class);
 
         query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("attribute2"), "1", "2", "3");
 

@@ -35,11 +35,16 @@ import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPUserGroupJPARoleConfigurationTester;
 import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
 
 import java.util.Date;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * <p>
@@ -47,11 +52,10 @@ import static org.junit.Assert.*;
  * </p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
  */
 
 @Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
-        LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
+        LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
 public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent> {
 
     public AgentManagementTestCase(IdentityConfigurationTester builder) {
@@ -83,10 +87,10 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
         IdentityManager identityManager = getIdentityManager();
 
         Date actualDate = new Date();
-        
+
         storedAgent.setExpirationDate(actualDate);
         storedAgent.setAttribute(new Attribute<String>("someAttribute", "1"));
-        
+
         identityManager.update(storedAgent);
 
         Agent updatedUser = getAgent(storedAgent.getLoginName());
@@ -107,11 +111,11 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
         Agent removedUserInstance = getAgent(someAgent.getLoginName());
 
         assertNull(removedUserInstance);
-        
+
         anotherAgent = getAgent(anotherAgent.getLoginName());
-        
+
         assertNotNull(anotherAgent);
-        
+
         Role role = createRole("role");
         Group group = createGroup("group", null);
 
@@ -161,9 +165,9 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
     public void testEqualsMethod() {
         Agent instanceA = createAgent("agentA");
         Agent instanceB = createAgent("agentB");
-        
+
         assertFalse(instanceA.equals(instanceB));
-        
+
         assertTrue(instanceA.getLoginName().equals(getAgent(instanceA.getLoginName()).getLoginName()));
     }
 
