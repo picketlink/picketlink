@@ -29,9 +29,9 @@ import java.util.Map;
  * @author Shane Bryzak
  */
 public interface RelationshipQuery<T extends Relationship> {
-    RelationshipQuery<T> setOffset(long offset);
+    RelationshipQuery<T> setOffset(int offset);
 
-    RelationshipQuery<T> setLimit(long limit);
+    RelationshipQuery<T> setLimit(int limit);
 
     RelationshipQuery<T> setParameter(QueryParameter param, Object... value);
 
@@ -41,11 +41,11 @@ public interface RelationshipQuery<T extends Relationship> {
 
     Class<T> getRelationshipClass();
 
-    long getOffset();
+    int getOffset();
 
-    long getLimit();
+    int getLimit();
 
     List<T> getResultList();
 
-    long getResultCount();
+    int getResultCount();
 }

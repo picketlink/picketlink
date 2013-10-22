@@ -70,7 +70,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.IDMLog.ROOT_LOGGER;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
 import static org.picketlink.idm.util.IDMUtil.isTypeSupported;
 import static org.picketlink.idm.util.IDMUtil.toSet;
 

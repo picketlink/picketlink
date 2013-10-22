@@ -19,41 +19,16 @@ package org.picketlink.idm.credential.storage;
 
 import org.picketlink.idm.credential.storage.annotations.Stored;
 
-import java.util.Date;
-
 /**
  * @author pedroigor
  */
-public class OTPCredentialStorage implements CredentialStorage {
-
-    private Date effectiveDate = new Date();
-    private Date expiryDate;
+public class OTPCredentialStorage extends AbstractCredentialStorage {
 
     private String secretKey;
     private String device;
 
     public OTPCredentialStorage() {
 
-    }
-
-    @Override
-    @Stored
-    public Date getEffectiveDate() {
-        return this.effectiveDate;
-    }
-
-    public void setEffectiveDate(Date effectiveDate) {
-        this.effectiveDate = effectiveDate;
-    }
-
-    @Override
-    @Stored
-    public Date getExpiryDate() {
-        return this.expiryDate;
-    }
-
-    public void setExpiryDate(Date expiryDate) {
-        this.expiryDate = expiryDate;
     }
 
     @Stored

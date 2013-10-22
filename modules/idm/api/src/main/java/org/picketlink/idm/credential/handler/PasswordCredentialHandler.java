@@ -41,6 +41,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+
 /**
  * <p> This particular implementation supports the validation of {@link UsernamePasswordCredentials}, and updating
  * {@link Password} credentials. </p> <p> <p/> <p> How passwords are encoded can be changed by specifying a
@@ -165,6 +168,10 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
                        Date effectiveDate, Date expiryDate) {
 
         EncodedPasswordStorage hash = new EncodedPasswordStorage();
+
+        if (password.getValue() == null || isNullOrEmpty(password.getValue().toString())) {
+            throw MESSAGES.credentialInvalidPassword();
+        }
 
         String rawPassword = new String(password.getValue());
 

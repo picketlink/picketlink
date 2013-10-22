@@ -19,7 +19,6 @@
 package org.picketlink.idm.credential.handler;
 
 import org.picketlink.common.util.Base64;
-import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
@@ -114,7 +113,7 @@ public class DigestCredentialHandler<S,V,U>
             throw MESSAGES.credentialDigestInvalidRealm();
         }
 
-        if (StringUtil.isNullOrEmpty(digest.getPassword())) {
+        if (isNullOrEmpty(digest.getPassword())) {
             throw MESSAGES.credentialInvalidPassword();
         }
 

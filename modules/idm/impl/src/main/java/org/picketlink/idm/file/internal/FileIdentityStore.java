@@ -66,7 +66,7 @@ import static java.util.Map.Entry;
 import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
 import static org.picketlink.common.util.ClassUtil.newInstance;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
 import static org.picketlink.idm.credential.util.CredentialUtils.getCurrentCredential;
 
 /**
@@ -118,9 +118,6 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
         if (IdentityType.class.isInstance(attributedType)) {
             IdentityType identityType = (IdentityType) attributedType;
 
-            removeRelationships(identityType);
-            removeCredentials(identityType);
-
             Partition partition = identityType.getPartition();
             FilePartition filePartition = resolve(partition.getClass(), partition.getName());
 
@@ -145,6 +142,32 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
             this.fileDataSource.getAttributedTypes().remove(attributedType.getId());
             this.fileDataSource.flushAttributedTypes();
         }
+    }
+
+    @Override
+    protected void removeFromRelationships(IdentityContext context, IdentityType identityType) {
+        Map<String, Map<String, FileRelationship>> relationships = this.fileDataSource.getRelationships();
+        for (Map<String, FileRelationship> relationshipsType : relationships.values()) {
+            for (FileRelationship fileRelationship : new HashMap<String, FileRelationship>(relationshipsType).values()) {
+                if (fileRelationship.hasIdentityType(identityType)) {
+                    relationshipsType.remove(fileRelationship.getId());
+                }
+            }
+        }
+
+        this.fileDataSource.flushRelationships();
+    }
+
+    @Override
+    protected void removeCredentials(IdentityContext context, Account account) {
+        Partition partition = account.getPartition();
+        FilePartition filePartition = resolve(partition.getClass(), partition.getName());
+
+        Map<String, Map<String, List<FileCredentialStorage>>> credentials = filePartition.getCredentials();
+
+        credentials.remove(account.getId());
+
+        this.fileDataSource.flushCredentials(filePartition);
     }
 
     @Override
@@ -366,22 +389,6 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
     }
 
     @Override
-    public <V extends IdentityType> int countQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
-        int limit = identityQuery.getLimit();
-        int offset = identityQuery.getOffset();
-
-        identityQuery.setLimit(0);
-        identityQuery.setOffset(0);
-
-        int resultCount = identityQuery.getResultList().size();
-
-        identityQuery.setLimit(limit);
-        identityQuery.setOffset(offset);
-
-        return resultCount;
-    }
-
-    @Override
     public <T extends Relationship> List<T> fetchQueryResults(IdentityContext context, RelationshipQuery<T> query) {
         List<T> result = new ArrayList<T>();
         Class<T> typeToSearch = query.getRelationshipClass();
@@ -493,11 +500,6 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
     }
 
     @Override
-    public <V extends Relationship> int countQueryResults(IdentityContext context, RelationshipQuery<V> query) {
-        return fetchQueryResults(context, query).size();
-    }
-
-    @Override
     public void setAttribute(IdentityContext context, AttributedType type, Attribute<? extends Serializable> attribute) {
         FileAttribute fileAttribute = getFileAttribute(type);
 
@@ -556,10 +558,6 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
         }
 
         this.fileDataSource.flushAttributes();
-    }
-
-    <T extends Relationship> T convertToRelationship(IdentityContext context, FileRelationship fileRelationship) {
-        return (T) cloneAttributedType(context, fileRelationship.getEntry());
     }
 
     /**
@@ -627,19 +625,6 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
         }
 
         return clonedAttributedType;
-    }
-
-    private void removeRelationships(IdentityType identityType) {
-        Map<String, Map<String, FileRelationship>> relationships = this.fileDataSource.getRelationships();
-        for (Map<String, FileRelationship> relationshipsType : relationships.values()) {
-            for (FileRelationship fileRelationship : new HashMap<String, FileRelationship>(relationshipsType).values()) {
-                if (fileRelationship.hasIdentityType(identityType)) {
-                    relationshipsType.remove(fileRelationship.getId());
-                }
-            }
-        }
-
-        this.fileDataSource.flushRelationships();
     }
 
     private List<FileCredentialStorage> getCredentials(Account account, Class<? extends CredentialStorage> storageType) {
@@ -724,17 +709,6 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
         }
 
         return false;
-    }
-
-    private void removeCredentials(IdentityType identityType) {
-        Partition partition = identityType.getPartition();
-        FilePartition filePartition = resolve(partition.getClass(), partition.getName());
-
-        Map<String, Map<String, List<FileCredentialStorage>>> credentials = filePartition.getCredentials();
-
-        credentials.remove(identityType.getId());
-
-        this.fileDataSource.flushCredentials(filePartition);
     }
 
 }

@@ -90,11 +90,11 @@ public class IdentityConfigurationBuilder extends Builder<List<IdentityConfigura
      */
     @Override
     public IdentityConfiguration build() throws SecurityConfigurationException {
-        List<IdentityConfiguration> identityConfigurations = create();
-
-        if (identityConfigurations.size() > 1) {
+        if (this.namedIdentityConfigurationBuilders.size() > 1) {
             throw MESSAGES.configBuildMultipleConfigurationExists();
         }
+
+        List<IdentityConfiguration> identityConfigurations = create();
 
         return identityConfigurations.get(0);
     }

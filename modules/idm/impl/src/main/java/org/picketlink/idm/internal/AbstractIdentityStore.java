@@ -24,6 +24,9 @@ import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 
@@ -106,13 +109,15 @@ public abstract class AbstractIdentityStore<C extends IdentityStoreConfiguration
 
     @Override
     public void remove(IdentityContext context, AttributedType attributedType) {
-        if (isTraceEnabled()) {
-            IDENTITY_STORE_LOGGER.tracef("Preparing to remove type [%s] with identifier [%s] using identity store [%s]", attributedType.getClass(), attributedType.getId(), this);
-        }
-
         if (IdentityType.class.isInstance(attributedType)) {
             IdentityType identityType = (IdentityType) attributedType;
             identityType.setPartition(context.getPartition());
+
+            removeFromRelationships(context, identityType);
+
+            if (Account.class.isInstance(identityType)) {
+                removeCredentials(context, (Account) identityType);
+            }
         }
 
         removeAttributedType(context, attributedType);
@@ -122,32 +127,58 @@ public abstract class AbstractIdentityStore<C extends IdentityStoreConfiguration
         }
     }
 
+    protected abstract void removeFromRelationships(IdentityContext context, IdentityType identityType);
+    protected abstract void removeCredentials(IdentityContext context, Account account);
+
     @Override
     public void validateCredentials(IdentityContext context, Credentials credentials) {
         Class<? extends CredentialHandler> credentialHandler = getCredentialHandler(credentials);
-
         this.credentialHandlers.get(credentialHandler).validate(context, credentials, this);
-
-        if (isTraceEnabled()) {
-            IDENTITY_STORE_LOGGER.tracef("Credentials validated [%s][%s] using identity store [%s]. Status [%s]", credentials.getClass(), credentials, this, credentials.getStatus());
-        }
     }
 
     @Override
     public void updateCredential(IdentityContext context, Account account, Object credential, Date effectiveDate, Date expiryDate) {
         Class<? extends CredentialHandler> credentialHandler = getCredentialHandler(credential);
-
         this.credentialHandlers.get(credentialHandler).update(context, account, credential, this, effectiveDate, expiryDate);
-
-        if (isTraceEnabled()) {
-            IDENTITY_STORE_LOGGER.tracef("Credential updated [%s][%s] using identity store [%s].", credential.getClass(), credential, this);
-        }
     }
 
-    protected abstract void addAttributedType(IdentityContext context, AttributedType attributedType);
+    @Override
+    public <V extends IdentityType> int countQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
+        int limit = identityQuery.getLimit();
+        int offset = identityQuery.getOffset();
+
+        identityQuery.setLimit(0);
+        identityQuery.setOffset(0);
+
+        int resultCount = identityQuery.getResultList().size();
+
+        identityQuery.setLimit(limit);
+        identityQuery.setOffset(offset);
+
+        return resultCount;
+    }
+
+    @Override
+    public <V extends Relationship> int countQueryResults(final IdentityContext context, final RelationshipQuery<V> query) {
+        int limit = query.getLimit();
+        int offset = query.getOffset();
+
+        query.setLimit(0);
+        query.setOffset(0);
+
+        int resultCount = query.getResultList().size();
+
+        query.setLimit(limit);
+        query.setOffset(offset);
+
+        return resultCount;
+    }
+
+    protected void addAttributedType(IdentityContext context, AttributedType attributedType) {
+
+    }
 
     protected abstract void updateAttributedType(IdentityContext context, AttributedType attributedType);
-
     protected abstract void removeAttributedType(IdentityContext context, AttributedType attributedType);
 
     private Class<? extends CredentialHandler> getCredentialHandler(Object credentials) {

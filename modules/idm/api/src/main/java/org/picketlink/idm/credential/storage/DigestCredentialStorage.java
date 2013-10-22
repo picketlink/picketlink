@@ -20,8 +20,6 @@ package org.picketlink.idm.credential.storage;
 
 import org.picketlink.idm.credential.storage.annotations.Stored;
 
-import java.util.Date;
-
 /**
  * <p>
  * {@link CredentialStorage} for Digest credentials.
@@ -30,10 +28,7 @@ import java.util.Date;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class DigestCredentialStorage implements CredentialStorage {
-
-    private Date effectiveDate = new Date();
-    private Date expiryDate;
+public class DigestCredentialStorage extends AbstractCredentialStorage {
 
     private String realm;
     private byte[] ha1;
@@ -45,26 +40,6 @@ public class DigestCredentialStorage implements CredentialStorage {
     public DigestCredentialStorage(byte[] ha1, String realm) {
         this.ha1 = ha1;
         this.realm = realm;
-    }
-
-    @Override
-    @Stored
-    public Date getEffectiveDate() {
-        return effectiveDate;
-    }
-
-    public void setEffectiveDate(Date effectiveDate) {
-        this.effectiveDate = effectiveDate;
-    }
-
-    @Override
-    @Stored
-    public Date getExpiryDate() {
-        return expiryDate;
-    }
-
-    public void setExpiryDate(Date expiryDate) {
-        this.expiryDate = expiryDate;
     }
 
     @Stored

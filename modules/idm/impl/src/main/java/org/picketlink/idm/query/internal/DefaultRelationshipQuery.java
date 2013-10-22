@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
 
 /**
  * Default IdentityQuery implementation.
@@ -56,8 +56,8 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
     private IdentityContext context;
     private StoreSelector storeSelector;
     private Class<T> relationshipClass;
-    private long offset;
-    private long limit;
+    private int offset;
+    private int limit;
 
     public DefaultRelationshipQuery(IdentityContext context, Class<T> relationshipClass, StoreSelector storeSelector) {
         this.context = context;
@@ -87,12 +87,12 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
     }
 
     @Override
-    public long getLimit() {
+    public int getLimit() {
         return limit;
     }
 
     @Override
-    public long getOffset() {
+    public int getOffset() {
         return offset;
     }
 
@@ -163,8 +163,8 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
     }
 
     @Override
-    public long getResultCount() {
-        long count = 0;
+    public int getResultCount() {
+        int count = 0;
 
         try {
             for (IdentityStore<?> store : getStores()) {
@@ -178,13 +178,13 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
     }
 
     @Override
-    public RelationshipQuery<T> setOffset(long offset) {
+    public RelationshipQuery<T> setOffset(int offset) {
         this.offset = offset;
         return this;
     }
 
     @Override
-    public RelationshipQuery<T> setLimit(long limit) {
+    public RelationshipQuery<T> setLimit(int limit) {
         this.limit = limit;
         return this;
     }

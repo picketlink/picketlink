@@ -1,4 +1,4 @@
-package org.picketlink.common.util.logging;
+package org.picketlink.common.logging;
 
 import org.jboss.logging.Logger;
 

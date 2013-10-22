@@ -90,7 +90,7 @@ import static org.picketlink.common.properties.query.TypedPropertyCriteria.Match
 import static org.picketlink.common.util.ClassUtil.newInstance;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.IDMInternalLog.JPA_STORE_LOGGER;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
 import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
@@ -167,14 +167,59 @@ public class JPAIdentityStore
 
         if (Relationship.class.isAssignableFrom(attributedType.getClass())) {
             removeChildRelationships(context, (Relationship) attributedType, entityManager);
-        } else if (IdentityType.class.isInstance(attributedType)) {
-            removeRelationships(context, (IdentityType) attributedType);
-            removeCredentials(attributedType, entityManager);
         }
 
         removeAssociatedEntities(attributedType, entityManager, rootMapper);
 
         entityManager.remove(getRootEntity(attributedType, entityManager));
+    }
+
+    @Override
+    protected void removeFromRelationships(IdentityContext context, IdentityType identityType) {
+        // First we build a list of all the relationships that the specified identity
+        // is participating in
+        List<?> relationshipsToRemove = findIdentityTypeRelationships(context, identityType);
+
+        // Now that we have the list, we can iterate through and remove the records
+        for (Object relationship : relationshipsToRemove) {
+            remove(context, convertToRelationshipType(context, relationship));
+        }
+    }
+
+    @Override
+    protected void removeCredentials(IdentityContext context, Account account) {
+        EntityManager entityManager = getEntityManager(context);
+        List entities = new ArrayList();
+
+        for (EntityMapper attributeMapper : getEntityMappers()) {
+            if (attributeMapper.getEntityType().isAnnotationPresent(ManagedCredential.class)) {
+                Property identityTypeProperty = attributeMapper.getProperty(OwnerReference.class).getValue();
+                Property effectiveProperty = attributeMapper.getProperty(EffectiveDate.class).getValue();
+
+                CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+                CriteriaQuery<?> criteria = builder.createQuery(attributeMapper.getEntityType());
+                Root<?> root = criteria.from(attributeMapper.getEntityType());
+                List<Predicate> predicates = new ArrayList<Predicate>();
+
+                Object agentInstance = getRootEntity(account, entityManager);
+
+                predicates.add(builder.equal(root.get(identityTypeProperty.getName()), agentInstance));
+
+                criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+
+                criteria.orderBy(builder.desc(root.get(effectiveProperty.getName())));
+
+                List result = entityManager.createQuery(criteria).getResultList();
+
+                for (Object storageEntity : result) {
+                    entities.add(storageEntity);
+                }
+            }
+        }
+
+        for (Object credentialEntity : entities) {
+            entityManager.remove(credentialEntity);
+        }
     }
 
     @Override
@@ -481,22 +526,6 @@ public class JPAIdentityStore
     }
 
     @Override
-    public <V extends IdentityType> int countQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
-        int limit = identityQuery.getLimit();
-        int offset = identityQuery.getOffset();
-
-        identityQuery.setLimit(0);
-        identityQuery.setOffset(0);
-
-        int resultCount = identityQuery.getResultList().size();
-
-        identityQuery.setLimit(limit);
-        identityQuery.setOffset(offset);
-
-        return resultCount;
-    }
-
-    @Override
     public <V extends Relationship> List<V> fetchQueryResults(IdentityContext context, RelationshipQuery<V> query) {
         EntityManager entityManager = getEntityManager(context);
         List entities = new ArrayList();
@@ -752,12 +781,6 @@ public class JPAIdentityStore
         return storages;
     }
 
-
-    @Override
-    public <V extends Relationship> int countQueryResults(IdentityContext context, RelationshipQuery<V> query) {
-        return 0;  //TODO: Implement countQueryResults
-    }
-
     public Object getOwnerEntity(final AttributedType attributedType, final Property ownerProperty,
                                  final EntityManager entityManager) {
         EntityMapper attributedTypeMapper = getRootMapper(attributedType.getClass());
@@ -980,17 +1003,6 @@ public class JPAIdentityStore
         return em.createQuery(criteria).getResultList();
     }
 
-    private void removeRelationships(IdentityContext context, IdentityType identityType) {
-        // First we build a list of all the relationships that the specified identity
-        // is participating in
-        List<?> relationshipsToRemove = findIdentityTypeRelationships(context, identityType);
-
-        // Now that we have the list, we can iterate through and remove the records
-        for (Object relationship : relationshipsToRemove) {
-            remove(context, convertToRelationshipType(context, relationship));
-        }
-    }
-
     private <T extends CredentialStorage> T convertToCredentialStorage(Object entity, Class<T> storageType) {
         T storage = null;
 
@@ -1041,40 +1053,6 @@ public class JPAIdentityStore
         }
 
         throw new IdentityManagementException("No mapper for for credential storage type [" + credentialStorageClass + "].");
-    }
-
-    private void removeCredentials(AttributedType attributedType, EntityManager entityManager) {
-        List entities = new ArrayList();
-
-        for (EntityMapper attributeMapper : getEntityMappers()) {
-            if (attributeMapper.getEntityType().isAnnotationPresent(ManagedCredential.class)) {
-                Property identityTypeProperty = attributeMapper.getProperty(OwnerReference.class).getValue();
-                Property effectiveProperty = attributeMapper.getProperty(EffectiveDate.class).getValue();
-
-                CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-                CriteriaQuery<?> criteria = builder.createQuery(attributeMapper.getEntityType());
-                Root<?> root = criteria.from(attributeMapper.getEntityType());
-                List<Predicate> predicates = new ArrayList<Predicate>();
-
-                Object agentInstance = getRootEntity(attributedType, entityManager);
-
-                predicates.add(builder.equal(root.get(identityTypeProperty.getName()), agentInstance));
-
-                criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-
-                criteria.orderBy(builder.desc(root.get(effectiveProperty.getName())));
-
-                List result = entityManager.createQuery(criteria).getResultList();
-
-                for (Object storageEntity : result) {
-                    entities.add(storageEntity);
-                }
-            }
-        }
-
-        for (Object credentialEntity : entities) {
-            entityManager.remove(credentialEntity);
-        }
     }
 
     private void removeChildRelationships(final IdentityContext context, final Relationship attributedType, final EntityManager entityManager) {
