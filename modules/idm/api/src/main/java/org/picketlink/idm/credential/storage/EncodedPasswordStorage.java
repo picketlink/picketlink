@@ -20,41 +20,19 @@ package org.picketlink.idm.credential.storage;
 
 import org.picketlink.idm.credential.storage.annotations.Stored;
 
-import java.util.Date;
-
 /**
  * Represents the encoded hash value stored by an IdentityStore
  *
  * @author Shane Bryzak
  */
-public class EncodedPasswordStorage implements CredentialStorage {
+public class EncodedPasswordStorage extends AbstractCredentialStorage {
 
-    private Date effectiveDate = new Date();
-    private Date expiryDate;
     private String encodedHash;
     private String salt;
 
-    @Override @Stored
-    public Date getEffectiveDate() {
-        return effectiveDate;
-    }
-
-    public void setEffectiveDate(Date effectiveDate) {
-        this.effectiveDate = effectiveDate;
-    }
-
-    @Override @Stored
-    public Date getExpiryDate() {
-        return expiryDate;
-    }
-
-    public void setExpiryDate(Date expiryDate) {
-        this.expiryDate = expiryDate;
-    }
-
     @Stored
     public String getEncodedHash() {
-        return encodedHash;
+        return this.encodedHash;
     }
 
     public void setEncodedHash(String encodedHash) {

@@ -25,7 +25,6 @@ import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.common.util.LDAPUtil;
 import org.picketlink.idm.IDMInternalLog;
-import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPMappingConfiguration;
@@ -70,7 +69,7 @@ import static org.picketlink.common.constants.LDAPConstants.OBJECT_CLASS;
 import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
 import static org.picketlink.common.util.ClassUtil.newInstance;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
 import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
@@ -245,42 +244,50 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 safeClose(search);
             }
         } else {
-            List<LDAPMappingConfiguration> relationshipConfigs = getConfig().getRelationshipConfigs();
-            String bindingDN = getBindingDN(attributedType);
-
-            try {
-                for (LDAPMappingConfiguration relationshipConfig : relationshipConfigs) {
-                    for (String attributeName : relationshipConfig.getMappedProperties().values()) {
-                        StringBuilder filter = new StringBuilder();
-
-                        filter.append("(&(").append(attributeName).append(EQUAL).append("").append(bindingDN).append("))");
-
-                        NamingEnumeration<SearchResult> search = this.operationManager.search(getMappingConfig(relationshipConfig.getRelatedAttributedType()).getBaseDN(), filter.toString());
-
-                        while (search.hasMore()) {
-                            SearchResult result = search.next();
-                            Attributes attributes = result.getAttributes();
-
-                            javax.naming.directory.Attribute relationshipAttribute = attributes.get(attributeName);
-
-                            if (relationshipAttribute != null && relationshipAttribute.contains(bindingDN)) {
-                                relationshipAttribute.remove(bindingDN);
-                                if (relationshipAttribute.size() == 0) {
-                                    relationshipAttribute.add(getEmptyAttributeValue());
-                                }
-                                this.operationManager.modifyAttribute(result.getNameInNamespace(), relationshipAttribute);
-                            }
-                        }
-
-                        safeClose(search);
-                    }
-                }
-            } catch (NamingException e) {
-                throw new IdentityManagementException(e);
-            }
-
             this.operationManager.removeEntryById(getBaseDN(attributedType), attributedType.getId());
         }
+    }
+
+    @Override
+    protected void removeFromRelationships(final IdentityContext context, final IdentityType identityType) {
+        List<LDAPMappingConfiguration> relationshipConfigs = getConfig().getRelationshipConfigs();
+        String bindingDN = getBindingDN(identityType);
+
+        try {
+            for (LDAPMappingConfiguration relationshipConfig : relationshipConfigs) {
+                for (String attributeName : relationshipConfig.getMappedProperties().values()) {
+                    StringBuilder filter = new StringBuilder();
+
+                    filter.append("(&(").append(attributeName).append(EQUAL).append("").append(bindingDN).append("))");
+
+                    NamingEnumeration<SearchResult> search = this.operationManager.search(getMappingConfig(relationshipConfig.getRelatedAttributedType()).getBaseDN(), filter.toString());
+
+                    while (search.hasMore()) {
+                        SearchResult result = search.next();
+                        Attributes attributes = result.getAttributes();
+
+                        javax.naming.directory.Attribute relationshipAttribute = attributes.get(attributeName);
+
+                        if (relationshipAttribute != null && relationshipAttribute.contains(bindingDN)) {
+                            relationshipAttribute.remove(bindingDN);
+                            if (relationshipAttribute.size() == 0) {
+                                relationshipAttribute.add(getEmptyAttributeValue());
+                            }
+                            this.operationManager.modifyAttribute(result.getNameInNamespace(), relationshipAttribute);
+                        }
+                    }
+
+                    safeClose(search);
+                }
+            }
+        } catch (NamingException e) {
+            throw new IdentityManagementException(e);
+        }
+    }
+
+    @Override
+    protected void removeCredentials(final IdentityContext context, final Account account) {
+        //no-op
     }
 
     @Override
@@ -374,11 +381,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         }
 
         return results;
-    }
-
-    @Override
-    public <V extends IdentityType> int countQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
-        return 0;  //TODO: Implement countQueryResults
     }
 
     @Override
@@ -594,17 +596,12 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 }
             }
         } catch (Exception e) {
-            throw IDMMessages.MESSAGES.queryRelationshipFailed(query, e);
+            throw MESSAGES.queryRelationshipFailed(query, e);
         } finally {
             safeClose(search);
         }
 
         return results;
-    }
-
-    @Override
-    public <V extends Relationship> int countQueryResults(IdentityContext context, RelationshipQuery<V> query) {
-        return 0;  //TODO: Implement countQueryResults
     }
 
     @Override

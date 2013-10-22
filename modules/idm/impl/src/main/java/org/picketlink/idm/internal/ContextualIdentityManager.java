@@ -49,7 +49,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
 
 /**
  * <p>Default implementation of the IdentityManager interface.<p/> <p/> <p> This lightweight class is intended to be
@@ -257,7 +257,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
         }
 
         if (!identityQuery.getResultList().isEmpty()) {
-            throw MESSAGES.identityTypeAlreadyExists(identityType.getClass(), identityType.toString(), getPartition());
+            throw MESSAGES.identityTypeAlreadyExists(identityType.getClass(), identityType.getId(), getPartition());
         }
     }
 

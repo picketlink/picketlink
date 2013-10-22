@@ -34,10 +34,13 @@ import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.basic.Grant;
 import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * <p>
@@ -191,6 +194,57 @@ public class ConfigurationTestCase {
                         .supportAllFeatures();
 
         assertEquals(builder.buildAll().size(), 1);
+    }
+
+    @Test (expected = SecurityConfigurationException.class)
+    public void failDuplicatedSupportedType() {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+            .named("default")
+                .stores()
+                    .file()
+                        .supportType(User.class, Partition.class)
+                        .supportCredentials(false)
+                    .jpa()
+                        .mappedEntity(IdentityTypeEntity.class)
+                        .supportType(User.class);
+
+        builder.buildAll();
+    }
+
+    @Test (expected = SecurityConfigurationException.class)
+    public void failInvalidSupportedTypeConfiguration() {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+            .named("default")
+                .stores()
+                    .file()
+                        .supportType(Role.class)
+                        .supportCredentials(false)
+                    .jpa()
+                        .mappedEntity(IdentityTypeEntity.class)
+                        .supportType(IdentityType.class);
+
+        builder.buildAll();
+    }
+
+    @Test (expected = SecurityConfigurationException.class)
+    public void failInvalidSupportedRelationshipTypeConfiguration() {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+            .named("default")
+                .stores()
+                    .file()
+                        .supportType(Relationship.class)
+                        .supportCredentials(false)
+                    .jpa()
+                        .supportType(Grant.class)
+                        .mappedEntity(IdentityTypeEntity.class);
+
+        builder.buildAll();
     }
 
 }

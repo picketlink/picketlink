@@ -23,32 +23,21 @@
 package org.picketlink.idm;
 
 import org.jboss.logging.Cause;
-import org.jboss.logging.LogMessage;
-import org.jboss.logging.Logger;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
 import org.jboss.logging.Messages;
-import org.jboss.logging.Param;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.encoder.PasswordEncoder;
 import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.AttributedType;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.permission.Permission;
-import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityStore;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
-
-import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
  * <p>
@@ -75,7 +64,7 @@ import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOpera
  *
  * @author Pedro Silva
  */
-@MessageBundle(projectCode = "PLIDM")
+@MessageBundle(projectCode = IDMLog.PICKETLINK_IDM_PROJECT_CODE)
 public interface IDMMessages {
 
     IDMMessages MESSAGES = Messages.getBundle(IDMMessages.class);
@@ -95,10 +84,6 @@ public interface IDMMessages {
 
     @Message(id = 5, value = "Unexpected type [%s].")
     IdentityManagementException unexpectedType(Class<?> unexpectedType);
-
-    @LogMessage(level = Logger.Level.FATAL)
-    @Message(id = 6, value = "Could not initialize Partition Manager [%s].")
-    IdentityManagementException partitionManagerInitializationFailed(Class<? extends PartitionManager> partitionManagerType, @Cause Throwable t);
 
     // credential API messages 200-299
     @Message(id = 200, value = "Credential validation failed [%s].")
@@ -131,99 +116,30 @@ public interface IDMMessages {
     @Message(value = "No such algorithm [%s] for encoding passwords. Using PasswordEncoder [%s].")
     IdentityManagementException credentialInvalidEncodingAlgorithm(String algorithm, PasswordEncoder encoder, @Cause Throwable t);
 
-    // identity store API messages 300-399
-    @Message(id = 300, value = "No store found with type [%s].")
-    IdentityManagementException storeNotFound(Class<? extends IdentityStore> partitionStoreClass);
-
-    @Message(id = 301, value = "Error while trying to determine EntityManager - context parameter not set.")
-    IdentityManagementException storeJpaCouldNotGetEntityManagerFromStoreContext();
-
-    @Message(value = "Could not create context.")
-    IdentityManagementException storeLdapCouldNotCreateContext(@Cause Throwable e);
-
-    @Message(value = "Unexpected IdentityStore type. Expected [%s]. Actual [%s].")
-    IdentityManagementException storeUnexpectedType(Class<? extends IdentityStore> expectedType,
-                                                    Class<? extends IdentityStore> actualType);
-
-    // partition API messages 400-499
-    @Message(id = 401, value = "Could not create partition [%s] using configuration [%s].")
-    IdentityManagementException partitionAddFailed(Partition partition, String configurationName,
-                                                   @Cause Exception e);
-
-    @Message(id = 402, value = "Could not update partition [%s].")
-    IdentityManagementException partitionUpdateFailed(Partition partition, @Cause Exception e);
-
-    @Message(id = 403, value = "Could not remove partition [%s].")
-    IdentityManagementException partitionRemoveFailed(Partition partition, @Cause Exception e);
-
-    @Message(id = 404, value = "Could not load partition for type [%s] and name [%s].")
-    IdentityManagementException partitionGetFailed(Class<? extends Partition> partitionClass, String name,
-                                                   @Cause Exception e);
-
-    @Message(id = 405, value = "Could not create contextual IdentityManager for Partition [%s]. Partition not found " +
-            "or it was null.")
-    IdentityManagementException partitionCouldNotCreateIdentityManager(Partition partition);
-
-    @Message(id = 406, value = "Partition [%s] not found with the given name [%s].")
-    IdentityManagementException partitionNotFoundWithName(Class<? extends Partition> type, String name);
-
-    @Message(id = 407, value = "No configuration found with the given name [%s].")
-    IdentityManagementException partitionNoConfigurationFound(String name);
-
-    @Message(id = 408, value = "Partition [%s] references an invalid or non-existent configuration.")
-    IdentityManagementException partitionReferencesInvalidConfiguration(Partition partition);
-
-    @Message(id = 409, value = "Partition management is not supported by the current configuration.")
-    OperationNotSupportedException partitionManagementNoSupported(@Param Class<Partition> partitionClass,
-                                                                  @Param IdentityOperation create);
-
-    @Message(id = 410, value = "Could not create contextual PermissionManager for Partition [%s].")
-    IdentityManagementException partitionCouldNotCreatePermissionManager(Partition partition);
-
-    @Message(value = "A Partition [%s] with name [%s] already exists.")
-    IdentityManagementException partitionAlreadyExistsWithName(Class<? extends Partition> type, String name);
-
-    @Message(value = "No configuration name defined for partition [%s].")
-    IdentityManagementException partitionWithNoConfigurationName(Partition partition);
-
-    // query API messages 500-599
-    @Message(id = 500, value = "Could not query Relationship using query [%s].")
-    IdentityManagementException queryRelationshipFailed(RelationshipQuery<?> query, @Cause Throwable t);
-
-    @Message(id = 501, value = "Could not query IdentityType using query [%s].")
-    IdentityManagementException queryIdentityTypeFailed(IdentityQuery<?> query, @Cause Throwable t);
-
-    @Message(value = "Unsupported value for Query Parameter [%s]. Value: %s.")
-    IdentityManagementException queryUnsupportedParameterValue(String parameterName, Object parameterValue);
-
-    // attributed types management messages 600-699
-    @Message(id = 600, value = "Could not add AttributedType [%s].")
-    IdentityManagementException attributedTypeAddFailed(AttributedType identityType, @Cause Throwable t);
-
-    @Message(id = 601, value = "Could not remove AttributedType [%s].")
-    IdentityManagementException attributedTypeRemoveFailed(AttributedType identityType, @Cause Throwable t);
-
-    @Message(id = 602, value = "Could not update AttributedType [%s].")
-    IdentityManagementException attributedTypeUpdateFailed(AttributedType identityType, @Cause Throwable t);
-
-    @Message(value = "IdentityType [%s] already exists with the given identifier [%s] for the given Partition [%s].")
-    IdentityManagementException identityTypeAlreadyExists(Class<? extends IdentityType> type, String identifier,
-                                                          Partition partition);
-
-    @Message(id = 603, value = "Ambiguous AttributedType found with identifier [%s].")
-    IdentityManagementException attributedTypeAmbiguosFoundWithId(String id);
-
-    @Message(id = 604, value = "No identity store configuration found for requested type operation [%s.%s].")
-    OperationNotSupportedException attributedTypeUnsupportedOperation(@Param Class<? extends AttributedType> type,
-                                                                      @Param IdentityOperation operation, Class<? extends AttributedType> typeToDisplay,
-                                                                      IdentityOperation operationToDisplay);
-
-    @Message(value = "Could not find AttributedType [%s] with the given identifier [%s] for Partition [%s]")
-    IdentityManagementException attributedTypeNotFoundWithId(Class<? extends AttributedType> type, String id, Partition partition);
-
     // configuration api messages 700-799
     @Message(id = 700, value = "Could not create configuration.")
     SecurityConfigurationException configCouldNotCreateConfiguration(@Cause Exception sce);
+
+    @Message(id = 701, value = "Invalid configuration [%s].")
+    SecurityConfigurationException configInvalidConfiguration(String name, @Cause Throwable t);
+
+    @Message(id = 702, value = "You must provide at least one configuration.")
+    SecurityConfigurationException configNoConfigurationProvided();
+
+    @Message(id = 703, value = "You have provided more than one configuration. Use the buildAll method instead.")
+    SecurityConfigurationException configBuildMultipleConfigurationExists();
+
+    @Message(id = 704, value = "At least one IdentityConfiguration must be provided")
+    SecurityConfigurationException configNoIdentityConfigurationProvided();
+
+    @Message(id = 705, value = "You must configure at least one identity store.")
+    SecurityConfigurationException configStoreNoIdentityStoreConfigProvided();
+
+    @Message(id = 706, value = "Duplicated supported types [%s] found for identity store configuration. Check your identity store configuration for duplicated types, considering their hierarchy.")
+    SecurityConfigurationException configStoreDuplicatedSupportedType(Class<?> supportedType);
+
+    @Message(id = 707, value = "Multiple configuration with credential support.")
+    SecurityConfigurationException configMultipleConfigurationsFoundWithCredentialSupport();
 
     @Message(value = "Error initializing JpaIdentityStore - no entity classes configured.")
     SecurityConfigurationException configJpaStoreNoEntityClassesProvided();
@@ -235,9 +151,6 @@ public interface IDMMessages {
     @Message(value = "Mapped attribute [%s.%s] does not map to any field for type [%s].")
     SecurityConfigurationException configJpaStoreMappedPropertyNotFound(final Class<?> entityType, String propertyName, Class<?> type);
 
-    @Message(value = "At least one IdentityConfiguration must be provided")
-    SecurityConfigurationException configNoIdentityConfigurationProvided();
-
     @Message(value = "Unknown IdentityStore class for configuration [%s].")
     SecurityConfigurationException configUnknownStoreForConfiguration(IdentityStoreConfiguration storeConfiguration);
 
@@ -246,30 +159,12 @@ public interface IDMMessages {
                                                              IdentityStoreConfiguration storeConfiguration,
                                                              @Cause Exception e);
 
-    @Message(value = "You have provided more than one configuration. Use the buildAll method instead.")
-    SecurityConfigurationException configBuildMultipleConfigurationExists();
-
     @Message(value = "Only a single identity store config can support partitions. Found [%s] and [%s].")
     SecurityConfigurationException configStoreMultiplePartitionConfigExists(IdentityStoreConfiguration config1,
                                                                             IdentityStoreConfiguration config2);
 
-    @Message(value = "Duplicated supported types found for identity store configuration [%s].")
-    SecurityConfigurationException configStoreDuplicatedSupportedType(IdentityStoreConfiguration storeConfiguration);
-
-    @Message(value = "You must configure at least one identity store configuration.")
-    SecurityConfigurationException configStoreNoIdentityStoreConfigProvided();
-
-    @Message(value = "You must provide at least one configuration.")
-    SecurityConfigurationException configNoConfigurationProvided();
-
     @Message(value = "Multiple configuration with the same name [%s].")
     SecurityConfigurationException configMultipleConfigurationsFoundWithSameName(String name);
-
-    @Message(value = "Invalid configuration [%s].")
-    SecurityConfigurationException configInvalidConfiguration(String name, @Cause Throwable t);
-
-    @Message(value = "Multiple configuration with credential support.")
-    SecurityConfigurationException configMultipleConfigurationsFoundWithCredentialSupport();
 
     // Permission management messages 800-899
     @Message(value = "Could not grant Permission [%s].")

@@ -24,7 +24,6 @@ package org.picketlink.idm.config;
 
 import org.picketlink.idm.config.annotation.MethodConfigID;
 import org.picketlink.idm.config.annotation.ParameterConfigID;
-import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Relationship;
 
 import java.util.ArrayList;
@@ -100,12 +99,13 @@ public class IdentityStoresConfigurationBuilder
      * @param identityStore
      * @param builder
      * @param <T>
+     *
      * @return
      */
-    @MethodConfigID(name="customIdentityStore")
+    @MethodConfigID(name = "customIdentityStore")
     public <T extends IdentityStoreConfigurationBuilder<?, ?>> T add(
-            @ParameterConfigID(name="identityStoreConfigurationClass") Class<? extends IdentityStoreConfiguration> identityStoreConfiguration,
-            @ParameterConfigID(name="builderClass") Class<T> builder) {
+            @ParameterConfigID(name = "identityStoreConfigurationClass") Class<? extends IdentityStoreConfiguration> identityStoreConfiguration,
+            @ParameterConfigID(name = "builderClass") Class<T> builder) {
         this.supportedStoreBuilders.put(identityStoreConfiguration, builder);
         return forIdentityStoreConfig(identityStoreConfiguration, true);
     }
@@ -113,9 +113,7 @@ public class IdentityStoresConfigurationBuilder
     @Override
     protected List<? extends IdentityStoreConfiguration> create() {
         List<IdentityStoreConfiguration> configurations = new ArrayList<IdentityStoreConfiguration>();
-
         IdentityStoreConfiguration partitionStoreConfig = null;
-        Set<Class<? extends AttributedType>> supportedTypes = new HashSet<Class<? extends AttributedType>>();
 
         for (IdentityStoreConfigurationBuilder<?, ?> storeConfigurationBuilder : this.identityStoresConfiguration) {
             IdentityStoreConfiguration storeConfiguration = storeConfigurationBuilder.create();
@@ -128,17 +126,11 @@ public class IdentityStoresConfigurationBuilder
                 partitionStoreConfig = storeConfiguration;
             }
 
-            try {
-                supportedTypes.addAll(storeConfigurationBuilder.getSupportedTypes().keySet());
-            } catch (IllegalArgumentException iae) {
-                throw MESSAGES.configStoreDuplicatedSupportedType(storeConfiguration);
-            }
-
-            for (Class<? extends Relationship> relType: storeConfigurationBuilder.getGlobalRelationshipTypes()) {
+            for (Class<? extends Relationship> relType : storeConfigurationBuilder.getGlobalRelationshipTypes()) {
                 this.globalRelationships.add(relType);
             }
 
-            for (Class<? extends Relationship> relType: storeConfigurationBuilder.getSelfRelationshipTypes()) {
+            for (Class<? extends Relationship> relType : storeConfigurationBuilder.getSelfRelationshipTypes()) {
                 this.selfRelationships.add(relType);
             }
 
@@ -154,8 +146,20 @@ public class IdentityStoresConfigurationBuilder
             throw MESSAGES.configStoreNoIdentityStoreConfigProvided();
         }
 
-        for (IdentityStoreConfigurationBuilder<?, ?> storeConfigurationBuilder : this.identityStoresConfiguration) {
-            storeConfigurationBuilder.validate();
+        for (IdentityStoreConfigurationBuilder<?, ?> currentConfiguration : this.identityStoresConfiguration) {
+            currentConfiguration.validate();
+
+            for (Class<?> type: currentConfiguration.getSupportedTypes().keySet()) {
+                for (IdentityStoreConfigurationBuilder<?, ?> storeConfiguration: this.identityStoresConfiguration) {
+                    if (!storeConfiguration.equals(currentConfiguration)) {
+                        for (Class<?> storeType: storeConfiguration.getSupportedTypes().keySet()) {
+                            if (storeType.isAssignableFrom(type)) {
+                                throw MESSAGES.configStoreDuplicatedSupportedType(type);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

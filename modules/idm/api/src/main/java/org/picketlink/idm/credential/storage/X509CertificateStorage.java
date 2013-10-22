@@ -24,7 +24,6 @@ import org.picketlink.idm.credential.storage.annotations.Stored;
 
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.util.Date;
 
 /**
  * <p> {@link CredentialStorage} for X509 Certificates credentials.</p>
@@ -32,10 +31,8 @@ import java.util.Date;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class X509CertificateStorage implements CredentialStorage {
+public class X509CertificateStorage extends AbstractCredentialStorage {
 
-    private Date effectiveDate = new Date();
-    private Date expiryDate;
     private String base64Cert;
 
     public X509CertificateStorage() { }
@@ -46,24 +43,6 @@ public class X509CertificateStorage implements CredentialStorage {
         } catch (CertificateEncodingException e) {
             throw new IdentityManagementException("Could not get Base64 representation for X509 Certificate.", e);
         }
-    }
-
-    @Override @Stored
-    public Date getEffectiveDate() {
-        return effectiveDate;
-    }
-
-    public void setEffectiveDate(Date effectiveDate) {
-        this.effectiveDate = effectiveDate;
-    }
-
-    @Override @Stored
-    public Date getExpiryDate() {
-        return expiryDate;
-    }
-
-    public void setExpiryDate(Date expiryDate) {
-        this.expiryDate = expiryDate;
     }
 
     @Stored

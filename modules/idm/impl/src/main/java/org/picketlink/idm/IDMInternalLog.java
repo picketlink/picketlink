@@ -4,12 +4,14 @@ import org.jboss.logging.LogMessage;
 import org.jboss.logging.Logger;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
-import org.picketlink.common.util.logging.LogFactory;
+import org.picketlink.common.logging.LogFactory;
+
+import static org.picketlink.idm.IDMInternalLog.PICKETLINK_IDM_PROJECT_CODE;
 
 /**
  * @author Pedro Igor
  */
-@MessageLogger(projectCode = "PLIDM")
+@MessageLogger(projectCode = PICKETLINK_IDM_PROJECT_CODE)
 public interface IDMInternalLog extends IDMLog {
 
     /**

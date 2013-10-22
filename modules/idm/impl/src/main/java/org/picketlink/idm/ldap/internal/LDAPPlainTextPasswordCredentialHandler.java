@@ -25,6 +25,7 @@ import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Account;
+import org.picketlink.idm.model.basic.Agent;
 import org.picketlink.idm.spi.IdentityContext;
 
 import javax.naming.directory.BasicAttribute;
@@ -32,6 +33,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import java.util.Date;
 
+import static org.picketlink.idm.IDMLog.CREDENTIAL_LOGGER;
 import static org.picketlink.idm.credential.Credentials.Status;
 import static org.picketlink.idm.model.basic.BasicModel.getAgent;
 import static org.picketlink.idm.model.basic.BasicModel.getUser;
@@ -56,28 +58,52 @@ public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
     }
 
     @Override
-    public void validate(IdentityContext context, UsernamePasswordCredentials usernamePassword,
-            LDAPIdentityStore identityStore) {
-        usernamePassword.setStatus(Status.INVALID);
-        usernamePassword.setValidatedAccount(null);
+    public void validate(IdentityContext context, UsernamePasswordCredentials credentials,
+            LDAPIdentityStore store) {
+        credentials.setStatus(Status.INVALID);
+        credentials.setValidatedAccount(null);
 
-        Account agent = getAccount(context, usernamePassword.getUsername());
+        if (CREDENTIAL_LOGGER.isDebugEnabled()) {
+            CREDENTIAL_LOGGER.debugf("Validating credentials [%s][%s] using identity store [%s] and credential handler [%s].", credentials.getClass(), credentials, store, this);
+        }
+
+        Account account = getAccount(context, credentials.getUsername());
 
         // If the user for the provided username cannot be found we fail validation
-        if (agent != null) {
-            if (agent.isEnabled()) {
-                LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) identityStore;
-                char[] password = usernamePassword.getPassword().getValue();
-                String bindingDN = ldapIdentityStore.getBindingDN(agent);
+        if (account != null) {
+            if (CREDENTIAL_LOGGER.isDebugEnabled()) {
+                CREDENTIAL_LOGGER.debugf("Found account [%s] from credentials [%s].", account, credentials);
+            }
+
+            if (account.isEnabled()) {
+                if (CREDENTIAL_LOGGER.isDebugEnabled()) {
+                    CREDENTIAL_LOGGER.debugf("Account [%s] is ENABLED.", account, credentials);
+                }
+
+                LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) store;
+                char[] password = credentials.getPassword().getValue();
+                String bindingDN = ldapIdentityStore.getBindingDN(account);
                 LDAPOperationManager operationManager = ldapIdentityStore.getOperationManager();
 
                 if (operationManager.authenticate(bindingDN, new String(password))) {
-                    usernamePassword.setValidatedAccount(agent);
-                    usernamePassword.setStatus(Status.VALID);
+                    credentials.setValidatedAccount(account);
+                    credentials.setStatus(Status.VALID);
                 }
             } else {
-                usernamePassword.setStatus(Status.ACCOUNT_DISABLED);
+                if (CREDENTIAL_LOGGER.isDebugEnabled()) {
+                    CREDENTIAL_LOGGER.debugf("Account [%s] is DISABLED.", account, credentials);
+                }
+                credentials.setStatus(Status.ACCOUNT_DISABLED);
             }
+        } else {
+            if (CREDENTIAL_LOGGER.isDebugEnabled()) {
+                CREDENTIAL_LOGGER.debugf("Account NOT FOUND for credentials [%s][%s].", credentials.getClass(), credentials);
+            }
+        }
+
+        if (CREDENTIAL_LOGGER.isDebugEnabled()) {
+            CREDENTIAL_LOGGER.debugf("Credential [%s][%s] validated using identity store [%s] and credential handler [%s]. Status [%s]. Validated Account [%s]",
+                    credentials.getClass(), credentials, store, this, credentials.getStatus(), credentials.getValidatedAccount());
         }
     }
 
@@ -119,6 +145,10 @@ public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
 
     protected Account getAccount(IdentityContext context, String loginName) {
         IdentityManager identityManager = getIdentityManager(context);
+
+        if (CREDENTIAL_LOGGER.isDebugEnabled()) {
+            CREDENTIAL_LOGGER.debugf("Trying to find account [%s] using default account type [%s]. If you're using a custom account type, it will not be retrieved until you provide a credential handler that knows how to retrieve it.", loginName, Agent.class);
+        }
 
         Account agent = getAgent(identityManager, loginName);
 
