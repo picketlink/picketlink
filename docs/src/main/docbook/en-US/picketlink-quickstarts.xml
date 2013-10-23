@@ -12,7 +12,8 @@
       PicketLink
       quickstarts at GitHub provide working, buildable code that shows the usage of a number of authentication,
       authorization and
-      identity management features. They are a nice way to communicate the design, common and best practices and the usage
+      identity management features. They are a nice way to communicate the design, common and best practices and the
+      usage
       of PicketLink.
     </para>
 
@@ -28,20 +29,22 @@
     <para>
       All quickstarts are available at GitHub. So you can download them, fork the repository (if you have an GitHub
       account, of course)
-      or even just clone the repository. The latter option is fully described along the README.md file for each quickstart, as
-      well as a lot of additional information, configuration requirements, how to deploy and undeploy using the JBoss Enterprise
+      or even just clone the repository. The latter option is fully described along the README.md file for each
+      quickstart, as
+      well as a lot of additional information, configuration requirements, how to deploy and undeploy using the JBoss
+      Enterprise
       Application Platform 6(and beyond) and so forth.
     </para>
 
     <para>
-      The repository is located at <ulink url="https://github.com/jboss-developer/jboss-picketlink-quickstarts">
+      The repository is located at<ulink url="https://github.com/jboss-developer/jboss-picketlink-quickstarts">
       https://github.com/jboss-developer/jboss-picketlink-quickstarts</ulink>.
     </para>
 
     <note>
       <para>
-        You don't need to be a Git expert in order to get the quickstarts. All the necessary commands fully covered
-        in the README.md file for each quickstart. For any additional information take a look at
+        You don't need to be a Git expert in order to get the quickstarts. All the necessary commands are fully covered
+        in the README.md file for each of them. For any additional information take a look at
         the JDF site too.
       </para>
     </note>
@@ -56,22 +59,59 @@
   </section>
 
   <section>
+    <title>PicketLink Federation Quickstarts</title>
+
+    <para>
+      We have a plenty of quickstarts covering some of the most important aspects of PicketLink Federation: SAML based
+      SSO,
+      WS-Trust support and so forth. The repository for those quickstarts is located at<ulink
+            url="https://github.com/picketlink2/picketlink-quickstarts">
+      https://github.com/picketlink2/picketlink-quickstarts</ulink>.
+    </para>
+
+    <para>
+      The best way to get those quickstarts up and running is using the <xref linkend="picketlink-overview-installer"/>.
+      Usually, when using PicketLink Federation you don't ship the libraries inside your deployment, but you get them
+      from the container where it is deployed. That is exactly what the installer does (among other things), it will prepare
+      your JBoss EAP installation with the PicketLink JBoss Modules.
+      The installer also performs some additional configuration to an existing JBoss EAP 6 installation in order to get the
+      quickstarts up and running, such as changing your standalone.xml and deploying the example applications.
+      Is just a matter of run the installer, start the server and start using the examples !
+    </para>
+
+    <note>
+      <para>
+        Users of PicketLink 2.1 series should start using the 2.5 version of the federation libraries. Once JBoss EAP is
+        updated
+        with the new module organization for 2.5 version, the 2.1 series will be deprecated.
+      </para>
+    </note>
+
+  </section>
+
+  <section>
     <title>Contributing</title>
 
     <para>
-      PicketLink can be used to solve the most simple as well some of the most advanced security use cases. The main objective
-      of the quickstarts is to cover most of use cases as we can, so people can quickly understand and start solving their own
+      PicketLink can be used to solve the most simple as well some of the most advanced security use cases. The main
+      objective
+      of the quickstarts is to cover most of use cases as we can, so people can quickly understand and start solving
+      their own
       security-related problems based on what we're offering.
     </para>
 
     <para>
-      We would be very glad to have your contribution to our quickstarts list. If you have any suggestion about a new example, please
-      create a JIRA and describe what you're looking for: <ulink url="https://issues.jboss.org/browse/PLINK">https://issues.jboss.org/browse/PLINK</ulink>.
+      We would be very glad to have your contribution to our quickstarts list. If you have any suggestion about a new
+      example, please
+      create a JIRA and describe what you're looking for:<ulink url="https://issues.jboss.org/browse/PLINK">
+      https://issues.jboss.org/browse/PLINK</ulink>.
     </para>
 
     <para>
-      You can also contribute by sending a Pull Request to the PicketLink Quickstarts repository which the code of your example application.
-      Just follow the Contributing Guidelines from <ulink url="http://site-jdf.rhcloud.com/quickstarts/get-involved/">http://site-jdf.rhcloud.com/quickstarts/get-involved/</ulink>.
+      You can also contribute by sending a Pull Request to the PicketLink Quickstarts repository which the code of your
+      example application.
+      Just follow the Contributing Guidelines from<ulink url="http://site-jdf.rhcloud.com/quickstarts/get-involved/">
+      http://site-jdf.rhcloud.com/quickstarts/get-involved/</ulink>.
     </para>
   </section>
 </chapter>
