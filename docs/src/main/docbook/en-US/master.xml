@@ -34,6 +34,7 @@
   <xi:include href="picketlink-idm-ldap.xml"/>
   <xi:include href="picketlink-subsystem.xml"/>
   <xi:include href="picketlink-federation.xml"/>
+  <xi:include href="picketlink-quickstarts.xml"/>
   <xi:include href="picketlink-glossary.xml"/>
 
 </book>
