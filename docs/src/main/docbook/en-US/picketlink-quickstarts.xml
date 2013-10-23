@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0"
+         xml:base="../" xmlns="http://docbook.org/ns/docbook"
+         id="picketlink-quickstarts">
+  <title>PicketLink Quickstarts</title>
+
+  <section>
+    <title>Overview</title>
+
+    <para>
+      Quickstarts are self-contained, concise examples that generally demonstrate at most one or two features. The
+      PicketLink
+      quickstarts at GitHub provide working, buildable code that shows the usage of a number of authentication,
+      authorization and
+      identity management features. They are a nice way to communicate the design, common and best practices and the usage
+      of PicketLink.
+    </para>
+
+    <para>
+      The PicketLink Quickstarts are part of the JBoss Developer Framework(<ulink
+            url="http://www.jboss.org/jdf/quickstarts/get-started/">
+      http://www.jboss.org/jdf/quickstarts/get-started/</ulink>), formerly known as JDF.
+      There you can find a lot of useful stuff about Java, JavaEE and of course all JBoss projects and products.
+      Also, there are a lot of useful information and tutorials that will guide you to configure and prepare your
+      environment to start using any of the available quickstarts.
+    </para>
+
+    <para>
+      All quickstarts are available at GitHub. So you can download them, fork the repository (if you have an GitHub
+      account, of course)
+      or even just clone the repository. The latter option is fully described along the README.md file for each quickstart, as
+      well as a lot of additional information, configuration requirements, how to deploy and undeploy using the JBoss Enterprise
+      Application Platform 6(and beyond) and so forth.
+    </para>
+
+    <para>
+      The repository is located at <ulink url="https://github.com/jboss-developer/jboss-picketlink-quickstarts">
+      https://github.com/jboss-developer/jboss-picketlink-quickstarts</ulink>.
+    </para>
+
+    <note>
+      <para>
+        You don't need to be a Git expert in order to get the quickstarts. All the necessary commands fully covered
+        in the README.md file for each quickstart. For any additional information take a look at
+        the JDF site too.
+      </para>
+    </note>
+  </section>
+
+  <section>
+    <title>Available Quickstarts</title>
+
+    <para>
+      For a complete list of all available quickstarts, access the PicketLink Quickstart Repository.
+    </para>
+  </section>
+
+  <section>
+    <title>Contributing</title>
+
+    <para>
+      PicketLink can be used to solve the most simple as well some of the most advanced security use cases. The main objective
+      of the quickstarts is to cover most of use cases as we can, so people can quickly understand and start solving their own
+      security-related problems based on what we're offering.
+    </para>
+
+    <para>
+      We would be very glad to have your contribution to our quickstarts list. If you have any suggestion about a new example, please
+      create a JIRA and describe what you're looking for: <ulink url="https://issues.jboss.org/browse/PLINK">https://issues.jboss.org/browse/PLINK</ulink>.
+    </para>
+
+    <para>
+      You can also contribute by sending a Pull Request to the PicketLink Quickstarts repository which the code of your example application.
+      Just follow the Contributing Guidelines from <ulink url="http://site-jdf.rhcloud.com/quickstarts/get-involved/">http://site-jdf.rhcloud.com/quickstarts/get-involved/</ulink>.
+    </para>
+  </section>
+</chapter>

@@ -49,14 +49,8 @@
       <title>QuickStarts</title>
 
       <para>
-        The PicketLink QuickStarts can be found at
-        <ulink url="https://github.com/picketlink/picketlink-quickstarts">https://github.com/picketlink/picketlink-quickstarts</ulink>.
-      </para>
-
-      <para>
-        Quickstarts are self-contained, concise examples that generally demonstrate at most one or two features.  The PicketLink
-        quickstarts at GitHub provide working, buildable code that shows the usage of a number of authentication and authorization
-        features.
+        Please head to <xref linkend="picketlink-quickstarts"/> for more information about our quickstarts, covering some
+        useful usecases and most of PicketLink features.
       </para>
     </section>
 
