@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="../" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+         xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns="http://docbook.org/ns/docbook"
+         id="picketlink-idm-configuration">
+  <title>Identity Management - Configuration</title>
+
+    <section>
+      <title>Configuration</title>
+    
+      <section>
+        <title>Architectural Overview</title>
+          
+        <para>
+          Configuration in PicketLink is in essence quite simple; an <code>IdentityConfiguration</code> object must first 
+          be created to hold the PicketLink configuration options.  Once all configuration options have been set, you just create a 
+          <code>PartitionManager</code> instance passing the previously created configuration.
+          The <code>PartitionManager</code> can then be used to create <code>Partition</code> and <code>IdentityManager</code> instances.
+        </para>          
+          
+        <mediaobject>
+          <imageobject role="fo">
+            <imagedata fileref="diagrams/idm_config_architecture.png" align="center" scalefit="1"/>
+          </imageobject>
+          <imageobject role="html">
+            <imagedata fileref="diagrams/idm_config_architecture.png" align="center"/>
+          </imageobject>
+        </mediaobject>
+
+        <para>
+          The <code>IdentityConfiguration</code> is usually created using a Configuration Builder API, which provides a rich and fluent
+          API for every single aspect of PicketLink configuration.
+        </para>
+      </section>
+
+      <section>
+        <title>Default Configuration</title>
+
+        <para>
+          If you'd like to get up and running with IDM quickly, the good news is that PicketLink will provide a default configuration
+          that stores your identity data on the file system if no other configuration is available.  This means that if you
+          have the PicketLink libraries in your project, you can simply inject the <code>PartitionManager</code>,
+          <code>IdentityManager</code> or <code>RelationshipManager</code> beans into your own application and start using them
+          immediately:
+        </para>
+
+        <programlisting language="JAVA"><![CDATA[@Inject PartitionManager partitionManager;
+@Inject IdentityManager identityManager;
+@Inject RelationshipManager relationshipManager;]]></programlisting>
+
+        <note>
+          <para>
+            The default configuration is very useful for developing and testing purposes, as you don't need a database or a LDAP server to
+            start managing your identity data.
+          </para>
+        </note>
+      </section>
+
+      <section>
+        <title>Providing a Custom Configuration</title>
+
+        <para>
+          In certain cases the default configuration may not be enough to your application. You can easily provide your own configuration
+          by observing a specific <code>IdentityConfigurationEvent</code>:
+        </para>
+
+        <programlisting language="JAVA"><![CDATA[@ApplicationScoped
+public static class PicketLinkConfiguration {
+
+  public void observeIdentityConfigurationEvent(@Observes IdentityConfigurationEvent event) {
+    IdentityConfigurationBuilder builder = event.getConfig();
+
+    // use the builder to provide your own configuration
+  }
+}]]></programlisting>
+
+        <para>
+          You can also provide your own configuration by producing one or more <code>IdentityConfiguration</code> instances using a
+          <code>@Producer</code> annotated method:
+        </para>
+
+        <programlisting language="JAVA"><![CDATA[@ApplicationScoped
+public static class PicketLinkConfiguration {
+
+  @Produces
+  public IdentityConfiguration produceJPAConfiguration() {
+      IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+      builder
+          .named("jpa.config")
+              .stores()
+                  .jpa()
+                    // configure the JPA store
+
+      return builder.build();
+  }
+
+  @Produces
+  public IdentityConfiguration produceLDAPConfiguration() {
+      IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+      builder
+          .named("ldap.config")
+              .stores()
+                  .ldap()
+                      // configure the LDAP store
+
+      return builder.build();
+  }
+}]]></programlisting>
+
+        <para>
+          The example above produces two distinct configurations: one using a JPA store and another using the LDAP store. During the
+          startup PicketLink will resolve both configurations and initialize the IDM subsystem with them. You can also provide a single
+          configuration.
+        </para>
+
+        <para>
+          For last, you can also build your own <code>PartitionManager</code> instance if you want more control.
+        </para>
+
+        <programlisting language="JAVA"><![CDATA[@ApplicationScoped
+public static class PicketLinkConfiguration {
+
+  @PicketLink
+  @Produces
+  public PartitionManager producePartitionManager() {
+      IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+      builder
+          .named("produced.partition.manager.config")
+              .stores()
+                  .jpa()
+                      .mappedEntity(
+                              AccountTypeEntity.class,
+                              RoleTypeEntity.class,
+                              GroupTypeEntity.class,
+                              IdentityTypeEntity.class,
+                              RelationshipTypeEntity.class,
+                              RelationshipIdentityTypeEntity.class,
+                              PartitionTypeEntity.class,
+                              PasswordCredentialTypeEntity.class,
+                              DigestCredentialTypeEntity.class,
+                              X509CredentialTypeEntity.class,
+                              OTPCredentialTypeEntity.class,
+                              AttributeTypeEntity.class
+                      )
+                      .addContextInitializer(this.contextInitializer)
+                      .supportAllFeatures();
+
+      return new DefaultPartitionManager(builder.build());
+  }
+
+}]]></programlisting>
+
+        <para>
+          The example above allows you to produce your own <code>PartitionManager</code> instance. Note that the producer
+          method is annotated with the <code>PicketLink</code> annotation. Another important thing when producing your own
+          <code>PartitionManager</code> is that you must manually create the partitions before start producing <code>IdentityManager</code>
+          instances (eg.: the default partition).
+        </para>
+
+      </section>
+
+      <section id="programmatic_configuration">
+        <title>Programmatic Configuration Overview</title>
+      
+        <para>
+          The Identity Management configuration can be defined programmatically using the Configuration Builder API. The aim of this API is to make it easier to chain coding
+          of configuration options in order to speed up the coding itself and make the configuration more <emphasis>readable</emphasis>.
+        </para>
+        <para>        
+          Let's assume that you want to quick start with PicketLink Identity Management features using a File-based Identity Store.
+          First, a fresh instance of <code>IdentityConfiguration</code> is created using the <code>IdentityConfigurationBuilder</code> helper object, 
+          from where we choose which identity store we want to use (in this case a file-based store) and any other configuration option, if necessary.
+          Finally, we use the configuration to create a <code>PartitionManager</code>, from where we can create <code>Partition</code> and <code>IdentityManager</code> instances:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+        
+builder
+  .named("default")
+    .stores()
+      .file()
+        .supportAllFeatures();
+
+DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
+
+Realm defaultRealm = new Realm(Realm.DEFAULT_REALM);
+
+// let's add the partition using the default configuration.
+partitionManager.add(defaultRealm);
+
+// if no partition is specified to createIdentityManager, defaults to the default Realm.
+IdentityManager identityManager = partitionManager.createIdentityManager();
+
+User john = new User("john");
+
+// let's add john to the default partition
+identityManager.add(user);]]></programlisting>
+      </section>
+      <section id="providing_multiple_configurations">
+        <title>Providing Multiple Configurations</title>
+
+        <para>
+          A <code>PartitionManager</code> can be built considering multiple configurations. This is a very powerful feature given
+          that you can manage your identity data between different partitions each one using a specific configuration.
+        </para>
+        <para>
+          As discussed before, each configuration has a name. The name can be used to identify a configuration set as well
+          to tell PicketLink the configuration that should be used to manage a specific <code>Partition</code>.
+        </para>
+        <para>Let's take a more close look how you can use multiple configurations:</para>
+        <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+    .named("ldap.config")
+        .stores()
+            .ldap()
+              // specific configuration options for the LDAP store
+              .supportAllFeatures();
+    .named("jpa.config")
+        .stores()
+            .jpa()
+              // specific configuration options for the JPA store
+              .supportAllFeatures();
+
+DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
+
+Realm internalPartition = new Realm("internal");
+
+// the 'internal' partition will use the 'ldap.config' configuration
+partitionManager.add(internalPartition, "ldap.config");
+
+// we create an IdentityManager for the LDAP managed partition
+IdentityManager internalIdentityManager = partitionManager.createIdentityManager(internalPartition);
+
+User john = new User("john");
+
+// john will be added to the LDAP
+internalIdentityManager.add(john);
+
+Realm externalPartition = new Realm("external");
+
+// the 'external' partition will use the 'jpa.config' configuration
+partitionManager.add(externalPartition, "jpa.config");
+
+User mary = new User("mary");
+
+// we create an IdentityManager for the JPA managed partition
+IdentityManager externalIdentityManager = partitionManager.createIdentityManager(externalPartition);
+
+// mary will be added to the database
+externalIdentityManager.add(mary);]]></programlisting>
+        <para>
+          The example above is just one of the different things you can do with PicketLink. The code above defines two partitions:
+          one for internal users and another one for external users. Each partition is associated with one of the provided configurations where
+          the internal partition will use LDAP to store users whether the external partition will use JPA.
+        </para>
+        <para>
+          When you create a <code>IdentityManager</code> for one of those partitions, all identity management operations will be done
+          considering the configuration associated with the current partition. In other words, considering the example above, the user 'john'
+          will be stored in the LDAP and 'mary' in a Database.
+        </para>
+      </section>
+      <section id="multple_stores_configuration">
+        <title>Providing Multiple Stores for a Configuration</title>
+
+        <para>
+          It is also possible to use multiple <code>IdentityStore</code> configurations in a single named configuration. This can be very useful
+          when your identity data is distributed in different stores or even if a specific store have any kind of limitation that can be provided
+          by another one.
+        </para>
+        <para>
+          For instance, the LDAP store have some limitations and does not support all features provided by PicketLink. One of those unsupported features is
+        the ability to handle ad-hoc attributes. When using LDAP you're tied with a schema that usually is very hard to change in order to support all your needs.
+        </para>
+        <para>
+          In this cases, PicketLink allows you to combine in a single configuration the LDAP and the JPA store, for example. Where you can use LDAP for users, roles and groups and
+        use the JPA store for relationships.
+        </para>
+        <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .named("default")
+    .stores()
+      .jpa()
+        // configuration options for the jpa store
+        .supportGlobalRelationship(Relationship.class)
+        .supportAttributes(true)
+      .ldap()
+        // configuration options for the ldap store
+        .supportType(IdentityType.class)]]></programlisting>
+        <para>
+          The example above defines a single configuration with two stores: LDAP and JPA. For the LDAP store configuration we define that only <code>IdentityType</code> types should
+          be supported. In other words, we're only storing users, roles and groups. For the JPA store configuration we define that only <code>Relationship</code> types should
+          be supported. In other words, we're only storing relationships such as <code>Grant</code>, <code>GroupMembership</code>, etc.
+        </para>
+        <para>
+          You may also notice that the JPA store is configured to support attributes too. What means that we can now use ad-hoc attributes for all the supported types.
+        </para>
+      </section>
+      <section id="configuring_credential_handlers">
+        <title>Configuring Credential Handlers</title>
+        <para>
+          Each <code>IdentityStore</code> may support a different set of credential handlers. This documentations describes the built-in credential handlers provided by PicketLink, but sometimes you
+          may want to provide your own implementations.
+        </para>
+
+        <para>When you write your custom credential handler you need to tell PicketLink the identity store that will support it. This is done by the following code:</para>
+        <programlisting language="JAVA"><![CDATA[ IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+ builder
+   .named("default")
+     .stores()
+       .jpa()
+         // other JPA configuration
+         .addCredentialHandler(UserPasswordCredentialHandler.class)
+         .supportAllFeatures();]]></programlisting>
+
+        <para>
+          The example above shows how to configure a credential handler for a JPA-based store using the <code>addCredentialHandler</code> method.
+        </para>
+        <section>
+          <title>Passing parameters to Credential Handlers</title>
+          <para>
+            Some credential handlers support a set of configuration options to configure their behavior. These options can be specified as follows:
+          </para>
+          <programlisting language="JAVA"><![CDATA[ IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+ builder
+   .named("default")
+     .stores()
+       .jpa()
+         // other JPA configuration
+         .setCredentialHandlerProperty(PasswordCredentialHandler.PASSWORD_ENCODER, new BCryptPasswordEncoder(4))
+         .supportAllFeatures();]]></programlisting>
+
+          <para>
+            The example above shows how to set a property for the <code>PasswordCredentialHandler</code> using the <code>setCredentialHandlerProperty</code> method.
+          </para>
+
+        </section>
+      </section>
+      <section id="idm_identity_context_configuration">
+        <title>Identity Context Configuration</title>
+
+        <para>
+          The <code>IdentityContext</code> plays an important role in the PicketLink IDM achitecture. It is strongly used during the execution of operations.
+          It carries very sensitive and contextual information for a specific operation and provides access for some of the
+          IDM underlying services such as caching, event handling, id generator for <code>AttributedType</code> instances, among others.
+        </para>
+        <para>
+        	Operations are always executed by a specific <code>IdentityStore</code> in order to persist or store identity data using a specific repository (eg.: LDAP, databases, filesystem, etc).
+        	When executing a operation the identity store must be able to:
+        </para>
+        <para>
+          <itemizedlist>
+            <listitem>
+              <para>
+             		Access the current <code>Partition</code>. Eg.: <code>Realm</code> or <code>Tier</code>.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+             		Access the <emphasis>Event Handling API</emphasis> in order to fire events such as when an user is created, updated, etc.
+              </para>
+            </listitem>
+						<listitem>
+              <para>
+             		Access the <emphasis>Caching API</emphasis> in order to cache identity data and increase performance.
+              </para>
+            </listitem>
+						<listitem>
+              <para>
+             		Access to external resources, provided before the operation is executed and initialized by a <code>ContextInitializer</code>.
+              </para>
+            </listitem>
+          </itemizedlist>
+        </para>
+        <section>
+        	<title>Initializing the IdentityContext</title>
+          <para>
+          	Sometimes you may need to provide additional configuration or even references for external resources before the operation is executed by an identity store.
+          	An example is how you tell to the <code>JPAIdentityStore</code> which <code>EntityManager</code> instance should be used.
+        	  When executing an operation, the <code>JPAIdentityStore</code> must be able to access the current <code>EntityManager</code> to persist or retrieve data from the database.
+        	  You need someway to populate the <code>IdentityContext</code> with such information. When you're configuring an identity store, there is a configuration option
+        	  that allows you to provide a <code>ContextInitializer</code> implementation.
+          </para>
+       	  <programlisting language="JAVA"><![CDATA[public interface ContextInitializer {
+    void initContextForStore(IdentityContext context, IdentityStore<?> store);
+}]]></programlisting>
+				  <para>
+				  	The method <code>initContextForStore</code> will be invoked for every single operation and before its execution by the identity store.
+			  		It can be implemented to provide all the necessary logic to initialize and populate the <code>IdentityContext</code> for a specific <code>IdentityStore</code>.
+		  		</para>
+	  			<para>
+  					The configuration is also very simple:
+				  </para>
+       	  <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+  .named("default")
+    .stores()
+      .file()
+        .supportAllFeatures();
+        .addContextInitializer(new MyContextInitializer());
+]]></programlisting>
+				  <para>You can provide multiple initializers.</para>
+				  <note>
+					  <para>
+						  Remember that initializers are executed for every single operation. 
+						  Also, the same instance is used between operations which means your implementation should be <quote>stateless</quote>. 
+						  You should be careful about the implementation in order to not impact performance, concurrency or introduce unexpected behaviors.
+					  </para>
+				  </note>
+				</section>
+      </section>
+      
+      <section id="idm_configuration_from_xml_file">
+        <title>IDM configuration from XML file</title>
+        <para>Actually it's possible to configure IDM with XML configuration. This possibility is good especially in case when
+          you want Picketlink IDM to be part of bigger system and your users won't have a possibility to change source code and
+          so they can't configure it programmatically with the Builder API. So they will just need to change the configuration in
+          XML file instead of doing some changes directly in source code.
+        </para>
+        <section>
+          <title>Unified XML configuration</title>
+          <para>
+            Whole Picketlink project provides unified format of configuration file, so that you can configure <link linkend='federation_overview'>federation</link>
+            and IDM in same file.
+          </para>
+          <programlisting language="XML"><![CDATA[<PicketLink xmlns="urn:picketlink:identity-federation:config:2.1">
+
+  <PicketLinkIDP xmlns="urn:picketlink:identity-federation:config:1.0"
+                 ServerEnvironment="tomcat" BindingType="POST" SupportsSignatures="true">
+    <!-- SAML2 IDP configuration is here -->
+  </PicketLinkIDP>
+
+  <Handlers xmlns="urn:picketlink:identity-federation:handler:config:2.1">
+     <!-- Configuration of SAML2 handlers is here -->
+  </Handlers>
+
+  <PicketLinkSTS xmlns="urn:picketlink:identity-federation:config:1.0"
+                 STSName="Test STS" TokenTimeout="7200" EncryptToken="true">
+    <!-- Configuration of Picketlink STS is here -->
+  </PicketlinkSTS>
+
+  <PicketLinkIDM>
+    <!-- IDM configuration is here -->
+  </PicketLinkIDM>
+
+</PicketLink>]]></programlisting>
+          <para>Note that if you don't want to use Picketlink Federation, you can omit it's configuration and use just IDM.</para>
+        </section>
+        <section>
+          <title>XML configuration format</title>
+          <para>
+            XML configuration is leveraging <link linkend='programmatic_configuration'>Builder API</link> and Java reflection during
+            it's parsing, so names of XML elements are actually same like names of particular Builder methods.
+          </para>
+          <para>
+            For example, let's assume that you want to use <code>FileIdentityStore</code> and your programmatic configuration looks like this:
+          </para>
+          <programlisting language="JAVA"><![CDATA[IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+builder
+    .named(SIMPLE_FILE_STORE_CONFIG)
+        .stores()
+            .file()
+            .preserveState(false)
+            .supportGlobalRelationship(Relationship.class)
+            .supportAllFeatures();]]></programlisting>
+          <para>Same XML configuration to configure IDM with <code>FileIdentityStore</code> will look like this:</para>
+          <programlisting language="XML"><![CDATA[<PicketLink xmlns="urn:picketlink:identity-federation:config:2.1">
+
+  <PicketLinkIDM>
+
+    <named value="SIMPLE_FILE_STORE_CONFIG">
+      <stores>
+        <file>
+          <preserveState value="false" />
+          <supportGlobalRelationship value="org.picketlink.idm.model.Relationship" />
+          <supportAllFeatures />
+        </file>
+      </stores>
+    </named>
+
+  </PicketLinkIDM>
+
+</PicketLink>]]></programlisting>
+          <para>You can take a look at <ulink url="https://github.com/picketlink/picketlink/tree/master/modules/idm/tests/src/test/resources/config">testsuite</ulink>
+            to see more examples.
+          </para>
+        </section>
+        <section>
+          <title>Bootstrap IDM from XML file</title>
+          <para>
+            So to initialize Picketlink IDM from XML you can use the code like this:
+          </para>
+          <programlisting language="JAVA"><![CDATA[// Replace with your own configuration file
+String configFilePath = "config/embedded-file-config.xml";
+
+ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+InputStream configStream = tcl.getResourceAsStream(configFilePath);
+XMLConfigurationProvider xmlConfigurationProvider = new XMLConfigurationProvider();
+IdentityConfigurationBuilder idmConfigBuilder =
+  xmlConfigurationProvider.readIDMConfiguration(configStream);]]></programlisting>
+          <para>
+            Now you can bootstrap IDM from <code>idmConfigBuilder</code> in same way, like it's done in
+            <link linkend='programmatic_configuration'>Programmatic Configuration</link>. Note that you can initialize builder
+            from XML file and then you can do some additional programmatic configuration. For example, you may need to programmatically
+            add <code>JPAContextInitializer</code> in case that you are using JPA, because you will need access to JPA <code>EntityManager</code>.
+          </para>
+        </section>
+      </section>
+    </section>            
+</chapter>
