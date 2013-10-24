@@ -82,9 +82,9 @@ public class LDAPMappingConfigurationBuilder extends
         }
 
         if (!Relationship.class.isAssignableFrom(this.mappedClass)) {
-            if (isNullOrEmpty(this.baseDN)) {
-                throw new SecurityConfigurationException("No base DN provided for mapped class [" + this.mappedClass + "].");
-            }
+//            if (isNullOrEmpty(this.baseDN)) {
+//                throw new SecurityConfigurationException("No base DN provided for mapped class [" + this.mappedClass + "].");
+//            }
 
             if (isNullOrEmpty(this.idPropertyName)) {
                 throw new SecurityConfigurationException("No attribute provided as the identifier for mapped class [" + this.mappedClass + "].");
