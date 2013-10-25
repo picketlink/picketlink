@@ -61,6 +61,12 @@ public interface IDMInternalMessages extends IDMMessages {
     @Message(id = 302, value = "Could not create context.")
     IdentityManagementException storeLdapCouldNotCreateContext(@Cause Throwable e);
 
+    @Message(value = "Entry not found with ID [%s] using baseDN [%s].")
+    IdentityManagementException storeLdapEntryNotFoundWithId(String entryUUID, String baseDN);
+
+    @Message(value = "Could not load attributes for entry with ID [%s] using baseDN [%s].")
+    IdentityManagementException storeLdapCouldNotLoadAttributesForEntry(String entryUUID, String baseDN);
+
     @Message(value = "Unexpected IdentityStore type. Expected [%s]. Actual [%s].")
     IdentityManagementException storeUnexpectedType(Class<? extends IdentityStore> expectedType,
                                                     Class<? extends IdentityStore> actualType);

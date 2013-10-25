@@ -45,15 +45,14 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
     private final String bindDN;
     private final String bindCredential;
     private final boolean activeDirectory;
-    private String standardAttributesFileName = "standardattributes.txt";
-    private Properties additionalProperties = new Properties();
+    private final Properties connectionProperties;
 
     private String baseDN;
     private final Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig;
 
     LDAPIdentityStoreConfiguration(
             String url,
-            String bindDN,
+            final Properties connectionProperties, String bindDN,
             String bindCredential,
             String baseDN,
             final boolean activeDirectory,
@@ -66,15 +65,12 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers,
                 false, supportsCredential);
         this.ldapURL = url;
+        this.connectionProperties = connectionProperties;
         this.bindDN = bindDN;
         this.bindCredential = bindCredential;
         this.activeDirectory = activeDirectory;
         this.baseDN = baseDN;
         this.mappingConfig = mappingConfig;
-    }
-
-    public String getStandardAttributesFileName() {
-        return this.standardAttributesFileName;
     }
 
     public String getLdapURL() {
@@ -109,8 +105,8 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         return this.activeDirectory;
     }
 
-    public Properties getAdditionalProperties() {
-        return this.additionalProperties;
+    public Properties getConnectionProperties() {
+        return this.connectionProperties;
     }
 
     public Map<Class<? extends AttributedType>, LDAPMappingConfiguration> getMappingConfig() {

@@ -39,7 +39,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static java.util.Map.Entry;
-import static org.picketlink.common.util.ClassUtil.newInstance;
+import static org.picketlink.common.reflection.Reflections.newInstance;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**

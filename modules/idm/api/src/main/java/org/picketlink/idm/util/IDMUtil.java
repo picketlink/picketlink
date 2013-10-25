@@ -119,22 +119,8 @@ public class IDMUtil {
                 cls = cls.getSuperclass();
             }
             return score;
-        } else if (type.isAssignableFrom(targetClass)) {
-            // in this case, we check if the type is a parent, so we can calc the hierarchy
-            int score = 0;
-
-            Class<?> cls = targetClass.getSuperclass();
-            while (!cls.equals(Object.class)) {
-                if (type.isAssignableFrom(cls)) {
-                    score++;
-                } else {
-                    break;
-                }
-                cls = cls.getSuperclass();
-            }
-            return score;
-        } else {
-            return -1;
         }
+
+        return -1;
     }
 }
