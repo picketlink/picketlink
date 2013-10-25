@@ -67,7 +67,7 @@ public interface IDMLog extends Log {
     @Message(id = 1001, value = "Initializing Identity Store [%s]")
     void storeInitializing(Class<? extends IdentityStore> storeType);
 
-    @LogMessage(level = Level.WARN)
+    @LogMessage(level = Level.DEBUG)
     @Message(id = 1002, value = "No partition assigned for identity type [%s] by identity store [%s]. We assume this entry belongs to the default partition [%s].")
     void partitionUndefinedForTypeUsingDefault(IdentityType identityType, IdentityStore identityStore, Realm defaultPartition);
 }

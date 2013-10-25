@@ -17,13 +17,21 @@
  */
 package org.picketlink.idm.util;
 
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.common.properties.query.TypedPropertyCriteria;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.spi.IdentityStore;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static org.picketlink.idm.IDMLog.ROOT_LOGGER;
 import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
@@ -122,5 +130,34 @@ public class IDMUtil {
         }
 
         return -1;
+    }
+
+    /**
+     * <p>Configure the default partition for the given identity type, if necessary.</p>
+     *
+     * <p>The default partition will be used when the type does not provide a partition by its own.</p>
+     *
+     * @param identityType
+     * @param identityStore
+     * @param partitionManager
+     */
+    public static void configureDefaultPartition(IdentityType identityType, IdentityStore identityStore, PartitionManager partitionManager) {
+        if (identityType != null) {
+            if (identityType.getPartition() == null) {
+                Realm defaultPartition = partitionManager.getPartition(Realm.class, Realm.DEFAULT_REALM);
+
+                ROOT_LOGGER.partitionUndefinedForTypeUsingDefault(identityType, identityStore, defaultPartition);
+                identityType.setPartition(defaultPartition);
+            }
+
+            Property<IdentityType> parentProperty = PropertyQueries
+                    .<IdentityType>createQuery(identityType.getClass())
+                    .addCriteria(new TypedPropertyCriteria(identityType.getClass(), TypedPropertyCriteria.MatchOption.SUB_TYPE))
+                    .getFirstResult();
+
+            if (parentProperty != null) {
+                configureDefaultPartition(parentProperty.getValue(identityType), identityStore, partitionManager);
+            }
+        }
     }
 }

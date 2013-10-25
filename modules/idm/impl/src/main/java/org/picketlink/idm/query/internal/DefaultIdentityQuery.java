@@ -20,7 +20,6 @@ package org.picketlink.idm.query.internal;
 
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.AttributeStore;
@@ -37,7 +36,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
-import static org.picketlink.idm.IDMLog.ROOT_LOGGER;
+import static org.picketlink.idm.util.IDMUtil.configureDefaultPartition;
 
 /**
  * Default IdentityQuery implementation.
@@ -136,12 +135,7 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
 
             for (IdentityStore<?> store : identityStores) {
                 for (T identityType : store.fetchQueryResults(this.context, this)) {
-                    if (identityType.getPartition() == null) {
-                        Realm defaultPartition = getPartitionManager().getPartition(Realm.class, Realm.DEFAULT_REALM);
-
-                        ROOT_LOGGER.partitionUndefinedForTypeUsingDefault(identityType, store, defaultPartition);
-                        identityType.setPartition(defaultPartition);
-                    }
+                    configureDefaultPartition(identityType, store, getPartitionManager());
 
                     if (attributeStore != null) {
                         attributeStore.loadAttributes(this.context, identityType);

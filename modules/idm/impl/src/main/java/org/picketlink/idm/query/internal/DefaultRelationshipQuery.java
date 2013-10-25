@@ -29,7 +29,6 @@ import org.picketlink.idm.internal.RelationshipReference;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.AttributeStore;
@@ -47,12 +46,13 @@ import java.util.Set;
 import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
 import static org.picketlink.common.reflection.Reflections.classForName;
 import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
-import static org.picketlink.idm.IDMLog.ROOT_LOGGER;
+import static org.picketlink.idm.util.IDMUtil.configureDefaultPartition;
 
 /**
  * Default IdentityQuery implementation.
  *
  * @param <T>
+ *
  * @author Shane Bryzak
  */
 public class DefaultRelationshipQuery<T extends Relationship> implements RelationshipQuery<T> {
@@ -109,29 +109,24 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
             AttributeStore<?> attributeStore = this.storeSelector.getStoreForAttributeOperation(this.context);
 
             for (IdentityStore<?> store : getStores()) {
-                List<T> references= store.fetchQueryResults(context, this);
+                List<T> references = store.fetchQueryResults(context, this);
 
                 for (T relationship : references) {
-                    if (RelationshipReference.class.isInstance(relationship)) {
-                        RelationshipReference reference = (RelationshipReference) relationship;
-                        resolveIdentityTypes(reference);
-                        relationship = (T) reference.getRelationship();
-                    }
-
                     List<Property<IdentityType>> identityTypes = PropertyQueries
                             .<IdentityType>createQuery(relationship.getClass())
                             .addCriteria(new TypedPropertyCriteria(IdentityType.class, MatchOption.ALL))
                             .getResultList();
 
-                    for (Property<IdentityType> identityTypeProperty: identityTypes) {
+                    for (Property<IdentityType> identityTypeProperty : identityTypes) {
                         IdentityType identityType = identityTypeProperty.getValue(relationship);
 
-                        if (identityType.getPartition() == null) {
-                            Realm defaultPartition = getPartitionManager().getPartition(Realm.class, Realm.DEFAULT_REALM);
+                        configureDefaultPartition(identityType, store, getPartitionManager());
+                    }
 
-                            ROOT_LOGGER.partitionUndefinedForTypeUsingDefault(identityType, store, defaultPartition);
-                            identityType.setPartition(defaultPartition);
-                        }
+                    if (RelationshipReference.class.isInstance(relationship)) {
+                        RelationshipReference reference = (RelationshipReference) relationship;
+                        resolveIdentityTypes(reference);
+                        relationship = (T) reference.getRelationship();
                     }
 
                     if (attributeStore != null) {

@@ -37,7 +37,6 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.Unique;
-import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
@@ -52,7 +51,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
-import static org.picketlink.idm.IDMLog.ROOT_LOGGER;
+import static org.picketlink.idm.util.IDMUtil.configureDefaultPartition;
 
 /**
  * <p>Default implementation of the IdentityManager interface.<p/> <p/> <p> This lightweight class is intended to be
@@ -85,12 +84,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
 
             identityStore.add(this, identityType);
 
-            if (identityType.getPartition() == null) {
-                Realm defaultPartition = getPartitionManager().getPartition(Realm.class, Realm.DEFAULT_REALM);
-
-                ROOT_LOGGER.partitionUndefinedForTypeUsingDefault(identityType, identityStore, defaultPartition);
-                identityType.setPartition(defaultPartition);
-            }
+            configureDefaultPartition(identityType, identityStore, getPartitionManager());
 
             addAttributes(identityType);
         } catch (Exception e) {
