@@ -21,6 +21,7 @@ package org.picketlink.idm.query.internal;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
@@ -28,6 +29,7 @@ import org.picketlink.idm.internal.RelationshipReference;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.AttributeStore;
@@ -42,8 +44,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
 import static org.picketlink.common.reflection.Reflections.classForName;
 import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
+import static org.picketlink.idm.IDMLog.ROOT_LOGGER;
 
 /**
  * Default IdentityQuery implementation.
@@ -102,10 +106,10 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
         List<T> result = new ArrayList<T>();
 
         try {
-            List<T> references = null;
+            AttributeStore<?> attributeStore = this.storeSelector.getStoreForAttributeOperation(this.context);
 
             for (IdentityStore<?> store : getStores()) {
-                references = store.fetchQueryResults(context, this);
+                List<T> references= store.fetchQueryResults(context, this);
 
                 for (T relationship : references) {
                     if (RelationshipReference.class.isInstance(relationship)) {
@@ -114,7 +118,21 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
                         relationship = (T) reference.getRelationship();
                     }
 
-                    AttributeStore<?> attributeStore = this.storeSelector.getStoreForAttributeOperation(context);
+                    List<Property<IdentityType>> identityTypes = PropertyQueries
+                            .<IdentityType>createQuery(relationship.getClass())
+                            .addCriteria(new TypedPropertyCriteria(IdentityType.class, MatchOption.ALL))
+                            .getResultList();
+
+                    for (Property<IdentityType> identityTypeProperty: identityTypes) {
+                        IdentityType identityType = identityTypeProperty.getValue(relationship);
+
+                        if (identityType.getPartition() == null) {
+                            Realm defaultPartition = getPartitionManager().getPartition(Realm.class, Realm.DEFAULT_REALM);
+
+                            ROOT_LOGGER.partitionUndefinedForTypeUsingDefault(identityType, store, defaultPartition);
+                            identityType.setPartition(defaultPartition);
+                        }
+                    }
 
                     if (attributeStore != null) {
                         attributeStore.loadAttributes(context, relationship);
@@ -138,7 +156,7 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
             String partitionId = reference.getPartitionId(descriptor);
             String identityTypeId = reference.getIdentityTypeId(descriptor);
 
-            PartitionManager partitionManager = (PartitionManager) this.storeSelector;
+            PartitionManager partitionManager = getPartitionManager();
             Partition partition = partitionManager.lookupById(Partition.class, partitionId);
 
             if (partition == null) {
@@ -171,6 +189,10 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
 
             property.setValue(relationship, identityType);
         }
+    }
+
+    private PartitionManager getPartitionManager() {
+        return (PartitionManager) this.storeSelector;
     }
 
     @Override
