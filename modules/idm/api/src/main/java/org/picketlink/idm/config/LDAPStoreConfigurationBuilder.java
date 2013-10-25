@@ -199,6 +199,7 @@ public class LDAPStoreConfigurationBuilder extends
         this.bindDN = configuration.getBindDN();
         this.url = configuration.getLdapURL();
         this.activeDirectory = configuration.isActiveDirectory();
+        this.connectionProperties = configuration.getConnectionProperties();
 
         for (Class<? extends AttributedType> attributedType: configuration.getMappingConfig().keySet()) {
             LDAPMappingConfiguration mappingConfiguration = configuration.getMappingConfig().get(attributedType);
