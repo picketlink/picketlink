@@ -87,7 +87,7 @@ import java.util.Map;
 
 import static java.util.Map.Entry;
 import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
-import static org.picketlink.common.util.ClassUtil.newInstance;
+import static org.picketlink.common.reflection.Reflections.newInstance;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.IDMInternalLog.JPA_STORE_LOGGER;
 import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
@@ -414,19 +414,20 @@ public class JPAIdentityStore
     public <V extends IdentityType> List<V> fetchQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
         List<V> result = new ArrayList<V>();
         EntityManager entityManager = getEntityManager(context);
-        EntityMapper rootMapper = getRootMapper(identityQuery.getIdentityType());
+        Class<V> type = identityQuery.getIdentityType();
 
         if (identityQuery.getParameter(IdentityType.ID) != null) {
             Object[] parameter = identityQuery.getParameter(IdentityType.ID);
 
             if (parameter.length > 0) {
-                Object entity = entityManager.find(rootMapper.getEntityType(), parameter[0]);
+                V identityType = (V) lookupIdentityTypeById(entityManager, type, parameter[0].toString());
 
-                if (entity != null) {
-                    result.add(getRootMapperForEntity(entity.getClass()).<V>createType(entity, entityManager));
+                if (identityType != null) {
+                    result.add(identityType);
                 }
             }
         } else {
+            EntityMapper rootMapper = getRootMapper(type);
             CriteriaBuilder cb = entityManager.getCriteriaBuilder();
             CriteriaQuery cq = cb.createQuery(rootMapper.getEntityType());
             List<Predicate> predicates = new ArrayList<Predicate>();
@@ -445,9 +446,9 @@ public class JPAIdentityStore
                 predicates.add(cb.equal(join, entityManager.find(partitionProperty.getValue().getJavaClass(), partition.getId())));
             }
 
-            if (!IdentityType.class.equals(identityQuery.getIdentityType())) {
-                Entry<Property, Property> property = rootMapper.getProperty(identityQuery.getIdentityType(), IdentityClass.class);
-                predicates.add(cb.equal(from.get(property.getValue().getName()), identityQuery.getIdentityType().getName()));
+            if (!IdentityType.class.equals(type)) {
+                Entry<Property, Property> property = rootMapper.getProperty(type, IdentityClass.class);
+                predicates.add(cb.equal(from.get(property.getValue().getName()), type.getName()));
             }
 
             for (QueryParameter queryParameter : identityQuery.getParameters().keySet()) {
@@ -459,10 +460,10 @@ public class JPAIdentityStore
                     AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
                     Object[] parameterValues = identityQuery.getParameter(attributeParameter);
                     EntityMapper parameterEntityMapper =
-                            getEntityMapperForProperty(identityQuery.getIdentityType(), attributeParameter.getName());
+                            getEntityMapperForProperty(type, attributeParameter.getName());
 
                     if (parameterEntityMapper != null) {
-                        Property mappedProperty = (Property) parameterEntityMapper.getProperty(identityQuery.getIdentityType(), attributeParameter.getName()).getValue();
+                        Property mappedProperty = (Property) parameterEntityMapper.getProperty(type, attributeParameter.getName()).getValue();
                         Root<?> propertyEntityJoin = from;
 
                         if (!parameterEntityMapper.getEntityType().equals(rootMapper.getEntityType())) {
@@ -498,7 +499,7 @@ public class JPAIdentityStore
                             predicates.add(cb.equal(propertyEntityJoin.get(mappedProperty.getName()), parameterValue));
                         }
                     } else {
-                        addAttributeQueryPredicates(identityQuery.getIdentityType(), cb, cq, from, predicates,
+                        addAttributeQueryPredicates(type, cb, cq, from, predicates,
                                 attributeParameter,
                                 parameterValues);
                     }
@@ -530,7 +531,8 @@ public class JPAIdentityStore
     }
 
     @Override
-    public <V extends Relationship> List<V> fetchQueryResults(IdentityContext context, RelationshipQuery<V> query) {
+    public <V extends Relationship> List<V> fetchQueryResults(IdentityContext
+                                                                      context, RelationshipQuery<V> query) {
         EntityManager entityManager = getEntityManager(context);
         List entities = new ArrayList();
 
@@ -677,7 +679,8 @@ public class JPAIdentityStore
     }
 
     @Override
-    public void setAttribute(IdentityContext context, AttributedType attributedType, Attribute<? extends Serializable> attribute) {
+    public void setAttribute(IdentityContext context, AttributedType attributedType, Attribute<? extends
+            Serializable> attribute) {
         removeAttribute(context, attributedType, attribute.getName());
 
         Serializable values = attribute.getValue();
@@ -809,7 +812,8 @@ public class JPAIdentityStore
 
     /**
      * <p>Returns all {@link EntityMapper} instances used to map the given {@link AttributedType}. Only mappers for
-     * {@link IdentityManaged} annotated entity classes are considered, what means that this method can only be used
+     * {@link IdentityManaged} annotated entity classes are considered, what means that this method can only be
+     * used
      * when
      * trying to persist or populate @{link AttributedType} instances.</p>
      *
@@ -885,7 +889,33 @@ public class JPAIdentityStore
         return entityManager.find(getRootMapper(attributedType.getClass()).getEntityType(), attributedType.getId());
     }
 
-    private EntityMapper getEntityMapperForProperty(Class<? extends AttributedType> attributedType, String propertyName) {
+    private <V extends IdentityType> IdentityType lookupIdentityTypeById(EntityManager entityManager, Class<V> type, String identifier) {
+        if (IdentityType.class.equals(type)) {
+            // when querying based on the IdentityType base type, we try to load the instance from all available mappers.
+            for (EntityMapper entityMapper : getEntityMappers()) {
+                if (entityMapper.getMappingsFor(type) != null && entityMapper.isRoot() && entityMapper.isPersist()) {
+                    Object entity = entityManager.find(entityMapper.getEntityType(), identifier);
+                    V identityType = entityMapper.<V>createType(entity, entityManager);
+
+                    if (identityType != null) {
+                        return identityType;
+                    }
+                }
+            }
+        } else {
+            // we know the right type, we just lookup based on its root mapper
+            Object entity = entityManager.find(getRootMapper(type).getEntityType(), identifier);
+
+            if (entity != null) {
+                return getRootMapperForEntity(entity.getClass()).<V>createType(entity, entityManager);
+            }
+        }
+
+        return null;
+    }
+
+    private EntityMapper getEntityMapperForProperty(Class<? extends AttributedType> attributedType, String
+            propertyName) {
         for (EntityMapper entityMapper : getMapperFor(attributedType)) {
             Entry<Property, Property> property = entityMapper.getProperty(attributedType, propertyName);
 
@@ -941,7 +971,8 @@ public class JPAIdentityStore
 
     }
 
-    private <T extends Relationship> T convertToRelationshipType(IdentityContext context, Object relationshipObject) {
+    private <T extends Relationship> T convertToRelationshipType(IdentityContext context, Object
+            relationshipObject) {
         EntityMapper relationshipMemberMapper = getEntityMapperForProperty(RelationshipMember.class);
 
         Property<Object> identityProperty = relationshipMemberMapper.getProperty(RelationshipMember.class).getValue();
@@ -1062,13 +1093,15 @@ public class JPAIdentityStore
         throw new IdentityManagementException("No mapper for for credential storage type [" + credentialStorageClass + "].");
     }
 
-    private void removeChildRelationships(final IdentityContext context, final Relationship attributedType, final EntityManager entityManager) {
+    private void removeChildRelationships(final IdentityContext context, final Relationship attributedType,
+                                          final EntityManager entityManager) {
         for (Object child : findChildRelationships(context, (Relationship) attributedType)) {
             entityManager.remove(child);
         }
     }
 
-    private void removeAssociatedEntities(final AttributedType attributedType, final EntityManager entityManager, final EntityMapper rootMapper) {
+    private void removeAssociatedEntities(final AttributedType attributedType, final EntityManager entityManager,
+                                          final EntityMapper rootMapper) {
         for (EntityMapper childMapper : getMapperFor(attributedType.getClass())) {
             if (!childMapper.isRoot()) {
                 for (Object child : rootMapper.getAssociatedEntities(attributedType, childMapper, entityManager)) {
@@ -1082,7 +1115,8 @@ public class JPAIdentityStore
         return getMapperFor(aClass).get(0);
     }
 
-    private Map<String, Attribute<Serializable>> getAttributes(final AttributedType attributedType, final String attributeName, final EntityManager entityManager) {
+    private Map<String, Attribute<Serializable>> getAttributes(final AttributedType attributedType,
+                                                               final String attributeName, final EntityManager entityManager) {
         EntityMapper attributeMapper = getAttributeMapper(attributedType.getClass());
 
         Class<?> attributeEntityClass = attributeMapper.getEntityType();
@@ -1275,7 +1309,8 @@ public class JPAIdentityStore
     /**
      * <p> Creates an {@link EntityMapper} for the given mapped entity. This method looks first for the owner
      * references
-     * in order to have them configured first. The order is important to make sure the entities are created or updated
+     * in order to have them configured first. The order is important to make sure the entities are created or
+     * updated
      * in the correct order of dependency.
      * <p/>
      *
