@@ -152,6 +152,11 @@
       <artifactId>jboss-logging-log4j</artifactId>
       <version>2.2.0.CR1</version>
       <scope>test</scope>
+    <!-- JDBC Store Dep-->
+    <dependency>
+      <groupId>directory-naming</groupId>
+      <artifactId>naming-java</artifactId>
+      <version>0.8</version>
     </dependency>
   </dependencies>
 

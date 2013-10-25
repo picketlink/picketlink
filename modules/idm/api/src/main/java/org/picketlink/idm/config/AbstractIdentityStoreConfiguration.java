@@ -80,6 +80,9 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
             Set<Class<? extends CredentialHandler>> credentialHandlers,
             boolean supportsAttribute,
             boolean supportsCredential) {
+        if(supportedTypes == null){
+            throw MESSAGES.nullArgument("supportedTypes");
+        }
         this.supportedTypes = unmodifiableMap(supportedTypes);
         this.unsupportedTypes = unmodifiableMap(unsupportedTypes);
         this.contextInitializers = unmodifiableList(contextInitializers);

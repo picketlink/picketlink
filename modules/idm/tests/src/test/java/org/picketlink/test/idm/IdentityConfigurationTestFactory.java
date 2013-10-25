@@ -19,6 +19,7 @@ package org.picketlink.test.idm;
 
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.JDBCStoreConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreComplexSchemaConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
@@ -66,8 +67,12 @@ public class IdentityConfigurationTestFactory {
         testers.add(new JPAStoreComplexSchemaConfigurationTester());
         testers.add(new SingleConfigLDAPJPAStoreConfigurationTester());
         testers.add(new LDAPStoreConfigurationTester());
+<<<<<<< HEAD
         testers.add(new LDAPUserGroupJPARoleConfigurationTester());
 //        testers.add(new LDAPJPAPerformanceConfigurationTester());
+=======
+        testers.add(new JDBCStoreConfigurationTester());
+>>>>>>> PLINK-309: equals and hashcode
 
         return testers;
     }

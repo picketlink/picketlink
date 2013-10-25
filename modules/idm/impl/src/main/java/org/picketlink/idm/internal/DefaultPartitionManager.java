@@ -29,6 +29,7 @@ import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
+import org.picketlink.idm.config.JDBCIdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.config.OperationNotSupportedException;
@@ -38,6 +39,7 @@ import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.file.internal.FileIdentityStore;
 import org.picketlink.idm.internal.util.RelationshipMetadata;
+import org.picketlink.idm.jdbc.internal.JDBCIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.Attribute;
@@ -174,6 +176,18 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                         attributeCfg = config;
                     }
                 }
+        if (storeClass == null) {
+            // If no store class is configured, default to the built-in types for known configurations
+            if (FileIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
+                storeClass = (Class<T>) FileIdentityStore.class;
+            } else if (JPAIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
+                storeClass = (Class<T>) JPAIdentityStore.class;
+            } else if (LDAPIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
+                storeClass = (Class<T>) LDAPIdentityStore.class;
+            } else if (LDAPIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
+                storeClass = (Class<T>) LDAPIdentityStore.class;
+            } else if (JDBCIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
+                storeClass = (Class<T>) JDBCIdentityStore.class;
             }
 
             // There may be no configuration that supports partition management, in which case the partitionManagementConfig
