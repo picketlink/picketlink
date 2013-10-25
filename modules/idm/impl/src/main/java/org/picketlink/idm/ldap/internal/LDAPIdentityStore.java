@@ -639,8 +639,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 String createdTimestamp = attributes.get(CREATE_TIMESTAMP).get().toString();
 
                 identityType.setCreatedDate(parseLDAPDate(createdTimestamp));
-
-                identityType.setPartition(context.getPartition());
             }
 
             LDAPMappingConfiguration entryConfig = getMappingConfig(attributedType.getClass());

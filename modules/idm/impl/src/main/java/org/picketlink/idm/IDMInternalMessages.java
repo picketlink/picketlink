@@ -147,6 +147,10 @@ public interface IDMInternalMessages extends IDMMessages {
                                                                       @Param IdentityStoreConfiguration.IdentityOperation operation, Class<? extends AttributedType> typeToDisplay,
                                                                       IdentityStoreConfiguration.IdentityOperation operationToDisplay);
 
+    @Message(id = 605, value = "Undefined partition for identity type [%s].")
+    IdentityManagementException attributedUndefinedPartition(IdentityType identityType);
+
     @Message(value = "Could not find AttributedType [%s] with the given identifier [%s] for Partition [%s]")
     IdentityManagementException attributedTypeNotFoundWithId(Class<? extends AttributedType> type, String id, Partition partition);
+
 }
