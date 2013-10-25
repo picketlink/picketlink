@@ -18,6 +18,7 @@
 
 package org.picketlink.idm.spi;
 
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.AttributedType;
@@ -63,13 +64,21 @@ public interface StoreSelector {
                                                       Relationship relationship, IdentityOperation operation);
 
     /**
-     * @param context
-     * @param relationshipClass
+     * <p>Returns all available {@link IdentityStore} instances that support the given {@link IdentityType}.</p>
      *
-     * @return
+     * @param context The current context.
+     * @param relationshipClass The type used to restrict which stores should be selected and returned. If
+     * the value is {@link IdentityType} all stores that support any subtype of this interface
+     * will be returned.
+     * @param partitions A set with the partitions that should be used to restrict which stores should be selected. If empty
+     * only the type will be considered.
+     *
+     * @return A list of stores that support the given type.
+     *
+     * @throws IdentityManagementException If no store was found.
      */
     Set<IdentityStore<?>> getStoresForRelationshipQuery(IdentityContext context, Class<? extends Relationship> relationshipClass,
-                                                        Set<Partition> partitions);
+                                                        Set<Partition> partitions) throws IdentityManagementException;
 
     /**
      * Returns a PermissionStore instance
@@ -105,14 +114,16 @@ public interface StoreSelector {
     Set<CredentialStore<?>> getStoresForCredentialStorage(IdentityContext context, Class<? extends CredentialStorage> storageClass);
 
     /**
-     * <p>Returns all available {@link IdentityStore} instances that support the given {@link IdentityType} type.</p>
+     * <p>Returns all available {@link IdentityStore} instances that support the given {@link IdentityType}.</p>
      *
-     * <p>This method is particularly useful when querying identity types using a base type.</p>
+     * @param context The current context.
+     * @param identityType The type used to restrict which stores should be selected and returned. If
+     * the value is {@link IdentityType} all stores that support any subtype of this interface
+     * will be returned.
      *
-     * @param context
-     * @param identityType
+     * @return A list of stores that support the given type.
      *
-     * @return
+     * @throws IdentityManagementException If no store was found.
      */
-    Set<IdentityStore<?>> getStoresForIdentityQuery(IdentityContext context, Class<? extends IdentityType> identityType);
+    Set<IdentityStore<?>> getStoresForIdentityQuery(IdentityContext context, Class<? extends IdentityType> identityType) throws IdentityManagementException;
 }

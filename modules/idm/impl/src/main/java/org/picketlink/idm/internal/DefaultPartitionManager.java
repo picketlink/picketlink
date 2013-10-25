@@ -451,7 +451,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
         for (IdentityConfiguration configuration : this.configurations) {
             for (IdentityStoreConfiguration storeConfig : configuration.getStoreConfiguration()) {
-                if (storeConfig.supportsType(identityType, IdentityOperation.read)) {
+                if (storeConfig.supportsType(identityType, IdentityOperation.read) || IdentityType.class.equals(identityType)) {
                     identityStores.add(getIdentityStoreAndInitializeContext(context, configuration, storeConfig));
                 }
             }
@@ -596,7 +596,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     @Override
     public Set<IdentityStore<?>> getStoresForRelationshipQuery(IdentityContext context, Class<? extends Relationship> relationshipClass,
                                                                Set<Partition> partitions) {
-        Set<IdentityStore<?>> result = new HashSet<IdentityStore<?>>();
+        Set<IdentityStore<?>> identityStores = new HashSet<IdentityStore<?>>();
 
         // If _no_ parameters have been specified for the query at all, we return all stores that support the
         // specified relationship class
@@ -605,8 +605,8 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                 if (config.getRelationshipPolicy().isGlobalRelationshipSupported(relationshipClass) ||
                         config.getRelationshipPolicy().isSelfRelationshipSupported(relationshipClass)) {
                     for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
-                        if (storeConfig.supportsType(relationshipClass, IdentityOperation.create)) {
-                            result.add(getIdentityStoreAndInitializeContext(context, config, storeConfig));
+                        if (storeConfig.supportsType(relationshipClass, IdentityOperation.create) || Relationship.class.equals(relationshipClass)) {
+                            identityStores.add(getIdentityStoreAndInitializeContext(context, config, storeConfig));
                         }
                     }
                 }
@@ -616,15 +616,19 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                 IdentityConfiguration config = getConfigurationForPartition(partition);
                 if (config.getRelationshipPolicy().isGlobalRelationshipSupported(relationshipClass)) {
                     for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
-                        if (storeConfig.supportsType(relationshipClass, IdentityOperation.create)) {
-                            result.add(getIdentityStoreAndInitializeContext(context, config, storeConfig));
+                        if (storeConfig.supportsType(relationshipClass, IdentityOperation.create) || Relationship.class.equals(relationshipClass)) {
+                            identityStores.add(getIdentityStoreAndInitializeContext(context, config, storeConfig));
                         }
                     }
                 }
             }
         }
 
-        return result;
+        if (identityStores.isEmpty()) {
+            throw MESSAGES.attributedTypeUnsupportedOperation(relationshipClass, IdentityOperation.read, relationshipClass, IdentityOperation.read);
+        }
+
+        return identityStores;
     }
 
     @Override

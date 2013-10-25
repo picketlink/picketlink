@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.picketlink.common.reflection.Reflections.classForName;
 import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
 
 /**
@@ -101,8 +102,10 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
         List<T> result = new ArrayList<T>();
 
         try {
+            List<T> references = null;
+
             for (IdentityStore<?> store : getStores()) {
-                List<T> references = store.fetchQueryResults(context, this);
+                references = store.fetchQueryResults(context, this);
 
                 for (T relationship : references) {
                     if (RelationshipReference.class.isInstance(relationship)) {
@@ -131,6 +134,7 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
         Relationship relationship = reference.getRelationship();
 
         for (String descriptor : reference.getDescriptors()) {
+            String type = reference.getIdentityType(descriptor);
             String partitionId = reference.getPartitionId(descriptor);
             String identityTypeId = reference.getIdentityTypeId(descriptor);
 
@@ -142,9 +146,16 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
                         "referenced IdentityType [" + identityTypeId + "].");
             }
 
-            IdentityManager identityManager = partitionManager.createIdentityManager(partition);
+            Class<? extends IdentityType> identityTypeClass;
 
-            IdentityType identityType = identityManager.lookupIdentityById(IdentityType.class, identityTypeId);
+            try {
+                identityTypeClass = (Class<? extends IdentityType>) classForName(type, reference.getRelationship().getClass().getClassLoader());
+            } catch (ClassNotFoundException e) {
+                throw new IdentityManagementException("Could not instantiate referenced identity type [" + type + "].", e);
+            }
+
+            IdentityManager identityManager = partitionManager.createIdentityManager(partition);
+            IdentityType identityType = identityManager.lookupIdentityById(identityTypeClass, identityTypeId);
 
             if (identityType == null) {
                 throw new IdentityManagementException("Referenced IdentityType [" + identityTypeId + "] from " +

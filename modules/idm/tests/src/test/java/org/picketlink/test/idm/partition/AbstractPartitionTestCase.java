@@ -63,6 +63,7 @@ public abstract class AbstractPartitionTestCase<T extends Partition> extends Abs
 
         getPartitionManager().add(partition, "invalid_config_name");
     }
+
     @Test
     public void testRemove() {
         T partition = createPartition();
