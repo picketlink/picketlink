@@ -26,6 +26,7 @@ import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.common.util.LDAPUtil;
 import org.picketlink.idm.IDMInternalLog;
 import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPMappingConfiguration;
 import org.picketlink.idm.credential.handler.annotations.CredentialHandlers;
@@ -46,6 +47,7 @@ import org.picketlink.idm.spi.IdentityContext;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
@@ -159,7 +161,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
             NamingEnumeration<SearchResult> search = null;
 
             try {
-                search = this.operationManager.search(getBaseDN(attributedType), "(" + getBindingName(attributedType) + ")");
+                search = this.operationManager.search(getBaseDN(attributedType), "(" + getBindingName(attributedType) + ")", ldapEntryConfig);
                 populateAttributedType(context, search.next(), attributedType);
             } catch (NamingException ne) {
                 throw new IdentityManagementException("Could not add AttributedType [" + attributedType + "].", ne);
@@ -259,7 +261,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                     filter.append("(&(").append(attributeName).append(EQUAL).append("").append(bindingDN).append("))");
 
-                    NamingEnumeration<SearchResult> search = this.operationManager.search(getMappingConfig(relationshipConfig.getRelatedAttributedType()).getBaseDN(), filter.toString());
+                    NamingEnumeration<SearchResult> search = this.operationManager.search(getMappingConfig(relationshipConfig.getRelatedAttributedType()).getBaseDN(), filter.toString(), getMappingConfig(relationshipConfig.getRelatedAttributedType()));
 
                     while (search.hasMore()) {
                         SearchResult result = search.next();
@@ -356,19 +358,21 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
             try {
                 String baseDN = getConfig().getBaseDN();
 
-                if (ldapEntryConfig != null) {
-                    baseDN = ldapEntryConfig.getBaseDN();
-                }
-
                 filter.insert(0, "(&(");
 
-                for (String objectClass : ldapEntryConfig.getObjectClasses()) {
-                    filter.append("(objectClass=").append(objectClass).append(")");
+                if (ldapEntryConfig != null) {
+                    if (ldapEntryConfig.getBaseDN() != null) {
+                        baseDN = ldapEntryConfig.getBaseDN();
+                    }
+
+                    filter.append(getObjectClassesFilter(ldapEntryConfig));
+                } else {
+                    filter.append("(objectClass=*)");
                 }
 
                 filter.append("))");
 
-                search = this.operationManager.search(baseDN, filter.toString());
+                search = this.operationManager.search(baseDN, filter.toString(), ldapEntryConfig);
 
                 while (search.hasMoreElements()) {
                     V type = (V) populateAttributedType(context, search.nextElement(), null);
@@ -385,6 +389,15 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         }
 
         return results;
+    }
+
+    private StringBuilder getObjectClassesFilter(final LDAPMappingConfiguration ldapEntryConfig) {
+        StringBuilder builder = new StringBuilder();
+
+        for (String objectClass : ldapEntryConfig.getObjectClasses()) {
+            builder.append("(objectClass=").append(objectClass).append(")");
+        }
+        return builder;
     }
 
     @Override
@@ -415,9 +428,14 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
     private <V extends Relationship> List<V> fetchRelationships(final IdentityContext context, final RelationshipQuery<V> query, final LDAPMappingConfiguration mappingConfig) {
         List<V> results = new ArrayList<V>();
         Class<V> relationshipClass = (Class<V>) mappingConfig.getMappedClass();
-        StringBuilder filter = new StringBuilder();
         List<AttributedType> referencedTypes = new ArrayList<AttributedType>();
         Map<QueryParameter, Object[]> parameters = query.getParameters();
+        LDAPMappingConfiguration relatedTypeConfig = getMappingConfig(mappingConfig.getRelatedAttributedType());
+        StringBuilder filter = new StringBuilder();
+
+        filter.append("(&").append(getObjectClassesFilter(relatedTypeConfig));
+
+        List<String> entriesToFilter = new ArrayList<String>();
 
         for (QueryParameter queryParameter : parameters.keySet()) {
             Object[] values = parameters.get(queryParameter);
@@ -439,159 +457,102 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
             for (Object value : values) {
                 AttributedType attributedType = (AttributedType) value;
-                if (attributeName != null) {
-                    filter.append("(").append(attributeName).append(EQUAL).append("").append(getBindingDN(attributedType)).append(")");
-                } else {
-                    if (mappingConfig.getRelatedAttributedType().isAssignableFrom(attributedType.getClass())) {
-                        referencedTypes.add(attributedType);
+
+                if (!getConfig().supportsType(attributedType.getClass(), IdentityStoreConfiguration.IdentityOperation.read)) {
+                    return results;
+                }
+
+                String bindingDN = null;
+
+                try {
+                    NamingEnumeration<SearchResult> result = this.operationManager.lookupById(getBaseDN(attributedType), attributedType.getId());
+
+                    if (result.hasMore()) {
+                        SearchResult next = result.next();
+
+                        bindingDN = next.getNameInNamespace();
+
+                        if (!attributedType.getClass().equals(relatedTypeConfig.getMappedClass())) {
+                            entriesToFilter.add(bindingDN);
+                        }
                     }
+                } catch (NamingException e) {
+                    throw new IdentityManagementException(e);
+                }
+
+                if (attributedType.getClass().equals(relatedTypeConfig.getMappedClass())) {
+                    filter.append(this.operationManager.getFilterById(getBaseDN(attributedType), attributedType.getId()));
+                } else {
+                    filter.append("(").append(attributeName).append(EQUAL).append(bindingDN).append(")");
                 }
             }
         }
 
+        filter.append(")");
+
         NamingEnumeration<SearchResult> search = null;
 
         try {
-            if (!referencedTypes.isEmpty()) {
-                for (AttributedType relFilter : referencedTypes) {
-                    search = this.operationManager.search(getBaseDN(relFilter), getBindingName(relFilter));
+            if (filter.length() > 0) {
+                String baseDN = relatedTypeConfig.getBaseDN();
 
-                    List<Property<AttributedType>> properties = PropertyQueries
-                            .<AttributedType>createQuery(relationshipClass)
-                            .addCriteria(new TypedPropertyCriteria(IdentityType.class, MatchOption.SUB_TYPE))
-                            .getResultList();
-                    Property<AttributedType> rootProperty = PropertyQueries
-                            .<AttributedType>createQuery(relationshipClass)
-                            .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType()))
-                            .getSingleResult();
-
-                    while (search.hasMore()) {
-                        SearchResult next = search.next();
-                        Attributes attributes = next.getAttributes();
-
-                        for (Property<AttributedType> property : properties) {
-                            if (!property.getJavaClass().equals(relFilter.getClass())) {
-                                String relAttributeName = mappingConfig.getMappedProperties().get(property.getName());
-                                javax.naming.directory.Attribute attribute = attributes.get(relAttributeName);
-
-                                for (QueryParameter queryParameter : parameters.keySet()) {
-                                    Object[] values = parameters.get(queryParameter);
-
-                                    if (filter.length() > 0) {
-                                        for (Object value : values) {
-                                            IdentityType relType = (IdentityType) value;
-
-                                            String attributeName = null;
-
-                                            if (RelationshipQueryParameter.class.isInstance(queryParameter)) {
-                                                RelationshipQueryParameter relationshipQueryParameter = (RelationshipQueryParameter) queryParameter;
-                                                attributeName = relationshipQueryParameter.getName();
-                                            } else {
-                                                attributeName = getRelationshipMappedProperty(relType.getClass(), mappingConfig);
-                                            }
-
-                                            if (attributeName.equals(property.getName())) {
-                                                if (!attribute.contains(getBindingDN(relType))) {
-                                                    break;
-                                                }
-
-                                                V relationship = createRelationshipInstance(relationshipClass);
-
-                                                rootProperty.setValue(relationship, populateAttributedType(context, next, null));
-                                                property.setValue(relationship, relType);
-
-                                                results.add(relationship);
-                                            }
-                                        }
-                                    } else {
-                                        NamingEnumeration<?> all = attribute.getAll();
-
-                                        while (all.hasMore()) {
-                                            String member = all.next().toString();
-
-                                            if (isEmptyMember(member)) {
-                                                continue;
-                                            }
-
-                                            if (!isNullOrEmpty(member.trim())) {
-                                                V relationship = createRelationshipInstance(relationshipClass);
-
-                                                rootProperty.setValue(relationship, populateAttributedType(context, next, null));
-
-                                                String baseDN = member.substring(member.indexOf(",") + 1);
-                                                String dn = member.substring(0, member.indexOf(","));
-
-                                                NamingEnumeration<SearchResult> result = this.operationManager.search(baseDN, dn);
-
-                                                if (!result.hasMore()) {
-                                                    throw new IdentityManagementException("Associated entry does not exists [" + member + "].");
-                                                }
-
-                                                property.setValue(relationship, populateAttributedType(context, result.next(), null));
-
-                                                results.add(relationship);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                if (baseDN == null) {
+                    baseDN = getConfig().getBaseDN();
                 }
-            } else {
-                if (filter.length() > 0) {
-                    search = this.operationManager.search(getMappingConfig(mappingConfig.getRelatedAttributedType()).getBaseDN(), filter.toString());
 
-                    Property<AttributedType> property = PropertyQueries
-                            .<AttributedType>createQuery(relationshipClass)
-                            .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType()))
-                            .getSingleResult();
+                search = this.operationManager.search(baseDN, filter.toString(), relatedTypeConfig);
 
-                    while (search.hasMore()) {
-                        SearchResult next = search.next();
-                        Attributes attributes = next.getAttributes();
+                Property<AttributedType> property = PropertyQueries
+                        .<AttributedType>createQuery(relationshipClass)
+                        .addCriteria(new TypedPropertyCriteria(mappingConfig.getRelatedAttributedType()))
+                        .getSingleResult();
 
-                        for (Entry<String, String> memberAttribute : mappingConfig.getMappedProperties().entrySet()) {
-                            javax.naming.directory.Attribute attribute = attributes.get(memberAttribute.getValue());
-                            NamingEnumeration<?> attributeValues = attribute.getAll();
+                while (search.hasMore()) {
+                    SearchResult next = search.next();
+                    Attributes attributes = next.getAttributes();
+                    AttributedType ownerRelType = populateAttributedType(context, next, null);
 
-                            while (attributeValues.hasMore()) {
-                                String value = attributeValues.next().toString();
+                    for (Entry<String, String> memberAttribute : mappingConfig.getMappedProperties().entrySet()) {
+                        javax.naming.directory.Attribute attribute = attributes.get(memberAttribute.getValue());
+                        NamingEnumeration<?> attributeValues = attribute.getAll();
 
-                                if (isEmptyMember(value)) {
-                                    continue;
+                        while (attributeValues.hasMore()) {
+                            String value = attributeValues.next().toString();
+
+                            if (isEmptyMember(value)) {
+                                continue;
+                            }
+
+                            if (!entriesToFilter.isEmpty() && !entriesToFilter.contains(value)) {
+                                continue;
+                            }
+
+                            if (!isNullOrEmpty(value.trim())) {
+                                Property<AttributedType> associatedProperty = PropertyQueries
+                                        .<AttributedType>createQuery(relationshipClass)
+                                        .addCriteria(new NamedPropertyCriteria(memberAttribute.getKey())).getSingleResult();
+
+                                String memberBaseDN = value.substring(value.indexOf(",") + 1);
+                                String dn = value.substring(0, value.indexOf(","));
+
+                                NamingEnumeration<SearchResult> result = this.operationManager.search(memberBaseDN, dn, null);
+
+                                if (!result.hasMore()) {
+                                    throw new IdentityManagementException("Associated entry does not exists [" + value + "].");
                                 }
 
-                                if (!isNullOrEmpty(value.trim())) {
-                                    Property<AttributedType> associatedProperty = PropertyQueries
-                                            .<AttributedType>createQuery(relationshipClass)
-                                            .addCriteria(new NamedPropertyCriteria(memberAttribute.getKey())).getSingleResult();
+                                if (property.getJavaClass().isAssignableFrom(ownerRelType.getClass())) {
+                                    V relationship = createRelationshipInstance(relationshipClass);
 
-                                    String baseDN = value.substring(value.indexOf(",") + 1);
-                                    String dn = value.substring(0, value.indexOf(","));
+                                    property.setValue(relationship, ownerRelType);
 
-                                    NamingEnumeration<SearchResult> result = this.operationManager.search(baseDN, dn);
+                                    SearchResult member = result.next();
 
-                                    if (!result.hasMore()) {
-                                        throw new IdentityManagementException("Associated entry does not exists [" + value + "].");
-                                    }
+                                    AttributedType relType = populateAttributedType(context, member, null);
 
-
-                                    AttributedType ownerRelType = populateAttributedType(context, next, null);
-
-                                    if (property.getJavaClass().isAssignableFrom(ownerRelType.getClass())) {
-                                        V relationship = createRelationshipInstance(relationshipClass);
-
-                                        property.setValue(relationship, ownerRelType);
-
-                                        SearchResult member = result.next();
-
-                                        AttributedType relType = populateAttributedType(context, member, null);
-
-                                        if (associatedProperty.getJavaClass().isAssignableFrom(relType.getClass())) {
-                                            associatedProperty.setValue(relationship, relType);
-                                            results.add(relationship);
-                                        }
+                                    if (associatedProperty.getJavaClass().isAssignableFrom(relType.getClass())) {
+                                        associatedProperty.setValue(relationship, relType);
+                                        results.add(relationship);
                                     }
                                 }
                             }
@@ -693,7 +654,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
             Attributes attributes = searchResult.getAttributes();
 
             if (attributedType == null) {
-                attributedType = newInstance(getConfig().getSupportedTypeByBaseDN(entryDN));
+                attributedType = newInstance(getConfig().getSupportedTypeByBaseDN(entryDN, getEntryObjectClasses(attributes)));
             }
 
             LDAPMappingConfiguration mappingConfig = getMappingConfig(attributedType.getClass());
@@ -734,14 +695,16 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 identityType.setPartition(context.getPartition());
             }
 
-            if (mappingConfig.getParentMembershipAttributeName() != null) {
-                StringBuilder filter = new StringBuilder("(|");
+            LDAPMappingConfiguration entryConfig = getMappingConfig(attributedType.getClass());
 
-                filter.append("(").append(mappingConfig.getParentMembershipAttributeName()).append(EQUAL).append("").append(getBindingName(attributedType)).append(COMMA).append(entryDN).append(")");
+            if (mappingConfig.getParentMembershipAttributeName() != null) {
+                StringBuilder filter = new StringBuilder("(&");
+
+                filter.append("(").append(getObjectClassesFilter(entryConfig)).append(")").append("(").append(mappingConfig.getParentMembershipAttributeName()).append(EQUAL).append("").append(getBindingName(attributedType)).append(COMMA).append(entryDN).append(")");
 
                 filter.append(")");
 
-                NamingEnumeration<SearchResult> search = this.operationManager.search(getConfig().getBaseDN(), filter.toString());
+                NamingEnumeration<SearchResult> search = this.operationManager.search(getConfig().getBaseDN(), filter.toString(), entryConfig);
 
                 try {
                     while (search.hasMore()) {
@@ -753,7 +716,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
                         if (parentProperty != null) {
                             String baseDN = next.getNameInNamespace().substring(next.getNameInNamespace().indexOf(",") + 1);
-                            Class<? extends AttributedType> baseDNType = getConfig().getSupportedTypeByBaseDN(baseDN);
+                            Class<? extends AttributedType> baseDNType = getConfig().getSupportedTypeByBaseDN(baseDN, getEntryObjectClasses(attributes));
 
                             if (parentProperty.getJavaClass().isAssignableFrom(baseDNType)) {
                                 parentProperty.setValue(attributedType, populateAttributedType(context, next, null));
@@ -769,6 +732,23 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         }
 
         return attributedType;
+    }
+
+    private List<String> getEntryObjectClasses(final Attributes attributes) throws NamingException {
+        Attribute objectClassesAttribute = attributes.get(OBJECT_CLASS);
+        List<String> objectClasses = new ArrayList<String>();
+
+        if (objectClassesAttribute == null) {
+            return objectClasses;
+        }
+
+        NamingEnumeration<?> all = objectClassesAttribute.getAll();
+
+        while (all.hasMore()) {
+            objectClasses.add(all.next().toString());
+        }
+
+        return objectClasses;
     }
 
     private String decodeEntryUUID(final Object entryUUID) {
@@ -841,7 +821,15 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         LDAPMappingConfiguration mappingConfig = getMappingConfig(attributedType.getClass());
         Property<String> idProperty = mappingConfig.getIdProperty();
 
-        return mappingConfig.getMappedProperties().get(idProperty.getName()) + EQUAL + idProperty.getValue(attributedType) + COMMA + getBaseDN(attributedType);
+        String baseDN;
+
+        if (mappingConfig.getBaseDN() == null) {
+            baseDN = "";
+        } else {
+            baseDN = COMMA + getBaseDN(attributedType);
+        }
+
+        return mappingConfig.getMappedProperties().get(idProperty.getName()) + EQUAL + idProperty.getValue(attributedType) + baseDN;
     }
 
     private String getBaseDN(AttributedType attributedType) {
@@ -874,6 +862,10 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                     }
                 }
             }
+        }
+
+        if (baseDN == null) {
+            baseDN = getConfig().getBaseDN();
         }
 
         return baseDN;

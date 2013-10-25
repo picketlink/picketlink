@@ -117,20 +117,29 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         return this.mappingConfig;
     }
 
-    public Class<? extends AttributedType> getSupportedTypeByBaseDN(String baseDN) {
+    public Class<? extends AttributedType> getSupportedTypeByBaseDN(String baseDN, List<String> objectClasses) {
         for (LDAPMappingConfiguration mappingConfig : this.mappingConfig.values()) {
-            if (!Relationship.class.isAssignableFrom(mappingConfig.getMappedClass())) {
-                if (mappingConfig.getBaseDN().equalsIgnoreCase(baseDN)) {
-                    return mappingConfig.getMappedClass();
-                }
-
-                if (mappingConfig.getParentMapping().values().contains(baseDN)) {
-                    return mappingConfig.getMappedClass();
+            if (mappingConfig.getBaseDN() != null) {
+                if (!Relationship.class.isAssignableFrom(mappingConfig.getMappedClass())) {
+                    if (mappingConfig.getBaseDN().equalsIgnoreCase(baseDN)
+                            || mappingConfig.getParentMapping().values().contains(baseDN)) {
+                        return mappingConfig.getMappedClass();
+                    }
                 }
             }
         }
 
-        throw new IdentityManagementException("No type found for Base DN [" + baseDN + "].");
+        for (LDAPMappingConfiguration mappingConfig : this.mappingConfig.values()) {
+            if (!Relationship.class.isAssignableFrom(mappingConfig.getMappedClass())) {
+                for (String objectClass : objectClasses) {
+                    if (mappingConfig.getObjectClasses().contains(objectClass)) {
+                        return mappingConfig.getMappedClass();
+                    }
+                }
+            }
+        }
+
+        throw new IdentityManagementException("No type found for Base DN [" + baseDN + "] or objectClasses [" + objectClasses + ".");
     }
 
     public LDAPMappingConfiguration getMappingConfig(Class<? extends AttributedType> attributedType) {

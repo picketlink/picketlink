@@ -20,6 +20,7 @@ package org.picketlink.idm.ldap.internal;
 
 import org.picketlink.common.constants.LDAPConstants;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
+import org.picketlink.idm.config.LDAPMappingConfiguration;
 
 import javax.naming.Binding;
 import javax.naming.CommunicationException;
@@ -286,12 +287,33 @@ public class LDAPOperationManager {
         return result;
     }
 
-    public NamingEnumeration<SearchResult> search(String baseDN, String filter) throws NamingException {
+    public NamingEnumeration<SearchResult> search(String baseDN, String filter, LDAPMappingConfiguration mappingConfiguration) throws NamingException {
         SearchControls cons = new SearchControls();
 
         cons.setSearchScope(SUBTREE_SCOPE);
-        cons.setReturningObjFlag(true);
-        cons.setReturningAttributes(new String[]{"*", getUniqueIdentifierAttributeName(), CREATE_TIMESTAMP});
+        cons.setReturningObjFlag(false);
+
+        List<String> returningAttributes = new ArrayList<String>();
+
+        if (mappingConfiguration != null) {
+            returningAttributes.addAll(mappingConfiguration.getMappedProperties().values());
+
+            returningAttributes.add(mappingConfiguration.getParentMembershipAttributeName());
+
+            for (LDAPMappingConfiguration relationshipConfig : this.config.getRelationshipConfigs()) {
+                if (relationshipConfig.getRelatedAttributedType().equals(mappingConfiguration.getMappedClass())) {
+                    returningAttributes.addAll(relationshipConfig.getMappedProperties().values());
+                }
+            }
+        } else {
+            returningAttributes.add("*");
+        }
+
+        returningAttributes.add(getUniqueIdentifierAttributeName());
+        returningAttributes.add(CREATE_TIMESTAMP);
+        returningAttributes.add(LDAPConstants.OBJECT_CLASS);
+
+        cons.setReturningAttributes(returningAttributes.toArray(new String[returningAttributes.size()]));
 
         try {
             return getContext().search(baseDN, filter, cons);
@@ -301,7 +323,7 @@ public class LDAPOperationManager {
         }
     }
 
-    public NamingEnumeration<SearchResult> lookupById(String baseDN, String id) {
+    public String getFilterById(String baseDN, String id) {
         String filter = null;
 
         if (this.config.isActiveDirectory()) {
@@ -313,13 +335,19 @@ public class LDAPOperationManager {
 
                 filter = "(&(objectClass=*)(" + getUniqueIdentifierAttributeName() + EQUAL + convertObjectGUIToByteString(objectGUID) + "))";
             } catch (NamingException ne) {
-                return createEmptyEnumeration();
+                return filter;
             }
         }
 
         if (filter == null) {
             filter = "(&(objectClass=*)(" + getUniqueIdentifierAttributeName() + EQUAL + id + "))";
         }
+
+        return filter;
+    }
+
+    public NamingEnumeration<SearchResult> lookupById(String baseDN, String id) {
+        String filter = getFilterById(baseDN, id);
 
         try {
             SearchControls cons = new SearchControls();
@@ -451,7 +479,7 @@ public class LDAPOperationManager {
             if (LDAP_STORE_LOGGER.isDebugEnabled()) {
                 LDAP_STORE_LOGGER.debugf("Modifying attributes for entry [%s]: [", dn);
 
-                for (ModificationItem item: mods) {
+                for (ModificationItem item : mods) {
                     LDAP_STORE_LOGGER.debugf("  Op [%s]: %s = %s", item.getModificationOp(), item.getAttribute().getID(), item.getAttribute().get());
                 }
 
