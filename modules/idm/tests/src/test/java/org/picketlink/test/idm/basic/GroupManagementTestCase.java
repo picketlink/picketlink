@@ -22,11 +22,11 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.model.basic.BasicModel;
 import org.picketlink.idm.model.basic.Group;
 import org.picketlink.idm.model.basic.GroupMembership;
 import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.model.basic.Role;
-import org.picketlink.idm.model.basic.BasicModel;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.Configuration;
@@ -94,8 +94,6 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     @Test
     @Configuration (exclude = SingleConfigLDAPJPAStoreConfigurationTester.class)
     public void testCreateWithSameName() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-
         Group managerGroup = createGroup("managers", null);
 
         // the QA Group was mapped to a different DN. See the LDAP test suite configuration.
@@ -119,8 +117,6 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     @Test
     @Configuration (exclude = SingleConfigLDAPJPAStoreConfigurationTester.class)
     public void testCreateWithMultipleParentGroups() {
-        IdentityManager identityManager = getIdentityManager();
-
         Group groupA = createGroup("QA Group", null);
 
         Group groupB = createGroupWithParent("groupB", groupA);
@@ -141,6 +137,31 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
         assertNotNull(storedGroupD.getParentGroup().getParentGroup().getParentGroup());
         assertEquals(storedGroupD.getParentGroup().getParentGroup().getParentGroup().getId(), groupA.getId());
+    }
+
+    @Test
+    @Configuration (exclude = {LDAPUserGroupJPARoleConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class})
+    public void testDefaultHierarchyDepthConfiguration() {
+        Group groupRoot = createGroup("Root Group", null);
+        Group groupA = createGroupWithParent("QA Group", groupRoot);
+        Group groupB = createGroupWithParent("groupB", groupA);
+        Group groupC = createGroupWithParent("groupC", groupB);
+        Group groupD = createGroupWithParent("groupD", groupC);
+
+        Group storedGroupD = getGroup("/Root Group/QA Group/groupB/groupC/groupD");
+
+        assertNotNull(storedGroupD);
+        assertEquals(storedGroupD.getId(), groupD.getId());
+        assertNotNull(storedGroupD.getParentGroup());
+        assertEquals(storedGroupD.getParentGroup().getId(), groupC.getId());
+
+        assertNotNull(storedGroupD.getParentGroup().getParentGroup());
+        assertEquals(storedGroupD.getParentGroup().getParentGroup().getId(), groupB.getId());
+
+        assertNotNull(storedGroupD.getParentGroup().getParentGroup().getParentGroup());
+        assertEquals(storedGroupD.getParentGroup().getParentGroup().getParentGroup().getId(), groupA.getId());
+
+        assertNotNull(storedGroupD.getParentGroup().getParentGroup().getParentGroup().getParentGroup());
     }
 
     @Test
