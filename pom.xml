@@ -58,8 +58,7 @@
     <module>modules/common</module>
     <module>modules/config</module>
     <module>modules/idm</module>
-    <module>modules/base/api</module>
-    <module>modules/base/impl</module>
+    <module>modules/base</module>
 
     <module>tests</module>
 
