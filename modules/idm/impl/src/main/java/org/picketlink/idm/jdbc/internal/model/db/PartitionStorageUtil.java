@@ -17,10 +17,6 @@
  */
 package org.picketlink.idm.jdbc.internal.model.db;
 
-import org.picketlink.idm.jdbc.internal.model.PartitionJdbcType;
-import org.picketlink.idm.model.Partition;
-
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,14 +25,27 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import javax.sql.DataSource;
+
+import org.picketlink.idm.jdbc.internal.model.PartitionJdbcType;
+import org.picketlink.idm.model.Partition;
+
 /**
+ * Storage utility for {@link Partition}
+ *
  * @author Anil Saldhana
  * @since October 24, 2013
  */
 public class PartitionStorageUtil extends AbstractStorageUtil {
-
-    public Partition loadPartitionById(DataSource dataSource, String id){
-        if(dataSource == null){
+    /**
+     * Load a {@link Partition} given its id
+     *
+     * @param dataSource
+     * @param id
+     * @return
+     */
+    public Partition loadPartitionById(DataSource dataSource, String id) {
+        if (dataSource == null) {
             throw new RuntimeException("Null datasource");
         }
         Connection connection = null;
@@ -46,9 +55,9 @@ public class PartitionStorageUtil extends AbstractStorageUtil {
             connection = dataSource.getConnection();
             String sql = "select name,typeName,configurationName from Partition where id =?";
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1,id);
+            preparedStatement.setString(1, id);
             resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()){
+            while (resultSet.next()) {
                 PartitionJdbcType partition = new PartitionJdbcType(resultSet.getString(1));
                 partition.setId(id);
                 partition.setTypeName(resultSet.getString(2));
@@ -64,8 +73,16 @@ public class PartitionStorageUtil extends AbstractStorageUtil {
         }
         return null;
     }
-    public Partition loadPartitionByName(DataSource dataSource, String name){
-        if(dataSource == null){
+
+    /**
+     * Load a {@link Partition} given its name
+     *
+     * @param dataSource
+     * @param name
+     * @return
+     */
+    public Partition loadPartitionByName(DataSource dataSource, String name) {
+        if (dataSource == null) {
             throw new RuntimeException("Null datasource");
         }
         Connection connection = null;
@@ -75,9 +92,9 @@ public class PartitionStorageUtil extends AbstractStorageUtil {
             connection = dataSource.getConnection();
             String sql = "select id,typeName,configurationName from Partition where name =?";
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1,name);
+            preparedStatement.setString(1, name);
             resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()){
+            while (resultSet.next()) {
                 PartitionJdbcType partitionJdbcType = new PartitionJdbcType(name);
                 partitionJdbcType.setId(resultSet.getString(1));
                 partitionJdbcType.setTypeName(resultSet.getString(2));
@@ -94,7 +111,13 @@ public class PartitionStorageUtil extends AbstractStorageUtil {
         return null;
     }
 
-    public void storePartition(DataSource dataSource, PartitionJdbcType partition){
+    /**
+     * Store a {@link Partition}
+     *
+     * @param dataSource
+     * @param partition
+     */
+    public void storePartition(DataSource dataSource, PartitionJdbcType partition) {
         Date now = new Date();
         Calendar calendar = new GregorianCalendar(500 + 1900, 12, 12);
         Date expiration = calendar.getTime();
@@ -106,16 +129,16 @@ public class PartitionStorageUtil extends AbstractStorageUtil {
             String sql = "insert into Partition set name=?,id=?,typeName=?,configurationName=?";
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, partition.getName());
-            preparedStatement.setString(2,partition.getId());
+            preparedStatement.setString(2, partition.getId());
             preparedStatement.setString(3, partition.getTypeName());
-            preparedStatement.setString(4,partition.getConfigurationName());
+            preparedStatement.setString(4, partition.getConfigurationName());
             int result = preparedStatement.executeUpdate();
-            if(result == 0){
+            if (result == 0) {
                 throw new RuntimeException("Insert into partition failed");
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        }finally {
+        } finally {
             safeClose(preparedStatement);
             safeClose(connection);
         }

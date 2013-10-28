@@ -31,10 +31,20 @@ import org.picketlink.common.util.Base64;
 import org.picketlink.idm.model.Attribute;
 
 /**
+ * Storage utility for attributes
+ *
  * @author Anil Saldhana
  * @since October 25, 2013
  */
 public class AttributeStorageUtil extends AbstractStorageUtil {
+    /**
+     * Get the {@link Attribute} given its name and an id
+     *
+     * @param dataSource
+     * @param id
+     * @param attributeName
+     * @return
+     */
     public Attribute getAttribute(DataSource dataSource, String id, String attributeName) {
         if (dataSource == null) {
             throw new RuntimeException("Null datasource");
@@ -53,19 +63,24 @@ public class AttributeStorageUtil extends AbstractStorageUtil {
             String attributeType = null;
             while (resultSet.next()) {
                 attributeType = resultSet.getString(1);
+                break;
             }
-            List<String> valList = getAttributeValues(dataSource, id, attributeName);
+            List<? extends Serializable> valList = getAttributeValues(dataSource, id, attributeName);
             if (valList.size() > 1) {
                 attribute = new Attribute(attributeName, "dummy");
-                // Multi valued attribute
-                Serializable[] serialArray = new Serializable[valList.size()];
-                int i = 0;
-                for (String attributeValue : valList) {
-                    serialArray[i++] = (Serializable) Base64.decodeToObject(attributeValue);
+                if (isPrimitiveNativeType(attributeType)) {
+                    handlePrimitiveAttributeType(attribute, attributeType, valList);
+                } else {
+                    // Multi valued attribute
+                    Serializable[] serialArray = new Serializable[valList.size()];
+                    int i = 0;
+                    for (Serializable attributeValue : valList) {
+                        serialArray[i++] = attributeValue;
+                    }
+                    attribute.setValue(serialArray);
                 }
-                attribute.setValue(serialArray);
-            }else {
-                attribute = new Attribute(attributeName,(Serializable) Base64.decodeToObject(valList.get(0)));
+            } else {
+                attribute = new Attribute(attributeName, valList.get(0));
             }
             return attribute;
 
@@ -78,6 +93,13 @@ public class AttributeStorageUtil extends AbstractStorageUtil {
         }
     }
 
+    /**
+     * Get a list of {@link Attribute} for an identity type
+     *
+     * @param dataSource
+     * @param ownerId
+     * @return
+     */
     public List<Attribute> getAttributes(DataSource dataSource, String ownerId) {
         if (dataSource == null) {
             throw new RuntimeException("Null datasource");
@@ -100,7 +122,7 @@ public class AttributeStorageUtil extends AbstractStorageUtil {
             while (resultSet.next()) {
                 String storedName = resultSet.getString(1);
 
-                Attribute attribute = getAttribute(dataSource,ownerId,storedName);
+                Attribute attribute = getAttribute(dataSource, ownerId, storedName);
                 attributes.add(attribute);
             }
         } catch (SQLException e) {
@@ -113,18 +135,27 @@ public class AttributeStorageUtil extends AbstractStorageUtil {
         return attributes;
     }
 
+    /**
+     * Set the {@link Attribute} for an {@link org.picketlink.idm.model.IdentityType}
+     *
+     * @param dataSource
+     * @param ownerId
+     * @param attribute
+     */
     public void setAttribute(DataSource dataSource, String ownerId, Attribute attribute) {
         if (dataSource == null) {
             throw new RuntimeException("Null datasource");
         }
-        Serializable values = attribute.getValue();
+        Object values = attribute.getValue();
 
         if (!values.getClass().isArray()) {
-            values = new Serializable[] { values };
+            Serializable serializedValues = (Serializable) values;
+            values = new Serializable[] { serializedValues };
         }
 
         if (values instanceof byte[]) {
-            values = new Serializable[] { values };
+            Serializable serializedValues = (Serializable) values;
+            values = new Serializable[] { serializedValues };
         }
 
         for (Serializable attributeValue : (Serializable[]) values) {
@@ -142,7 +173,7 @@ public class AttributeStorageUtil extends AbstractStorageUtil {
                 preparedStatement.setString(1, ownerId);
                 preparedStatement.setString(2, attribute.getName());
                 preparedStatement.setString(3, Base64.encodeObject(attributeValue));
-                preparedStatement.setString(4, attribute.getClass().getName());
+                preparedStatement.setString(4, attributeValue.getClass().getName());
                 int result = preparedStatement.executeUpdate();
                 if (result == 0) {
                     throw new RuntimeException("Update failed");
@@ -157,6 +188,13 @@ public class AttributeStorageUtil extends AbstractStorageUtil {
         }
     }
 
+    /**
+     * Delete an {@link Attribute} given its name and owner
+     *
+     * @param dataSource
+     * @param ownerId
+     * @param attributeName
+     */
     public void deleteAttribute(DataSource dataSource, String ownerId, String attributeName) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -177,20 +215,26 @@ public class AttributeStorageUtil extends AbstractStorageUtil {
         }
     }
 
-    private List<String> getAttributeValues(DataSource dataSource, String ownerId, String attributeName) {
-        List<String> list = new ArrayList<String>();
+    private List<? extends Serializable> getAttributeValues(DataSource dataSource, String ownerId, String attributeName) {
+        List<Serializable> list = new ArrayList<Serializable>();
+        List<String> stringList = new ArrayList<String>();
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
             connection = dataSource.getConnection();
-            String sql = "select value from Attributes where owner =? and name=?";
+            String sql = "select value,attributeType from Attributes where owner =? and name=?";
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, ownerId);
             preparedStatement.setString(2, attributeName);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                list.add(resultSet.getString(1));
+                String attributeType = resultSet.getString(2);
+                if (attributeType.equals(String.class.getName())) {
+                    stringList.add((String) Base64.decodeToObject(resultSet.getString(1)));
+                } else {
+                    list.add((Serializable) Base64.decodeToObject(resultSet.getString(1)));
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -199,6 +243,63 @@ public class AttributeStorageUtil extends AbstractStorageUtil {
             safeClose(preparedStatement);
             safeClose(connection);
         }
+        if (stringList.isEmpty() == false) {
+            return stringList;
+        }
         return list;
+    }
+
+    private boolean isPrimitiveNativeType(String attributeType) {
+        if (String.class.getName().equals(attributeType) || Integer.class.getName().equals(attributeType)) {
+            return true;
+        }
+        return false;
+    }
+
+    private void handlePrimitiveAttributeType(Attribute attribute, String attributeType, List<? extends Serializable> valueList) {
+        if (String.class.getName().equals(attributeType)) {
+            // We have a string array
+            String[] serialArray = new String[valueList.size()];
+            int i = 0;
+            for (Serializable str : valueList) {
+                serialArray[i++] = str.toString();
+            }
+            attribute.setValue(serialArray);
+        } else if (Integer.class.getName().equals(attributeType)) {
+            Integer[] serialArray = new Integer[valueList.size()];
+            int i = 0;
+            for (Serializable str : valueList) {
+                serialArray[i++] = (Integer) str;
+            }
+            attribute.setValue(serialArray);
+        } else if (Long.class.getName().equals(attributeType)) {
+            Long[] serialArray = new Long[valueList.size()];
+            int i = 0;
+            for (Serializable str : valueList) {
+                serialArray[i++] = (Long) str;
+            }
+            attribute.setValue(serialArray);
+        } else if (Double.class.getName().equals(attributeType)) {
+            Double[] serialArray = new Double[valueList.size()];
+            int i = 0;
+            for (Serializable str : valueList) {
+                serialArray[i++] = (Double) str;
+            }
+            attribute.setValue(serialArray);
+        } else if (Float.class.getName().equals(attributeType)) {
+            Float[] serialArray = new Float[valueList.size()];
+            int i = 0;
+            for (Serializable str : valueList) {
+                serialArray[i++] = (Float) str;
+            }
+            attribute.setValue(serialArray);
+        } else if (Short.class.getName().equals(attributeType)) {
+            Short[] serialArray = new Short[valueList.size()];
+            int i = 0;
+            for (Serializable str : valueList) {
+                serialArray[i++] = (Short) str;
+            }
+            attribute.setValue(serialArray);
+        }
     }
 }

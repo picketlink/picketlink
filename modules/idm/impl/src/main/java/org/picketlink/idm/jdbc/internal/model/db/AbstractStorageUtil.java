@@ -17,26 +17,27 @@
  */
 package org.picketlink.idm.jdbc.internal.model.db;
 
-import org.picketlink.idm.jdbc.internal.model.PartitionJdbcType;
-import org.picketlink.idm.model.Partition;
-
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import javax.sql.DataSource;
+
+import org.picketlink.idm.jdbc.internal.model.PartitionJdbcType;
+import org.picketlink.idm.model.Partition;
+
 /**
  * @author Anil Saldhana
  * @since October 24, 2013
  */
 public abstract class AbstractStorageUtil {
-    protected Partition loadPartition(DataSource dataSource, String id){
-        if(dataSource == null){
+    protected Partition loadPartition(DataSource dataSource, String id) {
+        if (dataSource == null) {
             throw new RuntimeException("Null datasource");
         }
-        if(id == null){
+        if (id == null) {
             throw new RuntimeException("Null id");
         }
         Connection connection = null;
@@ -46,9 +47,9 @@ public abstract class AbstractStorageUtil {
             connection = dataSource.getConnection();
             String sql = "select name from Partition where id =?";
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1,id);
+            preparedStatement.setString(1, id);
             resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()){
+            while (resultSet.next()) {
                 Partition partition = new PartitionJdbcType(resultSet.getString(1));
                 return partition;
             }
@@ -61,6 +62,7 @@ public abstract class AbstractStorageUtil {
         }
         return null;
     }
+
     protected void safeClose(Connection conn) {
         if (conn != null) {
             try {

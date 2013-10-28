@@ -17,6 +17,16 @@
  */
 package org.picketlink.idm.jdbc.internal;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.sql.DataSource;
+
 import org.picketlink.idm.config.JDBCIdentityStoreConfiguration;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.internal.AbstractIdentityStore;
@@ -40,22 +50,13 @@ import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.PartitionStore;
 
-import javax.sql.DataSource;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Implementation of {@link IdentityStore} using JDBC
  * @author Anil Saldhana
  * @since September 25, 2013
  */
-public class JDBCIdentityStore extends AbstractIdentityStore<JDBCIdentityStoreConfiguration>
-        implements CredentialStore<JDBCIdentityStoreConfiguration>, PartitionStore<JDBCIdentityStoreConfiguration>,
+public class JDBCIdentityStore extends AbstractIdentityStore<JDBCIdentityStoreConfiguration> implements
+        CredentialStore<JDBCIdentityStoreConfiguration>, PartitionStore<JDBCIdentityStoreConfiguration>,
         AttributeStore<JDBCIdentityStoreConfiguration> {
 
     private DataSource dataSource = null;
@@ -65,10 +66,17 @@ public class JDBCIdentityStore extends AbstractIdentityStore<JDBCIdentityStoreCo
     public void setup(JDBCIdentityStoreConfiguration config) {
         super.setup(config);
         this.dataSource = config.getDataSource();
+        Map<String,Class<?>> customClassMapping = config.getCustomClassMapping();
+        if(customClassMapping != null){
+            Set<String> keyset = customClassMapping.keySet();
+            for(String key: keyset){
+                JdbcMapper.map(key,customClassMapping.get(key));
+            }
+        }
     }
 
     protected void addAttributedType(IdentityContext context, AttributedType attributedType) {
-        //Store attributedType in DB
+        // Store attributedType in DB
         AbstractJdbcType att = mapper.getInstance(attributedType.getClass());
         att.setDataSource(dataSource).persist(attributedType);
     }
@@ -93,12 +101,14 @@ public class JDBCIdentityStore extends AbstractIdentityStore<JDBCIdentityStoreCo
     }
 
     @Override
-    public <T extends CredentialStorage> T retrieveCurrentCredential(IdentityContext context, Account account, Class<T> storageClass) {
+    public <T extends CredentialStorage> T retrieveCurrentCredential(IdentityContext context, Account account,
+            Class<T> storageClass) {
         throw new RuntimeException();
     }
 
     @Override
-    public <T extends CredentialStorage> List<T> retrieveCredentials(IdentityContext context, Account account, Class<T> storageClass) {
+    public <T extends CredentialStorage> List<T> retrieveCredentials(IdentityContext context, Account account,
+            Class<T> storageClass) {
         throw new RuntimeException();
     }
 
@@ -112,11 +122,11 @@ public class JDBCIdentityStore extends AbstractIdentityStore<JDBCIdentityStoreCo
 
             if (parameter.length > 0) {
                 Object id = parameter[0];
-                //ADD to result
+                // ADD to result
                 AbstractJdbcType ajt = mapper.getInstance(identityQuery.getIdentityType());
                 ajt.setDataSource(dataSource);
-                attributedType = ajt.load((String) id,identityQuery.getIdentityType());
-                if(attributedType != null){
+                attributedType = ajt.load((String) id, identityQuery.getIdentityType());
+                if (attributedType != null) {
                     result.add((V) attributedType);
                 }
             } else {
@@ -125,8 +135,8 @@ public class JDBCIdentityStore extends AbstractIdentityStore<JDBCIdentityStoreCo
         } else {
             AbstractJdbcType ajt = mapper.getInstance(identityQuery.getIdentityType());
             ajt.setDataSource(dataSource);
-            List<? extends AttributedType> list = ajt.load(identityQuery.getParameters(),identityQuery.getIdentityType());
-            if(!list.isEmpty()){
+            List<? extends AttributedType> list = ajt.load(identityQuery.getParameters(), identityQuery.getIdentityType());
+            if (!list.isEmpty()) {
                 result.addAll((Collection<? extends V>) list);
             }
         }
@@ -145,7 +155,7 @@ public class JDBCIdentityStore extends AbstractIdentityStore<JDBCIdentityStoreCo
 
         List<V> result = new ArrayList<V>();
         List<? extends AttributedType> list = relationshipJdbcType.load(query.getParameters(), query.getRelationshipClass());
-        if(list.isEmpty() == false){
+        if (list.isEmpty() == false) {
             result.addAll((Collection<? extends V>) list);
         }
         return result;
@@ -166,7 +176,8 @@ public class JDBCIdentityStore extends AbstractIdentityStore<JDBCIdentityStoreCo
     }
 
     @Override
-    public <V extends Serializable> Attribute<V> getAttribute(IdentityContext context, AttributedType attributedType, String attributeName) {
+    public <V extends Serializable> Attribute<V> getAttribute(IdentityContext context, AttributedType attributedType,
+            String attributeName) {
         AbstractJdbcType ajt = mapper.getInstance(attributedType.getClass());
         ajt.setId(attributedType.getId());
         ajt.setDataSource(dataSource);
@@ -185,15 +196,15 @@ public class JDBCIdentityStore extends AbstractIdentityStore<JDBCIdentityStoreCo
 
     @Override
     public void loadAttributes(IdentityContext context, AttributedType attributedType) {
-        if(attributedType != null){
-            //We need to load the attributes from DB into attributedType
+        if (attributedType != null) {
+            // We need to load the attributes from DB into attributedType
             AbstractJdbcType ajt = mapper.getInstance(attributedType.getClass());
             ajt.setDataSource(dataSource);
             ajt.setId(attributedType.getId());
 
             Collection<? extends Attribute> attributes = ajt.getAttributes();
-            if(attributes != null){
-                for(Attribute attribute : attributes){
+            if (attributes != null) {
+                for (Attribute attribute : attributes) {
                     attributedType.setAttribute(attribute);
                 }
             }
@@ -202,7 +213,7 @@ public class JDBCIdentityStore extends AbstractIdentityStore<JDBCIdentityStoreCo
 
     @Override
     public String getConfigurationName(IdentityContext identityContext, Partition partition) {
-        //TODO: get the config name
+        // TODO: get the config name
         return "SIMPLE_JDBC_STORE_CONFIG";
     }
 
@@ -210,9 +221,9 @@ public class JDBCIdentityStore extends AbstractIdentityStore<JDBCIdentityStoreCo
     public <P extends Partition> P get(IdentityContext identityContext, Class<P> partitionClass, String name) {
         PartitionJdbcType pjt = new PartitionJdbcType(name);
         pjt.setDataSource(dataSource);
-        Map<QueryParameter,Object[]> map = new HashMap<QueryParameter, Object[]>();
-        map.put(new AttributeParameter("name"), new Object[]{name});
-        return (P) pjt.load(map,Partition.class).get(0);
+        Map<QueryParameter, Object[]> map = new HashMap<QueryParameter, Object[]>();
+        map.put(new AttributeParameter("name"), new Object[] { name });
+        return (P) pjt.load(map, Partition.class).get(0);
     }
 
     @Override
@@ -229,10 +240,10 @@ public class JDBCIdentityStore extends AbstractIdentityStore<JDBCIdentityStoreCo
     public void add(IdentityContext identityContext, Partition partition, String configurationName) {
         PartitionJdbcType partitionJdbcType = new PartitionJdbcType(partition.getName());
         partitionJdbcType.setDataSource(dataSource);
-        if(partition.getId() == null){
-            if(partition instanceof Realm){
+        if (partition.getId() == null) {
+            if (partition instanceof Realm) {
                 partitionJdbcType.setId(Realm.DEFAULT_REALM);
-            }else{
+            } else {
                 partitionJdbcType.setId(identityContext.getIdGenerator().generate());
             }
         }

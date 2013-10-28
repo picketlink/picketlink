@@ -28,6 +28,7 @@ import java.io.File;
 import java.sql.Connection;
 
 /**
+ * An {@link IdentityConfigurationTester} for {@link org.picketlink.idm.jdbc.internal.JDBCIdentityStore}
  * @author Anil Saldhana
  * @since September 25, 2013
  */
@@ -59,16 +60,16 @@ public class JDBCStoreConfigurationTester implements IdentityConfigurationTester
         //User
         connection.createStatement().executeUpdate("drop table if exists User");
         connection.createStatement().executeUpdate("create table User(id varchar,firstName varchar,lastName varchar," +
-                "email varchar,loginName varchar,enabled varchar,createdDate date,expirationDate date,partitionID varchar)");
+                "email varchar,loginName varchar,enabled varchar,createdDate timestamp,expirationDate timestamp,partitionID varchar)");
 
         //Role
         connection.createStatement().executeUpdate("drop table if exists Role");
         connection.createStatement().executeUpdate("create table Role(id varchar,name varchar," +
-                "enabled varchar,createdDate date,expirationDate date,partitionID varchar)");
+                "enabled varchar,createdDate timestamp,expirationDate timestamp,partitionID varchar)");
         //Group
         connection.createStatement().executeUpdate("drop table if exists Groups");
         connection.createStatement().executeUpdate("create table Groups(id varchar,name varchar," +
-                "enabled varchar,createdDate date,expirationDate date,parentGroup varchar," +
+                "enabled varchar,createdDate timestamp,expirationDate timestamp,parentGroup varchar," +
                 "path varchar,partitionID varchar)");
 
         //Partition
@@ -84,14 +85,13 @@ public class JDBCStoreConfigurationTester implements IdentityConfigurationTester
         //Relationship
         connection.createStatement().executeUpdate("drop table if exists Relationship");
         connection.createStatement().executeUpdate("create table Relationship(id varchar,relBegin varchar," +
-                "relEnd varchar,type varchar)");
+                "relEnd varchar,type varchar,enabled varchar)");
     }
 
     @Override
     public void beforeTest() {
         // Construct DataSource
         ds = new JdbcDataSource();
-        //ds.setURL("jdbc:h2:mem:test");
         ds.setURL("jdbc:h2:file:~/picketlink-idm-jdbc");
         ds.setUser("sa");
         ds.setPassword("");
@@ -99,7 +99,7 @@ public class JDBCStoreConfigurationTester implements IdentityConfigurationTester
         try {
             setupDB(ds);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

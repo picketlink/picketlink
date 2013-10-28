@@ -25,6 +25,8 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +38,7 @@ import java.util.Set;
  */
 public class JDBCIdentityStoreConfiguration extends AbstractIdentityStoreConfiguration {
     private DataSource dataSource;
+    private Map<String,Class<?>> customClassMapping = new HashMap<String, Class<?>>();
 
     protected JDBCIdentityStoreConfiguration(String jndiName,Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes, Map<Class<? extends AttributedType>,
             Set<IdentityOperation>> unsupportedTypes, List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties,
@@ -71,5 +74,17 @@ public class JDBCIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
     public JDBCIdentityStoreConfiguration setDataSource(DataSource ds){
         this.dataSource = ds;
         return this;
+    }
+
+    public Map<String,Class<?>> getCustomClassMapping(){
+        return Collections.unmodifiableMap(customClassMapping);
+    }
+
+    public void setCustomClassMapping(Map<String,Class<?>>  customMap){
+        customClassMapping.putAll(customMap);
+    }
+
+    public void map(String key, Class<?> value){
+        customClassMapping.put(key,value);
     }
 }

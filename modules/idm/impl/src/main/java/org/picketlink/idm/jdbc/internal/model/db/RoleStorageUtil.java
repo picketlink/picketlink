@@ -17,64 +17,63 @@
  */
 package org.picketlink.idm.jdbc.internal.model.db;
 
-import org.picketlink.idm.jdbc.internal.model.PartitionJdbcType;
-import org.picketlink.idm.model.basic.Role;
-import org.picketlink.idm.query.AttributeParameter;
-import org.picketlink.idm.query.QueryParameter;
-
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Calendar;
+import java.sql.Timestamp;
 import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.sql.DataSource;
+
+import org.picketlink.idm.jdbc.internal.model.PartitionJdbcType;
+import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.basic.Role;
+import org.picketlink.idm.query.AttributeParameter;
+import org.picketlink.idm.query.QueryParameter;
+
 /**
+ * Storage utility for {@link Role}
  * @author Anil Saldhana
  * @since October 24, 2013
  */
 public class RoleStorageUtil extends AbstractStorageUtil {
-
-    public void storeRole(DataSource dataSource,Role role){
-        Calendar calendar = new GregorianCalendar(500 + 1900, 12, 12);
-        Date expiration = calendar.getTime();
-
+    /**
+     * Delete {@link Role}
+     * @param dataSource
+     * @param role
+     */
+    public void deleteRole(DataSource dataSource, Role role) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
             connection = dataSource.getConnection();
-            String sql = "insert into Role set name=?,id=?," +
-                    "createdDate=?,expirationDate=?,partitionID=?";
+            String sql = "delete from Role where id=?";
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1,role.getName());
-            preparedStatement.setString(2,role.getId());
-            preparedStatement.setDate(3, new java.sql.Date(role.getCreatedDate().getTime()));
-            preparedStatement.setDate(4,new java.sql.Date(expiration.getTime()));
-            preparedStatement.setString(5,role.getPartition().getId());
+            preparedStatement.setString(1, role.getId());
             int result = preparedStatement.executeUpdate();
-            if(result == 0){
-                throw new RuntimeException("Insert into Role failed");
+            if (result == 0) {
+                throw new RuntimeException("Delete Role failed");
             }
-
-            //Ensure that the Partition is also stored
-            PartitionJdbcType pj = new PartitionJdbcType("dummy");
-            pj.setDataSource(dataSource);
-            pj.persist(role.getPartition());
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        }finally {
+        } finally {
             safeClose(preparedStatement);
             safeClose(connection);
         }
     }
 
-
-    public Role loadRole(DataSource dataSource,String id){
-        if(dataSource == null){
+    /**
+     * Load {@link Role} given its id
+     * @param dataSource
+     * @param id
+     * @return
+     */
+    public Role loadRole(DataSource dataSource, String id) {
+        if (dataSource == null) {
             throw new RuntimeException("Null datasource");
         }
         Connection connection = null;
@@ -82,15 +81,32 @@ public class RoleStorageUtil extends AbstractStorageUtil {
         ResultSet resultSet = null;
         try {
             connection = dataSource.getConnection();
-            String sql = "select name,partitionID from Role where id =?";
+            String sql = "select name,partitionID,enabled,createdDate,expirationDate from Role where id =?";
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1,id);
+            preparedStatement.setString(1, id);
             resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()){
+            while (resultSet.next()) {
                 Role role = new Role();
                 role.setName(resultSet.getString(1));
                 role.setId(id);
-                role.setPartition(loadPartition(dataSource,resultSet.getString(2)));
+                role.setPartition(loadPartition(dataSource, resultSet.getString(2)));
+                role.setEnabled("y".equalsIgnoreCase(resultSet.getString(3)));
+                Timestamp creationDate = resultSet.getTimestamp(4);
+                if (creationDate != null) {
+                    role.setCreatedDate(new Date(creationDate.getTime()));
+                }
+                Timestamp expirationDate = resultSet.getTimestamp(5);
+                if (expirationDate != null) {
+                    role.setExpirationDate(new Date(expirationDate.getTime()));
+                }
+                // Get attributes also
+                AttributeStorageUtil attributeStorageUtil = new AttributeStorageUtil();
+                List<Attribute> attributeList = attributeStorageUtil.getAttributes(dataSource, role.getId());
+                if (attributeList.isEmpty() == false) {
+                    for (Attribute attribute : attributeList) {
+                        role.setAttribute(attribute);
+                    }
+                }
                 return role;
             }
         } catch (SQLException e) {
@@ -102,24 +118,38 @@ public class RoleStorageUtil extends AbstractStorageUtil {
         }
         return null;
     }
-    public Role loadRole(DataSource dataSource,Map<QueryParameter,Object[]> params){
+
+    /**
+     * Load {@link Role} given parameters
+     * @param dataSource
+     * @param params
+     * @return
+     */
+    public Role loadRole(DataSource dataSource, Map<QueryParameter, Object[]> params) {
         Set<QueryParameter> queryParameters = params.keySet();
-        for(QueryParameter queryParameter: queryParameters){
-            if(queryParameter instanceof AttributeParameter){
+        for (QueryParameter queryParameter : queryParameters) {
+            if (queryParameter instanceof AttributeParameter) {
                 AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
                 Object[] paramValues = params.get(queryParameter);
                 String attributeName = attributeParameter.getName();
-                if("name".equals(attributeName)){
+                if ("name".equals(attributeName)) {
                     String loginNameValue = (String) paramValues[0];
-                    return loadRoleByName(dataSource,loginNameValue);
-                }else throw new RuntimeException();
+                    return loadRoleByName(dataSource, loginNameValue);
+                } else
+                    throw new RuntimeException();
             }
         }
         throw new RuntimeException();
     }
 
-    public Role loadRoleByName(DataSource dataSource,String roleName){
-        if(dataSource == null){
+    /**
+     * Load {@link Role} given its name
+     * @param dataSource
+     * @param roleName
+     * @return
+     */
+    public Role loadRoleByName(DataSource dataSource, String roleName) {
+        if (dataSource == null) {
             throw new RuntimeException("Null datasource");
         }
         Connection connection = null;
@@ -127,15 +157,32 @@ public class RoleStorageUtil extends AbstractStorageUtil {
         ResultSet resultSet = null;
         try {
             connection = dataSource.getConnection();
-            String sql = "select id,partitionID from Role where name =?";
+            String sql = "select id,partitionID,enabled,createdDate,expirationDate from Role where name =?";
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1,roleName);
+            preparedStatement.setString(1, roleName);
             resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()){
+            while (resultSet.next()) {
                 Role role = new Role();
                 role.setId(resultSet.getString(1));
                 role.setName(roleName);
-                role.setPartition(loadPartition(dataSource,resultSet.getString(2)));
+                role.setPartition(loadPartition(dataSource, resultSet.getString(2)));
+                role.setEnabled("y".equalsIgnoreCase(resultSet.getString(3)));
+                Timestamp creationDate = resultSet.getTimestamp(4);
+                if (creationDate != null) {
+                    role.setCreatedDate(new Date(creationDate.getTime()));
+                }
+                Timestamp expirationDate = resultSet.getTimestamp(5);
+                if (expirationDate != null) {
+                    role.setExpirationDate(new Date(expirationDate.getTime()));
+                }
+                // Get attributes also
+                AttributeStorageUtil attributeStorageUtil = new AttributeStorageUtil();
+                List<Attribute> attributeList = attributeStorageUtil.getAttributes(dataSource, role.getId());
+                if (attributeList.isEmpty() == false) {
+                    for (Attribute attribute : attributeList) {
+                        role.setAttribute(attribute);
+                    }
+                }
                 return role;
             }
         } catch (SQLException e) {
@@ -146,5 +193,97 @@ public class RoleStorageUtil extends AbstractStorageUtil {
             safeClose(connection);
         }
         return null;
+    }
+
+    /**
+     * Store a {@link Role}
+     * @param dataSource
+     * @param role
+     */
+    public void storeRole(DataSource dataSource, Role role) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = dataSource.getConnection();
+            String sql = "insert into Role set name=?,id=?," + "createdDate=?,expirationDate=?,partitionID=?," + "enabled=?";
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, role.getName());
+            preparedStatement.setString(2, role.getId());
+            preparedStatement.setTimestamp(3, new Timestamp(role.getCreatedDate().getTime()));
+            if (role.getExpirationDate() != null) {
+                preparedStatement.setTimestamp(4, new Timestamp(role.getExpirationDate().getTime()));
+            } else {
+                preparedStatement.setTimestamp(4, null);
+            }
+            preparedStatement.setString(5, role.getPartition().getId());
+            if (role.isEnabled()) {
+                preparedStatement.setString(6, "y");
+            }
+
+            int result = preparedStatement.executeUpdate();
+            if (result == 0) {
+                throw new RuntimeException("Insert into Role failed");
+            }
+
+            // Ensure that the Partition is also stored
+            PartitionJdbcType pj = new PartitionJdbcType("dummy");
+            pj.setDataSource(dataSource);
+            pj.persist(role.getPartition());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            safeClose(preparedStatement);
+            safeClose(connection);
+        }
+    }
+
+    /**
+     * Update the stored {@link User}
+     * @param dataSource
+     * @param role
+     */
+    public void updateRole(DataSource dataSource, Role role) {
+        String updateSql = "update Role set name=?,enabled=?," + "createdDate=?,expirationDate=? where id =?";
+
+        if (role.getExpirationDate() == null) {
+            updateSql = "update Role set name=?,enabled=?," + "createdDate=? where id =?";
+        }
+        if (dataSource == null) {
+            throw new RuntimeException("Null datasource");
+        }
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            connection = dataSource.getConnection();
+
+            preparedStatement = connection.prepareStatement(updateSql);
+            preparedStatement.setString(1, role.getName());
+            if (role.isEnabled()) {
+                preparedStatement.setString(2, "y");
+            } else {
+                preparedStatement.setString(2, "n");
+            }
+            preparedStatement.setDate(3, new java.sql.Date(role.getCreatedDate().getTime()));
+
+            if (role.getExpirationDate() != null) {
+                preparedStatement.setTimestamp(4, new Timestamp(role.getExpirationDate().getTime()));
+                preparedStatement.setString(5, role.getId());
+            } else {
+                preparedStatement.setString(4, role.getId());
+            }
+
+            int numberOfRows = preparedStatement.executeUpdate();
+            if (numberOfRows == 0) {
+                System.out.println("Update Role failed");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            safeClose(resultSet);
+            safeClose(preparedStatement);
+            safeClose(connection);
+        }
     }
 }

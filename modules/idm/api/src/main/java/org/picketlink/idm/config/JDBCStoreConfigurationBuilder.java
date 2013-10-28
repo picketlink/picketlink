@@ -24,6 +24,8 @@ package org.picketlink.idm.config;
 
 
 import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>{@link org.picketlink.idm.config.IdentityStoreConfigurationBuilder} implementation which knows how to build a
@@ -35,6 +37,7 @@ public class JDBCStoreConfigurationBuilder extends
         IdentityStoreConfigurationBuilder<JDBCIdentityStoreConfiguration, JDBCStoreConfigurationBuilder> {
 
     private JDBCIdentityStoreConfiguration jdbcIdentityStoreConfiguration = null;
+    private Map<String,Class<?>> customClassMapping = new HashMap<String, Class<?>>();
     private DataSource dataSource = null;
 
     public JDBCStoreConfigurationBuilder(IdentityStoresConfigurationBuilder builder) {
@@ -60,6 +63,8 @@ public class JDBCStoreConfigurationBuilder extends
         if(dataSource != null){
             jdbcIdentityStoreConfiguration.setDataSource(dataSource);
         }
+        jdbcIdentityStoreConfiguration.setCustomClassMapping(customClassMapping);
+
         return jdbcIdentityStoreConfiguration;
     }
 
@@ -73,5 +78,14 @@ public class JDBCStoreConfigurationBuilder extends
         super.readFrom(configuration);
 
         return this;
+    }
+
+    /**
+     * Map a custom JDBC mapping class for a type such as {@link org.picketlink.idm.model.basic.User}
+     * @param key
+     * @param value
+     */
+    public void map(String key, Class<?> value){
+        customClassMapping.put(key, value);
     }
 }
