@@ -28,6 +28,7 @@ import org.picketlink.idm.model.Partition;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
@@ -47,6 +48,7 @@ public class LDAPStoreConfigurationBuilder extends
     private String bindDN;
     private String bindCredential;
     private boolean activeDirectory;
+    private Properties connectionProperties;
     private Set<LDAPMappingConfigurationBuilder> mappingBuilders = new HashSet<LDAPMappingConfigurationBuilder>();
 
     public LDAPStoreConfigurationBuilder(IdentityStoresConfigurationBuilder builder) {
@@ -124,6 +126,17 @@ public class LDAPStoreConfigurationBuilder extends
         return ldapMappingConfigurationBuilder;
     }
 
+    /**
+     * <p>Set additional connection properties.</p>
+     *
+     * @param activeDirectory
+     * @return
+     */
+    public LDAPStoreConfigurationBuilder connectionProperties(Properties connectionProperties) {
+        this.connectionProperties = connectionProperties;
+        return this;
+    }
+
     @Override
     protected LDAPIdentityStoreConfiguration create() {
         Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig = new HashMap<Class<? extends AttributedType>, LDAPMappingConfiguration>();
@@ -136,6 +149,7 @@ public class LDAPStoreConfigurationBuilder extends
 
         return new LDAPIdentityStoreConfiguration(
                 this.url,
+                this.connectionProperties,
                 this.bindDN,
                 this.bindCredential,
                 this.baseDN,
@@ -185,6 +199,7 @@ public class LDAPStoreConfigurationBuilder extends
         this.bindDN = configuration.getBindDN();
         this.url = configuration.getLdapURL();
         this.activeDirectory = configuration.isActiveDirectory();
+        this.connectionProperties = configuration.getConnectionProperties();
 
         for (Class<? extends AttributedType> attributedType: configuration.getMappingConfig().keySet()) {
             LDAPMappingConfiguration mappingConfiguration = configuration.getMappingConfig().get(attributedType);

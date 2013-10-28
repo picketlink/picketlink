@@ -24,6 +24,7 @@ import org.picketlink.common.properties.query.PropertyQuery;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.credential.Credentials;
@@ -50,6 +51,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
+import static org.picketlink.idm.util.IDMUtil.configureDefaultPartition;
 
 /**
  * <p>Default implementation of the IdentityManager interface.<p/> <p/> <p> This lightweight class is intended to be
@@ -78,8 +80,11 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
         checkUniqueness(identityType);
 
         try {
-            storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, identityType.getClass(), IdentityOperation.create)
-                    .add(this, identityType);
+            IdentityStore identityStore = storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, identityType.getClass(), IdentityOperation.create);
+
+            identityStore.add(this, identityType);
+
+            configureDefaultPartition(identityType, identityStore, getPartitionManager());
 
             addAttributes(identityType);
         } catch (Exception e) {
@@ -94,6 +99,10 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
         try {
             storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, identityType.getClass(), IdentityOperation.update)
                     .update(this, identityType);
+
+            if (identityType.getPartition() == null) {
+                throw MESSAGES.attributedUndefinedPartition(identityType);
+            }
 
             removeAttributes(identityType);
             addAttributes(identityType);
@@ -310,6 +319,10 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
                 }
             }
         }
+    }
+
+    private PartitionManager getPartitionManager() {
+        return (PartitionManager) this.storeSelector;
     }
 
 }

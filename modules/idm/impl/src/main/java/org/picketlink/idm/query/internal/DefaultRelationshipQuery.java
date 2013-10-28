@@ -21,6 +21,7 @@ package org.picketlink.idm.query.internal;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
@@ -42,12 +43,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
+import static org.picketlink.common.reflection.Reflections.classForName;
 import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
+import static org.picketlink.idm.util.IDMUtil.configureDefaultPartition;
 
 /**
  * Default IdentityQuery implementation.
  *
  * @param <T>
+ *
  * @author Shane Bryzak
  */
 public class DefaultRelationshipQuery<T extends Relationship> implements RelationshipQuery<T> {
@@ -101,17 +106,28 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
         List<T> result = new ArrayList<T>();
 
         try {
+            AttributeStore<?> attributeStore = this.storeSelector.getStoreForAttributeOperation(this.context);
+
             for (IdentityStore<?> store : getStores()) {
                 List<T> references = store.fetchQueryResults(context, this);
 
                 for (T relationship : references) {
+                    List<Property<IdentityType>> identityTypes = PropertyQueries
+                            .<IdentityType>createQuery(relationship.getClass())
+                            .addCriteria(new TypedPropertyCriteria(IdentityType.class, MatchOption.ALL))
+                            .getResultList();
+
+                    for (Property<IdentityType> identityTypeProperty : identityTypes) {
+                        IdentityType identityType = identityTypeProperty.getValue(relationship);
+
+                        configureDefaultPartition(identityType, store, getPartitionManager());
+                    }
+
                     if (RelationshipReference.class.isInstance(relationship)) {
                         RelationshipReference reference = (RelationshipReference) relationship;
                         resolveIdentityTypes(reference);
                         relationship = (T) reference.getRelationship();
                     }
-
-                    AttributeStore<?> attributeStore = this.storeSelector.getStoreForAttributeOperation(context);
 
                     if (attributeStore != null) {
                         attributeStore.loadAttributes(context, relationship);
@@ -131,10 +147,11 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
         Relationship relationship = reference.getRelationship();
 
         for (String descriptor : reference.getDescriptors()) {
+            String type = reference.getIdentityType(descriptor);
             String partitionId = reference.getPartitionId(descriptor);
             String identityTypeId = reference.getIdentityTypeId(descriptor);
 
-            PartitionManager partitionManager = (PartitionManager) this.storeSelector;
+            PartitionManager partitionManager = getPartitionManager();
             Partition partition = partitionManager.lookupById(Partition.class, partitionId);
 
             if (partition == null) {
@@ -142,9 +159,16 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
                         "referenced IdentityType [" + identityTypeId + "].");
             }
 
-            IdentityManager identityManager = partitionManager.createIdentityManager(partition);
+            Class<? extends IdentityType> identityTypeClass;
 
-            IdentityType identityType = identityManager.lookupIdentityById(IdentityType.class, identityTypeId);
+            try {
+                identityTypeClass = (Class<? extends IdentityType>) classForName(type, reference.getRelationship().getClass().getClassLoader());
+            } catch (ClassNotFoundException e) {
+                throw new IdentityManagementException("Could not instantiate referenced identity type [" + type + "].", e);
+            }
+
+            IdentityManager identityManager = partitionManager.createIdentityManager(partition);
+            IdentityType identityType = identityManager.lookupIdentityById(identityTypeClass, identityTypeId);
 
             if (identityType == null) {
                 throw new IdentityManagementException("Referenced IdentityType [" + identityTypeId + "] from " +
@@ -160,6 +184,10 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
 
             property.setValue(relationship, identityType);
         }
+    }
+
+    private PartitionManager getPartitionManager() {
+        return (PartitionManager) this.storeSelector;
     }
 
     @Override

@@ -72,34 +72,38 @@
     <priority value="OFF"/>
   </category>
 
+  <category name="org.jboss.logging">
+    <priority value="OFF"/>
+  </category>
+
   <!-- PicketLink IDM Root category. All logging messages. -->
   <category name="org.picketlink.idm">
-    <priority value="INFO"/>
+    <priority value="OFF"/>
   </category>
 
   <!-- PicketLink IDM Root category. All logging messages. -->
   <category name="org.picketlink.idm.credential">
-    <priority value="INFO"/>
+    <priority value="OFF"/>
   </category>
 
   <!-- PicketLink IDM Identity Store category. Only messages from identity stores. -->
   <category name="org.picketlink.idm.identity.store">
-    <priority value="INFO"/>
+    <priority value="OFF"/>
   </category>
 
   <!-- PicketLink IDM File Identity Store category. -->
   <category name="org.picketlink.idm.identity.store.file">
-    <priority value="INFO"/>
+    <priority value="OFF"/>
   </category>
 
   <!-- PicketLink IDM JPA Identity Store category. -->
   <category name="org.picketlink.idm.identity.store.jpa">
-    <priority value="INFO"/>
+    <priority value="OFF"/>
   </category>
 
   <!-- PicketLink IDM LDAP Identity Store category. -->
   <category name="org.picketlink.idm.identity.store.ldap">
-    <priority value="INFO"/>
+    <priority value="OFF"/>
   </category>
 
   <!-- ======================= -->

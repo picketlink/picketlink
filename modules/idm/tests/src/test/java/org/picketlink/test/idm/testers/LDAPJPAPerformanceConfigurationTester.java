@@ -37,7 +37,6 @@ import org.picketlink.test.idm.relationship.CustomRelationshipTestCase;
 import org.picketlink.test.idm.relationship.CustomRelationshipTypeEntity;
 import org.picketlink.test.idm.relationship.RelationshipIdentityTypeReferenceEntity;
 import org.picketlink.test.idm.util.JPAContextInitializer;
-import org.picketlink.test.idm.util.LDAPEmbeddedServer;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -53,9 +52,7 @@ import static org.picketlink.common.constants.LDAPConstants.UID;
 /**
  * @author pedroigor
  */
-public class LDAPUserGroupJPARoleConfigurationTester implements IdentityConfigurationTester {
-
-    private final LDAPEmbeddedServer embeddedServer = new LDAPEmbeddedServer();
+public class LDAPJPAPerformanceConfigurationTester implements IdentityConfigurationTester {
 
     private EntityManagerFactory emf;
     private EntityManager entityManager;
@@ -91,34 +88,25 @@ public class LDAPUserGroupJPARoleConfigurationTester implements IdentityConfigur
                         .supportType(Role.class, Partition.class)
                         .supportAttributes(true)
                     .ldap()
-                        .baseDN(embeddedServer.getBaseDn())
-                        .bindDN(embeddedServer.getBindDn())
-                        .bindCredential(embeddedServer.getBindCredential())
-                        .url(embeddedServer.getConnectionUrl())
+                        .baseDN("o=picketlink,dc=jboss,dc=org")
+                        .bindDN("uid=admin,ou=system")
+                        .bindCredential("secret")
+                        .url("ldap://localhost:10390")
                         .supportGlobalRelationship(GroupMembership.class)
                         .supportType(User.class, Agent.class, Group.class)
                         .supportCredentials(true)
-                        .mapping(Agent.class)
-                            .baseDN(embeddedServer.getAgentDnSuffix())
-                            .objectClasses("account")
-                            .attribute("loginName", UID, true)
-                            .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
                         .mapping(User.class)
-                            .baseDN(embeddedServer.getUserDnSuffix())
-                            .objectClasses("inetOrgPerson", "organizationalPerson")
+                            .objectClasses("person")
                             .attribute("loginName", UID, true)
                             .attribute("firstName", CN)
                             .attribute("lastName", SN)
                             .attribute("email", EMAIL)
                             .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
                         .mapping(Group.class)
-                            .baseDN(embeddedServer.getGroupDnSuffix())
-                            .hierarchySearchDepth(5)
                             .objectClasses(GROUP_OF_NAMES)
                             .attribute("name", CN, true)
                             .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
                             .parentMembershipAttributeName("member")
-                            .parentMapping("QA Group", "ou=QA," + embeddedServer.getGroupDnSuffix())
                         .mapping(GroupMembership.class)
                             .forMapping(Group.class)
                             .attribute("member", "member");
@@ -134,13 +122,6 @@ public class LDAPUserGroupJPARoleConfigurationTester implements IdentityConfigur
 
     @Override
     public void beforeTest() {
-        try {
-            this.embeddedServer.setup();
-            this.embeddedServer.importLDIF("ldap/users.ldif");
-        } catch (Exception e) {
-            throw new RuntimeException("Error starting Embedded LDAP server.", e);
-        }
-
         this.emf = Persistence.createEntityManagerFactory("ldap-usergroup-jpa-role-tests-pu");
         this.entityManager = emf.createEntityManager();
         this.entityManager.getTransaction().begin();
@@ -148,12 +129,6 @@ public class LDAPUserGroupJPARoleConfigurationTester implements IdentityConfigur
 
     @Override
     public void afterTest() {
-        try {
-            this.embeddedServer.tearDown();
-        } catch (Exception e) {
-            throw new RuntimeException("Error starting Embedded LDAP server.", e);
-        }
-
         this.entityManager.getTransaction().commit();
         this.entityManager.close();
         this.emf.close();

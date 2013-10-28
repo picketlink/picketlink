@@ -64,7 +64,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Map.Entry;
 import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
-import static org.picketlink.common.util.ClassUtil.newInstance;
+import static org.picketlink.common.reflection.Reflections.newInstance;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
 import static org.picketlink.idm.credential.util.CredentialUtils.getCurrentCredential;

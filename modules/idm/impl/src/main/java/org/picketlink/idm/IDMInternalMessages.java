@@ -61,6 +61,12 @@ public interface IDMInternalMessages extends IDMMessages {
     @Message(id = 302, value = "Could not create context.")
     IdentityManagementException storeLdapCouldNotCreateContext(@Cause Throwable e);
 
+    @Message(value = "Entry not found with ID [%s] using baseDN [%s].")
+    IdentityManagementException storeLdapEntryNotFoundWithId(String entryUUID, String baseDN);
+
+    @Message(value = "Could not load attributes for entry with ID [%s] using baseDN [%s].")
+    IdentityManagementException storeLdapCouldNotLoadAttributesForEntry(String entryUUID, String baseDN);
+
     @Message(value = "Unexpected IdentityStore type. Expected [%s]. Actual [%s].")
     IdentityManagementException storeUnexpectedType(Class<? extends IdentityStore> expectedType,
                                                     Class<? extends IdentityStore> actualType);
@@ -141,6 +147,10 @@ public interface IDMInternalMessages extends IDMMessages {
                                                                       @Param IdentityStoreConfiguration.IdentityOperation operation, Class<? extends AttributedType> typeToDisplay,
                                                                       IdentityStoreConfiguration.IdentityOperation operationToDisplay);
 
+    @Message(id = 605, value = "Undefined partition for identity type [%s].")
+    IdentityManagementException attributedUndefinedPartition(IdentityType identityType);
+
     @Message(value = "Could not find AttributedType [%s] with the given identifier [%s] for Partition [%s]")
     IdentityManagementException attributedTypeNotFoundWithId(Class<? extends AttributedType> type, String id, Partition partition);
+
 }

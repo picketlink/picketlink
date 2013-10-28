@@ -67,6 +67,7 @@ public class IdentityConfigurationTestFactory {
         testers.add(new SingleConfigLDAPJPAStoreConfigurationTester());
         testers.add(new LDAPStoreConfigurationTester());
         testers.add(new LDAPUserGroupJPARoleConfigurationTester());
+//        testers.add(new LDAPJPAPerformanceConfigurationTester());
 
         return testers;
     }

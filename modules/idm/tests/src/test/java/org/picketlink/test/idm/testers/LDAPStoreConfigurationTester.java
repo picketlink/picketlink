@@ -71,6 +71,7 @@ public class LDAPStoreConfigurationTester implements IdentityConfigurationTester
                             .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
                         .mapping(Group.class)
                             .baseDN(embeddedServer.getGroupDnSuffix())
+                            .hierarchySearchDepth(4)
                             .objectClasses(GROUP_OF_NAMES)
                             .attribute("name", CN, true)
                             .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)

@@ -18,6 +18,7 @@
 
 package org.picketlink.idm.query.internal;
 
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
@@ -35,6 +36,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
+import static org.picketlink.idm.util.IDMUtil.configureDefaultPartition;
 
 /**
  * Default IdentityQuery implementation.
@@ -129,16 +131,17 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
 
         try {
             Set<IdentityStore<?>> identityStores = this.storeSelector.getStoresForIdentityQuery(this.context, this.getIdentityType());
-
-            for (IdentityStore<?> store : identityStores) {
-                result.addAll(store.fetchQueryResults(this.context, this));
-            }
-
             AttributeStore<?> attributeStore = this.storeSelector.getStoreForAttributeOperation(context);
 
-            if (attributeStore != null) {
-                for (T identityType : result) {
-                    attributeStore.loadAttributes(context, identityType);
+            for (IdentityStore<?> store : identityStores) {
+                for (T identityType : store.fetchQueryResults(this.context, this)) {
+                    configureDefaultPartition(identityType, store, getPartitionManager());
+
+                    if (attributeStore != null) {
+                        attributeStore.loadAttributes(this.context, identityType);
+                    }
+
+                    result.add(identityType);
                 }
             }
         } catch (Exception e) {
@@ -187,4 +190,9 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
         this.sortAscending = sortAscending;
         return this;
     }
+
+    private PartitionManager getPartitionManager() {
+        return (PartitionManager) this.storeSelector;
+    }
+
 }

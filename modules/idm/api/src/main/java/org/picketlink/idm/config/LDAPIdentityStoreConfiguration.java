@@ -45,15 +45,14 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
     private final String bindDN;
     private final String bindCredential;
     private final boolean activeDirectory;
-    private String standardAttributesFileName = "standardattributes.txt";
-    private Properties additionalProperties = new Properties();
+    private final Properties connectionProperties;
 
     private String baseDN;
     private final Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig;
 
     LDAPIdentityStoreConfiguration(
             String url,
-            String bindDN,
+            final Properties connectionProperties, String bindDN,
             String bindCredential,
             String baseDN,
             final boolean activeDirectory,
@@ -66,15 +65,12 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers,
                 false, supportsCredential);
         this.ldapURL = url;
+        this.connectionProperties = connectionProperties;
         this.bindDN = bindDN;
         this.bindCredential = bindCredential;
         this.activeDirectory = activeDirectory;
         this.baseDN = baseDN;
         this.mappingConfig = mappingConfig;
-    }
-
-    public String getStandardAttributesFileName() {
-        return this.standardAttributesFileName;
     }
 
     public String getLdapURL() {
@@ -109,28 +105,37 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         return this.activeDirectory;
     }
 
-    public Properties getAdditionalProperties() {
-        return this.additionalProperties;
+    public Properties getConnectionProperties() {
+        return this.connectionProperties;
     }
 
     public Map<Class<? extends AttributedType>, LDAPMappingConfiguration> getMappingConfig() {
         return this.mappingConfig;
     }
 
-    public Class<? extends AttributedType> getSupportedTypeByBaseDN(String baseDN) {
+    public Class<? extends AttributedType> getSupportedTypeByBaseDN(String baseDN, List<String> objectClasses) {
         for (LDAPMappingConfiguration mappingConfig : this.mappingConfig.values()) {
-            if (!Relationship.class.isAssignableFrom(mappingConfig.getMappedClass())) {
-                if (mappingConfig.getBaseDN().equalsIgnoreCase(baseDN)) {
-                    return mappingConfig.getMappedClass();
-                }
-
-                if (mappingConfig.getParentMapping().values().contains(baseDN)) {
-                    return mappingConfig.getMappedClass();
+            if (mappingConfig.getBaseDN() != null) {
+                if (!Relationship.class.isAssignableFrom(mappingConfig.getMappedClass())) {
+                    if (mappingConfig.getBaseDN().equalsIgnoreCase(baseDN)
+                            || mappingConfig.getParentMapping().values().contains(baseDN)) {
+                        return mappingConfig.getMappedClass();
+                    }
                 }
             }
         }
 
-        throw new IdentityManagementException("No type found for Base DN [" + baseDN + "].");
+        for (LDAPMappingConfiguration mappingConfig : this.mappingConfig.values()) {
+            if (!Relationship.class.isAssignableFrom(mappingConfig.getMappedClass())) {
+                for (String objectClass : objectClasses) {
+                    if (mappingConfig.getObjectClasses().contains(objectClass)) {
+                        return mappingConfig.getMappedClass();
+                    }
+                }
+            }
+        }
+
+        throw new IdentityManagementException("No type found for Base DN [" + baseDN + "] or objectClasses [" + objectClasses + ".");
     }
 
     public LDAPMappingConfiguration getMappingConfig(Class<? extends AttributedType> attributedType) {

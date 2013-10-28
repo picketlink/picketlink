@@ -99,6 +99,7 @@ public class SingleConfigLDAPJPAStoreConfigurationTester implements IdentityConf
                             .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
                         .mapping(Group.class)
                             .baseDN(embeddedServer.getGroupDnSuffix())
+                            .hierarchySearchDepth(5)
                             .objectClasses(GROUP_OF_NAMES)
                             .attribute("name", CN, true)
                             .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)

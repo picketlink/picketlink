@@ -54,6 +54,7 @@ public class LDAPMappingConfigurationBuilder extends
     private final Map<String, String> parentMapping = new HashMap<String, String>();
     private Class<? extends AttributedType> relatedAttributedType;
     private String parentMembershipAttributeName;
+    private int hierarchySearchDepth = 3;
 
     public LDAPMappingConfigurationBuilder(Class<? extends AttributedType> attributedType, LDAPStoreConfigurationBuilder builder) {
         super(builder);
@@ -72,7 +73,8 @@ public class LDAPMappingConfigurationBuilder extends
                 this.readOnlyAttributes,
                 this.parentMapping,
                 this.relatedAttributedType,
-                this.parentMembershipAttributeName);
+                this.parentMembershipAttributeName,
+                this.hierarchySearchDepth);
     }
 
     @Override
@@ -81,11 +83,11 @@ public class LDAPMappingConfigurationBuilder extends
             throw new SecurityConfigurationException("Mapped class not provided.");
         }
 
-        if (!Relationship.class.isAssignableFrom(this.mappedClass)) {
-            if (isNullOrEmpty(this.baseDN)) {
-                throw new SecurityConfigurationException("No base DN provided for mapped class [" + this.mappedClass + "].");
-            }
+        if (this.hierarchySearchDepth < 0) {
+            throw new SecurityConfigurationException("The hierarchy search depth can not be negative.");
+        }
 
+        if (!Relationship.class.isAssignableFrom(this.mappedClass)) {
             if (isNullOrEmpty(this.idPropertyName)) {
                 throw new SecurityConfigurationException("No attribute provided as the identifier for mapped class [" + this.mappedClass + "].");
             }
@@ -120,6 +122,7 @@ public class LDAPMappingConfigurationBuilder extends
         this.parentMapping.putAll(fromConfiguration.getParentMapping());
         this.relatedAttributedType = fromConfiguration.getRelatedAttributedType();
         this.parentMembershipAttributeName = fromConfiguration.getParentMembershipAttributeName();
+        this.hierarchySearchDepth = fromConfiguration.getHierarchySearchDepth();
 
         return this;
     }
@@ -128,6 +131,7 @@ public class LDAPMappingConfigurationBuilder extends
      * <p>Defines the object classes for this type.</p>
      *
      * @param objectClasses
+     *
      * @return
      */
     public LDAPMappingConfigurationBuilder objectClasses(String... objectClasses) {
@@ -140,10 +144,11 @@ public class LDAPMappingConfigurationBuilder extends
      *
      * @param propertyName
      * @param ldapAttributeName
+     *
      * @return
      */
-    public LDAPMappingConfigurationBuilder attribute(@ParameterConfigID(name="propertyName") String propertyName,
-                                                     @ParameterConfigID(name="ldapAttributeName") String ldapAttributeName) {
+    public LDAPMappingConfigurationBuilder attribute(@ParameterConfigID(name = "propertyName") String propertyName,
+                                                     @ParameterConfigID(name = "ldapAttributeName") String ldapAttributeName) {
         this.mappedProperties.put(propertyName, ldapAttributeName);
         return this;
     }
@@ -153,10 +158,11 @@ public class LDAPMappingConfigurationBuilder extends
      *
      * @param propertyName
      * @param ldapAttributeName
+     *
      * @return
      */
-    public LDAPMappingConfigurationBuilder readOnlyAttribute(@ParameterConfigID(name="propertyName") String propertyName,
-                                                             @ParameterConfigID(name="ldapAttributeName") String ldapAttributeName) {
+    public LDAPMappingConfigurationBuilder readOnlyAttribute(@ParameterConfigID(name = "propertyName") String propertyName,
+                                                             @ParameterConfigID(name = "ldapAttributeName") String ldapAttributeName) {
         this.mappedProperties.put(propertyName, ldapAttributeName);
         this.readOnlyAttributes.add(propertyName);
         return this;
@@ -168,11 +174,12 @@ public class LDAPMappingConfigurationBuilder extends
      * @param propertyName
      * @param ldapAttributeName
      * @param identifier
+     *
      * @return
      */
-    public LDAPMappingConfigurationBuilder attribute(@ParameterConfigID(name="propertyName") String propertyName,
-                                                     @ParameterConfigID(name="ldapAttributeName") String ldapAttributeName,
-                                                     @ParameterConfigID(name="identifier") boolean identifier) {
+    public LDAPMappingConfigurationBuilder attribute(@ParameterConfigID(name = "propertyName") String propertyName,
+                                                     @ParameterConfigID(name = "ldapAttributeName") String ldapAttributeName,
+                                                     @ParameterConfigID(name = "identifier") boolean identifier) {
         attribute(propertyName, ldapAttributeName);
 
         if (identifier) {
@@ -182,6 +189,25 @@ public class LDAPMappingConfigurationBuilder extends
         return this;
     }
 
+    /**
+     * <p>Sets the the search depth level when retrieving the hierarchy (usually the parents) for a type.</p>
+     *
+     * @param hierarchySearchDepth An int value representing the search depth.
+     *
+     * @return
+     */
+    public LDAPMappingConfigurationBuilder hierarchySearchDepth(int hierarchySearchDepth) {
+        this.hierarchySearchDepth = hierarchySearchDepth;
+        return this;
+    }
+
+    /**
+     * <p>Maps a specific {@link AttributedType}.</p>
+     *
+     * @param attributedType
+     *
+     * @return
+     */
     public LDAPMappingConfigurationBuilder mapping(Class<? extends AttributedType> attributedType) {
         return this.ldapStoreBuilder.mapping(attributedType);
     }
@@ -190,6 +216,7 @@ public class LDAPMappingConfigurationBuilder extends
      * <>Sets the base DN for this type.</>
      *
      * @param baseDN
+     *
      * @return
      */
     public LDAPMappingConfigurationBuilder baseDN(String baseDN) {
@@ -201,6 +228,7 @@ public class LDAPMappingConfigurationBuilder extends
      * <p>Associates the given type to a mapped type. This is usually used when configuration relationship types.</p>
      *
      * @param attributedType
+     *
      * @return
      */
     public LDAPMappingConfigurationBuilder forMapping(Class<? extends AttributedType> attributedType) {
@@ -212,6 +240,7 @@ public class LDAPMappingConfigurationBuilder extends
      * <p>Defines the LDAP attribute name used to create parent-child relationships.</p>
      *
      * @param parentMembershipAttributeName
+     *
      * @return
      */
     public LDAPMappingConfigurationBuilder parentMembershipAttributeName(String parentMembershipAttributeName) {
@@ -225,6 +254,7 @@ public class LDAPMappingConfigurationBuilder extends
      *
      * @param parentId
      * @param baseDN
+     *
      * @return
      */
     public LDAPMappingConfigurationBuilder parentMapping(String parentId, String baseDN) {
