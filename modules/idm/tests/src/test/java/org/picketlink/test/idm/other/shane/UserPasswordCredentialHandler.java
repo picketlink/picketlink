@@ -33,7 +33,7 @@ import java.util.List;
 public class UserPasswordCredentialHandler extends PasswordCredentialHandler {
 
     @Override
-    protected Account getAccount(final IdentityContext context, final UsernamePasswordCredentials credentials) {
+    public Account getAccount(final IdentityContext context, final UsernamePasswordCredentials credentials) {
         IdentityManager identityManager = getIdentityManager(context);
         IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
 

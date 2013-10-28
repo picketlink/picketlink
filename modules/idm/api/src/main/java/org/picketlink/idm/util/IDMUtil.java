@@ -110,7 +110,7 @@ public class IDMUtil {
             int score = 0;
 
             Class<?> cls = type.getSuperclass();
-            while (!cls.equals(Object.class)) {
+            while (cls != null && !cls.equals(Object.class)) {
                 if (targetClass.isAssignableFrom(cls)) {
                     score++;
                 } else {

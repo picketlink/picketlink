@@ -17,20 +17,22 @@
  */
 package org.picketlink.idm.credential.handler;
 
+import static org.picketlink.idm.IDMLog.CREDENTIAL_LOGGER;
+
+import java.util.List;
+import java.util.Map;
+
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.AbstractBaseCredentials;
+import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.credential.util.CredentialUtils;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.basic.Agent;
+import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
-
-import static org.picketlink.idm.IDMLog.CREDENTIAL_LOGGER;
-import static org.picketlink.idm.credential.Credentials.Status;
-import static org.picketlink.idm.model.basic.BasicModel.getAgent;
-import static org.picketlink.idm.model.basic.BasicModel.getUser;
 
 /**
  * <p>Base class for {@link CredentialHandler} implementations.</p>
@@ -40,20 +42,52 @@ import static org.picketlink.idm.model.basic.BasicModel.getUser;
 public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V extends AbstractBaseCredentials, U>
         implements CredentialHandler<S, V, U> {
 
-    protected Account getAccount(IdentityContext context, String loginName) {
+    private static final String DEFAULT_LOGIN_NAME_PROPERTY = "loginName";
+
+    /**
+     * This is the name of the identity type property that will be used to retrieve the account's
+     * login name, used for account lookup.
+     */
+    public static final String LOGIN_NAME_PROPERTY = "LOGIN_NAME_PROPERTY";
+
+    private String loginNameProperty = DEFAULT_LOGIN_NAME_PROPERTY;
+
+    public void setup(S store) {
+        Map<String, Object> options = store.getConfig().getCredentialHandlerProperties();
+
+        if (options != null) {
+
+            String loginNameProperty = (String) options.get(LOGIN_NAME_PROPERTY);
+            if (loginNameProperty != null) {
+                this.loginNameProperty = loginNameProperty;
+            }
+        }
+    }
+
+    protected Account getAccount(final IdentityContext context, String loginName) {
         IdentityManager identityManager = getIdentityManager(context);
 
         if (isDebugEnabled()) {
-            CREDENTIAL_LOGGER.debugf("Trying to find account [%s] using default account type [%s]. If you're using a custom account type, it will not be retrieved until you provide a credential handler that knows how to retrieve it.", loginName, Agent.class);
+            CREDENTIAL_LOGGER.debugf("Trying to find account with [%s] property value of [%s].",
+                loginNameProperty, loginName);
         }
 
-        Account agent = getAgent(identityManager, loginName);
+        List<IdentityType> accounts = identityManager.createIdentityQuery(IdentityType.class)
+                .setParameter(AttributedType.QUERY_ATTRIBUTE.byName(loginNameProperty),
+                        loginName).getResultList();
+        if (accounts.isEmpty()) {
+            return null;
+        } else if (accounts.size() == 1) {
+            IdentityType result = accounts.get(0);
+            if (!Account.class.isInstance(result.getClass())) {
+                throw new IdentityManagementException("Error - the IdentityType returned is not an Account: [" +
+                result.toString() + "]");
+            }
 
-        if (agent == null) {
-            agent = getUser(identityManager, loginName);
+            return (Account) result;
+        } else {
+            throw new IdentityManagementException("Error - multiple Account objects found with same login name");
         }
-
-        return agent;
     }
 
     @Override
