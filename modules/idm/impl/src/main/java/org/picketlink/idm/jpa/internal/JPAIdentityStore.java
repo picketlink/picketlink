@@ -71,6 +71,7 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -1205,7 +1206,9 @@ public class JPAIdentityStore
 
         Subquery<?> subQuery = cq.subquery(attributeEntityClass);
         Root fromProject = subQuery.from(attributeEntityClass);
-        subQuery.select(fromProject.get(ownerProperty.getName()));
+
+        Path selection = fromProject.get(ownerProperty.getName());
+        subQuery.select(selection);
 
         Predicate conjunction = cb.conjunction();
 
@@ -1219,8 +1222,8 @@ public class JPAIdentityStore
 
         subQuery.where(conjunction);
 
-        subQuery.groupBy(subQuery.getSelection()).having(
-                cb.equal(cb.count(subQuery.getSelection()), valuesToSearch.length));
+        subQuery.groupBy(selection).having(
+                cb.equal(cb.count(selection), valuesToSearch.length));
 
         predicates.add(cb.in(from).value(subQuery));
     }
