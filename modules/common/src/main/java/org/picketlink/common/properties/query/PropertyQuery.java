@@ -18,6 +18,7 @@
 
 package org.picketlink.common.properties.query;
 
+import org.picketlink.common.properties.FieldProperty;
 import org.picketlink.common.properties.MethodProperty;
 import org.picketlink.common.properties.Properties;
 import org.picketlink.common.properties.Property;
@@ -25,7 +26,10 @@ import org.picketlink.common.properties.Property;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p> Queries a target class for properties that match certain criteria. A property may either be a private or public
@@ -151,7 +155,7 @@ public class PropertyQuery<V> {
      * @return the results, or an empty list if there are no results
      */
     private List<Property<V>> getResultList(boolean writable) {
-        List<Property<V>> results = new ArrayList<Property<V>>();
+        Map<String, PropertyAdapter<V>> adapters = new HashMap<String, PropertyAdapter<V>>();
 
         // First check public accessor methods (we ignore private methods)
         for (Method method : targetClass.getMethods()) {
@@ -166,10 +170,12 @@ public class PropertyQuery<V> {
                     break;
                 }
             }
+
             if (match) {
                 MethodProperty<V> property = Properties.<V>createProperty(method);
+
                 if (!writable || !property.isReadOnly()) {
-                    results.add(property);
+                    adapters.put(property.getName(), new PropertyAdapter<V>(property));
                 }
             }
         }
@@ -185,11 +191,20 @@ public class PropertyQuery<V> {
                         break;
                     }
                 }
-                Property<V> prop = Properties.<V>createProperty(field);
 
-                if (match && !resultsContainsProperty(results, prop.getName())) {
+                FieldProperty<V> prop = Properties.<V>createProperty(field);
+
+                if (match) {
                     if (!writable || !prop.isReadOnly()) {
-                        results.add(prop);
+                        PropertyAdapter<V> adapter = adapters.get(prop.getName());
+
+                        if (adapter != null) {
+                            adapter.setProperty(prop);
+                        } else {
+                            adapter = new PropertyAdapter<V>(prop);
+                        }
+
+                        adapters.put(adapter.getName(), adapter);
                     }
                 }
             }
@@ -197,7 +212,7 @@ public class PropertyQuery<V> {
             cls = cls.getSuperclass();
         }
 
-        return results;
+        return Collections.unmodifiableList(new ArrayList<Property<V>>(adapters.values()));
     }
 
     private boolean resultsContainsProperty(List<Property<V>> results, String propertyName) {

@@ -18,6 +18,7 @@
 
 package org.picketlink.common.properties;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
@@ -109,4 +110,14 @@ public interface Property<V> {
      * The operation should be performed within a {@link PrivilegedAction}
      */
     void setAccessible();
+
+    /**
+     * Indicates whether the given <code>annotation</code> is defined for this property. This method will consider
+     * the annotations present in both field and accessor method.
+     *
+     * @param annotation The Annotation to check.
+     *
+     * @return True if the annotation is defined. Otherwise is false.
+     */
+    boolean isAnnotationPresent(Class<? extends Annotation> annotation);
 }

@@ -21,6 +21,7 @@ package org.picketlink.common.properties;
 import org.picketlink.common.reflection.Reflections;
 
 import java.beans.Introspector;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -91,27 +92,33 @@ class MethodPropertyImpl<V> implements MethodProperty<V> {
         this.setterMethod = getSetterMethod(method.getDeclaringClass(), propertyName);
     }
 
+    @Override
     public String getName() {
         return propertyName;
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public Class<V> getJavaClass() {
         return (Class<V>) getterMethod.getReturnType();
     }
 
+    @Override
     public Type getBaseType() {
         return getterMethod.getGenericReturnType();
     }
 
+    @Override
     public Method getAnnotatedElement() {
         return getterMethod;
     }
 
+    @Override
     public Member getMember() {
         return getterMethod;
     }
 
+    @Override
     public V getValue(Object instance) {
         if (getterMethod == null) {
             throw new UnsupportedOperationException("Property " +
@@ -121,6 +128,7 @@ class MethodPropertyImpl<V> implements MethodProperty<V> {
         return Reflections.cast(invokeMethod(getterMethod, instance));
     }
 
+    @Override
     public void setValue(Object instance, V value) {
         if (setterMethod == null) {
             // if the setter method is null may be because the declaring type is an interface which does not declare
@@ -174,14 +182,17 @@ class MethodPropertyImpl<V> implements MethodProperty<V> {
         throw new IllegalArgumentException("no such getter method: " + clazz.getName() + '.' + name);
     }
 
+    @Override
     public Class<?> getDeclaringClass() {
         return getterMethod.getDeclaringClass();
     }
 
+    @Override
     public boolean isReadOnly() {
         return setterMethod == null;
     }
 
+    @Override
     public void setAccessible() {
         if (setterMethod != null) {
             Reflections.setAccessible(setterMethod);
@@ -189,6 +200,11 @@ class MethodPropertyImpl<V> implements MethodProperty<V> {
         if (getterMethod != null) {
             Reflections.setAccessible(getterMethod);
         }
+    }
+
+    @Override
+    public boolean isAnnotationPresent(final Class<? extends Annotation> annotation) {
+        return getAnnotatedElement() != null && getAnnotatedElement().isAnnotationPresent(annotation);
     }
 
     @Override

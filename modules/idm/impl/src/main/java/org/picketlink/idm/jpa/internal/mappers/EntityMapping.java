@@ -25,6 +25,7 @@ import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
@@ -254,7 +255,7 @@ public class EntityMapping {
                     });
     }
 
-    private abstract class PropertyMapping implements Property {
+    private abstract class PropertyMapping<V> implements Property<V> {
 
         @Override
         public String getName() {
@@ -278,23 +279,26 @@ public class EntityMapping {
 
         @Override
         public Member getMember() {
-            return null;  //TODO: Implement getMember
+            return null;
         }
 
         @Override
         public Class<?> getDeclaringClass() {
-            return null;  //TODO: Implement getDeclaringClass
+            return null;
         }
 
         @Override
         public boolean isReadOnly() {
-            return false;  //TODO: Implement isReadOnly
+            return false;
         }
 
         @Override
         public void setAccessible() {
-            //TODO: Implement setAccessible
         }
 
+        @Override
+        public boolean isAnnotationPresent(final Class<? extends Annotation> annotation) {
+            return false;
+        }
     }
 }
