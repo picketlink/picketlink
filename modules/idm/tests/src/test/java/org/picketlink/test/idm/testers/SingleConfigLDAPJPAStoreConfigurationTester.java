@@ -77,7 +77,6 @@ public class SingleConfigLDAPJPAStoreConfigurationTester implements IdentityConf
                         .bindDN(embeddedServer.getBindDn())
                         .bindCredential(embeddedServer.getBindCredential())
                         .url(embeddedServer.getConnectionUrl())
-                        .supportType(IdentityType.class)
                         .supportCredentials(true)
                         .mapping(Agent.class)
                             .baseDN(embeddedServer.getAgentDnSuffix())
