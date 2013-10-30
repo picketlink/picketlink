@@ -215,12 +215,4 @@ public class PropertyQuery<V> {
         return Collections.unmodifiableList(new ArrayList<Property<V>>(adapters.values()));
     }
 
-    private boolean resultsContainsProperty(List<Property<V>> results, String propertyName) {
-        for (Property<V> p : results) {
-            if (propertyName.equals(p.getName())) {
-                return true;
-            }
-        }
-        return false;
-    }
 }
