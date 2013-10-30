@@ -24,6 +24,7 @@ package org.picketlink.idm.config;
 
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Relationship;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -122,6 +123,10 @@ public class LDAPStoreConfigurationBuilder extends
         this.mappingBuilders.add(ldapMappingConfigurationBuilder);
 
         supportType(attributedType);
+
+        if (Relationship.class.isAssignableFrom(attributedType)) {
+            supportGlobalRelationship((Class <? extends Relationship>) attributedType);
+        }
 
         return ldapMappingConfigurationBuilder;
     }
