@@ -44,8 +44,13 @@ public class User extends Agent {
      */
     public static final QueryParameter EMAIL = QUERY_ATTRIBUTE.byName("email");
 
+    @AttributeProperty
     private String firstName;
+
+    @AttributeProperty
     private String lastName;
+
+    @AttributeProperty
     private String email;
 
     public User() {
@@ -56,7 +61,6 @@ public class User extends Agent {
         super(loginName);
     }
 
-    @AttributeProperty
     public String getFirstName() {
         return firstName;
     }
@@ -65,7 +69,6 @@ public class User extends Agent {
         this.firstName = firstName;
     }
 
-    @AttributeProperty
     public String getLastName() {
         return lastName;
     }
@@ -74,7 +77,6 @@ public class User extends Agent {
         this.lastName = lastName;
     }
 
-    @AttributeProperty
     public String getEmail() {
         return this.email;
     }

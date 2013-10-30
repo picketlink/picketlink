@@ -101,7 +101,7 @@ public class LDAPMappingConfigurationBuilder extends
                 throw new SecurityConfigurationException("Could not resolve property [" + propertyName + "] from mapped class [" + this.mappedClass + "].");
             }
 
-            if (!property.getAnnotatedElement().isAnnotationPresent(AttributeProperty.class) && !Relationship.class.isAssignableFrom(this.mappedClass)) {
+            if (!property.isAnnotationPresent(AttributeProperty.class) && !Relationship.class.isAssignableFrom(this.mappedClass)) {
                 throw new SecurityConfigurationException("Mapped properties must be annotated with @AttributeProperty. Property [" + this.mappedClass + "." + propertyName + "].");
             }
         }
