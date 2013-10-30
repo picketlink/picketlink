@@ -28,6 +28,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.picketlink.common.util.Base64;
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.model.Attribute;
 
 /**
@@ -47,7 +48,7 @@ public class AttributeStorageUtil extends AbstractStorageUtil {
      */
     public Attribute getAttribute(DataSource dataSource, String id, String attributeName) {
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         Attribute attribute = null;
         Connection connection = null;
@@ -102,7 +103,7 @@ public class AttributeStorageUtil extends AbstractStorageUtil {
      */
     public List<Attribute> getAttributes(DataSource dataSource, String ownerId) {
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         List<Attribute> attributes = new ArrayList<Attribute>();
 
@@ -144,7 +145,7 @@ public class AttributeStorageUtil extends AbstractStorageUtil {
      */
     public void setAttribute(DataSource dataSource, String ownerId, Attribute attribute) {
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         Object values = attribute.getValue();
 
@@ -196,6 +197,9 @@ public class AttributeStorageUtil extends AbstractStorageUtil {
      * @param attributeName
      */
     public void deleteAttribute(DataSource dataSource, String ownerId, String attributeName) {
+        if (dataSource == null) {
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -216,6 +220,9 @@ public class AttributeStorageUtil extends AbstractStorageUtil {
     }
 
     private List<? extends Serializable> getAttributeValues(DataSource dataSource, String ownerId, String attributeName) {
+        if (dataSource == null) {
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
         List<Serializable> list = new ArrayList<Serializable>();
         List<String> stringList = new ArrayList<String>();
         Connection connection = null;

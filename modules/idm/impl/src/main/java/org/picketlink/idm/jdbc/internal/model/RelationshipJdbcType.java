@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.jdbc.internal.model.db.AttributeStorageUtil;
 import org.picketlink.idm.jdbc.internal.model.db.RelationshipStorageUtil;
 import org.picketlink.idm.model.Attribute;
@@ -52,8 +53,13 @@ public class RelationshipJdbcType extends AbstractJdbcType {
         } else if (attributedType instanceof GroupMembership) {
             relationshipStorageUtil.deleteGroupMembership(dataSource, attributedType.getId());
         } else {
-            throw new RuntimeException(attributedType.getClass().getName());
+            throw IDMMessages.MESSAGES.unexpectedType(attributedType.getClass());
         }
+    }
+
+    @Override
+    public void deleteRelationships(AttributedType attributedType) {
+        throw new RuntimeException(attributedType.getClass().getName());
     }
 
     @Override
@@ -64,17 +70,17 @@ public class RelationshipJdbcType extends AbstractJdbcType {
         } else if (attributedType instanceof GroupMembership) {
             relationshipStorageUtil.storeGroupMembership(dataSource, (GroupMembership) attributedType);
         } else
-            throw new RuntimeException();
+            throw IDMMessages.MESSAGES.unexpectedType(attributedType.getClass());
     }
 
     @Override
     public AttributedType load(String id, AttributedType attributedType) {
-        throw new RuntimeException();
+        throw IDMMessages.MESSAGES.unexpectedType(attributedType.getClass());
     }
 
     @Override
     public AttributedType load(String id, Class<? extends AttributedType> attributedType) {
-        throw new RuntimeException();
+        throw IDMMessages.MESSAGES.unexpectedType(attributedType.getClass());
     }
 
     @Override
@@ -115,7 +121,7 @@ public class RelationshipJdbcType extends AbstractJdbcType {
                 // Let us get all the group memberships
                 result.addAll(relationshipStorageUtil.loadGroupMembershipsForAgent(dataSource, agent));
             } else{
-                throw new RuntimeException(paramValue.getClass().getName());
+                throw IDMMessages.MESSAGES.unexpectedType(paramValue.getClass());
             }
         } else if (attributedType == Grant.class) {
             Set<QueryParameter> queryParameterSet = params.keySet();
@@ -139,7 +145,7 @@ public class RelationshipJdbcType extends AbstractJdbcType {
                     result.add(grant);
                 }
             } else {
-                throw new RuntimeException(paramValue.getClass().getName());
+                throw IDMMessages.MESSAGES.unexpectedType(paramValue.getClass());
             }
         } else if (attributedType == GroupMembership.class) {
             Set<QueryParameter> queryParameterSet = params.keySet();
@@ -163,9 +169,9 @@ public class RelationshipJdbcType extends AbstractJdbcType {
                     result.add(groupMembership);
                 }
             } else
-                throw new RuntimeException(paramValue.getClass().getName());
+                throw IDMMessages.MESSAGES.unexpectedType(paramValue.getClass());
         } else
-            throw new RuntimeException(attributedType.getName());
+            throw IDMMessages.MESSAGES.unexpectedType(attributedType.getClass());
         return result;
     }
 
@@ -176,7 +182,7 @@ public class RelationshipJdbcType extends AbstractJdbcType {
 
     @Override
     public void setAttribute(Attribute<? extends Serializable> attribute) {
-        throw new RuntimeException();
+        throw IDMMessages.MESSAGES.unexpectedType(attribute.getClass());
     }
 
     @Override

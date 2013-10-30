@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.jdbc.internal.model.db.PartitionStorageUtil;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
@@ -76,7 +77,7 @@ public class PartitionJdbcType extends AbstractJdbcType implements Partition {
 
     @Override
     public void setAttribute(Attribute<? extends Serializable> attribute) {
-        throw new RuntimeException();
+        throw IDMMessages.MESSAGES.unexpectedType(attribute.getClass());
     }
 
     @Override
@@ -92,14 +93,19 @@ public class PartitionJdbcType extends AbstractJdbcType implements Partition {
     @Override
     public Collection<Attribute<? extends Serializable>> getAttributes() {
         if (dataSource == null) {
-            throw new RuntimeException("Datasource null");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         return Collections.EMPTY_LIST;
     }
 
     @Override
     public void delete(AttributedType attributedType) {
-        throw new RuntimeException();
+        throw IDMMessages.MESSAGES.unexpectedType(attributedType.getClass());
+    }
+
+    @Override
+    public void deleteRelationships(AttributedType attributedType) {
+        throw IDMMessages.MESSAGES.unexpectedType(attributedType.getClass());
     }
 
     @Override
@@ -135,6 +141,6 @@ public class PartitionJdbcType extends AbstractJdbcType implements Partition {
 
     @Override
     public void update(AttributedType attributedType) {
-        throw new RuntimeException();
+        throw IDMMessages.MESSAGES.unexpectedType(attributedType.getClass());
     }
 }

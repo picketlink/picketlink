@@ -29,6 +29,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.model.basic.Agent;
 import org.picketlink.idm.model.basic.Grant;
 import org.picketlink.idm.model.basic.Group;
@@ -50,9 +51,11 @@ public class RelationshipStorageUtil extends AbstractStorageUtil {
      * @param id
      */
     public void deleteGrant(DataSource dataSource, String id) {
-
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
+        if (id == null) {
+            throw IDMMessages.MESSAGES.nullArgument("id");
         }
         Calendar calendar = new GregorianCalendar(500 + 1900, 12, 12);
         Date expiration = calendar.getTime();
@@ -84,10 +87,13 @@ public class RelationshipStorageUtil extends AbstractStorageUtil {
      * @param id
      */
     public void deleteGroupMembership(DataSource dataSource, String id) {
-
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
+        if (id == null) {
+            throw IDMMessages.MESSAGES.nullArgument("id");
+        }
+
         Calendar calendar = new GregorianCalendar(500 + 1900, 12, 12);
         Date expiration = calendar.getTime();
 
@@ -119,9 +125,11 @@ public class RelationshipStorageUtil extends AbstractStorageUtil {
      * @return
      */
     public Grant loadGrant(DataSource dataSource, String id) {
-
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
+        if (id == null) {
+            throw IDMMessages.MESSAGES.nullArgument("id");
         }
         UserStorageUtil userStorageUtil = new UserStorageUtil();
         RoleStorageUtil roleStorageUtil = new RoleStorageUtil();
@@ -162,9 +170,11 @@ public class RelationshipStorageUtil extends AbstractStorageUtil {
      * @return
      */
     public GroupMembership loadGroupMembership(DataSource dataSource, String id) {
-
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
+        if (id == null) {
+            throw IDMMessages.MESSAGES.nullArgument("id");
         }
         UserStorageUtil userStorageUtil = new UserStorageUtil();
         GroupStorageUtil groupStorageUtil = new GroupStorageUtil();
@@ -205,9 +215,8 @@ public class RelationshipStorageUtil extends AbstractStorageUtil {
      * @return
      */
     public List<Grant> loadGrantsForAgent(DataSource dataSource, Agent agent) {
-
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         List<Grant> grants = new ArrayList<Grant>();
 
@@ -250,9 +259,8 @@ public class RelationshipStorageUtil extends AbstractStorageUtil {
      * @return
      */
     public List<Grant> loadGrantsForUser(DataSource dataSource, User user) {
-
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         List<Grant> grants = new ArrayList<Grant>();
 
@@ -295,9 +303,8 @@ public class RelationshipStorageUtil extends AbstractStorageUtil {
      * @return
      */
     public List<GroupMembership> loadGroupMembershipsForAgent(DataSource dataSource, Agent agent) {
-
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         List<GroupMembership> groupMemberships = new ArrayList<GroupMembership>();
 
@@ -342,9 +349,8 @@ public class RelationshipStorageUtil extends AbstractStorageUtil {
      * @return
      */
     public List<GroupMembership> loadGroupMembershipsForUser(DataSource dataSource, User user) {
-
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         List<GroupMembership> groupMemberships = new ArrayList<GroupMembership>();
 
@@ -389,9 +395,8 @@ public class RelationshipStorageUtil extends AbstractStorageUtil {
      * @return
      */
     public List<Grant> loadGrantsForRole(DataSource dataSource, Role role) {
-
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         List<Grant> grants = new ArrayList<Grant>();
 
@@ -433,9 +438,8 @@ public class RelationshipStorageUtil extends AbstractStorageUtil {
      * @return
      */
     public List<GroupMembership> loadGroupMembershipForGroup(DataSource dataSource, Group group) {
-
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         List<GroupMembership> groupMemberships = new ArrayList<GroupMembership>();
 
@@ -479,9 +483,8 @@ public class RelationshipStorageUtil extends AbstractStorageUtil {
      * @param grant
      */
     public void storeGrant(DataSource dataSource, Grant grant) {
-
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         Calendar calendar = new GregorianCalendar(500 + 1900, 12, 12);
         Date expiration = calendar.getTime();
@@ -514,9 +517,8 @@ public class RelationshipStorageUtil extends AbstractStorageUtil {
      * @param groupMembership
      */
     public void storeGroupMembership(DataSource dataSource, GroupMembership groupMembership) {
-
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         Calendar calendar = new GregorianCalendar(500 + 1900, 12, 12);
         Date expiration = calendar.getTime();

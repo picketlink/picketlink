@@ -29,6 +29,7 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.jdbc.internal.model.PartitionJdbcType;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.basic.Role;
@@ -47,6 +48,9 @@ public class RoleStorageUtil extends AbstractStorageUtil {
      * @param role
      */
     public void deleteRole(DataSource dataSource, Role role) {
+        if (dataSource == null) {
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
@@ -74,7 +78,7 @@ public class RoleStorageUtil extends AbstractStorageUtil {
      */
     public Role loadRole(DataSource dataSource, String id) {
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -126,6 +130,9 @@ public class RoleStorageUtil extends AbstractStorageUtil {
      * @return
      */
     public Role loadRole(DataSource dataSource, Map<QueryParameter, Object[]> params) {
+        if (dataSource == null) {
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
         Set<QueryParameter> queryParameters = params.keySet();
         for (QueryParameter queryParameter : queryParameters) {
             if (queryParameter instanceof AttributeParameter) {
@@ -150,7 +157,7 @@ public class RoleStorageUtil extends AbstractStorageUtil {
      */
     public Role loadRoleByName(DataSource dataSource, String roleName) {
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -201,6 +208,9 @@ public class RoleStorageUtil extends AbstractStorageUtil {
      * @param role
      */
     public void storeRole(DataSource dataSource, Role role) {
+        if (dataSource == null) {
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
@@ -243,13 +253,13 @@ public class RoleStorageUtil extends AbstractStorageUtil {
      * @param role
      */
     public void updateRole(DataSource dataSource, Role role) {
+        if (dataSource == null) {
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
         String updateSql = "update Role set name=?,enabled=?," + "createdDate=?,expirationDate=? where id =?";
 
         if (role.getExpirationDate() == null) {
             updateSql = "update Role set name=?,enabled=?," + "createdDate=? where id =?";
-        }
-        if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
         }
 
         Connection connection = null;

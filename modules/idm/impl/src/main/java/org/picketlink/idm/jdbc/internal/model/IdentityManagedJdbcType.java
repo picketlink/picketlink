@@ -24,15 +24,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.jdbc.internal.model.db.AttributeStorageUtil;
 import org.picketlink.idm.jdbc.internal.model.db.GroupStorageUtil;
+import org.picketlink.idm.jdbc.internal.model.db.RelationshipStorageUtil;
 import org.picketlink.idm.jdbc.internal.model.db.RoleStorageUtil;
 import org.picketlink.idm.jdbc.internal.model.db.UserStorageUtil;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.basic.Agent;
+import org.picketlink.idm.model.basic.Grant;
 import org.picketlink.idm.model.basic.Group;
+import org.picketlink.idm.model.basic.GroupMembership;
 import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.query.QueryParameter;
@@ -69,7 +73,7 @@ public class IdentityManagedJdbcType extends AbstractJdbcType {
     @Override
     public void setAttribute(Attribute<? extends Serializable> attribute) {
         if (type == null) {
-            throw new RuntimeException("type not set");
+            throw IDMMessages.MESSAGES.nullArgument("type");
         }
         removeAttribute(attribute.getName());
 
@@ -80,7 +84,7 @@ public class IdentityManagedJdbcType extends AbstractJdbcType {
     @Override
     public void removeAttribute(String name) {
         if (type == null) {
-            throw new RuntimeException("type not set");
+            throw IDMMessages.MESSAGES.nullArgument("type");
         }
         AttributeStorageUtil attributeStorageUtil = new AttributeStorageUtil();
         attributeStorageUtil.deleteAttribute(dataSource, type.getId(), name);
@@ -88,9 +92,8 @@ public class IdentityManagedJdbcType extends AbstractJdbcType {
 
     @Override
     public <T extends Serializable> Attribute<T> getAttribute(String name) {
-
         if (type == null) {
-            throw new RuntimeException("type not set");
+            throw IDMMessages.MESSAGES.nullArgument("type");
         }
         AttributeStorageUtil attributeStorageUtil = new AttributeStorageUtil();
         return attributeStorageUtil.getAttribute(dataSource, type.getId(), name);
@@ -99,7 +102,7 @@ public class IdentityManagedJdbcType extends AbstractJdbcType {
     @Override
     public Collection<Attribute<? extends Serializable>> getAttributes() {
         if (dataSource == null) {
-            throw new RuntimeException("Datasource null");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         return Collections.EMPTY_LIST;
     }
@@ -120,7 +123,56 @@ public class IdentityManagedJdbcType extends AbstractJdbcType {
             UserStorageUtil userStorageUtil = new UserStorageUtil();
             userStorageUtil.deleteAgent(dataSource, (Agent) attributedType);
         }else {
-            throw new RuntimeException(attributedTypeId.getClass().getName());
+            throw IDMMessages.MESSAGES.unexpectedType(attributedType.getClass());
+        }
+    }
+
+    @Override
+    public void deleteRelationships(AttributedType attributedType) {
+        RelationshipStorageUtil relationshipStorageUtil = new RelationshipStorageUtil();
+        if(attributedType instanceof User){
+            List<Grant> grants = relationshipStorageUtil.loadGrantsForUser(dataSource, (User) attributedType);
+            if(grants != null){
+                for(Grant grant: grants){
+                    relationshipStorageUtil.deleteGrant(dataSource,grant.getId());
+                }
+            }
+            List<GroupMembership> groupMemberships =
+                    relationshipStorageUtil.loadGroupMembershipsForUser(dataSource, (User) attributedType);
+            if(groupMemberships != null){
+                for(GroupMembership groupMembership: groupMemberships){
+                    relationshipStorageUtil.deleteGroupMembership(dataSource,groupMembership.getId());
+                }
+            }
+        } else if(attributedType instanceof Role){
+            List<Grant> grants = relationshipStorageUtil.loadGrantsForRole(dataSource, (Role) attributedType);
+            if(grants != null){
+                for(Grant grant: grants){
+                    relationshipStorageUtil.deleteGrant(dataSource,grant.getId());
+                }
+            }
+        } else if(attributedType instanceof Group){
+            List<GroupMembership> groupMemberships = relationshipStorageUtil.loadGroupMembershipForGroup(dataSource, (Group) attributedType);
+            if(groupMemberships != null){
+                for(GroupMembership groupMembership: groupMemberships){
+                    relationshipStorageUtil.deleteGroupMembership(dataSource,groupMembership.getId());
+                }
+            }
+        } else if(attributedType instanceof Agent){
+            List<Grant> grants = relationshipStorageUtil.loadGrantsForAgent(dataSource, (Agent) attributedType);
+            if(grants != null){
+                for(Grant grant: grants){
+                    relationshipStorageUtil.deleteGrant(dataSource,grant.getId());
+                }
+            }
+            List<GroupMembership> groupMemberships = relationshipStorageUtil.loadGroupMembershipsForAgent(dataSource, (Agent) attributedType);
+            if(groupMemberships != null){
+                for(GroupMembership groupMembership: groupMemberships){
+                    relationshipStorageUtil.deleteGroupMembership(dataSource,groupMembership.getId());
+                }
+            }
+        } else {
+            throw IDMMessages.MESSAGES.unexpectedType(attributedType.getClass());
         }
     }
 
@@ -149,7 +201,7 @@ public class IdentityManagedJdbcType extends AbstractJdbcType {
                 UserStorageUtil userStorageUtil = new UserStorageUtil();
                 userStorageUtil.storeAgent(dataSource, (Agent) attributedType);
             } else {
-                throw new RuntimeException(attributedType.getClass().getName());
+                throw IDMMessages.MESSAGES.unexpectedType(attributedType.getClass());
             }
         }
     }
@@ -166,7 +218,7 @@ public class IdentityManagedJdbcType extends AbstractJdbcType {
             GroupStorageUtil groupStorageUtil = new GroupStorageUtil();
             return groupStorageUtil.loadGroup(dataSource, id);
         }
-        throw new RuntimeException(attributedType.toString());
+        throw IDMMessages.MESSAGES.unexpectedType(attributedType.getClass());
     }
 
     @Override
@@ -222,7 +274,7 @@ public class IdentityManagedJdbcType extends AbstractJdbcType {
             UserStorageUtil userStorageUtil = new UserStorageUtil();
             attributedType1 = userStorageUtil.loadUser(dataSource, params);
         }else
-            throw new RuntimeException(attributedType.getName());
+            throw IDMMessages.MESSAGES.unexpectedType(attributedType.getClass());
 
         if (attributedType1 != null) {
             result.add(attributedType1);

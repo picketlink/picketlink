@@ -62,8 +62,6 @@ public class JDBCIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
                                              Set<Class<? extends CredentialHandler>> credentialHandlers, boolean supportsAttribute, boolean supportsCredential) {
         super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers, supportsAttribute, supportsCredential);
     }
-
-    @Override
     protected void initConfig() {
     }
 

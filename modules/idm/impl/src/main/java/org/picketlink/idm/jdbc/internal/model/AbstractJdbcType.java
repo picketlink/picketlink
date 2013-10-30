@@ -87,6 +87,13 @@ public abstract class AbstractJdbcType implements AttributedType, Serializable {
     public abstract void delete(AttributedType attributedType);
 
     /**
+     * Delete all the {@link Relationship} the {@link AttributedType}
+     * is involved in.
+     * @param attributedType
+     */
+    public abstract void deleteRelationships(AttributedType attributedType);
+
+    /**
      * Load an {@link AttributedType} given its id
      * @param id
      * @param attributedType

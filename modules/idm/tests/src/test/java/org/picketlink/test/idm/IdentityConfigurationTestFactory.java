@@ -67,12 +67,9 @@ public class IdentityConfigurationTestFactory {
         testers.add(new JPAStoreComplexSchemaConfigurationTester());
         testers.add(new SingleConfigLDAPJPAStoreConfigurationTester());
         testers.add(new LDAPStoreConfigurationTester());
-<<<<<<< HEAD
         testers.add(new LDAPUserGroupJPARoleConfigurationTester());
 //        testers.add(new LDAPJPAPerformanceConfigurationTester());
-=======
         testers.add(new JDBCStoreConfigurationTester());
->>>>>>> PLINK-309: equals and hashcode
 
         return testers;
     }

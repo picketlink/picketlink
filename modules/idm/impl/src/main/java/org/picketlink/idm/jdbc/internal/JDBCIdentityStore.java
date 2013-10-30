@@ -75,6 +75,18 @@ public class JDBCIdentityStore extends AbstractIdentityStore<JDBCIdentityStoreCo
         }
     }
 
+    @Override
+    protected void removeFromRelationships(IdentityContext context, IdentityType identityType) {
+        AbstractJdbcType att = mapper.getInstance(identityType.getClass());
+        att.setDataSource(dataSource);
+        att.deleteRelationships(identityType);
+    }
+
+    @Override
+    protected void removeCredentials(IdentityContext context, Account account) {
+        //TODO: Deal with removing account credentials
+    }
+
     protected void addAttributedType(IdentityContext context, AttributedType attributedType) {
         // Store attributedType in DB
         AbstractJdbcType att = mapper.getInstance(attributedType.getClass());

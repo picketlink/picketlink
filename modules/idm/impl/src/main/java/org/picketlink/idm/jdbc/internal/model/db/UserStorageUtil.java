@@ -29,6 +29,7 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.jdbc.internal.model.PartitionJdbcType;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.basic.Agent;
@@ -51,6 +52,9 @@ public class UserStorageUtil extends AbstractStorageUtil {
      * @return
      */
     public int countUsers(DataSource dataSource, String id) {
+        if (dataSource == null) {
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -80,6 +84,9 @@ public class UserStorageUtil extends AbstractStorageUtil {
      * @param user
      */
     public void deleteAgent(DataSource dataSource, Agent agent) {
+        if (dataSource == null) {
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
@@ -106,6 +113,9 @@ public class UserStorageUtil extends AbstractStorageUtil {
      * @param user
      */
     public void deleteUser(DataSource dataSource, User user) {
+        if (dataSource == null) {
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
@@ -133,6 +143,9 @@ public class UserStorageUtil extends AbstractStorageUtil {
      * @return
      */
     public User loadUser(DataSource dataSource, Map<QueryParameter, Object[]> params) {
+        if (dataSource == null) {
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
         Set<QueryParameter> queryParameters = params.keySet();
         for (QueryParameter queryParameter : queryParameters) {
             if (queryParameter instanceof AttributeParameter) {
@@ -158,7 +171,7 @@ public class UserStorageUtil extends AbstractStorageUtil {
      */
     public User loadUser(DataSource dataSource, String id) {
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -218,7 +231,7 @@ public class UserStorageUtil extends AbstractStorageUtil {
      */
     public User loadUserByLoginName(DataSource dataSource, String loginName) {
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -275,6 +288,9 @@ public class UserStorageUtil extends AbstractStorageUtil {
      * @param user
      */
     public void storeAgent(DataSource dataSource, Agent agent) {
+        if (dataSource == null) {
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
         String storeSql = "insert into user set loginName=?,id=?," + "createdDate=?,partitionID=?,enabled=?,expirationDate=?";
         if (agent.getExpirationDate() == null) {
             storeSql = "insert into user set loginName=?,id=?," + "createdDate=?,partitionID=?,enabled=?";
@@ -323,6 +339,9 @@ public class UserStorageUtil extends AbstractStorageUtil {
      * @param user
      */
     public void storeUser(DataSource dataSource, User user) {
+        if (dataSource == null) {
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
         String storeSql = "insert into user set firstName=?,lastName=?,email=?,loginName=?,id=?,"
                 + "createdDate=?,partitionID=?,enabled=?,expirationDate=?";
         if (user.getExpirationDate() == null) {
@@ -382,7 +401,7 @@ public class UserStorageUtil extends AbstractStorageUtil {
             updateSql = "update User set loginName=?,enabled=?," + "createdDate=? where id =?";
         }
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
 
         Connection connection = null;
@@ -434,7 +453,7 @@ public class UserStorageUtil extends AbstractStorageUtil {
             updateSql = "update User set firstName=?,lastName=?,email=?,loginName=?,enabled=?," + "createdDate=? where id =?";
         }
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
 
         Connection connection = null;

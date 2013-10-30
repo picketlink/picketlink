@@ -27,6 +27,7 @@ import java.util.GregorianCalendar;
 
 import javax.sql.DataSource;
 
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.jdbc.internal.model.PartitionJdbcType;
 import org.picketlink.idm.model.Partition;
 
@@ -46,7 +47,7 @@ public class PartitionStorageUtil extends AbstractStorageUtil {
      */
     public Partition loadPartitionById(DataSource dataSource, String id) {
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -83,7 +84,7 @@ public class PartitionStorageUtil extends AbstractStorageUtil {
      */
     public Partition loadPartitionByName(DataSource dataSource, String name) {
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -118,6 +119,9 @@ public class PartitionStorageUtil extends AbstractStorageUtil {
      * @param partition
      */
     public void storePartition(DataSource dataSource, PartitionJdbcType partition) {
+        if (dataSource == null) {
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
         Date now = new Date();
         Calendar calendar = new GregorianCalendar(500 + 1900, 12, 12);
         Date expiration = calendar.getTime();

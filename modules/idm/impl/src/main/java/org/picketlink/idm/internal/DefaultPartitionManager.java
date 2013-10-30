@@ -176,18 +176,6 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                         attributeCfg = config;
                     }
                 }
-        if (storeClass == null) {
-            // If no store class is configured, default to the built-in types for known configurations
-            if (FileIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
-                storeClass = (Class<T>) FileIdentityStore.class;
-            } else if (JPAIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
-                storeClass = (Class<T>) JPAIdentityStore.class;
-            } else if (LDAPIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
-                storeClass = (Class<T>) LDAPIdentityStore.class;
-            } else if (LDAPIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
-                storeClass = (Class<T>) LDAPIdentityStore.class;
-            } else if (JDBCIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
-                storeClass = (Class<T>) JDBCIdentityStore.class;
             }
 
             // There may be no configuration that supports partition management, in which case the partitionManagementConfig
@@ -724,6 +712,8 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                 storeClass = (Class<T>) JPAIdentityStore.class;
             } else if (LDAPIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
                 storeClass = (Class<T>) LDAPIdentityStore.class;
+            } else if (JDBCIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
+                storeClass = (Class<T>) JDBCIdentityStore.class;
             }
         }
 
@@ -941,5 +931,4 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             }
         }
     }
-
 }

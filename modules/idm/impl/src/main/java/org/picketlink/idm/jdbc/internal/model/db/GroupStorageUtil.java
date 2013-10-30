@@ -29,6 +29,7 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.jdbc.internal.model.PartitionJdbcType;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.basic.Group;
@@ -49,6 +50,9 @@ public class GroupStorageUtil extends AbstractStorageUtil {
      * @param user
      */
     public void deleteGroup(DataSource dataSource, Group group) {
+        if (dataSource == null) {
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
@@ -77,7 +81,7 @@ public class GroupStorageUtil extends AbstractStorageUtil {
      */
     public Group loadGroup(DataSource dataSource, String id) {
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -133,6 +137,9 @@ public class GroupStorageUtil extends AbstractStorageUtil {
      * @return
      */
     public Group loadGroup(DataSource dataSource, Map<QueryParameter, Object[]> params) {
+        if (dataSource == null) {
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
         Set<QueryParameter> queryParameters = params.keySet();
         for (QueryParameter queryParameter : queryParameters) {
             if (queryParameter instanceof AttributeParameter) {
@@ -161,7 +168,7 @@ public class GroupStorageUtil extends AbstractStorageUtil {
      */
     public Group loadGroupByName(DataSource dataSource, String groupName) {
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -218,7 +225,7 @@ public class GroupStorageUtil extends AbstractStorageUtil {
      */
     public Group loadGroupByPath(DataSource dataSource, String path) {
         if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
         }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -274,6 +281,9 @@ public class GroupStorageUtil extends AbstractStorageUtil {
      * @param group
      */
     public void storeGroup(DataSource dataSource, Group group) {
+        if (dataSource == null) {
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
@@ -325,14 +335,14 @@ public class GroupStorageUtil extends AbstractStorageUtil {
      * @param user
      */
     public void updateGroup(DataSource dataSource, Group group) {
+        if (dataSource == null) {
+            throw IDMMessages.MESSAGES.nullArgument("datasource");
+        }
         String updateSql = "update Groups set name=?,parentGroup=?,partitionID=?,enabled=?,"
                 + "createdDate=?,expirationDate=? where id =?";
 
         if (group.getExpirationDate() == null) {
             updateSql = "update Groups set name=?,parentGroup=?,partitionID=?,enabled=?,createdDate=? where id =?";
-        }
-        if (dataSource == null) {
-            throw new RuntimeException("Null datasource");
         }
 
         Connection connection = null;
