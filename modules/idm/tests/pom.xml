@@ -153,6 +153,12 @@
       <version>2.2.0.CR1</version>
       <scope>test</scope>
     </dependency>
+    <!-- JDBC Store Dep-->
+    <dependency>
+      <groupId>directory-naming</groupId>
+      <artifactId>naming-java</artifactId>
+      <version>0.8</version>
+    </dependency>
   </dependencies>
 
   <profiles>

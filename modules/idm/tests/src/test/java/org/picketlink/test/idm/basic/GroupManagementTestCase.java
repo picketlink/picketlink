@@ -32,6 +32,7 @@ import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.JDBCStoreConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPUserGroupJPARoleConfigurationTester;
@@ -54,7 +55,8 @@ import static org.junit.Assert.assertNotNull;
  *
  */
 @Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class,
-        SingleConfigLDAPJPAStoreConfigurationTester.class, LDAPStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
+        SingleConfigLDAPJPAStoreConfigurationTester.class, LDAPStoreConfigurationTester.class,
+        JDBCStoreConfigurationTester.class})
 public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group> {
 
     public GroupManagementTestCase(IdentityConfigurationTester builder) {
@@ -92,7 +94,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     }
 
     @Test
-    @Configuration (exclude = SingleConfigLDAPJPAStoreConfigurationTester.class)
+    @Configuration (exclude = {SingleConfigLDAPJPAStoreConfigurationTester.class, JDBCStoreConfigurationTester.class})
     public void testCreateWithSameName() throws Exception {
         Group managerGroup = createGroup("managers", null);
 
