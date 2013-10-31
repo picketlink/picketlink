@@ -20,10 +20,12 @@ package org.picketlink.idm.jdbc.internal.model;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.query.AttributeParameter;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
@@ -129,4 +131,19 @@ public abstract class AbstractJdbcType implements AttributedType, Serializable {
      * @param attributedType
      */
     public abstract void update(AttributedType attributedType);
+
+    protected Object[] getValuesFromParamMap(Map<QueryParameter, Object[]> params,AttributeParameter attributeParameter){
+        Set<QueryParameter> keys = params.keySet();
+        if(keys != null){
+            for(QueryParameter key: keys){
+                if(key instanceof  AttributeParameter){
+                    AttributeParameter aparam = (AttributeParameter) key;
+                    if(aparam.getName().equalsIgnoreCase(attributeParameter.getName())){
+                        return params.get(key);
+                    }
+                }
+            }
+        }
+        return null;
+    }
 }

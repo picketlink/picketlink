@@ -22,17 +22,37 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
 import org.picketlink.idm.jdbc.internal.model.PartitionJdbcType;
 import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.query.AttributeParameter;
+import org.picketlink.idm.query.QueryParameter;
 
 /**
  * @author Anil Saldhana
  * @since October 24, 2013
  */
 public abstract class AbstractStorageUtil {
+
+    protected Object[] getValuesFromParamMap(Map<QueryParameter, Object[]> params,AttributeParameter attributeParameter){
+        Set<QueryParameter> keys = params.keySet();
+        if(keys != null){
+            for(QueryParameter key: keys){
+                if(key instanceof  AttributeParameter){
+                    AttributeParameter aparam = (AttributeParameter) key;
+                    if(aparam.getName().equalsIgnoreCase(attributeParameter.getName())){
+                        return params.get(key);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     protected Partition loadPartition(DataSource dataSource, String id) {
         if (dataSource == null) {
             throw new RuntimeException("Null datasource");
