@@ -37,6 +37,7 @@ import org.picketlink.idm.model.basic.Group;
 import org.picketlink.idm.model.basic.GroupMembership;
 import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
+import org.picketlink.idm.query.AttributeParameter;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
@@ -92,7 +93,12 @@ public class RelationshipJdbcType extends AbstractJdbcType {
         if (attributedType == Relationship.class) {
             Set<QueryParameter> queryParameterSet = params.keySet();
             QueryParameter queryParameter = queryParameterSet.iterator().next(); // Consider the first
-            Object[] paramValues = params.get(queryParameter);
+            Object[] paramValues = null;
+            if(queryParameter == Relationship.IDENTITY){
+                paramValues = params.get(Relationship.IDENTITY);
+            }else{
+                paramValues = getValuesFromParamMap(params, (AttributeParameter) queryParameter);
+            }
             Object paramValue = paramValues[0]; // Consider first
             if (paramValue instanceof User) {
                 User user = (User) paramValue;
@@ -126,7 +132,16 @@ public class RelationshipJdbcType extends AbstractJdbcType {
         } else if (attributedType == Grant.class) {
             Set<QueryParameter> queryParameterSet = params.keySet();
             QueryParameter queryParameter = queryParameterSet.iterator().next(); // Consider the first
-            Object[] paramValues = params.get(queryParameter);
+            Object[] paramValues = null;
+            if(queryParameter == Grant.IDENTITY){
+                paramValues = params.get(Grant.IDENTITY);
+            }else if(queryParameter == Grant.ASSIGNEE){
+                paramValues = params.get(Grant.ASSIGNEE);
+            }else if(queryParameter == Grant.ROLE){
+                paramValues = params.get(Grant.ROLE);
+            } else {
+                paramValues = getValuesFromParamMap(params, (AttributeParameter) queryParameter);
+            }
             Object paramValue = paramValues[0]; // Consider first
             if (paramValue instanceof User) {
                 User user = (User) paramValue;
@@ -150,7 +165,16 @@ public class RelationshipJdbcType extends AbstractJdbcType {
         } else if (attributedType == GroupMembership.class) {
             Set<QueryParameter> queryParameterSet = params.keySet();
             QueryParameter queryParameter = queryParameterSet.iterator().next(); // Consider the first
-            Object[] paramValues = params.get(queryParameter);
+            Object[] paramValues = null;
+            if(queryParameter == GroupMembership.IDENTITY){
+                paramValues = params.get(GroupMembership.IDENTITY);
+            }else if(queryParameter == GroupMembership.GROUP){
+                paramValues = params.get(GroupMembership.GROUP);
+            }else if(queryParameter == GroupMembership.MEMBER){
+                paramValues = params.get(GroupMembership.MEMBER);
+            }else{
+                 paramValues = getValuesFromParamMap(params, (AttributeParameter) queryParameter);
+            }
             Object paramValue = paramValues[0]; // Consider first
             if (paramValue instanceof User) {
                 User user = (User) paramValue;

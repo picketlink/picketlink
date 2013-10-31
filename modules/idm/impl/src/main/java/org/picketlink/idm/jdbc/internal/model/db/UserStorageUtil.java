@@ -150,7 +150,7 @@ public class UserStorageUtil extends AbstractStorageUtil {
         for (QueryParameter queryParameter : queryParameters) {
             if (queryParameter instanceof AttributeParameter) {
                 AttributeParameter attributeParameter = (AttributeParameter) queryParameter;
-                Object[] paramValues = params.get(queryParameter);
+                Object[] paramValues = getValuesFromParamMap(params,attributeParameter);
                 String attributeName = attributeParameter.getName();
                 if ("loginName".equals(attributeName)) {
                     String loginNameValue = (String) paramValues[0];

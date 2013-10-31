@@ -133,7 +133,7 @@ public class PartitionJdbcType extends AbstractJdbcType implements Partition {
     public List<? extends AttributedType> load(Map<QueryParameter, Object[]> params,
             Class<? extends AttributedType> attributedType) {
         List<AttributedType> result = new ArrayList<AttributedType>();
-        Object[] name = params.get(new AttributeParameter("name"));
+        Object[] name = getValuesFromParamMap(params,new AttributeParameter("name"));
         PartitionStorageUtil partitionStorageUtil = new PartitionStorageUtil();
         result.add(partitionStorageUtil.loadPartitionByName(dataSource, (String) name[0]));
         return result;
