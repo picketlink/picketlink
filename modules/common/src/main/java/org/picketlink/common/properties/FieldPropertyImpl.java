@@ -20,6 +20,7 @@ package org.picketlink.common.properties;
 
 import org.picketlink.common.reflection.Reflections;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
@@ -38,47 +39,62 @@ class FieldPropertyImpl<V> implements FieldProperty<V> {
         this.field = field;
     }
 
+    @Override
     public String getName() {
         return field.getName();
     }
 
+    @Override
     public Type getBaseType() {
         return field.getGenericType();
     }
 
+    @Override
     public Field getAnnotatedElement() {
         return field;
     }
 
+    @Override
     public Member getMember() {
         return field;
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public Class<V> getJavaClass() {
         return (Class<V>) field.getType();
     }
 
+    @Override
     public V getValue(Object instance) {
         setAccessible();
         return getFieldValue(field, instance, getJavaClass());
     }
 
+    @Override
     public void setValue(Object instance, V value) {
         setAccessible();
         setFieldValue(true, field, instance, value);
     }
 
+    @Override
     public Class<?> getDeclaringClass() {
         return field.getDeclaringClass();
     }
 
+    @Override
     public boolean isReadOnly() {
         return false;
     }
 
+    @Override
     public void setAccessible() {
         Reflections.setAccessible(field);
+    }
+
+    @Override
+    public boolean isAnnotationPresent(final Class<? extends Annotation> annotation) {
+        return getAnnotatedElement() != null && getAnnotatedElement().isAnnotationPresent(annotation);
     }
 
     @Override

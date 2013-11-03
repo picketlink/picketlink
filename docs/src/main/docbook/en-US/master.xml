@@ -29,6 +29,7 @@
   <xi:include href="picketlink-idm-overview.xml"/>
   <xi:include href="picketlink-idm-credentials.xml"/>
   <xi:include href="picketlink-idm-basicmodel.xml"/>
+  <xi:include href="picketlink-idm-attributes.xml"/>
   <xi:include href="picketlink-idm-configuration.xml"/>
   <xi:include href="picketlink-idm-jpa.xml"/>
   <xi:include href="picketlink-idm-ldap.xml"/>

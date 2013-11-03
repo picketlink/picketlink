@@ -60,6 +60,7 @@ public class IdentityStoresConfigurationBuilder
         this.supportedStoreBuilders.put(FileIdentityStoreConfiguration.class, FileStoreConfigurationBuilder.class);
         this.supportedStoreBuilders.put(JPAIdentityStoreConfiguration.class, JPAStoreConfigurationBuilder.class);
         this.supportedStoreBuilders.put(LDAPIdentityStoreConfiguration.class, LDAPStoreConfigurationBuilder.class);
+        this.supportedStoreBuilders.put(JDBCIdentityStoreConfiguration.class, JDBCStoreConfigurationBuilder.class);
     }
 
     /**
@@ -70,6 +71,14 @@ public class IdentityStoresConfigurationBuilder
     @Override
     public FileStoreConfigurationBuilder file() {
         return forIdentityStoreConfig(FileIdentityStoreConfiguration.class, true);
+    }
+
+    /**
+     * Configures a JDBC based Identity Store
+     * @return
+     */
+    public JDBCStoreConfigurationBuilder jdbc(){
+        return forIdentityStoreConfig(JDBCIdentityStoreConfiguration.class, true);
     }
 
     /**

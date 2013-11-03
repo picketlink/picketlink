@@ -19,6 +19,7 @@ package org.picketlink.test.idm;
 
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
+import org.picketlink.test.idm.testers.JDBCStoreConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreComplexSchemaConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
@@ -68,6 +69,7 @@ public class IdentityConfigurationTestFactory {
         testers.add(new LDAPStoreConfigurationTester());
         testers.add(new LDAPUserGroupJPARoleConfigurationTester());
 //        testers.add(new LDAPJPAPerformanceConfigurationTester());
+        testers.add(new JDBCStoreConfigurationTester());
 
         return testers;
     }

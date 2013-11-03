@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0"
+         xml:base="../" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         id="picketlink-idm-attributes">
+  <title>Identity Management - Attribute Management</title>
+
+  <section>
+    <title>Overview</title>
+
+    <para>
+      PicketLink IDM classifies attributes in two main categories: <emphasis>formal</emphasis> and <emphasis>ad-hoc</emphasis> attributes.
+    </para>
+
+    <para>
+      Usually all attributes you need for a specific type is mapped to its properties. We call those attributes
+      <emphasis>formal attributes.</emphasis>. Formal attributes are properties managed by PicketLink and defined
+      directly in your types. By managed, we mean that PicketLink knows how to get the value to store from a specific property
+      and also retrieve its value from the store and populate back to an instance of your type.
+    </para>
+
+    <para>
+      But sometimes you may need to define attributes that are not mapped to a specific property of your type. Specially
+      if those are dynamic attributes, whose existence depends on a specific context or rule. We call those attributes
+      <emphasis>ad-hoc attributes</emphasis>. Ad-hoc attributes are not strong-typed as formal attributes, they are just
+      a key/value pair. Where the key is the attribute's name and the latter its value.
+    </para>
+
+  </section>
+
+  <section>
+    <title>Formal attributes</title>
+
+    <para>
+      Usually all attributes are formal attributes, in the sense that properties of a type are managed by PicketLink. In
+      order to get them managed by PicketLink you need to annotate each property of your type with <xref linkend="picketlink-attribute-property-annotation"/>
+    </para>
+
+    <para>If you take the <code>User</code> type as an example, you'll see that all its properties are defined as follows:</para>
+
+    <programlisting language="JAVA"><![CDATA[public class User extends Agent {
+
+  @AttributeProperty
+  private String firstName;
+
+  @AttributeProperty
+  private String lastName;
+
+  @AttributeProperty
+  private String email;
+
+}]]></programlisting>
+
+    <para>
+      Formal attributes are strongly-typed as they are directly defined as properties in your type.
+    </para>
+
+    <para>
+      Those attributes are also queriable. Which means you can use the Query API to search for types with a specific
+      property and value. If a property is queriable, we recommend to always create a <code>QueryParameter</code> constant as follows:
+    </para>
+
+    <programlisting language="JAVA"><![CDATA[public class User extends Agent {
+
+  /**
+   * A query parameter used to set the firstName value.
+   */
+  public static final QueryParameter FIRST_NAME = QUERY_ATTRIBUTE.byName("firstName");
+
+  /**
+   * A query parameter used to set the lastName value.
+   */
+  public static final QueryParameter LAST_NAME = QUERY_ATTRIBUTE.byName("lastName");
+
+  /**
+   * A query parameter used to set the email value.
+   */
+  public static final QueryParameter EMAIL = QUERY_ATTRIBUTE.byName("email");
+
+  @AttributeProperty
+  private String firstName;
+
+  @AttributeProperty
+  private String lastName;
+
+  @AttributeProperty
+  private String email;
+
+}]]></programlisting>
+
+    <para>
+      Once the query parameters are defined and mapped to your properties, you can search for types based on its properties as follows:
+    </para>
+
+    <programlisting language="JAVA"><![CDATA[IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
+
+  query.setParameter(User.FIRST_NAME, "John");
+
+  // find only by the first name
+  List<User> result = query.getResultList();
+
+  for (User user : result) {
+    // do something
+  }]]></programlisting>
+
+  </section>
+
+  <section>
+    <title>Ad-hoc attributes</title>
+
+    <para>
+      The best way to understand ad-hoc attributes is look how they're defined.
+      The example below uses three attributes to define some security questions for an user.
+    </para>
+
+    <programlisting language="JAVA"><![CDATA[User user = new User("john");
+
+  user.setAttribute(new Attribute<Integer>("QuestionTotal", 2);
+
+  // attribute for question #1
+  user.setAttribute(new Attribute<String>("Question1", "What is favorite toy?"));
+  user.setAttribute(new Attribute<String>("Question1Answer", "Gum"));
+
+  // attribute for question #2
+  user.setAttribute(new Attribute<String>("Question2", "What is favorite word?"));
+  user.setAttribute(new Attribute<String>("Question2Answer", "Hi"));
+
+identityManager.add(user);]]></programlisting>
+
+    <para>
+      Ad-hoc attributes are not strong-typed as formal attributes, they are just a key/value pair.
+      Where the key is the attribute's name and the latter its value. The key point here is that they offer
+      great flexibility to your identity model as you can define any attribute you want without changing any type.
+    </para>
+
+    <note>
+      <para>
+        Note that ad-hoc attributes are not typed. You should use them wisely, otherwise they may become unmanageable.
+      </para>
+    </note>
+
+    <para>
+      In theory, all PicketLink types such as <code>IdentityType</code>, <code>Relationship</code> and <code>Partition</code>
+      support ad-hoc attributes. The reason is that all those types are a subtypes of <code>AttributedType</code>. But in practice,
+      even if a type support ad-hoc attributes the underlying store may not. Which means you can not use those attributes.
+      The LDAP Identity Store, for example, does not support ad-hoc attributes at all if used <emphasis>alone</emphasis>. Take a look
+      at <xref linkend="picketlink-idm-ldap"/> for more details about how to support ad-hoc attributes when using the LDAP store.
+    </para>
+
+    <para>
+      Those attributes are also queriable. The example below shows how you can use the Query API to search for types
+      using ad-hoc attributes:
+    </para>
+
+    <programlisting language="JAVA"><![CDATA[IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
+
+  query.setParameter(IdentityType.QUERY_ATTRIBUTE.byName("SomeAttribute"), "SomeAttributeValue");
+
+  List<User> result = query.getResultList();
+
+  for (User user : result) {
+    // do something
+  }
+]]></programlisting>
+
+  </section>
+
+</chapter>

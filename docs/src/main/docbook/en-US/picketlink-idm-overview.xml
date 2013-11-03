@@ -441,7 +441,7 @@ boolean isEmployee = BasicModel.isMember(relationshipManager, user, group);]]></
         capable of authenticating it will also inherit the <code>loginName</code> property from the <code>Agent</code>.
       </para>
       
-      <section>
+      <section id="picketlink-attribute-property-annotation">
         <title>The <code>@AttributeProperty</code> Annotation</title>
         
         <para>

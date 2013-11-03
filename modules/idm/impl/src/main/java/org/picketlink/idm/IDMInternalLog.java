@@ -29,6 +29,10 @@ public interface IDMInternalLog extends IDMLog {
      * <p>This is the logger for the {@link org.picketlink.idm.ldap.internal.LDAPIdentityStore}.</p>
      */
     IDMInternalLog LDAP_STORE_LOGGER = LogFactory.getLog(IDMInternalLog.class, IDMInternalLog.class.getPackage().getName() + ".identity.store.ldap");
+    /**
+     * <p>This is the logger for the {@link org.picketlink.idm.ldap.internal.JDBCIdentityStore}.</p>
+     */
+    IDMInternalLog JDBC_STORE_LOGGER = LogFactory.getLog(IDMInternalLog.class, IDMInternalLog.class.getPackage().getName() + ".identity.store.jdbc");
 
     // File store logging messages. Ids 1100-1199.
     @LogMessage(level = Logger.Level.INFO)

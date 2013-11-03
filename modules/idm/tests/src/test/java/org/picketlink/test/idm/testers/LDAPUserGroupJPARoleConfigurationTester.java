@@ -95,8 +95,6 @@ public class LDAPUserGroupJPARoleConfigurationTester implements IdentityConfigur
                         .bindDN(embeddedServer.getBindDn())
                         .bindCredential(embeddedServer.getBindCredential())
                         .url(embeddedServer.getConnectionUrl())
-                        .supportGlobalRelationship(GroupMembership.class)
-                        .supportType(User.class, Agent.class, Group.class)
                         .supportCredentials(true)
                         .mapping(Agent.class)
                             .baseDN(embeddedServer.getAgentDnSuffix())
