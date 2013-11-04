@@ -32,7 +32,16 @@ import org.picketlink.idm.spi.IdentityContext;
  */
 public interface CredentialHandler<S extends IdentityStore<?>,V extends Credentials,U> {
 
+    /**
+     * <p>This is the name of the identity type property that will be used to retrieve the account's
+     * login name, used for account lookup.</p>
+     */
     String LOGIN_NAME_PROPERTY = "LOGIN_NAME_PROPERTY";
+
+    /**
+     * <p>This property can be used to support additional {@link Account} types. The value can be either a Array
+     * of {@link Account} types or a single type.</p>
+     */
     String SUPPORTED_ACCOUNT_TYPES_PROPERTY = "SUPPORTED_ACCOUNT_TYPES";
 
     /**
