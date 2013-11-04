@@ -19,6 +19,7 @@ package org.picketlink.idm.credential.handler;
 
 import static org.picketlink.idm.IDMLog.CREDENTIAL_LOGGER;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,8 @@ import org.picketlink.idm.credential.util.CredentialUtils;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.basic.Agent;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 
@@ -50,7 +53,11 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
      */
     public static final String LOGIN_NAME_PROPERTY = "LOGIN_NAME_PROPERTY";
 
+    public static final String SUPPORTED_ACCOUNT_TYPES_PROPERTY = "SUPPORTED_ACCOUNT_TYPES";
+
     private String loginNameProperty = DEFAULT_LOGIN_NAME_PROPERTY;
+
+    private List<Class<? extends Account>> supportedAccountTypes = null;
 
     public void setup(S store) {
         Map<String, Object> options = store.getConfig().getCredentialHandlerProperties();
@@ -61,6 +68,18 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
             if (loginNameProperty != null) {
                 this.loginNameProperty = loginNameProperty;
             }
+
+            @SuppressWarnings("unchecked")
+            Class<? extends Account>[] accountTypes = (Class<? extends Account>[]) options.get(
+                    SUPPORTED_ACCOUNT_TYPES_PROPERTY);
+            if (accountTypes != null) {
+                supportedAccountTypes = new ArrayList<Class<? extends Account>>();
+
+                for (Class<? extends Account> accountType : accountTypes) {
+                    supportedAccountTypes.add(accountType);
+                }
+            }
+
         }
     }
 
@@ -72,14 +91,36 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
                 loginNameProperty, loginName);
         }
 
-        List<IdentityType> accounts = identityManager.createIdentityQuery(IdentityType.class)
-                .setParameter(AttributedType.QUERY_ATTRIBUTE.byName(loginNameProperty),
-                        loginName).getResultList();
+        List<? extends Account> accounts = null;
+
+        if (supportedAccountTypes != null) {
+            for (Class<? extends Account> accountType : supportedAccountTypes) {
+                accounts = identityManager.createIdentityQuery(accountType)
+                        .setParameter(AttributedType.QUERY_ATTRIBUTE.byName(loginNameProperty),
+                                loginName).getResultList();
+                if (!accounts.isEmpty()) {
+                    break;
+                }
+            }
+        }
+
+        if (accounts == null || accounts.isEmpty()) {
+            accounts = identityManager.createIdentityQuery(User.class)
+                    .setParameter(AttributedType.QUERY_ATTRIBUTE.byName(loginNameProperty),
+                            loginName).getResultList();
+        }
+
+        if (accounts == null || accounts.isEmpty()) {
+            accounts = identityManager.createIdentityQuery(Agent.class)
+                    .setParameter(AttributedType.QUERY_ATTRIBUTE.byName(loginNameProperty),
+                            loginName).getResultList();
+        }
+
         if (accounts.isEmpty()) {
             return null;
         } else if (accounts.size() == 1) {
             IdentityType result = accounts.get(0);
-            if (!Account.class.isInstance(result.getClass())) {
+            if (!Account.class.isAssignableFrom(result.getClass())) {
                 throw new IdentityManagementException("Error - the IdentityType returned is not an Account: [" +
                 result.toString() + "]");
             }
