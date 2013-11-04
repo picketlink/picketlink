@@ -17,13 +17,14 @@
  */
 package org.picketlink.idm.credential.handler;
 
-import org.picketlink.common.reflection.Reflections;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.AbstractBaseCredentials;
+import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.credential.util.CredentialUtils;
 import org.picketlink.idm.model.Account;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.basic.Agent;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.query.IdentityQuery;
@@ -34,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.picketlink.idm.IDMLog.CREDENTIAL_LOGGER;
-import static org.picketlink.idm.credential.Credentials.Status;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * <p>Base class for {@link CredentialHandler} implementations.</p>
@@ -47,6 +48,7 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
     private static final String DEFAULT_ACCOUNT_LOGIN_PROPERTY_NAME = "loginName";
 
     private String defaultAccountLoginNameProperty = DEFAULT_ACCOUNT_LOGIN_PROPERTY_NAME;
+
     private List<Class<? extends Account>> defaultAccountTypes;
 
     @Override
@@ -82,10 +84,19 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
 
             query.setParameter(Account.QUERY_ATTRIBUTE.byName(defaultAccountLoginNameProperty), loginName);
 
-            List<Account> result = query.getResultList();
+            List<? extends IdentityType> result = query.getResultList();
 
-            if (!result.isEmpty()) {
-                return result.get(0);
+            if (result.size() == 1) {
+                IdentityType account = result.get(0);
+
+                if (!Account.class.isInstance(account)) {
+                    throw MESSAGES.credentialInvalidAccountType(account.getClass());
+                }
+
+                return (Account) account;
+            } else if (result.size() > 1) {
+                CREDENTIAL_LOGGER.errorf("Multiple Account objects found with the same login name [%s] for type [%s]: [%s]", defaultAccountLoginNameProperty, accountType, result);
+                throw MESSAGES.credentialMultipleAccountsFoundForType(defaultAccountLoginNameProperty, accountType);
             }
         }
 
@@ -172,23 +183,32 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
     private void configureDefaultSupportedAccountTypes(final S store) {
         this.defaultAccountTypes = new ArrayList<Class<? extends Account>>();
 
-        String defaultAccountType = (String) store.getConfig().getCredentialHandlerProperties().get(ACCOUNT_TYPE);
+        Object accountTypesOption = store.getConfig().getCredentialHandlerProperties().get(SUPPORTED_ACCOUNT_TYPES_PROPERTY);
 
-        if (defaultAccountType != null) {
-            try {
-                this.defaultAccountTypes.add(Reflections.<Account>classForName(defaultAccountType));
-            } catch (ClassNotFoundException e) {
-                throw new IdentityManagementException("", e);
+        if (accountTypesOption != null) {
+            if (accountTypesOption.getClass().isArray()) {
+                Class<? extends Account>[] defaultAccountTypes = (Class<? extends Account>[]) accountTypesOption;
+
+                for (Class<? extends Account> accountType : defaultAccountTypes) {
+                    this.defaultAccountTypes.add(accountType);
+                }
+            } else {
+                this.defaultAccountTypes.add((Class<? extends Account>) accountTypesOption);
             }
         }
 
-        this.defaultAccountTypes.add(User.class);
-        this.defaultAccountTypes.add(Agent.class);
+        if (!this.defaultAccountTypes.contains(User.class)) {
+            this.defaultAccountTypes.add(User.class);
+        }
 
-        String defaultAccountLoginNameProperty = (String) store.getConfig().getCredentialHandlerProperties().get(ACCOUNT_LOGIN_NAME_PROPERTY);
+        if (!this.defaultAccountTypes.contains(Agent.class)) {
+            this.defaultAccountTypes.add(Agent.class);
+        }
 
-        if (defaultAccountLoginNameProperty != null) {
-            this.defaultAccountLoginNameProperty = defaultAccountLoginNameProperty;
+        String defaultAccountLoginNameOption = (String) store.getConfig().getCredentialHandlerProperties().get(LOGIN_NAME_PROPERTY);
+
+        if (defaultAccountLoginNameOption != null) {
+            this.defaultAccountLoginNameProperty = defaultAccountLoginNameOption;
         }
     }
 

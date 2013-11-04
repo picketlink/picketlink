@@ -33,6 +33,7 @@ import org.picketlink.idm.credential.encoder.PasswordEncoder;
 import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.Account;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.spi.IdentityStore;
 
@@ -100,6 +101,12 @@ public interface IDMMessages {
 
     @Message(id = 204, value = "Credentials could not be retrieved for account [%s] and storage [%s].")
     <T extends CredentialStorage> IdentityManagementException credentialRetrievalFailed(Account account, Class<T> storageClass, @Cause Throwable t);
+
+    @Message(id = 205, value = "The IdentityType returned is not an Account: [%s]")
+    IdentityManagementException credentialInvalidAccountType(Class<? extends IdentityType> aClass);
+
+    @Message(id = 206, value = "Multiple Account objects found with same login name [%s] for account type [%s].")
+    IdentityManagementException credentialMultipleAccountsFoundForType(String loginName, Class<? extends Account> accountType);
 
     @Message(value = "Invalid Realm or it was not provided.")
     IdentityManagementException credentialDigestInvalidRealm();
@@ -169,4 +176,5 @@ public interface IDMMessages {
     // Permission management messages 800-899
     @Message(value = "Could not grant Permission [%s].")
     IdentityManagementException permissionGrantFailed(Permission permission, @Cause Throwable t);
+
 }

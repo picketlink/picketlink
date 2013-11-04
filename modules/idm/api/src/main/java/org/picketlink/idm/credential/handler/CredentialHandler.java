@@ -32,8 +32,8 @@ import org.picketlink.idm.spi.IdentityContext;
  */
 public interface CredentialHandler<S extends IdentityStore<?>,V extends Credentials,U> {
 
-    String ACCOUNT_LOGIN_NAME_PROPERTY = "ACCOUNT_LOGIN_NAME_PROPERTY";
-    String ACCOUNT_TYPE = "ACCOUNT_TYPE";
+    String LOGIN_NAME_PROPERTY = "LOGIN_NAME_PROPERTY";
+    String SUPPORTED_ACCOUNT_TYPES_PROPERTY = "SUPPORTED_ACCOUNT_TYPES";
 
     /**
      *

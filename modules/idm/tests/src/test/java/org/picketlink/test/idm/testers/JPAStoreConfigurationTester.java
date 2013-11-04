@@ -81,8 +81,8 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
                                 AccountTypeEntity.class
                         )
                         .supportGlobalRelationship(org.picketlink.idm.model.Relationship.class)
-                        .setCredentialHandlerProperty(CredentialHandler.ACCOUNT_TYPE, CustomAccountTestCase.MyCustomAccount.class.getName())
-                        .setCredentialHandlerProperty(CredentialHandler.ACCOUNT_LOGIN_NAME_PROPERTY, "userName")
+                        .setCredentialHandlerProperty(CredentialHandler.SUPPORTED_ACCOUNT_TYPES_PROPERTY, CustomAccountTestCase.MyCustomAccount.class)
+                        .setCredentialHandlerProperty(CredentialHandler.LOGIN_NAME_PROPERTY, "userName")
                         .addContextInitializer(new JPAContextInitializer(null) {
                             @Override
                             public EntityManager getEntityManager() {

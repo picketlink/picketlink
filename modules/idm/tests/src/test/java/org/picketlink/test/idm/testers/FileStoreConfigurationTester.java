@@ -39,8 +39,8 @@ public class FileStoreConfigurationTester implements IdentityConfigurationTester
                 .stores()
                     .file()
                     .preserveState(false)
-                    .setCredentialHandlerProperty(CredentialHandler.ACCOUNT_TYPE, CustomAccountTestCase.MyCustomAccount.class.getName())
-                    .setCredentialHandlerProperty(CredentialHandler.ACCOUNT_LOGIN_NAME_PROPERTY, "userName")
+                    .setCredentialHandlerProperty(CredentialHandler.SUPPORTED_ACCOUNT_TYPES_PROPERTY, new Class[]{CustomAccountTestCase.MyCustomAccount.class})
+                    .setCredentialHandlerProperty(CredentialHandler.LOGIN_NAME_PROPERTY, "userName")
                     .supportAllFeatures();
 
         DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
