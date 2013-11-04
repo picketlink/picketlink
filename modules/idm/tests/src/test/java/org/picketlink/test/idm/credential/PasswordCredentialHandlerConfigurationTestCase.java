@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.idm.config;
+package org.picketlink.test.idm.credential;
 
 import org.junit.Assert;
 import org.junit.Test;

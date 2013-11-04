@@ -162,7 +162,7 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
             Class<? extends IdentityType> identityTypeClass;
 
             try {
-                identityTypeClass = (Class<? extends IdentityType>) classForName(type, reference.getRelationship().getClass().getClassLoader());
+                identityTypeClass = classForName(type, reference.getRelationship().getClass().getClassLoader());
             } catch (ClassNotFoundException e) {
                 throw new IdentityManagementException("Could not instantiate referenced identity type [" + type + "].", e);
             }

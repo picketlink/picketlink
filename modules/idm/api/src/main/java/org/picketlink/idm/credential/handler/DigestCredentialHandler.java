@@ -60,10 +60,6 @@ public class DigestCredentialHandler<S,V,U>
     extends AbstractCredentialHandler<CredentialStore<?>, DigestCredentials, Digest> {
 
     @Override
-    public void setup(CredentialStore<?> identityStore) {
-    }
-
-    @Override
     protected Account getAccount(final IdentityContext context, final DigestCredentials credentials) {
         return getAccount(context, credentials.getDigest().getUsername());
     }

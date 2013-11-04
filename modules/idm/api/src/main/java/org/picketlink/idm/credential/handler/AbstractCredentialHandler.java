@@ -17,6 +17,7 @@
  */
 package org.picketlink.idm.credential.handler;
 
+import org.picketlink.common.reflection.Reflections;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.AbstractBaseCredentials;
@@ -24,13 +25,16 @@ import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.credential.util.CredentialUtils;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.basic.Agent;
+import org.picketlink.idm.model.basic.User;
+import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.picketlink.idm.IDMLog.CREDENTIAL_LOGGER;
 import static org.picketlink.idm.credential.Credentials.Status;
-import static org.picketlink.idm.model.basic.BasicModel.getAgent;
-import static org.picketlink.idm.model.basic.BasicModel.getUser;
 
 /**
  * <p>Base class for {@link CredentialHandler} implementations.</p>
@@ -40,20 +44,52 @@ import static org.picketlink.idm.model.basic.BasicModel.getUser;
 public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V extends AbstractBaseCredentials, U>
         implements CredentialHandler<S, V, U> {
 
+    private static final String DEFAULT_ACCOUNT_LOGIN_PROPERTY_NAME = "loginName";
+
+    private String defaultAccountLoginNameProperty = DEFAULT_ACCOUNT_LOGIN_PROPERTY_NAME;
+    private List<Class<? extends Account>> defaultAccountTypes;
+
+    @Override
+    public void setup(S store) {
+        configureDefaultSupportedAccountTypes(store);
+    }
+
+    /**
+     * <p>Custom {@link CredentialHandler} implementations may override this method to perform the lookup of {@link
+     * Account}
+     * instances based on the <code>loginName</code>.</p>
+     *
+     * @param context
+     * @param loginName The login name of the account that will be used to retrieve the instance.
+     *
+     * @return
+     */
     protected Account getAccount(IdentityContext context, String loginName) {
         IdentityManager identityManager = getIdentityManager(context);
 
-        if (isDebugEnabled()) {
-            CREDENTIAL_LOGGER.debugf("Trying to find account [%s] using default account type [%s]. If you're using a custom account type, it will not be retrieved until you provide a credential handler that knows how to retrieve it.", loginName, Agent.class);
+        for (Class<? extends Account> accountType : getDefaultAccountTypes()) {
+            IdentityQuery<Account> query = (IdentityQuery<Account>) identityManager.createIdentityQuery(accountType);
+
+            String defaultAccountLoginNameProperty = this.defaultAccountLoginNameProperty;
+
+            if (Agent.class.isAssignableFrom(accountType)) {
+                defaultAccountLoginNameProperty = DEFAULT_ACCOUNT_LOGIN_PROPERTY_NAME;
+            }
+
+            if (isDebugEnabled()) {
+                CREDENTIAL_LOGGER.credentialRetrievingAccount(loginName, accountType, defaultAccountLoginNameProperty);
+            }
+
+            query.setParameter(Account.QUERY_ATTRIBUTE.byName(defaultAccountLoginNameProperty), loginName);
+
+            List<Account> result = query.getResultList();
+
+            if (!result.isEmpty()) {
+                return result.get(0);
+            }
         }
 
-        Account agent = getAgent(identityManager, loginName);
-
-        if (agent == null) {
-            agent = getUser(identityManager, loginName);
-        }
-
-        return agent;
+        return null;
     }
 
     @Override
@@ -116,7 +152,9 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
     }
 
     protected abstract boolean validateCredential(final CredentialStorage credentialStorage, final V credentials);
+
     protected abstract Account getAccount(final IdentityContext context, final V credentials);
+
     protected abstract CredentialStorage getCredentialStorage(final IdentityContext context, final Account account,
                                                               final V credentials,
                                                               final S store);
@@ -129,6 +167,37 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
         }
 
         return identityManager;
+    }
+
+    private void configureDefaultSupportedAccountTypes(final S store) {
+        this.defaultAccountTypes = new ArrayList<Class<? extends Account>>();
+
+        String defaultAccountType = (String) store.getConfig().getCredentialHandlerProperties().get(ACCOUNT_TYPE);
+
+        if (defaultAccountType != null) {
+            try {
+                this.defaultAccountTypes.add(Reflections.<Account>classForName(defaultAccountType));
+            } catch (ClassNotFoundException e) {
+                throw new IdentityManagementException("", e);
+            }
+        }
+
+        this.defaultAccountTypes.add(User.class);
+        this.defaultAccountTypes.add(Agent.class);
+
+        String defaultAccountLoginNameProperty = (String) store.getConfig().getCredentialHandlerProperties().get(ACCOUNT_LOGIN_NAME_PROPERTY);
+
+        if (defaultAccountLoginNameProperty != null) {
+            this.defaultAccountLoginNameProperty = defaultAccountLoginNameProperty;
+        }
+    }
+
+    private List<Class<? extends Account>> getDefaultAccountTypes() {
+        if (this.defaultAccountTypes.isEmpty()) {
+            throw new IdentityManagementException("No default Account types defined.");
+        }
+
+        return this.defaultAccountTypes;
     }
 
     protected boolean isDebugEnabled() {

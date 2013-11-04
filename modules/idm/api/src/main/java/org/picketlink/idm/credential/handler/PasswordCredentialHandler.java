@@ -97,6 +97,8 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
 
     @Override
     public void setup(S store) {
+        super.setup(store);
+
         Map<String, Object> options = store.getConfig().getCredentialHandlerProperties();
 
         if (options != null) {

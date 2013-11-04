@@ -28,6 +28,7 @@ import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
 import org.picketlink.common.logging.Log;
 import org.picketlink.common.logging.LogFactory;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.spi.IdentityStore;
@@ -70,4 +71,8 @@ public interface IDMLog extends Log {
     @LogMessage(level = Level.DEBUG)
     @Message(id = 1002, value = "No partition assigned for identity type [%s] by identity store [%s]. We assume this entry belongs to the default partition [%s].")
     void partitionUndefinedForTypeUsingDefault(IdentityType identityType, IdentityStore identityStore, Realm defaultPartition);
+
+    @LogMessage(level = Level.DEBUG)
+    @Message(id = 1003, value = "Trying to find account [%s] using default account type [%s] with property [%s].")
+    void credentialRetrievingAccount(String loginName, Class<? extends Account> accountType, String property);
 }

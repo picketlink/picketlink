@@ -21,16 +21,28 @@ import javax.persistence.Entity;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity;
 
 /**
  * @author pedroigor
  */
 @IdentityManaged(CustomAccountTestCase.MyCustomAccount.class)
 @Entity
-public class MyCustomAccountEntity extends AccountTypeEntity {
+public class MyCustomAccountEntity extends IdentityTypeEntity {
+
+    @AttributeValue
+    private String userName;
 
     @AttributeValue
     private Integer loginAttempts;
+
+    public String getUserName() {
+        return this.userName;
+    }
+
+    public void setUserName(final String userName) {
+        this.userName = userName;
+    }
 
     public Integer getLoginAttempts() {
         return this.loginAttempts;

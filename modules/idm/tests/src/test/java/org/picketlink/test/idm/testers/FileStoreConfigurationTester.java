@@ -18,8 +18,10 @@
 package org.picketlink.test.idm.testers;
 
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.test.idm.basic.CustomAccountTestCase;
 
 /**
  * @author pedroigor
@@ -37,6 +39,8 @@ public class FileStoreConfigurationTester implements IdentityConfigurationTester
                 .stores()
                     .file()
                     .preserveState(false)
+                    .setCredentialHandlerProperty(CredentialHandler.ACCOUNT_TYPE, CustomAccountTestCase.MyCustomAccount.class.getName())
+                    .setCredentialHandlerProperty(CredentialHandler.ACCOUNT_LOGIN_NAME_PROPERTY, "userName")
                     .supportAllFeatures();
 
         DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());

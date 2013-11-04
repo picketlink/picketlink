@@ -43,7 +43,7 @@ import static org.junit.Assert.*;
 @Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class})
 public class CustomAccountTestCase extends AbstractIdentityTypeTestCase<CustomAccountTestCase.MyCustomAccount> {
 
-    public static final String LOGIN_NAME = "bob";
+    public static final String USER_NAME = "bob";
 
     public CustomAccountTestCase(IdentityConfigurationTester builder) {
         super(builder);
@@ -57,7 +57,7 @@ public class CustomAccountTestCase extends AbstractIdentityTypeTestCase<CustomAc
 
         IdentityQuery<MyCustomAccount> query = getIdentityManager().createIdentityQuery(MyCustomAccount.class);
 
-        query.setParameter(MyCustomAccount.LOGIN_NAME, LOGIN_NAME);
+        query.setParameter(MyCustomAccount.USER_NAME, USER_NAME);
 
         List<MyCustomAccount> result = query.getResultList();
 
@@ -68,7 +68,7 @@ public class CustomAccountTestCase extends AbstractIdentityTypeTestCase<CustomAc
 
         assertNotNull(storedCustomIdentityType);
         assertEquals(customIdentityType.getId(), storedCustomIdentityType.getId());
-        assertEquals(customIdentityType.getLoginName(), storedCustomIdentityType.getLoginName());
+        assertEquals(customIdentityType.getUserName(), storedCustomIdentityType.getUserName());
         assertEquals(Realm.DEFAULT_REALM, storedCustomIdentityType.getPartition().getName());
         assertTrue(storedCustomIdentityType.isEnabled());
         assertNull(storedCustomIdentityType.getExpirationDate());
@@ -118,11 +118,11 @@ public class CustomAccountTestCase extends AbstractIdentityTypeTestCase<CustomAc
     protected MyCustomAccount createIdentityType() {
         MyCustomAccount identityType = new MyCustomAccount();
 
-        identityType.setLoginName(LOGIN_NAME);
+        identityType.setUserName(USER_NAME);
 
         IdentityQuery<MyCustomAccount> query = getIdentityManager().createIdentityQuery(MyCustomAccount.class);
 
-        query.setParameter(MyCustomAccount.LOGIN_NAME, LOGIN_NAME);
+        query.setParameter(MyCustomAccount.USER_NAME, USER_NAME);
 
         List<MyCustomAccount> result = query.getResultList();
 
@@ -139,7 +139,7 @@ public class CustomAccountTestCase extends AbstractIdentityTypeTestCase<CustomAc
     protected MyCustomAccount getIdentityType() {
         IdentityQuery<MyCustomAccount> query = getIdentityManager().createIdentityQuery(MyCustomAccount.class);
 
-        query.setParameter(MyCustomAccount.LOGIN_NAME, LOGIN_NAME);
+        query.setParameter(MyCustomAccount.USER_NAME, USER_NAME);
 
         List<MyCustomAccount> result = query.getResultList();
 
@@ -152,20 +152,28 @@ public class CustomAccountTestCase extends AbstractIdentityTypeTestCase<CustomAc
 
     public static class MyCustomAccount extends AbstractIdentityType implements Account {
 
-        public static final QueryParameter LOGIN_NAME = QUERY_ATTRIBUTE.byName("loginName");
+        public static final QueryParameter USER_NAME = QUERY_ATTRIBUTE.byName("userName");
 
-        private String loginName;
+        private String userName;
 
         private Integer loginAttempts;
 
-        @AttributeProperty
-        @Unique
-        public String getLoginName() {
-            return loginName;
+        public MyCustomAccount() {
+            this(null);
         }
 
-        public void setLoginName(String loginName) {
-            this.loginName = loginName;
+        public MyCustomAccount(String userName) {
+            this.userName = userName;
+        }
+
+        @AttributeProperty
+        @Unique
+        public String getUserName() {
+            return userName;
+        }
+
+        public void setUserName(String userName) {
+            this.userName = userName;
         }
 
         @AttributeProperty

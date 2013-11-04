@@ -28,6 +28,7 @@ import org.picketlink.idm.credential.util.CredentialUtils;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.basic.CustomAccountTestCase;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
@@ -334,4 +335,27 @@ public class PasswordCredentialTestCase extends AbstractPartitionManagerTestCase
         assertNotNull(currentStorage.getSalt());
     }
 
+    @Test
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
+    public void testCustomAccountAuthentication() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+
+        CustomAccountTestCase.MyCustomAccount user = new CustomAccountTestCase.MyCustomAccount("customAccount");
+
+        identityManager.add(user);
+
+        Password plainTextPassword = new Password("abcd1234".toCharArray());
+
+        identityManager.updateCredential(user, plainTextPassword);
+
+        UsernamePasswordCredentials credential = new UsernamePasswordCredentials();
+
+        credential.setUsername(user.getUserName());
+        credential.setPassword(plainTextPassword);
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.VALID, credential.getStatus());
+        assertNotNull(credential.getValidatedAccount());
+    }
 }

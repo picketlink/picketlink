@@ -47,10 +47,6 @@ public class X509CertificateCredentialHandler<S, V, U>
         extends AbstractCredentialHandler<CredentialStore<?>, X509CertificateCredentials, X509Certificate> {
 
     @Override
-    public void setup(CredentialStore<?> identityStore) {
-    }
-
-    @Override
     protected X509CertificateStorage getCredentialStorage(final IdentityContext context, Account account, final X509CertificateCredentials
             credentials, final CredentialStore<?> store) {
         return store.retrieveCurrentCredential(context, account, X509CertificateStorage.class);

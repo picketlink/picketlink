@@ -31,6 +31,10 @@ import org.picketlink.idm.spi.IdentityContext;
  * @author Shane Bryzak
  */
 public interface CredentialHandler<S extends IdentityStore<?>,V extends Credentials,U> {
+
+    String ACCOUNT_LOGIN_NAME_PROPERTY = "ACCOUNT_LOGIN_NAME_PROPERTY";
+    String ACCOUNT_TYPE = "ACCOUNT_TYPE";
+
     /**
      *
      * @param credentials

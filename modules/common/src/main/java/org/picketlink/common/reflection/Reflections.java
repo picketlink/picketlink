@@ -304,17 +304,17 @@ public class Reflections {
      *
      * @throws ClassNotFoundException if the class cannot be found
      */
-    public static Class<?> classForName(String name, ClassLoader... loaders) throws ClassNotFoundException {
+    public static <T> Class<T> classForName(String name, ClassLoader... loaders) throws ClassNotFoundException {
         try {
             if (Thread.currentThread().getContextClassLoader() != null) {
-                return Class.forName(name, true, Thread.currentThread().getContextClassLoader());
+                return (Class<T>) Class.forName(name, true, Thread.currentThread().getContextClassLoader());
             } else {
-                return Class.forName(name);
+                return (Class<T>) Class.forName(name);
             }
         } catch (ClassNotFoundException e) {
             for (ClassLoader l : loaders) {
                 try {
-                    return Class.forName(name, true, l);
+                    return (Class<T>) Class.forName(name, true, l);
                 } catch (ClassNotFoundException ex) {
 
                 }
