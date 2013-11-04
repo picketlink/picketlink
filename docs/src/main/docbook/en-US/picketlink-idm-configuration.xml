@@ -324,7 +324,7 @@ builder
         <para>
           The example above shows how to configure a credential handler for a JPA-based store using the <code>addCredentialHandler</code> method.
         </para>
-        <section>
+        <section id="configuration_passing_parameters_to_credential_handlers">
           <title>Passing parameters to Credential Handlers</title>
           <para>
             Some credential handlers support a set of configuration options to configure their behavior. These options can be specified as follows:
