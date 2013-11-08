@@ -18,6 +18,7 @@
 package org.picketlink.social.auth;
 
 import java.security.Principal;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import org.picketlink.authentication.AuthenticationException;
 import org.picketlink.idm.model.basic.User;
@@ -54,6 +55,8 @@ public class TwitterAuthenticator extends AbstractSocialAuthenticator{
         }
         HttpSession session = httpServletRequest.getSession();
 
+        ServletContext servletContext = httpServletRequest.getServletContext();
+
         String clientID = configuration.getClientID();
         String clientSecret = configuration.getClientSecret();
         String returnURL = configuration.getReturnURL();
@@ -65,11 +68,21 @@ public class TwitterAuthenticator extends AbstractSocialAuthenticator{
         //See if we are a callback
         String verifier = httpServletRequest.getParameter("oauth_verifier");
         RequestToken requestToken = (RequestToken) session.getAttribute(TWIT_REQUEST_TOKEN_SESSION_ATTRIBUTE);
-        if(requestToken != null || verifier != null){
+        if(verifier != null && requestToken == null){
+            //Let us fall back
+            String twitterSentRequestToken = httpServletRequest.getParameter("oauth_token");
+            if(twitterSentRequestToken != null){
+                requestToken = (RequestToken) servletContext.getAttribute(twitterSentRequestToken);
+            }
+            if(requestToken == null){
+                throw new IllegalStateException("Verifier present but request token null");
+            }
+            //Discard the stored request tokens
+            servletContext.removeAttribute(twitterSentRequestToken);
+            session.removeAttribute(TWIT_REQUEST_TOKEN_SESSION_ATTRIBUTE);
+        }
+        if(requestToken != null && verifier != null){
             try {
-                if(verifier == null){
-                    throw new IllegalStateException("OAuth Verifier is null");
-                }
                 AccessToken accessToken = twitter.getOAuthAccessToken(requestToken, verifier);
                 session.setAttribute("accessToken", accessToken);
                 session.removeAttribute("requestToken");
@@ -90,6 +103,10 @@ public class TwitterAuthenticator extends AbstractSocialAuthenticator{
         try {
             requestToken = twitter.getOAuthRequestToken(returnURL);
             session.setAttribute(TWIT_REQUEST_TOKEN_SESSION_ATTRIBUTE, requestToken);
+
+            //back up in the case the browser provides a new session to the user on twitter callback
+            servletContext.setAttribute(requestToken.getToken(),requestToken);
+
             httpServletResponse.sendRedirect(requestToken.getAuthenticationURL());
 
         } catch (Exception e) {
