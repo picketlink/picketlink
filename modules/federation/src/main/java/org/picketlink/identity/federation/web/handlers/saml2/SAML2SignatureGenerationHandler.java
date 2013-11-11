@@ -127,7 +127,7 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
                 parentNode.replaceChild(clonedAssertionElement, originalAssertionElement);
             }
 
-            if (isSignResponse()) {
+            if (!isSignAssertionOnly()) {
                 signDocument(samlDocument, keypair, x509Certificate);
             }
         } else {
