@@ -444,7 +444,25 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             identityConfiguration = this.configurations.iterator().next();
         }
 
-        return lookupStore(context, identityConfiguration, type, operation);
+        T identityStore = null;
+
+        if (identityConfiguration == null) {
+            for (IdentityConfiguration configuration : this.configurations) {
+                identityStore = lookupStore(context, configuration, type, operation);
+
+                if (identityStore != null) {
+                    break;
+                }
+            }
+        } else {
+            identityStore = lookupStore(context, identityConfiguration, type, operation);
+        }
+
+        if (identityStore == null) {
+            throw MESSAGES.attributedTypeUnsupportedOperation(type, operation, type, operation);
+        }
+
+        return identityStore;
     }
 
     @Override
@@ -468,19 +486,13 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     public <T extends IdentityStore<?>> T lookupStore(IdentityContext context, IdentityConfiguration configuration,
                                                       Class<? extends AttributedType> type, IdentityOperation operation) {
-        T identityStore = null;
-
         for (IdentityStoreConfiguration storeConfig : configuration.getStoreConfiguration()) {
             if (storeConfig.supportsType(type, operation)) {
-                identityStore = getIdentityStoreAndInitializeContext(context, configuration, storeConfig);
+                return getIdentityStoreAndInitializeContext(context, configuration, storeConfig);
             }
         }
 
-        if (identityStore == null) {
-            throw MESSAGES.attributedTypeUnsupportedOperation(type, operation, type, operation);
-        }
-
-        return identityStore;
+        return null;
     }
 
     @Override
