@@ -493,27 +493,36 @@ public class XMLSignatureUtil {
         propagateIDAttributeSetup(signedDoc.getDocumentElement(), signedDoc.getDocumentElement());
 
         NodeList nl = signedDoc.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
+
         if (nl == null || nl.getLength() == 0) {
             throw logger.nullValueError("Cannot find Signature element");
         }
+
         if (publicKey == null)
             throw logger.nullValueError("Public Key");
 
-        DOMValidateContext valContext = new DOMValidateContext(publicKey, nl.item(0));
-        XMLSignature signature = fac.unmarshalXMLSignature(valContext);
+        for (int i = 0; i < nl.getLength(); i++) {
+            DOMValidateContext valContext = new DOMValidateContext(publicKey, nl.item(i));
+            XMLSignature signature = fac.unmarshalXMLSignature(valContext);
 
-        boolean coreValidity = signature.validate(valContext);
+            boolean coreValidity = signature.validate(valContext);
 
-        if (logger.isTraceEnabled() && !coreValidity) {
-            boolean sv = signature.getSignatureValue().validate(valContext);
-            logger.trace("Signature validation status: " + sv);
+            if (!coreValidity) {
+                if (logger.isTraceEnabled()) {
+                    boolean sv = signature.getSignatureValue().validate(valContext);
+                    logger.trace("Signature validation status: " + sv);
 
-            List<Reference> references = signature.getSignedInfo().getReferences();
-            for (Reference ref : references) {
-                logger.trace("[Ref id=" + ref.getId() + ":uri=" + ref.getURI() + "]validity status:" + ref.validate(valContext));
+                    List<Reference> references = signature.getSignedInfo().getReferences();
+                    for (Reference ref : references) {
+                        logger.trace("[Ref id=" + ref.getId() + ":uri=" + ref.getURI() + "]validity status:" + ref.validate(valContext));
+                    }
+                }
+
+                return false;
             }
         }
-        return coreValidity;
+
+        return true;
     }
 
     /**
