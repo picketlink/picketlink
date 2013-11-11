@@ -144,7 +144,7 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
     }
 
     @Override
-    public Account getAccount(final IdentityContext context, final V credentials) {
+    protected Account getAccount(final IdentityContext context, final V credentials) {
         return getAccount(context, credentials.getUsername());
     }
 
