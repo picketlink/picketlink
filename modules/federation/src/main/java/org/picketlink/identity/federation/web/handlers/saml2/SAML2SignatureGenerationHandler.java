@@ -117,7 +117,6 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
                 temporaryDocument.adoptNode(clonedAssertionElement);
                 temporaryDocument.appendChild(clonedAssertionElement);
 
-                logger.trace("Going to sign assertion within response document.");
                 signDocument(temporaryDocument, keypair, x509Certificate);
 
                 samlDocument.adoptNode(clonedAssertionElement);
@@ -142,29 +141,17 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
         }
     }
 
-    private boolean isSAMLResponse(final Document samlDocument) {
-        return samlDocument.getDocumentElement().getLocalName().equals(JBossSAMLConstants.RESPONSE.get());
-    }
-
-    private boolean isSignResponse() {
-        return !isSignAssertionOnly() && (isSignResponseAndAssertion() || this.handlerConfig.getParameter(SIGN_RESPONSE_AND_ASSERTION) == null);
-    }
-
-    private boolean isSignAssertionOnly() {
-        return this.handlerConfig.getParameter(SIGN_ASSERTION_ONLY) != null ? (Boolean) this.handlerConfig.getParameter(SIGN_ASSERTION_ONLY) : false;
-    }
-
-    private boolean isSignResponseAndAssertion() {
-        return this.handlerConfig.getParameter(SIGN_RESPONSE_AND_ASSERTION) != null ? (Boolean) this.handlerConfig.getParameter(SIGN_RESPONSE_AND_ASSERTION) : false;
-    }
-
     private void signDocument(Document samlDocument, KeyPair keypair, X509Certificate x509Certificate) throws ProcessingException {
         SAML2Signature samlSignature = new SAML2Signature();
         Node nextSibling = samlSignature.getNextSiblingOfIssuer(samlDocument);
+
         samlSignature.setNextSibling(nextSibling);
+
         if (x509Certificate != null) {
             samlSignature.setX509Certificate(x509Certificate);
         }
+
+        logger.trace("Going to sign document.");
         samlSignature.signSAMLDocument(samlDocument, keypair);
     }
 
@@ -200,4 +187,17 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
             throw logger.samlHandlerSigningRedirectBindingMessageError(ce);
         }
     }
+
+    private boolean isSAMLResponse(final Document samlDocument) {
+        return samlDocument.getDocumentElement().getLocalName().equals(JBossSAMLConstants.RESPONSE.get());
+    }
+
+    private boolean isSignAssertionOnly() {
+        return this.handlerConfig.getParameter(SIGN_ASSERTION_ONLY) != null ? (Boolean) this.handlerConfig.getParameter(SIGN_ASSERTION_ONLY) : false;
+    }
+
+    private boolean isSignResponseAndAssertion() {
+        return this.handlerConfig.getParameter(SIGN_RESPONSE_AND_ASSERTION) != null ? (Boolean) this.handlerConfig.getParameter(SIGN_RESPONSE_AND_ASSERTION) : false;
+    }
+
 }
