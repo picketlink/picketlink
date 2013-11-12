@@ -2114,7 +2114,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void samlSPSettingCanonicalizationMethod(String canonicalizationMethod) {
-        logger.infof("Service Provider is setting the CanonicalizationMethod on XMLSignatureUtil::%s", canonicalizationMethod);
+        logger.info("Service Provider is setting the CanonicalizationMethod on XMLSignatureUtil::" +  canonicalizationMethod);
     }
 
     /*
@@ -2124,7 +2124,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void samlSPCouldNotDispatchToLogoutPage(String logOutPage) {
-        logger.errorf("Cannot dispatch to the logout page: no request dispatcher:%s", logOutPage);
+        logger.errorf("Cannot dispatch to the logout page: no request dispatcher" + logOutPage);
     }
 
     /*
@@ -2134,7 +2134,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void usingLoggerImplementation(String className) {
-        logger.debugf("Using logger implementation: %s", className);
+        logger.debugf("Using logger implementation: " + className);
     }
 
     /*
