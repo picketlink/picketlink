@@ -41,7 +41,6 @@ import org.picketlink.test.idm.util.LDAPEmbeddedServer;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 import static org.picketlink.common.constants.LDAPConstants.CN;
 import static org.picketlink.common.constants.LDAPConstants.CREATE_TIMESTAMP;
@@ -49,6 +48,7 @@ import static org.picketlink.common.constants.LDAPConstants.EMAIL;
 import static org.picketlink.common.constants.LDAPConstants.GROUP_OF_NAMES;
 import static org.picketlink.common.constants.LDAPConstants.SN;
 import static org.picketlink.common.constants.LDAPConstants.UID;
+import static org.picketlink.test.idm.util.PersistenceUtil.createEntityManagerFactory;
 
 /**
  * @author pedroigor
@@ -139,7 +139,7 @@ public class LDAPUserGroupJPARoleConfigurationTester implements IdentityConfigur
             throw new RuntimeException("Error starting Embedded LDAP server.", e);
         }
 
-        this.emf = Persistence.createEntityManagerFactory("ldap-usergroup-jpa-role-tests-pu");
+        this.emf = createEntityManagerFactory("ldap-usergroup-jpa-role-tests-pu");
         this.entityManager = emf.createEntityManager();
         this.entityManager.getTransaction().begin();
     }

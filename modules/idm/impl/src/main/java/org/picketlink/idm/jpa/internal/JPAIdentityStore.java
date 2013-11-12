@@ -562,9 +562,9 @@ public class JPAIdentityStore
             }
 
             Object[] idParameter = query.getParameter(Relationship.ID);
+            Property idProperty = entityMapper.getProperty(Identifier.class).getValue();
 
             if (idParameter != null && idParameter.length > 0) {
-                Property idProperty = entityMapper.getProperty(Identifier.class).getValue();
                 predicates.add(cb.equal(from.get(idProperty.getName()), idParameter[0]));
             } else {
                 for (Entry<QueryParameter, Object[]> entry : query.getParameters().entrySet()) {
@@ -597,32 +597,31 @@ public class JPAIdentityStore
 
                         Subquery<?> subquery = cq.subquery(relationshipMemberMapper.getEntityType());
                         Root fromRelationshipIdentityType = subquery.from(relationshipMemberMapper.getEntityType());
-                        subquery.select(fromRelationshipIdentityType.get(relationshipProperty.getName()));
+                        subquery.select(fromRelationshipIdentityType.get(relationshipProperty.getName()).get(idProperty.getName()));
 
-                        Property<String> descriptorProperty = relationshipMemberMapper.getProperty(RelationshipDescriptor
-                                .class).getValue();
+                        Property<String> descriptorProperty = relationshipMemberMapper.getProperty(RelationshipDescriptor.class).getValue();
 
-                        Predicate conjunction = cb.conjunction();
+                        List<Predicate> conjunction = new ArrayList<Predicate>();
 
-                        conjunction.getExpressions().add(
+                        conjunction.add(
                                 cb.equal(fromRelationshipIdentityType.get(descriptorProperty.getName()),
                                         identityTypeParameter.getName()));
 
                         Property<Object> identityProperty = relationshipMemberMapper.getProperty(RelationshipMember.class).getValue();
 
                         if (identityProperty.getJavaClass().equals(String.class)) {
-                            conjunction.getExpressions().add(fromRelationshipIdentityType.get(identityProperty.getName()).in(identityTypeIdentifiers));
+                            conjunction.add(fromRelationshipIdentityType.get(identityProperty.getName()).in(identityTypeIdentifiers));
                         } else {
                             Join join = fromRelationshipIdentityType.join(identityProperty.getName());
                             EntityMapper identityTypeMapper = getMapperForEntity(identityProperty.getJavaClass());
                             Property identifierProperty = identityTypeMapper.getProperty(Identifier.class).getValue();
 
-                            conjunction.getExpressions().add(join.get(identifierProperty.getName()).in(identityTypeIdentifiers));
+                            conjunction.add(join.get(identifierProperty.getName()).in(identityTypeIdentifiers));
                         }
 
-                        subquery.where(conjunction);
+                        subquery.where(conjunction.toArray(new Predicate[conjunction.size()]));
 
-                        predicates.add(cb.in(from).value(subquery));
+                        predicates.add(cb.in(from.get(idProperty.getName())).value(subquery));
                     } else if (AttributeParameter.class.equals(entry.getKey().getClass())) {
                         AttributeParameter attributeParameter = (AttributeParameter) entry.getKey();
                         Object[] parameterValues = entry.getValue();
@@ -1208,24 +1207,24 @@ public class JPAIdentityStore
         Root fromProject = subQuery.from(attributeEntityClass);
 
         Path selection = fromProject.get(ownerProperty.getName());
-        subQuery.select(selection);
+        subQuery.select(selection.get("id"));
 
-        Predicate conjunction = cb.conjunction();
+        List<Predicate> conjunction = new ArrayList<Predicate>();
 
-        conjunction.getExpressions().add(
+        conjunction.add(
                 cb.equal(
                         fromProject.get(attributeNameProperty.getName()),
                         attributeParameter.getName()));
-        conjunction.getExpressions().add(
+        conjunction.add(
                 (fromProject.get(attributeValueProperty.getName())
                         .in((Object[]) valuesToSearch)));
 
-        subQuery.where(conjunction);
+        subQuery.where(conjunction.toArray(new Predicate[conjunction.size()]));
 
         subQuery.groupBy(selection).having(
                 cb.equal(cb.count(selection), valuesToSearch.length));
 
-        predicates.add(cb.in(from).value(subQuery));
+        predicates.add(cb.in(from.get("id")).value(subQuery));
     }
 
     private EntityMapper getAttributeMapper(Class<? extends AttributedType> attributedType) {

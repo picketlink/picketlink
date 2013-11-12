@@ -17,14 +17,15 @@
  */
 package org.picketlink.idm.jpa.model.sample.simple;
 
-import java.io.Serializable;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
+import org.picketlink.idm.jpa.annotations.RelationshipMember;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import org.picketlink.idm.jpa.annotations.OwnerReference;
-import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
-import org.picketlink.idm.jpa.annotations.RelationshipMember;
+import java.io.Serializable;
 
 /**
  * @author pedroigor
@@ -36,7 +37,7 @@ public class RelationshipIdentityTypeEntity implements Serializable {
 
     @Id
     @GeneratedValue
-    private Long id;
+    private Long identifier;
 
     @RelationshipDescriptor
     private String descriptor;
@@ -49,12 +50,12 @@ public class RelationshipIdentityTypeEntity implements Serializable {
     @ManyToOne
     private RelationshipTypeEntity owner;
 
-    public Long getId() {
-        return id;
+    public Long getIdentifier() {
+        return identifier;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdentifier(Long identifier) {
+        this.identifier = identifier;
     }
 
     public String getDescriptor() {
@@ -93,13 +94,13 @@ public class RelationshipIdentityTypeEntity implements Serializable {
 
         AttributedTypeEntity other = (AttributedTypeEntity) obj;
 
-        return getId() != null && other.getId() != null && getId().equals(other.getId());
+        return getIdentifier() != null && other.getId() != null && getIdentifier().equals(other.getId());
     }
 
     @Override
     public int hashCode() {
-        int result = getId() != null ? getId().hashCode() : 0;
-        result = 31 * result + (getId() != null ? getId().hashCode() : 0);
+        int result = getIdentifier() != null ? getIdentifier().hashCode() : 0;
+        result = 31 * result + (getIdentifier() != null ? getIdentifier().hashCode() : 0);
         return result;
     }
 }
