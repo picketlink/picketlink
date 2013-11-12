@@ -97,16 +97,6 @@ public class Group extends AbstractIdentityType {
         this.path = path;
     }
 
-    private String getPath(Group group) {
-        String name = "/" + group.getName();
-
-        if (group.getParentGroup() != null) {
-            name = getPath(group.getParentGroup()) + name;
-        }
-
-        return name;
-    }
-
     @InheritsPrivileges
     @AttributeProperty
     public Group getParentGroup() {
@@ -121,14 +111,14 @@ public class Group extends AbstractIdentityType {
     /**
      * <p>Builds the group's path based on the parent groups.</p>
      *
-     * @param parentGroup
+     * @param group
      * @return
      */
-    private String buildPath(Group parentGroup) {
-        String name = PATH_SEPARATOR + parentGroup.getName();
+    private String buildPath(Group group) {
+        String name = PATH_SEPARATOR + group.getName();
 
-        if (parentGroup.getParentGroup() != null) {
-            name = buildPath(parentGroup.getParentGroup()) + name;
+        if (group.getParentGroup() != null) {
+            name = buildPath(group.getParentGroup()) + name;
         }
 
         return name;
