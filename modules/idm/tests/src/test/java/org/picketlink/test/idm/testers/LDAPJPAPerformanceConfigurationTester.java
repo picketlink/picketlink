@@ -48,6 +48,7 @@ import static org.picketlink.common.constants.LDAPConstants.EMAIL;
 import static org.picketlink.common.constants.LDAPConstants.GROUP_OF_NAMES;
 import static org.picketlink.common.constants.LDAPConstants.SN;
 import static org.picketlink.common.constants.LDAPConstants.UID;
+import static org.picketlink.test.idm.util.PersistenceUtil.createEntityManagerFactory;
 
 /**
  * @author pedroigor
@@ -122,7 +123,7 @@ public class LDAPJPAPerformanceConfigurationTester implements IdentityConfigurat
 
     @Override
     public void beforeTest() {
-        this.emf = Persistence.createEntityManagerFactory("ldap-usergroup-jpa-role-tests-pu");
+        this.emf = createEntityManagerFactory("ldap-usergroup-jpa-role-tests-pu");
         this.entityManager = emf.createEntityManager();
         this.entityManager.getTransaction().begin();
     }

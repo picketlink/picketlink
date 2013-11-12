@@ -41,6 +41,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import static org.picketlink.test.idm.util.PersistenceUtil.createEntityManagerFactory;
+
 /**
  * @author pedroigor
  */
@@ -91,7 +93,7 @@ public class JPAStoreComplexSchemaConfigurationTester implements IdentityConfigu
 
     @Override
     public void beforeTest() {
-        this.emf = Persistence.createEntityManagerFactory("complex-schema-tests-pu");
+        this.emf = createEntityManagerFactory("complex-schema-tests-pu");
         this.entityManager = emf.createEntityManager();
         this.entityManager.getTransaction().begin();
     }

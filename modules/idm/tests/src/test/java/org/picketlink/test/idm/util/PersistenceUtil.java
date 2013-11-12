@@ -15,13 +15,17 @@ import java.util.List;
  */
 public final class PersistenceUtil {
 
+    public static final String TEST_JPA_ECLIPSELINK_PROVIDER = "test.jpa.eclipselink.provider";
+
     static {
         PersistenceProviderResolverHolder.setPersistenceProviderResolver(new PersistenceProviderResolver() {
             @Override
             public List<PersistenceProvider> getPersistenceProviders() {
                 ArrayList<PersistenceProvider> providers = new ArrayList<PersistenceProvider>();
 
-                if (System.getProperty("test.jpa.eclipselink.provider") != null && Boolean.valueOf(System.getProperty("test.jpa.eclipselink.provider"))) {
+                String enableEclipseLinkProvider = System.getProperty(TEST_JPA_ECLIPSELINK_PROVIDER);
+
+                if (enableEclipseLinkProvider != null && Boolean.valueOf(enableEclipseLinkProvider)) {
                     providers.add(new org.eclipse.persistence.jpa.PersistenceProvider());
                 } else {
                     providers.add(new HibernatePersistence());

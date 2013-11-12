@@ -42,7 +42,8 @@ import org.picketlink.test.idm.util.JPAContextInitializer;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+
+import static org.picketlink.test.idm.util.PersistenceUtil.createEntityManagerFactory;
 
 /**
  * @author pedroigor
@@ -102,7 +103,7 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
 
     @Override
     public void beforeTest() {
-        this.emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
+        this.emf = createEntityManagerFactory("jpa-identity-store-tests-pu");
         this.entityManager = emf.createEntityManager();
         this.entityManager.getTransaction().begin();
     }

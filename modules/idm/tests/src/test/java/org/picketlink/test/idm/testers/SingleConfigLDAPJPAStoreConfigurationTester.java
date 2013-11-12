@@ -20,7 +20,6 @@ package org.picketlink.test.idm.testers;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.basic.Agent;
 import org.picketlink.idm.model.basic.Group;
@@ -34,9 +33,14 @@ import org.picketlink.test.idm.util.LDAPEmbeddedServer;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
-import static org.picketlink.common.constants.LDAPConstants.*;
+import static org.picketlink.common.constants.LDAPConstants.CN;
+import static org.picketlink.common.constants.LDAPConstants.CREATE_TIMESTAMP;
+import static org.picketlink.common.constants.LDAPConstants.EMAIL;
+import static org.picketlink.common.constants.LDAPConstants.GROUP_OF_NAMES;
+import static org.picketlink.common.constants.LDAPConstants.SN;
+import static org.picketlink.common.constants.LDAPConstants.UID;
+import static org.picketlink.test.idm.util.PersistenceUtil.createEntityManagerFactory;
 
 /**
  * @author pedroigor
@@ -117,7 +121,7 @@ public class SingleConfigLDAPJPAStoreConfigurationTester implements IdentityConf
             throw new RuntimeException("Error starting Embedded LDAP server.", e);
         }
 
-        this.emf = Persistence.createEntityManagerFactory("ldap-jpa-store-test-pu");
+        this.emf = createEntityManagerFactory("ldap-jpa-store-test-pu");
         this.entityManager = emf.createEntityManager();
         this.entityManager.getTransaction().begin();
     }
