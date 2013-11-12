@@ -48,7 +48,7 @@ public class FileBasedMetadataProviderUnitTestCase extends TestCase {
 
         assertEquals(metadata.getEntityID(), "https://service.example.org/shibboleth");
         SPSSODescriptorType spSSODescriptor = CoreConfigUtil.getSPDescriptor(metadata);
-        assertNull(spSSODescriptor.isAuthnRequestsSigned());
+        assertFalse(spSSODescriptor.isAuthnRequestsSigned());
         assertEquals(spSSODescriptor.getSingleLogoutService().size(), 4);
     }
 
