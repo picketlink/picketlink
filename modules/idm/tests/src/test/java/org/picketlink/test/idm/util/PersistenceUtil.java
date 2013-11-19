@@ -15,7 +15,7 @@ import java.util.List;
  */
 public final class PersistenceUtil {
 
-    public static final String TEST_JPA_ECLIPSELINK_PROVIDER = "test.jpa.eclipselink.provider";
+    public static final String TEST_JPA_ECLIPSELINK_PROVIDER = "test.idm.jpa.eclipselink.provider";
 
     static {
         PersistenceProviderResolverHolder.setPersistenceProviderResolver(new PersistenceProviderResolver() {

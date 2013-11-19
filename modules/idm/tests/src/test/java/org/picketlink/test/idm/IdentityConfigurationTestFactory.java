@@ -28,7 +28,9 @@ import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTest
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>This factory is responsible to create all {@link IdentityConfigurationTester} that will be used to run the test cases
@@ -41,10 +43,26 @@ import java.util.List;
  */
 public class IdentityConfigurationTestFactory {
 
-    public static IdentityConfigurationTester[] getConfigurations() {
-        List<IdentityConfigurationTester> testers = getIdentityConfigurationTesters();
+    private static final Map<String, List<IdentityConfigurationTester>> testConfigurations = new HashMap<String, List<IdentityConfigurationTester>>();
 
-        String testerClassesProperty = System.getProperty("testerClasses");
+    static {
+        testConfigurations.put("all", getAllTesters());
+        testConfigurations.put("file", getFileStoreTesters());
+        testConfigurations.put("jpa", getJPAStoreTesters());
+        testConfigurations.put("ldap", getLDAPStoreTesters());
+        testConfigurations.put("jdbc", getJDBCStoreTesters());
+        testConfigurations.put("ldap_jpa", getLDAPAndJPAStoreTesters());
+    }
+
+    public static IdentityConfigurationTester[] getConfigurations() {
+        String targetConfiguration = System.getProperty("test.idm.store", "all");
+        List<IdentityConfigurationTester> testers = testConfigurations.get(targetConfiguration);
+
+        if (testers == null) {
+            throw new IllegalArgumentException("Invalid configuration: " + targetConfiguration);
+        }
+
+        String testerClassesProperty = System.getProperty("test.idm.configuration");
 
         if (testerClassesProperty != null) {
             List<String> testerClasses = Arrays.asList(testerClassesProperty.split(","));
@@ -59,7 +77,7 @@ public class IdentityConfigurationTestFactory {
         return testers.toArray(new IdentityConfigurationTester[testers.size()]);
     }
 
-    private static List<IdentityConfigurationTester> getIdentityConfigurationTesters() {
+    private static List<IdentityConfigurationTester> getAllTesters() {
         List<IdentityConfigurationTester> testers = new ArrayList<IdentityConfigurationTester>();
 
         testers.add(new FileStoreConfigurationTester());
@@ -68,8 +86,49 @@ public class IdentityConfigurationTestFactory {
         testers.add(new SingleConfigLDAPJPAStoreConfigurationTester());
         testers.add(new LDAPStoreConfigurationTester());
         testers.add(new LDAPUserGroupJPARoleConfigurationTester());
-//        testers.add(new LDAPJPAPerformanceConfigurationTester());
         testers.add(new JDBCStoreConfigurationTester());
+
+        return testers;
+    }
+
+    private static List<IdentityConfigurationTester> getFileStoreTesters() {
+        List<IdentityConfigurationTester> testers = new ArrayList<IdentityConfigurationTester>();
+
+        testers.add(new FileStoreConfigurationTester());
+
+        return testers;
+    }
+
+    private static List<IdentityConfigurationTester> getJPAStoreTesters() {
+        List<IdentityConfigurationTester> testers = new ArrayList<IdentityConfigurationTester>();
+
+        testers.add(new JPAStoreConfigurationTester());
+        testers.add(new JPAStoreComplexSchemaConfigurationTester());
+
+        return testers;
+    }
+
+    private static List<IdentityConfigurationTester> getLDAPStoreTesters() {
+        List<IdentityConfigurationTester> testers = new ArrayList<IdentityConfigurationTester>();
+
+        testers.add(new LDAPStoreConfigurationTester());
+
+        return testers;
+    }
+
+    private static List<IdentityConfigurationTester> getJDBCStoreTesters() {
+        List<IdentityConfigurationTester> testers = new ArrayList<IdentityConfigurationTester>();
+
+        testers.add(new JDBCStoreConfigurationTester());
+
+        return testers;
+    }
+
+    private static List<IdentityConfigurationTester> getLDAPAndJPAStoreTesters() {
+        List<IdentityConfigurationTester> testers = new ArrayList<IdentityConfigurationTester>();
+
+        testers.add(new SingleConfigLDAPJPAStoreConfigurationTester());
+        testers.add(new LDAPUserGroupJPARoleConfigurationTester());
 
         return testers;
     }

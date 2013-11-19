@@ -8,6 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -24,9 +26,11 @@ public class ApplicationAuthorization implements Serializable {
     private Long id;
 
     @AttributeValue
+    @Temporal(TemporalType.TIMESTAMP)
     private Date authorizationDate;
 
     @AttributeValue
+    @Temporal(TemporalType.TIMESTAMP)
     private Date expirationDate;
 
     @AttributeValue

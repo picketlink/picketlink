@@ -181,6 +181,28 @@
 
   <profiles>
     <profile>
+      <id>idm-smoke-tests</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <include>**/basic/**</include>
+                <include>**/credential/**</include>
+                <include>**/PartitionManagementTestCase.java</include>
+                <include>**/UserQueryTestCase.java</include>
+                <include>**/ShanesBigSanityCheckTestCase.java</include>
+                <include>**/MultiPartitionTestCase.java</include>
+                <include>**/UserGrantRelationshipTestCase.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
       <id>performance-tests</id>
       <build>
         <plugins>

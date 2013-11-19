@@ -23,6 +23,8 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,6 +45,8 @@ public class Person implements Serializable {
 
     private String firstName;
     private String lastName;
+
+    @Temporal(TemporalType.TIMESTAMP)
     private Date birthDate;
 
     @OneToMany (mappedBy = "person", cascade = ALL)

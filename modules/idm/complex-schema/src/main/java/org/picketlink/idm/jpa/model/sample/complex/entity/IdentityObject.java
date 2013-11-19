@@ -10,6 +10,8 @@ import org.picketlink.idm.model.IdentityType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -31,9 +33,11 @@ public class IdentityObject implements Serializable {
     private String type;
 
     @AttributeValue (name = "createdDate")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date creationDate;
 
     @AttributeValue
+    @Temporal(TemporalType.TIMESTAMP)
     private Date expirationDate;
 
     @AttributeValue (name = "enabled")
