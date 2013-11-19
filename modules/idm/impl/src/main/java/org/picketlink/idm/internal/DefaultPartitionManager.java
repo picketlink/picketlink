@@ -432,6 +432,11 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     @Override
+    public Collection<IdentityConfiguration> getConfigurations() {
+        return this.configurations;
+    }
+
+    @Override
     public <T extends IdentityStore<?>> T getStoreForIdentityOperation(IdentityContext context, Class<T> storeType,
                                                                        Class<? extends AttributedType> type, IdentityOperation operation) {
         checkSupportedTypes(context.getPartition(), type);

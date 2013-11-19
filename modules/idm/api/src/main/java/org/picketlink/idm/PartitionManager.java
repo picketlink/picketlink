@@ -17,9 +17,11 @@
  */
 package org.picketlink.idm;
 
+import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.model.Partition;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -192,4 +194,10 @@ public interface PartitionManager extends Serializable {
      */
     void remove(Partition partition) throws IdentityManagementException;
 
+    /**
+     * <p>Retrieves the configuration used to build this <code>PartitionManager</code>.</p>
+     *
+     * @return A collection with all the configuration used to build this partition manager.
+     */
+    Collection<IdentityConfiguration> getConfigurations();
 }
