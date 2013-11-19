@@ -38,7 +38,9 @@ public final class PicketLinkLoggerFactory {
             LOGGER = new DefaultPicketLinkLogger();
         }
 
-        LOGGER.usingLoggerImplementation(LOGGER.getClass().getName());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.usingLoggerImplementation(LOGGER.getClass().getName());
+        }
     }
 
     /**
