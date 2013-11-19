@@ -9,3 +9,5 @@ jdk:
 branches:
   only:
   - master
+notifications:
+  irc: irc.freenode.org#picketlink
