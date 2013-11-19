@@ -109,6 +109,10 @@ public interface IDMInternalMessages extends IDMMessages {
     @Message(id = 411, value = "Partition [%s] does not support type [%s].")
     IdentityManagementException partitionUnsupportedType(Partition partition, Class<? extends AttributedType> type);
 
+    @Message(id = 412, value = "More than one partitions have been found with the given name [%s] and type [%s].")
+    IdentityManagementException partitionFoundWithSameNameAndType(String name, Class<? extends Partition> partitionClass);
+
+
     @Message(value = "A Partition [%s] with name [%s] already exists.")
     IdentityManagementException partitionAlreadyExistsWithName(Class<? extends Partition> type, String name);
 
