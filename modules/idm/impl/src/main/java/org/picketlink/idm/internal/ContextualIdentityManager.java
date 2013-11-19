@@ -265,8 +265,18 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
             identityQuery.setParameter(AttributedType.QUERY_ATTRIBUTE.byName(property.getName()), property.getValue(identityType));
         }
 
-        if (!identityQuery.getResultList().isEmpty()) {
-            throw MESSAGES.identityTypeAlreadyExists(identityType.getClass(), identityType.getId(), getPartition());
+        List<? extends IdentityType> result = identityQuery.getResultList();
+
+        if (!result.isEmpty()) {
+            // we need to check the unique property values again because some properties are not stored and are calculated
+            // based on the values of other properties. Eg.: Group.path
+            for (Property<Serializable> property : propertyQuery.getResultList()) {
+                for (IdentityType storedType: result) {
+                    if (property.getValue(storedType).equals(property.getValue(identityType))) {
+                        throw MESSAGES.identityTypeAlreadyExists(identityType.getClass(), identityType.getId(), getPartition());
+                    }
+                }
+            }
         }
     }
 
