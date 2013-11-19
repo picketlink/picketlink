@@ -19,6 +19,7 @@
 package org.picketlink.producer;
 
 import org.picketlink.IdentityConfigurationEvent;
+import org.picketlink.PartitionManagerCreateEvent;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
@@ -44,8 +45,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
-
 /**
  * <p>This bean is responsible for initializing the PicketLink IDM subsystem as well produce some core components
  * such as:</p>
@@ -67,10 +66,14 @@ import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOpera
  * <p>The default configuration is provided by the {@link IdentityStoreAutoConfiguration} bean, only if no specific
  * configuration is provided by the application.</p>
  *
- * <p>After the creation of the {@link PartitionManager} a default partition is always created if any of the provided
- * configuration supports that. This is very useful for most use cases where only a single partition is necessary.</p>
+ * <p>After the creation of the {@link PartitionManager} an {@link PartitionManagerCreateEvent} is fired to perform
+ * any initialization before starting producing partition manager instances. Usually, the initialization will perform
+ * validations against the stored state, create default partitions, etc. If no partition was created during the
+ * initialization a default partition is always created if any of the provided configuration supports that.
+ * </p>
  *
  * @author Shane Bryzak
+ * @author Pedro Igor
  */
 @ApplicationScoped
 public class IdentityManagerProducer {
@@ -80,6 +83,9 @@ public class IdentityManagerProducer {
 
     @Inject
     private Event<IdentityConfigurationEvent> identityConfigEvent;
+
+    @Inject
+    private Event<PartitionManagerCreateEvent> partitionManagerCreateEvent;
 
     @Inject
     @PicketLink
@@ -106,10 +112,6 @@ public class IdentityManagerProducer {
         }
     }
 
-    private boolean isPartitionManagerProduced() {
-        return !this.partitionManagerInstance.isUnsatisfied();
-    }
-
     @Produces
     public PartitionManager createPartitionManager() {
         return partitionManager;
@@ -126,9 +128,9 @@ public class IdentityManagerProducer {
     public IdentityManager createIdentityManager() {
         if (defaultPartition.isUnsatisfied() || defaultPartition.get() == null) {
             return new SecuredIdentityManager(this.partitionManager.createIdentityManager());
-        } else {
-            return new SecuredIdentityManager(this.partitionManager.createIdentityManager(defaultPartition.get()));
         }
+
+        return new SecuredIdentityManager(this.partitionManager.createIdentityManager(defaultPartition.get()));
     }
 
     @Produces
@@ -143,17 +145,8 @@ public class IdentityManagerProducer {
         return this.partitionManager.createPermissionManager();
     }
 
-    private boolean isPartitionSupported(final List<IdentityConfiguration> configurations) {
-        for (IdentityConfiguration configuration : configurations) {
-            for (IdentityStoreConfiguration storeConfig : configuration.getStoreConfiguration()) {
-                if (storeConfig.supportsPartition()
-                        && storeConfig.supportsType(Realm.class, IdentityOperation.create)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+    private boolean isPartitionManagerProduced() {
+        return !this.partitionManagerInstance.isUnsatisfied();
     }
 
     private IdentityConfigurationBuilder createIdentityConfigurationBuilder() {
@@ -196,24 +189,38 @@ public class IdentityManagerProducer {
         this.autoConfig.configure(builder);
     }
 
-    private void createDefaultPartition(PartitionManager partitionManager) {
-        if (partitionManager.getPartition(Realm.class, Realm.DEFAULT_REALM) == null) {
-            partitionManager.add(new Realm(Realm.DEFAULT_REALM));
-        }
-    }
-
     private PartitionManager createEmbeddedPartitionManager() {
         IdentityConfigurationBuilder builder = createIdentityConfigurationBuilder();
 
-        List<IdentityConfiguration> configurations = builder.buildAll();
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll(), this.eventBridge);
 
-        PartitionManager partitionManager = new DefaultPartitionManager(configurations, this.eventBridge);
+        this.partitionManagerCreateEvent.fire(new PartitionManagerCreateEvent(partitionManager));
 
-        if (isPartitionSupported(configurations)) {
-            createDefaultPartition(partitionManager);
-        }
+        createDefaultPartition(partitionManager);
 
         return partitionManager;
+    }
+
+    private void createDefaultPartition(PartitionManager partitionManager) {
+        if (isPartitionSupported(partitionManager)) {
+            if (partitionManager.getPartitions(Partition.class).isEmpty()) {
+                partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+            }
+        }
+    }
+
+    private boolean isPartitionSupported(final PartitionManager partitionManager) {
+        for (IdentityConfiguration configuration : partitionManager.getConfigurations()) {
+            if (configuration.supportsPartition()) {
+                for (IdentityStoreConfiguration storeConfig : configuration.getStoreConfiguration()) {
+                    if (storeConfig.supportsType(Realm.class, IdentityStoreConfiguration.IdentityOperation.create)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
 }

@@ -25,11 +25,10 @@ package org.picketlink.test.idm.config;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
-import org.picketlink.IdentityConfigurationEvent;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Password;
@@ -39,12 +38,11 @@ import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.AbstractArquillianTestCase;
 import org.picketlink.test.util.ArchiveUtils;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Pedro Igor
@@ -53,7 +51,7 @@ import static org.junit.Assert.*;
 public class DefaultConfigurationTestCase extends AbstractArquillianTestCase {
 
     @Inject
-    private DefaultConfigurationObserver configurationObserver;
+    private PartitionManager partitionManager;
 
     @Inject
     private IdentityManager identityManager;
@@ -67,7 +65,11 @@ public class DefaultConfigurationTestCase extends AbstractArquillianTestCase {
     public void testDefaultConfiguration() throws Exception {
         this.identityManager.lookupIdentityById(IdentityType.class, "1");
 
-        IdentityConfiguration identityConfiguration = this.configurationObserver.getIdentityConfigurationBuilder().build();
+        Collection<IdentityConfiguration> configurations = this.partitionManager.getConfigurations();
+
+        assertEquals(1, configurations.size());
+
+        IdentityConfiguration identityConfiguration = configurations.iterator().next();
 
         List<? extends IdentityStoreConfiguration> configuredStores = identityConfiguration.getStoreConfiguration();
 
@@ -94,20 +96,6 @@ public class DefaultConfigurationTestCase extends AbstractArquillianTestCase {
 
         assertEquals(Credentials.Status.VALID, credentials.getStatus());
 
-    }
-
-    @ApplicationScoped
-    public static class DefaultConfigurationObserver {
-
-        private IdentityConfigurationBuilder identityConfigurationBuilder;
-
-        public void observeIdentityConfigurationEvent(@Observes IdentityConfigurationEvent event) {
-            this.identityConfigurationBuilder = event.getConfig();
-        }
-
-        public IdentityConfigurationBuilder getIdentityConfigurationBuilder() {
-            return this.identityConfigurationBuilder;
-        }
     }
 
 }
