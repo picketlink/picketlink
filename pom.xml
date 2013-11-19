@@ -388,7 +388,7 @@
         <updatePolicy>never</updatePolicy>
       </releases>
       <snapshots>
-        <enabled>true</enabled>
+        <enabled>false</enabled>
         <updatePolicy>never</updatePolicy>
       </snapshots>
     </repository>
@@ -407,7 +407,7 @@
       <layout>default</layout>
       <url>http://snapshots.jboss.org/maven2/</url>
       <snapshots>
-        <enabled>true</enabled>
+        <enabled>false</enabled>
       </snapshots>
       <releases>
         <enabled>false</enabled>
