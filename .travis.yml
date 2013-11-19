@@ -2,8 +2,10 @@ language: java
 before_script:
  - "echo $JAVA_OPTS"
  - "export JAVA_OPTS=-Xmx512m"
+script:
+- "mvn -Pidm-smoke-tests -Dtest.idm.store=jpa clean install" 
 jdk:
-- openjdk6
+- openjdk7
 branches:
   only:
   - master
