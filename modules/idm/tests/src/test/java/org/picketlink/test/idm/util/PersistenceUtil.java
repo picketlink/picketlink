@@ -41,7 +41,7 @@ public final class PersistenceUtil {
     }
 
     public static EntityManagerFactory createEntityManagerFactory(String unitName) {
-        return Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
+        return Persistence.createEntityManagerFactory(unitName);
     }
 
 }

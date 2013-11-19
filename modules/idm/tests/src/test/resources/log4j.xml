@@ -106,6 +106,10 @@
     <priority value="OFF"/>
   </category>
 
+  <category name="org.picketlink.common">
+    <priority value="INFO"/>
+  </category>
+
   <!-- ======================= -->
   <!-- Setup the Root category -->
   <!-- ======================= -->

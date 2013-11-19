@@ -62,14 +62,14 @@ public class IdentityConfigurationTestFactory {
     private static List<IdentityConfigurationTester> getIdentityConfigurationTesters() {
         List<IdentityConfigurationTester> testers = new ArrayList<IdentityConfigurationTester>();
 
-//        testers.add(new FileStoreConfigurationTester());
+        testers.add(new FileStoreConfigurationTester());
         testers.add(new JPAStoreConfigurationTester());
-//        testers.add(new JPAStoreComplexSchemaConfigurationTester());
-//        testers.add(new SingleConfigLDAPJPAStoreConfigurationTester());
-//        testers.add(new LDAPStoreConfigurationTester());
-//        testers.add(new LDAPUserGroupJPARoleConfigurationTester());
+        testers.add(new JPAStoreComplexSchemaConfigurationTester());
+        testers.add(new SingleConfigLDAPJPAStoreConfigurationTester());
+        testers.add(new LDAPStoreConfigurationTester());
+        testers.add(new LDAPUserGroupJPARoleConfigurationTester());
 //        testers.add(new LDAPJPAPerformanceConfigurationTester());
-//        testers.add(new JDBCStoreConfigurationTester());
+        testers.add(new JDBCStoreConfigurationTester());
 
         return testers;
     }
