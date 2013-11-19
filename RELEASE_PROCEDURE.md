@@ -9,7 +9,7 @@ Before releasing make sure your environment is properly configured as follows:
     * http://nvie.com/posts/a-successful-git-branching-model/
 2. Make sure your ~/.m2/settings.xml is properly configure to allow you to publish the artifacts to JBoss Nexus.
     
-3. Make sure you're able to upload the documentation to docs.jboss.org/picketlink/3/.
+3. Make sure you're able to upload the documentation to docs.jboss.org/picketlink/2/.
 
 4. If you are in a fork, check if you have a remote repository configured as follows:
 
@@ -46,17 +46,21 @@ Follow these steps to kick off the promotion:
 3. Look for the staging activity with your username in the repository name with a status closed
 4. Check the row and click Release or Drop
 
-####Upload the distribution package to sourceforge####
+####Upload the distribution package to downloads.jboss.org ####
 
-TODO
+You need access to upload to JBoss File Mgmt server. If you already have it, just check the following directory:
 
-####Update JDF BOMs with the new version####
+    /downloads_htdocs/picketlink
 
-It is important to update the JDF BOMs with the new version. Basically you should send a PR updating the following project:
+Where X.X.Final is the released version.
 
-* https://github.com/jboss-jdf/jboss-bom/tree/master/jboss-javaee-6.0-with-security
+####Update PicketLink Site at picketlink.org ####
 
-####Update PicketLink Site####
+You need access to upload to JBoss File Mgmt server. If you already have it, just check the following directory:
+
+    /www_htdocs/picketlink
+
+####Update PicketLink Site at JBoss.org ####
 
 The PicketLink site must be update with the new release. The site is located at http://jboss.org/picketlink.
 
