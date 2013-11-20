@@ -30,5 +30,4 @@ public class EEJPAContextInitializer implements ContextInitializer {
             }
         }
     }
-
 }

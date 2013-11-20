@@ -166,7 +166,10 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
 
     @Override
     public boolean inheritsPrivileges(IdentityType identity, IdentityType assignee) {
-        // TODO Auto-generated method stub
+        if (identity.equals(assignee)) {
+            return true;
+        }
+        // TODO implement the rest of this
         return false;
     }
 }
