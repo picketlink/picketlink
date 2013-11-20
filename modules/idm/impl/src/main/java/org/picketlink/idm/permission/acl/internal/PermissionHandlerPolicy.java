@@ -48,16 +48,18 @@ public class PermissionHandlerPolicy {
         }
     }
 
-    public String getGeneratedIdentifier(Object resource) {
+    public Serializable getIdentifier(Object resource) {
         if (resource instanceof String) {
             return (String) resource;
         }
 
         PermissionHandler handler = getHandlerForResource(resource);
 
-        return handler != null ? handler.getGeneratedIdentifier(resource) : null;
+        return handler != null ? handler.getIdentifier(resource) : null;
     }
 
+    // not supporting this feature for now - KISS
+    /*
     public Object lookupResource(String identifier, Collection<Object> loadedResources) {
         Map<String,Object> loadedResourceIdentifiers = loadResourceIdentifiers(loadedResources);
         if (loadedResourceIdentifiers.containsKey(identifier)) {
@@ -67,20 +69,20 @@ public class PermissionHandlerPolicy {
             PermissionHandler handler = getHandlerForIdentifier(identifier);
             return handler != null ? handler.lookupResource(identifier) : null;
         }
-    }
+    }*/
 
-    private Map<String,Object> loadResourceIdentifiers(Collection<Object> resources) {
+    private Map<Serializable,Object> loadResourceIdentifiers(Collection<Object> resources) {
         if (resources == null || resources.isEmpty()) {
             return null;
         }
 
-        Map<String,Object> identifiers = new HashMap<String,Object>();
+        Map<Serializable,Object> identifiers = new HashMap<Serializable,Object>();
 
         for (Object resource: resources) {
             PermissionHandler handler = getHandlerForResource(resource);
 
             if (handler != null) {
-                String identifier = handler.getGeneratedIdentifier(resource);
+                Serializable identifier = handler.getIdentifier(resource);
                 if (!identifiers.containsKey(identifier)) {
                     identifiers.put(identifier, resource);
                 }
@@ -90,10 +92,10 @@ public class PermissionHandlerPolicy {
         return identifiers;
     }
 
-    public Map<String,Object> lookupResources(Collection<String> identifiers,
+    /*public Map<String,Object> lookupResources(Collection<Serializable> identifiers,
             Collection<Object> loadedResources) {
         Map<String,Object> resources = new HashMap<String,Object>();
-        Map<String,Object> loadedResourceIdentifiers = loadResourceIdentifiers(loadedResources);
+        Map<Serializable,Object> loadedResourceIdentifiers = loadResourceIdentifiers(loadedResources);
 
         for (String identifier : identifiers) {
             if (loadedResourceIdentifiers.containsKey(identifier)) {
@@ -110,14 +112,9 @@ public class PermissionHandlerPolicy {
         }
 
         return resources;
-    }
+    }*/
 
-    public Serializable getNaturalIdentifier(Object resource) {
-        PermissionHandler strategy = getHandlerForResource(resource);
-        return strategy != null ? strategy.getNaturalIdentifier(resource) : null;
-    }
-
-    private PermissionHandler getHandlerForIdentifier(String identifier) {
+   /* private PermissionHandler getHandlerForIdentifier(String identifier) {
         for (PermissionHandler handler : handlers.values()) {
             if (handler.canLoadResource(identifier)) {
                 return handler;
@@ -131,7 +128,7 @@ public class PermissionHandlerPolicy {
         }
 
         return null;
-    }
+    }*/
 
     private PermissionHandler getHandlerForResource(Object resource) {
         PermissionHandler handler = handlers.get(resource.getClass());
@@ -164,11 +161,11 @@ public class PermissionHandlerPolicy {
         return handler;
     }
 
-    public Set<String> convertResourcePermissions(Object resource, Object permissions) {
+    /*public Set<String> convertResourcePermissions(Object resource, Object permissions) {
         PermissionHandler handler = getHandlerForResource(resource);
 
         return handler != null ? handler.convertResourcePermissions(resource.getClass(), permissions) : null;
-    }
+    }*/
 
     public Set<PermissionHandler> getRegisteredHandlers() {
         return registeredHandlers;

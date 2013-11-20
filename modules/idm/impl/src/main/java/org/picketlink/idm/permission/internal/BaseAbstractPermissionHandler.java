@@ -182,7 +182,7 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
     }
 
     @Override
-    public Set<String> listAvailablePermissions(Class<?> resourceClass) {
+    public Set<String> listAvailableOperations(Class<?> resourceClass) {
         if (!classPermissions.containsKey(resourceClass)) {
             initClassPermissions(resourceClass);
         }
@@ -194,10 +194,5 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
         }
 
         return permissions;
-    }
-
-    @Override
-    public Set<String> convertResourcePermissions(Class<?> resourceClass, Object permissions) {
-        return createPermissionSet(resourceClass, permissions.toString()).getPermissions();
     }
 }

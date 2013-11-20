@@ -29,7 +29,7 @@ public interface PermissionStore {
     List<Permission> listPermisisons(Object resource, String operation);
 
     /**
-     * Returns a List value containing all permissions for all of the specified resource, 
+     * Returns a List value containing all permissions for all of the specified resource,
      * having the specified operation
      *
      * @param resources

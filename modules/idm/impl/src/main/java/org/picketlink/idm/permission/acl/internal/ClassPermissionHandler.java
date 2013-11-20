@@ -34,21 +34,18 @@ import org.picketlink.idm.permission.internal.BaseAbstractPermissionHandler;
 public class ClassPermissionHandler extends BaseAbstractPermissionHandler implements PermissionHandler {
     private Map<Class<?>, String> identifierNames = new ConcurrentHashMap<Class<?>, String>();
 
+    @Override
     public boolean canHandle(Class<?> resourceClass) {
         return Class.class.equals(resourceClass);
     }
 
-    public String getGeneratedIdentifier(Object resource) {
+    @Override
+    public Serializable getIdentifier(Object resource) {
         if (!(resource instanceof Class<?>)) {
             throw new IllegalArgumentException("Resource [" + resource + "] must be instance of Class");
         }
 
         return getIdentifierName((Class<?>) resource);
-    }
-
-    public Serializable getNaturalIdentifier(Object resource) {
-        // The identifier value is the same as getIdentifier()
-        return getGeneratedIdentifier(resource);
     }
 
     private String getIdentifierName(Class<?> cls) {
@@ -75,14 +72,7 @@ public class ClassPermissionHandler extends BaseAbstractPermissionHandler implem
     }
 
     @Override
-    public boolean canLoadResource(String identifier) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public Object lookupResource(String identifier) {
-        // TODO Auto-generated method stub
-        return null;
+    public Class<?> unwrapResourceClass(Object resource) {
+        return Class.class;
     }
 }
