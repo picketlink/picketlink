@@ -46,6 +46,17 @@ Follow these steps to kick off the promotion:
 3. Look for the staging activity with your username in the repository name with a status closed
 4. Check the row and click Release or Drop
 
+####Release PicketLink Federation Bindings####
+
+You need to release the PicketLink Federation Bindings. This is an important step, without it the PicketLink Federation
+release is incomplete.
+
+Go to the following repository
+
+    https://github.com/picketlink/picketlink-bindings
+
+And use the release script to release the project.
+
 ####Upload the distribution package to downloads.jboss.org ####
 
 You need access to upload to JBoss File Mgmt server. If you already have it, just check the following directory:
@@ -70,6 +81,13 @@ The following changes need to be done:
 
 * Update the announcement on the Main Page to reflect the new version.
 * Update the Download Page with the new version.
+
+####Tag the PicketLink Quickstarts ####
+
+You need to create a tag for the PicketLink Quickstarts with the new released version.
+
+The repository is located at https://github.com/jboss-developer/jboss-picketlink-quickstarts
+
 
 ##If something goes wrong##
 
