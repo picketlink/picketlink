@@ -1,5 +1,6 @@
 package org.picketlink.idm.permission.acl.spi;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -26,7 +27,7 @@ public interface PermissionStore {
      * @param permission
      * @return
      */
-    List<Permission> listPermisisons(Object resource, String operation);
+    List<Permission> listPermissions(Object resource, String operation);
 
     /**
      * Returns a List value containing all permissions for all of the specified resource,
@@ -37,6 +38,26 @@ public interface PermissionStore {
      * @return
      */
     List<Permission> listPermissions(Set<Object> resources, String operation);
+
+    /**
+     * Returns a List containing all the permissions for a resource that has not yet been loaded,
+     * using the specified resource class and resource identifier value.
+     *
+     * @param resourceClass
+     * @param identifier
+     * @return
+     */
+    List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier);
+
+    /**
+     * Returns a List containing all the permissions for a resource that has not yet been loaded,
+     * using the specified resource class and resource identifier value, with the specified operation.
+     *
+     * @param resourceClass
+     * @param identifier
+     * @return
+     */
+    List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier, String operation);
 
     /**
      * Grants the specified permission

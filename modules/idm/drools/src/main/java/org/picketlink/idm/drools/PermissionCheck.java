@@ -1,29 +1,20 @@
 package org.picketlink.idm.drools;
 
-import org.picketlink.idm.model.IdentityType;
-
 /**
- *
+ * Represents a permission for which the currently authenticated user is tested for.
  *
  * @author Shane Bryzak
- *
  */
 public class PermissionCheck {
 
-    private final IdentityType assignee;
     private final Object resource;
     private final String operation;
 
     private boolean granted = false;
 
-    public PermissionCheck(IdentityType assignee, Object resource, String operation) {
-        this.assignee = assignee;
+    public PermissionCheck(Object resource, String operation) {
         this.resource = resource;
         this.operation = operation;
-    }
-
-    public IdentityType getAssignee() {
-        return assignee;
     }
 
     public Object getResource() {

@@ -47,8 +47,9 @@ public class DroolsPermissionVoter implements PermissionVoter {
 
         KieSession session = securityRules.newKieSession();
 
-        PermissionCheck check = new PermissionCheck(recipient, resource, operation);
+        PermissionCheck check = new PermissionCheck(resource, operation);
 
+        session.insert(recipient);
         session.insert(check);
         session.fireAllRules();
 

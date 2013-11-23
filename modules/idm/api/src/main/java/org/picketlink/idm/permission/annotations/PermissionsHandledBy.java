@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 import org.picketlink.idm.permission.acl.spi.PermissionHandler;
 
 /**
- * Configures the Permission Handler to use for instance-based permissions.  The specified class
+ * Configures the permission handler to use for instance-based permissions.  The specified class
  * should implement the PermissionHandler interface.
  *
  * @author Shane Bryzak

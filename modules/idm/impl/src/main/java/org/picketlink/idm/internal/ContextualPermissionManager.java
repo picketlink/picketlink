@@ -29,26 +29,22 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
 
     @Override
     public List<Permission> listPermissions(Object resource) {
-        // TODO Auto-generated method stub
-        return null;
+        return storeSelector.getStoreForPermissionOperation(this).listPermissions(resource);
     }
 
     @Override
     public List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier) {
-        // TODO Auto-generated method stub
-        return null;
+        return storeSelector.getStoreForPermissionOperation(this).listPermissions(resourceClass, identifier);
     }
 
     @Override
     public List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier, String operation) {
-        // TODO Auto-generated method stub
-        return null;
+        return storeSelector.getStoreForPermissionOperation(this).listPermissions(resourceClass, identifier, operation);
     }
 
     @Override
-    public List<Permission> listPermissions(Object resource, String permission) {
-        // TODO Auto-generated method stub
-        return null;
+    public List<Permission> listPermissions(Object resource, String operation) {
+        return storeSelector.getStoreForPermissionOperation(this).listPermissions(resource, operation);
     }
 
     @Override
@@ -62,27 +58,57 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
 
     @Override
     public void grantPermissions(List<Permission> permissions) {
-        // TODO Auto-generated method stub
+        try {
+            storeSelector.getStoreForPermissionOperation(this).grantPermissions(permissions);
+        } catch (Exception e) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("[");
+            for (Permission p : permissions) {
+                sb.append(p.toString());
+                sb.append(",");
+            }
+            sb.append("]");
+            throw MESSAGES.permissionsGrantFailed(sb.toString(), e);
+        }
     }
 
     @Override
     public void revokePermission(Permission permission) {
-        // TODO Auto-generated method stub
+        try {
+            storeSelector.getStoreForPermissionOperation(this).revokePermission(permission);
+        } catch (Exception ex) {
+            throw MESSAGES.permissionRevokeFailed(permission, ex);
+        }
     }
 
     @Override
     public void revokePermissions(List<Permission> permissions) {
-        // TODO Auto-generated method stub
+        try {
+            storeSelector.getStoreForPermissionOperation(this).revokePermissions(permissions);
+        } catch (Exception e) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("[");
+            for (Permission p : permissions) {
+                sb.append(p.toString());
+                sb.append(",");
+            }
+            sb.append("]");
+            throw MESSAGES.permissionsGrantFailed(sb.toString(), e);
+        }
     }
 
     @Override
     public void clearPermissions(Object resource) {
-        // TODO Auto-generated method stub
-
+        try {
+            storeSelector.getStoreForPermissionOperation(this).revokeAllPermissions(resource);
+        } catch (Exception ex) {
+            throw MESSAGES.permissionRevokeAllFailed(resource, ex);
+        }
     }
 
     @Override
     public List<String> listOperations(Class<?> resourceClass) {
+
         // TODO Auto-generated method stub
         return null;
     }

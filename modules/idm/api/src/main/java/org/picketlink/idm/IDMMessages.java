@@ -174,7 +174,21 @@ public interface IDMMessages {
     SecurityConfigurationException configMultipleConfigurationsFoundWithSameName(String name);
 
     // Permission management messages 800-899
+
     @Message(value = "Could not grant Permission [%s].")
     IdentityManagementException permissionGrantFailed(Permission permission, @Cause Throwable t);
+
+    @Message(value = "Could not grant Permissions [%s].")
+    IdentityManagementException permissionsGrantFailed(String permissions, @Cause Throwable t);
+
+    @Message(value = "Could not revoke Permission [%s].")
+    IdentityManagementException permissionRevokeFailed(Permission permission, @Cause Throwable t);
+
+    @Message(value = "Could not revoke Permissions [%s].")
+    IdentityManagementException permissionsRevokeFailed(String permissions, @Cause Throwable t);
+
+    @Message(value = "Failed to revoke all permissions for resource [%s].")
+    IdentityManagementException permissionRevokeAllFailed(Object resource, @Cause Throwable t);
+
 
 }
