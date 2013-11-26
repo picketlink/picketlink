@@ -126,7 +126,7 @@ public class CustomIdentityStoreTestCase {
                 Set<IdentityOperation>> unsupportedTypes, List<ContextInitializer> contextInitializers, Map<String,
                 Object> credentialHandlerProperties, Set<Class<? extends CredentialHandler>> credentialHandlers) {
             super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties,
-                    credentialHandlers, false, false);
+                    credentialHandlers, false, false, false);
         }
 
         @Override
