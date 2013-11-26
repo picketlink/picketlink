@@ -16,14 +16,13 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.permission.internal;
+package org.picketlink.idm.permission.acl.spi;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.picketlink.idm.permission.acl.spi.PermissionHandler;
 import org.picketlink.idm.permission.annotations.AllowedPermission;
 import org.picketlink.idm.permission.annotations.AllowedPermissions;
 

@@ -1,4 +1,4 @@
-package org.picketlink.idm.permission.acl.internal;
+package org.picketlink.idm.permission.acl.spi;
 
 import java.io.Serializable;
 import java.util.List;

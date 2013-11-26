@@ -16,15 +16,13 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.permission.acl.internal;
+package org.picketlink.idm.permission.acl.spi;
 
 import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.picketlink.idm.permission.acl.spi.PermissionHandler;
 import org.picketlink.idm.permission.annotations.PermissionsHandledBy;
-import org.picketlink.idm.permission.internal.BaseAbstractPermissionHandler;
 
 /**
  * An Identifier strategy for class-based permission checks
