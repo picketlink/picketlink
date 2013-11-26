@@ -157,4 +157,8 @@ public interface IDMInternalMessages extends IDMMessages {
     @Message(value = "Could not find AttributedType [%s] with the given identifier [%s] for Partition [%s]")
     IdentityManagementException attributedTypeNotFoundWithId(Class<? extends AttributedType> type, String id, Partition partition);
 
+    // Permission type management messages 800-899
+    @Message(id = 800, value = "No PermissionStore configuration found for requested permission operation.")
+    IdentityManagementException permissionUnsupportedOperation();
+
 }

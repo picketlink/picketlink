@@ -44,9 +44,10 @@ public class JPAIdentityStoreConfiguration extends AbstractIdentityStoreConfigur
             Map<String, Object> credentialHandlerProperties,
             Set<Class<? extends CredentialHandler>> credentialHandlers,
             boolean supportsAttribute,
-            boolean supportsCredential) {
+            boolean supportsCredential,
+            boolean supportsPermissions) {
         super(supportedTypes, unsupportedTypes, contextInitializers,credentialHandlerProperties, credentialHandlers,
-                supportsAttribute, supportsCredential);
+                supportsAttribute, supportsCredential, supportsPermissions);
 
         if (entityTypes == null) {
             throw MESSAGES.configJpaStoreNoEntityClassesProvided();

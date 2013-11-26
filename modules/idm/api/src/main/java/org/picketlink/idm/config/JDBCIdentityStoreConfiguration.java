@@ -42,8 +42,16 @@ public class JDBCIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
 
     protected JDBCIdentityStoreConfiguration(String jndiName,Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes, Map<Class<? extends AttributedType>,
             Set<IdentityOperation>> unsupportedTypes, List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties,
-                                             Set<Class<? extends CredentialHandler>> credentialHandlers, boolean supportsAttribute, boolean supportsCredential) {
-        super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers, supportsAttribute, supportsCredential);
+                                             Set<Class<? extends CredentialHandler>> credentialHandlers, boolean supportsAttribute, boolean supportsCredential,
+                                             boolean supportsPermissions) {
+        super(supportedTypes,
+              unsupportedTypes,
+              contextInitializers,
+              credentialHandlerProperties,
+              credentialHandlers,
+              supportsAttribute,
+              supportsCredential,
+              supportsPermissions);
         //Look up
         try {
             Context initContext = new InitialContext();
@@ -59,8 +67,16 @@ public class JDBCIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
 
     protected JDBCIdentityStoreConfiguration(Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes, Map<Class<? extends AttributedType>,
             Set<IdentityOperation>> unsupportedTypes, List<ContextInitializer> contextInitializers, Map<String, Object> credentialHandlerProperties,
-                                             Set<Class<? extends CredentialHandler>> credentialHandlers, boolean supportsAttribute, boolean supportsCredential) {
-        super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers, supportsAttribute, supportsCredential);
+                                             Set<Class<? extends CredentialHandler>> credentialHandlers, boolean supportsAttribute, boolean supportsCredential,
+                                             boolean supportsPermissions) {
+        super(supportedTypes,
+              unsupportedTypes,
+              contextInitializers,
+              credentialHandlerProperties,
+              credentialHandlers,
+              supportsAttribute,
+              supportsCredential,
+              supportsPermissions);
     }
     protected void initConfig() {
     }

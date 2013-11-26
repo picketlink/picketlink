@@ -19,8 +19,6 @@
 package org.picketlink.idm.permission.acl.spi;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -54,27 +52,6 @@ public class PermissionHandlerPolicy {
         PermissionHandler handler = getHandlerForResource(resource);
 
         return handler != null ? handler.getIdentifier(resource) : null;
-    }
-
-    private Map<Serializable,Object> loadResourceIdentifiers(Collection<Object> resources) {
-        if (resources == null || resources.isEmpty()) {
-            return null;
-        }
-
-        Map<Serializable,Object> identifiers = new HashMap<Serializable,Object>();
-
-        for (Object resource: resources) {
-            PermissionHandler handler = getHandlerForResource(resource);
-
-            if (handler != null) {
-                Serializable identifier = handler.getIdentifier(resource);
-                if (!identifiers.containsKey(identifier)) {
-                    identifiers.put(identifier, resource);
-                }
-            }
-        }
-
-        return identifiers;
     }
 
     private PermissionHandler getHandlerForResource(Object resource) {

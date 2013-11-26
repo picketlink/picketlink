@@ -62,6 +62,7 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
     private final IdentityStoresConfigurationBuilder identityStoresConfigurationBuilder;
     private boolean supportCredentials;
     private boolean supportAttributes;
+    private boolean supportPermissions;
 
     protected IdentityStoreConfigurationBuilder(IdentityStoresConfigurationBuilder builder) {
         super(builder);
@@ -306,6 +307,10 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
 
     protected boolean isSupportCredentials() {
         return this.supportCredentials;
+    }
+
+    protected boolean isSupportPermissions() {
+        return this.supportPermissions;
     }
 
     private static Class<? extends AttributedType>[] getDefaultIdentityModelClasses() {

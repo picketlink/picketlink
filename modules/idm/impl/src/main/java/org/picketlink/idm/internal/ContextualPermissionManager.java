@@ -10,6 +10,7 @@ import org.picketlink.idm.PermissionManager;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.permission.Permission;
+import org.picketlink.idm.permission.acl.spi.PermissionHandlerPolicy;
 import org.picketlink.idm.spi.StoreSelector;
 
 /**
@@ -21,10 +22,13 @@ import org.picketlink.idm.spi.StoreSelector;
 public class ContextualPermissionManager extends AbstractIdentityContext implements PermissionManager {
     private final StoreSelector storeSelector;
 
+    private final PermissionHandlerPolicy permissionHandlerPolicy;
+
     public ContextualPermissionManager(Partition partition, EventBridge eventBridge, IdGenerator idGenerator,
-                                        StoreSelector storeSelector) {
+                                        StoreSelector storeSelector, PermissionHandlerPolicy permissionHandlerPolicy) {
         super(partition, eventBridge, idGenerator);
         this.storeSelector = storeSelector;
+        this.permissionHandlerPolicy = permissionHandlerPolicy;
     }
 
     @Override

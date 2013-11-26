@@ -58,7 +58,8 @@ public class JDBCStoreConfigurationBuilder extends
                     getCredentialHandlerProperties(),
                     getCredentialHandlers(),
                     isSupportAttributes(),
-                    isSupportCredentials());
+                    isSupportCredentials(),
+                    isSupportPermissions());
         }
         if(dataSource != null){
             jdbcIdentityStoreConfiguration.setDataSource(dataSource);

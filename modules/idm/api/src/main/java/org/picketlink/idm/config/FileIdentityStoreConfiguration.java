@@ -50,9 +50,10 @@ public class FileIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             Map<String, Object> credentialHandlerProperties,
             Set<Class<? extends CredentialHandler>> credentialHandlers,
             boolean supportsAttribute,
-            boolean supportsCredential) {
+            boolean supportsCredential,
+            boolean supportsPermissions) {
         super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers,
-         supportsAttribute, supportsCredential);
+         supportsAttribute, supportsCredential, supportsPermissions);
         this.workingDir = workingDir;
         this.alwaysCreateFiles = !preserveState;
         this.asyncWrite = asyncWrite;
@@ -74,5 +75,4 @@ public class FileIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
     public int getAsyncThreadPool() {
         return this.asyncThreadPool;
     }
-
 }

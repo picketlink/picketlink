@@ -49,6 +49,7 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.IdentityPartition;
 import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.permission.acl.spi.PermissionHandlerPolicy;
 import org.picketlink.idm.permission.acl.spi.PermissionStore;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.spi.AttributeStore;
@@ -125,7 +126,16 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
      * The ID generator is responsible for generating unique identifier values
      */
     private IdGenerator idGenerator;
+
+    /**
+     * Cache for relationship metadata
+     */
     private RelationshipMetadata relationshipMetadata = new RelationshipMetadata();
+
+    /**
+     * Permission handler policy
+     */
+    private PermissionHandlerPolicy permissionHandlerPolicy;
 
     public DefaultPartitionManager(IdentityConfiguration configuration) {
         this(Arrays.asList(configuration));
@@ -238,7 +248,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         Partition storedPartition = getStoredPartition(partition);
 
         try {
-            return new ContextualPermissionManager(storedPartition, eventBridge, idGenerator, this);
+            return new ContextualPermissionManager(storedPartition, eventBridge, idGenerator, this, permissionHandlerPolicy);
         } catch (Exception ex) {
             throw MESSAGES.partitionCouldNotCreatePermissionManager(storedPartition);
         }
@@ -717,6 +727,36 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         return credentialStores;
     }
 
+    @Override
+    public PermissionStore getStoreForPermissionOperation(IdentityContext context) {
+
+        IdentityConfiguration identityConfiguration = null;
+
+        if (this.partitionManagementConfig != null) {
+            identityConfiguration = getConfigurationForPartition(context.getPartition());
+        } else if (this.configurations.size() == 1) {
+            identityConfiguration = this.configurations.iterator().next();
+        }
+
+        if (identityConfiguration == null) {
+            for (IdentityConfiguration configuration : this.configurations) {
+                for (IdentityStoreConfiguration storeConfig : configuration.getStoreConfiguration()) {
+                    if (storeConfig.supportsPermissions()) {
+                        return getIdentityStoreAndInitializeContext(context, configuration, storeConfig);
+                    }
+                }
+            }
+        } else {
+            for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
+                if (storeConfig.supportsPermissions()) {
+                    return getIdentityStoreAndInitializeContext(context, identityConfiguration, storeConfig);
+                }
+            }
+        }
+
+        throw MESSAGES.permissionUnsupportedOperation();
+    }
+
     @SuppressWarnings({"unchecked", "rawtypes"})
     private <T extends IdentityStore> T createIdentityStore(IdentityStoreConfiguration storeConfiguration) {
         Class<T> storeClass = (Class<T>) storeConfiguration.getIdentityStoreType();
@@ -848,38 +888,6 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         storedPartition.setId(Realm.DEFAULT_REALM);
 
         return storedPartition;
-    }
-
-    @Override
-    public PermissionStore getStoreForPermissionOperation(IdentityContext context) {
-
-        IdentityConfiguration identityConfiguration = null;
-
-        if (this.partitionManagementConfig != null) {
-            identityConfiguration = getConfigurationForPartition(context.getPartition());
-        } else if (this.configurations.size() == 1) {
-            identityConfiguration = this.configurations.iterator().next();
-        }
-
-        PermissionStore store = null;
-
-        /*if (identityConfiguration == null) {
-            for (IdentityConfiguration configuration : this.configurations) {
-                store = lookupStore(context, configuration, type, operation);
-
-                if (store != null) {
-                    break;
-                }
-            }
-        } else {
-            store = lookupStore(context, identityConfiguration, type, operation);
-        }
-
-        if (store == null) {
-            throw MESSAGES.attributedTypeUnsupportedOperation(type, operation, type, operation);
-        }*/
-
-        return store;
     }
 
     private Partition getStoredPartition(final Partition partition) {

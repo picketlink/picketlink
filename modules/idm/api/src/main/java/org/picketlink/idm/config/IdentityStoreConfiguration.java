@@ -114,6 +114,13 @@ public interface IdentityStoreConfiguration {
     boolean supportsPartition();
 
     /**
+     * Indicates whether this configuration supports the storing of resource permissions
+     *
+     * @return
+     */
+    boolean supportsPermissions();
+
+    /**
      * <p>Returns the {@link IdentityStore} type associated with this configuration.</p>
      *
      * @return
