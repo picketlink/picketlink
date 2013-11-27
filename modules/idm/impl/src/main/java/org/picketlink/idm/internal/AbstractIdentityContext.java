@@ -23,6 +23,7 @@ import java.util.Map;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.permission.acl.spi.PermissionHandlerPolicy;
 import org.picketlink.idm.spi.IdentityContext;
 
 /**
@@ -37,11 +38,18 @@ public abstract class AbstractIdentityContext implements IdentityContext {
     private final Partition partition;
     private final EventBridge eventBridge;
     private final IdGenerator idGenerator;
+    private final PermissionHandlerPolicy permissionHandlerPolicy;
 
     public AbstractIdentityContext(Partition partition, EventBridge eventBridge, IdGenerator idGenerator) {
+        this(partition, eventBridge, idGenerator, null);
+    }
+
+    public AbstractIdentityContext(Partition partition, EventBridge eventBridge, IdGenerator idGenerator,
+            PermissionHandlerPolicy permissionHandlerPolicy) {
         this.partition = partition;
         this.eventBridge = eventBridge;
         this.idGenerator = idGenerator;
+        this.permissionHandlerPolicy = permissionHandlerPolicy;
     }
 
     // We only create the parameters Map if required
@@ -78,6 +86,11 @@ public abstract class AbstractIdentityContext implements IdentityContext {
     @Override
     public Partition getPartition() {
         return partition;
+    }
+
+    @Override
+    public PermissionHandlerPolicy getPermissionHandlerPolicy() {
+        return permissionHandlerPolicy;
     }
 
 }

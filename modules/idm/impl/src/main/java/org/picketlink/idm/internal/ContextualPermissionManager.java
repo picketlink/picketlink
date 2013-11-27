@@ -22,13 +22,10 @@ import org.picketlink.idm.spi.StoreSelector;
 public class ContextualPermissionManager extends AbstractIdentityContext implements PermissionManager {
     private final StoreSelector storeSelector;
 
-    private final PermissionHandlerPolicy permissionHandlerPolicy;
-
     public ContextualPermissionManager(Partition partition, EventBridge eventBridge, IdGenerator idGenerator,
-                                        StoreSelector storeSelector, PermissionHandlerPolicy permissionHandlerPolicy) {
-        super(partition, eventBridge, idGenerator);
+                                        PermissionHandlerPolicy permissionHandlerPolicy, StoreSelector storeSelector) {
+        super(partition, eventBridge, idGenerator, permissionHandlerPolicy);
         this.storeSelector = storeSelector;
-        this.permissionHandlerPolicy = permissionHandlerPolicy;
     }
 
     @Override

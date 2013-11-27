@@ -21,6 +21,7 @@ package org.picketlink.idm.spi;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.permission.acl.spi.PermissionHandlerPolicy;
 
 /**
  * Stores security related state for one or more identity management operations
@@ -72,4 +73,10 @@ public interface IdentityContext {
      */
     Partition getPartition();
 
+    /**
+     * Return the permission handler policy (used for permission related operations)
+     *
+     * @return
+     */
+    PermissionHandlerPolicy getPermissionHandlerPolicy();
 }

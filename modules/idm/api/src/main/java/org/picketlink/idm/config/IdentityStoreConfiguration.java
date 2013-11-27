@@ -38,6 +38,14 @@ import java.util.Set;
  */
 public interface IdentityStoreConfiguration {
 
+    /**
+     * Returns a List of the configured context initializers for this configuration.  Each
+     * context initializer performs a specific initialization task for the IdentityContext before
+     * it is passed to the identity store, for example setting references to system resources (such as
+     * an EntityManager) required by the identity store to perform its identity operations.
+     *
+     * @return
+     */
     List<ContextInitializer> getContextInitializers();
 
     Map<Class<? extends AttributedType>, Set<IdentityOperation>> getUnsupportedTypes();

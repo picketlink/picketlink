@@ -248,7 +248,8 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         Partition storedPartition = getStoredPartition(partition);
 
         try {
-            return new ContextualPermissionManager(storedPartition, eventBridge, idGenerator, this, permissionHandlerPolicy);
+            return new ContextualPermissionManager(storedPartition, eventBridge, idGenerator,
+                    permissionHandlerPolicy, this);
         } catch (Exception ex) {
             throw MESSAGES.partitionCouldNotCreatePermissionManager(storedPartition);
         }
