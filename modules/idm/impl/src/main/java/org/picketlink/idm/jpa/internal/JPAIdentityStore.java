@@ -55,6 +55,8 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.permission.Permission;
+import org.picketlink.idm.permission.acl.spi.PermissionStore;
 import org.picketlink.idm.query.AttributeParameter;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
@@ -75,6 +77,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
+
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
@@ -85,6 +88,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static java.util.Map.Entry;
 import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
@@ -95,9 +99,7 @@ import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
 import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 
 /**
- * Implementation of IdentityStore that stores its state in a relational database. This is a lightweight object that is
- * generally created once per request, and is provided references to a (heavyweight) configuration and invocation
- * context.
+ * Implementation of IdentityStore that stores its state in a relational database.
  *
  * @author Shane Bryzak
  * @author Pedro Silva
@@ -112,7 +114,7 @@ import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOpera
 public class JPAIdentityStore
         extends AbstractIdentityStore<JPAIdentityStoreConfiguration>
         implements CredentialStore<JPAIdentityStoreConfiguration>, PartitionStore<JPAIdentityStoreConfiguration>,
-        AttributeStore<JPAIdentityStoreConfiguration> {
+        AttributeStore<JPAIdentityStoreConfiguration>, PermissionStore {
 
     // Invocation context parameters
     public static final String INVOCATION_CTX_ENTITY_MANAGER = "CTX_ENTITY_MANAGER";
@@ -1388,5 +1390,64 @@ public class JPAIdentityStore
 
             JPA_STORE_LOGGER.debug("]");
         }
+    }
+
+    @Override
+    public List<Permission> listPermissions(Object resource) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<Permission> listPermissions(Object resource, String operation) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<Permission> listPermissions(Set<Object> resources, String operation) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier, String operation) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public boolean grantPermission(Permission permission) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean grantPermissions(List<Permission> permissions) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean revokePermission(Permission permission) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean revokePermissions(List<Permission> permissions) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void revokeAllPermissions(Object resource) {
+        // TODO Auto-generated method stub
     }
 }

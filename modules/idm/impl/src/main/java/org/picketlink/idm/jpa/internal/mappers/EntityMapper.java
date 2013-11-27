@@ -426,6 +426,7 @@ public class EntityMapper {
         modelMappers.add(new NamedMappedAttribute());
         modelMappers.add(new AttributeTypeMapper());
         modelMappers.add(new ManagedCredentialAttributeMapper());
+        modelMappers.add(new PermissionMapper());
 
         return modelMappers;
     }
