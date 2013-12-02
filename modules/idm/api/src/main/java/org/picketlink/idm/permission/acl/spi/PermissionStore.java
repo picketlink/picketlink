@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.picketlink.idm.permission.Permission;
+import org.picketlink.idm.spi.IdentityContext;
 
 /**
  * Permission Store interface
@@ -18,7 +19,7 @@ public interface PermissionStore {
      * @param resource
      * @return
      */
-    List<Permission> listPermissions(Object resource);
+    List<Permission> listPermissions(IdentityContext context, Object resource);
 
     /**
      * Returns a List value containing all permissions for the specified resource, having the specified operation
@@ -27,7 +28,7 @@ public interface PermissionStore {
      * @param permission
      * @return
      */
-    List<Permission> listPermissions(Object resource, String operation);
+    List<Permission> listPermissions(IdentityContext context, Object resource, String operation);
 
     /**
      * Returns a List value containing all permissions for all of the specified resource,
@@ -37,7 +38,7 @@ public interface PermissionStore {
      * @param operation
      * @return
      */
-    List<Permission> listPermissions(Set<Object> resources, String operation);
+    List<Permission> listPermissions(IdentityContext context, Set<Object> resources, String operation);
 
     /**
      * Returns a List containing all the permissions for a resource that has not yet been loaded,
@@ -47,7 +48,7 @@ public interface PermissionStore {
      * @param identifier
      * @return
      */
-    List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier);
+    List<Permission> listPermissions(IdentityContext context, Class<?> resourceClass, Serializable identifier);
 
     /**
      * Returns a List containing all the permissions for a resource that has not yet been loaded,
@@ -57,7 +58,7 @@ public interface PermissionStore {
      * @param identifier
      * @return
      */
-    List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier, String operation);
+    List<Permission> listPermissions(IdentityContext context, Class<?> resourceClass, Serializable identifier, String operation);
 
     /**
      * Grants the specified permission
@@ -65,7 +66,7 @@ public interface PermissionStore {
      * @param permission
      * @return
      */
-    boolean grantPermission(Permission permission);
+    boolean grantPermission(IdentityContext context, Permission permission);
 
     /**
      * Grants all of the permissions contained in the specified List
@@ -73,7 +74,7 @@ public interface PermissionStore {
      * @param permissions
      * @return
      */
-    boolean grantPermissions(List<Permission> permissions);
+    boolean grantPermissions(IdentityContext context, List<Permission> permissions);
 
     /**
      * Revokes the specified permission
@@ -81,7 +82,7 @@ public interface PermissionStore {
      * @param permission
      * @return
      */
-    boolean revokePermission(Permission permission);
+    boolean revokePermission(IdentityContext context, Permission permission);
 
     /**
      * Revokes all of the permissions contained in the specified List
@@ -89,12 +90,12 @@ public interface PermissionStore {
      * @param permissions
      * @return
      */
-    boolean revokePermissions(List<Permission> permissions);
+    boolean revokePermissions(IdentityContext context, List<Permission> permissions);
 
     /**
      * Revokes all permissions for the specified resource
      *
      * @param resource
      */
-    void revokeAllPermissions(Object resource);
+    void revokeAllPermissions(IdentityContext context, Object resource);
 }

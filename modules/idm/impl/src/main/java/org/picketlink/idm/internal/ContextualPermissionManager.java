@@ -30,28 +30,28 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
 
     @Override
     public List<Permission> listPermissions(Object resource) {
-        return storeSelector.getStoreForPermissionOperation(this).listPermissions(resource);
+        return storeSelector.getStoreForPermissionOperation(this).listPermissions(this, resource);
     }
 
     @Override
     public List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier) {
-        return storeSelector.getStoreForPermissionOperation(this).listPermissions(resourceClass, identifier);
+        return storeSelector.getStoreForPermissionOperation(this).listPermissions(this, resourceClass, identifier);
     }
 
     @Override
     public List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier, String operation) {
-        return storeSelector.getStoreForPermissionOperation(this).listPermissions(resourceClass, identifier, operation);
+        return storeSelector.getStoreForPermissionOperation(this).listPermissions(this, resourceClass, identifier, operation);
     }
 
     @Override
     public List<Permission> listPermissions(Object resource, String operation) {
-        return storeSelector.getStoreForPermissionOperation(this).listPermissions(resource, operation);
+        return storeSelector.getStoreForPermissionOperation(this).listPermissions(this, resource, operation);
     }
 
     @Override
     public void grantPermission(Permission permission) {
         try {
-            storeSelector.getStoreForPermissionOperation(this).grantPermission(permission);
+            storeSelector.getStoreForPermissionOperation(this).grantPermission(this, permission);
         } catch (Exception e) {
             throw MESSAGES.permissionGrantFailed(permission, e);
         }
@@ -60,7 +60,7 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
     @Override
     public void grantPermissions(List<Permission> permissions) {
         try {
-            storeSelector.getStoreForPermissionOperation(this).grantPermissions(permissions);
+            storeSelector.getStoreForPermissionOperation(this).grantPermissions(this, permissions);
         } catch (Exception e) {
             StringBuilder sb = new StringBuilder();
             sb.append("[");
@@ -76,7 +76,7 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
     @Override
     public void revokePermission(Permission permission) {
         try {
-            storeSelector.getStoreForPermissionOperation(this).revokePermission(permission);
+            storeSelector.getStoreForPermissionOperation(this).revokePermission(this, permission);
         } catch (Exception ex) {
             throw MESSAGES.permissionRevokeFailed(permission, ex);
         }
@@ -85,7 +85,7 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
     @Override
     public void revokePermissions(List<Permission> permissions) {
         try {
-            storeSelector.getStoreForPermissionOperation(this).revokePermissions(permissions);
+            storeSelector.getStoreForPermissionOperation(this).revokePermissions(this, permissions);
         } catch (Exception e) {
             StringBuilder sb = new StringBuilder();
             sb.append("[");
@@ -101,7 +101,7 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
     @Override
     public void clearPermissions(Object resource) {
         try {
-            storeSelector.getStoreForPermissionOperation(this).revokeAllPermissions(resource);
+            storeSelector.getStoreForPermissionOperation(this).revokeAllPermissions(this, resource);
         } catch (Exception ex) {
             throw MESSAGES.permissionRevokeAllFailed(resource, ex);
         }

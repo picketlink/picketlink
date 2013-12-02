@@ -47,6 +47,7 @@ import org.picketlink.idm.jpa.annotations.RelationshipMember;
 import org.picketlink.idm.jpa.annotations.entity.ConfigurationName;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
+import org.picketlink.idm.jpa.annotations.entity.PermissionManaged;
 import org.picketlink.idm.jpa.internal.mappers.EntityMapper;
 import org.picketlink.idm.jpa.internal.mappers.EntityMapping;
 import org.picketlink.idm.model.Account;
@@ -124,6 +125,8 @@ public class JPAIdentityStore
 
     private final List<EntityMapper> entityMappers = new ArrayList<EntityMapper>();
 
+    private List<Class<?>> permissionEntities = new ArrayList<Class<?>>();
+
     @Override
     public void setup(JPAIdentityStoreConfiguration config) {
         super.setup(config);
@@ -133,7 +136,11 @@ public class JPAIdentityStore
         }
 
         for (Class<?> entityType : config.getEntityTypes()) {
-            configureEntityMapper(entityType);
+            if (entityType.isAnnotationPresent(PermissionManaged.class)) {
+                configurePermissionEntity(entityType);
+            } else {
+                configureEntityMapper(entityType);
+            }
         }
 
         logEntityMappers();
@@ -1392,62 +1399,67 @@ public class JPAIdentityStore
         }
     }
 
+    private void configurePermissionEntity(Class<?> entityClass) {
+
+    }
+
     @Override
-    public List<Permission> listPermissions(Object resource) {
+    public List<Permission> listPermissions(IdentityContext context, Object resource) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public List<Permission> listPermissions(Object resource, String operation) {
+    public List<Permission> listPermissions(IdentityContext context, Object resource, String operation) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public List<Permission> listPermissions(Set<Object> resources, String operation) {
+    public List<Permission> listPermissions(IdentityContext context, Set<Object> resources, String operation) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier) {
+    public List<Permission> listPermissions(IdentityContext context, Class<?> resourceClass, Serializable identifier) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier, String operation) {
+    public List<Permission> listPermissions(IdentityContext context, Class<?> resourceClass, Serializable identifier, String operation) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public boolean grantPermission(Permission permission) {
+    public boolean grantPermission(IdentityContext context, Permission permission) {
+        EntityManager em = getEntityManager(context);
+
+        return false;
+    }
+
+    @Override
+    public boolean grantPermissions(IdentityContext context, List<Permission> permissions) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public boolean grantPermissions(List<Permission> permissions) {
+    public boolean revokePermission(IdentityContext context, Permission permission) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public boolean revokePermission(Permission permission) {
+    public boolean revokePermissions(IdentityContext context, List<Permission> permissions) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public boolean revokePermissions(List<Permission> permissions) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public void revokeAllPermissions(Object resource) {
+    public void revokeAllPermissions(IdentityContext context, Object resource) {
         // TODO Auto-generated method stub
     }
 }
