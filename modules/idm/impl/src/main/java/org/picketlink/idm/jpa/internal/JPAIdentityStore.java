@@ -125,7 +125,7 @@ public class JPAIdentityStore
 
     private final List<EntityMapper> entityMappers = new ArrayList<EntityMapper>();
 
-    private List<Class<?>> permissionEntities = new ArrayList<Class<?>>();
+    private Map<Class<?>,Class<?>> permissionEntities = new HashMap<Class<?>,Class<?>>();
 
     @Override
     public void setup(JPAIdentityStoreConfiguration config) {
@@ -1400,7 +1400,40 @@ public class JPAIdentityStore
     }
 
     private void configurePermissionEntity(Class<?> entityClass) {
+        // Scan the @PermissionManaged annotation and register the supported resource classes
+        // configured to be stored in this entity
+        PermissionManaged annotation = entityClass.getAnnotation(PermissionManaged.class);
+        if (annotation.resourceClasses().length == 0) {
+            permissionEntities.put(Object.class, entityClass);
+        } else {
+            for (Class<?> resourceClass : annotation.resourceClasses()) {
+                permissionEntities.put(resourceClass, entityClass);
+            }
+        }
+    }
 
+    private Class<?> getPermissionEntityForResource(Object resource) {
+        int score = -1;
+        Class<?> entityClass = null;
+
+        // Loop through all the supported resource classes and find the best match
+        for (Class<?> resourceClass : permissionEntities.keySet()) {
+            if (resourceClass.isInstance(resource)) {
+                int currentScore = 0;
+                Class<?> cls = resource.getClass();
+                while (!cls.equals(resourceClass) && !Object.class.equals(cls)) {
+                    currentScore++;
+                    cls = cls.getSuperclass();
+                }
+
+                if (entityClass == null || score == -1 || currentScore < score) {
+                    score = currentScore;
+                    entityClass = permissionEntities.get(resourceClass);
+                }
+            }
+        }
+
+        return entityClass;
     }
 
     @Override
