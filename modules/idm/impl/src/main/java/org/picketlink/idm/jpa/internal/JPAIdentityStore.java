@@ -18,12 +18,44 @@
 
 package org.picketlink.idm.jpa.internal;
 
+import static org.picketlink.common.reflection.Reflections.newInstance;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.IDMInternalLog.JPA_STORE_LOGGER;
+import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
+
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Id;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
 import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
+import org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.credential.handler.DigestCredentialHandler;
 import org.picketlink.idm.credential.handler.PasswordCredentialHandler;
@@ -41,6 +73,10 @@ import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
+import org.picketlink.idm.jpa.annotations.PermissionAssignee;
+import org.picketlink.idm.jpa.annotations.PermissionOperation;
+import org.picketlink.idm.jpa.annotations.PermissionResourceClass;
+import org.picketlink.idm.jpa.annotations.PermissionResourceIdentifier;
 import org.picketlink.idm.jpa.annotations.RelationshipClass;
 import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
 import org.picketlink.idm.jpa.annotations.RelationshipMember;
@@ -68,37 +104,6 @@ import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.PartitionStore;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Id;
-import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
-
-import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static java.util.Map.Entry;
-import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
-import static org.picketlink.common.reflection.Reflections.newInstance;
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
-import static org.picketlink.idm.IDMInternalLog.JPA_STORE_LOGGER;
-import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
-import static org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
-
 /**
  * Implementation of IdentityStore that stores its state in a relational database.
  *
@@ -125,7 +130,11 @@ public class JPAIdentityStore
 
     private final List<EntityMapper> entityMappers = new ArrayList<EntityMapper>();
 
+    // Mapping of resource class:entity bean configurations
     private Map<Class<?>,Class<?>> permissionEntities = new HashMap<Class<?>,Class<?>>();
+
+    // Mapping of entity class:EntityMapping configurations
+    private Map<Class<?>,EntityMapping> permissionMappings = new HashMap<Class<?>,EntityMapping>();
 
     @Override
     public void setup(JPAIdentityStoreConfiguration config) {
@@ -1410,6 +1419,33 @@ public class JPAIdentityStore
                 permissionEntities.put(resourceClass, entityClass);
             }
         }
+
+        // Create a new entity mapping for the permission entity
+        EntityMapping mapping = new EntityMapping(entityClass);
+
+        // Store mappings for each of the permission annotations
+
+        // Locate the @PermissionAssignee property
+        mapping.addProperty("assignee", PropertyQueries.createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(PermissionAssignee.class))
+                .getSingleResult());
+
+        // Locate the @PermissionResourceClass property
+        mapping.addProperty("resourceClass", PropertyQueries.createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(PermissionResourceClass.class))
+                .getSingleResult());
+
+        // Locate the @PermissionResourceIdentifier property
+        mapping.addProperty("resourceIdentifier", PropertyQueries.createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(PermissionResourceIdentifier.class))
+                .getSingleResult());
+
+        // Locate the @PermissionOperation property
+        mapping.addProperty("resourceIdentifier", PropertyQueries.createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(PermissionOperation.class))
+                .getSingleResult());
+
+        permissionMappings.put(entityClass, mapping);
     }
 
     private Class<?> getPermissionEntityForResource(Object resource) {
@@ -1466,17 +1502,71 @@ public class JPAIdentityStore
         return null;
     }
 
+    private Object lookupPermissionEntity(EntityManager em, Class<?> entityClass, Class<?> resourceClass, Serializable identifier) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery cq = cb.createQuery(entityClass);
+        Root from = cq.from(entityClass);
+        List<Predicate> predicates = new ArrayList<Predicate>();
+
+        EntityMapping mapping = permissionMappings.get(entityClass);
+        /*Property idProperty = mapping.getProperty(Partition.class, Identifier.class).getValue();
+
+        predicates.add(cb.equal(from.get(idProperty.getName()), id));
+
+        if (!Partition.class.equals(partitionClass)) {
+            Property typeProperty = entityMapper.getProperty(partitionClass, PartitionClass.class).getValue();
+            predicates.add(cb.equal(from.get(typeProperty.getName()), partitionClass.getName()));
+        }
+
+        cq.where(predicates.toArray(new Predicate[predicates.size()]));
+
+        Query query = entityManager.createQuery(cq);
+
+        query.setMaxResults(1);
+
+        List result = query.getResultList();
+
+        if (!result.isEmpty()) {
+            return entityMapper.createType(result.get(0), entityManager);
+        }*/
+
+        return null;
+    }
+
     @Override
     public boolean grantPermission(IdentityContext context, Permission permission) {
         EntityManager em = getEntityManager(context);
+
+        Class<?> entityClass = getPermissionEntityForResource(permission.getResource());
+        Serializable identifier = context.getPermissionHandlerPolicy().getIdentifier(permission.getResource());
+        Class<?> resourceClass = context.getPermissionHandlerPolicy().getResourceClass(permission.getResource());
+
+        // We first attempt to lookup an existing entity
+        Object entity = lookupPermissionEntity(em, entityClass, resourceClass, identifier);
+
+        // If there is no existing entity we create a new one
+        if (entity == null) {
+            try {
+                entity = entityClass.newInstance();
+
+            } catch (InstantiationException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
 
         return false;
     }
 
     @Override
     public boolean grantPermissions(IdentityContext context, List<Permission> permissions) {
-        // TODO Auto-generated method stub
-        return false;
+        for (Permission permission : permissions) {
+            grantPermission(context, permission);
+        }
+        return true;
     }
 
     @Override
@@ -1487,8 +1577,10 @@ public class JPAIdentityStore
 
     @Override
     public boolean revokePermissions(IdentityContext context, List<Permission> permissions) {
-        // TODO Auto-generated method stub
-        return false;
+        for (Permission permission : permissions) {
+            revokePermission(context, permission);
+        }
+        return true;
     }
 
     @Override

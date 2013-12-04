@@ -54,6 +54,16 @@ public class PermissionHandlerPolicy {
         return handler != null ? handler.getIdentifier(resource) : null;
     }
 
+    public Class<?> getResourceClass(Object resource) {
+        if (resource instanceof String) {
+            return String.class;
+        }
+
+        PermissionHandler handler = getHandlerForResource(resource);
+
+        return handler != null ? handler.unwrapResourceClass(resource) : null;
+    }
+
     private PermissionHandler getHandlerForResource(Object resource) {
         PermissionHandler handler = handlers.get(resource.getClass());
 
