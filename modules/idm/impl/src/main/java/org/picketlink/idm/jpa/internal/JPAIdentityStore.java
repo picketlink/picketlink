@@ -48,7 +48,6 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.picketlink.common.properties.Property;
-import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
@@ -73,10 +72,6 @@ import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.PartitionClass;
-import org.picketlink.idm.jpa.annotations.PermissionAssignee;
-import org.picketlink.idm.jpa.annotations.PermissionOperation;
-import org.picketlink.idm.jpa.annotations.PermissionResourceClass;
-import org.picketlink.idm.jpa.annotations.PermissionResourceIdentifier;
 import org.picketlink.idm.jpa.annotations.RelationshipClass;
 import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
 import org.picketlink.idm.jpa.annotations.RelationshipMember;
@@ -86,6 +81,7 @@ import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
 import org.picketlink.idm.jpa.annotations.entity.PermissionManaged;
 import org.picketlink.idm.jpa.internal.mappers.EntityMapper;
 import org.picketlink.idm.jpa.internal.mappers.EntityMapping;
+import org.picketlink.idm.jpa.internal.mappers.PermissionEntityMapper;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
@@ -130,11 +126,7 @@ public class JPAIdentityStore
 
     private final List<EntityMapper> entityMappers = new ArrayList<EntityMapper>();
 
-    // Mapping of resource class:entity bean configurations
-    private Map<Class<?>,Class<?>> permissionEntities = new HashMap<Class<?>,Class<?>>();
-
-    // Mapping of entity class:EntityMapping configurations
-    private Map<Class<?>,EntityMapping> permissionMappings = new HashMap<Class<?>,EntityMapping>();
+    private List<PermissionEntityMapper> permissionMappers = new ArrayList<PermissionEntityMapper>();
 
     @Override
     public void setup(JPAIdentityStoreConfiguration config) {
@@ -146,7 +138,7 @@ public class JPAIdentityStore
 
         for (Class<?> entityType : config.getEntityTypes()) {
             if (entityType.isAnnotationPresent(PermissionManaged.class)) {
-                configurePermissionEntity(entityType);
+                permissionMappers.add(new PermissionEntityMapper(entityType));
             } else {
                 configureEntityMapper(entityType);
             }
@@ -1408,68 +1400,30 @@ public class JPAIdentityStore
         }
     }
 
-    private void configurePermissionEntity(Class<?> entityClass) {
-        // Scan the @PermissionManaged annotation and register the supported resource classes
-        // configured to be stored in this entity
-        PermissionManaged annotation = entityClass.getAnnotation(PermissionManaged.class);
-        if (annotation.resourceClasses().length == 0) {
-            permissionEntities.put(Object.class, entityClass);
-        } else {
-            for (Class<?> resourceClass : annotation.resourceClasses()) {
-                permissionEntities.put(resourceClass, entityClass);
-            }
-        }
-
-        // Create a new entity mapping for the permission entity
-        EntityMapping mapping = new EntityMapping(entityClass);
-
-        // Store mappings for each of the permission annotations
-
-        // Locate the @PermissionAssignee property
-        mapping.addProperty("assignee", PropertyQueries.createQuery(entityClass)
-                .addCriteria(new AnnotatedPropertyCriteria(PermissionAssignee.class))
-                .getSingleResult());
-
-        // Locate the @PermissionResourceClass property
-        mapping.addProperty("resourceClass", PropertyQueries.createQuery(entityClass)
-                .addCriteria(new AnnotatedPropertyCriteria(PermissionResourceClass.class))
-                .getSingleResult());
-
-        // Locate the @PermissionResourceIdentifier property
-        mapping.addProperty("resourceIdentifier", PropertyQueries.createQuery(entityClass)
-                .addCriteria(new AnnotatedPropertyCriteria(PermissionResourceIdentifier.class))
-                .getSingleResult());
-
-        // Locate the @PermissionOperation property
-        mapping.addProperty("resourceIdentifier", PropertyQueries.createQuery(entityClass)
-                .addCriteria(new AnnotatedPropertyCriteria(PermissionOperation.class))
-                .getSingleResult());
-
-        permissionMappings.put(entityClass, mapping);
-    }
-
-    private Class<?> getPermissionEntityForResource(Object resource) {
+    private PermissionEntityMapper getPermissionMapperForResource(Object resource) {
         int score = -1;
-        Class<?> entityClass = null;
+        PermissionEntityMapper mapper = null;
 
         // Loop through all the supported resource classes and find the best match
-        for (Class<?> resourceClass : permissionEntities.keySet()) {
-            if (resourceClass.isInstance(resource)) {
-                int currentScore = 0;
-                Class<?> cls = resource.getClass();
-                while (!cls.equals(resourceClass) && !Object.class.equals(cls)) {
-                    currentScore++;
-                    cls = cls.getSuperclass();
-                }
+        for (PermissionEntityMapper m : permissionMappers) {
+            for (Class<?> resourceClass : m.getResourceClasses()) {
+                if (resourceClass.isInstance(resource)) {
+                    int currentScore = 0;
+                    Class<?> cls = resource.getClass();
+                    while (!cls.equals(resourceClass) && !Object.class.equals(cls)) {
+                        currentScore++;
+                        cls = cls.getSuperclass();
+                    }
 
-                if (entityClass == null || score == -1 || currentScore < score) {
-                    score = currentScore;
-                    entityClass = permissionEntities.get(resourceClass);
+                    if (mapper == null || score == -1 || currentScore < score) {
+                        score = currentScore;
+                        mapper = m;
+                    }
                 }
             }
         }
 
-        return entityClass;
+        return mapper;
     }
 
     @Override
@@ -1502,13 +1456,12 @@ public class JPAIdentityStore
         return null;
     }
 
-    private Object lookupPermissionEntity(EntityManager em, Class<?> entityClass, Class<?> resourceClass, Serializable identifier) {
+    private Object lookupPermissionEntity(EntityManager em, PermissionEntityMapper mapper, Class<?> resourceClass, Serializable identifier) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery cq = cb.createQuery(entityClass);
-        Root from = cq.from(entityClass);
+        CriteriaQuery cq = cb.createQuery(mapper.getEntityClass());
+        Root from = cq.from(mapper.getEntityClass());
         List<Predicate> predicates = new ArrayList<Predicate>();
 
-        EntityMapping mapping = permissionMappings.get(entityClass);
         /*Property idProperty = mapping.getProperty(Partition.class, Identifier.class).getValue();
 
         predicates.add(cb.equal(from.get(idProperty.getName()), id));
@@ -1537,17 +1490,17 @@ public class JPAIdentityStore
     public boolean grantPermission(IdentityContext context, Permission permission) {
         EntityManager em = getEntityManager(context);
 
-        Class<?> entityClass = getPermissionEntityForResource(permission.getResource());
+        PermissionEntityMapper mapper = getPermissionMapperForResource(permission.getResource());
         Serializable identifier = context.getPermissionHandlerPolicy().getIdentifier(permission.getResource());
         Class<?> resourceClass = context.getPermissionHandlerPolicy().getResourceClass(permission.getResource());
 
         // We first attempt to lookup an existing entity
-        Object entity = lookupPermissionEntity(em, entityClass, resourceClass, identifier);
+        Object entity = lookupPermissionEntity(em, mapper, resourceClass, identifier);
 
         // If there is no existing entity we create a new one
         if (entity == null) {
             try {
-                entity = entityClass.newInstance();
+                entity = mapper.getEntityClass().newInstance();
 
             } catch (InstantiationException e) {
                 // TODO Auto-generated catch block
