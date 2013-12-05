@@ -88,7 +88,7 @@ public class EntityMapper {
 
                     if (ownerType == null || ownerType.getId() == null) {
                         if (isPartitionSupported(ownerType.getClass())) {
-                            throw new IdentityManagementException("Owner does not exists or was not provided.");
+                            throw new IdentityManagementException("Owner does not exist or was not provided.");
                         }
                     }
 

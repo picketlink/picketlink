@@ -17,6 +17,7 @@
  */
 package org.picketlink.idm.jpa.internal.mappers;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,10 +40,10 @@ public class PermissionEntityMapper {
 
     private Class<?> entityClass;
 
-    private Property<?> assignee;
+    private Property<Object> assignee;
     private Property<String> resourceClass;
-    private Property<String> resourceIdentifier;
-    private Property<?> operation;
+    private Property<Serializable> resourceIdentifier;
+    private Property<Object> operation;
 
     public PermissionEntityMapper(Class<?> entityClass) {
         this.entityClass = entityClass;
@@ -55,7 +56,7 @@ public class PermissionEntityMapper {
                 .addCriteria(new AnnotatedPropertyCriteria(PermissionResourceClass.class))
                 .getSingleResult();
 
-        resourceIdentifier = PropertyQueries.<String>createQuery(entityClass)
+        resourceIdentifier = PropertyQueries.<Serializable>createQuery(entityClass)
                 .addCriteria(new AnnotatedPropertyCriteria(PermissionResourceIdentifier.class))
                 .getSingleResult();
 
@@ -82,7 +83,7 @@ public class PermissionEntityMapper {
         return resourceClasses;
     }
 
-    public Property<?> getAssignee() {
+    public Property<Object> getAssignee() {
         return assignee;
     }
 
@@ -90,11 +91,11 @@ public class PermissionEntityMapper {
         return resourceClass;
     }
 
-    public Property<String> getResourceIdentifier() {
+    public Property<Serializable> getResourceIdentifier() {
         return resourceIdentifier;
     }
 
-    public Property<?> getOperation() {
+    public Property<Object> getOperation() {
         return operation;
     }
 }

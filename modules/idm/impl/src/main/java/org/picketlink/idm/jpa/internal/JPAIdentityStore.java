@@ -1502,12 +1502,31 @@ public class JPAIdentityStore
             try {
                 entity = mapper.getEntityClass().newInstance();
 
-            } catch (InstantiationException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                // Set the assignee property - this will either be a String, or a reference to an
+                // identity entity
+                if (String.class.equals(mapper.getAssignee().getBaseType())) {
+                    mapper.getAssignee().setValue(entity, permission.getAssignee().getId());
+                } else {
+                    Object identityEntity = getOwnerEntity(permission.getAssignee(), mapper.getAssignee(), em);
+                    mapper.getAssignee().setValue(entity, identityEntity);
+                }
+
+                // Set the resource class
+                mapper.getResourceClass().setValue(entity,
+                        context.getPermissionHandlerPolicy().getResourceClass(permission.getResource()).getName());
+
+                // Set the resource identifier
+                mapper.getResourceIdentifier().setValue(entity,
+                        context.getPermissionHandlerPolicy().getIdentifier(permission.getResource()));
+
+                // TODO update this to correctly set the operation flag / update a delimited list
+                // Set the operation
+                mapper.getOperation().setValue(entity, permission.getOperation());
+
+                em.persist(entity);
+
+            } catch (Exception ex) {
+                throw new IdentityManagementException("Error persisting permission", ex);
             }
         }
 
