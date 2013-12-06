@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,6 +39,7 @@ import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Id;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -1456,34 +1458,39 @@ public class JPAIdentityStore
         return null;
     }
 
-    private Object lookupPermissionEntity(EntityManager em, PermissionEntityMapper mapper, Class<?> resourceClass, Serializable identifier) {
+    private Object lookupPermissionEntity(IdentityContext ctx, PermissionEntityMapper mapper, Permission permission) {
+        EntityManager em = getEntityManager(ctx);
+
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery cq = cb.createQuery(mapper.getEntityClass());
         Root from = cq.from(mapper.getEntityClass());
         List<Predicate> predicates = new ArrayList<Predicate>();
 
-        /*Property idProperty = mapping.getProperty(Partition.class, Identifier.class).getValue();
-
-        predicates.add(cb.equal(from.get(idProperty.getName()), id));
-
-        if (!Partition.class.equals(partitionClass)) {
-            Property typeProperty = entityMapper.getProperty(partitionClass, PartitionClass.class).getValue();
-            predicates.add(cb.equal(from.get(typeProperty.getName()), partitionClass.getName()));
+        // Set the assignee, resource class and resource identifier predicates
+        if (String.class.equals(mapper.getAssignee().getBaseType())) {
+            predicates.add(cb.equal(from.get(mapper.getAssignee().getName()), permission.getAssignee().getId()));
+        } else {
+            predicates.add(cb.equal(from.get(mapper.getAssignee().getName()),
+                    getOwnerEntity(permission.getAssignee(), mapper.getAssignee(), em)));
         }
+
+        predicates.add(cb.equal(from.get(mapper.getResourceClass().getName()),
+                ctx.getPermissionHandlerPolicy().getResourceClass(permission.getResource())));
+        predicates.add(cb.equal(from.get(mapper.getResourceIdentifier().getName()),
+                ctx.getPermissionHandlerPolicy().getIdentifier(permission.getResource())));
 
         cq.where(predicates.toArray(new Predicate[predicates.size()]));
 
-        Query query = entityManager.createQuery(cq);
+        Query query = em.createQuery(cq);
 
         query.setMaxResults(1);
 
-        List result = query.getResultList();
-
-        if (!result.isEmpty()) {
-            return entityMapper.createType(result.get(0), entityManager);
-        }*/
-
-        return null;
+        try {
+            return query.getSingleResult();
+        }
+        catch (NoResultException ex) {
+            return null;
+        }
     }
 
     @Override
@@ -1495,7 +1502,7 @@ public class JPAIdentityStore
         Class<?> resourceClass = context.getPermissionHandlerPolicy().getResourceClass(permission.getResource());
 
         // We first attempt to lookup an existing entity
-        Object entity = lookupPermissionEntity(em, mapper, resourceClass, identifier);
+        Object entity = lookupPermissionEntity(context, mapper, permission);
 
         // If there is no existing entity we create a new one
         if (entity == null) {
@@ -1513,15 +1520,15 @@ public class JPAIdentityStore
 
                 // Set the resource class
                 mapper.getResourceClass().setValue(entity,
-                        context.getPermissionHandlerPolicy().getResourceClass(permission.getResource()).getName());
+                        context.getPermissionHandlerPolicy().getResourceClass(resourceClass).getName());
 
                 // Set the resource identifier
                 mapper.getResourceIdentifier().setValue(entity,
                         context.getPermissionHandlerPolicy().getIdentifier(permission.getResource()));
 
-                // TODO update this to correctly set the operation flag / update a delimited list
-                // Set the operation
-                mapper.getOperation().setValue(entity, permission.getOperation());
+                PermissionOperationSet operationSet = new PermissionOperationSet(entity, mapper);
+                operationSet.appendOperation(permission.getOperation());
+                mapper.getOperation().setValue(entity, operationSet.getValue());
 
                 em.persist(entity);
 
@@ -1531,6 +1538,27 @@ public class JPAIdentityStore
         }
 
         return false;
+    }
+
+    protected class PermissionOperationSet {
+        private Set<String> operations = new HashSet<String>();
+
+        public PermissionOperationSet(Object entity, PermissionEntityMapper mapper) {
+            // TODO implement this
+        }
+
+        public void appendOperation(String operation) {
+            operations.add(operation);
+        }
+
+        public void removeOperation(String operation) {
+            operations.remove(operation);
+        }
+
+        public Object getValue() {
+            // TODO implement
+            return null;
+        }
     }
 
     @Override
