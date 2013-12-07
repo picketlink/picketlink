@@ -193,11 +193,11 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
     }
 
     private boolean isSignAssertionOnly() {
-        return this.handlerConfig.getParameter(SIGN_ASSERTION_ONLY) != null ? (Boolean) this.handlerConfig.getParameter(SIGN_ASSERTION_ONLY) : false;
+        return this.handlerConfig.getParameter(SIGN_ASSERTION_ONLY) != null ? Boolean.valueOf(this.handlerConfig.getParameter(SIGN_ASSERTION_ONLY).toString()) : false;
     }
 
     private boolean isSignResponseAndAssertion() {
-        return this.handlerConfig.getParameter(SIGN_RESPONSE_AND_ASSERTION) != null ? (Boolean) this.handlerConfig.getParameter(SIGN_RESPONSE_AND_ASSERTION) : false;
+        return this.handlerConfig.getParameter(SIGN_RESPONSE_AND_ASSERTION) != null ? Boolean.valueOf(this.handlerConfig.getParameter(SIGN_RESPONSE_AND_ASSERTION).toString()) : false;
     }
 
 }
