@@ -173,6 +173,7 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
         supportCredentials(true);
         supportGlobalRelationship(Relationship.class);
         supportAttributes(true);
+        supportPermissions(true);
 
         return (S) this;
     }
@@ -223,6 +224,17 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
     }
 
     /**
+     * <p>Enable/Disable permissions support</p>
+     *
+     * @param supportPermissions
+     * @return
+     */
+    public S supportPermissions(boolean supportPermissions) {
+        this.supportPermissions = supportPermissions;
+        return (S) this;
+    }
+
+    /**
      * <p>Enable/Disable attribute support</p>
      *
      * @param supportAttributes
@@ -269,6 +281,7 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
 
         supportAttributes(configuration.supportsAttribute());
         supportCredentials(configuration.supportsCredential());
+        supportPermissions(configuration.supportsPermissions());
 
         return this;
     }
