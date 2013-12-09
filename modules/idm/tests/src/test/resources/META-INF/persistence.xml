@@ -212,9 +212,12 @@
   
   <persistence-unit name="shanes-test-suite-scenario2-pu" transaction-type="RESOURCE_LOCAL">
     <class>org.picketlink.test.idm.other.shane.model.scenario2.entity.IdentityObject</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario2.entity.IdentityObjectAttribute</class>
     <class>org.picketlink.test.idm.other.shane.model.scenario2.entity.Partition</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario2.entity.PartitionAttribute</class>
     <class>org.picketlink.test.idm.other.shane.model.scenario2.entity.ResourcePermission</class>
     <class>org.picketlink.test.idm.other.shane.model.scenario2.entity.UserDetail</class>
+    <class>org.picketlink.test.idm.other.shane.model.scenario2.entity.Customer</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 

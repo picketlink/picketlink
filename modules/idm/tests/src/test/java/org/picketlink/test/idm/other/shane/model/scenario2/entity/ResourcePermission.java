@@ -5,9 +5,10 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
+import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.PermissionOperation;
-import org.picketlink.idm.jpa.annotations.PermissionAssignee;
 import org.picketlink.idm.jpa.annotations.PermissionResourceClass;
 import org.picketlink.idm.jpa.annotations.PermissionResourceIdentifier;
 import org.picketlink.idm.jpa.annotations.entity.PermissionManaged;
@@ -26,8 +27,9 @@ public class ResourcePermission implements Serializable {
     @Id @GeneratedValue
     private Long id;
 
-    @PermissionAssignee
-    private String recipient;
+    @OwnerReference
+    @ManyToOne
+    private IdentityObject assignee;
 
     @PermissionResourceClass
     private String resourceClass;
@@ -36,7 +38,7 @@ public class ResourcePermission implements Serializable {
     private String resourceIdentifier;
 
     @PermissionOperation
-    private String grants;
+    private String operations;
 
     public Long getId() {
         return id;
@@ -46,12 +48,12 @@ public class ResourcePermission implements Serializable {
         this.id = id;
     }
 
-    public String getRecipient() {
-        return recipient;
+    public IdentityObject getAssignee() {
+        return assignee;
     }
 
-    public void setRecipient(String recipient) {
-        this.recipient = recipient;
+    public void setAssignee(IdentityObject assignee) {
+        this.assignee = assignee;
     }
 
     public String getResourceClass() {
@@ -70,11 +72,11 @@ public class ResourcePermission implements Serializable {
         this.resourceIdentifier = resourceIdentifier;
     }
 
-    public String getGrants() {
-        return grants;
+    public String getOperations() {
+        return operations;
     }
 
-    public void setGrants(String grants) {
-        this.grants = grants;
+    public void setOperations(String operations) {
+        this.operations = operations;
     }
 }
