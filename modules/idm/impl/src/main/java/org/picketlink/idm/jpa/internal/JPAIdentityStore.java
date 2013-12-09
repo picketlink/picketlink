@@ -92,6 +92,8 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.permission.acl.spi.PermissionStore;
+import org.picketlink.idm.permission.annotations.AllowedPermission;
+import org.picketlink.idm.permission.annotations.AllowedPermissions;
 import org.picketlink.idm.query.AttributeParameter;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
@@ -1528,7 +1530,6 @@ public class JPAIdentityStore
 
                 PermissionOperationSet operationSet = new PermissionOperationSet(entity, mapper);
                 operationSet.appendOperation(permission.getOperation());
-                mapper.getOperation().setValue(entity, operationSet.getValue());
 
                 em.persist(entity);
 
@@ -1541,23 +1542,79 @@ public class JPAIdentityStore
     }
 
     protected class PermissionOperationSet {
-        private Set<String> operations = new HashSet<String>();
+        private PermissionEntityMapper mapper;
+        private AllowedPermissions perms;
+        private Object entity;
 
         public PermissionOperationSet(Object entity, PermissionEntityMapper mapper) {
-            // TODO implement this
+            this.mapper = mapper;
+            this.perms = entity.getClass().getAnnotation(AllowedPermissions.class);
         }
 
         public void appendOperation(String operation) {
-            operations.add(operation);
+            adjustOperation(operation, true);
         }
 
         public void removeOperation(String operation) {
-            operations.remove(operation);
+            adjustOperation(operation, false);
         }
 
-        public Object getValue() {
-            // TODO implement
-            return null;
+        private void adjustOperation(String operation, boolean mode) {
+            Object operations = mapper.getOperation().getValue(entity);
+            Object newValue = null;
+
+            // Determine how the permission operations are stored - first check if bitmasks are used
+            if (perms != null) {
+                AllowedPermission perm = null;
+
+                for (AllowedPermission p : perms.value()) {
+                    if (p.operation().equals(operation)) {
+                        perm = p;
+                        break;
+                    }
+                }
+
+                // Check if there is a bitmask value for the operation
+                if (perm != null && perm.mask() > 0) {
+
+                    // Convert the operations value to a long for convenience
+                    long ops = Long.valueOf(operations.toString());
+                    if (mode) {
+                        ops |= perm.mask();
+                    } else {
+                        ops ^= perm.mask();
+                    }
+
+                    // TODO may need to do some type conversion here...
+                    mapper.getOperation().setValue(entity, ops);
+
+                // Otherwise the operations should be stored as a comma-separated String
+                } else if (perm != null || (perm == null && perms.value().length == 0)) {
+
+                    Set<String> ops = new HashSet<String>();
+
+                    for (String op : mapper.getOperation().getValue(entity).toString().split(",")) {
+                        ops.add(op);
+                    }
+
+                    ops.add(operation);
+                    StringBuilder sb = new StringBuilder();
+                    for (String op : ops) {
+                        if (sb.length() > 0) {
+                            sb.append(",");
+                        }
+                        sb.append(op);
+                    }
+
+                    mapper.getOperation().setValue(entity, sb.toString());
+
+                } else {
+                    // Trying to set an operation value that isn't defined - throw an exception
+                    throw new IllegalArgumentException(String.format(
+                            "Attempted to set illegal permission operation [%s] for object [%s]",
+                            operation, entity));
+                }
+            }
         }
     }
 
