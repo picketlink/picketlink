@@ -1467,11 +1467,11 @@ public class JPAIdentityStore
         List<Predicate> predicates = new ArrayList<Predicate>();
 
         // Set the assignee, resource class and resource identifier predicates
-        if (String.class.equals(mapper.getAssignee().getBaseType())) {
-            predicates.add(cb.equal(from.get(mapper.getAssignee().getName()), permission.getAssignee().getId()));
+        if (String.class.equals(mapper.getOwner().getBaseType())) {
+            predicates.add(cb.equal(from.get(mapper.getOwner().getName()), permission.getAssignee().getId()));
         } else {
-            predicates.add(cb.equal(from.get(mapper.getAssignee().getName()),
-                    getOwnerEntity(permission.getAssignee(), mapper.getAssignee(), em)));
+            predicates.add(cb.equal(from.get(mapper.getOwner().getName()),
+                    getOwnerEntity(permission.getAssignee(), mapper.getOwner(), em)));
         }
 
         predicates.add(cb.equal(from.get(mapper.getResourceClass().getName()),
@@ -1511,11 +1511,11 @@ public class JPAIdentityStore
 
                 // Set the assignee property - this will either be a String, or a reference to an
                 // identity entity
-                if (String.class.equals(mapper.getAssignee().getBaseType())) {
-                    mapper.getAssignee().setValue(entity, permission.getAssignee().getId());
+                if (String.class.equals(mapper.getOwner().getBaseType())) {
+                    mapper.getOwner().setValue(entity, permission.getAssignee().getId());
                 } else {
-                    Object identityEntity = getOwnerEntity(permission.getAssignee(), mapper.getAssignee(), em);
-                    mapper.getAssignee().setValue(entity, identityEntity);
+                    Object identityEntity = getOwnerEntity(permission.getAssignee(), mapper.getOwner(), em);
+                    mapper.getOwner().setValue(entity, identityEntity);
                 }
 
                 // Set the resource class

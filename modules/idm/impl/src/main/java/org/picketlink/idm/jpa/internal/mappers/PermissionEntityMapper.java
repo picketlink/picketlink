@@ -24,7 +24,7 @@ import java.util.Set;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
-import org.picketlink.idm.jpa.annotations.PermissionAssignee;
+import org.picketlink.idm.jpa.annotations.OwnerReference;
 import org.picketlink.idm.jpa.annotations.PermissionOperation;
 import org.picketlink.idm.jpa.annotations.PermissionResourceClass;
 import org.picketlink.idm.jpa.annotations.PermissionResourceIdentifier;
@@ -40,7 +40,7 @@ public class PermissionEntityMapper {
 
     private Class<?> entityClass;
 
-    private Property<Object> assignee;
+    private Property<Object> owner;
     private Property<String> resourceClass;
     private Property<Serializable> resourceIdentifier;
     private Property<Object> operation;
@@ -48,8 +48,8 @@ public class PermissionEntityMapper {
     public PermissionEntityMapper(Class<?> entityClass) {
         this.entityClass = entityClass;
 
-        assignee = PropertyQueries.createQuery(entityClass)
-                .addCriteria(new AnnotatedPropertyCriteria(PermissionAssignee.class))
+        owner = PropertyQueries.createQuery(entityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(OwnerReference.class))
                 .getSingleResult();
 
         resourceClass = PropertyQueries.<String>createQuery(entityClass)
@@ -83,8 +83,8 @@ public class PermissionEntityMapper {
         return resourceClasses;
     }
 
-    public Property<Object> getAssignee() {
-        return assignee;
+    public Property<Object> getOwner() {
+        return owner;
     }
 
     public Property<String> getResourceClass() {
