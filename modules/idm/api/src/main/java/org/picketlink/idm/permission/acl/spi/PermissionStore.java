@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.spi.IdentityContext;
 
@@ -66,7 +67,7 @@ public interface PermissionStore {
      * @param permission
      * @return
      */
-    boolean grantPermission(IdentityContext context, Permission permission);
+    boolean grantPermission(IdentityContext context, IdentityType assignee, Object resource, String operation);
 
     /**
      * Grants all of the permissions contained in the specified List
@@ -82,7 +83,7 @@ public interface PermissionStore {
      * @param permission
      * @return
      */
-    boolean revokePermission(IdentityContext context, Permission permission);
+    boolean revokePermission(IdentityContext context, IdentityType assignee, Object resource, String operation);
 
     /**
      * Revokes all of the permissions contained in the specified List

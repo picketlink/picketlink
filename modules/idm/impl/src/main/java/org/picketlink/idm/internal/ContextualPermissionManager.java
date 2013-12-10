@@ -8,6 +8,7 @@ import java.util.List;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.PermissionManager;
 import org.picketlink.idm.event.EventBridge;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.permission.acl.spi.PermissionHandlerPolicy;
@@ -49,11 +50,11 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
     }
 
     @Override
-    public void grantPermission(Permission permission) {
+    public void grantPermission(IdentityType assignee, Object resource, String operation) {
         try {
-            storeSelector.getStoreForPermissionOperation(this).grantPermission(this, permission);
+            storeSelector.getStoreForPermissionOperation(this).grantPermission(this, assignee, resource, operation);
         } catch (Exception e) {
-            throw MESSAGES.permissionGrantFailed(permission, e);
+            throw MESSAGES.permissionGrantFailed(assignee, resource, operation, e);
         }
     }
 
@@ -74,11 +75,11 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
     }
 
     @Override
-    public void revokePermission(Permission permission) {
+    public void revokePermission(IdentityType assignee, Object resource, String operation) {
         try {
-            storeSelector.getStoreForPermissionOperation(this).revokePermission(this, permission);
+            storeSelector.getStoreForPermissionOperation(this).revokePermission(this, assignee, resource, operation);
         } catch (Exception ex) {
-            throw MESSAGES.permissionRevokeFailed(permission, ex);
+            throw MESSAGES.permissionRevokeFailed(assignee, resource, operation, ex);
         }
     }
 

@@ -175,14 +175,14 @@ public interface IDMMessages {
 
     // Permission management messages 800-899
 
-    @Message(value = "Could not grant Permission [%s].")
-    IdentityManagementException permissionGrantFailed(Permission permission, @Cause Throwable t);
+    @Message(value = "Could not grant permission to [%s] for resource [%s], operation [%s].")
+    IdentityManagementException permissionGrantFailed(IdentityType assignee, Object resource, String operation, @Cause Throwable t);
 
     @Message(value = "Could not grant Permissions [%s].")
     IdentityManagementException permissionsGrantFailed(String permissions, @Cause Throwable t);
 
-    @Message(value = "Could not revoke Permission [%s].")
-    IdentityManagementException permissionRevokeFailed(Permission permission, @Cause Throwable t);
+    @Message(value = "Could not revoke permission granted to [%s] for resource [%s], operation [%s].")
+    IdentityManagementException permissionRevokeFailed(IdentityType assignee, Object resource, String operation, @Cause Throwable t);
 
     @Message(value = "Could not revoke Permissions [%s].")
     IdentityManagementException permissionsRevokeFailed(String permissions, @Cause Throwable t);

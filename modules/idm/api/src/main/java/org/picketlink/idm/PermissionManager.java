@@ -3,6 +3,7 @@ package org.picketlink.idm;
 import java.io.Serializable;
 import java.util.List;
 
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.permission.Permission;
 
 /**
@@ -53,7 +54,7 @@ public interface PermissionManager {
      *
      * @return boolean returns true if the permission was granted successfully
      */
-    void grantPermission(Permission permission);
+    void grantPermission(IdentityType assignee, Object resource, String operation);
 
     /**
      * Grant all permissions in the specified list
@@ -69,7 +70,7 @@ public interface PermissionManager {
      * @param permission
      * @return
      */
-    void revokePermission(Permission permission);
+    void revokePermission(IdentityType assignee, Object resource, String operation);
 
     /**
      * Revoke the specified permissions

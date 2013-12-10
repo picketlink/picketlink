@@ -16,13 +16,12 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.permission;
+package org.picketlink.idm.permission.spi;
 
 import java.io.Serializable;
 import java.util.List;
 
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.permission.spi.PermissionVoter;
 import org.picketlink.idm.permission.spi.PermissionVoter.VotingResult;
 
 /**

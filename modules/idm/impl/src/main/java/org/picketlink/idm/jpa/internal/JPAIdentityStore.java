@@ -1460,7 +1460,7 @@ public class JPAIdentityStore
         return null;
     }
 
-    private Object lookupPermissionEntity(IdentityContext ctx, PermissionEntityMapper mapper, Permission permission) {
+    private Object lookupPermissionEntity(IdentityContext ctx, PermissionEntityMapper mapper, IdentityType assignee, Object resource) {
         EntityManager em = getEntityManager(ctx);
 
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -1470,16 +1470,16 @@ public class JPAIdentityStore
 
         // Set the assignee, resource class and resource identifier predicates
         if (String.class.equals(mapper.getOwner().getBaseType())) {
-            predicates.add(cb.equal(from.get(mapper.getOwner().getName()), permission.getAssignee().getId()));
+            predicates.add(cb.equal(from.get(mapper.getOwner().getName()), assignee.getId()));
         } else {
             predicates.add(cb.equal(from.get(mapper.getOwner().getName()),
-                    getOwnerEntity(permission.getAssignee(), mapper.getOwner(), em)));
+                    getOwnerEntity(assignee, mapper.getOwner(), em)));
         }
 
         predicates.add(cb.equal(from.get(mapper.getResourceClass().getName()),
-                ctx.getPermissionHandlerPolicy().getResourceClass(permission.getResource()).getName()));
+                ctx.getPermissionHandlerPolicy().getResourceClass(resource).getName()));
         predicates.add(cb.equal(from.get(mapper.getResourceIdentifier().getName()),
-                ctx.getPermissionHandlerPolicy().getIdentifier(permission.getResource())));
+                ctx.getPermissionHandlerPolicy().getIdentifier(resource)));
 
         cq.where(predicates.toArray(new Predicate[predicates.size()]));
 
@@ -1496,15 +1496,15 @@ public class JPAIdentityStore
     }
 
     @Override
-    public boolean grantPermission(IdentityContext context, Permission permission) {
+    public boolean grantPermission(IdentityContext context, IdentityType assignee, Object resource, String operation) {
         EntityManager em = getEntityManager(context);
 
-        PermissionEntityMapper mapper = getPermissionMapperForResource(permission.getResource());
-        Serializable identifier = context.getPermissionHandlerPolicy().getIdentifier(permission.getResource());
-        Class<?> resourceClass = context.getPermissionHandlerPolicy().getResourceClass(permission.getResource());
+        PermissionEntityMapper mapper = getPermissionMapperForResource(resource);
+        Serializable identifier = context.getPermissionHandlerPolicy().getIdentifier(resource);
+        Class<?> resourceClass = context.getPermissionHandlerPolicy().getResourceClass(resource);
 
         // We first attempt to lookup an existing entity
-        Object entity = lookupPermissionEntity(context, mapper, permission);
+        Object entity = lookupPermissionEntity(context, mapper, assignee, resource);
 
         // If there is no existing entity we create a new one
         if (entity == null) {
@@ -1514,9 +1514,9 @@ public class JPAIdentityStore
                 // Set the assignee property - this will either be a String, or a reference to an
                 // identity entity
                 if (String.class.equals(mapper.getOwner().getBaseType())) {
-                    mapper.getOwner().setValue(entity, permission.getAssignee().getId());
+                    mapper.getOwner().setValue(entity, assignee.getId());
                 } else {
-                    Object identityEntity = getOwnerEntity(permission.getAssignee(), mapper.getOwner(), em);
+                    Object identityEntity = getOwnerEntity(assignee, mapper.getOwner(), em);
                     mapper.getOwner().setValue(entity, identityEntity);
                 }
 
@@ -1524,17 +1524,17 @@ public class JPAIdentityStore
                 mapper.getResourceClass().setValue(entity, resourceClass.getName());
 
                 // Set the resource identifier
-                Serializable resourceIdentifier = context.getPermissionHandlerPolicy().getIdentifier(permission.getResource());
+                Serializable resourceIdentifier = context.getPermissionHandlerPolicy().getIdentifier(resource);
                 if (resourceIdentifier == null) {
                     throw new IdentityManagementException(String.format(
-                            "No identifier value could be generated for resource [%s]", permission.getResource()));
+                            "No identifier value could be generated for resource [%s]", resource));
                 }
 
                 // TODO this is a nasty hack, we still need to support type conversion between a multitude of types
                 mapper.getResourceIdentifier().setValue(entity, resourceIdentifier.toString());
 
                 PermissionOperationSet operationSet = new PermissionOperationSet(entity, mapper);
-                operationSet.appendOperation(permission.getOperation());
+                operationSet.appendOperation(operation);
 
                 em.persist(entity);
 
@@ -1640,13 +1640,13 @@ public class JPAIdentityStore
     @Override
     public boolean grantPermissions(IdentityContext context, List<Permission> permissions) {
         for (Permission permission : permissions) {
-            grantPermission(context, permission);
+            grantPermission(context, permission.getAssignee(), permission.getResource(), permission.getOperation());
         }
         return true;
     }
 
     @Override
-    public boolean revokePermission(IdentityContext context, Permission permission) {
+    public boolean revokePermission(IdentityContext context, IdentityType assignee, Object resource, String operation) {
         // TODO Auto-generated method stub
         return false;
     }
@@ -1654,7 +1654,7 @@ public class JPAIdentityStore
     @Override
     public boolean revokePermissions(IdentityContext context, List<Permission> permissions) {
         for (Permission permission : permissions) {
-            revokePermission(context, permission);
+            revokePermission(context, permission.getAssignee(), permission.getResource(), permission.getOperation());
         }
         return true;
     }

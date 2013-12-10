@@ -37,13 +37,14 @@ import org.picketlink.authentication.event.PreLoggedOutEvent;
 import org.picketlink.authentication.internal.IdmAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.permission.PermissionResolver;
+import org.picketlink.idm.permission.spi.PermissionResolver;
 
 import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.inject.Named;
+
 import java.io.Serializable;
 
 /**
