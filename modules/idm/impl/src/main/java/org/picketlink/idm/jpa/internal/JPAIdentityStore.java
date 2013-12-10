@@ -1477,7 +1477,7 @@ public class JPAIdentityStore
         }
 
         predicates.add(cb.equal(from.get(mapper.getResourceClass().getName()),
-                ctx.getPermissionHandlerPolicy().getResourceClass(permission.getResource())));
+                ctx.getPermissionHandlerPolicy().getResourceClass(permission.getResource()).getName()));
         predicates.add(cb.equal(from.get(mapper.getResourceIdentifier().getName()),
                 ctx.getPermissionHandlerPolicy().getIdentifier(permission.getResource())));
 
@@ -1521,8 +1521,7 @@ public class JPAIdentityStore
                 }
 
                 // Set the resource class
-                mapper.getResourceClass().setValue(entity,
-                        context.getPermissionHandlerPolicy().getResourceClass(resourceClass).getName());
+                mapper.getResourceClass().setValue(entity, resourceClass.getName());
 
                 // Set the resource identifier
                 mapper.getResourceIdentifier().setValue(entity,
@@ -1547,6 +1546,7 @@ public class JPAIdentityStore
         private Object entity;
 
         public PermissionOperationSet(Object entity, PermissionEntityMapper mapper) {
+            this.entity = entity;
             this.mapper = mapper;
             this.perms = entity.getClass().getAnnotation(AllowedPermissions.class);
         }
@@ -1557,6 +1557,32 @@ public class JPAIdentityStore
 
         public void removeOperation(String operation) {
             adjustOperation(operation, false);
+        }
+
+        private String adjustCSVOperation(String value, String operation, boolean mode) {
+            Set<String> ops = new HashSet<String>();
+
+            if (value != null && !"".equals(value)) {
+                for (String op : value.split(",")) {
+                    ops.add(op);
+                }
+            }
+
+            if (mode) {
+                ops.add(operation);
+            } else {
+                ops.remove(operation);
+            }
+
+            StringBuilder sb = new StringBuilder();
+            for (String op : ops) {
+                if (sb.length() > 0) {
+                    sb.append(",");
+                }
+                sb.append(op);
+            }
+
+            return sb.toString();
         }
 
         private void adjustOperation(String operation, boolean mode) {
@@ -1590,30 +1616,17 @@ public class JPAIdentityStore
 
                 // Otherwise the operations should be stored as a comma-separated String
                 } else if (perm != null || (perm == null && perms.value().length == 0)) {
-
-                    Set<String> ops = new HashSet<String>();
-
-                    for (String op : mapper.getOperation().getValue(entity).toString().split(",")) {
-                        ops.add(op);
-                    }
-
-                    ops.add(operation);
-                    StringBuilder sb = new StringBuilder();
-                    for (String op : ops) {
-                        if (sb.length() > 0) {
-                            sb.append(",");
-                        }
-                        sb.append(op);
-                    }
-
-                    mapper.getOperation().setValue(entity, sb.toString());
-
+                    mapper.getOperation().setValue(entity,
+                            adjustCSVOperation((String) mapper.getOperation().getValue(entity), operation, mode));
                 } else {
                     // Trying to set an operation value that isn't defined - throw an exception
                     throw new IllegalArgumentException(String.format(
                             "Attempted to set illegal permission operation [%s] for object [%s]",
                             operation, entity));
                 }
+            } else {
+                mapper.getOperation().setValue(entity,
+                        adjustCSVOperation((String) mapper.getOperation().getValue(entity), operation, mode));
             }
         }
     }

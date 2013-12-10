@@ -173,6 +173,8 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                 this.idGenerator = new DefaultIdGenerator();
             }
 
+            permissionHandlerPolicy = new PermissionHandlerPolicy(null);
+
             IdentityConfiguration partitionCfg = null;
             IdentityConfiguration attributeCfg = null;
 

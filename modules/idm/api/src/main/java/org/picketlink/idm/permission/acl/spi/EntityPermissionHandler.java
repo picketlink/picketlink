@@ -33,8 +33,7 @@ public class EntityPermissionHandler extends BaseAbstractPermissionHandler {
 
     @Override
     public Class<?> unwrapResourceClass(Object resource) {
-        // TODO Auto-generated method stub
-        return null;
+        return resource.getClass();
     }
 
 

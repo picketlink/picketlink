@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.permission.annotations.PermissionsHandledBy;
 
 /**
@@ -37,8 +38,8 @@ public class PermissionHandlerPolicy {
 
     private Set<PermissionHandler> registeredHandlers = new HashSet<PermissionHandler>();
 
-    public PermissionHandlerPolicy(Set<PermissionHandler> registeredHandlers) {
-        if (registeredHandlers.isEmpty()) {
+    public PermissionHandlerPolicy(Set<PermissionHandler> handlers) {
+        if (handlers == null || handlers.isEmpty()) {
             registeredHandlers.add(new EntityPermissionHandler());
             registeredHandlers.add(new ClassPermissionHandler());
         }
@@ -60,8 +61,12 @@ public class PermissionHandlerPolicy {
         }
 
         PermissionHandler handler = getHandlerForResource(resource);
+        if (handler == null) {
+            throw new IdentityManagementException(String.format(
+                    "No permission handler registered for resource [%s]", resource.toString()));
+        }
 
-        return handler != null ? handler.unwrapResourceClass(resource) : null;
+        return handler.unwrapResourceClass(resource);
     }
 
     private PermissionHandler getHandlerForResource(Object resource) {
