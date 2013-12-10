@@ -1524,8 +1524,14 @@ public class JPAIdentityStore
                 mapper.getResourceClass().setValue(entity, resourceClass.getName());
 
                 // Set the resource identifier
-                mapper.getResourceIdentifier().setValue(entity,
-                        context.getPermissionHandlerPolicy().getIdentifier(permission.getResource()));
+                Serializable resourceIdentifier = context.getPermissionHandlerPolicy().getIdentifier(permission.getResource());
+                if (resourceIdentifier == null) {
+                    throw new IdentityManagementException(String.format(
+                            "No identifier value could be generated for resource [%s]", permission.getResource()));
+                }
+
+                // TODO this is a nasty hack, we still need to support type conversion between a multitude of types
+                mapper.getResourceIdentifier().setValue(entity, resourceIdentifier.toString());
 
                 PermissionOperationSet operationSet = new PermissionOperationSet(entity, mapper);
                 operationSet.appendOperation(permission.getOperation());
