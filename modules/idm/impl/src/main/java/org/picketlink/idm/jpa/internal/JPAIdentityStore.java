@@ -1404,19 +1404,19 @@ public class JPAIdentityStore
         }
     }
 
-    private PermissionEntityMapper getPermissionMapperForResource(Object resource) {
+    private PermissionEntityMapper getPermissionMapperForResource(Class resourceClass) {
         int score = -1;
         PermissionEntityMapper mapper = null;
 
         // Loop through all the supported resource classes and find the best match
         for (PermissionEntityMapper m : permissionMappers) {
-            for (Class<?> resourceClass : m.getResourceClasses()) {
-                if (resourceClass.isInstance(resource)) {
+            for (Class<?> cls : m.getResourceClasses()) {
+                if (cls.isAssignableFrom(resourceClass)) {
                     int currentScore = 0;
-                    Class<?> cls = resource.getClass();
-                    while (!cls.equals(resourceClass) && !Object.class.equals(cls)) {
+                    Class<?> currentClass = resourceClass;
+                    while (!currentClass.equals(cls) && !Object.class.equals(currentClass)) {
                         currentScore++;
-                        cls = cls.getSuperclass();
+                        currentClass = currentClass.getSuperclass();
                     }
 
                     if (mapper == null || score == -1 || currentScore < score) {
@@ -1432,8 +1432,17 @@ public class JPAIdentityStore
 
     @Override
     public List<Permission> listPermissions(IdentityContext ctx, Object resource) {
+        return listPermissions(ctx, resource, null);
+    }
+
+    @Override
+    public List<Permission> listPermissions(IdentityContext ctx, Object resource, String operation) {
+        if (resource == null) {
+            throw new IllegalArgumentException("Resource may not be null");
+        }
+
         EntityManager em = getEntityManager(ctx);
-        PermissionEntityMapper mapper = getPermissionMapperForResource(resource);
+        PermissionEntityMapper mapper = getPermissionMapperForResource(resource.getClass());
 
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery cq = cb.createQuery(mapper.getEntityClass());
@@ -1478,8 +1487,9 @@ public class JPAIdentityStore
 
             PermissionOperationSet opSet = new PermissionOperationSet(result, resource, mapper);
 
-            for (String operation : opSet.getOperations()) {
-                perms.add(new Permission(resource, assignee, operation));
+            for (String op : opSet.getOperations()) {
+                if (operation != null && operation.equals(op))
+                perms.add(new Permission(resource, assignee, op));
             }
         }
 
@@ -1487,25 +1497,26 @@ public class JPAIdentityStore
     }
 
     @Override
-    public List<Permission> listPermissions(IdentityContext context, Object resource, String operation) {
+    public List<Permission> listPermissions(IdentityContext ctx, Set<Object> resources, String operation) {
+        List<Permission> perms = new ArrayList<Permission>();
+
+        for (Object resource : resources) {
+            perms.addAll(listPermissions(ctx, resource, operation));
+        }
+
+        return perms;
+    }
+
+    @Override
+    public List<Permission> listPermissions(IdentityContext ctx, Class<?> resourceClass, Serializable identifier) {
+        PermissionEntityMapper mapper = getPermissionMapperForResource(resourceClass);
+
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public List<Permission> listPermissions(IdentityContext context, Set<Object> resources, String operation) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public List<Permission> listPermissions(IdentityContext context, Class<?> resourceClass, Serializable identifier) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public List<Permission> listPermissions(IdentityContext context, Class<?> resourceClass, Serializable identifier, String operation) {
+    public List<Permission> listPermissions(IdentityContext ctx, Class<?> resourceClass, Serializable identifier, String operation) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -1549,7 +1560,7 @@ public class JPAIdentityStore
     public boolean grantPermission(IdentityContext context, IdentityType assignee, Object resource, String operation) {
         EntityManager em = getEntityManager(context);
 
-        PermissionEntityMapper mapper = getPermissionMapperForResource(resource);
+        PermissionEntityMapper mapper = getPermissionMapperForResource(resource.getClass());
         Serializable identifier = context.getPermissionHandlerPolicy().getIdentifier(resource);
         Class<?> resourceClass = context.getPermissionHandlerPolicy().getResourceClass(resource);
 
@@ -1740,7 +1751,7 @@ public class JPAIdentityStore
     public boolean revokePermission(IdentityContext context, IdentityType assignee, Object resource, String operation) {
         EntityManager em = getEntityManager(context);
 
-        PermissionEntityMapper mapper = getPermissionMapperForResource(resource);
+        PermissionEntityMapper mapper = getPermissionMapperForResource(resource.getClass());
         Serializable identifier = context.getPermissionHandlerPolicy().getIdentifier(resource);
         Class<?> resourceClass = context.getPermissionHandlerPolicy().getResourceClass(resource);
 
@@ -1769,7 +1780,7 @@ public class JPAIdentityStore
     @Override
     public void revokeAllPermissions(IdentityContext ctx, Object resource) {
         EntityManager em = getEntityManager(ctx);
-        PermissionEntityMapper mapper = getPermissionMapperForResource(resource);
+        PermissionEntityMapper mapper = getPermissionMapperForResource(resource.getClass());
 
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery cq = cb.createQuery(mapper.getEntityClass());
