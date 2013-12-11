@@ -1538,12 +1538,17 @@ public class JPAIdentityStore
 
                 em.persist(entity);
 
+                return true;
+
             } catch (Exception ex) {
                 throw new IdentityManagementException("Error persisting permission", ex);
             }
+        } else {
+            PermissionOperationSet operationSet = new PermissionOperationSet(entity, mapper);
+            operationSet.appendOperation(operation);
+            em.merge(entity);
+            return true;
         }
-
-        return false;
     }
 
     protected class PermissionOperationSet {
@@ -1647,8 +1652,24 @@ public class JPAIdentityStore
 
     @Override
     public boolean revokePermission(IdentityContext context, IdentityType assignee, Object resource, String operation) {
-        // TODO Auto-generated method stub
-        return false;
+        EntityManager em = getEntityManager(context);
+
+        PermissionEntityMapper mapper = getPermissionMapperForResource(resource);
+        Serializable identifier = context.getPermissionHandlerPolicy().getIdentifier(resource);
+        Class<?> resourceClass = context.getPermissionHandlerPolicy().getResourceClass(resource);
+
+        // We first attempt to lookup an existing entity
+        Object entity = lookupPermissionEntity(context, mapper, assignee, resource);
+
+        // If there is no existing entity we create a new one
+        if (entity == null) {
+            return false;
+        } else {
+            PermissionOperationSet operationSet = new PermissionOperationSet(entity, mapper);
+            operationSet.removeOperation(operation);
+            em.merge(entity);
+            return true;
+        }
     }
 
     @Override

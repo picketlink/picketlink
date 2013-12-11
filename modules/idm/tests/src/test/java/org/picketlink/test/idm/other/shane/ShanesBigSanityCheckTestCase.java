@@ -443,7 +443,7 @@ public class ShanesBigSanityCheckTestCase {
         PermissionManager pm = partitionManager.createPermissionManager();
 
         // Grant the 'READ' permission for Customer c1 to the user we created
-        pm.grantPermission(new Permission(c1, u, Customer.PERMISSION_READ));
+        pm.grantPermission(u, c1, Customer.PERMISSION_READ);
 
         /*
         // Confirm that the permission was created

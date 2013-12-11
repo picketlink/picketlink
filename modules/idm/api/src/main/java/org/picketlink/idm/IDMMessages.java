@@ -22,6 +22,9 @@
 
 package org.picketlink.idm;
 
+import java.io.UnsupportedEncodingException;
+import java.lang.annotation.Annotation;
+
 import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
@@ -34,11 +37,7 @@ import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.spi.IdentityStore;
-
-import java.io.UnsupportedEncodingException;
-import java.lang.annotation.Annotation;
 
 /**
  * <p>
