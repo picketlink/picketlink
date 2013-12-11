@@ -1476,7 +1476,7 @@ public class JPAIdentityStore
                         owner, resource));
             }
 
-            PermissionOperationSet opSet = new PermissionOperationSet(result, mapper);
+            PermissionOperationSet opSet = new PermissionOperationSet(result, resource, mapper);
 
             for (String operation : opSet.getOperations()) {
                 perms.add(new Permission(resource, assignee, operation));
@@ -1583,7 +1583,7 @@ public class JPAIdentityStore
                 // TODO this is a nasty hack, we still need to support type conversion between a multitude of types
                 mapper.getResourceIdentifier().setValue(entity, resourceIdentifier.toString());
 
-                PermissionOperationSet operationSet = new PermissionOperationSet(entity, mapper);
+                PermissionOperationSet operationSet = new PermissionOperationSet(entity, resource, mapper);
                 operationSet.appendOperation(operation);
 
                 em.persist(entity);
@@ -1594,7 +1594,7 @@ public class JPAIdentityStore
                 throw new IdentityManagementException("Error persisting permission", ex);
             }
         } else {
-            PermissionOperationSet operationSet = new PermissionOperationSet(entity, mapper);
+            PermissionOperationSet operationSet = new PermissionOperationSet(entity, resource, mapper);
             operationSet.appendOperation(operation);
             em.merge(entity);
             return true;
@@ -1606,10 +1606,10 @@ public class JPAIdentityStore
         private AllowedPermissions perms;
         private Object entity;
 
-        public PermissionOperationSet(Object entity, PermissionEntityMapper mapper) {
+        public PermissionOperationSet(Object entity, Object resource, PermissionEntityMapper mapper) {
             this.entity = entity;
             this.mapper = mapper;
-            this.perms = entity.getClass().getAnnotation(AllowedPermissions.class);
+            this.perms = resource.getClass().getAnnotation(AllowedPermissions.class);
         }
 
         public void appendOperation(String operation) {
@@ -1654,7 +1654,7 @@ public class JPAIdentityStore
             if (perms != null) {
                 try {
                     // Convert the operations value to a long for convenience
-                    long ops = Long.valueOf(operations.toString());
+                    long ops = operations != null ? Long.valueOf(operations.toString()) : 0;
 
                     for (AllowedPermission p : perms.value()) {
                         if (p.mask() > 0) {
@@ -1697,15 +1697,19 @@ public class JPAIdentityStore
                 if (perm != null && perm.mask() > 0) {
 
                     // Convert the operations value to a long for convenience
-                    long ops = Long.valueOf(operations.toString());
+                    long ops = operations != null ? Long.valueOf(operations.toString()) : 0;
                     if (mode) {
                         ops |= perm.mask();
                     } else {
                         ops ^= perm.mask();
                     }
 
-                    // TODO may need to do some type conversion here...
-                    mapper.getOperation().setValue(entity, ops);
+                    if (String.class.equals(mapper.getOperation().getBaseType())) {
+                        mapper.getOperation().setValue(entity, Long.toString(ops));
+                    } else {
+                        // TODO may need to do some further type conversion here...
+                        mapper.getOperation().setValue(entity, ops);
+                    }
 
                 // Otherwise the operations should be stored as a comma-separated String
                 } else if (perm != null || (perm == null && perms.value().length == 0)) {
@@ -1747,7 +1751,7 @@ public class JPAIdentityStore
         if (entity == null) {
             return false;
         } else {
-            PermissionOperationSet operationSet = new PermissionOperationSet(entity, mapper);
+            PermissionOperationSet operationSet = new PermissionOperationSet(entity, resource, mapper);
             operationSet.removeOperation(operation);
             em.merge(entity);
             return true;
