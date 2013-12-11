@@ -1767,7 +1767,26 @@ public class JPAIdentityStore
     }
 
     @Override
-    public void revokeAllPermissions(IdentityContext context, Object resource) {
-        // TODO Auto-generated method stub
+    public void revokeAllPermissions(IdentityContext ctx, Object resource) {
+        EntityManager em = getEntityManager(ctx);
+        PermissionEntityMapper mapper = getPermissionMapperForResource(resource);
+
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery cq = cb.createQuery(mapper.getEntityClass());
+        Root from = cq.from(mapper.getEntityClass());
+        List<Predicate> predicates = new ArrayList<Predicate>();
+
+        // Set the resource class and resource identifier predicates
+        predicates.add(cb.equal(from.get(mapper.getResourceClass().getName()),
+                ctx.getPermissionHandlerPolicy().getResourceClass(resource).getName()));
+        predicates.add(cb.equal(from.get(mapper.getResourceIdentifier().getName()),
+                ctx.getPermissionHandlerPolicy().getIdentifier(resource)));
+
+        cq.where(predicates.toArray(new Predicate[predicates.size()]));
+
+        List results = em.createQuery(cq).getResultList();
+        for (Object result : results) {
+            em.remove(result);
+        }
     }
 }

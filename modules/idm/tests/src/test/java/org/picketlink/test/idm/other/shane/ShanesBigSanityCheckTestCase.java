@@ -448,6 +448,10 @@ public class ShanesBigSanityCheckTestCase {
         // Confirm that the permission was created
         assert !pm.listPermissions(c1).isEmpty();
 
+        pm.clearPermissions(c1);
+
+        assert pm.listPermissions(c1).isEmpty();
+
         /*
         // Confirm that the permission can by looked up via the resource and the action string
         assert !pm.listPermissions(c1, Customer.PERMISSION_READ).isEmpty();
