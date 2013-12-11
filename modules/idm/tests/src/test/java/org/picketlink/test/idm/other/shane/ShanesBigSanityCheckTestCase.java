@@ -445,10 +445,10 @@ public class ShanesBigSanityCheckTestCase {
         // Grant the 'READ' permission for Customer c1 to the user we created
         pm.grantPermission(u, c1, Customer.PERMISSION_READ);
 
-        /*
         // Confirm that the permission was created
         assert !pm.listPermissions(c1).isEmpty();
 
+        /*
         // Confirm that the permission can by looked up via the resource and the action string
         assert !pm.listPermissions(c1, Customer.PERMISSION_READ).isEmpty();
 

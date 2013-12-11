@@ -1431,9 +1431,59 @@ public class JPAIdentityStore
     }
 
     @Override
-    public List<Permission> listPermissions(IdentityContext context, Object resource) {
-        // TODO Auto-generated method stub
-        return null;
+    public List<Permission> listPermissions(IdentityContext ctx, Object resource) {
+        EntityManager em = getEntityManager(ctx);
+        PermissionEntityMapper mapper = getPermissionMapperForResource(resource);
+
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery cq = cb.createQuery(mapper.getEntityClass());
+        Root from = cq.from(mapper.getEntityClass());
+        List<Predicate> predicates = new ArrayList<Predicate>();
+
+        // Set the resource class and resource identifier predicates
+        predicates.add(cb.equal(from.get(mapper.getResourceClass().getName()),
+                ctx.getPermissionHandlerPolicy().getResourceClass(resource).getName()));
+        predicates.add(cb.equal(from.get(mapper.getResourceIdentifier().getName()),
+                ctx.getPermissionHandlerPolicy().getIdentifier(resource)));
+
+        cq.where(predicates.toArray(new Predicate[predicates.size()]));
+
+        List results = em.createQuery(cq).getResultList();
+
+        List<Permission> perms = new ArrayList<Permission>();
+        for (Object result : results) {
+            Object owner = mapper.getOwner().getValue(result);
+            IdentityType assignee = null;
+            // If the owner value is a String, then it must be an identifier value
+            if (String.class.equals(owner.getClass())) {
+                assignee = lookupIdentityTypeById(ctx, IdentityType.class, (String) owner);
+            } else {
+
+                for (EntityMapper entityMapper : getEntityMappers()) {
+                    if (entityMapper.getMappingsFor(IdentityType.class) != null && entityMapper.isRoot() && entityMapper.isPersist()) {
+                        IdentityType identityType = entityMapper.<IdentityType>createType(owner, em);
+                        if (identityType != null) {
+                            assignee = identityType;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (assignee == null) {
+                throw new IdentityManagementException(String.format(
+                        "Could not determine permission assignee [%s] for resource [%s]",
+                        owner, resource));
+            }
+
+            PermissionOperationSet opSet = new PermissionOperationSet(result, mapper);
+
+            for (String operation : opSet.getOperations()) {
+                perms.add(new Permission(resource, assignee, operation));
+            }
+        }
+
+        return perms;
     }
 
     @Override
@@ -1594,6 +1644,38 @@ public class JPAIdentityStore
             }
 
             return sb.toString();
+        }
+
+        public Set<String> getOperations() {
+            Object opValue = mapper.getOperation().getValue(entity);
+            Set<String> operations = new HashSet<String>();
+
+            // Determine how the permission operations are stored - first check if bitmasks are used
+            if (perms != null) {
+                try {
+                    // Convert the operations value to a long for convenience
+                    long ops = Long.valueOf(operations.toString());
+
+                    for (AllowedPermission p : perms.value()) {
+                        if (p.mask() > 0) {
+                            if ((p.mask() & ops) != 0) {
+                                operations.add(p.operation());
+                            }
+                        }
+                    }
+
+                    return operations;
+                } catch (NumberFormatException ex) {
+                    // Do nothing, revert to default behaviour below
+                }
+            }
+
+            // Operations are stored as a comma separated value
+            for (String op : ((String) opValue).split(",")) {
+                operations.add(op);
+            }
+
+            return operations;
         }
 
         private void adjustOperation(String operation, boolean mode) {
