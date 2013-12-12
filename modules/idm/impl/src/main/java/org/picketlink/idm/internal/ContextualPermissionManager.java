@@ -59,43 +59,11 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
     }
 
     @Override
-    public void grantPermissions(List<Permission> permissions) {
-        try {
-            storeSelector.getStoreForPermissionOperation(this).grantPermissions(this, permissions);
-        } catch (Exception e) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("[");
-            for (Permission p : permissions) {
-                sb.append(p.toString());
-                sb.append(",");
-            }
-            sb.append("]");
-            throw MESSAGES.permissionsGrantFailed(sb.toString(), e);
-        }
-    }
-
-    @Override
     public void revokePermission(IdentityType assignee, Object resource, String operation) {
         try {
             storeSelector.getStoreForPermissionOperation(this).revokePermission(this, assignee, resource, operation);
         } catch (Exception ex) {
             throw MESSAGES.permissionRevokeFailed(assignee, resource, operation, ex);
-        }
-    }
-
-    @Override
-    public void revokePermissions(List<Permission> permissions) {
-        try {
-            storeSelector.getStoreForPermissionOperation(this).revokePermissions(this, permissions);
-        } catch (Exception e) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("[");
-            for (Permission p : permissions) {
-                sb.append(p.toString());
-                sb.append(",");
-            }
-            sb.append("]");
-            throw MESSAGES.permissionsGrantFailed(sb.toString(), e);
         }
     }
 
@@ -110,7 +78,6 @@ public class ContextualPermissionManager extends AbstractIdentityContext impleme
 
     @Override
     public List<String> listOperations(Class<?> resourceClass) {
-
         // TODO Auto-generated method stub
         return null;
     }

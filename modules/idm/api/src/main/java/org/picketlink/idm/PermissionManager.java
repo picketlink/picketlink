@@ -57,28 +57,12 @@ public interface PermissionManager {
     void grantPermission(IdentityType assignee, Object resource, String operation);
 
     /**
-     * Grant all permissions in the specified list
-     *
-     * @param permissions
-     * @return boolean returns true if the permissions were granted successfully
-     */
-    void grantPermissions(List<Permission> permissions);
-
-    /**
      * Revoke the specified permission
      *
      * @param permission
      * @return
      */
     void revokePermission(IdentityType assignee, Object resource, String operation);
-
-    /**
-     * Revoke the specified permissions
-     *
-     * @param permissions
-     * @return
-     */
-    void revokePermissions(List<Permission> permissions);
 
     /**
      * Remove all permissions for the specified resource

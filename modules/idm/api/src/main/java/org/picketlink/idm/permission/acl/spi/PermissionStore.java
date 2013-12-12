@@ -70,28 +70,12 @@ public interface PermissionStore {
     boolean grantPermission(IdentityContext context, IdentityType assignee, Object resource, String operation);
 
     /**
-     * Grants all of the permissions contained in the specified List
-     *
-     * @param permissions
-     * @return
-     */
-    boolean grantPermissions(IdentityContext context, List<Permission> permissions);
-
-    /**
      * Revokes the specified permission
      *
      * @param permission
      * @return
      */
     boolean revokePermission(IdentityContext context, IdentityType assignee, Object resource, String operation);
-
-    /**
-     * Revokes all of the permissions contained in the specified List
-     *
-     * @param permissions
-     * @return
-     */
-    boolean revokePermissions(IdentityContext context, List<Permission> permissions);
 
     /**
      * Revokes all permissions for the specified resource

@@ -1740,14 +1740,6 @@ public class JPAIdentityStore
     }
 
     @Override
-    public boolean grantPermissions(IdentityContext context, List<Permission> permissions) {
-        for (Permission permission : permissions) {
-            grantPermission(context, permission.getAssignee(), permission.getResource(), permission.getOperation());
-        }
-        return true;
-    }
-
-    @Override
     public boolean revokePermission(IdentityContext context, IdentityType assignee, Object resource, String operation) {
         EntityManager em = getEntityManager(context);
 
@@ -1758,7 +1750,7 @@ public class JPAIdentityStore
         // We first attempt to lookup an existing entity
         Object entity = lookupPermissionEntity(context, mapper, assignee, resource);
 
-        // If there is no existing entity we create a new one
+        // If there's no entity found then there's nothing to do
         if (entity == null) {
             return false;
         } else {
@@ -1767,14 +1759,6 @@ public class JPAIdentityStore
             em.merge(entity);
             return true;
         }
-    }
-
-    @Override
-    public boolean revokePermissions(IdentityContext context, List<Permission> permissions) {
-        for (Permission permission : permissions) {
-            revokePermission(context, permission.getAssignee(), permission.getResource(), permission.getOperation());
-        }
-        return true;
     }
 
     @Override
