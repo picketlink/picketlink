@@ -18,34 +18,52 @@
 
 package org.picketlink.idm.permission;
 
+import java.io.Serializable;
+
 import org.picketlink.idm.model.IdentityType;
 
 /**
- * Represents a specific permission granted for a domain object
+ * Represents a specific permission granted for a domain resource.  If the actual resource object instance is known
+ * then the getResource() method will return a reference to it, otherwise the getResourceClass() and getResourceIdentifier()
+ * methods may be used to determine the specific resource that the permission applies to.
  *
  * @author Shane Bryzak
- *
  */
-public class Permission {
-    private Object resource;
-    private IdentityType assignee;
-    private String operation;
+public interface Permission {
 
-    public Permission(Object resource, IdentityType assignee, String operation) {
-        this.resource = resource;
-        this.assignee = assignee;
-        this.operation = operation;
-    }
+    /**
+     * Returns the resource object if known, otherwise returns null.  If the resource object is not known, then the
+     * getResourceClass() and getResourceIdentifier() methods represent the "coordinates" of the resource.
+     *
+     * @return Object The resource instance, or null
+     */
+    Object getResource();
 
-    public Object getResource() {
-        return resource;
-    }
+    /**
+     * Returns the resource class if the actual resource instance is not known, otherwise returns null.
+     *
+     * @return
+     */
+    Class<?> getResourceClass();
 
-    public IdentityType getAssignee() {
-        return assignee;
-    }
+    /**
+     * Returns the resource identifier if the actual resource instance is not known, otherwise returns null.
+     *
+     * @return
+     */
+    Serializable getResourceIdentifier();
 
-    public String getOperation() {
-        return operation;
-    }
+    /**
+     * Returns the identity to which the permission is assigned.
+     *
+     * @return
+     */
+    IdentityType getAssignee();
+
+    /**
+     * Returns the permission operation
+     *
+     * @return
+     */
+    String getOperation();
 }
