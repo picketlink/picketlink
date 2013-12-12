@@ -1490,8 +1490,11 @@ public class JPAIdentityStore
             PermissionOperationSet opSet = new PermissionOperationSet(result, resourceClass, mapper);
 
             for (String op : opSet.getOperations()) {
-                if (operation != null && operation.equals(op))
-                perms.add(new PermissionImpl(resource, assignee, op));
+                if (operation != null && operation.equals(op)) {
+                    perms.add(new PermissionImpl(resource, assignee, op));
+                } else if (operation == null) {
+                    perms.add(new PermissionImpl(resource, assignee, op));
+                }
             }
         }
 
@@ -1569,8 +1572,11 @@ public class JPAIdentityStore
             PermissionOperationSet opSet = new PermissionOperationSet(result, resourceClass, mapper);
 
             for (String op : opSet.getOperations()) {
-                if (operation != null && operation.equals(op))
-                perms.add(new PermissionImpl(resourceClass, identifier, assignee, op));
+                if (operation != null && operation.equals(op)) {
+                    perms.add(new PermissionImpl(resourceClass, identifier, assignee, op));
+                } else if (operation == null) {
+                    perms.add(new PermissionImpl(resourceClass, identifier, assignee, op));
+                }
             }
         }
 
