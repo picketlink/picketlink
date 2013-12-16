@@ -344,7 +344,7 @@ public class PicketLinkSTSConfiguration implements STSConfiguration {
 
                 // if there was no truststore alias or no PKC under that alias, use the KeyProvider mapping.
                 if (x509 == null) {
-                    Certificate cer = this.trustManager.getCertificate(provider.getTruststoreAlias());
+                    Certificate cer = this.trustManager.getCertificate(serviceName);
 
                     if (cer instanceof X509Certificate) {
                         x509 = (X509Certificate) cer;
