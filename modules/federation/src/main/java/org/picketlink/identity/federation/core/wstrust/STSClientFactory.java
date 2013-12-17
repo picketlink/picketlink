@@ -17,25 +17,56 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
-import org.picketlink.common.exceptions.ParsingException;
 
 /**
  * Simple factory for creating {@link STSClient}s.
  *
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
+ * @author <a href="mailto:pskopek@redhat.com">Peter Skopek</a>
  */
 public final class STSClientFactory {
 
-    private static final STSClientFactory INSTANCE = new STSClientFactory();
+    private static final int INITIAL_NUMBER_OF_CLIENTS_IN_POOL = 10;
+    private static STSClientFactory INSTANCE = null;
+    private static STSClientPool POOL = null;
 
     private STSClientFactory() {
     }
 
     public static STSClientFactory getInstance() {
+        if (INSTANCE == null) {
+            // pooling disabled
+            return getInstance(0);
+        }
         return INSTANCE;
     }
 
-    public STSClient create(final STSClientConfig config) throws ParsingException {
-        return new STSClient(config);
+    public static STSClientFactory getInstance(int maxClientsInPool) {
+        if (INSTANCE == null) {
+            INSTANCE = new STSClientFactory();
+            POOL = STSClientPool.instance(maxClientsInPool);
+        }
+        return INSTANCE;
     }
+
+    public STSClient create(final STSClientConfig config) {
+        return create(INITIAL_NUMBER_OF_CLIENTS_IN_POOL, config);
+    }
+
+    public STSClient create(int initialNumberOfClients, final STSClientConfig config) {
+        if (POOL.isPoolingDisabled()) {
+            return new STSClient(config);
+        }
+        POOL.initialize(initialNumberOfClients, config);
+        return POOL.takeOut(config);
+    }
+
+    public STSClient create(int initialNumberOfClients, final STSClientCreationCallBack callBack) {
+        if (POOL.isPoolingDisabled()) {
+            return null;
+        }
+        POOL.initialize(initialNumberOfClients, callBack);
+        return POOL.takeOut(callBack.getKey());
+    }
+
 }

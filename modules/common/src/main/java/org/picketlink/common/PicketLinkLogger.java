@@ -1198,4 +1198,19 @@ public interface PicketLinkLogger {
     RuntimeException runtimeException(String msg, Throwable e);
 
     IllegalStateException datasourceIsNull();
+
+    IllegalArgumentException cannotParseParameterValue(String parameter, Throwable e);
+
+    RuntimeException cannotGetFreeClientPoolKey(String key);
+
+    RuntimeException cannotGetSTSConfigByKey(String key);
+
+    RuntimeException cannotGetUsedClientsByKey(String key);
+
+    RuntimeException removingNonExistingClientFromUsedClientsByKey(String key);
+
+    RuntimeException freePoolAlreadyContainsGivenKey(String key);
+
+    RuntimeException maximumNumberOfClientsReachedforPool(String max);
+
 }
