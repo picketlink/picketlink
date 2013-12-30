@@ -103,7 +103,11 @@ public class ServiceProviderSAMLWorkflow {
             logger.samlSPCouldNotDispatchToLogoutPage(logOutPage);
         else {
             logger.trace("Forwarding request to logOutPage: " + logOutPage);
-            session.invalidate();
+
+            if (request.getSession(false) != null) {
+                session.invalidate();
+            }
+
             try {
                 dispatch.forward(request, response);
             } catch (Exception e) {
