@@ -11,7 +11,107 @@
     <section>
       <title>Overview</title>
       
+      <para>
+        The Permissions API is a set of extensible authorization features that provide capabilities for determining access privileges 
+        to application resources.  This chapter describes the <code>PermissionResolver</code> SPI and explains how to create a 
+        <code>PermissionVoter</code> implementation that provides custom authorization logic.  It also looks at the ACL (Access Control List)
+        features provided by the <code>PersistentPermissionVoter</code> and the management of persistent resource permissions via the 
+        <code>PermissionManager</code>.
+      </para>
+      
+      <para>
+        The <code>Permission</code> interface is used in a number of places throughout the Permissions API:
+      </para>
 
+      <programlisting language="JAVA"><![CDATA[public interface Permission {
+
+    Object getResource();
+
+    Class<?> getResourceClass();
+
+    Serializable getResourceIdentifier();
+
+    IdentityType getAssignee();
+
+    String getOperation();
+}]]></programlisting>
+
+      <para>
+        Each permission instance represents a specific resource permission, and contains three important pieces of state:
+      </para>
+      
+      <itemizedlist>
+        <listitem>
+          <para>
+            The <emphasis>assignee</emphasis>, which is the identity to which the permission is assigned.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            The <emphasis>operation</emphasis>, which is a string value that represents the exact action that the 
+            assigned identity is allowed to perform.        
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            Either a <emphasis>resource</emphasis> (if known), or a combination of a <emphasis>resource class</emphasis> and
+            <emphasis>resource identifier</emphasis>.  This value represents the resource to which the permission applies.
+          </para>
+        </listitem>
+      </itemizedlist>
+
+    </section>
+    
+    <section>
+      <title>Checking permissions for the current user</title>
+      
+      <para>
+        The primary method for accessing the Permissions API is via the <code>Identity</code> bean, which provides the following two methods 
+        for checking permissions for the currently authenticated user:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[boolean hasPermission(Object resource, String operation);
+boolean hasPermission(Class<?> resourceClass, Serializable identifier, String operation);]]></programlisting>
+
+      <para>
+        The first overloaded method may be used when you have a reference to the actual resource for which you wish to 
+        check privileges:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[@Inject Identity identity;
+
+public void deleteAccount(Account account) {
+    if (identity.hasPermission(account, "DELETE")) {
+        // Logic to delete Account object goes here
+    } else {
+        throw new SecurityException("Insufficient privileges!");
+    }
+}]]></programlisting>
+
+      <para>
+        The second overloaded method may be used when you <emphasis>don't</emphasis> have a reference to the resource object, but you have it's
+        <emphasis>identifier</emphasis> value (for example the primary key value of an entity bean):
+      </para>
+
+      <programlisting language="JAVA"><![CDATA[@Inject Identity identity;
+
+public void deleteCustomer(Long customerId) {
+    if (identity.hasPermission(Customer.class, customerId, "DELETE")) {
+        // Logic to delete Customer object goes here
+    } else {
+        throw new SecurityException("Insufficient privileges!");
+    }
+}]]></programlisting>
+
+      <para>
+        This second method is generally used for performance reasons, for example when you don't necessarily wish to load a resource object
+        because of a possibly expensive instantiation cost.
+      </para>
+    
+    </section>
+    
+    <section>
+      <title><code>PermissionResolver</code> SPI</title>
     </section>
     
 </chapter>
