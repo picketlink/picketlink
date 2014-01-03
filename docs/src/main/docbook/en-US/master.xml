@@ -33,6 +33,7 @@
   <xi:include href="picketlink-idm-configuration.xml"/>
   <xi:include href="picketlink-idm-jpa.xml"/>
   <xi:include href="picketlink-idm-ldap.xml"/>
+  <xi:include href="picketlink-idm-permissions.xml"/>
   <xi:include href="picketlink-subsystem.xml"/>
   <xi:include href="picketlink-federation.xml"/>
   <xi:include href="picketlink-quickstarts.xml"/>
