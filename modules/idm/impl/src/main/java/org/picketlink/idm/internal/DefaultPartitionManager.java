@@ -745,14 +745,14 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             for (IdentityConfiguration configuration : this.configurations) {
                 for (IdentityStoreConfiguration storeConfig : configuration.getStoreConfiguration()) {
                     if (storeConfig.supportsPermissions()) {
-                        return getIdentityStoreAndInitializeContext(context, configuration, storeConfig);
+                        return (PermissionStore) getIdentityStoreAndInitializeContext(context, configuration, storeConfig);
                     }
                 }
             }
         } else {
             for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
                 if (storeConfig.supportsPermissions()) {
-                    return getIdentityStoreAndInitializeContext(context, identityConfiguration, storeConfig);
+                    return (PermissionStore) getIdentityStoreAndInitializeContext(context, identityConfiguration, storeConfig);
                 }
             }
         }
