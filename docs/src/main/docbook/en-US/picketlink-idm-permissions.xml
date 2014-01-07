@@ -54,7 +54,7 @@
         </listitem>
         <listitem>
           <para>
-            Either a <emphasis>resource</emphasis> (if known), or a combination of a <emphasis>resource class</emphasis> and
+            Either a direct reference to the <emphasis>resource</emphasis> (if known), or a combination of a <emphasis>resource class</emphasis> and
             <emphasis>resource identifier</emphasis>.  This value represents the resource to which the permission applies.
           </para>
         </listitem>
@@ -108,6 +108,58 @@ public void deleteCustomer(Long customerId) {
         because of a possibly expensive instantiation cost.
       </para>
     
+    </section>
+    
+    <section>
+      <title>Using and Managing ACLs</title>
+      
+      <para>
+        An ACL (Access Control List) can be used to control which identities may invoke specific operations on application resources.
+        Underneath the covers, ACL security checks are handled by the <code>PersistentPermissionResolver</code>, which reads the
+        ACL entries for each resource via the <code>PermissionStore</code>, which is typically a wrapper around some form of persistent
+        storage such as database table.
+      </para>
+      
+      <para>
+        ACL permissions may be managed via a <code>PermissionManager</code>.  An instance of this bean may be obtained by first injecting the 
+        <code>PartitionManager</code>, then getting an instance to the <code>PermissionManager</code> via the <code>createPermissionManager()</code>
+        method:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[@Inject PartitionManager partitionManager;
+      
+public void managePermissions() {
+    PermissionManager permissionManager = partitionManager.createPermissionManager();
+}]]></programlisting>
+
+      <para>
+        Once you have a reference to the <code>PermissionManager</code>, you may use it to grant permissions:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[public void allowRead(User user, Customer customer) {
+    permissionManager.grantPermission(user, customer, "READ");
+}]]></programlisting>
+
+      <para>
+        The <code>grantPermission()</code> method accepts three parameters:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[void grantPermission(IdentityType assignee, Object resource, String operation);]]></programlisting>
+      
+      <para>
+        The <emphasis>assignee</emphasis> is the identity to which you wish to grant the permission.  The <emphasis>resource</emphasis> is the
+        application resource for which the permission applies.  The <emphasis>operation</emphasis> is a String value representing the action that
+        the assignee may invoke in relation to the resource.
+      </para>
+      
+      <section>
+        <title>What types of objects can be resources?</title>
+        
+        <para>
+        
+        </para>
+      </section>
+      
     </section>
     
     <section>
