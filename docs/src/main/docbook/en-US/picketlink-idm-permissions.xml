@@ -13,14 +13,15 @@
       
       <para>
         The Permissions API is a set of extensible authorization features that provide capabilities for determining access privileges 
-        to application resources.  This chapter describes the <code>PermissionResolver</code> SPI and explains how to create a 
-        <code>PermissionVoter</code> implementation that provides custom authorization logic.  It also looks at the ACL (Access Control List)
-        features provided by the <code>PersistentPermissionVoter</code> and the management of persistent resource permissions via the 
-        <code>PermissionManager</code>.
+        for application resources.  This chapter describes the ACL (Access Control List) features and the management of persistent 
+        resource permissions via the <code>PermissionManager</code>.  It also explains how the <code>PermissionResolver</code> SPI 
+        can be used to in conjunction with a custom <code>PermissionVoter</code> implementation, allowing you to plugin your own
+        custom authorization logic.  
       </para>
       
       <para>
-        The <code>Permission</code> interface is used in a number of places throughout the Permissions API:
+        The <code>Permission</code> interface is used in a number of places throughout the Permissions API, and defines the following
+        methods:
       </para>
 
       <programlisting language="JAVA"><![CDATA[public interface Permission {
@@ -81,6 +82,7 @@ boolean hasPermission(Class<?> resourceClass, Serializable identifier, String op
       <programlisting language="JAVA"><![CDATA[@Inject Identity identity;
 
 public void deleteAccount(Account account) {
+    // Check the current user has permission to delete the account
     if (identity.hasPermission(account, "DELETE")) {
         // Logic to delete Account object goes here
     } else {
@@ -96,6 +98,7 @@ public void deleteAccount(Account account) {
       <programlisting language="JAVA"><![CDATA[@Inject Identity identity;
 
 public void deleteCustomer(Long customerId) {
+    // Check the current user has permission to delete the customer
     if (identity.hasPermission(Customer.class, customerId, "DELETE")) {
         // Logic to delete Customer object goes here
     } else {
@@ -104,14 +107,15 @@ public void deleteCustomer(Long customerId) {
 }]]></programlisting>
 
       <para>
-        This second method is generally used for performance reasons, for example when you don't necessarily wish to load a resource object
-        because of a possibly expensive instantiation cost.
+        This method is generally used for performance reasons, for example when you don't necessarily wish to load a resource object
+        because of a possibly expensive instantiation cost, or you wish to check whether there are suitable permissions assigned to
+        the user before loading the resource.
       </para>
     
     </section>
     
     <section>
-      <title>Using and Managing ACLs</title>
+      <title>ACL Permissions</title>
       
       <para>
         An ACL (Access Control List) can be used to control which identities may invoke specific operations on application resources.
@@ -120,65 +124,68 @@ public void deleteCustomer(Long customerId) {
         storage such as database table.
       </para>
       
-      <para>
-        ACL permissions may be managed via a <code>PermissionManager</code>.  An instance of this bean may be obtained by first injecting the 
-        <code>PartitionManager</code>, then getting an instance to the <code>PermissionManager</code> via the <code>createPermissionManager()</code>
-        method:
-      </para>
+      <section>
+        <title>Managing ACLs</title>
       
-      <programlisting language="JAVA"><![CDATA[@Inject PartitionManager partitionManager;
-      
-public void managePermissions() {
-    PermissionManager permissionManager = partitionManager.createPermissionManager();
-}]]></programlisting>
+        <para>
+          ACL permissions are managed via the <code>PermissionManager</code>.  An instance of this bean can be obtained by first injecting the 
+          <code>PartitionManager</code>, then getting an instance to the <code>PermissionManager</code> via the <code>createPermissionManager()</code>
+          method:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[@Inject PartitionManager partitionManager;
+        
+  public void managePermissions() {
+      PermissionManager permissionManager = partitionManager.createPermissionManager();
+  }]]></programlisting>
 
-      <para>
-        Once you have a reference to the <code>PermissionManager</code>, you may use it to grant permissions:
-      </para>
-      
-      <programlisting language="JAVA"><![CDATA[public void allowRead(User user, Customer customer) {
-    permissionManager.grantPermission(user, customer, "READ");
-}]]></programlisting>
+        <para>
+          Once you have a reference to the <code>PermissionManager</code>, you can use it to grant permissions:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[public void allowRead(User user, Customer customer) {
+      permissionManager.grantPermission(user, customer, "READ");
+  }]]></programlisting>
 
-      <para>
-        The <code>grantPermission()</code> method accepts three parameters:
-      </para>
-      
-      <programlisting language="JAVA"><![CDATA[void grantPermission(IdentityType assignee, Object resource, String operation);]]></programlisting>
-      
-      <para>
-        The <emphasis>assignee</emphasis> is the identity to which you wish to grant the permission.  The <emphasis>resource</emphasis> is the
-        application resource for which the permission applies.  The <emphasis>operation</emphasis> is a String value representing the action that
-        the assignee may invoke in relation to the resource.
-      </para>
+        <para>
+          The <code>grantPermission()</code> method accepts three parameters:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[void grantPermission(IdentityType assignee, Object resource, String operation);]]></programlisting>
+        
+        <para>
+          The <emphasis>assignee</emphasis> is the identity to which you wish to grant the permission.  The <emphasis>resource</emphasis> is the
+          application resource for which the permission applies.  The <emphasis>operation</emphasis> is a String value representing the action that
+          the assignee may invoke in relation to the resource.
+        </para>
 
-      <para>      
-        Resources may conceivably be any type of <code>Object</code> so long as there exists a unique, serializable value that may be determined
-        or in some way calculated from the resource object, which uniquely identifies that resource from other resources of the same type.  This
-        unique value is called the <emphasis>identifier</emphasis>, an example of which might be the primary key value of an entity bean.  The
-        <code>PermissionHandler</code> SPI (see section below) is responsible for generating identifier values for resource objects.
-      </para>
-      
-      <para>
-        The <code>revokePermission()</code> method may be used to remove a permission.  Like <code>grantPermission()</code>, it also accepts three
-        parameters:
-      </para>
-      
-      <programlisting language="JAVA"><![CDATA[void revokePermission(IdentityType assignee, Object resource, String operation);]]></programlisting>
-      
-      <para>
-        It is also possible to revoke all assigned permissions for a single resource via the <code>clearPermissions()</code> method.  This is useful
-        for example if you wish to delete the resource and don't wish to leave orphaned permissions:
-      </para>
-      
-      <programlisting language="JAVA"><![CDATA[void clearPermissions(Object resource);]]></programlisting>
-      
-      <para>
-        There are also a number of overloaded methods available for querying permissions.  These methods take an assortment of parameters depending
-        on exactly which permissions you wish to find:
-      </para>
-      
-      <programlisting language="JAVA"><![CDATA[List<Permission> listPermissions(Object resource);
+        <para>      
+          Resources may conceivably be any type of <code>Object</code> so long as there exists a unique, serializable value that can be determined
+          or in some way calculated from the resource object, which uniquely identifies that resource from other resources of the same type.  This
+          unique value is called the <emphasis>identifier</emphasis>, an example of which might be the primary key value of an entity bean.  The
+          <code>PermissionHandler</code> SPI (see section below) is responsible for generating identifier values for resource objects.
+        </para>
+        
+        <para>
+          The <code>revokePermission()</code> method is used to remove permissions.  Like <code>grantPermission()</code>, it also accepts three
+          parameters:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[void revokePermission(IdentityType assignee, Object resource, String operation);]]></programlisting>
+        
+        <para>
+          It is also possible to revoke all assigned permissions for a single resource via the <code>clearPermissions()</code> method.  This is useful
+          for example if you wish to delete the resource and don't wish to leave orphaned permissions:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[void clearPermissions(Object resource);]]></programlisting>
+        
+        <para>
+          There are also a number of overloaded methods available for querying permissions.  These methods take an assortment of parameters depending
+          on exactly which permissions you wish to find:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[List<Permission> listPermissions(Object resource);
 
 List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier);
 
@@ -187,11 +194,11 @@ List<Permission> listPermissions(Object resource, String operation);
 List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier, 
                                  String operation);]]></programlisting>
 
-      <para>
-        Here's some examples:
-      </para>
-      
-      <programlisting language="JAVA"><![CDATA[// List all permissions for a known Product
+        <para>
+          Here's some examples:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[// List all permissions for a known Product
 Product p = lookupProduct("grapes");
 List<Permission> permissions = permissionManager.listPermissions(p);
 
@@ -208,16 +215,30 @@ List<Permissions> permissions = permissionManager.listPermissions(p, "DELETE");
 // resource class and the identifier
 List<Permissions> permissions = permissionManager.listPermissions(
     Product.class, "oranges", "UPDATE");]]></programlisting>
+      
+      </section>
+      
+      <section>
+        <title><code>PermissionHandler</code> SPI</title>
+        
+        <para>
+          The <code>PermissionHandler</code> interface is responsible for 
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[public interface PermissionHandler {
+
+    boolean canHandle(Class<?> resourceClass);
+
+    Serializable getIdentifier(Object resource);
+
+    Class<?> unwrapResourceClass(Object resource);
+
+    Set<String> listAvailableOperations(Class<?> resourceClass);
+}]]></programlisting>
+        
+      </section>
      
-    </section>
-    
-    <section>
-      <title><code>PermissionHandler</code> SPI</title>
-      
-      <para>
-      
-      </para>
-    </section>
+    </section>  
     
     <section>
       <title><code>PermissionResolver</code> SPI</title>
