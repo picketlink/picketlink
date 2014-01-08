@@ -135,17 +135,17 @@ public void deleteCustomer(Long customerId) {
         
         <programlisting language="JAVA"><![CDATA[@Inject PartitionManager partitionManager;
         
-  public void managePermissions() {
-      PermissionManager permissionManager = partitionManager.createPermissionManager();
-  }]]></programlisting>
+public void managePermissions() {
+    PermissionManager permissionManager = partitionManager.createPermissionManager();
+}]]></programlisting>
 
         <para>
           Once you have a reference to the <code>PermissionManager</code>, you can use it to grant permissions:
         </para>
         
         <programlisting language="JAVA"><![CDATA[public void allowRead(User user, Customer customer) {
-      permissionManager.grantPermission(user, customer, "READ");
-  }]]></programlisting>
+    permissionManager.grantPermission(user, customer, "READ");
+}]]></programlisting>
 
         <para>
           The <code>grantPermission()</code> method accepts three parameters:
@@ -219,10 +219,13 @@ List<Permissions> permissions = permissionManager.listPermissions(
       </section>
       
       <section>
-        <title><code>PermissionHandler</code> SPI</title>
+        <title>Configuring resources for ACL usage</title>
         
         <para>
-          The <code>PermissionHandler</code> interface is responsible for 
+          Every resource class for which you wish to support ACL permissions is required to have a corresponding
+          <code>PermissionHandler</code>.  This interface is primarily responsible for the generation of resource
+          identifier values, plus a couple of other utility methods - please refer to the API documentation for more
+          details:
         </para>
         
         <programlisting language="JAVA"><![CDATA[public interface PermissionHandler {
@@ -234,6 +237,28 @@ List<Permissions> permissions = permissionManager.listPermissions(
     Class<?> unwrapResourceClass(Object resource);
 
     Set<String> listAvailableOperations(Class<?> resourceClass);
+}]]></programlisting>
+
+        <para>
+          There are two ways that a resource class can be associated with a <code>PermissionHandler</code> - the <emphasis>first</emphasis>
+          way is by providing a <code>@PermissionsHandledBy</code> annotation on the resource class itself:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[import org.picketlink.idm.permission.annotations.PermissionsHandledBy;
+        
+@PermissionsHandledBy(CustomPermissionHandler.class)
+public class MyResourceClass {
+    
+}]]></programlisting>
+          
+        <para>
+          For the circumstances where it is not possible to annotate the resource class directly, the second way is to register a
+          custom <code>PermissionHandler</code> instance for which the <code>canHandle()</code> method returns <code>true</code> for 
+          the resource class:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[public boolean canHandle(Class<?> resourceClass) {
+    return MyResourceClass.class.equals(resourceClass);
 }]]></programlisting>
         
       </section>
