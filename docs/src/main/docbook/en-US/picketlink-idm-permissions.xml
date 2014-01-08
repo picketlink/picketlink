@@ -151,19 +151,80 @@ public void managePermissions() {
         application resource for which the permission applies.  The <emphasis>operation</emphasis> is a String value representing the action that
         the assignee may invoke in relation to the resource.
       </para>
+
+      <para>      
+        Resources may conceivably be any type of <code>Object</code> so long as there exists a unique, serializable value that may be determined
+        or in some way calculated from the resource object, which uniquely identifies that resource from other resources of the same type.  This
+        unique value is called the <emphasis>identifier</emphasis>, an example of which might be the primary key value of an entity bean.  The
+        <code>PermissionHandler</code> SPI (see section below) is responsible for generating identifier values for resource objects.
+      </para>
       
-      <section>
-        <title>What types of objects can be resources?</title>
-        
-        <para>
-        
-        </para>
-      </section>
+      <para>
+        The <code>revokePermission()</code> method may be used to remove a permission.  Like <code>grantPermission()</code>, it also accepts three
+        parameters:
+      </para>
       
+      <programlisting language="JAVA"><![CDATA[void revokePermission(IdentityType assignee, Object resource, String operation);]]></programlisting>
+      
+      <para>
+        It is also possible to revoke all assigned permissions for a single resource via the <code>clearPermissions()</code> method.  This is useful
+        for example if you wish to delete the resource and don't wish to leave orphaned permissions:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[void clearPermissions(Object resource);]]></programlisting>
+      
+      <para>
+        There are also a number of overloaded methods available for querying permissions.  These methods take an assortment of parameters depending
+        on exactly which permissions you wish to find:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[List<Permission> listPermissions(Object resource);
+
+List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier);
+
+List<Permission> listPermissions(Object resource, String operation);
+
+List<Permission> listPermissions(Class<?> resourceClass, Serializable identifier, 
+                                 String operation);]]></programlisting>
+
+      <para>
+        Here's some examples:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[// List all permissions for a known Product
+Product p = lookupProduct("grapes");
+List<Permission> permissions = permissionManager.listPermissions(p);
+
+// List all permissions for a Product where we know the resource class 
+// and the identifier
+List<Permission> permissions = permissionManager.listPermissions(
+    Product.class, "bananas");
+
+// List all "DELETE" permissions that have been granted for a Product
+Product p = lookupProduct("apples");
+List<Permissions> permissions = permissionManager.listPermissions(p, "DELETE");
+
+// List all "UPDATE" permissions for a Product where we know the 
+// resource class and the identifier
+List<Permissions> permissions = permissionManager.listPermissions(
+    Product.class, "oranges", "UPDATE");]]></programlisting>
+     
+    </section>
+    
+    <section>
+      <title><code>PermissionHandler</code> SPI</title>
+      
+      <para>
+      
+      </para>
     </section>
     
     <section>
       <title><code>PermissionResolver</code> SPI</title>
+      
+      <para>
+      
+      </para>
     </section>
     
 </chapter>
