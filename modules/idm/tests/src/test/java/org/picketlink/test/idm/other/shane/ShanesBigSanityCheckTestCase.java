@@ -468,7 +468,7 @@ public class ShanesBigSanityCheckTestCase {
         // Assert the permission properties are correctly set
         assert p.getResource().equals(c1);
         assert p.getAssignee().equals(u);
-        assert Customer.PERMISSION_READ.equals(p.getOperation());
+        assert Customer.PERMISSION_UPDATE.equals(p.getOperation());
 
         // Grant the 'DELETE' permission for Customer c1 to the user we created
         pm.grantPermission(u, c1, Customer.PERMISSION_DELETE);
