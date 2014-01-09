@@ -55,7 +55,7 @@ public interface PermissionHandler {
 
     /**
      * Returns a set containing the available permissions for a particular resource.  If there are no hard coded
-     * permissions defined (i.e. any permission is allowed) then this method will return an empty set.
+     * permissions defined (i.e. any permission is allowed) then this method must return an empty set.
      *
      * @param resourceClass
      * @return

@@ -34,7 +34,7 @@ import org.picketlink.idm.permission.annotations.PermissionsHandledBy;
  * @author Shane Bryzak
  */
 public class PermissionHandlerPolicy {
-    private Map<Class<?>, PermissionHandler> handlers = new ConcurrentHashMap<Class<?>, PermissionHandler>();
+    private Map<Class<?>, PermissionHandler> classHandlers = new ConcurrentHashMap<Class<?>, PermissionHandler>();
 
     private Set<PermissionHandler> registeredHandlers = new HashSet<PermissionHandler>();
 
@@ -42,6 +42,7 @@ public class PermissionHandlerPolicy {
         if (handlers == null || handlers.isEmpty()) {
             registeredHandlers.add(new EntityPermissionHandler());
             registeredHandlers.add(new ClassPermissionHandler());
+            registeredHandlers.add(new StringPermissionHandler());
         }
     }
 
@@ -70,7 +71,7 @@ public class PermissionHandlerPolicy {
     }
 
     private PermissionHandler getHandlerForResource(Object resource) {
-        PermissionHandler handler = handlers.get(resource.getClass());
+        PermissionHandler handler = classHandlers.get(resource.getClass());
 
         if (handler == null) {
             if (resource.getClass().isAnnotationPresent(PermissionsHandledBy.class)) {
@@ -80,7 +81,7 @@ public class PermissionHandlerPolicy {
                 if (handlerClass != PermissionHandler.class) {
                     try {
                         handler = handlerClass.newInstance();
-                        handlers.put(resource.getClass(), handler);
+                        classHandlers.put(resource.getClass(), handler);
                     }
                     catch (Exception ex) {
                         throw new RuntimeException("Error instantiating IdentifierStrategy for object " + resource, ex);
@@ -91,7 +92,7 @@ public class PermissionHandlerPolicy {
             for (PermissionHandler s : registeredHandlers) {
                 if (s.canHandle(resource.getClass())) {
                     handler = s;
-                    handlers.put(resource.getClass(), handler);
+                    classHandlers.put(resource.getClass(), handler);
                     break;
                 }
             }
@@ -104,7 +105,7 @@ public class PermissionHandlerPolicy {
         return registeredHandlers;
     }
 
-    public void setRegisteredHandlers(Set<PermissionHandler> registeredHandlers) {
-        this.registeredHandlers = registeredHandlers;
+    public void registerHandler(PermissionHandler handler) {
+        this.registeredHandlers.add(handler);
     }
 }

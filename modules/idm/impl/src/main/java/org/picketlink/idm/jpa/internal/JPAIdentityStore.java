@@ -1727,7 +1727,7 @@ public class JPAIdentityStore
             if (perms != null) {
                 try {
                     // Convert the operations value to a long for convenience
-                    long ops = operations != null ? Long.valueOf(operations.toString()) : 0;
+                    long ops = opValue != null ? Long.valueOf(opValue.toString()) : 0;
 
                     for (AllowedPermission p : perms.value()) {
                         if (p.mask() > 0) {

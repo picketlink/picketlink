@@ -49,6 +49,7 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.IdentityPartition;
 import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.permission.acl.spi.PermissionHandler;
 import org.picketlink.idm.permission.acl.spi.PermissionHandlerPolicy;
 import org.picketlink.idm.permission.acl.spi.PermissionStore;
 import org.picketlink.idm.query.IdentityQuery;
@@ -145,11 +146,13 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         this(configurations, null, null);
     }
 
-    public DefaultPartitionManager(Collection<IdentityConfiguration> configurations, EventBridge eventBridge) {
-        this(configurations, eventBridge, null);
+    public DefaultPartitionManager(Collection<IdentityConfiguration> configurations, EventBridge eventBridge, 
+            Collection<PermissionHandler> permissionHandlers) {
+        this(configurations, eventBridge, permissionHandlers, null);
     }
 
-    public DefaultPartitionManager(Collection<IdentityConfiguration> configurations, EventBridge eventBridge, IdGenerator idGenerator) {
+    public DefaultPartitionManager(Collection<IdentityConfiguration> configurations, EventBridge eventBridge, 
+            Collection<PermissionHandler> permissionHandlers, IdGenerator idGenerator) {
         if (configurations == null || configurations.isEmpty()) {
             throw MESSAGES.configNoIdentityConfigurationProvided();
         }
@@ -174,6 +177,11 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             }
 
             permissionHandlerPolicy = new PermissionHandlerPolicy(null);
+            if (permissionHandlers != null) {
+                for (PermissionHandler handler : permissionHandlers) {
+                    permissionHandlerPolicy.registerHandler(handler);
+                }
+            }
 
             IdentityConfiguration partitionCfg = null;
             IdentityConfiguration attributeCfg = null;

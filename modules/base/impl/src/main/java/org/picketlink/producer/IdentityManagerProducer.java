@@ -31,6 +31,7 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.permission.acl.spi.PermissionHandler;
 import org.picketlink.internal.CDIEventBridge;
 import org.picketlink.internal.IdentityStoreAutoConfiguration;
 import org.picketlink.internal.SecuredIdentityManager;
@@ -41,6 +42,7 @@ import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -80,6 +82,9 @@ public class IdentityManagerProducer {
 
     @Inject
     private Instance<IdentityConfiguration> identityConfigInstance;
+
+    @Inject
+    private Instance<PermissionHandler> permissionHandlerInstance;
 
     @Inject
     private Event<IdentityConfigurationEvent> identityConfigEvent;
@@ -192,13 +197,25 @@ public class IdentityManagerProducer {
     private PartitionManager createEmbeddedPartitionManager() {
         IdentityConfigurationBuilder builder = createIdentityConfigurationBuilder();
 
-        PartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll(), this.eventBridge);
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll(), this.eventBridge, getPermissionHandlers());
 
         this.partitionManagerCreateEvent.fire(new PartitionManagerCreateEvent(partitionManager));
 
         createDefaultPartition(partitionManager);
 
         return partitionManager;
+    }
+
+    private List<PermissionHandler> getPermissionHandlers() {
+        List<PermissionHandler> permissionHandlers = new ArrayList<PermissionHandler>();
+
+        if (!this.permissionHandlerInstance.isUnsatisfied()) {
+            for (Iterator<PermissionHandler> iterator = this.permissionHandlerInstance.iterator(); iterator.hasNext(); ) {
+                permissionHandlers.add(iterator.next());
+            }
+        }
+
+        return permissionHandlers;
     }
 
     private void createDefaultPartition(PartitionManager partitionManager) {

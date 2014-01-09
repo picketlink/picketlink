@@ -448,25 +448,32 @@ public class ShanesBigSanityCheckTestCase {
         // Confirm that the permission was created
         assert !pm.listPermissions(c1).isEmpty();
 
+        // Clear all permissions for Customer c1
         pm.clearPermissions(c1);
 
         assert pm.listPermissions(c1).isEmpty();
 
-        /*
-        // Confirm that the permission can by looked up via the resource and the action string
-        assert !pm.listPermissions(c1, Customer.PERMISSION_READ).isEmpty();
+        // Grant the 'UPDATE' permission for Customer c1 to the user we created
+        pm.grantPermission(u, c1, Customer.PERMISSION_UPDATE);
+
+        // Confirm that the permission can by looked up via the resource reference
+        assert !pm.listPermissions(c1, Customer.PERMISSION_UPDATE).isEmpty();
 
         // Also assert there was only one permission created
         assert pm.listPermissions(c1).size() == 1;
 
         // Lookup the permission object
-        Permission p =pm.listPermissions(c1).get(0);
+        Permission p = pm.listPermissions(c1).get(0);
 
         // Assert the permission properties are correctly set
         assert p.getResource().equals(c1);
         assert p.getAssignee().equals(u);
         assert Customer.PERMISSION_READ.equals(p.getOperation());
-        
-        */
+
+        // Grant the 'DELETE' permission for Customer c1 to the user we created
+        pm.grantPermission(u, c1, Customer.PERMISSION_DELETE);
+
+        // Confirm that the permission exists
+        assert !pm.listPermissions(c1, Customer.PERMISSION_DELETE).isEmpty();
     }
 }
