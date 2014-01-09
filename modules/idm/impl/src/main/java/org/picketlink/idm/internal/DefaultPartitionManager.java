@@ -146,12 +146,12 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
         this(configurations, null, null);
     }
 
-    public DefaultPartitionManager(Collection<IdentityConfiguration> configurations, EventBridge eventBridge, 
+    public DefaultPartitionManager(Collection<IdentityConfiguration> configurations, EventBridge eventBridge,
             Collection<PermissionHandler> permissionHandlers) {
         this(configurations, eventBridge, permissionHandlers, null);
     }
 
-    public DefaultPartitionManager(Collection<IdentityConfiguration> configurations, EventBridge eventBridge, 
+    public DefaultPartitionManager(Collection<IdentityConfiguration> configurations, EventBridge eventBridge,
             Collection<PermissionHandler> permissionHandlers, IdGenerator idGenerator) {
         if (configurations == null || configurations.isEmpty()) {
             throw MESSAGES.configNoIdentityConfigurationProvided();
