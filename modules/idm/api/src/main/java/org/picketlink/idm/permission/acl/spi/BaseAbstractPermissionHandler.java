@@ -48,12 +48,12 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
             AllowedOperations p = (AllowedOperations) cls.getAnnotation(AllowedOperations.class);
 
             if (p != null) {
-                AllowedOperation[] permissions = p.value();
-                if (permissions != null) {
-                    for (AllowedOperation permission : permissions) {
-                        actions.put(permission.operation(), permission.mask());
+                AllowedOperation[] operations = p.value();
+                if (operations != null) {
+                    for (AllowedOperation operation : operations) {
+                        actions.put(operation.value(), operation.mask());
 
-                        if (permission.mask() != 0) {
+                        if (operation.mask() != 0) {
                             useMask = true;
                         }
                     }

@@ -1729,10 +1729,10 @@ public class JPAIdentityStore
                     // Convert the operations value to a long for convenience
                     long ops = opValue != null ? Long.valueOf(opValue.toString()) : 0;
 
-                    for (AllowedOperation p : perms.value()) {
-                        if (p.mask() > 0) {
-                            if ((p.mask() & ops) != 0) {
-                                operations.add(p.operation());
+                    for (AllowedOperation o : perms.value()) {
+                        if (o.mask() > 0) {
+                            if ((o.mask() & ops) != 0) {
+                                operations.add(o.value());
                             }
                         }
                     }
@@ -1759,9 +1759,9 @@ public class JPAIdentityStore
             if (perms != null) {
                 AllowedOperation perm = null;
 
-                for (AllowedOperation p : perms.value()) {
-                    if (p.operation().equals(operation)) {
-                        perm = p;
+                for (AllowedOperation o : perms.value()) {
+                    if (o.value().equals(operation)) {
+                        perm = o;
                         break;
                     }
                 }
