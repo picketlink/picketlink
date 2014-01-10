@@ -92,8 +92,8 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.permission.acl.spi.PermissionStore;
-import org.picketlink.idm.permission.annotations.AllowedPermission;
-import org.picketlink.idm.permission.annotations.AllowedPermissions;
+import org.picketlink.idm.permission.annotations.AllowedOperation;
+import org.picketlink.idm.permission.annotations.AllowedOperations;
 import org.picketlink.idm.permission.internal.PermissionImpl;
 import org.picketlink.idm.query.AttributeParameter;
 import org.picketlink.idm.query.IdentityQuery;
@@ -1676,13 +1676,13 @@ public class JPAIdentityStore
 
     protected class PermissionOperationSet {
         private PermissionEntityMapper mapper;
-        private AllowedPermissions perms;
+        private AllowedOperations perms;
         private Object entity;
 
         public PermissionOperationSet(Object entity, Class resourceClass, PermissionEntityMapper mapper) {
             this.entity = entity;
             this.mapper = mapper;
-            this.perms = (AllowedPermissions) resourceClass.getAnnotation(AllowedPermissions.class);
+            this.perms = (AllowedOperations) resourceClass.getAnnotation(AllowedOperations.class);
         }
 
         public void appendOperation(String operation) {
@@ -1729,7 +1729,7 @@ public class JPAIdentityStore
                     // Convert the operations value to a long for convenience
                     long ops = opValue != null ? Long.valueOf(opValue.toString()) : 0;
 
-                    for (AllowedPermission p : perms.value()) {
+                    for (AllowedOperation p : perms.value()) {
                         if (p.mask() > 0) {
                             if ((p.mask() & ops) != 0) {
                                 operations.add(p.operation());
@@ -1757,9 +1757,9 @@ public class JPAIdentityStore
 
             // Determine how the permission operations are stored - first check if bitmasks are used
             if (perms != null) {
-                AllowedPermission perm = null;
+                AllowedOperation perm = null;
 
-                for (AllowedPermission p : perms.value()) {
+                for (AllowedOperation p : perms.value()) {
                     if (p.operation().equals(operation)) {
                         perm = p;
                         break;

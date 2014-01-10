@@ -224,8 +224,8 @@ List<Permissions> permissions = permissionManager.listPermissions(
         <para>
           Every resource class for which you wish to support ACL permissions is required to have a corresponding
           <code>PermissionHandler</code>.  This interface is primarily responsible for the generation of resource
-          identifier values, plus a couple of other utility methods - please refer to the API documentation for more
-          details:
+          identifier values, plus a couple of other utility methods (please refer to the API documentation for more
+          details):
         </para>
         
         <programlisting language="JAVA"><![CDATA[public interface PermissionHandler {
@@ -289,7 +289,8 @@ public class StringPermissionHandler implements PermissionHandler {
 
     private void checkResourceValid(Object resource) {
         if (!(resource instanceof String)) {
-            throw new IllegalArgumentException("Resource [" + resource + "] must be instance of String");
+            throw new IllegalArgumentException("Resource [" + resource + 
+                "] must be instance of String");
         }
     }
 
@@ -299,6 +300,59 @@ public class StringPermissionHandler implements PermissionHandler {
     }
 }]]></programlisting>
         
+      </section>
+      
+      <section>
+        <title>Restricting resource operations</title>
+        
+        <para>
+          For many resource types it makes sense to restrict the set of resource operations for which permissions might be assigned.  For example, 
+          an application might have an entity bean containing lookup values for countries.  This <code>Country</code> bean is likely to only require 
+          the bare minimum in terms of data management and so you might like to restrict the available operations for it to the typical <literal>CREATE, READ, 
+          UPDATE, DELETE</literal> operations.  To do this we use the <code>@AllowedOperations</code> annotation - this annotation allows us to provide a
+          child array of <code>@AllowedOperation</code> values that specify exactly which operation values that permissions can be assigned for:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[import org.picketlink.idm.permission.annotations.AllowedOperation;
+import org.picketlink.idm.permission.annotations.AllowedOperations;
+
+@Entity
+@AllowedOperations({
+    @AllowedOperation(value = "CREATE", mask = 1, classOperation = true),
+    @AllowedOperation(value = "READ", mask = 2),
+    @AllowedOperation(value = "UPDATE", mask = 4),
+    @AllowedOperation(value = "DELETE", mask = 8)
+})
+public class Country implements Serializable {]]></programlisting>
+
+        <para>
+          The optional <code>mask</code> value can be used to specify a bitmask value to allow for more efficient storage of permission values.  If the
+          mask values are set, the operation values for that object's permissions will be stored as a numerical value with the corresponding bit values
+          turned on.  For example, if a single user was assigned permission for both the <literal>READ</literal> and <literal>UPDATE</literal> operations 
+          for one of our <code>Country</code> beans, then this operation value would be stored as 6 (<literal>READ</literal> (2) + <literal>UPDATE</literal> (4)).
+        </para>
+        
+        <para>
+          The other optional value, <code>classOperation</code> can be set to <literal>true</literal> if the permission applies to the class itself, and
+          not an instance of a class.  For example, you might wish to check that the current user has permission to actually create a new <code>Country</code>
+          bean.  In this case, the permission check would look something like this:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[@Inject Identity identity;
+       
+public void createCountry() {
+    if (!identity.hasPermission(Country.class, "CREATE")) {
+        throw new SecurityException(
+          "Current user has insufficient privileges for this operation.");    
+    }
+
+    // snip
+}]]></programlisting>
+
+        <para>
+          This functionality is provided by the <code>ClassPermissionHandler</code> permission handler.
+        </para>
+      
       </section>
      
     </section>  

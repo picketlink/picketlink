@@ -23,8 +23,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.picketlink.idm.permission.annotations.AllowedPermission;
-import org.picketlink.idm.permission.annotations.AllowedPermissions;
+import org.picketlink.idm.permission.annotations.AllowedOperation;
+import org.picketlink.idm.permission.annotations.AllowedOperations;
 
 /**
  * Stored resource permissions can either be persisted as a comma-separated list of values, or as a
@@ -45,12 +45,12 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
 
             boolean useMask = false;
 
-            AllowedPermissions p = (AllowedPermissions) cls.getAnnotation(AllowedPermissions.class);
+            AllowedOperations p = (AllowedOperations) cls.getAnnotation(AllowedOperations.class);
 
             if (p != null) {
-                AllowedPermission[] permissions = p.value();
+                AllowedOperation[] permissions = p.value();
                 if (permissions != null) {
-                    for (AllowedPermission permission : permissions) {
+                    for (AllowedOperation permission : permissions) {
                         actions.put(permission.operation(), permission.mask());
 
                         if (permission.mask() != 0) {
