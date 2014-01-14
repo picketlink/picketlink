@@ -94,7 +94,6 @@ import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.permission.acl.spi.PermissionStore;
 import org.picketlink.idm.permission.annotations.AllowedOperation;
 import org.picketlink.idm.permission.annotations.AllowedOperations;
-import org.picketlink.idm.permission.internal.PermissionImpl;
 import org.picketlink.idm.query.AttributeParameter;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
@@ -1491,9 +1490,9 @@ public class JPAIdentityStore
 
             for (String op : opSet.getOperations()) {
                 if (operation != null && operation.equals(op)) {
-                    perms.add(new PermissionImpl(resource, assignee, op));
+                    perms.add(new Permission(resource, assignee, op));
                 } else if (operation == null) {
-                    perms.add(new PermissionImpl(resource, assignee, op));
+                    perms.add(new Permission(resource, assignee, op));
                 }
             }
         }
@@ -1573,9 +1572,9 @@ public class JPAIdentityStore
 
             for (String op : opSet.getOperations()) {
                 if (operation != null && operation.equals(op)) {
-                    perms.add(new PermissionImpl(resourceClass, identifier, assignee, op));
+                    perms.add(new Permission(resourceClass, identifier, assignee, op));
                 } else if (operation == null) {
-                    perms.add(new PermissionImpl(resourceClass, identifier, assignee, op));
+                    perms.add(new Permission(resourceClass, identifier, assignee, op));
                 }
             }
         }
