@@ -29,7 +29,29 @@ import org.picketlink.idm.model.IdentityType;
  *
  * @author Shane Bryzak
  */
-public interface Permission {
+public class Permission {
+    private Object resource;
+
+    private Class<?> resourceClass;
+
+    private Serializable resourceIdentifier;
+
+    private IdentityType assignee;
+
+    private String operation;
+
+    public Permission(Object resource, IdentityType assignee, String operation) {
+        this.resource = resource;
+        this.assignee = assignee;
+        this.operation = operation;
+    }
+
+    public Permission(Class<?> resourceClass, Serializable resourceIdentifier, IdentityType assignee, String operation) {
+        this.resourceClass = resourceClass;
+        this.resourceIdentifier = resourceIdentifier;
+        this.assignee = assignee;
+        this.operation = operation;
+    }
 
     /**
      * Returns the resource object if known, otherwise returns null.  If the resource object is not known, then the
@@ -37,33 +59,43 @@ public interface Permission {
      *
      * @return Object The resource instance, or null
      */
-    Object getResource();
+    public Object getResource() {
+        return resource;
+    }
 
     /**
      * Returns the resource class if the actual resource instance is not known, otherwise returns null.
      *
      * @return
      */
-    Class<?> getResourceClass();
+    public Class<?> getResourceClass() {
+        return resourceClass;
+    }
 
     /**
      * Returns the resource identifier if the actual resource instance is not known, otherwise returns null.
      *
      * @return
      */
-    Serializable getResourceIdentifier();
+    public Serializable getResourceIdentifier() {
+        return resourceIdentifier;
+    }
 
     /**
      * Returns the identity to which the permission is assigned.
      *
      * @return
      */
-    IdentityType getAssignee();
+    public IdentityType getAssignee() {
+        return assignee;
+    }
 
     /**
      * Returns the permission operation
      *
      * @return
      */
-    String getOperation();
+    public String getOperation() {
+        return operation;
+    }
 }
