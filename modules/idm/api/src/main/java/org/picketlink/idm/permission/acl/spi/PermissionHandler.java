@@ -54,12 +54,21 @@ public interface PermissionHandler {
     Class<?> unwrapResourceClass(Object resource);
 
     /**
-     * Returns a set containing the available permissions for a particular resource.  If there are no hard coded
+     * Returns a set containing the available permissions for a resource class.  If there are no hard coded
      * permissions defined (i.e. any permission is allowed) then this method must return an empty set.
      *
      * @param resourceClass
      * @return
      */
-    Set<String> listAvailableOperations(Class<?> resourceClass);
+    Set<String> listClassOperations(Class<?> resourceClass);
+
+    /**
+     * Returns a set containing the available permissions for a particular resource instance.  If there are no hard coded
+     * permissions defined (i.e. any permission is allowed) then this method must return an empty set.
+     *
+     * @param resourceClass
+     * @return
+     */
+    Set<String> listInstanceOperations(Class<?> resourceClass);
 
 }

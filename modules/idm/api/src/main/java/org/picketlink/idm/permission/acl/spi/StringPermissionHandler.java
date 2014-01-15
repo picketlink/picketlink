@@ -34,7 +34,12 @@ public class StringPermissionHandler implements PermissionHandler {
     }
 
     @Override
-    public Set<String> listAvailableOperations(Class<?> resourceClass) {
+    public Set<String> listClassOperations(Class<?> resourceClass) {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public Set<String> listInstanceOperations(Class<?> resourceClass) {
         return Collections.emptySet();
     }
 }

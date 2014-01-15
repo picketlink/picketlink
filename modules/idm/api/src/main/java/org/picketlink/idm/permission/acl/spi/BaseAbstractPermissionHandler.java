@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.picketlink.idm.permission.annotations.AllowedOperation;
 import org.picketlink.idm.permission.annotations.AllowedOperations;
@@ -37,11 +38,15 @@ import org.picketlink.idm.permission.annotations.AllowedOperations;
 public abstract class BaseAbstractPermissionHandler implements PermissionHandler {
     private Map<Class<?>, Boolean> usesMask = new HashMap<Class<?>, Boolean>();
 
-    private Map<Class<?>, Map<String, Long>> classPermissions = new HashMap<Class<?>, Map<String, Long>>();
+    private Map<Class<?>, Map<String, Long>> instanceOperations = new ConcurrentHashMap<Class<?>, Map<String, Long>>();
 
-    private synchronized void initClassPermissions(Class<?> cls) {
-        if (!classPermissions.containsKey(cls)) {
-            Map<String, Long> actions = new HashMap<String, Long>();
+    private Map<Class<?>, Map<String, Long>> classOperations = new ConcurrentHashMap<Class<?>, Map<String, Long>>();
+
+    private synchronized void initOperations(Class<?> cls) {
+        if (!instanceOperations.containsKey(cls)) {
+
+            Map<String, Long> instanceOps = new HashMap<String, Long>();
+            Map<String, Long> classOps = new HashMap<String, Long>();
 
             boolean useMask = false;
 
@@ -51,7 +56,12 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
                 AllowedOperation[] operations = p.value();
                 if (operations != null) {
                     for (AllowedOperation operation : operations) {
-                        actions.put(operation.value(), operation.mask());
+
+                        if (operation.classOperation()) {
+                            classOps.put(operation.value(), operation.mask());
+                        } else {
+                            instanceOps.put(operation.value(), operation.mask());
+                        }
 
                         if (operation.mask() != 0) {
                             useMask = true;
@@ -64,21 +74,26 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
             if (useMask) {
                 Set<Long> masks = new HashSet<Long>();
 
-                for (String action : actions.keySet()) {
-                    Long mask = actions.get(action);
+                Set<String> ops = new HashSet<String>();
+                ops.addAll(instanceOps.keySet());
+                ops.addAll(classOps.keySet());
+
+                for (String op : ops) {
+
+                    Long mask = instanceOps.containsKey(op) ? instanceOps.get(op) : classOps.get(op);
                     if (masks.contains(mask)) {
                         throw new IllegalArgumentException("Class " + cls.getName() +
-                                " defines a duplicate mask for permission action [" + action + "]");
+                                " defines a duplicate mask for permission operation [" + op + "]");
                     }
 
                     if (mask == 0) {
                         throw new IllegalArgumentException("Class " + cls.getName() +
-                                " must define a valid mask value for action [" + action + "]");
+                                " must define a valid mask value for operation [" + op + "]");
                     }
 
                     if ((mask & (mask - 1)) != 0) {
                         throw new IllegalArgumentException("Class " + cls.getName() +
-                                " must define a mask value that is a power of 2 for action [" + action + "]");
+                                " must define a mask value that is a power of 2 for operation [" + op + "]");
                     }
 
                     masks.add(mask);
@@ -86,7 +101,7 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
             }
 
             usesMask.put(cls, useMask);
-            classPermissions.put(cls, actions);
+            instanceOperations.put(cls, instanceOps);
         }
     }
 
@@ -109,7 +124,7 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
                 // bit mask-based actions
                 long vals = Long.valueOf(members);
 
-                Map<String, Long> permissions = classPermissions.get(resourceClass);
+                Map<String, Long> permissions = instanceOperations.get(resourceClass);
                 for (String permission : permissions.keySet()) {
                     long mask = permissions.get(permission).longValue();
                     if ((vals & mask) != 0) {
@@ -151,7 +166,7 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
         @Override
         public String toString() {
             if (usesMask.get(resourceClass)) {
-                Map<String, Long> actions = classPermissions.get(resourceClass);
+                Map<String, Long> actions = instanceOperations.get(resourceClass);
                 long mask = 0;
 
                 for (String member : permissions) {
@@ -173,22 +188,37 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
     }
 
     public PermissionSet createPermissionSet(Class<?> resourceClass, String members) {
-        if (!classPermissions.containsKey(resourceClass)) {
-            initClassPermissions(resourceClass);
+        if (!instanceOperations.containsKey(resourceClass)) {
+            initOperations(resourceClass);
         }
 
         return new PermissionSet(resourceClass, members);
     }
 
     @Override
-    public Set<String> listAvailableOperations(Class<?> resourceClass) {
-        if (!classPermissions.containsKey(resourceClass)) {
-            initClassPermissions(resourceClass);
+    public Set<String> listClassOperations(Class<?> resourceClass) {
+        if (!classOperations.containsKey(resourceClass)) {
+            initOperations(resourceClass);
         }
 
         Set<String> permissions = new HashSet<String>();
 
-        for (String permission : classPermissions.get(resourceClass).keySet()) {
+        for (String permission : classOperations.get(resourceClass).keySet()) {
+            permissions.add(permission);
+        }
+
+        return permissions;
+    }
+
+    @Override
+    public Set<String> listInstanceOperations(Class<?> resourceClass) {
+        if (!instanceOperations.containsKey(resourceClass)) {
+            initOperations(resourceClass);
+        }
+
+        Set<String> permissions = new HashSet<String>();
+
+        for (String permission : instanceOperations.get(resourceClass).keySet()) {
             permissions.add(permission);
         }
 
