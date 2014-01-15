@@ -236,7 +236,9 @@ List<Permissions> permissions = permissionManager.listPermissions(
 
     Class<?> unwrapResourceClass(Object resource);
 
-    Set<String> listAvailableOperations(Class<?> resourceClass);
+    Set<String> listClassOperations(Class<?> resourceClass);
+    
+    Set<String> listInstanceOperations(Class<?> resourceClass);
 }]]></programlisting>
 
         <para>
