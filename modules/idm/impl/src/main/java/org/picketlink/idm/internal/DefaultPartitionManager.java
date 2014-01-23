@@ -134,6 +134,11 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     private RelationshipMetadata relationshipMetadata = new RelationshipMetadata();
 
     /**
+     * Used for querying chained privileges
+     */
+    private PrivilegeChainQuery privilegeChainQuery = new PrivilegeChainQuery();
+
+    /**
      * Permission handler policy
      */
     private PermissionHandlerPolicy permissionHandlerPolicy;
@@ -267,7 +272,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     @Override
     public RelationshipManager createRelationshipManager() {
-        return new ContextualRelationshipManager(eventBridge, idGenerator, this);
+        return new ContextualRelationshipManager(eventBridge, idGenerator, this, privilegeChainQuery);
     }
 
     @Override
