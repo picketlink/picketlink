@@ -56,6 +56,10 @@ public class SAMLConfigParser extends AbstractParser {
 
     public static final String LOGOUT_PAGE = "LogOutPage";
 
+    public static final String LOGOUT_URL = "LogOutUrl";
+
+    public static final String LOGOUT_RESPONSE_LOCATION = "LogOutResponseLocation";
+
     public static final String IDP = "PicketLinkIDP";
 
     public static final String SP = "PicketLinkSP";
@@ -119,6 +123,8 @@ public class SAMLConfigParser extends AbstractParser {
     public static final String STRICT_POST_BINDING = "StrictPostBinding";
 
     public static final String SSL_CLIENT_AUTHENTICATION = "SSLClientAuthentication";
+
+    public static final String SIGNING_ALIAS = "SigningAlias";
 
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
         StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -310,6 +316,18 @@ public class SAMLConfigParser extends AbstractParser {
             sp.setLogOutPage(StaxParserUtil.getAttributeValue(attribute));
         }
 
+        attributeQName = new QName("", LOGOUT_URL);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null) {
+            sp.setLogoutUrl(StaxParserUtil.getAttributeValue(attribute));
+        }
+
+        attributeQName = new QName("", LOGOUT_RESPONSE_LOCATION);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null) {
+            sp.setLogoutResponseLocation(StaxParserUtil.getAttributeValue(attribute));
+        }
+
         attributeQName = new QName("", IDP_USES_POST_BINDING);
         attribute = startElement.getAttributeByName(attributeQName);
         if (attribute != null) {
@@ -399,6 +417,8 @@ public class SAMLConfigParser extends AbstractParser {
                 populateKeyValueType(auth, startElement);
 
                 keyProviderType.add(auth);
+            } else if (startElementName.equals(SIGNING_ALIAS)) {
+               keyProviderType.setSigningAlias(StaxParserUtil.getElementText(xmlEventReader));
             }
         }
         return keyProviderType;
