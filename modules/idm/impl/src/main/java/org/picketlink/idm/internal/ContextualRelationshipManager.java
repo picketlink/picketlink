@@ -44,10 +44,13 @@ import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
 public class ContextualRelationshipManager extends AbstractIdentityContext implements RelationshipManager {
 
     private StoreSelector storeSelector;
+    private PrivilegeChainQuery privilegeChainQuery;
 
-    public ContextualRelationshipManager(EventBridge eventBridge, IdGenerator idGenerator, StoreSelector storeSelector) {
+    public ContextualRelationshipManager(EventBridge eventBridge, IdGenerator idGenerator, StoreSelector storeSelector,
+            PrivilegeChainQuery privilegeChainQuery) {
         super(null, eventBridge, idGenerator);
         this.storeSelector = storeSelector;
+        this.privilegeChainQuery = privilegeChainQuery;
     }
 
 
@@ -169,7 +172,7 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
         if (identity.equals(assignee)) {
             return true;
         }
-        // TODO implement the rest of this
-        return false;
+
+        return privilegeChainQuery.inheritsPrivileges(this, identity, assignee);
     }
 }
