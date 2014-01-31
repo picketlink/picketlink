@@ -18,37 +18,6 @@
 
 package org.picketlink.idm.jpa.internal;
 
-import static org.picketlink.common.reflection.Reflections.newInstance;
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
-import static org.picketlink.idm.IDMInternalLog.JPA_STORE_LOGGER;
-import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
-
-import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.persistence.EntityManager;
-import javax.persistence.Id;
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
-
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
@@ -104,6 +73,36 @@ import org.picketlink.idm.spi.AttributeStore;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.PartitionStore;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Id;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import static org.picketlink.common.reflection.Reflections.newInstance;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.IDMInternalLog.JPA_STORE_LOGGER;
+import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
 
 /**
  * Implementation of IdentityStore that stores its state in a relational database.
@@ -488,7 +487,8 @@ public class JPAIdentityStore
                     Object parameterValue = parameterValues[0];
 
                     if (IdentityType.CREATED_AFTER.equals(queryParameter) || IdentityType.EXPIRY_AFTER.equals(queryParameter)) {
-                        predicates.add(cb.greaterThanOrEqualTo(attributeOwnerEntity.<Date>get(attributeProperty.getName()), (Date) parameterValue));
+                        predicates.add(cb
+                                       .greaterThanOrEqualTo(attributeOwnerEntity.<Date>get(attributeProperty.getName()), (Date) parameterValue));
                     } else if (IdentityType.CREATED_BEFORE.equals(queryParameter) || IdentityType.EXPIRY_BEFORE.equals(queryParameter)) {
                         predicates.add(cb.lessThanOrEqualTo(attributeOwnerEntity.<Date>get(attributeProperty.getName()), (Date) parameterValue));
                     } else {
@@ -1239,18 +1239,18 @@ public class JPAIdentityStore
             }
         }
 
-        EntityMapper secondaryMapper = null;
+        if (!attributeMappers.isEmpty()) {
+            boolean supportsType = getConfig().supportsType(attributedType, IdentityOperation.create);
 
-        if (getConfig().supportsType(attributedType, IdentityOperation.create)) {
-            List<EntityMapper> attributedTypeMappers = getMapperFor(attributedType);
+            // if the store supports the type, we try to find the most specific mapper for its corresponding entity.
+            if (supportsType) {
+                EntityMapper secondaryMapper = null;
 
-            for (EntityMapper entityMapper : attributedTypeMappers) {
-                Class<?> entityType = entityMapper.getEntityType();
+                for (EntityMapper entityMapper : getMapperFor(attributedType)) {
+                    for (EntityMapper mapper : attributeMappers) {
+                        Class<?> entityType = entityMapper.getEntityType();
+                        EntityMapping mappings = mapper.getMappingsFor(Attribute.class);
 
-                for (EntityMapper mapper : attributeMappers) {
-                    EntityMapping mappings = mapper.getMappingsFor(Attribute.class);
-
-                    if (mappings != null) {
                         if (mappings.getOwnerType().equals(entityType)) {
                             return mapper;
                         } else if (mappings.getOwnerType().isAssignableFrom(entityType)) {
@@ -1258,24 +1258,29 @@ public class JPAIdentityStore
                         }
                     }
                 }
-            }
 
-            if (secondaryMapper != null) {
-                return secondaryMapper;
-            }
-        }
-
-        for (EntityMapper mapper : attributeMappers) {
-            EntityMapping mappings = mapper.getMappingsFor(Attribute.class);
-
-            if (mappings != null) {
-                if (String.class.equals(mappings.getOwnerType())) {
-                    return mapper;
+                if (secondaryMapper != null) {
+                    return secondaryMapper;
                 }
             }
+
+            // as a fallback, we check if the attribute mappers support id-based references for the type. this is specially useful when using a single
+            // attribute entity to store attributes for all types based on their ids.
+            for (EntityMapper mapper : attributeMappers) {
+                EntityMapping mappings = mapper.getMappingsFor(Attribute.class);
+
+                    if (String.class.equals(mappings.getOwnerType())) {
+                        return mapper;
+                    }
+            }
+
+            // in this case, the store does not support the type. So the attribute mapping must provide a String-based field to store only references to the type based on the id.
+            if (!supportsType) {
+                throw new IdentityManagementException("The store does not support type [" + attributedType + "]. The attribute mapping must provide a String-based field to reference instances of this type.");
+            }
         }
 
-        throw new IdentityManagementException("Could not find mapper for attributes for type [" + attributedType + "].");
+        throw new IdentityManagementException("Could not find attribute mapper for type [" + attributedType + "].");
     }
 
     private void storeRelationshipMembers(Relationship relationship, EntityManager entityManager) {

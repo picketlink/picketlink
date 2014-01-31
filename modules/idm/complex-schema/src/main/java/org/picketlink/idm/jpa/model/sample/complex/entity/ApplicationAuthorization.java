@@ -90,7 +90,7 @@ public class ApplicationAuthorization implements Serializable {
             return false;
         }
 
-        Application other = (Application) obj;
+        ApplicationAuthorization other = (ApplicationAuthorization) obj;
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }
