@@ -179,6 +179,42 @@ public class ConfigurationTestCase {
         identityManager.updateCredential(user, new Password("abcd1234"));
     }
 
+    @Test (expected = SecurityConfigurationException.class)
+    public void failMultipleIdentityStoreWithCredentialSupport() {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+            .named("default")
+                .stores()
+                    .file()
+                        .supportCredentials(true)
+                        .supportType(Partition.class)
+                        .supportType(IdentityType.class)
+                    .jpa()
+                        .supportCredentials(true)
+                        .supportType(Relationship.class);
+
+        new DefaultPartitionManager(builder.buildAll());
+    }
+
+    @Test
+    public void testMultipleIdentityStoreWithValidCredentialSupport() {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+            .named("default")
+                .stores()
+                    .file()
+                        .supportCredentials(true)
+                        .supportType(Partition.class)
+                        .supportType(IdentityType.class)
+                    .jpa()
+                        .supportCredentials(false)
+                        .supportType(Relationship.class);
+
+        new DefaultPartitionManager(builder.buildAll());
+    }
+
     @Test
     public void testMoreNamedCalls() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
