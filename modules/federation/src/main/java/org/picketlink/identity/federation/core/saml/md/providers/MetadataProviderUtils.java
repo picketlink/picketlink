@@ -17,13 +17,14 @@
  */
 package org.picketlink.identity.federation.core.saml.md.providers;
 
-import org.picketlink.identity.federation.core.config.PicketLinkType;
-import org.picketlink.identity.federation.core.config.ProviderType;
-import org.picketlink.identity.federation.core.config.SPType;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.handler.config.Handler;
-import org.picketlink.identity.federation.core.handler.config.Handlers;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+
+import org.picketlink.config.federation.PicketLinkType;
+import org.picketlink.config.federation.ProviderType;
+import org.picketlink.config.federation.SPType;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.config.federation.handler.Handler;
+import org.picketlink.config.federation.handler.Handlers;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 
 import java.io.InputStream;

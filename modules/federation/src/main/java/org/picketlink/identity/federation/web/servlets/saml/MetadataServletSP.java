@@ -19,7 +19,7 @@
 package org.picketlink.identity.federation.web.servlets.saml;
 
 
-import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 import java.io.*;
 import java.security.KeyPair;
@@ -45,21 +45,24 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.api.saml.v2.metadata.KeyDescriptorMetaDataBuilder;
 import org.picketlink.identity.federation.api.util.KeyUtil;
-import org.picketlink.identity.federation.core.ErrorCodes;
-import org.picketlink.identity.federation.core.config.*;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.common.ErrorCodes;
+//import org.picketlink.identity.federation.core.config.*;
+import org.picketlink.config.federation.*;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.saml.md.providers.MetadataProviderUtils;
 import org.picketlink.identity.federation.core.saml.md.providers.SPMetadataProvider;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLMetadataWriter;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
-import org.picketlink.identity.federation.core.util.StaxUtil;
+import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.*;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
@@ -78,7 +81,8 @@ public class MetadataServletSP extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    private static Logger log = Logger.getLogger(MetadataServletSP.class);
+    //private static Logger log = Logger.getLogger(MetadataServletSP.class);
+    private static final PicketLinkLogger log = PicketLinkLoggerFactory.getLogger();
 
     private final boolean trace = log.isTraceEnabled();
 

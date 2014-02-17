@@ -1,9 +1,9 @@
 package org.picketlink.identity.federation.web.config;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
-import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.config.SPType;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.common.ErrorCodes;
+import org.picketlink.config.federation.IDPType;
+import org.picketlink.config.federation.SPType;
+import org.picketlink.common.exceptions.ProcessingException;
 
 /**
  * Author: tito

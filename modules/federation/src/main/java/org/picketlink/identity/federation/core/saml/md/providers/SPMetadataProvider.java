@@ -20,16 +20,17 @@
  */
 package org.picketlink.identity.federation.core.saml.md.providers;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.config.KeyValueType;
-import org.picketlink.identity.federation.core.config.PicketLinkType;
-import org.picketlink.identity.federation.core.config.ProviderType;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.handler.config.Handler;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.config.federation.KeyValueType;
+import org.picketlink.config.federation.PicketLinkType;
+
+import org.picketlink.config.federation.ProviderType;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.config.federation.handler.Handler;
 import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.metadata.*;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
