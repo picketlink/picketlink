@@ -59,6 +59,7 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.permission.IdentityPermission;
 import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.permission.acl.spi.PermissionStore;
 import org.picketlink.idm.permission.annotations.AllowedOperation;
@@ -84,6 +85,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
+
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
@@ -1495,9 +1497,9 @@ public class JPAIdentityStore
 
             for (String op : opSet.getOperations()) {
                 if (operation != null && operation.equals(op)) {
-                    perms.add(new Permission(resource, assignee, op));
+                    perms.add(new IdentityPermission(resource, assignee, op));
                 } else if (operation == null) {
-                    perms.add(new Permission(resource, assignee, op));
+                    perms.add(new IdentityPermission(resource, assignee, op));
                 }
             }
         }
@@ -1577,9 +1579,9 @@ public class JPAIdentityStore
 
             for (String op : opSet.getOperations()) {
                 if (operation != null && operation.equals(op)) {
-                    perms.add(new Permission(resourceClass, identifier, assignee, op));
+                    perms.add(new IdentityPermission(resourceClass, identifier, assignee, op));
                 } else if (operation == null) {
-                    perms.add(new Permission(resourceClass, identifier, assignee, op));
+                    perms.add(new IdentityPermission(resourceClass, identifier, assignee, op));
                 }
             }
         }

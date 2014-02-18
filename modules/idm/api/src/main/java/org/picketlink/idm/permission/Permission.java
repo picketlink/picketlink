@@ -20,36 +20,32 @@ package org.picketlink.idm.permission;
 
 import java.io.Serializable;
 
-import org.picketlink.idm.model.IdentityType;
-
 /**
- * Represents a specific permission granted for a domain resource.  If the actual resource object instance is known
+ * Abstract base class representing a specific permission granted for a domain resource.  If the actual resource object instance is known
  * then the getResource() method will return a reference to it, otherwise the getResourceClass() and getResourceIdentifier()
  * methods may be used to determine the specific resource that the permission applies to.
  *
+ * It is the responsibility of any subclasses to declare any logic relating to the assignee of the Permission.
+ *
  * @author Shane Bryzak
  */
-public class Permission {
+public abstract class Permission {
     private Object resource;
 
     private Class<?> resourceClass;
 
     private Serializable resourceIdentifier;
 
-    private IdentityType assignee;
-
     private String operation;
 
-    public Permission(Object resource, IdentityType assignee, String operation) {
+    public Permission(Object resource, String operation) {
         this.resource = resource;
-        this.assignee = assignee;
         this.operation = operation;
     }
 
-    public Permission(Class<?> resourceClass, Serializable resourceIdentifier, IdentityType assignee, String operation) {
+    public Permission(Class<?> resourceClass, Serializable resourceIdentifier, String operation) {
         this.resourceClass = resourceClass;
         this.resourceIdentifier = resourceIdentifier;
-        this.assignee = assignee;
         this.operation = operation;
     }
 
@@ -79,15 +75,6 @@ public class Permission {
      */
     public Serializable getResourceIdentifier() {
         return resourceIdentifier;
-    }
-
-    /**
-     * Returns the identity to which the permission is assigned.
-     *
-     * @return
-     */
-    public IdentityType getAssignee() {
-        return assignee;
     }
 
     /**

@@ -21,6 +21,7 @@ package org.picketlink.idm.model.basic;
 import org.picketlink.idm.model.AbstractAttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.annotation.InheritsPrivileges;
 import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
@@ -59,6 +60,7 @@ public class Grant extends AbstractAttributedType implements Relationship {
         this.role = role;
     }
 
+    @InheritsPrivileges("role")
     public IdentityType getAssignee() {
         return assignee;
     }
