@@ -7,6 +7,7 @@ import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.PermissionManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.permission.IdentityPermission;
 import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.permission.spi.PermissionVoter;
 
@@ -35,12 +36,15 @@ public class PersistentPermissionVoter implements PermissionVoter {
         List<Permission> permissions = pm.listPermissions(resource, operation);
 
         for (Permission permission : permissions) {
-            if (recipient.equals(permission.getAssignee())) {
-                result = VotingResult.ALLOW;
-                break;
-            } else if (rm.inheritsPrivileges(recipient, permission.getAssignee())) {
-                result = VotingResult.ALLOW;
-                break;
+            if (permission instanceof IdentityPermission) {
+                IdentityPermission idPermission = (IdentityPermission) permission;
+                if (recipient.equals(idPermission.getAssignee())) {
+                    result = VotingResult.ALLOW;
+                    break;
+                } else if (rm.inheritsPrivileges(recipient, idPermission.getAssignee())) {
+                    result = VotingResult.ALLOW;
+                    break;
+                }
             }
         }
 

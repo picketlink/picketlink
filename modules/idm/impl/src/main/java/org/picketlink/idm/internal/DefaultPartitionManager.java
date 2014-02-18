@@ -221,6 +221,11 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                 }
 
                 configuredStores.put(config, Collections.unmodifiableMap(storeMap));
+
+                // Register all known relationship types so that the privilege chain query can determine inherited privileges
+                for (Class<? extends Relationship> relationshipType : config.getRegisteredRelationshipTypes()) {
+                    privilegeChainQuery.registerRelationshipType(relationshipType);
+                }
             }
 
             stores = Collections.unmodifiableMap(configuredStores);

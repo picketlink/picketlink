@@ -108,7 +108,7 @@ public class Company implements Serializable {
             return false;
         }
 
-        Application other = (Application) obj;
+        Company other = (Company) obj;
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }

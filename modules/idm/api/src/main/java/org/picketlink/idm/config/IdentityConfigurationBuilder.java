@@ -153,11 +153,10 @@ public class IdentityConfigurationBuilder extends Builder<List<IdentityConfigura
                 boolean supportCredentials = false;
 
                 for (IdentityStoreConfiguration storeConfiguration : configuration.getStoreConfiguration()) {
-                    if (supportCredentials) {
-                        throw MESSAGES.configMultipleConfigurationsFoundWithCredentialSupport();
-                    }
-
                     if (storeConfiguration.supportsCredential()) {
+                        if (supportCredentials) {
+                            throw MESSAGES.configMultipleConfigurationsFoundWithCredentialSupport();
+                        }
                         supportCredentials = true;
                     }
                 }

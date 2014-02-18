@@ -12,6 +12,7 @@ import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.permission.IdentityPermission;
 import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.IdentityContext;
@@ -33,6 +34,7 @@ import org.picketlink.test.idm.other.shane.model.scenario2.entity.Customer;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -467,7 +469,8 @@ public class ShanesBigSanityCheckTestCase {
 
         // Assert the permission properties are correctly set
         assert p.getResource().equals(c1);
-        assert p.getAssignee().equals(u);
+        assert p instanceof IdentityPermission;
+        assert ((IdentityPermission) p).getAssignee().equals(u);
         assert Customer.PERMISSION_UPDATE.equals(p.getOperation());
 
         // Grant the 'DELETE' permission for Customer c1 to the user we created
