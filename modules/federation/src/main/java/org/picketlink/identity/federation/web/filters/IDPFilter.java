@@ -21,6 +21,7 @@ import org.jboss.security.audit.AuditLevel;
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
@@ -42,7 +43,6 @@ import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
-import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.core.saml.v1.SAML11ProtocolContext;
 import org.picketlink.identity.federation.core.saml.v1.writers.SAML11ResponseWriter;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
@@ -312,7 +312,7 @@ public class IDPFilter implements Filter {
      * @return
      */
     private boolean hasSAML11Target(HttpServletRequest request) {
-        return isNotNull(request.getParameter(SAML11Constants.TARGET));
+        return isNotNull(request.getParameter(JBossSAMLConstants.UNSOLICITED_RESPONSE_TARGET.get()));
     }
 
     private void forwardHosted(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -469,7 +469,7 @@ public class IDPFilter implements Filter {
             Principal userPrincipal = request.getUserPrincipal();
             String contextPath = servletContext.getContextPath();
 
-            String target = request.getParameter(SAML11Constants.TARGET);
+            String target = request.getParameter(JBossSAMLConstants.UNSOLICITED_RESPONSE_TARGET.get());
 
             HttpSession session = request.getSession();
             SAML11AssertionType saml11Assertion = (SAML11AssertionType) session.getAttribute("SAML11");
