@@ -296,7 +296,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
         try {
             IdentityContext context = createIdentityContext();
-            T partition = getStoreForPartitionOperation(context).<T>get(context, partitionClass, name);
+            T partition = getStoreForPartitionOperation(context, partitionClass).<T>get(context, partitionClass, name);
 
             if (partition != null) {
                 loadAttributes(context, (T) partition);
@@ -322,7 +322,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             try {
                 IdentityContext context = createIdentityContext();
 
-                partitions.addAll(getStoreForPartitionOperation(context).<T>get(context, partitionClass));
+                partitions.addAll(getStoreForPartitionOperation(context, partitionClass).<T>get(context, partitionClass));
 
                 for (T partition : partitions) {
                     loadAttributes(context, partition);
@@ -351,7 +351,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
         try {
             IdentityContext context = createIdentityContext();
-            T partition = getStoreForPartitionOperation(context).<T>lookupById(context, partitionClass, id);
+            T partition = getStoreForPartitionOperation(context, partitionClass).<T>lookupById(context, partitionClass, id);
 
             if (partition != null) {
                 loadAttributes(context, (T) partition);
@@ -387,7 +387,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             try {
                 IdentityContext context = createIdentityContext();
 
-                getStoreForPartitionOperation(context).add(context, partition, configurationName);
+                getStoreForPartitionOperation(context, partition.getClass()).add(context, partition, configurationName);
 
                 AttributeStore<?> attributeStore = getStoreForAttributeOperation(context);
 
@@ -409,7 +409,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
         try {
             IdentityContext context = createIdentityContext();
-            getStoreForPartitionOperation(context).update(context, partition);
+            getStoreForPartitionOperation(context, partition.getClass()).update(context, partition);
 
             AttributeStore<?> attributeStore = getStoreForAttributeOperation(context);
 
@@ -456,7 +456,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                 }
             }
 
-            getStoreForPartitionOperation(context).remove(context, partition);
+            getStoreForPartitionOperation(context, partition.getClass()).remove(context, partition);
         } catch (Exception e) {
             throw MESSAGES.partitionRemoveFailed(partition, e);
         }
@@ -682,11 +682,11 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     @Override
-    public <T extends PartitionStore<?>> T getStoreForPartitionOperation(IdentityContext context) {
+    public <T extends PartitionStore<?>> T getStoreForPartitionOperation(IdentityContext context, Class<? extends Partition> partitionClass) {
         Map<IdentityStoreConfiguration, IdentityStore<?>> configStores = stores.get(this.partitionManagementConfig);
 
         for (IdentityStoreConfiguration cfg : configStores.keySet()) {
-            if (cfg.supportsType(Partition.class, IdentityOperation.create)) {
+            if (cfg.supportsType(partitionClass, IdentityOperation.create)) {
                 T store = getIdentityStoreAndInitializeContext(context, this.partitionManagementConfig, cfg);
 
                 if (!PartitionStore.class.isInstance(store)) {
@@ -827,7 +827,7 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     private IdentityConfiguration getConfigurationForPartition(Partition partition) {
         if (!this.partitionConfigurations.containsKey(partition)) {
             IdentityContext context = createIdentityContext();
-            PartitionStore<?> store = getStoreForPartitionOperation(context);
+            PartitionStore<?> store = getStoreForPartitionOperation(context, partition.getClass());
 
             partitionConfigurations.put(partition, getConfigurationByName(store.getConfigurationName(context, partition)));
         }

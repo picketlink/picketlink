@@ -94,7 +94,7 @@ public interface StoreSelector {
      *
      * @return
      */
-    <T extends PartitionStore<?>> T getStoreForPartitionOperation(IdentityContext context);
+    <T extends PartitionStore<?>> T getStoreForPartitionOperation(IdentityContext context, Class<? extends Partition> partitionClass);
 
     /**
      * Returns the AttributeStore that manages attributes.

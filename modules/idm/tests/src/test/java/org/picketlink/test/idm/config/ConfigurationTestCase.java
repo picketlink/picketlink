@@ -39,8 +39,10 @@ import org.picketlink.idm.model.basic.Grant;
 import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
+import org.picketlink.test.idm.partition.CustomPartitionTestCase;
 
 import static org.junit.Assert.assertEquals;
+import static org.picketlink.test.idm.partition.CustomPartitionTestCase.CustomPartition;
 
 /**
  * <p>
@@ -95,8 +97,9 @@ public class ConfigurationTestCase {
             .named("default")
                 .stores()
                     .file()
-                        .supportAllFeatures()
+                        .supportType(CustomPartition.class)
                     .jpa()
+                        .supportType(Partition.class)
                         .mappedEntity(IdentityTypeEntity.class)
                         .supportAllFeatures();
 
