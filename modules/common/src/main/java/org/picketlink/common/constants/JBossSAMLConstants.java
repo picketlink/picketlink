@@ -63,7 +63,8 @@ public enum JBossSAMLConstants {
             "TelephoneNumber"), TYPE("type"), USE("use"), VALUE("Value"), VALID_UNTIL("validUntil"), VERSION("Version"), VERSION_2_0(
             "2.0"), WANT_AUTHN_REQUESTS_SIGNED("WantAuthnRequestsSigned"), WANT_ASSERTIONS_SIGNED("WantAssertionsSigned"), XACML_AUTHZ_DECISION_QUERY(
             "XACMLAuthzDecisionQuery"), XACML_AUTHZ_DECISION_QUERY_TYPE("XACMLAuthzDecisionQueryType"), XACML_AUTHZ_DECISION_STATEMENT_TYPE(
-            "XACMLAuthzDecisionStatementType"), HTTP_POST_BINDING("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"), ONE_TIME_USE ("OneTimeUse");
+            "XACMLAuthzDecisionStatementType"), HTTP_POST_BINDING("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"), ONE_TIME_USE ("OneTimeUse"),
+            UNSOLICITED_RESPONSE_TARGET("TARGET"), UNSOLICITED_RESPONSE_SAML_VERSION("SAML_VERSION");
 
     private String name;
 
