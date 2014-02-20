@@ -110,20 +110,19 @@ public class IDPWebRequestUtil {
 
         try {
             if (redirectProfile) {
-                is = RedirectBindingUtil.base64DeflateDecode(samlMessage);
+                is = parseSAMLRequestRedirectBinding(samlMessage);
             } else {
-                byte[] samlBytes = PostBindingUtil.base64Decode(samlMessage);
-                logger.trace("SAML Request Document: " + new String(samlBytes));
-                is = new ByteArrayInputStream(samlBytes);
+                is = parseSAMLRequestPostBinding(samlMessage);
             }
+
+            saml2Request.getSAML2ObjectFromStream(is);
+
+            return saml2Request.getSamlDocumentHolder();
         } catch (Exception rte) {
             logger.samlBase64DecodingError(rte);
-            throw logger.parserError(rte);
         }
 
-        saml2Request.getSAML2ObjectFromStream(is);
-
-        return saml2Request.getSamlDocumentHolder();
+        return null;
     }
 
     public RequestAbstractType getSAMLRequest(String samlMessage) throws ParsingException, ConfigurationException,
@@ -132,15 +131,13 @@ public class IDPWebRequestUtil {
         SAML2Request saml2Request = new SAML2Request();
         if (redirectProfile) {
             try {
-                is = RedirectBindingUtil.base64DeflateDecode(samlMessage);
+                is = parseSAMLRequestRedirectBinding(samlMessage);
             } catch (Exception e) {
                 logger.samlParsingError(e);
                 throw logger.parserError(e);
             }
         } else {
-            byte[] samlBytes = PostBindingUtil.base64Decode(samlMessage);
-            logger.trace("SAML Request Document: " + new String(samlBytes));
-            is = new ByteArrayInputStream(samlBytes);
+            is = parseSAMLRequestPostBinding(samlMessage);
         }
         return saml2Request.getRequestType(is);
     }
@@ -348,6 +345,20 @@ public class IDPWebRequestUtil {
     private static String getDomain(String domainURL) throws IOException {
         URL url = new URL(domainURL);
         return url.getHost();
+    }
+
+    private InputStream parseSAMLRequestPostBinding(String samlMessage) {
+        InputStream is;
+        byte[] samlBytes = PostBindingUtil.base64Decode(samlMessage);
+        logger.trace("SAML Request Document: " + new String(samlBytes));
+        is = new ByteArrayInputStream(samlBytes);
+        return is;
+    }
+
+    private InputStream parseSAMLRequestRedirectBinding(String samlMessage) {
+        InputStream is;
+        is = RedirectBindingUtil.base64DeflateDecode(samlMessage);
+        return is;
     }
 
     public class WebRequestUtilHolder {
