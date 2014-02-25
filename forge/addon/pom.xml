@@ -49,6 +49,10 @@
       <artifactId>parser-java</artifactId>
       <classifier>forge-addon</classifier>
     </dependency>
+    <dependency>
+      <groupId>org.picketlink</groupId>
+      <artifactId>picketlink-api</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

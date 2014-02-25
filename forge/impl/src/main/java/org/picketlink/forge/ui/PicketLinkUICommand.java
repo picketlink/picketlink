@@ -85,6 +85,14 @@ public class PicketLinkUICommand extends AbstractProjectCommand {
         });
         builder.add(version);
         builder.add(showSnapshots);
+
+        Project project = getSelectedProject(builder.getUIContext());
+        ConfigurationFacet facet = project.getFacet(ConfigurationFacet.class);
+        Configuration config = facet.getConfiguration();
+        if (config.containsKey(PICKETLINK_CONFIGURATION_PACKAGE)) {
+            configurationPackage.setValue(config.getString(PICKETLINK_CONFIGURATION_PACKAGE));
+        }
+
         builder.add(configurationPackage);
 
     }
