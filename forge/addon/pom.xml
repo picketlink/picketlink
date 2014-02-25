@@ -13,7 +13,7 @@
       <dependency>
         <groupId>org.picketlink</groupId>
         <artifactId>picketlink-api</artifactId>
-        <version>2.5.0.CR1</version>
+        <version>2.6.0.Beta3</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

@@ -9,6 +9,7 @@
   </parent>
   <artifactId>picketlink-forge-impl</artifactId>
   <dependencies>
+  
     <dependency>
       <groupId>org.jboss.forge.furnace.container</groupId>
       <artifactId>cdi-api</artifactId>
