@@ -8,15 +8,6 @@
     <version>2.6.0-SNAPSHOT</version>
   </parent>
   <artifactId>picketlink-forge</artifactId>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.picketlink</groupId>
-        <artifactId>picketlink-api</artifactId>
-        <version>2.6.0.Beta3</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.jboss.forge.furnace.container</groupId>
@@ -49,8 +40,14 @@
       <classifier>forge-addon</classifier>
     </dependency>
     <dependency>
-      <groupId>org.picketlink</groupId>
-      <artifactId>picketlink-api</artifactId>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>configuration</artifactId>
+      <classifier>forge-addon</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.forge.addon</groupId>
+      <artifactId>parser-java</artifactId>
+      <classifier>forge-addon</classifier>
     </dependency>
   </dependencies>
   <build>
