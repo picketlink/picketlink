@@ -42,11 +42,13 @@ import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.regex.Pattern;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * <p>
@@ -67,10 +69,11 @@ public class PicketLinkSTSConfiguration implements STSConfiguration {
 
     private final Map<String, ServiceProviderType> spMetadata = new HashMap<String, ServiceProviderType>();
 
+    private final Map<String, ServiceProviderType> spRegExMetadata = new HashMap<String, ServiceProviderType>();
+
     private final Map<String, ClaimsProcessor> claimsProcessors = new HashMap<String, ClaimsProcessor>();
 
     private TrustKeyManager trustManager;
-
     private WSTrustRequestHandler handler;
     private String certificateAlias;
 
@@ -155,11 +158,22 @@ public class PicketLinkSTSConfiguration implements STSConfiguration {
         }
 
         // setup the service providers metadata.
+        //if the provider.getEndpoint() not null the provider will be added to spMetaData
+        //if the provider.getEndpointRegEx() not null the provider will be added to spRegExMetadata
         ServiceProvidersType serviceProviders = this.delegate.getServiceProviders();
         if (serviceProviders != null) {
-            for (ServiceProviderType provider : serviceProviders.getServiceProvider())
-                this.spMetadata.put(provider.getEndpoint(), provider);
+            for (ServiceProviderType provider : serviceProviders.getServiceProvider()) {
+                if (provider.getEndpoint() != null) {
+                    this.spMetadata.put(provider.getEndpoint(), provider);
+                }
+                if (provider.getEndpointRegEx() != null) {
+                    this.spRegExMetadata.put(provider.getEndpointRegEx(), provider);
+                }
+
+            }
         }
+
+
 
         // setup the key store.
         KeyProviderType keyProviderType = config.getKeyProvider();
@@ -294,6 +308,15 @@ public class PicketLinkSTSConfiguration implements STSConfiguration {
         ServiceProviderType provider = this.spMetadata.get(serviceName);
         if (provider != null)
             return provider.getTokenType();
+
+        Set<String> keys = this.spRegExMetadata.keySet();
+
+        for (String next : keys) {
+            if (Pattern.matches(next, serviceName)) {
+                return this.spRegExMetadata.get(next).getTokenType();
+            }
+        }
+
         return null;
     }
 
@@ -341,6 +364,24 @@ public class PicketLinkSTSConfiguration implements STSConfiguration {
                         x509 = (X509Certificate) cer;
                     }
                 }
+
+                // try using the truststore alias from the service provider with regex metadata.
+
+                Set<String> keys = this.spRegExMetadata.keySet();
+
+                for (String next : keys) {
+                    if (Pattern.matches(next, serviceName)) {
+                        ServiceProviderType providerRegEx = this.spRegExMetadata.get(next);
+                        if (providerRegEx != null && providerRegEx.getTruststoreAlias() != null) {
+                            Certificate cer = this.trustManager.getCertificate(providerRegEx.getTruststoreAlias());
+
+                            if (cer instanceof X509Certificate) {
+                                x509 = (X509Certificate) cer;
+                            }
+                        }
+                    }
+                }
+
 
                 // if there was no truststore alias or no PKC under that alias, use the KeyProvider mapping.
                 if (x509 == null) {

@@ -62,3 +62,4 @@ pl-release.log
 *.patch
 picketlink-core
 picketlink-bindings
+buildit.sh
