@@ -20,5 +20,8 @@
     <ServiceProvider Endpoint="http://provider.endpoint/provider"
                      TokenType="specialToken"
                      TruststoreAlias="providerAlias"/>
+    <ServiceProvider EndpointRegEx="http://provider.endpoint/provider[A-Z]"
+                     TokenType="specialTokenRegEx"
+                     TruststoreAlias="providerAliasRegEx"/>
   </ServiceProviders>
 </PicketLinkSTS>

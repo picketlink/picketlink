@@ -190,6 +190,61 @@ public class ConfigUnitTestCase {
         assertEquals("2.2", "2.2", k2.getValue());
     }
 
+    @Test
+    public void test06() throws Exception {
+          ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+          InputStream is = tcl.getResourceAsStream(this.config + "6.xml");
+          assertNotNull("Inputstream not null for config file:" + this.config + "4.xml", is);
+
+          STSConfigParser parser = new STSConfigParser();
+
+          Object object = parser.parse(is);
+          assertNotNull("Found a null STS configuration", object);
+
+          STSType stsType = (STSType) object;
+          // general STS configurations.
+          assertEquals("Unexpected STS name", "Test STS", stsType.getSTSName());
+          assertEquals("Unexpected token timeout value", 7200, stsType.getTokenTimeout());
+          assertTrue("Encryption of tokens should have been enabled", stsType.isEncryptToken());
+          // we don't verify all values of the key provider config as it has been done in the other test scenarios.
+          assertNotNull("Unexpected null key provider", stsType.getKeyProvider());
+          // request handler and configurations based on the token type.
+          assertEquals("Unexpected request handler class", "org.picketlink.identity.federation.wstrust.Handler",
+                  stsType.getRequestHandler());
+          // configuration of the token providers.
+          TokenProvidersType tokenProviders = stsType.getTokenProviders();
+          assertNotNull("Unexpected null list of token providers", tokenProviders);
+          assertEquals("Unexpected number of token providers", 1, tokenProviders.getTokenProvider().size());
+          TokenProviderType tokenProvider = tokenProviders.getTokenProvider().get(0);
+          assertNotNull("Unexpected null token provider", tokenProvider);
+          assertEquals("Unexpected provider class name", "org.jboss.SpecialTokenProvider", tokenProvider.getProviderClass());
+          assertEquals("Unexpected token type", "specialToken", tokenProvider.getTokenType());
+          assertEquals("Unexpected token element name", "SpecialToken", tokenProvider.getTokenElement());
+          assertEquals("Unexpected token namespace", "http://www.tokens.org", tokenProvider.getTokenElementNS());
+          List<KeyValueType> properties = tokenProvider.getProperty();
+          assertEquals("Invalid number of properties", 2, properties.size());
+          // configuration of the service providers with RegEx endpoints
+          ServiceProvidersType serviceProviders = stsType.getServiceProviders();
+          assertNotNull("Unexpected null list of service providers", serviceProviders);
+          assertEquals("Unexpected number of service providers", 2, serviceProviders.getServiceProvider().size());
+          ServiceProviderType serviceProviderRegEx = serviceProviders.getServiceProvider().get(0);
+          assertNotNull("Unexpected null service provider", serviceProviderRegEx);
+          assertEquals("Unexpected provider endpoint", "http://provider.endpoint/provider", serviceProviderRegEx.getEndpoint());
+          assertEquals("Unexpected truststore alias", "providerAlias", serviceProviderRegEx.getTruststoreAlias());
+          assertEquals("Unexpected token type", "specialToken", serviceProviderRegEx.getTokenType());
+
+
+          // configuration of the service providers.
+          assertNotNull("Unexpected null list of service providers", serviceProviders);
+          assertEquals("Unexpected number of service providers", 2, serviceProviders.getServiceProvider().size());
+          ServiceProviderType serviceProvider = serviceProviders.getServiceProvider().get(1);
+          assertNotNull("Unexpected null service provider regex", serviceProvider);
+          assertEquals("Unexpected provider endpoint regex", "http://provider.endpoint/provider[A-Z]", serviceProvider.getEndpointRegEx());
+          assertEquals("Unexpected truststore alias regex", "providerAliasRegEx", serviceProvider.getTruststoreAlias());
+          assertEquals("Unexpected token type regex", "specialTokenRegEx", serviceProvider.getTokenType());
+      }
+
+
     private Object unmarshall(String configFile) throws Exception {
 
         /*
