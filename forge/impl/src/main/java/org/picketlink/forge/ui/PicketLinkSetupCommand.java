@@ -34,7 +34,7 @@ import org.picketlink.forge.ConfigurationOperations;
  *
  * @author Shane Bryzak
  */
-public class PicketLinkUICommand extends AbstractProjectCommand {
+public class PicketLinkSetupCommand extends AbstractProjectCommand {
 
     public static final String PICKETLINK_CONFIGURATION_PACKAGE = "PICKETLINK_CONFIGURATION_PACKAGE";
 
