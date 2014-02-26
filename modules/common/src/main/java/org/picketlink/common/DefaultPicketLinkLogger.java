@@ -2024,7 +2024,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void samlIDPSettingCanonicalizationMethod(String canonicalizationMethod) {
-        logger.info("IDPWebBrowserSSOValve:: Setting the CanonicalizationMethod on XMLSignatureUtil::" + canonicalizationMethod);
+        logger.debug("Setting the CanonicalizationMethod on XMLSignatureUtil::" + canonicalizationMethod);
     }
 
     /*
