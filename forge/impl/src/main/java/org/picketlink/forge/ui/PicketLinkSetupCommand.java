@@ -30,7 +30,7 @@ import org.jboss.forge.addon.ui.util.Metadata;
 import org.picketlink.forge.ConfigurationOperations;
 
 /**
- * This is where the magic will happen
+ * Adds PicketLink dependencies to a project and creates a default configuration.
  *
  * @author Shane Bryzak
  */
