@@ -198,7 +198,7 @@ public class SAMLMetadataWriter extends BaseWriter {
         // Write the attributes
         Boolean authnSigned = spSSODescriptor.isAuthnRequestsSigned();
         if (authnSigned != null) {
-            StaxUtil.writeAttribute(writer, new QName(JBossSAMLConstants.WANT_AUTHN_REQUESTS_SIGNED.get()),
+            StaxUtil.writeAttribute(writer, new QName(JBossSAMLConstants.AUTHN_REQUESTS_SIGNED.get()),
                     authnSigned.toString());
         }
         Boolean wantAssertionsSigned = spSSODescriptor.isWantAssertionsSigned();
