@@ -431,6 +431,33 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
+     * This test requests a token to the STS using the {@code AppliesTo} to identify the service provider with regex.
+     * The STS must be able
+     * to find out the type of the token that must be issued using the service provider URI. In this specific case, the
+     * request
+     * should be handled by the custom {@code SpecialTokenProvider}.
+     * </p>
+     *
+     * @throws Exception if an error occurs while running the test.
+     */
+     @Test
+     public void testInvokeCustomAppliesToRegEx() throws Exception {
+        // create a simple token request, this time using the applies to get to the token type.
+        RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
+                "http://services.testcorpone.org/provider1/a/b");
+        Source requestMessage = this.createSourceFromRequest(request);
+
+        // invoke the token service.
+        Source responseMessage = this.tokenService.invoke(requestMessage);
+        BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) new WSTrustParser()
+                .parse(DocumentUtil.getSourceAsStream(responseMessage));
+
+        // validate the security token response.
+        this.validateCustomTokenResponse(baseResponse);
+     }
+
+    /**
+     * <p>
      * This test requests a token to the STS using the {@code AppliesTo} to identify the service provider. The STS must
      * be able
      * to find out the type of the token that must be issued using the service provider URI. In this specific case, the
@@ -463,6 +490,44 @@ public class PicketLinkSTSUnitTestCase {
         AudienceRestrictionType audienceRestriction = (AudienceRestrictionType) abstractType;
         assertEquals("Unexpected audience restriction list size", 1, audienceRestriction.getAudience().size());
         assertEquals("Unexpected audience restriction item", "http://services.testcorp.org/provider2", audienceRestriction
+                .getAudience().get(0).toString());
+    }
+
+    /**
+     * <p>
+     * This test requests a token to the STS using the {@code AppliesTo} to identify the service provider with regex.
+     * The STS must be able
+     * to find out the type of the token that must be issued using the service provider URI. In this specific case, the
+     * request
+     * should be handled by the standard {@code SAML20TokenProvider}.
+     * </p>
+     *
+     * @throws Exception if an error occurs while running the test.
+     */
+    @Test
+    public void testInvokeSAML20AppliesToRegEx() throws Exception {
+        String serviceName = "http://services.testcorptwo.org/provider2/a/b";
+        RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
+                serviceName);
+        Source requestMessage = this.createSourceFromRequest(request);
+
+        // invoke the token service.
+        Source responseMessage = this.tokenService.invoke(requestMessage);
+        BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) new WSTrustParser()
+                .parse(DocumentUtil.getSourceAsStream(responseMessage));
+
+        // validate the security token response.
+        AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
+                SAMLUtil.SAML2_BEARER_URI);
+
+        // in this scenario, the conditions section should have an audience restriction.
+        ConditionsType conditions = assertion.getConditions();
+        assertEquals("Unexpected restriction list size", 1, conditions.getConditions().size());
+        ConditionAbstractType abstractType = conditions.getConditions().get(0);
+        assertTrue("Unexpected restriction type", abstractType instanceof AudienceRestrictionType);
+        AudienceRestrictionType audienceRestriction = (AudienceRestrictionType) abstractType;
+        assertEquals("Unexpected audience restriction list size", 1, audienceRestriction.getAudience().size());
+        assertEquals("Unexpected audience restriction item", serviceName, audienceRestriction
                 .getAudience().get(0).toString());
     }
 
@@ -543,6 +608,52 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
+     * This test requests a SAMLV2.0 assertion and requires a symmetric key to be used as a proof-of-possession token with a ServiceProvider from a ServiceProvidersRegEx list.
+     * As the
+     * request doesn't contain any client-specified key, the STS is responsible for generating a random key and use this
+     * key as
+     * the proof token. The WS-Trust response should contain the STS-generated key.
+     * </p>
+     *
+     * @throws Exception if an error occurs while running the test.
+     */
+     @Test
+     public void testInvokeSAML20WithSTSGeneratedSymmetricKeyRegEx() throws Exception {
+         // create a simple token request, asking for a SAMLv2.0 token.
+         RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
+                 "http://services.testcorptwo.org/provider2/a/b");
+
+         // add a symmetric key type to the request, but don't supply any client key - STS should generate one.
+         request.setKeyType(URI.create(WSTrustConstants.KEY_TYPE_SYMMETRIC));
+         Source requestMessage = this.createSourceFromRequest(request);
+
+         // invoke the token service.
+         Source responseMessage = this.tokenService.invoke(requestMessage);
+         BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) new WSTrustParser()
+                 .parse(DocumentUtil.getSourceAsStream(responseMessage));
+
+         // validate the security token response.
+         AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
+                 SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
+         // validate the holder of key contents.
+         SubjectConfirmationType subjConfirmation = assertion.getSubject().getConfirmation().get(0);
+         this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_SYMMETRIC, null, false);
+
+         // check if the response contains the STS-generated key.
+         RequestSecurityTokenResponseCollection collection = (RequestSecurityTokenResponseCollection) baseResponse;
+         RequestSecurityTokenResponse response = collection.getRequestSecurityTokenResponses().get(0);
+         RequestedProofTokenType proofToken = response.getRequestedProofToken();
+         assertNotNull("Unexpected null proof token", proofToken);
+         assertTrue(proofToken.getAny().get(0) instanceof BinarySecretType);
+         BinarySecretType serverBinarySecret = (BinarySecretType) proofToken.getAny().get(0);
+         assertNotNull("Unexpected null secret", serverBinarySecret.getValue());
+         // default key size is 128 bits (16 bytes).
+         byte[] encodedSecret = serverBinarySecret.getValue();
+         assertEquals("Unexpected secret size", 16, Base64.decode(encodedSecret, 0, encodedSecret.length).length);
+     }
+
+    /**
+     * <p>
      * This test requests a SAMLV2.0 assertion and requires a symmetric key to be used as a proof-of-possession token.
      * In this
      * case, the client supplies a secret key in the WS-Trust request, so the STS should combine the client- specified
@@ -569,6 +680,71 @@ public class PicketLinkSTSUnitTestCase {
         // create a token request specifying the key type, key size, and client entropy.
         RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
                 "http://services.testcorp.org/provider2");
+        request.setKeyType(URI.create(WSTrustConstants.KEY_TYPE_SYMMETRIC));
+        request.setEntropy(clientEntropy);
+        request.setKeySize(64);
+
+        // invoke the token service.
+        Source requestMessage = this.createSourceFromRequest(request);
+        Source responseMessage = this.tokenService.invoke(requestMessage);
+        BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) new WSTrustParser()
+                .parse(DocumentUtil.getSourceAsStream(responseMessage));
+
+        // validate the security token response.
+        AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
+                SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
+        // validate the holder of key contents.
+        SubjectConfirmationType subjConfirmation = assertion.getSubject().getConfirmation().get(0);
+        this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_SYMMETRIC, null, false);
+
+        RequestSecurityTokenResponseCollection collection = (RequestSecurityTokenResponseCollection) baseResponse;
+        RequestSecurityTokenResponse response = collection.getRequestSecurityTokenResponses().get(0);
+        RequestedProofTokenType proofToken = response.getRequestedProofToken();
+        assertNotNull("Unexpected null proof token", proofToken);
+        assertTrue(proofToken.getAny().get(0) instanceof ComputedKeyType);
+        ComputedKeyType computedKey = (ComputedKeyType) proofToken.getAny().get(0);
+        assertEquals("Unexpected computed key algorithm", WSTrustConstants.CK_PSHA1, computedKey.getAlgorithm());
+
+        // server entropy must have been included in the response to allow reconstruction of the computed key.
+        EntropyType serverEntropy = response.getEntropy();
+        assertNotNull("Unexpected null server entropy");
+        assertEquals("Invalid number of elements in server entropy", 1, serverEntropy.getAny().size());
+        BinarySecretType serverBinarySecret = (BinarySecretType) serverEntropy.getAny().get(0);
+        assertEquals("Unexpected binary secret type", WSTrustConstants.BS_TYPE_NONCE, serverBinarySecret.getType());
+        assertNotNull("Unexpected null secret value", serverBinarySecret.getValue());
+        // get the base64 decoded
+        byte[] encodedSecret = serverBinarySecret.getValue();
+        assertEquals("Unexpected secret size", 8, Base64.decode(encodedSecret, 0, encodedSecret.length).length);
+    }
+
+    /**
+     * <p>
+     * This test requests a SAMLV2.0 assertion and requires a symmetric key to be used as a proof-of-possession token with a ServiceProvider from a ServiceProvidersRegEx list.
+     * In this
+     * case, the client supplies a secret key in the WS-Trust request, so the STS should combine the client- specified
+     * key with
+     * the STS-generated key and use this combined key as the proof token. The WS-Trust response should include the STS
+     * key to
+     * allow reconstruction of the combined key and the algorithm used to combine the keys.
+     * </p>
+     *
+     * @throws Exception if an error occurs while running the test.
+     */
+    @Test
+    public void testInvokeSAML20WithCombinedSymmetricKeyRegEx() throws Exception {
+        // create a 64-bit random client secret.
+        byte[] clientSecret = WSTrustUtil.createRandomSecret(8);
+        BinarySecretType clientBinarySecret = new BinarySecretType();
+        clientBinarySecret.setType(WSTrustConstants.BS_TYPE_NONCE);
+        clientBinarySecret.setValue(Base64.encodeBytes(clientSecret).getBytes());
+
+        // set the client secret in the client entropy.
+        EntropyType clientEntropy = new EntropyType();
+        clientEntropy.addAny(clientBinarySecret);
+
+        // create a token request specifying the key type, key size, and client entropy.
+        RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
+                "http://services.testcorptwo.org/provider2/a/b");
         request.setKeyType(URI.create(WSTrustConstants.KEY_TYPE_SYMMETRIC));
         request.setEntropy(clientEntropy);
         request.setKeySize(64);
@@ -643,6 +819,41 @@ public class PicketLinkSTSUnitTestCase {
 
     /**
      * <p>
+     * This test requests a SAMLV2.0 assertion and sends a X.509 certificate to be used as the proof-of-possession with a ServiceProvider from a ServiceProvidersRegEx list.
+     * token. The
+     * STS must include the specified certificate in the SAML subject confirmation.
+     * </p>
+     *
+     * @throws Exception if an error occurs while running the test.
+     */
+    @Test
+    public void testInvokeSAML20WithCertificateRegEx() throws Exception {
+        // create a simple token request.
+        RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
+                "http://services.testcorptwo.org/provider2/a/b/c/d");
+        request.setKeyType(URI.create(WSTrustConstants.KEY_TYPE_PUBLIC));
+
+        // include a UseKey section that specifies the certificate in the request.
+        Certificate certificate = this.getCertificate("keystore/sts_keystore.jks", "testpass", "service1");
+        UseKeyType useKey = new UseKeyType();
+        useKey.add(Base64.encodeBytes(certificate.getEncoded()).getBytes());
+        request.setUseKey(useKey);
+
+        // invoke the token service.
+        Source requestMessage = this.createSourceFromRequest(request);
+        Source responseMessage = this.tokenService.invoke(requestMessage);
+        BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) new WSTrustParser()
+                .parse(DocumentUtil.getSourceAsStream(responseMessage));
+        // validate the security token response.
+        AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
+                SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
+        // validate the holder of key contents.
+        SubjectConfirmationType subjConfirmation = assertion.getSubject().getConfirmation().get(0);
+        this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_PUBLIC, certificate, false);
+    }
+
+    /**
+     * <p>
      * This test requests a SAMLV2.0 assertion and sends a public key to be used as the proof-of-possession token. The
      * STS must
      * include the specified public key in the SAML subject confirmation.
@@ -655,6 +866,43 @@ public class PicketLinkSTSUnitTestCase {
         // create a simple token request.
         RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
                 "http://services.testcorp.org/provider2");
+        request.setKeyType(URI.create(WSTrustConstants.KEY_TYPE_PUBLIC));
+
+        // include a UseKey section that sets the public key in the request.
+        Certificate certificate = this.getCertificate("keystore/sts_keystore.jks", "testpass", "service1");
+        KeyValueType keyValue = WSTrustUtil.createKeyValue(certificate.getPublicKey());
+        UseKeyType useKey = new UseKeyType();
+        useKey.add(keyValue);
+        request.setUseKey(useKey);
+
+        // invoke the token service.
+        Source requestMessage = this.createSourceFromRequest(request);
+        Source responseMessage = this.tokenService.invoke(requestMessage);
+        BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) new WSTrustParser()
+                .parse(DocumentUtil.getSourceAsStream(responseMessage));
+
+        // validate the security token response.
+        AssertionType assertion = this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke",
+                SAMLUtil.SAML2_HOLDER_OF_KEY_URI);
+        // validate the holder of key contents.
+        SubjectConfirmationType subjConfirmation = assertion.getSubject().getConfirmation().get(0);
+        this.validateHolderOfKeyContents(subjConfirmation, WSTrustConstants.KEY_TYPE_PUBLIC, certificate, true);
+    }
+
+    /**
+     * <p>
+     * This test requests a SAMLV2.0 assertion and sends a public key to be used as the proof-of-possession token with a ServiceProvider from a ServiceProvidersRegEx list.
+     * The STS must
+     * include the specified public key in the SAML subject confirmation.
+     * </p>
+     *
+     * @throws Exception if an error occurs while running the test.
+     */
+    @Test
+    public void testInvokeSAML20WithPublicKeyRegEx() throws Exception {
+        // create a simple token request.
+        RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
+                "http://services.testcorptwo.org/provider2/abb/bcc/cdd/deee");
         request.setKeyType(URI.create(WSTrustConstants.KEY_TYPE_PUBLIC));
 
         // include a UseKey section that sets the public key in the request.
@@ -887,6 +1135,64 @@ public class PicketLinkSTSUnitTestCase {
         // create a simple token request, using applies-to to identify the token type.
         RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
                 "http://services.testcorp.org/provider2");
+
+        Source requestMessage = this.createSourceFromRequest(request);
+
+        // invoke the token service.
+        Source responseMessage = this.tokenService.invoke(requestMessage);
+        WSTrustParser parser = new WSTrustParser();
+        BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) parser.parse(DocumentUtil
+                .getSourceAsStream(responseMessage));
+
+        // validate the response and get the SAML assertion from the request.
+        this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
+        RequestSecurityTokenResponseCollection collection = (RequestSecurityTokenResponseCollection) baseResponse;
+        Element assertionElement = (Element) collection.getRequestSecurityTokenResponses().get(0).getRequestedSecurityToken()
+                .getAny().get(0);
+
+        // now construct a WS-Trust renew request with the generated assertion.
+        request = this.createRequest("renewcontext", WSTrustConstants.RENEW_REQUEST, SAMLUtil.SAML2_TOKEN_TYPE, null);
+        RenewTargetType renewTarget = new RenewTargetType();
+        renewTarget.add(assertionElement);
+        request.setRenewTarget(renewTarget);
+
+        // invoke the token service.
+        responseMessage = this.tokenService.invoke(this.createSourceFromRequest(request));
+        baseResponse = (BaseRequestSecurityTokenResponse) parser.parse(DocumentUtil.getSourceAsStream(responseMessage));
+
+        // validate the renew response contents and get the renewed token.
+        this.validateSAMLAssertionResponse(baseResponse, "renewcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
+        collection = (RequestSecurityTokenResponseCollection) baseResponse;
+        Element renewedAssertionElement = (Element) collection.getRequestSecurityTokenResponses().get(0)
+                .getRequestedSecurityToken().getAny().get(0);
+
+        // compare the assertions, checking if the lifetime has been updated.
+        AssertionType originalAssertion = SAMLUtil.fromElement(assertionElement);
+        AssertionType renewedAssertion = SAMLUtil.fromElement(renewedAssertionElement);
+
+        // assertions should have different ids and lifetimes.
+        assertFalse("Renewed assertion should have a unique id", originalAssertion.getID().equals(renewedAssertion.getID()));
+        assertEquals(DatatypeConstants.LESSER,
+                originalAssertion.getConditions().getNotBefore().compare(renewedAssertion.getConditions().getNotBefore()));
+        assertEquals(DatatypeConstants.LESSER,
+                originalAssertion.getConditions().getNotOnOrAfter().compare(renewedAssertion.getConditions().getNotOnOrAfter()));
+    }
+
+
+    /**
+     * <p>
+     * This test case first generates a SAMLV2.0 assertion and then sends a WS-Trust renew message to the STS to get
+     * the
+     * assertion renewed (i.e. get a new assertion with an updated lifetime) with a ServiceProvider from a ServiceProvidersRegEx list.
+     * </p>
+     *
+     * @throws Exception if an error occurs while running the test.
+     */
+    @Test
+    public void testInvokeSAML20RenewRegEx() throws Exception {
+        // create a simple token request, using applies-to to identify the token type.
+        RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST, null,
+                "http://services.testcorptwo.org/provider2/abbbbbb/bccccccc/cddddddd/deeeeeee");
 
         Source requestMessage = this.createSourceFromRequest(request);
 

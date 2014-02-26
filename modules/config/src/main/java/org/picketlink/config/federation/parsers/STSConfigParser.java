@@ -109,6 +109,8 @@ public class STSConfigParser extends AbstractParser {
 
     private static final String ENDPOINT_ATTRIB = "Endpoint";
 
+    private static final String ENDPOINT_REGEX_ATTRIB = "EndpointRegEx";
+
     private static final String TRUSTSTORE_ALIAS_ATTRIB = "TruststoreAlias";
 
     /*
@@ -526,6 +528,10 @@ public class STSConfigParser extends AbstractParser {
                 attribute = subEvent.getAttributeByName(attributeQName);
                 if (attribute != null)
                     serviceProvider.setEndpoint(StaxParserUtil.getAttributeValue(attribute));
+                attributeQName = new QName("", ENDPOINT_REGEX_ATTRIB);
+                attribute = subEvent.getAttributeByName(attributeQName);
+                if (attribute != null)
+                    serviceProvider.setEndpointRegEx(StaxParserUtil.getAttributeValue(attribute));
                 attributeQName = new QName("", TRUSTSTORE_ALIAS_ATTRIB);
                 attribute = subEvent.getAttributeByName(attributeQName);
                 if (attribute != null)
