@@ -62,7 +62,7 @@ public class IDPSSODescriptorType extends SSODescriptorType {
 
     protected List<AttributeType> attribute = new ArrayList<AttributeType>();
 
-    protected Boolean wantAuthnRequestsSigned;
+    protected Boolean wantAuthnRequestsSigned = false;
 
     public IDPSSODescriptorType(List<String> protocolSupport) {
         super(protocolSupport);

@@ -55,7 +55,7 @@ public class AttributeConsumingServiceType {
 
     protected int index;
 
-    protected Boolean isDefault;
+    protected Boolean isDefault = Boolean.FALSE;
 
     public AttributeConsumingServiceType(int index) {
         this.index = index;
