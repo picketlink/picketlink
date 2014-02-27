@@ -68,7 +68,7 @@ public class STSType {
 
     protected Integer tokenTimeout;
 
-    protected Boolean signToken = Boolean.FALSE;
+    protected Boolean signToken = Boolean.TRUE;
 
     protected Boolean encryptToken = Boolean.FALSE;
 
@@ -238,7 +238,7 @@ public class STSType {
      * @return possible object is {@link Boolean }
      */
     public boolean isEncryptToken() {
-        if (encryptToken == null) {
+        if (encryptToken == null || encryptToken == Boolean.FALSE) {
             return false;
         } else {
             return encryptToken;
