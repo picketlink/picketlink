@@ -45,7 +45,7 @@ public class TimeSyncTokenType {
 
     protected DeviceTypeType deviceType;
     protected BigInteger seedLength;
-    protected Boolean deviceInHand;
+    protected Boolean deviceInHand = Boolean.FALSE;
 
     /**
      * Gets the value of the deviceType property.

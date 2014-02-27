@@ -60,7 +60,7 @@ public class IDPType extends ProviderType {
 
     protected String attributeManager;
 
-    protected Boolean encrypt;
+    protected Boolean encrypt = Boolean.FALSE;
 
     protected String hostedURI;
 

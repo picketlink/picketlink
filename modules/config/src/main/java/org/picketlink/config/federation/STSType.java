@@ -68,9 +68,9 @@ public class STSType {
 
     protected Integer tokenTimeout;
 
-    protected Boolean signToken;
+    protected Boolean signToken = Boolean.FALSE;
 
-    protected Boolean encryptToken;
+    protected Boolean encryptToken = Boolean.FALSE;
 
     protected String canonicalizationMethod;
 

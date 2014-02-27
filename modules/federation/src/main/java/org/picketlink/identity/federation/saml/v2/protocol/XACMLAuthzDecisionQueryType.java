@@ -48,9 +48,9 @@ public class XACMLAuthzDecisionQueryType extends RequestAbstractType {
 
     protected RequestType request;
 
-    protected Boolean inputContextOnly;
+    protected Boolean inputContextOnly = Boolean.FALSE;
 
-    protected Boolean returnContext;
+    protected Boolean returnContext = Boolean.FALSE;
 
     public XACMLAuthzDecisionQueryType(String id, XMLGregorianCalendar instant) {
         super(id, instant);
