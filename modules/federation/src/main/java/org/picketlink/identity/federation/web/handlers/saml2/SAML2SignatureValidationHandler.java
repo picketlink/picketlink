@@ -66,6 +66,9 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
         Map<String, Object> requestOptions = request.getOptions();
         PicketLinkAuditHelper auditHelper = (PicketLinkAuditHelper) requestOptions.get(GeneralConstants.AUDIT_HELPER);
         Boolean ignoreSignatures = (Boolean) requestOptions.get(GeneralConstants.IGNORE_SIGNATURES);
+        if(ignoreSignatures == null){
+            ignoreSignatures = Boolean.FALSE;
+        }
         if (ignoreSignatures == Boolean.TRUE)
             return;
 

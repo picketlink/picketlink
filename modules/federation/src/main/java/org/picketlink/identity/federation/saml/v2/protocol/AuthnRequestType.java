@@ -67,9 +67,9 @@ public class AuthnRequestType extends RequestAbstractType {
 
     protected ScopingType scoping;
 
-    protected Boolean forceAuthn;
+    protected Boolean forceAuthn = Boolean.FALSE;
 
-    protected Boolean isPassive;
+    protected Boolean isPassive = Boolean.FALSE;
 
     protected URI protocolBinding;
 

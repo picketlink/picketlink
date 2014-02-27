@@ -1340,6 +1340,9 @@ public class IDPFilter implements Filter {
         }
 
         Boolean isRequestSigned = currentSPMetadata.isAuthnRequestsSigned();
+        if(isRequestSigned == null){
+            isRequestSigned = Boolean.FALSE;
+        }
 
         logger.trace("Issuer: " + spIssuer + ", isRequestSigned: " + isRequestSigned);
 

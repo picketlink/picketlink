@@ -44,7 +44,7 @@ public class RequestedAttributeType extends AttributeType {
         super(name);
     }
 
-    protected Boolean isRequired;
+    protected Boolean isRequired = Boolean.FALSE;
 
     /**
      * Gets the value of the isRequired property.
