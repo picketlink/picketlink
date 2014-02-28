@@ -1,7 +1,5 @@
 package org.picketlink.forge.ui;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
@@ -22,7 +20,6 @@ import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
 import org.jboss.forge.addon.projects.facets.MetadataFacet;
 import org.jboss.forge.addon.projects.ui.AbstractProjectCommand;
 import org.jboss.forge.addon.ui.command.PrerequisiteCommandsProvider;
-import org.jboss.forge.addon.ui.command.UICommand;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -30,8 +27,10 @@ import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.input.UISelectOne;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
+import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
+import org.jboss.forge.addon.ui.result.navigation.NavigationResultBuilder;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
 import org.picketlink.forge.ConfigurationOperations;
@@ -148,17 +147,17 @@ public class PicketLinkSetupCommand extends AbstractProjectCommand implements Pr
     }
 
     @Override
-    public Iterable<Class<? extends UICommand>> getPrerequisiteCommands(UIContext context) {
-        List<Class<? extends UICommand>> setup = new ArrayList<>();
+    public NavigationResult getPrerequisiteCommands(UIContext context) {
+        NavigationResultBuilder builder = NavigationResultBuilder.create();
         Project project = getSelectedProject(context);
         if (project != null)
         {
            if (!project.hasFacet(CDIFacet.class))
            {
-              setup.add(CDISetupCommand.class);
+              builder.add(CDISetupCommand.class);
            }
         }
-        return setup;
+        return builder.build();
     }
 
 }
