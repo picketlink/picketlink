@@ -1,5 +1,7 @@
 package org.picketlink.forge.ui;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
@@ -12,10 +14,15 @@ import org.jboss.forge.addon.dependencies.DependencyResolver;
 import org.jboss.forge.addon.dependencies.builder.DependencyBuilder;
 import org.jboss.forge.addon.dependencies.builder.DependencyQueryBuilder;
 import org.jboss.forge.addon.dependencies.util.NonSnapshotDependencyFilter;
+import org.jboss.forge.addon.javaee.cdi.CDIFacet;
+import org.jboss.forge.addon.javaee.cdi.ui.CDISetupCommand;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.ProjectFactory;
 import org.jboss.forge.addon.projects.dependencies.DependencyInstaller;
+import org.jboss.forge.addon.projects.facets.MetadataFacet;
 import org.jboss.forge.addon.projects.ui.AbstractProjectCommand;
+import org.jboss.forge.addon.ui.command.PrerequisiteCommandsProvider;
+import org.jboss.forge.addon.ui.command.UICommand;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
@@ -34,9 +41,10 @@ import org.picketlink.forge.ConfigurationOperations;
  *
  * @author Shane Bryzak
  */
-public class PicketLinkSetupCommand extends AbstractProjectCommand {
+public class PicketLinkSetupCommand extends AbstractProjectCommand implements PrerequisiteCommandsProvider {
 
-    public static final String PICKETLINK_CONFIGURATION_PACKAGE = "PICKETLINK_CONFIGURATION_PACKAGE";
+    public static final String PICKETLINK_CONFIGURATION_PACKAGE = "picketlinkConfigurationPackage";
+    public static final String DEFAULT_CONFIG_PACKAGE = "picketlink.config";
 
     @Inject ProjectFactory projectFactory;
 
@@ -83,6 +91,7 @@ public class PicketLinkSetupCommand extends AbstractProjectCommand {
                 return source != null ? String.format("PicketLink %s", source.getVersion()) : null;
             }
         });
+
         builder.add(version);
         builder.add(showSnapshots);
 
@@ -91,6 +100,9 @@ public class PicketLinkSetupCommand extends AbstractProjectCommand {
         Configuration config = facet.getConfiguration();
         if (config.containsKey(PICKETLINK_CONFIGURATION_PACKAGE)) {
             configurationPackage.setValue(config.getString(PICKETLINK_CONFIGURATION_PACKAGE));
+        } else {
+            MetadataFacet metadataFacet = project.getFacet(MetadataFacet.class);
+            configurationPackage.setValue(metadataFacet.getTopLevelPackage() + "." + DEFAULT_CONFIG_PACKAGE);
         }
 
         builder.add(configurationPackage);
@@ -133,6 +145,20 @@ public class PicketLinkSetupCommand extends AbstractProjectCommand {
     @Override
     protected ProjectFactory getProjectFactory() {
         return projectFactory;
+    }
+
+    @Override
+    public Iterable<Class<? extends UICommand>> getPrerequisiteCommands(UIContext context) {
+        List<Class<? extends UICommand>> setup = new ArrayList<>();
+        Project project = getSelectedProject(context);
+        if (project != null)
+        {
+           if (!project.hasFacet(CDIFacet.class))
+           {
+              setup.add(CDISetupCommand.class);
+           }
+        }
+        return setup;
     }
 
 }
