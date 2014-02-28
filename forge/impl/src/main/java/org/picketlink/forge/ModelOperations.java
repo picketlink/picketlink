@@ -10,9 +10,12 @@ import org.jboss.forge.addon.parser.java.facets.JavaSourceFacet;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.parser.java.Field;
 import org.jboss.forge.parser.java.JavaClass;
+import org.jboss.forge.parser.java.Method;
 import org.picketlink.idm.model.AbstractIdentityType;
+import org.picketlink.idm.model.AbstractPartition;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.model.annotation.IdentityPartition;
 import org.picketlink.idm.model.annotation.InheritsPrivileges;
 import org.picketlink.idm.model.annotation.Unique;
 
@@ -38,6 +41,10 @@ public class ModelOperations {
 
         if (supportGroup) {
             java.saveJavaSource(createGroupClass(packageName));
+        }
+
+        if (supportRealm) {
+            java.saveJavaSource(createRealmClass(packageName));
         }
     }
 
@@ -202,6 +209,33 @@ public class ModelOperations {
         // Add the necessary imports
         javaClass.addImport(AttributeProperty.class);
         javaClass.addImport(AbstractIdentityType.class);
+
+        return javaClass;
+    }
+
+    private JavaClass createRealmClass(String packageName) {
+        JavaClass javaClass = javaSourceFactory.create(JavaClass.class)
+                .setName("Realm")
+                .setPublic()
+                .setSuperType(AbstractPartition.class);
+
+        javaClass.setPackage(packageName);
+        javaClass.addAnnotation(IdentityPartition.class);
+
+        // Add the necessary imports
+        javaClass.addImport(AbstractPartition.class);
+        javaClass.addImport(IdentityPartition.class);
+
+        Method<JavaClass> m = javaClass.addMethod();
+        m.setConstructor(true);
+        m.setPublic();
+        m.setBody("super(null);");
+
+        m = javaClass.addMethod();
+        m.setConstructor(true);
+        m.setPublic();
+        m.setParameters("String name");
+        m.setBody("super(name);");
 
         return javaClass;
     }
