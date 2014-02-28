@@ -1,5 +1,6 @@
 package org.picketlink.forge.ui;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
@@ -55,8 +56,8 @@ public class PicketLinkSetupCommand extends AbstractProjectCommand implements Pr
             description = "Select the version of PicketLink", shortName = 'v')
     private UISelectOne<Coordinate> version;
 
-    @Inject @WithAttributes(label = "Include snapshot versions",
-            description = "Include snapshot versions in the list")
+    @Inject @WithAttributes(label = "Show snapshot versions",
+            description = "Show snapshot versions in the list")
     private UIInput<Boolean> showSnapshots;
 
     @Inject @WithAttributes(label = "Configuration package", required = true,
@@ -69,16 +70,17 @@ public class PicketLinkSetupCommand extends AbstractProjectCommand implements Pr
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
 
+        DependencyQueryBuilder query = DependencyQueryBuilder
+                .create("org.picketlink:picketlink-api");
+        if (!showSnapshots.getValue()) {
+            query.setFilter(new NonSnapshotDependencyFilter());
+        }
+        final List<Coordinate> coordinates = dependencyResolver.resolveVersions(query);
+
         Callable<Iterable<Coordinate>> coordinatesBuilder = new Callable<Iterable<Coordinate>>() {
             @Override
             public Iterable<Coordinate> call() throws Exception {
-
-                DependencyQueryBuilder query = DependencyQueryBuilder
-                        .create("org.picketlink:picketlink-api");
-                if (!showSnapshots.getValue()) {
-                    query.setFilter(new NonSnapshotDependencyFilter());
-                }
-                return dependencyResolver.resolveVersions(query);
+                return coordinates;
             }
 
         };
@@ -90,6 +92,17 @@ public class PicketLinkSetupCommand extends AbstractProjectCommand implements Pr
                 return source != null ? String.format("PicketLink %s", source.getVersion()) : null;
             }
         });
+        if (!coordinates.isEmpty()) {
+            Coordinate defaultCoord = coordinates.get(coordinates.size() - 1);
+            for (int i = coordinates.size() - 1; i >= 0; i--) {
+                String version = coordinates.get(i).getVersion();
+                if (version != null && version.toLowerCase().contains("final")) {
+                    defaultCoord = coordinates.get(i);
+                    break;
+                }
+            }
+            version.setDefaultValue(defaultCoord);
+        }
 
         builder.add(version);
         builder.add(showSnapshots);
