@@ -111,7 +111,7 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
                 try {
                     temporaryDocument = DocumentUtil.createDocument();
                 } catch (ConfigurationException e) {
-                    throw this.logger.processingError(e);
+                    throw logger.processingError(e);
                 }
 
                 temporaryDocument.adoptNode(clonedAssertionElement);
