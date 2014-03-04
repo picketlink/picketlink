@@ -4,27 +4,33 @@ import javax.inject.Inject;
 
 import org.jboss.forge.addon.configuration.Configuration;
 import org.jboss.forge.addon.configuration.facets.ConfigurationFacet;
+import org.jboss.forge.addon.javaee.jpa.JPAFacet;
+import org.jboss.forge.addon.javaee.jpa.ui.setup.JPASetupWizard;
 import org.jboss.forge.addon.projects.Project;
 import org.jboss.forge.addon.projects.ProjectFactory;
 import org.jboss.forge.addon.projects.facets.MetadataFacet;
 import org.jboss.forge.addon.projects.ui.AbstractProjectCommand;
+import org.jboss.forge.addon.ui.command.PrerequisiteCommandsProvider;
 import org.jboss.forge.addon.ui.context.UIBuilder;
 import org.jboss.forge.addon.ui.context.UIContext;
 import org.jboss.forge.addon.ui.context.UIExecutionContext;
 import org.jboss.forge.addon.ui.input.UIInput;
 import org.jboss.forge.addon.ui.metadata.UICommandMetadata;
 import org.jboss.forge.addon.ui.metadata.WithAttributes;
+import org.jboss.forge.addon.ui.result.NavigationResult;
 import org.jboss.forge.addon.ui.result.Result;
 import org.jboss.forge.addon.ui.result.Results;
+import org.jboss.forge.addon.ui.result.navigation.NavigationResultBuilder;
 import org.jboss.forge.addon.ui.util.Categories;
 import org.jboss.forge.addon.ui.util.Metadata;
+import org.picketlink.forge.SchemaOperations;
 
 /**
  * Provides features for generating a custom identity model
  *
  * @author Shane Bryzak
  */
-public class PicketLinkSchemaCommand extends AbstractProjectCommand {
+public class PicketLinkSchemaCommand  extends AbstractProjectCommand implements PrerequisiteCommandsProvider {
     public static final String PICKETLINK_SCHEMA_PACKAGE = "picketlinkSchemaPackage";
     public static final String DEFAULT_SCHEMA_PACKAGE = "picketlink.schema";
 
@@ -39,6 +45,8 @@ public class PicketLinkSchemaCommand extends AbstractProjectCommand {
             description = "The Identity Schema will be created in this package",
             shortName = 's')
     private UIInput<String> schemaPackage;
+
+    @Inject SchemaOperations schemaOps;
 
     @Override
     public void initializeUI(UIBuilder builder) throws Exception {
@@ -70,7 +78,9 @@ public class PicketLinkSchemaCommand extends AbstractProjectCommand {
 
         ConfigurationFacet facet = project.getFacet(ConfigurationFacet.class);
         Configuration config = facet.getConfiguration();
-        config.setProperty(PICKETLINK_SCHEMA_PACKAGE, modelPackage.getValue());
+        config.setProperty(PICKETLINK_SCHEMA_PACKAGE, schemaPackage.getValue());
+
+        schemaOps.createIdentitySchema(project, schemaPackage.getValue());
 
         return Results.success("Successful");
     }
@@ -92,6 +102,20 @@ public class PicketLinkSchemaCommand extends AbstractProjectCommand {
     @Override
     protected ProjectFactory getProjectFactory() {
         return projectFactory;
+    }
+
+    @Override
+    public NavigationResult getPrerequisiteCommands(UIContext context) {
+        NavigationResultBuilder builder = NavigationResultBuilder.create();
+        Project project = getSelectedProject(context);
+        if (project != null)
+        {
+           if (!project.hasFacet(JPAFacet.class))
+           {
+              builder.add(JPASetupWizard.class);
+           }
+        }
+        return builder.build();
     }
 
 }
