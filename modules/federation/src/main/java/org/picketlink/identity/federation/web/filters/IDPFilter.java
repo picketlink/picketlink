@@ -1271,8 +1271,13 @@ public class IDPFilter implements Filter {
             timer.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
+                    //Clear the configuration
+                    picketLinkConfiguration = null;
+                    idpConfiguration = null;
+
                     initIDPConfiguration();
                     initKeyManager();
+                    initHandlersChain();
                 }
             }, timerInterval, timerInterval);
         }
@@ -1335,6 +1340,9 @@ public class IDPFilter implements Filter {
         }
 
         Boolean isRequestSigned = currentSPMetadata.isAuthnRequestsSigned();
+        if(isRequestSigned == null){
+            isRequestSigned = Boolean.FALSE;
+        }
 
         logger.trace("Issuer: " + spIssuer + ", isRequestSigned: " + isRequestSigned);
 

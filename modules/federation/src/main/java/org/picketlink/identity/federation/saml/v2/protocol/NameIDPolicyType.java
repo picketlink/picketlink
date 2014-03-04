@@ -42,7 +42,7 @@ public class NameIDPolicyType {
 
     protected URI format;
     protected String spNameQualifier;
-    protected Boolean allowCreate;
+    protected Boolean allowCreate = Boolean.FALSE;
 
     /**
      * Gets the value of the format property.

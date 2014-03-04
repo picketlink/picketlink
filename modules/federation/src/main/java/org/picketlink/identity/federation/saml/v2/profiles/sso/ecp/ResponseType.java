@@ -40,7 +40,7 @@ package org.picketlink.identity.federation.saml.v2.profiles.sso.ecp;
  */
 public class ResponseType {
 
-    protected Boolean mustUnderstand;
+    protected Boolean mustUnderstand = Boolean.FALSE;
     protected String actor;
     protected String assertionConsumerServiceURL;
 

@@ -32,5 +32,10 @@
     <ServiceProvider Endpoint="http://services.testcorp.org/provider2"
                      TokenType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"
                      TruststoreAlias="service2"/>
+    <ServiceProvider EndpointRegEx="^http://services\.testcorptwo\.org.*"
+                     TokenType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"
+                     TruststoreAlias="service2"/>
+    <ServiceProvider EndpointRegEx="^http://services\.testcorpone\.org.*" TokenType="http://www.tokens.org/SpecialToken"
+                     TruststoreAlias="service1"/>
   </ServiceProviders>
 </PicketLinkSTS>

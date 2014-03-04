@@ -50,9 +50,9 @@ public class SPSSODescriptorType extends SSODescriptorType {
 
     protected List<AttributeConsumingServiceType> attributeConsumingService = new ArrayList<AttributeConsumingServiceType>();
 
-    protected boolean authnRequestsSigned;
+    protected boolean authnRequestsSigned = false;
 
-    protected boolean wantAssertionsSigned;
+    protected boolean wantAssertionsSigned = false;
 
     public SPSSODescriptorType(List<String> protocolSupport) {
         super(protocolSupport);
