@@ -57,6 +57,10 @@ public class PicketLinkAuditHelper {
      * @throws ConfigurationException
      */
     public PicketLinkAuditHelper(String securityDomainName) throws ConfigurationException {
+        configureAuditManager(securityDomainName);
+    }
+
+    protected void configureAuditManager(String securityDomainName) throws ConfigurationException {
         try {
             Context context = new InitialContext();
             auditManager = (AuditManager) context
