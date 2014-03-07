@@ -55,9 +55,9 @@ import static org.picketlink.idm.model.basic.BasicModel.getUser;
  * Perform some tests against the events raised during authentication. We also check the order which they are fired, what
  * allow us to assert better about how and when events are handled.
  * </p>
- * 
+ *
  * @author Pedro Igor
- * 
+ *
  */
 public class AuthenticationEventHandlingTestCase extends AbstractAuthenticationTestCase {
 
