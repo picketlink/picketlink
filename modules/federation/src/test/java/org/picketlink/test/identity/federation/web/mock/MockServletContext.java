@@ -189,7 +189,8 @@ public class MockServletContext implements ServletContext {
     }
 
     public boolean setInitParameter(String name, String value) {
-        return false;
+        params.put(name, value);
+        return true;
     }
 
     public Dynamic addServlet(String servletName, String className) {
