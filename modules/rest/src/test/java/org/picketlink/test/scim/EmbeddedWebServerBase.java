@@ -54,7 +54,7 @@ public abstract class EmbeddedWebServerBase {
             try {
                 server.destroy();
             } catch (Exception e) {
-                e.printStackTrace();
+                //Don't bother
             }
             server = null;
         }
