@@ -66,11 +66,8 @@ public class UsersEndpoint extends AbstractSCIMEndpoint {
             dataProvider = createDefaultDataProvider();
         }
         try {
-            try{
             dataProvider.initializeConnection();
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+
             SCIMUser user = dataProvider.getUser(userId);
             SCIMWriter writer = new SCIMWriter();
 
