@@ -1,0 +1,14 @@
+{"keys":
+    [
+        {"alg":"EC",
+            "crv":"P-256",
+            "x":"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4",
+            "y":"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM",
+            "use":"enc",
+            "kid":"1"},
+        {"alg":"RSA",
+            "mod": "ALXIC9NHc9oF9hTvt3OcRvo9E8lbACfdcO+nWQg5uZpXauQPBv7x0ORLZjSl+Xna5soorzaSD88DoZ4vVzT8wIYJGetl0JpCApb9OP6OHVLNl0uUx0HFi5Xf2NFRegcliB+GbsVmN7DZJejjRP+pt4pgaEFLoPW0M+eDFTW6YH+H",
+            "exp":"AQAB",
+            "kid":"2011-04-29"}
+    ]
+}
