@@ -82,7 +82,7 @@ public class PicketLinkIDMDataProvider implements DataProvider {
         SCIMUser scimUser = new SCIMUser();
 
         IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
-        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("ID"), id);
+        query.setParameter(AttributedType.ID, id);
 
         List<User> result = query.getResultList();
         User user = null;
@@ -104,20 +104,69 @@ public class PicketLinkIDMDataProvider implements DataProvider {
         SCIMGroups scimGroup = new SCIMGroups();
 
         IdentityQuery<Group> query = identityManager.<Group> createIdentityQuery(Group.class);
-        query.setParameter(AttributedType.QUERY_ATTRIBUTE.byName("ID"), id);
+        query.setParameter(AttributedType.ID, id);
 
         List<Group> result = query.getResultList();
         Group group = null;
 
-        if (result.size() > 0) {
+        if(result.size() == 1){
             group = result.get(0);
-
+        } else if(result.size() == 0){
+            log.error("No group instances with id:" + id);
+        } else {
+            log.error("Multiple group instances with id:" + id);
         }
         if (group != null) {
             scimGroup.setDisplayName(group.getName());
             scimGroup.setId(id);
         }
         return scimGroup;
+    }
+
+    @Override
+    public boolean deleteUser(String id) {
+        verifyIdentityManager();
+
+        IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
+        query.setParameter(AttributedType.ID, id);
+
+        List<User> result = query.getResultList();
+        User user = null;
+        if(result.size() == 1){
+            user = result.get(0);
+        } else if(result.size() == 0) {
+            log.error("No user instances with id:" + id);
+        } else {
+            log.error("Multiple user instances with id:" + id);
+        }
+        if(user != null){
+            identityManager.remove(user);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean deleteGroup(String id) {
+        verifyIdentityManager();
+
+        IdentityQuery<Group> query = identityManager.<Group> createIdentityQuery(Group.class);
+        query.setParameter(AttributedType.ID, id);
+
+        List<Group> result = query.getResultList();
+        Group group = null;
+        if(result.size() == 1){
+            group = result.get(0);
+        } else if(result.size() == 0){
+            log.error("No group instances with id:" + id);
+        } else {
+            log.error("Multiple group instances with id:" + id);
+        }
+        if (group != null) {
+            identityManager.remove(group);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -152,6 +201,11 @@ public class PicketLinkIDMDataProvider implements DataProvider {
     public String createGroup(SCIMGroups group) {
         verifyIdentityManager();
         Group simpleGroup = new Group(group.getDisplayName());
+        if(group.getId() != null){
+            simpleGroup.setId(group.getId());
+        }
+
+        //group.
         identityManager.add(simpleGroup);
 
         Group storedGroup = BasicModel.getGroup(identityManager, group.getDisplayName());
