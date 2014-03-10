@@ -37,6 +37,8 @@ import java.net.URLConnection;
  */
 public class SCIMClient {
 
+    public static final String OAUTH2_BEARER_HEADER = "Authorization: Bearer ";
+
     private String baseURL = null;
 
     public SCIMClient() {
@@ -114,6 +116,7 @@ public class SCIMClient {
                 httpURLConnection.setRequestMethod("GET");
                 httpURLConnection.setDoOutput(true);
                 httpURLConnection.setAllowUserInteraction(false);
+                httpURLConnection.setRequestProperty(OAUTH2_BEARER_HEADER, authorizationHeader);
                 if (isJSON) {
                     httpURLConnection.setRequestProperty("Content-Type", "application/json");
                 } else {
@@ -153,6 +156,9 @@ public class SCIMClient {
                 httpURLConnection.setRequestMethod("POST");
                 httpURLConnection.setDoOutput(true);
                 httpURLConnection.setAllowUserInteraction(false);
+
+                httpURLConnection.setRequestProperty(OAUTH2_BEARER_HEADER, authorizationHeader);
+
                 if (isJSON) {
                     httpURLConnection.setRequestProperty("Content-Type", "application/json");
                 } else {
@@ -192,6 +198,7 @@ public class SCIMClient {
                 httpURLConnection.setDoOutput(true);
                 httpURLConnection.setAllowUserInteraction(false);
                 httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                httpURLConnection.setRequestProperty(OAUTH2_BEARER_HEADER, authorizationHeader);
 
                 httpURLConnection.connect();
 
