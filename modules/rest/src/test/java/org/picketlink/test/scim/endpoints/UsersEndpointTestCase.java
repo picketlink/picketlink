@@ -38,9 +38,9 @@ public class UsersEndpointTestCase extends AbstractEndpointTestCase {
         SCIMClient client = new SCIMClient();
         client.setBaseURL("http://localhost:11080/scim");
 
-        SCIMUser user = client.getUser("1234");
+        SCIMUser user = client.getUser(storedUserId, "someheader");
         assertNotNull(user);
-        assertEquals("1234", user.getId());
+        assertEquals(storedUserId, user.getId());
     }
 
     @Test
@@ -52,9 +52,36 @@ public class UsersEndpointTestCase extends AbstractEndpointTestCase {
         SCIMUser scimUser = new SCIMUser();
         scimUser.setDisplayName("ronin");
 
-        SCIMUser user = client.createUser(scimUser);
+        SCIMUser user = client.createUser(scimUser,"someheader");
         assertNotNull(user);
         assertEquals("ronin", user.getDisplayName());
         assertTrue(user.getId().length() > 0);
+    }
+
+    @Test
+    public void testCreateAndDelete() throws Exception {
+        assertTrue(server.isRunning());
+        SCIMClient client = new SCIMClient();
+        client.setBaseURL("http://localhost:11080/scim");
+
+        SCIMUser scimUser = new SCIMUser();
+        scimUser.setDisplayName("ronin");
+
+        SCIMUser user = client.createUser(scimUser,"someheader");
+        assertNotNull(user);
+        assertEquals("ronin", user.getDisplayName());
+        String userID = user.getId();
+        assertTrue(userID.length() > 0);
+
+        //Ensure we have created an user
+        SCIMUser storeduser = client.getUser(userID,"someheader");
+        assertNotNull(storeduser);
+
+        boolean deletionResult = client.deleteUser(storeduser.getId(),"someheader");
+        assertTrue(deletionResult);
+
+        //Ensure that the user is deleted: we get an empty object
+        storeduser = client.getUser(userID,"someheader");
+        assertNull(storeduser.getId());
     }
 }

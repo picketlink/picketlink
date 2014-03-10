@@ -61,6 +61,20 @@ public interface DataProvider {
     SCIMUser getUser(String id);
 
     /**
+     * Delete an user
+     * @param id
+     * @return true if deletion successful
+     */
+    boolean deleteUser(String id);
+
+    /**
+     * Delete group
+     * @param id
+     * @return
+     */
+    boolean deleteGroup(String id);
+
+    /**
      * Get {@link SCIMGroups}
      *
      * @param id

@@ -64,6 +64,8 @@ import org.picketlink.test.scim.EmbeddedWebServerBase;
  * @since Apr 17, 2013
  */
 public abstract class AbstractEndpointTestCase extends EmbeddedWebServerBase {
+    protected String storedUserId = null;
+    protected String storedGroupId = null;
 
     protected void populateIDM() {
         if (Thread.currentThread().getContextClassLoader() == null) {
@@ -138,9 +140,17 @@ public abstract class AbstractEndpointTestCase extends EmbeddedWebServerBase {
             BasicModel.grantRole(relationshipManager, admin, roleAdmin);
 
             Group group = new Group("SomeGroup");
-            group.setAttribute(new Attribute<String>("ID", "jboss"));
+            group.setAttribute(new Attribute<String>("ID", "jboss_groupid"));
             identityManager.add(group);
+
+            anil = BasicModel.getUser(identityManager,"anil");
         }
+
+        Group storedGroup = BasicModel.getGroup(identityManager,"SomeGroup");
+        storedGroupId = storedGroup.getId();
+
+        storedUserId = anil.getId();
+
 
         entityManager.getTransaction().commit();
         entityManager.close();
