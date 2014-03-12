@@ -27,6 +27,7 @@ import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.config.federation.SPType;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
@@ -265,6 +266,12 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                     }
                     NameIDType nameID = new NameIDType();
                     nameID.setValue(userPrincipal.getName());
+                    //Deal with NameID Format
+                    String nameIDFormat = (String) handlerConfig.getParameter(GeneralConstants.NAMEID_FORMAT);
+                    if(StringUtil.isNullOrEmpty(nameIDFormat)){
+                        nameIDFormat = JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get();
+                    }
+                    nameID.setFormat(URI.create(nameIDFormat));
                     lort.setNameID(nameID);
 
                     long assertionValidity = PicketLinkCoreSTS.instance().getConfiguration().getIssuedTokenTimeout();
@@ -368,6 +375,12 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
                 NameIDType nameID = new NameIDType();
                 nameID.setValue(userPrincipal.getName());
+                //Deal with NameID Format
+                String nameIDFormat = (String) handlerConfig.getParameter(GeneralConstants.NAMEID_FORMAT);
+                if(StringUtil.isNullOrEmpty(nameIDFormat)){
+                    nameIDFormat = JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get();
+                }
+                nameID.setFormat(URI.create(nameIDFormat));
                 lot.setNameID(nameID);
 
                 SPType spConfiguration = (SPType) getProviderconfig();
