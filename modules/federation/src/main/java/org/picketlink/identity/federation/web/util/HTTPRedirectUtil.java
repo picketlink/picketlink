@@ -60,7 +60,6 @@ public class HTTPRedirectUtil {
     }
 
     private static void sendRedirect(HttpServletResponse response, String destination) throws IOException {
-        response.reset();
         response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
         response.sendRedirect(destination);
     }
