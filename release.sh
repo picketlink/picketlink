@@ -30,7 +30,6 @@ check_release_version() {
 clean_local_repo() {
     git clean -f -d
     git reset --hard upstream/master
-    rm -rf release.properties
     rm -rf $RELEASE_LOG_FILE
 }
 
@@ -49,7 +48,7 @@ rollback() {
     git tag -d v$RELEASE_VERSION
     git push origin :refs/tags/v$RELEASE_VERSION
     git push upstream :refs/tags/v$RELEASE_VERSION
-    echo "Done."    
+    echo "Done."
 }
 
 # upload the docs to jboss.org/docs
@@ -62,10 +61,33 @@ upload_docs() {
     execute_cmd unzip dist/target/picketlink-$RELEASE_VERSION.zip -d $DOCS_DIR/.
     execute_cmd mv $DOCS_DIR/picketlink-$RELEASE_VERSION/doc/api $DOCS_DIR/.
     execute_cmd mv $DOCS_DIR/picketlink-$RELEASE_VERSION/doc/reference $DOCS_DIR/.
-    rm -rf $DOCS_DIR/picketlink-$RELEASE_VERSION
-    execute_cmd scp -r $DOCS_DIR/ picketlink@filemgmt.jboss.org:/docs_htdocs/picketlink/2
+    execute_cmd rm -rf $DOCS_DIR/picketlink-$RELEASE_VERSION
+    execute_cmd mkdir /tmp/pl-docs
+	execute_cmd sshfs picketlink@filemgmt.jboss.org:/docs_htdocs/picketlink/2 /tmp/pl-docs/
+    execute_cmd cp -r $DOCS_DIR/ /tmp/pl-docs
+    current_dir=$(pwd)
+    cd /tmp/pl-docs
+    execute_cmd unlink latest
+    execute_cmd ln -s $DOCS_DIR/ latest
+    cd $current_dir
     echo "Done."
 }
+
+# upload the distribution to jboss.org/downloads
+upload_distribution() {
+	check_release_version
+	mkdir /tmp/pl-download
+	sshfs picketlink@filemgmt.jboss.org:/downloads_htdocs/picketlink/2 /tmp/pl-download/
+	mkdir /tmp/pl-download/$RELEASE_VERSION
+	cp dist/target/picketlink-$RELEASE_VERSION.zip /tmp/pl-download/$RELEASE_VERSION
+    current_dir=$(pwd)
+    cd /tmp/pl-download
+    execute_cmd unlink latest
+    execute_cmd ln -s $RELEASE_VERSION latest
+    cd $current_dir
+    echo "Done."
+}
+
 
 # perform the release
 release() {
@@ -91,13 +113,9 @@ release() {
 	echo "Preparing local repository to release."
 	execute_cmd git checkout master
 	echo "    Fetching latest changes from upstream..."
-	execute_cmd git fetch upstream
-	echo "    Merging latest changes into master..."
-	execute_cmd git merge upstream/master
-	echo "    Swithing to develop branch..."
-	execute_cmd git checkout develop
-	echo "    Merging latest changes into develop branch..."
-	execute_cmd git merge master
+	execute_cmd git fetch upstream master
+	echo "    Pulling changes from master..."
+	execute_cmd git pull upstream master
 	echo "Done."
 	echo ""
 
@@ -119,40 +137,30 @@ release() {
 
 	echo "Preparing to release using git flow."
 	echo "    Starting release $RELEASE_VERSION..."
-	execute_cmd git flow release start $RELEASE_VERSION
+	execute_cmd git checkout -b release/v$RELEASE_VERSION
 	echo "Done."
 	echo ""
 
 	FLAG_PERFORM_RELEASE="false"
 
-	echo "Preparing to release."
-	echo "    Executing maven-release-plugin in DryRun mode..."
-	execute_cmd mvn -DpreparationGoals="-Drelease -Prelease -DskipTests=true clean install" release:prepare	--batch-mode -DdevelopmentVersion=$DEVELOPMENT_VERSION -DreleaseVersion=$RELEASE_VERSION -Dtag=vRELEASE_VERSION	-DdryRun -DignoreSnapshots=true -Prelease
-	if check_build_result; then     
-		 read -p "Project is ready to release. Do you want to proceed ?[y/n] " FLAG_PERFORM_RELEASE
-	else
-		 echo "ERROR: Project build failed. Can not proceed with the release. Check the logs."
-		 exit 1;
-	fi
+    echo "Releasing version $RELEASE_VERSION."
+    execute_cmd perl -pi -e 's/'$DEVELOPMENT_VERSION'/'$RELEASE_VERSION'/g' `find . -name pom.xml`
+    execute_cmd cd maven-plugins/picketlink-jdocbook-style/
+    execute_cmd mvn -Prelease -DskipTests=true clean install
+    execute_cmd cd ../../
+    execute_cmd mvn -Prelease -DskipTests=true clean install
+    if check_build_result; then
+        echo "Done."
+    else
+        echo "ERROR: Release failed."
+        exit 1
+    fi
 
-	if [ "$FLAG_PERFORM_RELEASE" == "y" ]; then
-		echo "Releasing version $RELEASE_VERSION."
-		cd maven-plugins/picketlink-jdocbook-style/
-		execute_cmd perl -pi -e 's/'$DEVELOPMENT_VERSION'/'$RELEASE_VERSION'/g' `find . -name pom.xml`
-		execute_cmd mvn clean install
-		execute_cmd perl -pi -e 's/'$RELEASE_VERSION'/'$DEVELOPMENT_VERSION'/g' `find . -name pom.xml`
-		cd ../../
-		execute_cmd mvn -DpreparationGoals="-Drelease -Prelease clean install" release:prepare --batch-mode -DdevelopmentVersion=$DEVELOPMENT_VERSION -DreleaseVersion=$RELEASE_VERSION -Dtag=v$RELEASE_VERSION -Dresume=false -DignoreSnapshots=true -Prelease
-		if check_build_result; then
-			echo "Done."
-		else
-			echo "ERROR: Release failed."
-			exit 1
-		fi
-	else
-                rollback
-		exit 1
-	fi
+    execute_cmd git add .
+    execute_cmd git commit -m "Release $RELEASE_VERSION."
+    execute_cmd git tag -a v$RELEASE_VERSION -m "Version $RELEASE_VERSION."
+    execute_cmd git push --tags upstream
+
 	echo ""
 
 	FLAG_PUBLISH_NEXUS="n"
@@ -160,7 +168,7 @@ release() {
 
 	if [ "$FLAG_PUBLISH_NEXUS" == "y" ]; then
 		echo "Publishing artifacts to Nexus. "
-		execute_cmd mvn release:perform nexus:staging-close -Prelease
+		execute_cmd mvn -Prelease -DskipTests=true clean source:jar deploy
 		echo "Done. You can now go to Nexus and finish release the artifacts."
 	fi
 	echo ""
@@ -171,16 +179,25 @@ release() {
 	if [ "$FLAG_UPLOAD_DOC" == "y" ]; then
 		echo "Uploading documentation to docs.jboss.org. "
 		upload_docs
-		echo "Done. Check if the documentation is now available at http://docs.jboss.org/picketlink/3/"
+		echo "Done. Check if the documentation is now available at http://docs.jboss.org/picketlink/2/latest"
+	fi
+	echo ""
+
+	FLAG_UPLOAD_DIST="n"
+	read -p "Do you want to upload distribution to downloads.jboss.org ?[y/n] " FLAG_UPLOAD_DIST
+
+	if [ "$FLAG_UPLOAD_DIST" == "y" ]; then
+		echo "Uploading distribution to downloads.jboss.org. "
+		upload_distribution
+		echo "Done. Check if the distribution is now available at http://downloads.jboss.org/picketlink/2/latest/picketlink-$RELEASE_VERSION.zip"
 	fi
 	echo ""
 
 	echo "Finishing the release."
 	git flow release finish $RELEASE_VERSION
         clean_local_repo
-        git branch -D release/$RELEASE_VERSION
-        git push origin :release/$RELEASE_VERSION
-        git push upstream :release/$RELEASE_VERSION
+        git checkout master
+        git branch -D release/v$RELEASE_VERSION
         git reset --hard upstream/master
 	echo "Done."
 	exit 0
@@ -211,7 +228,7 @@ while true; do
 		 usage
 		 exit
 		 ;;
-	 --snapshot )	     
+	 --snapshot )
 		 DEVELOPMENT_VERSION=$2
 		 shift
 		 shift
@@ -225,15 +242,19 @@ while true; do
 		 ROLLBACK="true"
 		 shift
 		 ;;
-         --upload-docs )
+     --upload-docs )
 		 upload_docs
-                 exit 0
-                 ;;
-	 -- ) 
-	     shift; 
+         exit 0
+         ;;
+     --upload-dist )
+		 upload_distribution
+         exit 0
+         ;;
+	 -- )
+	     shift;
 	     break ;;
-     * ) 
-         break 
+     * )
+         break
          ;;
   esac
 done
