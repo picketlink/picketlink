@@ -212,7 +212,7 @@ public class IDPFilter implements Filter {
 
         // we only handle SAML messages for authenticated users.
         if (userPrincipal != null) {
-            handleSAMLMessage(httpServletRequest, httpServletResponse);
+            handleSAMLMessage(httpServletRequest, httpServletResponse, chain);
         }else {
             chain.doFilter(request,response);
         }
@@ -227,12 +227,14 @@ public class IDPFilter implements Filter {
      * Handles SAML messages.
      * </p>
      *
+     *
      * @param request
      * @param response
+     * @param chain
      * @throws IOException
      * @throws ServletException
      */
-    private void handleSAMLMessage(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    private void handleSAMLMessage(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (hasSAML11Target(request)) {
             // We have SAML 1.1 IDP first scenario. Now we need to create a SAMLResponse and send back
             // to SP as per target
@@ -270,6 +272,8 @@ public class IDPFilter implements Filter {
             } else if (request.getRequestURI().equals(request.getContextPath() + "/")) {
                 // no SAML processing and the request is asking for /.
                 forwardHosted(request, response);
+            } else {
+                chain.doFilter(request, response);
             }
 
             /*HttpSession session = request.getSession();
@@ -498,13 +502,12 @@ public class IDPFilter implements Filter {
                 }
             }
 
-            //TODO: Deal with Roles
-            /*GenericPrincipal genericPrincipal = (GenericPrincipal) userPrincipal;
-            String[] roles = genericPrincipal.getRoles();
-            SAML11AttributeStatementType attributeStatement = this.createAttributeStatement(Arrays.asList(roles));
+            List<String> roles = this.roleGenerator.generateRoles(userPrincipal);
+            SAML11AttributeStatementType attributeStatement = this.createAttributeStatement(roles);
+
             if (attributeStatement != null) {
                 saml11Assertion.add(attributeStatement);
-            }*/
+            }
 
             // Send it as SAMLResponse
             String id = IDGenerator.create("ID_");
@@ -514,11 +517,12 @@ public class IDPFilter implements Filter {
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             SAML11ResponseWriter writer = new SAML11ResponseWriter(StaxUtil.getXMLStreamWriter(baos));
+
             writer.write(saml11Response);
 
             Document samlResponse = org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
-
             IDPWebRequestUtil.WebRequestUtilHolder holder = webRequestUtil.getHolder();
+
             holder.setResponseDoc(samlResponse).setDestination(target).setRelayState("").setAreWeSendingRequest(false)
                     .setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
 
