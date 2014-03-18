@@ -26,6 +26,7 @@ import org.picketlink.idm.config.LDAPMappingConfiguration;
 
 import javax.naming.Binding;
 import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -39,6 +40,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -69,13 +71,11 @@ public class LDAPOperationManager {
     private List<String> managedAttributes = new ArrayList<String>();
 
     private final LdapContext context;
-    private final LdapContext authenticationContext;
     private final LDAPIdentityStoreConfiguration config;
 
     public LDAPOperationManager(LDAPIdentityStoreConfiguration config) throws NamingException {
         this.config = config;
         this.context = constructContext();
-        this.authenticationContext = constructContext();
     }
 
     private LdapContext constructContext() throws NamingException {
@@ -421,9 +421,20 @@ public class LDAPOperationManager {
      */
     public boolean authenticate(String dn, String password) {
         try {
-            this.authenticationContext.addToEnvironment(Context.SECURITY_PRINCIPAL, dn);
-            this.authenticationContext.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
-            this.authenticationContext.lookup(dn);
+            Hashtable<String, String> env = (Hashtable<String, String>)getContext().getEnvironment();
+
+            env.put(Context.SECURITY_PRINCIPAL, dn);
+            env.put(Context.SECURITY_CREDENTIALS, password);
+
+            // Never use connection pool to prevent password caching
+            env.put("com.sun.jndi.ldap.connect.pool", "false");
+
+            InitialContext authCtx = new InitialLdapContext(env, null);
+
+            if (authCtx != null) {
+                authCtx.close();
+            }
+            return true;
         } catch (Exception e) {
             if (LDAP_STORE_LOGGER.isDebugEnabled()) {
                 LDAP_STORE_LOGGER.debugf(e, "Authentication failed for DN [%s]", dn);
@@ -431,8 +442,6 @@ public class LDAPOperationManager {
 
             return false;
         }
-
-        return true;
     }
 
     private void modifyAttributes(String dn, ModificationItem[] mods) {
