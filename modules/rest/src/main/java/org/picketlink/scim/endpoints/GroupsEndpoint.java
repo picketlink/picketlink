@@ -17,9 +17,9 @@
  */
 package org.picketlink.scim.endpoints;
 
-import javax.enterprise.inject.spi.BeanManager;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -28,8 +28,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import org.jboss.logging.Logger;
-import org.picketlink.scim.DataProvider;
 import org.picketlink.scim.codec.SCIMParser;
 import org.picketlink.scim.codec.SCIMWriter;
 import org.picketlink.scim.codec.SCIMWriterException;
@@ -43,25 +43,13 @@ import org.picketlink.scim.model.v11.SCIMGroups;
  */
 @Path("/Groups")
 public class GroupsEndpoint extends AbstractSCIMEndpoint {
-    private static Logger log = Logger.getLogger(UsersEndpoint.class);
+    private static Logger log = Logger.getLogger(GroupsEndpoint.class);
 
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUser(@Context HttpServletRequest request, @Context ServletContext sc, @PathParam("id") String groupId) {
-        if (dataProvider == null) {
-            BeanManager beanManager = getBeanManager(sc);
-            if (beanManager == null) {
-                throw new IllegalStateException("BM null");
-            }
-            dataProvider = getContextualInstance(beanManager, DataProvider.class);
-        }
-        if (dataProvider == null) {
-            if (log.isTraceEnabled()) {
-                log.trace("dataProvider is not injected. Create a default IDM driven data provider.");
-            }
-            dataProvider = createDefaultDataProvider();
-        }
+    public Response getGroup(@Context HttpServletRequest request, @Context ServletContext sc, @PathParam("id") String groupId) {
+        verifyDataProvider(sc);
         try {
             dataProvider.initializeConnection();
             SCIMGroups group = dataProvider.getGroups(groupId);
@@ -83,19 +71,7 @@ public class GroupsEndpoint extends AbstractSCIMEndpoint {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response createGroup(@Context HttpServletRequest request, @Context ServletContext sc) {
-        if (dataProvider == null) {
-            BeanManager beanManager = getBeanManager(sc);
-            if (beanManager == null) {
-                throw new IllegalStateException("BM null");
-            }
-            dataProvider = getContextualInstance(beanManager, DataProvider.class);
-        }
-        if (dataProvider == null) {
-            if (log.isTraceEnabled()) {
-                log.trace("dataProvider is not injected. Creating a default IDM driven data provider.");
-            }
-            dataProvider = createDefaultDataProvider();
-        }
+        verifyDataProvider(sc);
         try {
             // Parse the data
             SCIMParser parser = new SCIMParser();
@@ -120,6 +96,23 @@ public class GroupsEndpoint extends AbstractSCIMEndpoint {
                 throw new RuntimeException(e);
             }
             return Response.status(200).entity(json).build();
+        } finally {
+            dataProvider.closeConnection();
+        }
+    }
+    @DELETE
+    @Path("{id}")
+    public Response deleteGroup(@Context HttpServletRequest request, @Context ServletContext sc,@PathParam("id") String groupId) {
+        verifyDataProvider(sc);
+        try{
+            dataProvider.initializeConnection();
+            boolean result = dataProvider.deleteGroup(groupId);
+            int responseCode = 404;
+            if(result){
+                responseCode = 200;
+
+            }
+            return Response.status(responseCode).build();
         } finally {
             dataProvider.closeConnection();
         }

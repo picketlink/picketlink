@@ -18,9 +18,9 @@
 package org.picketlink.scim.endpoints;
 
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.inject.spi.BeanManager;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -29,8 +29,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import org.jboss.logging.Logger;
-import org.picketlink.scim.DataProvider;
 import org.picketlink.scim.codec.SCIMParser;
 import org.picketlink.scim.codec.SCIMWriter;
 import org.picketlink.scim.codec.SCIMWriterException;
@@ -52,21 +52,10 @@ public class UsersEndpoint extends AbstractSCIMEndpoint {
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(@Context HttpServletRequest request, @Context ServletContext sc, @PathParam("id") String userId) {
-        if (dataProvider == null) {
-            BeanManager beanManager = getBeanManager(sc);
-            if (beanManager == null) {
-                throw new IllegalStateException("BM null");
-            }
-            dataProvider = getContextualInstance(beanManager, DataProvider.class);
-        }
-        if (dataProvider == null) {
-            if (log.isTraceEnabled()) {
-                log.trace("dataProvider is not injected. Creating a default IDM driven data provider.");
-            }
-            dataProvider = createDefaultDataProvider();
-        }
+        verifyDataProvider(sc);
         try {
             dataProvider.initializeConnection();
+
             SCIMUser user = dataProvider.getUser(userId);
             SCIMWriter writer = new SCIMWriter();
 
@@ -86,19 +75,7 @@ public class UsersEndpoint extends AbstractSCIMEndpoint {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response createUser(@Context HttpServletRequest request, @Context ServletContext sc) {
-        if (dataProvider == null) {
-            BeanManager beanManager = getBeanManager(sc);
-            if (beanManager == null) {
-                throw new IllegalStateException("BM null");
-            }
-            dataProvider = getContextualInstance(beanManager, DataProvider.class);
-        }
-        if (dataProvider == null) {
-            if (log.isTraceEnabled()) {
-                log.trace("dataProvider is not injected. Creating a default IDM driven data provider.");
-            }
-            dataProvider = createDefaultDataProvider();
-        }
+        verifyDataProvider(sc);
         try {
             // Parse the data
             SCIMParser parser = new SCIMParser();
@@ -123,6 +100,23 @@ public class UsersEndpoint extends AbstractSCIMEndpoint {
                 throw new RuntimeException(e);
             }
             return Response.status(200).entity(json).build();
+        } finally {
+            dataProvider.closeConnection();
+        }
+    }
+
+    @DELETE
+    @Path("{id}")
+    public Response deleteUser(@Context HttpServletRequest request, @Context ServletContext sc,@PathParam("id") String userId) {
+        verifyDataProvider(sc);
+        try{
+            dataProvider.initializeConnection();
+            boolean result = dataProvider.deleteUser(userId);
+            int responseCode = 404;
+            if(result){
+                responseCode = 200;
+            }
+            return Response.status(responseCode).build();
         } finally {
             dataProvider.closeConnection();
         }
