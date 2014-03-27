@@ -21,17 +21,13 @@
  */
 package org.picketlink.identity.federation.core.sts.registry;
 
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
 
 /**
  * @author Anil Saldhana
@@ -39,17 +35,23 @@ import java.sql.Statement;
  */
 public class AbstractJDBCRegistry {
 
-    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    protected DataSource dataSource;
+    private static final String JNDI_COMP_ENV = "java:comp/env";
 
-    public AbstractJDBCRegistry() {
-        this("jdbc/picketlink-sts");
-    }
+    private static final String JNDI_JBOSS = "java:comp/env";
+
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    private DataSource dataSource;
 
     public AbstractJDBCRegistry(String jndiName) {
         try {
             Context initContext = new InitialContext();
-            Context envContext = (Context) initContext.lookup("java:comp/env");
+            Context envContext;
+            if(jndiName != null && !jndiName.trim().isEmpty() && jndiName.startsWith(JNDI_COMP_ENV)){
+                envContext = (Context) initContext.lookup(JNDI_COMP_ENV);
+                jndiName = jndiName.substring(JNDI_COMP_ENV.length());
+            } else {
+                envContext = (Context) initContext.lookup(JNDI_JBOSS);
+            }
             dataSource = (DataSource) envContext.lookup(jndiName);
             if (dataSource == null) {
                 throw logger.datasourceIsNull();
@@ -59,29 +61,20 @@ public class AbstractJDBCRegistry {
         }
     }
 
-    protected void safeClose(Connection conn) {
-        if (conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-            }
-        }
+    /**
+     * Retrieve the datasource
+     *
+     * @return DataSource
+     */
+    protected DataSource getDataSource() {
+        return dataSource;
     }
 
-    protected void safeClose(ResultSet resultSet) {
-        if (resultSet != null) {
+    protected void safeClose(AutoCloseable closable) {
+        if (closable != null) {
             try {
-                resultSet.close();
-            } catch (SQLException e) {
-            }
-        }
-    }
-
-    protected void safeClose(Statement statement) {
-        if (statement != null) {
-            try {
-                statement.close();
-            } catch (SQLException e) {
+                closable.close();
+            } catch (Exception e) {
             }
         }
     }
