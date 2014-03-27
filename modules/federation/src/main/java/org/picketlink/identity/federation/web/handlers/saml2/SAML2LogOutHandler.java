@@ -377,9 +377,12 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             }
 
             if (userPrincipal == null) {
-                throw logger.samlHandlerPrincipalNotFoundError();
+                // If userPrincipal is null, then just invalidate this session (do we have enough info to trigger a logout @ the
+                // idp?
+                httpRequest.getSession().invalidate();
+                return;
             }
-
+            
             try {
                 LogoutRequestType lot = samlRequest.createLogoutRequest(request.getIssuer().getValue());
 
@@ -450,11 +453,9 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             StatusType statusType = statusResponseType.getStatus();
             StatusCodeType statusCode = statusType.getStatusCode();
             URI statusCodeValueURI = statusCode.getValue();
-            boolean success = false;
             if (statusCodeValueURI != null) {
                 String statusCodeValue = statusCodeValueURI.toString();
                 if (JBossSAMLURIConstants.STATUS_SUCCESS.get().equals(statusCodeValue)) {
-                    success = true;
                     session.invalidate();
                 }
             }
