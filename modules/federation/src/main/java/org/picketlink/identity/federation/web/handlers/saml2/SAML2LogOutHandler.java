@@ -158,6 +158,16 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             if (server == null)
                 throw logger.samlHandlerIdentityServerNotFoundError();
 
+            // we are done with logout - First ask STS to cancel the token
+            AssertionType assertion = (AssertionType) httpSession.getAttribute(GeneralConstants.ASSERTION);
+            if (assertion != null) {
+                PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
+                SAMLProtocolContext samlProtocolContext = new SAMLProtocolContext();
+                samlProtocolContext.setIssuedAssertion(assertion);
+                sts.cancelToken(samlProtocolContext);
+                httpSession.removeAttribute(GeneralConstants.ASSERTION);
+            }
+            
             String sessionID = httpSession.getId();
 
             String statusIssuer = statusResponseType.getIssuer().getValue();
@@ -165,16 +175,6 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
             String nextParticipant = this.getParticipant(server, sessionID, decodedRelayState);
             if (nextParticipant == null || nextParticipant.equals(decodedRelayState)) {
-                // we are done with logout - First ask STS to cancel the token
-                AssertionType assertion = (AssertionType) httpSession.getAttribute(GeneralConstants.ASSERTION);
-                if (assertion != null) {
-                    PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
-                    SAMLProtocolContext samlProtocolContext = new SAMLProtocolContext();
-                    samlProtocolContext.setIssuedAssertion(assertion);
-                    sts.cancelToken(samlProtocolContext);
-                    httpSession.removeAttribute(GeneralConstants.ASSERTION);
-                }
-
                 // TODO: check the in transit map for partial logouts
 
                 try {
