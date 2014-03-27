@@ -37,7 +37,7 @@ public class AbstractJDBCRegistry {
 
     private static final String JNDI_COMP_ENV = "java:comp/env";
 
-    private static final String JNDI_JBOSS = "java:comp/env";
+    private static final String JNDI_JBOSS = "java:jboss";
 
     protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
     private DataSource dataSource;
