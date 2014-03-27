@@ -167,7 +167,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                 sts.cancelToken(samlProtocolContext);
                 httpSession.removeAttribute(GeneralConstants.ASSERTION);
             }
-            
+
             String sessionID = httpSession.getId();
 
             String statusIssuer = statusResponseType.getIssuer().getValue();
