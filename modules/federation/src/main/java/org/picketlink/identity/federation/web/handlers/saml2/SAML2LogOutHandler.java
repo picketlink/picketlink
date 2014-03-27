@@ -382,7 +382,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                 httpRequest.getSession().invalidate();
                 return;
             }
-            
+
             try {
                 LogoutRequestType lot = samlRequest.createLogoutRequest(request.getIssuer().getValue());
 
