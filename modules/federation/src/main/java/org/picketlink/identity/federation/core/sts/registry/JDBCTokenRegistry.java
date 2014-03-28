@@ -33,14 +33,39 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Implementation of {@link SecurityTokenRegistry} using JDBC
  *
+ * Oracle Create Table
+ *
+ * <pre>
+ * ALTER TABLE STS_TOKEN_REGISTRY  DROP PRIMARY KEY CASCADE;
+ *
+ * DROP TABLE STS_TOKEN_REGISTRY CASCADE CONSTRAINTS;
+ *
+ * CREATE TABLE STS_TOKEN_REGISTRY(
+ *   TOKEN_ID      VARCHAR2(1024)             NOT NULL,
+ *   CREATED_DATE  TIMESTAMP(6) WITH TIME ZONE     NOT NULL,
+ *   TOKEN         BLOB                            NOT NULL
+ * );
+ *
+ *
+ * CREATE UNIQUE INDEX STS_TOKEN_REGISTRY_PK ON STS_TOKEN_REGISTRY (TOKEN_ID);
+ *
+ * ALTER TABLE STS_TOKEN_REGISTRY ADD (
+ *   CONSTRAINT STS_TOKEN_REGISTRY_PK PRIMARY KEY (TOKEN_ID)  USING INDEX STS_TOKEN_REGISTRY_PK
+ * );
+ * </pre>
  * @author Anil Saldhana
  * @since August 06, 2013
  */
 public class JDBCTokenRegistry extends AbstractJDBCRegistry implements SecurityTokenRegistry {
+
+    private static final String INSERT_SQL = "INSERT INTO STS_TOKEN_REGISTRY (TOKEN_ID, TOKEN, CREATED_DATE) VALUES (?,?,?)";
+    private static final String DELETE_SQL = "DELETE FROM STS_TOKEN_REGISTRY WHERE TOKEN_ID = ?";
+    private static final String SELECT_SQL = "SELECT TOKEN FROM STS_TOKEN_REGISTRY WHERE TOKEN_ID = ?";
 
     public JDBCTokenRegistry() {
         super("jdbc/picketlink-sts");
@@ -53,24 +78,24 @@ public class JDBCTokenRegistry extends AbstractJDBCRegistry implements SecurityT
     /**
      * @see SecurityTokenRegistry#addToken(String, Object)
      */
+    @Override
     public void addToken(String tokenID, Object token) throws IOException {
-        if (dataSource == null) {
+        if (getDataSource() == null) {
             throw logger.datasourceIsNull();
         }
-        String insertTableSQL = "INSERT INTO TOKEN_REGISTRY" + "(TOKEN_ID, TOKEN, CREATED_DATE) VALUES" + "(?,?,?)";
         Connection conn = null;
         PreparedStatement preparedStatement = null;
         try {
-            conn = dataSource.getConnection();
-            Date tokenCreationDate = Calendar.getInstance().getTime();
             byte[] marshalledToken = marshallToken(token);
 
-            String theToken = new String(marshalledToken, "UTF-8");
+            conn = getDataSource().getConnection();
+            Date tokenCreationDate = Calendar.getInstance().getTime();
 
-            preparedStatement = conn.prepareStatement(insertTableSQL);
+            preparedStatement = conn.prepareStatement(INSERT_SQL);
             preparedStatement.setString(1, tokenID);
-            preparedStatement.setString(2, theToken);
-            preparedStatement.setTimestamp(3, new Timestamp(tokenCreationDate.getTime()));
+            preparedStatement.setBytes(2, marshalledToken);
+            preparedStatement.setTimestamp(3, new Timestamp(tokenCreationDate.getTime()),
+                    Calendar.getInstance(TimeZone.getTimeZone("UTC")));
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new IOException(e);
@@ -83,17 +108,18 @@ public class JDBCTokenRegistry extends AbstractJDBCRegistry implements SecurityT
     /**
      * @see SecurityTokenRegistry#removeToken(String)
      */
+    @Override
     public void removeToken(String tokenID) throws IOException {
-        if (dataSource == null) {
+        if (getDataSource() == null) {
             throw logger.datasourceIsNull();
         }
-        String deleteSQL = "DELETE FROM TOKEN_REGISTRY WHERE TOKEN_ID = ?";
+
         Connection conn = null;
         PreparedStatement preparedStatement = null;
         try {
-            conn = dataSource.getConnection();
+            conn = getDataSource().getConnection();
 
-            preparedStatement = conn.prepareStatement(deleteSQL);
+            preparedStatement = conn.prepareStatement(DELETE_SQL);
             preparedStatement.setString(1, tokenID);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -107,6 +133,7 @@ public class JDBCTokenRegistry extends AbstractJDBCRegistry implements SecurityT
     /**
      * @see SecurityTokenRegistry#getToken(String)
      */
+    @Override
     public Object getToken(String tokenID) {
         try {
             return unmarshalToken(getLOB(tokenID));
@@ -115,6 +142,13 @@ public class JDBCTokenRegistry extends AbstractJDBCRegistry implements SecurityT
         }
     }
 
+    /**
+     * Serialize object to bytes
+     *
+     * @param token
+     * @return bytes
+     * @throws IOException
+     */
     private byte[] marshallToken(Object token) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -122,31 +156,44 @@ public class JDBCTokenRegistry extends AbstractJDBCRegistry implements SecurityT
         return baos.toByteArray();
     }
 
-    private Object unmarshalToken(String serializedText) {
+    /**
+     * De-Serialize bytes to object
+     *
+     * @param serialized
+     * @return object
+     */
+    private Object unmarshalToken(byte[] serialized) {
         try {
-            ByteArrayInputStream byteArray = new ByteArrayInputStream(serializedText.getBytes("UTF-8"));
+            ByteArrayInputStream byteArray = new ByteArrayInputStream(serialized);
             return new ObjectInputStream(byteArray).readObject();
         } catch (Exception e) {
             throw logger.errorUnmarshallingToken(e);
         }
     }
 
-    private String getLOB(String tokenID) throws IOException {
-        if (dataSource == null) {
+    /**
+     * Retrieve token from DB
+     *
+     * @param tokenID
+     * @return object as bytes
+     * @throws IOException
+     */
+    private byte[] getLOB(String tokenID) throws IOException {
+        if (getDataSource() == null) {
             throw logger.datasourceIsNull();
         }
-        String selectSQL = "select TOKEN from TOKEN_REGISTRY where TOKEN_ID = ?";
+
         Connection conn = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
-            conn = dataSource.getConnection();
+            conn = getDataSource().getConnection();
 
-            preparedStatement = conn.prepareStatement(selectSQL);
+            preparedStatement = conn.prepareStatement(SELECT_SQL);
             preparedStatement.setString(1, tokenID);
             resultSet = preparedStatement.executeQuery();
 
-            return resultSet.getString(1);
+            return resultSet.getBytes(1);
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {

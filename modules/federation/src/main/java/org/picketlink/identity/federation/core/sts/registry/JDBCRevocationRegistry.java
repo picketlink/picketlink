@@ -28,14 +28,38 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Implementation of {@link org.picketlink.identity.federation.core.sts.registry.SecurityTokenRegistry} using JDBC
  *
+ * Oracle create Script
+ *
+ * <pre>
+ * ALTER TABLE STS_REVOCATION_REGISTRY DROP PRIMARY KEY CASCADE;
+ *
+ * DROP TABLE STS_REVOCATION_REGISTRY CASCADE CONSTRAINTS;
+ *
+ * CREATE TABLE STS_REVOCATION_REGISTRY (
+ *   TOKEN_ID      VARCHAR2(1024)             NOT NULL,
+ *   TOKEN_TYPE    VARCHAR2(2048)             NOT NULL,
+ *   CREATED_DATE  TIMESTAMP(6) WITH TIME ZONE     NOT NULL
+ * );
+ *
+ *
+ * CREATE UNIQUE INDEX STS_REVOCATION_REGISTRY_PK ON STS_REVOCATION_REGISTRY (TOKEN_ID);
+ *
+ * ALTER TABLE STS_REVOCATION_REGISTRY ADD (
+ *   CONSTRAINT STS_REVOCATION_REGISTRY_PK PRIMARY KEY (TOKEN_ID) USING INDEX STS_REVOCATION_REGISTRY_PK
+ *  );
+ * </pre>
  * @author Anil Saldhana
  * @since August 06, 2013
  */
 public class JDBCRevocationRegistry extends AbstractJDBCRegistry implements RevocationRegistry {
+
+    private static final String EXISTS_TABLE_SQL = "SELECT COUNT(*) FROM STS_REVOCATION_REGISTRY WHERE TOKEN_ID = ? AND TOKEN_TYPE = ?";
+    private static final String INSERT_TABLE_SQL = "INSERT INTO STS_REVOCATION_REGISTRY (TOKEN_ID, TOKEN_TYPE, CREATED_DATE) VALUES (?,?,?)";
 
     public JDBCRevocationRegistry() {
         super("jdbc/picketlink-sts");
@@ -49,18 +73,17 @@ public class JDBCRevocationRegistry extends AbstractJDBCRegistry implements Revo
      * @see RevocationRegistry#isRevoked(String, String)
      */
     public boolean isRevoked(String tokenType, String tokenID) {
-        if (dataSource == null) {
+        if (getDataSource() == null) {
             throw logger.datasourceIsNull();
         }
-        String existsTableSQL = "SELECT COUNT(*) FROM REVOCATION_REGISTRY WHERE TOKEN_ID =? AND  TOKEN_TYPE = ?";
+
         Connection conn = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
-            conn = dataSource.getConnection();
-            Date tokenCreationDate = Calendar.getInstance().getTime();
+            conn = getDataSource().getConnection();
 
-            preparedStatement = conn.prepareStatement(existsTableSQL);
+            preparedStatement = conn.prepareStatement(EXISTS_TABLE_SQL);
             preparedStatement.setString(1, tokenID);
             preparedStatement.setString(2, tokenType);
             resultSet = preparedStatement.executeQuery();
@@ -79,20 +102,21 @@ public class JDBCRevocationRegistry extends AbstractJDBCRegistry implements Revo
      * @see RevocationRegistry#revokeToken(String, String)
      */
     public void revokeToken(String tokenType, String tokenID) {
-        if (dataSource == null) {
+        if (this.getDataSource() == null) {
             throw logger.datasourceIsNull();
         }
-        String insertTableSQL = "INSERT INTO REVOCATION_REGISTRY" + "(TOKEN_ID, TOKEN_TYPE, CREATED_DATE) VALUES" + "(?,?,?)";
+
         Connection conn = null;
         PreparedStatement preparedStatement = null;
         try {
-            conn = dataSource.getConnection();
+            conn = this.getDataSource().getConnection();
             Date tokenCreationDate = Calendar.getInstance().getTime();
 
-            preparedStatement = conn.prepareStatement(insertTableSQL);
+            preparedStatement = conn.prepareStatement(INSERT_TABLE_SQL);
             preparedStatement.setString(1, tokenID);
             preparedStatement.setString(2, tokenType);
-            preparedStatement.setTimestamp(3, new Timestamp(tokenCreationDate.getTime()));
+            preparedStatement.setTimestamp(3, new Timestamp(tokenCreationDate.getTime()),
+                    Calendar.getInstance(TimeZone.getTimeZone("UTC")));
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw logger.runtimeException("revokeToken", e);
