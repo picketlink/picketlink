@@ -158,6 +158,16 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             if (server == null)
                 throw logger.samlHandlerIdentityServerNotFoundError();
 
+            // we are done with logout - First ask STS to cancel the token
+            AssertionType assertion = (AssertionType) httpSession.getAttribute(GeneralConstants.ASSERTION);
+            if (assertion != null) {
+                PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
+                SAMLProtocolContext samlProtocolContext = new SAMLProtocolContext();
+                samlProtocolContext.setIssuedAssertion(assertion);
+                sts.cancelToken(samlProtocolContext);
+                httpSession.removeAttribute(GeneralConstants.ASSERTION);
+            }
+
             String sessionID = httpSession.getId();
 
             String statusIssuer = statusResponseType.getIssuer().getValue();
@@ -165,16 +175,6 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
             String nextParticipant = this.getParticipant(server, sessionID, decodedRelayState);
             if (nextParticipant == null || nextParticipant.equals(decodedRelayState)) {
-                // we are done with logout - First ask STS to cancel the token
-                AssertionType assertion = (AssertionType) httpSession.getAttribute(GeneralConstants.ASSERTION);
-                if (assertion != null) {
-                    PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
-                    SAMLProtocolContext samlProtocolContext = new SAMLProtocolContext();
-                    samlProtocolContext.setIssuedAssertion(assertion);
-                    sts.cancelToken(samlProtocolContext);
-                    httpSession.removeAttribute(GeneralConstants.ASSERTION);
-                }
-
                 // TODO: check the in transit map for partial logouts
 
                 try {
@@ -377,7 +377,10 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             }
 
             if (userPrincipal == null) {
-                throw logger.samlHandlerPrincipalNotFoundError();
+                // If userPrincipal is null, then just invalidate this session (do we have enough info to trigger a logout @ the
+                // idp?
+                httpRequest.getSession().invalidate();
+                return;
             }
 
             try {
@@ -450,11 +453,9 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             StatusType statusType = statusResponseType.getStatus();
             StatusCodeType statusCode = statusType.getStatusCode();
             URI statusCodeValueURI = statusCode.getValue();
-            boolean success = false;
             if (statusCodeValueURI != null) {
                 String statusCodeValue = statusCodeValueURI.toString();
                 if (JBossSAMLURIConstants.STATUS_SUCCESS.get().equals(statusCodeValue)) {
-                    success = true;
                     session.invalidate();
                 }
             }

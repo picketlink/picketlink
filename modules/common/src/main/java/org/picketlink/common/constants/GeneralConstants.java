@@ -144,4 +144,7 @@ public interface GeneralConstants {
 
     String AUTHN_CONTEXT_CLASSES = "AUTHN_CONTEXT_CLASSES";
     String REQUESTED_AUTHN_CONTEXT_COMPARISON = "REQUESTED_AUTHN_CONTEXT_COMPARISON";
+
+    /** SamlRequest binding type: GET/POST as retrieved by the first request from SP to IDP  **/
+    String SAML_BINDING = "SAML_BINDING";
 }

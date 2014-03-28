@@ -44,9 +44,9 @@ import static org.picketlink.idm.model.basic.BasicModel.getUser;
  * <p>
  * Base class for test cases that requires authentication. By default, the {@link IdmAuthenticator} is used.
  * </p>
- * 
+ *
  * @author Pedro Igor
- * 
+ *
  */
 public abstract class AbstractAuthenticationTestCase extends AbstractArquillianTestCase {
 
