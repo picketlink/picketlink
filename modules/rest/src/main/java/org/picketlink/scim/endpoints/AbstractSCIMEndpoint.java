@@ -82,4 +82,20 @@ public class AbstractSCIMEndpoint {
         PicketLinkIDMDataProvider plidmp = new PicketLinkIDMDataProvider();
         return plidmp;
     }
+
+    protected void verifyDataProvider(ServletContext servletContext){
+        if (dataProvider == null) {
+            BeanManager beanManager = getBeanManager(servletContext);
+            if (beanManager == null) {
+                throw new IllegalStateException("BM null");
+            }
+            dataProvider = getContextualInstance(beanManager, DataProvider.class);
+        }
+        if (dataProvider == null) {
+            if (log.isTraceEnabled()) {
+                log.trace("dataProvider is not injected. Create a default IDM driven data provider.");
+            }
+            dataProvider = createDefaultDataProvider();
+        }
+    }
 }

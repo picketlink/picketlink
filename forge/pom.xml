@@ -14,7 +14,7 @@
     <module>tests</module>
   </modules>
   <properties>
-    <version.furnace>2.0.1-SNAPSHOT</version.furnace>
+    <version.furnace>2.1.2-SNAPSHOT</version.furnace>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -85,6 +85,12 @@
       <dependency>
         <groupId>org.jboss.forge.addon</groupId>
         <artifactId>parser-java</artifactId>
+        <version>${version.furnace}</version>
+        <classifier>forge-addon</classifier>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.forge.addon</groupId>
+        <artifactId>javaee</artifactId>
         <version>${version.furnace}</version>
         <classifier>forge-addon</classifier>
       </dependency>

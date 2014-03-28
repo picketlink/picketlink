@@ -17,6 +17,49 @@
  */
 package org.picketlink.identity.federation.web.filters;
 
+import static org.picketlink.common.constants.GeneralConstants.AUDIT_HELPER;
+import static org.picketlink.common.constants.GeneralConstants.CONFIG_FILE_LOCATION;
+import static org.picketlink.common.constants.GeneralConstants.CONFIG_PROVIDER;
+import static org.picketlink.common.constants.GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION;
+import static org.picketlink.common.util.StringUtil.isNotNull;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.security.GeneralSecurityException;
+import java.security.Principal;
+import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.jboss.security.audit.AuditLevel;
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
@@ -83,49 +126,8 @@ import org.picketlink.identity.federation.web.core.IdentityParticipantStack;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 import org.picketlink.identity.federation.web.util.IDPWebRequestUtil;
-import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
 import org.w3c.dom.Document;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.security.GeneralSecurityException;
-import java.security.Principal;
-import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import static org.picketlink.common.constants.GeneralConstants.CONFIG_FILE_LOCATION;
-import static org.picketlink.common.constants.GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION;
-import static org.picketlink.common.util.StringUtil.isNotNull;
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * A {@link javax.servlet.Filter} that can be configured to convert a
@@ -185,6 +187,9 @@ public class IDPFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         servletContext = filterConfig.getServletContext();
+        configureConfigurationProvider();
+        configureAuditHelper();
+
         startPicketLink();
     }
 
@@ -207,7 +212,7 @@ public class IDPFilter implements Filter {
 
         // we only handle SAML messages for authenticated users.
         if (userPrincipal != null) {
-            handleSAMLMessage(httpServletRequest, httpServletResponse);
+            handleSAMLMessage(httpServletRequest, httpServletResponse, chain);
         }else {
             chain.doFilter(request,response);
         }
@@ -222,12 +227,14 @@ public class IDPFilter implements Filter {
      * Handles SAML messages.
      * </p>
      *
+     *
      * @param request
      * @param response
+     * @param chain
      * @throws IOException
      * @throws ServletException
      */
-    private void handleSAMLMessage(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    private void handleSAMLMessage(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (hasSAML11Target(request)) {
             // We have SAML 1.1 IDP first scenario. Now we need to create a SAMLResponse and send back
             // to SP as per target
@@ -265,6 +272,8 @@ public class IDPFilter implements Filter {
             } else if (request.getRequestURI().equals(request.getContextPath() + "/")) {
                 // no SAML processing and the request is asking for /.
                 forwardHosted(request, response);
+            } else {
+                chain.doFilter(request, response);
             }
 
             /*HttpSession session = request.getSession();
@@ -304,7 +313,7 @@ public class IDPFilter implements Filter {
 
     /**
      * <p>
-     * Checks if the given {@link Request} containes a SAML11 Target parameter. Usually this indicates that the given request is
+     * Checks if the given {@link javax.servlet.http.HttpServletRequest} containes a SAML11 Target parameter. Usually this indicates that the given request is
      * a SAML11 request.
      * </p>
      *
@@ -374,10 +383,6 @@ public class IDPFilter implements Filter {
         String sigAlg = request.getParameter(GeneralConstants.SAML_SIG_ALG_REQUEST_KEY);
         String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
 
-        if (isNotNull(relayState)) {
-            relayState = RedirectBindingUtil.urlDecode(relayState);
-        }
-
         HttpSession session = request.getSession();
 
         if (containsSAMLRequestMessage || containsSAMLResponseMessage) {
@@ -411,9 +416,6 @@ public class IDPFilter implements Filter {
         String referer = request.getHeader("Referer");
         String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
 
-        if (isNotNull(relayState))
-            relayState = RedirectBindingUtil.urlDecode(relayState);
-
         try {
             samlErrorResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
                     getIdentityURL(), this.idpConfiguration.isSupportsSignature());
@@ -442,7 +444,7 @@ public class IDPFilter implements Filter {
 
     /**
      * <p>
-     * Returns the authenticated principal. If there is no principal associated with the {@link Request}, null is returned.
+     * Returns the authenticated principal. If there is no principal associated with the {@link javax.servlet.http.HttpServletRequest}, null is returned.
      * </p>
      *
      * @param request
@@ -455,7 +457,6 @@ public class IDPFilter implements Filter {
         Principal userPrincipal = request.getUserPrincipal();
 
         if (userPrincipal == null) {
-
             userPrincipal = request.getUserPrincipal();
         }
 
@@ -494,13 +495,12 @@ public class IDPFilter implements Filter {
                 }
             }
 
-            //TODO: Deal with Roles
-            /*GenericPrincipal genericPrincipal = (GenericPrincipal) userPrincipal;
-            String[] roles = genericPrincipal.getRoles();
-            SAML11AttributeStatementType attributeStatement = this.createAttributeStatement(Arrays.asList(roles));
+            List<String> roles = this.roleGenerator.generateRoles(userPrincipal);
+            SAML11AttributeStatementType attributeStatement = this.createAttributeStatement(roles);
+
             if (attributeStatement != null) {
                 saml11Assertion.add(attributeStatement);
-            }*/
+            }
 
             // Send it as SAMLResponse
             String id = IDGenerator.create("ID_");
@@ -510,11 +510,12 @@ public class IDPFilter implements Filter {
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             SAML11ResponseWriter writer = new SAML11ResponseWriter(StaxUtil.getXMLStreamWriter(baos));
+
             writer.write(saml11Response);
 
             Document samlResponse = org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
-
             IDPWebRequestUtil.WebRequestUtilHolder holder = webRequestUtil.getHolder();
+
             holder.setResponseDoc(samlResponse).setDestination(target).setRelayState("").setAreWeSendingRequest(false)
                     .setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
 
@@ -1014,8 +1015,6 @@ public class IDPFilter implements Filter {
      * <p>
      * Initialize the Handlers chain.
      * </p>
-     *
-     * @throws LifecycleException
      */
     protected void initHandlersChain() {
         try {
@@ -1271,8 +1270,13 @@ public class IDPFilter implements Filter {
             timer.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
+                    //Clear the configuration
+                    picketLinkConfiguration = null;
+                    idpConfiguration = null;
+
                     initIDPConfiguration();
                     initKeyManager();
+                    initHandlersChain();
                 }
             }, timerInterval, timerInterval);
         }
@@ -1316,10 +1320,6 @@ public class IDPFilter implements Filter {
         return attrStatement;
     }
 
-    public void setAuditHelper(PicketLinkAuditHelper auditHelper) {
-        this.auditHelper = auditHelper;
-    }
-
     /**
      * We will ignore signatures of current SAMLRequest if SP Metadata are provided for current SP and if metadata specifies
      * that SAMLRequest is not signed for this SP.
@@ -1335,6 +1335,9 @@ public class IDPFilter implements Filter {
         }
 
         Boolean isRequestSigned = currentSPMetadata.isAuthnRequestsSigned();
+        if(isRequestSigned == null){
+            isRequestSigned = Boolean.FALSE;
+        }
 
         logger.trace("Issuer: " + spIssuer + ", isRequestSigned: " + isRequestSigned);
 
@@ -1372,5 +1375,43 @@ public class IDPFilter implements Filter {
      */
     protected PicketLinkType getConfiguration() {
         return this.picketLinkConfiguration;
+    }
+
+    private void configureAuditHelper() throws ServletException {
+        this.auditHelper = (PicketLinkAuditHelper) this.servletContext.getAttribute(AUDIT_HELPER);
+
+        if (this.auditHelper == null) {
+            String auditHelperType = this.servletContext.getInitParameter(AUDIT_HELPER);
+
+            if (auditHelperType != null) {
+                try {
+                    this.auditHelper = (PicketLinkAuditHelper) SecurityActions
+                        .loadClass(Thread.currentThread().getContextClassLoader(), auditHelperType).newInstance();
+                } catch (Exception e) {
+                    throw new ServletException("Could not create audit helper [" + auditHelperType + "].", e);
+                }
+            }
+        }
+    }
+
+    private void configureConfigurationProvider() throws ServletException {
+        this.configProvider = (SAMLConfigurationProvider) this.servletContext.getAttribute(CONFIG_PROVIDER);
+
+        if (this.configProvider == null) {
+            String configProviderType = this.servletContext.getInitParameter(CONFIG_PROVIDER);
+
+            if (configProviderType != null) {
+                try {
+                    this.configProvider = (SAMLConfigurationProvider) SecurityActions
+                        .loadClass(Thread.currentThread().getContextClassLoader(), configProviderType).newInstance();
+                } catch (Exception e) {
+                    throw new ServletException("Could not create config provider [" + configProviderType + "].", e);
+                }
+            }
+        }
+    }
+
+    public SAMLConfigurationProvider getConfigProvider() {
+        return this.configProvider;
     }
 }

@@ -27,6 +27,7 @@ import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.config.federation.SPType;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
@@ -53,12 +54,14 @@ import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
+import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.w3c.dom.Document;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.net.URI;
 import java.security.Principal;
 import java.util.Map;
@@ -142,29 +145,36 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
             String relayState = request.getRelayState();
 
+            String decodedRelayState = relayState;
+            try{
+                decodedRelayState = RedirectBindingUtil.urlDecode(relayState);
+            }catch(IOException ignore){
+                decodedRelayState = relayState;
+            }
+
             ServletContext servletCtx = httpContext.getServletContext();
             IdentityServer server = (IdentityServer) servletCtx.getAttribute("IDENTITY_SERVER");
 
             if (server == null)
                 throw logger.samlHandlerIdentityServerNotFoundError();
 
+            // we are done with logout - First ask STS to cancel the token
+            AssertionType assertion = (AssertionType) httpSession.getAttribute(GeneralConstants.ASSERTION);
+            if (assertion != null) {
+                PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
+                SAMLProtocolContext samlProtocolContext = new SAMLProtocolContext();
+                samlProtocolContext.setIssuedAssertion(assertion);
+                sts.cancelToken(samlProtocolContext);
+                httpSession.removeAttribute(GeneralConstants.ASSERTION);
+            }
+
             String sessionID = httpSession.getId();
 
             String statusIssuer = statusResponseType.getIssuer().getValue();
             server.stack().deRegisterTransitParticipant(sessionID, statusIssuer);
 
-            String nextParticipant = this.getParticipant(server, sessionID, relayState);
-            if (nextParticipant == null || nextParticipant.equals(relayState)) {
-                // we are done with logout - First ask STS to cancel the token
-                AssertionType assertion = (AssertionType) httpSession.getAttribute(GeneralConstants.ASSERTION);
-                if (assertion != null) {
-                    PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
-                    SAMLProtocolContext samlProtocolContext = new SAMLProtocolContext();
-                    samlProtocolContext.setIssuedAssertion(assertion);
-                    sts.cancelToken(samlProtocolContext);
-                    httpSession.removeAttribute(GeneralConstants.ASSERTION);
-                }
-
+            String nextParticipant = this.getParticipant(server, sessionID, decodedRelayState);
+            if (nextParticipant == null || nextParticipant.equals(decodedRelayState)) {
                 // TODO: check the in transit map for partial logouts
 
                 try {
@@ -246,8 +256,9 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                     // Put the participant in transit mode
                     server.stack().registerTransitParticipant(sessionID, participant);
 
-                    if (relayState == null)
+                    if (relayState == null) {
                         relayState = originalIssuer;
+                    }
 
                     // send logout request to participant with relaystate to orig
                     response.setRelayState(originalIssuer);
@@ -265,6 +276,12 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                     }
                     NameIDType nameID = new NameIDType();
                     nameID.setValue(userPrincipal.getName());
+                    //Deal with NameID Format
+                    String nameIDFormat = (String) handlerConfig.getParameter(GeneralConstants.NAMEID_FORMAT);
+                    if(StringUtil.isNullOrEmpty(nameIDFormat)){
+                        nameIDFormat = JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get();
+                    }
+                    nameID.setFormat(URI.create(nameIDFormat));
                     lort.setNameID(nameID);
 
                     long assertionValidity = PicketLinkCoreSTS.instance().getConfiguration().getIssuedTokenTimeout();
@@ -371,6 +388,12 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
                 NameIDType nameID = new NameIDType();
                 nameID.setValue(userPrincipal.getName());
+                //Deal with NameID Format
+                String nameIDFormat = (String) handlerConfig.getParameter(GeneralConstants.NAMEID_FORMAT);
+                if(StringUtil.isNullOrEmpty(nameIDFormat)){
+                    nameIDFormat = JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get();
+                }
+                nameID.setFormat(URI.create(nameIDFormat));
                 lot.setNameID(nameID);
 
                 SPType spConfiguration = (SPType) getProviderconfig();

@@ -30,6 +30,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Inherited
 public @interface IdentityPartition {
-    Class<? extends IdentityType>[] supportedTypes() default {};
+    Class<? extends IdentityType>[] supportedTypes() default {IdentityType.class};
     Class<? extends IdentityType>[] unsupportedTypes() default {};
 }

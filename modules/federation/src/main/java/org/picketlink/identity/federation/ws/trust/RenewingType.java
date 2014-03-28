@@ -37,9 +37,9 @@ package org.picketlink.identity.federation.ws.trust;
  */
 public class RenewingType {
 
-    protected Boolean allow;
+    protected Boolean allow = Boolean.FALSE;
 
-    protected Boolean ok;
+    protected Boolean ok = Boolean.FALSE;
 
     /**
      * Gets the value of the allow property.

@@ -49,10 +49,10 @@ public class RequestType {
 
     protected NameIDType issuer;
     protected IDPListType idpList;
-    protected Boolean mustUnderstand;
+    protected Boolean mustUnderstand = Boolean.FALSE;
     protected String actor;
     protected String providerName;
-    protected Boolean isPassive;
+    protected Boolean isPassive = Boolean.FALSE;
 
     /**
      * Gets the value of the issuer property.

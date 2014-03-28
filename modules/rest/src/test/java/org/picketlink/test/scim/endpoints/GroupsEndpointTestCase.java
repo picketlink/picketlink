@@ -38,9 +38,10 @@ public class GroupsEndpointTestCase extends AbstractEndpointTestCase {
         SCIMClient client = new SCIMClient();
         client.setBaseURL("http://localhost:11080/scim");
 
-        SCIMGroups group = client.getGroup("jboss");
+        SCIMGroups group = client.getGroup(storedGroupId,"someheader");
         assertNotNull(group);
-        assertEquals("jboss", group.getId());
+        assertEquals("SomeGroup", group.getDisplayName());
+        assertEquals(storedGroupId, group.getId());
     }
 
     @Test
@@ -52,8 +53,37 @@ public class GroupsEndpointTestCase extends AbstractEndpointTestCase {
         SCIMGroups scimGroup = new SCIMGroups();
         scimGroup.setDisplayName("samurai");
 
-        SCIMGroups group = client.createGroup(scimGroup);
+        SCIMGroups group = client.createGroup(scimGroup,"someheader");
         assertEquals("samurai", group.getDisplayName());
         assertTrue(group.getId().length() > 0);
+    }
+
+
+    @Test
+    public void testCreateAndDelete() throws Exception {
+        assertTrue(server.isRunning());
+        SCIMClient client = new SCIMClient();
+        client.setBaseURL("http://localhost:11080/scim");
+
+        SCIMGroups scimGroup = new SCIMGroups();
+        scimGroup.setId("truckerCompanyID");
+        scimGroup.setDisplayName("trucks");
+
+        SCIMGroups group = client.createGroup(scimGroup,"someheader");
+        assertEquals("trucks", group.getDisplayName());
+        String groupID = group.getId();
+        System.out.println(groupID);
+        assertTrue(groupID.length() > 0);
+
+        //Ensure we have created a group
+        group = client.getGroup(groupID,"someheader");
+        assertNotNull(group);
+
+        boolean deletionResult = client.deleteGroup(groupID, "someheader");
+        assertTrue(deletionResult);
+
+        //Ensure we have deleted the group: We get back an empty object
+        group = client.getGroup(groupID,"someheader");
+        assertNull(group.getId());
     }
 }

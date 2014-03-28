@@ -53,6 +53,8 @@ public class ServiceProviderType {
 
     protected String truststoreAlias;
 
+    private String endpointRegEx;
+
     /**
      * Gets the value of the endpoint property.
      *
@@ -113,4 +115,11 @@ public class ServiceProviderType {
         this.truststoreAlias = value;
     }
 
+    public void setEndpointRegEx(String endpointRegEx) {
+        this.endpointRegEx = endpointRegEx;
+    }
+
+    public String getEndpointRegEx() {
+        return endpointRegEx;
+    }
 }

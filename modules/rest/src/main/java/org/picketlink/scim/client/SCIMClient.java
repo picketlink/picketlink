@@ -37,6 +37,8 @@ import java.net.URLConnection;
  */
 public class SCIMClient {
 
+    public static final String OAUTH2_BEARER_HEADER = "Authorization: Bearer ";
+
     private String baseURL = null;
 
     public SCIMClient() {
@@ -47,37 +49,57 @@ public class SCIMClient {
         return this;
     }
 
-    public SCIMUser createUser(SCIMUser user) throws Exception {
+    public SCIMUser createUser(SCIMUser user, String authorizationHeader) throws Exception {
         String url = baseURL + "/Users";
         SCIMWriter writer = new SCIMWriter();
         String json = writer.json(user);
 
-        InputStream is = executePost(url, json, true, "xyz");
+        InputStream is = executePost(url, json, true, authorizationHeader);
         SCIMParser parser = new SCIMParser();
         return parser.parseUser(is);
     }
 
-    public SCIMGroups createGroup(SCIMGroups group) throws Exception {
-        String url = baseURL + "/Users";
+    public SCIMGroups createGroup(SCIMGroups group, String authorizationHeader) throws Exception {
+        String url = baseURL + "/Groups";
         SCIMWriter writer = new SCIMWriter();
         String json = writer.json(group);
 
-        InputStream is = executePost(url, json, true, "xyz");
+        InputStream is = executePost(url, json, true, authorizationHeader);
         SCIMParser parser = new SCIMParser();
         return parser.parseGroup(is);
     }
 
-    public SCIMUser getUser(String id) throws Exception {
+    public boolean deleteUser(String id, String authorizationHeader) throws Exception{
+        String url = baseURL + "/Users/" + id ;
+
+        int code = executeDelete(url, authorizationHeader);
+        if(code == 200){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean deleteGroup(String id, String authorizationHeader) throws Exception{
+        String url = baseURL + "/Groups/" + id ;
+
+        int code = executeDelete(url, authorizationHeader);
+        if(code == 200){
+            return true;
+        }
+        return false;
+    }
+
+    public SCIMUser getUser(String id, String authorizationHeader) throws Exception {
         String url = baseURL + "/Users/" + id;
-        InputStream is = executeGet(url, null, false, "xyz");
+        InputStream is = executeGet(url, null, false, authorizationHeader);
 
         SCIMParser parser = new SCIMParser();
         return parser.parseUser(is);
     }
 
-    public SCIMGroups getGroup(String id) throws Exception {
+    public SCIMGroups getGroup(String id, String authorizationHeader) throws Exception {
         String url = baseURL + "/Groups/" + id;
-        InputStream is = executeGet(url, null, false, "xyz");
+        InputStream is = executeGet(url, null, false, authorizationHeader);
 
         SCIMParser parser = new SCIMParser();
         return parser.parseGroup(is);
@@ -94,6 +116,7 @@ public class SCIMClient {
                 httpURLConnection.setRequestMethod("GET");
                 httpURLConnection.setDoOutput(true);
                 httpURLConnection.setAllowUserInteraction(false);
+                httpURLConnection.setRequestProperty(OAUTH2_BEARER_HEADER, authorizationHeader);
                 if (isJSON) {
                     httpURLConnection.setRequestProperty("Content-Type", "application/json");
                 } else {
@@ -133,6 +156,9 @@ public class SCIMClient {
                 httpURLConnection.setRequestMethod("POST");
                 httpURLConnection.setDoOutput(true);
                 httpURLConnection.setAllowUserInteraction(false);
+
+                httpURLConnection.setRequestProperty(OAUTH2_BEARER_HEADER, authorizationHeader);
+
                 if (isJSON) {
                     httpURLConnection.setRequestProperty("Content-Type", "application/json");
                 } else {
@@ -159,5 +185,29 @@ public class SCIMClient {
             throw new Exception(e);
         }
         return inputStream;
+    }
+
+    private int executeDelete(String endpointURL, String authorizationHeader)
+            throws Exception {
+        try {
+            URL resUrl = new URL(endpointURL);
+            URLConnection urlConnection = resUrl.openConnection();
+            if (urlConnection instanceof HttpURLConnection) {
+                HttpURLConnection httpURLConnection = (HttpURLConnection) urlConnection;
+                httpURLConnection.setRequestMethod("DELETE");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setAllowUserInteraction(false);
+                httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                httpURLConnection.setRequestProperty(OAUTH2_BEARER_HEADER, authorizationHeader);
+
+                httpURLConnection.connect();
+
+                return httpURLConnection.getResponseCode();
+            } else {
+                throw new RuntimeException("Wrong url conn");
+            }
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
     }
 }

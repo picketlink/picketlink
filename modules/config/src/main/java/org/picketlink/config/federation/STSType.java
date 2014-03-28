@@ -68,9 +68,9 @@ public class STSType {
 
     protected Integer tokenTimeout;
 
-    protected Boolean signToken;
+    protected Boolean signToken = Boolean.TRUE;
 
-    protected Boolean encryptToken;
+    protected Boolean encryptToken = Boolean.FALSE;
 
     protected String canonicalizationMethod;
 
@@ -238,7 +238,7 @@ public class STSType {
      * @return possible object is {@link Boolean }
      */
     public boolean isEncryptToken() {
-        if (encryptToken == null) {
+        if (encryptToken == null || encryptToken == Boolean.FALSE) {
             return false;
         } else {
             return encryptToken;
@@ -296,4 +296,5 @@ public class STSType {
             return clockSkew;
         }
     }
+
 }
