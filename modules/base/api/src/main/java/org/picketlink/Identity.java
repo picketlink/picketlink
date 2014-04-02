@@ -17,10 +17,17 @@
  */
 package org.picketlink;
 
-import java.io.Serializable;
-
 import org.picketlink.authentication.AuthenticationException;
 import org.picketlink.idm.model.Account;
+
+import javax.inject.Qualifier;
+import java.io.Serializable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Represents the identity of the current user, and provides an API for authentication and authorization.
@@ -31,6 +38,22 @@ public interface Identity extends Serializable {
 
     public enum AuthenticationResult {
         SUCCESS, FAILED
+    }
+
+    /**
+     * <p>Defines a {@link javax.inject.Qualifier} that may be applied to an injection point to indicate that a stateless {@link org.picketlink.Identity}
+     * is expected. In this case, the authentication state for an user is not shared between different requests.</p>
+     *
+     * <p>This qualifier should be used by {@link org.picketlink.Identity} implementations to provide a stateless behavior to the authentication process.
+     * So any authentication data will be lost once the request processing is finished.</p>
+     *
+     * @author Pedro Igor
+     */
+    @Qualifier
+    @Retention(RUNTIME)
+    @Target({TYPE, FIELD})
+    public @interface Stateless {
+
     }
 
     /**
