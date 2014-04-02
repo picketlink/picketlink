@@ -14,6 +14,7 @@
 
   <properties>
     <htmlunit.version>2.4</htmlunit.version>
+    <resteasy.version>3.0.6.Final</resteasy.version>
     <jboss.as7.version>7.2.0.Final</jboss.as7.version>
     <jboss.as7.dist.version>7.2.0.Alpha1-redhat-4</jboss.as7.dist.version>
     <integration.tests.containers.dir>${basedir}/target/integration-tests/</integration.tests.containers.dir>
@@ -25,6 +26,14 @@
         <groupId>net.sourceforge.htmlunit</groupId>
         <artifactId>htmlunit</artifactId>
         <version>${htmlunit.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-bom</artifactId>
+        <version>${resteasy.version}</version>
+        <scope>import</scope>
+        <type>pom</type>
       </dependency>
 
       <dependency>
@@ -96,7 +105,31 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- Arquillian Dependencies -->
+    <dependency>
+      <groupId>org.jboss.spec.javax.ws.rs</groupId>
+      <artifactId>jboss-jaxrs-api_1.1_spec</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-client</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-jaxb-provider</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-jackson-provider</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+      <!-- Arquillian Dependencies -->
 
     <dependency>
       <groupId>org.jboss.arquillian.junit</groupId>
