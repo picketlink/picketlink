@@ -20,6 +20,7 @@ package org.picketlink.idm.ldap.internal;
 
 import org.picketlink.common.constants.LDAPConstants;
 import org.picketlink.common.util.LDAPUtil;
+import org.picketlink.idm.IDMLog;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPMappingConfiguration;
@@ -40,8 +41,11 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -53,83 +57,19 @@ import static org.picketlink.idm.IDMInternalLog.LDAP_STORE_LOGGER;
 import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
 
 /**
- * <p>
- * This class provides a set of operations to manage LDAP trees.
- * </p>
- * <p>
- * A different {@link LdapContext} is used to perform authentication. The reason is that while managing the ldap tree
- * information bindings are not allowed. Also, instead of creating a new {@link LdapContext} each time we reuse it.
- * </p>
- *
- * TODO: See how to handle context pools and a better fail-over support.
+ * <p>This class provides a set of operations to manage LDAP trees.</p>
  *
  * @author Anil Saldhana
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 public class LDAPOperationManager {
 
-    private List<String> managedAttributes = new ArrayList<String>();
-
-    private final LdapContext context;
     private final LDAPIdentityStoreConfiguration config;
+    private final Map<String, Object> connectionProperties;
 
     public LDAPOperationManager(LDAPIdentityStoreConfiguration config) throws NamingException {
         this.config = config;
-        this.context = constructContext();
-    }
-
-    private LdapContext constructContext() throws NamingException {
-        Properties env = new Properties();
-        env.setProperty(Context.INITIAL_CONTEXT_FACTORY, this.config.getFactoryName());
-        env.setProperty(Context.SECURITY_AUTHENTICATION, this.config.getAuthType());
-
-        String protocol = this.config.getProtocol();
-
-        if (protocol != null) {
-            env.setProperty(Context.SECURITY_PROTOCOL, protocol);
-        }
-
-        String bindDN = this.config.getBindDN();
-
-        char[] bindCredential = null;
-
-        if (this.config.getBindCredential() != null) {
-            bindCredential = this.config.getBindCredential().toCharArray();
-        }
-
-        if (bindDN != null) {
-            env.setProperty(Context.SECURITY_PRINCIPAL, bindDN);
-            env.put(Context.SECURITY_CREDENTIALS, bindCredential);
-        }
-
-        String url = this.config.getLdapURL();
-
-        if (url == null) {
-            throw new RuntimeException("url");
-        }
-
-        env.setProperty(Context.PROVIDER_URL, url);
-
-        // Just dump the additional properties
-        Properties additionalProperties = this.config.getConnectionProperties();
-
-        if (additionalProperties != null) {
-            Set<Object> keys = additionalProperties.keySet();
-
-            for (Object key : keys) {
-                env.setProperty((String) key, additionalProperties.getProperty((String) key));
-            }
-        }
-
-        if (config.isActiveDirectory()) {
-            env.put("java.naming.ldap.attributes.binary", LDAPConstants.OBJECT_GUID);
-        }
-
-        if (LDAP_STORE_LOGGER.isDebugEnabled()) {
-            LDAP_STORE_LOGGER.debugf("Creating LdapContext using properties: [%s]", env);
-        }
-
-        return new InitialLdapContext(env, null);
+        this.connectionProperties = Collections.unmodifiableMap(createConnectionProperties());
     }
 
     /**
@@ -175,68 +115,44 @@ public class LDAPOperationManager {
 
     /**
      * <p>
-     * Looks up a entry on the LDAP tree with the given DN.
-     * </p>
-     *
-     * @param dn
-     *
-     * @return
-     *
-     * @throws NamingException
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T lookup(String dn) {
-        try {
-            return (T) context.lookup(dn);
-        } catch (NamingException e) {
-            LDAP_STORE_LOGGER.errorf(e, "Could not lookup entry using DN [%s]", dn);
-            return null;
-        }
-    }
-
-    /**
-     * <p>
      * Searches the LDAP tree.
      * </p>
      *
      * @param baseDN
-     * @param attributesToSearch
+     * @param id
      *
      * @return
      */
-    public <T extends Object> List<T> removeEntryById(String baseDN, String id) {
-        List<T> result = new ArrayList<T>();
-
-        NamingEnumeration<SearchResult> answer = null;
-
+    public void removeEntryById(final String baseDN, final String id) {
         try {
-            Attributes attributesToSearch = new BasicAttributes(true);
+            final Attributes attributesToSearch = new BasicAttributes(true);
 
             attributesToSearch.put(new BasicAttribute(getUniqueIdentifierAttributeName(), id));
 
-            answer = getContext().search(baseDN, attributesToSearch);
+            execute(new LdapOperation<Void>() {
+                @Override
+                public Void execute(LdapContext context) throws NamingException {
+                    NamingEnumeration<SearchResult> result = context.search(baseDN, attributesToSearch);
 
-            if (answer.hasMore()) {
-                SearchResult sr = answer.next();
-                destroySubcontext(sr.getNameInNamespace());
-            }
+                    if (result.hasMore()) {
+                        SearchResult sr = result.next();
+                        destroySubcontext(context, sr.getNameInNamespace());
+                    }
+
+                    result.close();
+
+                    return null;
+                }
+            });
         } catch (NamingException e) {
             LDAP_STORE_LOGGER.errorf(e, "Could not remove entry from DN [%s] and id [%s]", baseDN, id);
             throw new RuntimeException(e);
-        } finally {
-            if (answer != null) {
-                try {
-                    answer.close();
-                } catch (NamingException e) {
-                }
-            }
         }
-
-        return result;
     }
 
-    public NamingEnumeration<SearchResult> search(String baseDN, String filter, LDAPMappingConfiguration mappingConfiguration) throws NamingException {
-        SearchControls cons = new SearchControls();
+    public List<SearchResult> search(final String baseDN, final String filter, LDAPMappingConfiguration mappingConfiguration) throws NamingException {
+        final List<SearchResult> result = new ArrayList<SearchResult>();
+        final SearchControls cons = new SearchControls();
 
         cons.setSearchScope(SUBTREE_SCOPE);
         cons.setReturningObjFlag(false);
@@ -246,45 +162,40 @@ public class LDAPOperationManager {
         cons.setReturningAttributes(returningAttributes.toArray(new String[returningAttributes.size()]));
 
         try {
-            return getContext().search(baseDN, filter, cons);
+            return execute(new LdapOperation<List<SearchResult>>() {
+                @Override
+                public List<SearchResult> execute(LdapContext context) throws NamingException {
+                    NamingEnumeration<SearchResult> search = context.search(baseDN, filter, cons);
+
+                    while (search.hasMoreElements()) {
+                        result.add(search.nextElement());
+                    }
+
+                    search.close();
+
+                    return result;
+                }
+            });
         } catch (NamingException e) {
             LDAP_STORE_LOGGER.errorf(e, "Could not query server using DN [%s] and filter [%s]", baseDN, filter);
             throw e;
         }
     }
 
-    private List<String> getReturningAttributes(final LDAPMappingConfiguration mappingConfiguration) {
-        List<String> returningAttributes = new ArrayList<String>();
-
-        if (mappingConfiguration != null) {
-            returningAttributes.addAll(mappingConfiguration.getMappedProperties().values());
-
-            returningAttributes.add(mappingConfiguration.getParentMembershipAttributeName());
-
-            for (LDAPMappingConfiguration relationshipConfig : this.config.getRelationshipConfigs()) {
-                if (relationshipConfig.getRelatedAttributedType().equals(mappingConfiguration.getMappedClass())) {
-                    returningAttributes.addAll(relationshipConfig.getMappedProperties().values());
-                }
-            }
-        } else {
-            returningAttributes.add("*");
-        }
-
-        returningAttributes.add(getUniqueIdentifierAttributeName());
-        returningAttributes.add(CREATE_TIMESTAMP);
-        returningAttributes.add(LDAPConstants.OBJECT_CLASS);
-
-        return returningAttributes;
-    }
-
     public String getFilterById(String baseDN, String id) {
         String filter = null;
 
         if (this.config.isActiveDirectory()) {
-            String strObjectGUID = "<GUID=" + id + ">";
+            final String strObjectGUID = "<GUID=" + id + ">";
 
             try {
-                Attributes attributes = this.context.getAttributes(strObjectGUID);
+                Attributes attributes = execute(new LdapOperation<Attributes>() {
+                    @Override
+                    public Attributes execute(LdapContext context) throws NamingException {
+                        return context.getAttributes(strObjectGUID);
+                    }
+                });
+
                 byte[] objectGUID = (byte[]) attributes.get(LDAPConstants.OBJECT_GUID).get();
 
                 filter = "(&(objectClass=*)(" + getUniqueIdentifierAttributeName() + EQUAL + convertObjectGUIToByteString(objectGUID) + "))";
@@ -300,12 +211,12 @@ public class LDAPOperationManager {
         return filter;
     }
 
-    public NamingEnumeration<SearchResult> lookupById(String baseDN, String id, LDAPMappingConfiguration mappingConfiguration) {
-        String filter = getFilterById(baseDN, id);
+    public SearchResult lookupById(final String baseDN, final String id, final LDAPMappingConfiguration mappingConfiguration) {
+        final String filter = getFilterById(baseDN, id);
 
         if (filter != null) {
             try {
-                SearchControls cons = new SearchControls();
+                final SearchControls cons = new SearchControls();
 
                 cons.setSearchScope(SUBTREE_SCOPE);
                 cons.setReturningObjFlag(false);
@@ -315,14 +226,31 @@ public class LDAPOperationManager {
 
                 cons.setReturningAttributes(returningAttributes.toArray(new String[returningAttributes.size()]));
 
-                return getContext().search(baseDN, filter, cons);
+                return execute(new LdapOperation<SearchResult>() {
+                    @Override
+                    public SearchResult execute(LdapContext context) throws NamingException {
+                        NamingEnumeration<SearchResult> search = context.search(baseDN, filter, cons);
+
+                        try {
+                            if (search.hasMoreElements()) {
+                                return search.next();
+                            }
+                        } finally {
+                            if (search != null) {
+                                search.close();
+                            }
+                        }
+
+                        return null;
+                    }
+                });
             } catch (NamingException e) {
                 LDAP_STORE_LOGGER.errorf(e, "Could not query server using DN [%s] and filter [%s]", baseDN, filter);
                 throw new RuntimeException(e);
             }
         }
 
-        return createEmptyEnumeration();
+        return null;
     }
 
     /**
@@ -332,23 +260,21 @@ public class LDAPOperationManager {
      *
      * @param dn
      */
-    public void destroySubcontext(String dn) {
+    private void destroySubcontext(LdapContext context, final String dn) {
         try {
             NamingEnumeration<Binding> enumeration = null;
 
             try {
-                enumeration = getContext().listBindings(dn);
+                enumeration = context.listBindings(dn);
 
                 while (enumeration.hasMore()) {
                     Binding binding = enumeration.next();
                     String name = binding.getNameInNamespace();
 
-                    destroySubcontext(name);
+                    destroySubcontext(context, name);
                 }
 
-                getContext().unbind(dn);
-            } catch (NamingException e) {
-                throw new RuntimeException(e);
+                context.unbind(dn);
             } finally {
                 try {
                     enumeration.close();
@@ -363,54 +289,6 @@ public class LDAPOperationManager {
 
     /**
      * <p>
-     * Checks if the attribute with the given name is a managed attributes. Managed attributes are the ones defined in
-     * the
-     * underlying schema or those defined in the managed attribute list.
-     * </p>
-     *
-     * @param attributeName
-     *
-     * @return
-     */
-    public boolean isManagedAttribute(String attributeName) {
-        if (this.managedAttributes.contains(attributeName)) {
-            return true;
-        }
-
-        if (checkAttributePresence(attributeName)) {
-            this.managedAttributes.add(attributeName);
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * <p>
-     * Ask the ldap server for the schema for the attribute.
-     * </p>
-     *
-     * @param attributeName
-     *
-     * @return
-     */
-    public boolean checkAttributePresence(String attributeName) {
-        try {
-            DirContext schema = context.getSchema("");
-
-            DirContext cnSchema = (DirContext) schema.lookup("AttributeDefinition/" + attributeName);
-            if (cnSchema != null) {
-                return true;
-            }
-        } catch (Exception e) {
-            return false; // Probably an unmanaged attribute
-        }
-
-        return false;
-    }
-
-    /**
-     * <p>
      * Performs a simple authentication using the ginve DN and password to bind to the authentication context.
      * </p>
      *
@@ -420,8 +298,10 @@ public class LDAPOperationManager {
      * @return
      */
     public boolean authenticate(String dn, String password) {
+        InitialContext authCtx = null;
+
         try {
-            Hashtable<String, String> env = (Hashtable<String, String>)getContext().getEnvironment();
+            Hashtable<String, Object> env = new Hashtable<String, Object>(this.connectionProperties);
 
             env.put(Context.SECURITY_PRINCIPAL, dn);
             env.put(Context.SECURITY_CREDENTIALS, password);
@@ -429,11 +309,8 @@ public class LDAPOperationManager {
             // Never use connection pool to prevent password caching
             env.put("com.sun.jndi.ldap.connect.pool", "false");
 
-            InitialContext authCtx = new InitialLdapContext(env, null);
+            authCtx = new InitialLdapContext(env, null);
 
-            if (authCtx != null) {
-                authCtx.close();
-            }
             return true;
         } catch (Exception e) {
             if (LDAP_STORE_LOGGER.isDebugEnabled()) {
@@ -441,10 +318,18 @@ public class LDAPOperationManager {
             }
 
             return false;
+        } finally {
+            if (authCtx != null) {
+                try {
+                    authCtx.close();
+                } catch (NamingException e) {
+
+                }
+            }
         }
     }
 
-    private void modifyAttributes(String dn, ModificationItem[] mods) {
+    private void modifyAttributes(final String dn, final ModificationItem[] mods) {
         try {
             if (LDAP_STORE_LOGGER.isDebugEnabled()) {
                 LDAP_STORE_LOGGER.debugf("Modifying attributes for entry [%s]: [", dn);
@@ -456,14 +341,20 @@ public class LDAPOperationManager {
                 LDAP_STORE_LOGGER.debugf("]");
             }
 
-            context.modifyAttributes(dn, mods);
+            execute(new LdapOperation<Void>() {
+                @Override
+                public Void execute(LdapContext context) throws NamingException {
+                    context.modifyAttributes(dn, mods);
+                    return null;
+                }
+            });
         } catch (NamingException e) {
             LDAP_STORE_LOGGER.errorf(e, "Could not modify attribute for DN [%s].", dn);
             throw new IdentityManagementException("Could not modify attribute for DN [" + dn + "]", e);
         }
     }
 
-    public void createSubContext(String name, Attributes attributes) {
+    public void createSubContext(final String name, final Attributes attributes) {
         try {
             if (LDAP_STORE_LOGGER.isDebugEnabled()) {
                 LDAP_STORE_LOGGER.debugf("Creating entry [%s] with attributes: [", name);
@@ -479,15 +370,20 @@ public class LDAPOperationManager {
                 LDAP_STORE_LOGGER.debugf("]");
             }
 
-            getContext().createSubcontext(name, attributes);
+            execute(new LdapOperation<Void>() {
+                @Override
+                public Void execute(LdapContext context) throws NamingException {
+                    DirContext subcontext = context.createSubcontext(name, attributes);
+
+                    subcontext.close();
+
+                    return null;
+                }
+            });
         } catch (NamingException e) {
             LDAP_STORE_LOGGER.errorf(e, "Could not create entry [%s].", name);
             throw new IdentityManagementException("Error creating subcontext [" + name + "]", e);
         }
-    }
-
-    private LdapContext getContext() {
-        return this.context;
     }
 
     private String getUniqueIdentifierAttributeName() {
@@ -524,23 +420,13 @@ public class LDAPOperationManager {
     }
 
     public Attributes getAttributes(final String entryUUID, final String baseDN, LDAPMappingConfiguration mappingConfiguration) {
-        NamingEnumeration<SearchResult> search = lookupById(baseDN, entryUUID, mappingConfiguration);
+        SearchResult search = lookupById(baseDN, entryUUID, mappingConfiguration);
 
-        try {
-            if (!search.hasMore()) {
-                throw MESSAGES.storeLdapEntryNotFoundWithId(entryUUID, baseDN);
-            }
-
-            return search.next().getAttributes();
-        } catch (NamingException e) {
-            throw MESSAGES.storeLdapCouldNotLoadAttributesForEntry(entryUUID, baseDN);
-        } finally {
-            try {
-                search.close();
-            } catch (NamingException e) {
-
-            }
+        if (search == null) {
+            throw MESSAGES.storeLdapEntryNotFoundWithId(entryUUID, baseDN);
         }
+
+        return search.getAttributes();
     }
 
     public String decodeEntryUUID(final Object entryUUID) {
@@ -553,5 +439,119 @@ public class LDAPOperationManager {
         }
 
         return id;
+    }
+
+    private LdapContext createLdapContext() throws NamingException {
+        return new InitialLdapContext(new Hashtable<Object, Object>(this.connectionProperties), null);
+    }
+
+    private Map<String, Object> createConnectionProperties() {
+        HashMap<String, Object> env = new HashMap<String, Object>();
+
+        env.put(Context.INITIAL_CONTEXT_FACTORY, this.config.getFactoryName());
+        env.put(Context.SECURITY_AUTHENTICATION, this.config.getAuthType());
+
+        String protocol = this.config.getProtocol();
+
+        if (protocol != null) {
+            env.put(Context.SECURITY_PROTOCOL, protocol);
+        }
+
+        String bindDN = this.config.getBindDN();
+
+        char[] bindCredential = null;
+
+        if (this.config.getBindCredential() != null) {
+            bindCredential = this.config.getBindCredential().toCharArray();
+        }
+
+        if (bindDN != null) {
+            env.put(Context.SECURITY_PRINCIPAL, bindDN);
+            env.put(Context.SECURITY_CREDENTIALS, bindCredential);
+        }
+
+        String url = this.config.getLdapURL();
+
+        if (url == null) {
+            throw new RuntimeException("url");
+        }
+
+        env.put(Context.PROVIDER_URL, url);
+
+        // Just dump the additional properties
+        Properties additionalProperties = this.config.getConnectionProperties();
+
+        if (additionalProperties != null) {
+            Set<Object> keys = additionalProperties.keySet();
+
+            for (Object key : keys) {
+                String value = additionalProperties.getProperty(key.toString());
+
+                env.put(key.toString(), value);
+
+                // strange behavior. after some tests, we need to also set the pooling properties as system properties. if they're not set, connection pooling will not be enabled.
+                if (key.toString().startsWith("com.sun.jndi.ldap.connect.pool")) {
+                    System.setProperty(key.toString(), value);
+                }
+            }
+        }
+
+        if (config.isActiveDirectory()) {
+            env.put("java.naming.ldap.attributes.binary", LDAPConstants.OBJECT_GUID);
+        }
+
+        if (LDAP_STORE_LOGGER.isDebugEnabled()) {
+            LDAP_STORE_LOGGER.debugf("Creating LdapContext using properties: [%s]", env);
+        }
+
+        return env;
+    }
+
+    private <R> R execute(LdapOperation<R> operation) throws NamingException {
+        LdapContext context = null;
+
+        try {
+            context = createLdapContext();
+            return operation.execute(context);
+        } catch (NamingException ne) {
+            IDMLog.IDENTITY_STORE_LOGGER.error("Could not create Ldap context.", ne);
+            throw ne;
+        } finally {
+            if (context != null) {
+                try {
+                    context.close();
+                } catch (NamingException ne) {
+                    IDMLog.IDENTITY_STORE_LOGGER.error("Could not close Ldap context.", ne);
+                }
+            }
+        }
+    }
+
+    private interface LdapOperation<R> {
+        R execute(LdapContext context) throws NamingException;
+    }
+
+    private List<String> getReturningAttributes(final LDAPMappingConfiguration mappingConfiguration) {
+        List<String> returningAttributes = new ArrayList<String>();
+
+        if (mappingConfiguration != null) {
+            returningAttributes.addAll(mappingConfiguration.getMappedProperties().values());
+
+            returningAttributes.add(mappingConfiguration.getParentMembershipAttributeName());
+
+            for (LDAPMappingConfiguration relationshipConfig : this.config.getRelationshipConfigs()) {
+                if (relationshipConfig.getRelatedAttributedType().equals(mappingConfiguration.getMappedClass())) {
+                    returningAttributes.addAll(relationshipConfig.getMappedProperties().values());
+                }
+            }
+        } else {
+            returningAttributes.add("*");
+        }
+
+        returningAttributes.add(getUniqueIdentifierAttributeName());
+        returningAttributes.add(CREATE_TIMESTAMP);
+        returningAttributes.add(LDAPConstants.OBJECT_CLASS);
+
+        return returningAttributes;
     }
 }
