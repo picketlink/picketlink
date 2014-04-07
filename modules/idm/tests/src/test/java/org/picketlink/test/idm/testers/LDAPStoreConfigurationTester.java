@@ -28,7 +28,14 @@ import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.util.LDAPEmbeddedServer;
 
-import static org.picketlink.common.constants.LDAPConstants.*;
+import java.util.Properties;
+
+import static org.picketlink.common.constants.LDAPConstants.CN;
+import static org.picketlink.common.constants.LDAPConstants.CREATE_TIMESTAMP;
+import static org.picketlink.common.constants.LDAPConstants.EMAIL;
+import static org.picketlink.common.constants.LDAPConstants.GROUP_OF_NAMES;
+import static org.picketlink.common.constants.LDAPConstants.SN;
+import static org.picketlink.common.constants.LDAPConstants.UID;
 
 /**
  * @author pedroigor
@@ -40,12 +47,23 @@ public class LDAPStoreConfigurationTester implements IdentityConfigurationTester
 
     @Override
     public PartitionManager getPartitionManager() {
+        Properties properties = new Properties();
+
+        // connection pooling configuration
+        properties.put("com.sun.jndi.ldap.connect.pool", "true");
+        properties.put("com.sun.jndi.ldap.connect.pool.authentication", "simple");
+        properties.put("com.sun.jndi.ldap.connect.pool.maxsize", "10");
+        properties.put("com.sun.jndi.ldap.connect.pool.prefsize", "5");
+        properties.put("com.sun.jndi.ldap.connect.pool.timeout", "300000");
+        properties.put("com.sun.jndi.ldap.connect.pool.debug", "off");
+
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
             .named(SIMPLE_LDAP_STORE_CONFIG)
                 .stores()
                     .ldap()
+                        .connectionProperties(properties)
                         .baseDN(embeddedServer.getBaseDn())
                         .bindDN(embeddedServer.getBindDn())
                         .bindCredential(embeddedServer.getBindCredential())
