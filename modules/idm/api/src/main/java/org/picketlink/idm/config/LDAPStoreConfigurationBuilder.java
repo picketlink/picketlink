@@ -101,9 +101,9 @@ public class LDAPStoreConfigurationBuilder extends
     }
 
     /**
-     * <p>Sets the attribute name used as the unique identifier for entries.</p>
+     * <p>Indicates if the underlying server is a Microsft Activde Directory.</p>
      *
-     * @param uniqueIdentifierAttributeName
+     * @param activeDirectory
      * @return
      */
     public LDAPStoreConfigurationBuilder activeDirectory(boolean activeDirectory) {
@@ -134,7 +134,6 @@ public class LDAPStoreConfigurationBuilder extends
     /**
      * <p>Set additional connection properties.</p>
      *
-     * @param activeDirectory
      * @return
      */
     public LDAPStoreConfigurationBuilder connectionProperties(Properties connectionProperties) {
