@@ -29,6 +29,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import static org.picketlink.common.constants.LDAPConstants.ENTRY_UUID;
+import static org.picketlink.common.constants.LDAPConstants.OBJECT_GUID;
+
 /**
  * A {@link AbstractIdentityStoreConfiguration} for the LDAP store.
  *
@@ -37,6 +40,8 @@ import java.util.Set;
  */
 
 public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfiguration {
+
+    public static final String ENTRY_IDENTIFIER_ATTRIBUTE_NAME = "org.picketlink.idm.config.ldap.id_attribute_name";
 
     private final String ldapURL;
     private String factoryName = "com.sun.jndi.ldap.LdapCtxFactory";
@@ -166,6 +171,12 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
     }
 
     public String getUniqueIdentifierAttributeName() {
-        return this.isActiveDirectory() ? "objectGUID" : "entryUUID";
+        String property = System.getProperty(ENTRY_IDENTIFIER_ATTRIBUTE_NAME);
+
+        if (property != null) {
+            return property;
+        }
+
+        return isActiveDirectory() ? OBJECT_GUID : ENTRY_UUID;
     }
 }
