@@ -51,11 +51,12 @@ public class LDAPStoreConfigurationTester implements IdentityConfigurationTester
 
         // connection pooling configuration
         properties.put("com.sun.jndi.ldap.connect.pool", "true");
-        properties.put("com.sun.jndi.ldap.connect.pool.authentication", "simple");
-        properties.put("com.sun.jndi.ldap.connect.pool.maxsize", "10");
-        properties.put("com.sun.jndi.ldap.connect.pool.prefsize", "5");
-        properties.put("com.sun.jndi.ldap.connect.pool.timeout", "300000");
-        properties.put("com.sun.jndi.ldap.connect.pool.debug", "off");
+
+        System.setProperty("com.sun.jndi.ldap.connect.pool.authentication", "simple");
+        System.setProperty("com.sun.jndi.ldap.connect.pool.maxsize", "10");
+        System.setProperty("com.sun.jndi.ldap.connect.pool.prefsize", "5");
+        System.setProperty("com.sun.jndi.ldap.connect.pool.timeout", "300000");
+        System.setProperty("com.sun.jndi.ldap.connect.pool.debug", "all");
 
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 

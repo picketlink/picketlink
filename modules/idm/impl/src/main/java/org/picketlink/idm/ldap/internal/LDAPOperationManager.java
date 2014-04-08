@@ -47,7 +47,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import static javax.naming.directory.SearchControls.SUBTREE_SCOPE;
 import static org.picketlink.common.constants.LDAPConstants.CREATE_TIMESTAMP;
@@ -482,17 +481,8 @@ public class LDAPOperationManager {
         Properties additionalProperties = this.config.getConnectionProperties();
 
         if (additionalProperties != null) {
-            Set<Object> keys = additionalProperties.keySet();
-
-            for (Object key : keys) {
-                String value = additionalProperties.getProperty(key.toString());
-
-                env.put(key.toString(), value);
-
-                // strange behavior. after some tests, we need to also set the pooling properties as system properties. if they're not set, connection pooling will not be enabled.
-                if (key.toString().startsWith("com.sun.jndi.ldap.connect.pool")) {
-                    System.setProperty(key.toString(), value);
-                }
+            for (Object key : additionalProperties.keySet()) {
+                env.put(key.toString(), additionalProperties.getProperty(key.toString()));
             }
         }
 
