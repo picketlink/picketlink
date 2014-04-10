@@ -17,11 +17,12 @@
  */
 package org.picketlink.authentication.web;
 
-import org.picketlink.Identity;
-import org.picketlink.common.util.StringUtil;
-import org.picketlink.credential.DefaultLoginCredentials;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.servlet.Filter;
@@ -32,15 +33,17 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+
+import org.picketlink.Identity;
+import org.picketlink.annotations.PicketLink;
+import org.picketlink.common.util.StringUtil;
+import org.picketlink.credential.DefaultLoginCredentials;
 
 /**
- * <p>This filter provides an authentication entry point for web applications using different
- * HTTP Authentication Schemes such as FORM, BASIC, DIGEST and CLIENT-CERT.</p>
+ * <p>
+ * This filter provides an authentication entry point for web applications using different HTTP Authentication Schemes such as
+ * FORM, BASIC, DIGEST and CLIENT-CERT.
+ * </p>
  *
  * @author Shane Bryzak
  * @author Pedro Igor
@@ -51,7 +54,6 @@ public class AuthenticationFilter implements Filter {
     public static final String AUTH_TYPE_INIT_PARAM = "authType";
     public static final String UNPROTECTED_METHODS_INIT_PARAM = "unprotectedMethods";
     public static final String FORCE_REAUTHENTICATION_INIT_PARAM = "forceReAuthentication";
-    private final Map<AuthType, Class<? extends HTTPAuthenticationScheme>> authenticationSchemes;
     private final Set<String> unprotectedMethods;
     private boolean forceReAuthentication;
 
@@ -61,23 +63,24 @@ public class AuthenticationFilter implements Filter {
     @Inject
     private Instance<DefaultLoginCredentials> credentialsInstance;
 
+    @Inject
+    @Any
+    private Instance<HTTPAuthenticationScheme> allAvailableAuthSchemes;
+
+    @Inject
+    @PicketLink
+    private Instance<HTTPAuthenticationScheme> applicationPreferredAuthSchemeInstance;
+
     private HTTPAuthenticationScheme authenticationScheme;
 
     public AuthenticationFilter() {
-        this.authenticationSchemes = new HashMap<AuthType, Class<? extends HTTPAuthenticationScheme>>();
-
-        // supported authentication scheme types
-        this.authenticationSchemes.put(AuthType.DIGEST, DigestAuthenticationScheme.class);
-        this.authenticationSchemes.put(AuthType.BASIC, BasicAuthenticationScheme.class);
-        this.authenticationSchemes.put(AuthType.FORM, FormAuthenticationScheme.class);
-        this.authenticationSchemes.put(AuthType.CLIENT_CERT, ClientCertAuthenticationScheme.class);
-
         this.unprotectedMethods = new HashSet<String>();
     }
 
     @Override
     public void init(FilterConfig config) throws ServletException {
-        initAuthenticationScheme(config);
+        authenticationScheme = resolveAuthenticationScheme(config);
+        authenticationScheme.initialize(config);
 
         String unprotectedMethodsInitParam = config.getInitParameter(UNPROTECTED_METHODS_INIT_PARAM);
 
@@ -102,7 +105,7 @@ public class AuthenticationFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException,
-            ServletException {
+    ServletException {
         if (!HttpServletRequest.class.isInstance(servletRequest)) {
             throw new ServletException("This filter can only process HttpServletRequest requests.");
         }
@@ -141,32 +144,57 @@ public class AuthenticationFilter implements Filter {
 
     }
 
-    private void initAuthenticationScheme(FilterConfig config) {
+    private HTTPAuthenticationScheme resolveAuthenticationScheme(FilterConfig config) {
+
+        // first try for a @PicketLink qualified instance
+        if (applicationPreferredAuthSchemeInstance.isAmbiguous()) {
+            String error = ambiguousBeanError(applicationPreferredAuthSchemeInstance,
+                    "There is more than one @PicketLink HTTPAuthenticationScheme. Make sure you have only one such type defined.");
+            throw new IllegalStateException(error);
+        }
+        if (!applicationPreferredAuthSchemeInstance.isUnsatisfied()) {
+            return applicationPreferredAuthSchemeInstance.get();
+        }
+
+        // fall back on web.xml configuration
         String authTypeName = config.getInitParameter(AUTH_TYPE_INIT_PARAM);
 
         if (authTypeName == null) {
-            throw new IllegalArgumentException("Null authentication type provided.");
+            throw new IllegalArgumentException(
+                    "No HTTPAuthenticationScheme found. You must provide either a CDI bean qualified with @PicketLink,"
+                            + " or define it by fully-qualified class name in the " + AUTH_TYPE_INIT_PARAM
+                            + " init parameter of the " + getClass().getName() + " filter in web.xml.");
         }
 
-        AuthType authType;
-
+        Class<? extends HTTPAuthenticationScheme> authTypeClass;
         try {
-            authType = AuthType.valueOf(authTypeName.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Unsupported authentication type. Possible values are: [" + AuthType.values() + ".", e);
+            authTypeClass = AuthType.valueOf(authTypeName.toUpperCase()).getSchemeType();
+        } catch (IllegalArgumentException iae) {
+            try {
+                authTypeClass = Class.forName(authTypeName).asSubclass(HTTPAuthenticationScheme.class);
+            } catch (ClassNotFoundException cnfe) {
+                throw new IllegalStateException("HTTPAuthenticationScheme " + authTypeName
+                        + " from web.xml could not be found.", cnfe);
+            }
         }
 
-        Class<? extends HTTPAuthenticationScheme> authenticationScheme = this.authenticationSchemes.get(authType);
+        Instance<? extends HTTPAuthenticationScheme> configuredAuthScheme = allAvailableAuthSchemes.select(authTypeClass);
 
-        if (authenticationScheme == null) {
-            throw new IllegalArgumentException("Authentication type of [" + authType + "] does not match a HTTPAuthenticationScheme type.");
+        if (configuredAuthScheme.isAmbiguous()) {
+            throw new IllegalStateException(ambiguousBeanError(configuredAuthScheme,
+                    "HTTPAuthenticationScheme type from web.xml is ambiguous."));
         }
 
-        try {
-            this.authenticationScheme = authenticationScheme.getConstructor(FilterConfig.class).newInstance(config);
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not create authentication scheme instance [" + authenticationScheme + "].", e);
+        return configuredAuthScheme.get();
+    }
+
+    private static String ambiguousBeanError(Instance<?> ambiguousInstance, String message) {
+        StringBuilder sb = new StringBuilder(message);
+        sb.append("\nAmbiguous types:");
+        for (Object o : ambiguousInstance) {
+            sb.append("\n  ").append(o.getClass().getName());
         }
+        return sb.toString();
     }
 
     private DefaultLoginCredentials extractCredentials(HttpServletRequest request) {
@@ -195,11 +223,9 @@ public class AuthenticationFilter implements Filter {
 
     private Identity getIdentity() throws ServletException {
         if (this.identityInstance.isUnsatisfied()) {
-            throw new IllegalStateException(
-                    "Identity not found.");
+            throw new IllegalStateException("Identity not found.");
         } else if (this.identityInstance.isAmbiguous()) {
-            throw new IllegalStateException(
-                    "Identity is ambiguous.");
+            throw new IllegalStateException("Identity is ambiguous.");
         }
 
         try {
@@ -214,7 +240,18 @@ public class AuthenticationFilter implements Filter {
     }
 
     public enum AuthType {
-        BASIC, DIGEST, FORM, CLIENT_CERT
+        BASIC(BasicAuthenticationScheme.class), DIGEST(DigestAuthenticationScheme.class), FORM(FormAuthenticationScheme.class), CLIENT_CERT(
+                ClientCertAuthenticationScheme.class);
+
+        private final Class<? extends HTTPAuthenticationScheme> schemeType;
+
+        AuthType(Class<? extends HTTPAuthenticationScheme> schemeType) {
+            this.schemeType = schemeType;
+        }
+
+        public Class<? extends HTTPAuthenticationScheme> getSchemeType() {
+            return schemeType;
+        }
     }
 
 }

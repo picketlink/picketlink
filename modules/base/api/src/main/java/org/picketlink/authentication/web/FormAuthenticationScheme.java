@@ -18,12 +18,14 @@
 package org.picketlink.authentication.web;
 
 import java.io.IOException;
+
 import javax.servlet.FilterConfig;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 import org.picketlink.authentication.web.support.RequestCache;
 import org.picketlink.authentication.web.support.SavedRequest;
 import org.picketlink.credential.DefaultLoginCredentials;
@@ -39,10 +41,10 @@ public class FormAuthenticationScheme implements HTTPAuthenticationScheme{
     public static final String FORM_LOGIN_PAGE_INIT_PARAM = "form-login-page";
     public static final String FORM_ERROR_PAGE_INIT_PARAM = "form-error-page";
 
-    private RequestCache requestCache = new RequestCache();
+    private final RequestCache requestCache = new RequestCache();
 
-    private final String formLoginPage;
-    private final String formErrorPage;
+    private String formLoginPage;
+    private String formErrorPage;
 
     public static final String J_SECURITY_CHECK ="j_security_check";
     public static final String J_USERNAME = "j_username";
@@ -54,7 +56,8 @@ public class FormAuthenticationScheme implements HTTPAuthenticationScheme{
 
     public static final String STATE = "STATE";
 
-    public FormAuthenticationScheme(FilterConfig config) {
+    @Override
+    public void initialize(FilterConfig config) {
         String formLoginPage = config.getInitParameter(FORM_LOGIN_PAGE_INIT_PARAM);
 
         if (formLoginPage == null) {
