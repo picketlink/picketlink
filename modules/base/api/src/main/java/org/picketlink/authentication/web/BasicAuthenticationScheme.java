@@ -23,6 +23,7 @@
 package org.picketlink.authentication.web;
 
 import java.io.IOException;
+
 import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,7 +44,8 @@ public class BasicAuthenticationScheme implements HTTPAuthenticationScheme {
 
     private String realm = DEFAULT_REALM_NAME;
 
-    public BasicAuthenticationScheme(FilterConfig config) {
+    @Override
+    public void initialize(FilterConfig config) {
         String providedRealm = config.getInitParameter(REALM_NAME_INIT_PARAM);
 
         if (providedRealm != null) {

@@ -24,6 +24,7 @@ package org.picketlink.authentication.web;
 
 import java.io.IOException;
 import java.util.Timer;
+
 import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,11 +46,12 @@ public class DigestAuthenticationScheme implements HTTPAuthenticationScheme {
 
     private final Timer nonceCleanupTimer = new Timer("PicketLink_Digest_Nonce_Cache_Cleanup");
 
-    private NonceCache nonceCache = new NonceCache();
+    private final NonceCache nonceCache = new NonceCache();
 
     private String realm = DEFAULT_REALM_NAME;
 
-    public DigestAuthenticationScheme(FilterConfig config) {
+    @Override
+    public void initialize(FilterConfig config) {
         String providedRealm = config.getInitParameter(REALM_NAME_INIT_PARAM);
 
         if (providedRealm != null) {
@@ -57,7 +59,7 @@ public class DigestAuthenticationScheme implements HTTPAuthenticationScheme {
         }
 
         this.nonceCleanupTimer
-                .schedule(this.nonceCache, this.nonceCache.getNonceMaxValid(), this.nonceCache.getNonceMaxValid());
+        .schedule(this.nonceCache, this.nonceCache.getNonceMaxValid(), this.nonceCache.getNonceMaxValid());
     }
 
     @Override
