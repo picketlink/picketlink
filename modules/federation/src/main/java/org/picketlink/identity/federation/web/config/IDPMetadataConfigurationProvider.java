@@ -30,14 +30,13 @@ import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.IndexedEndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
-import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
 
 import java.io.InputStream;
 import java.net.URI;
 
 /**
  * <p>
- * An instance of {@link SAMLConfigurationProvider} that can be used to generate the IDP configuration using SAML2
+ * An instance of {@link org.picketlink.identity.federation.web.util.SAMLConfigurationProvider} that can be used to generate the IDP configuration using SAML2
  * Metadata.
  * </p>
  * <p>
@@ -51,12 +50,14 @@ import java.net.URI;
  * @author Anil Saldhana
  * @since Feb 15, 2012
  */
-public class IDPMetadataConfigurationProvider extends AbstractSAMLConfigurationProvider implements SAMLConfigurationProvider {
+public class IDPMetadataConfigurationProvider extends AbstractSAMLConfigurationProvider {
 
-    public static final String IDP_MD_FILE = "idp-metadata.xml";
+    public static final String DEFAULT_IDP_MD_FILE = "idp-metadata.xml";
+
+    private String idpMetadataLocation;
 
     /**
-     * @see SAMLConfigurationProvider#getIDPConfiguration()
+     * @see org.picketlink.identity.federation.web.util.SAMLConfigurationProvider#getIDPConfiguration()
      */
     public IDPType getIDPConfiguration() throws ProcessingException {
         IDPType idpType = null;
@@ -74,7 +75,7 @@ public class IDPMetadataConfigurationProvider extends AbstractSAMLConfigurationP
                 throw logger.processingError(e);
             }
         } else {
-            throw logger.nullValueError(IDP_MD_FILE);
+            throw logger.nullValueError(getIdpMetadataLocation());
         }
 
         if (configParsedIDPType != null) {
@@ -89,18 +90,27 @@ public class IDPMetadataConfigurationProvider extends AbstractSAMLConfigurationP
     }
 
     private boolean fileAvailable() {
-        InputStream is = SecurityActions.loadStream(getClass(), IDP_MD_FILE);
+        InputStream is = SecurityActions.loadStream(getClass(), getIdpMetadataLocation());
         return is != null;
     }
 
     private EntitiesDescriptorType parseMDFile() throws ParsingException {
-        InputStream is = SecurityActions.loadStream(getClass(), IDP_MD_FILE);
+        InputStream is = SecurityActions.loadStream(getClass(), getIdpMetadataLocation());
 
         if (is == null)
-            throw logger.nullValueError(IDP_MD_FILE);
+            throw logger.nullValueError(getIdpMetadataLocation());
 
-        SAMLParser parser = new SAMLParser();
-        return (EntitiesDescriptorType) parser.parse(is);
+        Object idpMetadata = new SAMLParser().parse(is);
+        EntitiesDescriptorType entities;
+
+        if (EntitiesDescriptorType.class.isInstance(idpMetadata)) {
+            entities = (EntitiesDescriptorType) idpMetadata;
+        } else {
+            entities = new EntitiesDescriptorType();
+            entities.addEntityDescriptor(idpMetadata);
+        }
+
+        return entities;
     }
 
     /**
@@ -127,5 +137,17 @@ public class IDPMetadataConfigurationProvider extends AbstractSAMLConfigurationP
                 }
             }
         }
+    }
+
+    public String getIdpMetadataLocation() {
+        if (this.idpMetadataLocation == null) {
+            this.idpMetadataLocation = DEFAULT_IDP_MD_FILE;
+        }
+
+        return this.idpMetadataLocation;
+    }
+
+    public void setIdpMetadataLocation(String idpMetadataLocation) {
+        this.idpMetadataLocation = idpMetadataLocation;
     }
 }

@@ -44,6 +44,17 @@ public class IDPMetadataConfigurationProviderUnitTestCase {
         assertEquals("https://idp.testshib.org/idp/profile/SAML2/POST/SSO", idp.getIdentityURL());
     }
 
+    @Test
+    public void testIDPTypeWithSingleEntity() throws ProcessingException {
+        IDPMetadataConfigurationProvider provider = new IDPMetadataConfigurationProvider();
+
+        provider.setIdpMetadataLocation("idp-metadata-entity-descriptor.xml");
+
+        IDPType idp = provider.getIDPConfiguration();
+        assertNotNull(idp);
+        assertEquals("https://idp-single.testshib.org/idp/profile/SAML2/POST/SSO", idp.getIdentityURL());
+    }
+
     @SuppressWarnings("deprecation")
     @Test
     public void testIDPTypeWithConfig() throws Exception {
