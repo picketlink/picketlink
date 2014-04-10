@@ -187,6 +187,10 @@ public class KeyStoreKeyManager implements TrustKeyManager {
             initKeyStore();
 
             String domainAlias = this.domainAliasMap.get(domain);
+            if (domainAlias == null && domain.startsWith("[") && domain.endsWith("]")) {
+                // in case of IPv6 URL we need to strip [ ], because JBoss DMR is not storing attribute enclosed using [] (treating it as list)
+                domainAlias = this.domainAliasMap.get(domain.substring(1, domain.length() - 1));
+            }
 
             if (domainAlias == null)
                 throw logger.keyStoreMissingDomainAlias(domain);
