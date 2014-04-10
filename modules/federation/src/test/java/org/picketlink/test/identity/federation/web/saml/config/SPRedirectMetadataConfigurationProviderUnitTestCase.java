@@ -34,12 +34,41 @@ import static org.junit.Assert.assertNotNull;
 public class SPRedirectMetadataConfigurationProviderUnitTestCase {
 
     @Test
-    public void testSPType() throws ProcessingException {
+    public void testSPTypeWithEntitiesDescriptor() throws ProcessingException {
         SPRedirectMetadataConfigurationProvider provider = new SPRedirectMetadataConfigurationProvider();
+
+        provider.setIdpMetadataLocation("");
+
         SPType sp = provider.getSPConfiguration();
         assertNotNull(sp);
         assertEquals("https://www.testshib.org/Shibboleth.sso/SAML/REDIRECT", sp.getServiceURL());
         assertEquals("https://idp.testshib.org/idp/profile/SAML2/Redirect/SLO", sp.getLogoutUrl());
+    }
+
+    @Test
+    public void testSPTypeWithEntityDescriptorLoadingIdPMetadataFileWithEntities() throws ProcessingException {
+        SPRedirectMetadataConfigurationProvider provider = new SPRedirectMetadataConfigurationProvider();
+
+        provider.setSpMetadataLocation("sp-metadata-entity-descriptor.xml");
+
+        SPType sp = provider.getSPConfiguration();
+        assertNotNull(sp);
+        assertEquals("https://www.testshib.org/Shibboleth.sso/SAML/REDIRECT", sp.getServiceURL());
+        assertEquals("https://idp.testshib.org/idp/profile/SAML2/Redirect/SLO", sp.getLogoutUrl());
+    }
+
+    @Test
+    public void testSPTypeWithEntityDescriptorLoadingIdPMetadataFileWithSingleEntity() throws ProcessingException {
+        SPRedirectMetadataConfigurationProvider provider = new SPRedirectMetadataConfigurationProvider();
+
+        provider.setSpMetadataLocation("sp-metadata-entity-descriptor.xml");
+        provider.setIdpMetadataLocation("idp-metadata-entity-descriptor.xml");
+
+        SPType sp = provider.getSPConfiguration();
+
+        assertNotNull(sp);
+        assertEquals("https://www.testshib.org/Shibboleth.sso/SAML/REDIRECT", sp.getServiceURL());
+        assertEquals("https://idp-single.testshib.org/idp/profile/SAML2/Redirect/SLO", sp.getLogoutUrl());
     }
 
 }

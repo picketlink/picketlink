@@ -55,6 +55,12 @@
       <SingleSignOnService
               Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
               Location="https://idp.testshib.org/idp/profile/SAML2/Redirect/SSO"/>
+      <SingleLogoutService
+          Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+          Location="https://idp.testshib.org/idp/profile/SAML2/POST/SLO"/>
+      <SingleLogoutService
+          Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+          Location="https://idp.testshib.org/idp/profile/SAML2/Redirect/SLO"/>
     </IDPSSODescriptor>
     <AttributeAuthorityDescriptor
             protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol urn:oasis:names:tc:SAML:2.0:protocol">

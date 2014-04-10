@@ -17,23 +17,11 @@
  */
 package org.picketlink.identity.federation.web.config;
 
-import org.picketlink.common.ErrorCodes;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
-import org.picketlink.common.exceptions.ConfigurationException;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.config.federation.IDPType;
-import org.picketlink.config.federation.SPType;
-import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
-import org.picketlink.identity.federation.core.util.CoreConfigUtil;
-import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
-import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
-
-import java.io.InputStream;
 
 /**
  * <p>
- * An instance of {@link SAMLConfigurationProvider} that can be used to generate the SP configuration for the HTTP-POST
+ * An instance of {@link org.picketlink.identity.federation.web.util.SAMLConfigurationProvider} that can be used to generate the SP configuration for the HTTP-POST
  * binding
  * using SAML2 Metadata.
  * </p>
@@ -48,55 +36,10 @@ import java.io.InputStream;
  * @author Anil Saldhana
  * @since Feb 15, 2012
  */
-public class SPPostMetadataConfigurationProvider extends AbstractSAMLConfigurationProvider implements SAMLConfigurationProvider {
+public class SPPostMetadataConfigurationProvider extends AbstractSPMetadataConfigurationProvider {
 
-    public static final String SP_MD_FILE = "sp-metadata.xml";
-
-    public static final String bindingURI = JBossSAMLURIConstants.SAML_HTTP_POST_BINDING.get();
-
-    /**
-     * @see SAMLConfigurationProvider#getIDPConfiguration()
-     */
-    public IDPType getIDPConfiguration() throws ProcessingException {
-        throw new RuntimeException(ErrorCodes.ILLEGAL_METHOD_CALLED);
-    }
-
-    /**
-     * @see SAMLConfigurationProvider#getSPConfiguration()
-     */
-    public SPType getSPConfiguration() throws ProcessingException {
-        SPType spType = null;
-        if (fileAvailable()) {
-            try {
-                EntitiesDescriptorType entities = parseMDFile();
-                spType = CoreConfigUtil.getSPConfiguration(entities, bindingURI);
-            } catch (ParsingException e) {
-                throw logger.processingError(e);
-            } catch (ConfigurationException e) {
-                throw logger.processingError(e);
-            }
-        } else {
-            throw logger.nullValueError(SP_MD_FILE);
-        }
-
-        if (configParsedSPType != null) {
-            spType.importFrom(configParsedSPType);
-        }
-        return spType;
-    }
-
-    private boolean fileAvailable() {
-        InputStream is = SecurityActions.loadStream(getClass(), SP_MD_FILE);
-        return is != null;
-    }
-
-    private EntitiesDescriptorType parseMDFile() throws ParsingException {
-        InputStream is = SecurityActions.loadStream(getClass(), SP_MD_FILE);
-
-        if (is == null)
-            throw logger.nullValueError(SP_MD_FILE);
-
-        SAMLParser parser = new SAMLParser();
-        return (EntitiesDescriptorType) parser.parse(is);
+    @Override
+    protected String getBindingURI() {
+        return JBossSAMLURIConstants.SAML_HTTP_POST_BINDING.get();
     }
 }
