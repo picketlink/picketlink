@@ -125,7 +125,9 @@ public class AuthenticationFilter implements Filter {
             // Force session creation
             request.getSession();
 
-            identity.login();
+            if (creds.getCredential() != null) {
+                identity.login();
+            }
 
             if (identity.isLoggedIn()) {
                 if (this.authenticationScheme.postAuthentication(request, response)) {
