@@ -61,8 +61,11 @@ public class AuthenticationFilterTestCase {
     @Spy
     protected MockIdentity identity;
 
-    @Mock( name = "applicationPreferredAuthSchemeInstance" )
+    @Mock(name = "applicationPreferredAuthSchemeInstance")
     protected Instance<HTTPAuthenticationScheme> preferredAuthFilterInstance;
+
+    @Mock(name = "allAvailableAuthSchemesInstance")
+    private Instance<HTTPAuthenticationScheme> allAvailableAuthSchemesInstance;
 
     @InjectMocks
     protected AuthenticationFilter authFilter;

@@ -65,7 +65,7 @@ public class AuthenticationFilter implements Filter {
 
     @Inject
     @Any
-    private Instance<HTTPAuthenticationScheme> allAvailableAuthSchemes;
+    private Instance<HTTPAuthenticationScheme> allAvailableAuthSchemesInstance;
 
     @Inject
     @PicketLink
@@ -180,7 +180,7 @@ public class AuthenticationFilter implements Filter {
             }
         }
 
-        Instance<? extends HTTPAuthenticationScheme> configuredAuthScheme = allAvailableAuthSchemes.select(authTypeClass);
+        Instance<? extends HTTPAuthenticationScheme> configuredAuthScheme = allAvailableAuthSchemesInstance.select(authTypeClass);
 
         if (configuredAuthScheme.isAmbiguous()) {
             throw new IllegalStateException(ambiguousBeanError(configuredAuthScheme,
