@@ -92,4 +92,13 @@ public interface HTTPAuthenticationScheme {
      *             if reading the request or writing the response fails.
      */
     boolean postAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException;
+
+    /**
+     * <p>Indicates if the given {@link javax.servlet.http.HttpServletRequest} should be protected or not.</p>
+     *
+     * @param request
+     *
+     * @return If this method returns false, the authentication will be ignored and the client will not be challenged for credentials.
+     */
+    boolean isProtected(HttpServletRequest request);
 }

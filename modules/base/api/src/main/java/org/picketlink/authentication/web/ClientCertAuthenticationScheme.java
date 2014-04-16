@@ -67,6 +67,11 @@ public class ClientCertAuthenticationScheme implements HTTPAuthenticationScheme 
         return true;
     }
 
+    @Override
+    public boolean isProtected(HttpServletRequest request) {
+        return true;
+    }
+
     private X509Certificate[] getClientCertificate(HttpServletRequest request) {
         return (X509Certificate[]) request.getAttribute(X509_CLIENT_CERT_REQUEST_ATTRIBUTE);
     }

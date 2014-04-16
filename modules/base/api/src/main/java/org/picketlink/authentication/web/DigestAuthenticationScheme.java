@@ -106,6 +106,11 @@ public class DigestAuthenticationScheme implements HTTPAuthenticationScheme {
         return true;
     }
 
+    @Override
+    public boolean isProtected(HttpServletRequest request) {
+        return true;
+    }
+
     private String[] extractTokens(HttpServletRequest request) {
         String authorizationHeader = getAuthorizationHeader(request).substring(7).trim();
 
