@@ -17,9 +17,9 @@
  */
 package org.picketlink.authentication.web;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import org.picketlink.Identity;
+import org.picketlink.annotations.PicketLink;
+import org.picketlink.credential.DefaultLoginCredentials;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
@@ -33,11 +33,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.picketlink.Identity;
-import org.picketlink.annotations.PicketLink;
-import org.picketlink.common.util.StringUtil;
-import org.picketlink.credential.DefaultLoginCredentials;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * <p>
@@ -54,6 +54,7 @@ public class AuthenticationFilter implements Filter {
     public static final String AUTH_TYPE_INIT_PARAM = "authType";
     public static final String UNPROTECTED_METHODS_INIT_PARAM = "unprotectedMethods";
     public static final String FORCE_REAUTHENTICATION_INIT_PARAM = "forceReAuthentication";
+
     private final Set<String> unprotectedMethods;
     private boolean forceReAuthentication;
 
@@ -96,7 +97,7 @@ public class AuthenticationFilter implements Filter {
 
         String forceReAuthentication = config.getInitParameter(FORCE_REAUTHENTICATION_INIT_PARAM);
 
-        if (StringUtil.isNullOrEmpty(forceReAuthentication)) {
+        if (isNullOrEmpty(forceReAuthentication)) {
             forceReAuthentication = "false";
         }
 
@@ -223,10 +224,14 @@ public class AuthenticationFilter implements Filter {
         }
     }
 
-    private Identity getIdentity() throws ServletException {
-        if (this.identityInstance.isUnsatisfied()) {
+    private Identity getIdentity() {
+        return getIdentity(this.identityInstance);
+    }
+
+    private Identity getIdentity(Instance<Identity> identityInstance) {
+        if (identityInstance.isUnsatisfied()) {
             throw new IllegalStateException("Identity not found.");
-        } else if (this.identityInstance.isAmbiguous()) {
+        } else if (identityInstance.isAmbiguous()) {
             throw new IllegalStateException("Identity is ambiguous.");
         }
 
@@ -238,7 +243,7 @@ public class AuthenticationFilter implements Filter {
     }
 
     private boolean isProtected(HttpServletRequest request) {
-        return !this.unprotectedMethods.contains(request.getMethod().toUpperCase());
+        return !this.unprotectedMethods.contains(request.getMethod().toUpperCase()) && this.authenticationScheme.isProtected(request);
     }
 
     public enum AuthType {

@@ -113,6 +113,11 @@ public class FormAuthenticationScheme implements HTTPAuthenticationScheme{
         return false;
     }
 
+    @Override
+    public boolean isProtected(HttpServletRequest request) {
+        return true;
+    }
+
     private void forwardToLoginPage(HttpServletRequest request, HttpServletResponse response){
         RequestDispatcher rd = request.getRequestDispatcher(formLoginPage);
         try {

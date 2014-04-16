@@ -59,4 +59,9 @@ public abstract class CustomAbstractHttpAuthScheme implements HTTPAuthentication
         response.flushBuffer();
         return false;
     }
+
+    @Override
+    public boolean isProtected(HttpServletRequest request) {
+        return true;
+    }
 }
