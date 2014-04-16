@@ -67,7 +67,7 @@ public final class OAuthUtils {
     /**
      * Translates parameters into <code>application/x-www-form-urlencoded</code> String
      *
-     * @param parameters parameters to encode
+     * @param parameters parameters to sign
      * @param encoding The name of a supported <a href="../lang/package-summary.html#charenc">character encoding</a>.
      * @return Translated string
      */
@@ -263,7 +263,7 @@ public final class OAuthUtils {
         return headerValues;
     }
 
-    // todo: implement method to decode header form (with no challenge)
+    // todo: implement method to build header form (with no challenge)
 
     /**
      * Construct a WWW-Authenticate or Authorization header with the OAuth challenge/credentials
