@@ -76,6 +76,13 @@
         <version>${project.version}</version>
       </dependency>
 
+      <!-- PicketLink JSON dependencies -->
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-json</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 

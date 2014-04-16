@@ -62,6 +62,7 @@
     <module>tests</module>
 
     <module>modules/federation</module>
+    <module>modules/json</module>
     <module>modules/social</module>
     <module>modules/oauth</module>
     <module>modules/rest</module>
@@ -122,6 +123,12 @@
       <dependency>
         <groupId>org.picketlink</groupId>
         <artifactId>picketlink-idm-complex-schema</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-json</artifactId>
         <version>${project.version}</version>
       </dependency>
 
