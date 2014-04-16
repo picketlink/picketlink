@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.picketlink.Identity.Stateless;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
@@ -54,12 +55,18 @@ public class AuthenticationFilter implements Filter {
     public static final String AUTH_TYPE_INIT_PARAM = "authType";
     public static final String UNPROTECTED_METHODS_INIT_PARAM = "unprotectedMethods";
     public static final String FORCE_REAUTHENTICATION_INIT_PARAM = "forceReAuthentication";
+    public static final String STATELESS_AUTHENTICATION_INIT_PARAM = "statelessAuthentication";
 
     private final Set<String> unprotectedMethods;
     private boolean forceReAuthentication;
+    private boolean statelessAuthentication;
 
     @Inject
     private Instance<Identity> identityInstance;
+
+    @Inject
+    @Stateless
+    private Instance<Identity> statelessIdentityInstance;
 
     @Inject
     private Instance<DefaultLoginCredentials> credentialsInstance;
@@ -102,11 +109,19 @@ public class AuthenticationFilter implements Filter {
         }
 
         this.forceReAuthentication = Boolean.valueOf(forceReAuthentication);
+
+        String statelessAuthentication = config.getInitParameter(STATELESS_AUTHENTICATION_INIT_PARAM);
+
+        if (isNullOrEmpty(statelessAuthentication)) {
+            statelessAuthentication = "false";
+        }
+
+        this.statelessAuthentication = Boolean.valueOf(statelessAuthentication);
     }
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException,
-    ServletException {
+        ServletException {
         if (!HttpServletRequest.class.isInstance(servletRequest)) {
             throw new ServletException("This filter can only process HttpServletRequest requests.");
         }
@@ -123,8 +138,10 @@ public class AuthenticationFilter implements Filter {
         }
 
         if (isProtected(request) && !identity.isLoggedIn()) {
-            // Force session creation
-            request.getSession();
+            if (!this.statelessAuthentication) {
+                // then we force session creation
+                request.getSession(true);
+            }
 
             if (creds.getCredential() != null) {
                 identity.login();
@@ -225,7 +242,11 @@ public class AuthenticationFilter implements Filter {
     }
 
     private Identity getIdentity() {
-        return getIdentity(this.identityInstance);
+        if (this.statelessAuthentication) {
+            return getIdentity(this.statelessIdentityInstance);
+        } else {
+            return getIdentity(this.identityInstance);
+        }
     }
 
     private Identity getIdentity(Instance<Identity> identityInstance) {
@@ -247,8 +268,10 @@ public class AuthenticationFilter implements Filter {
     }
 
     public enum AuthType {
-        BASIC(BasicAuthenticationScheme.class), DIGEST(DigestAuthenticationScheme.class), FORM(FormAuthenticationScheme.class), CLIENT_CERT(
-                ClientCertAuthenticationScheme.class);
+        BASIC(BasicAuthenticationScheme.class),
+        DIGEST(DigestAuthenticationScheme.class),
+        FORM(FormAuthenticationScheme.class),
+        CLIENT_CERT(ClientCertAuthenticationScheme.class);
 
         private final Class<? extends HTTPAuthenticationScheme> schemeType;
 

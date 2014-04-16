@@ -27,14 +27,18 @@ import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.shrinkwrap.api.Archive;
 import org.junit.Test;
 import org.picketlink.common.util.Base64;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
  * @author pedroigor
  */
 public class BasicAuthenticationSchemeTestCase extends AbstractAuthenticationSchemeTestCase {
+
+    public static final String SESSION_HEADER_NAME = "JSESSIONID";
 
     @Deployment (name = "default", testable = false)
     public static Archive<?> deployDefault() {
@@ -44,6 +48,11 @@ public class BasicAuthenticationSchemeTestCase extends AbstractAuthenticationSch
     @Deployment (name = "force-reauthentication", testable = false)
     public static Archive<?> deployWithReauthentication() {
         return deploy("force-reauthentication.war", "authc-filter-basic-reauthc-web.xml");
+    }
+
+    @Deployment (name = "stateless-reauthentication", testable = false)
+    public static Archive<?> deployWithStatelessAuthentication() {
+        return deploy("stateless-authentication.war", "authc-filter-basic-stateless-web.xml");
     }
 
     @Test
@@ -150,6 +159,64 @@ public class BasicAuthenticationSchemeTestCase extends AbstractAuthenticationSch
         response = client.loadWebResponse(request);
 
         assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getStatusCode());
+    }
+
+    @Test
+    @OperateOnDeployment("stateless-reauthentication")
+    public void testStatelessAuthentication() throws Exception {
+        WebClient client = new WebClient();
+        WebRequestSettings request = new WebRequestSettings(getProtectedResourceURL());
+        WebResponse response = client.loadWebResponse(request);
+
+        assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getStatusCode());
+
+        String authenticateHeader = response.getResponseHeaderValue("WWW-Authenticate");
+
+        assertNotNull(authenticateHeader);
+        assertTrue(authenticateHeader.contains("Basic realm=\"Test Realm\""));
+
+        prepareAuthenticationRequest(request, "john", "passwd");
+
+        response = client.loadWebResponse(request);
+
+        assertNull(client.getCookieManager().getCookie(SESSION_HEADER_NAME.toUpperCase()));
+
+        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+        assertEquals("Protected Page", response.getContentAsString());
+
+        request.setUrl(getContextPath());
+        client.loadWebResponse(request);
+
+        assertNull(client.getCookieManager().getCookie(SESSION_HEADER_NAME.toUpperCase()));
+    }
+
+    @Test
+    @OperateOnDeployment("default")
+    public void testStatefulAuthentication() throws Exception {
+        WebClient client = new WebClient();
+        WebRequestSettings request = new WebRequestSettings(getProtectedResourceURL());
+        WebResponse response = client.loadWebResponse(request);
+
+        assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getStatusCode());
+
+        String authenticateHeader = response.getResponseHeaderValue("WWW-Authenticate");
+
+        assertNotNull(authenticateHeader);
+        assertTrue(authenticateHeader.contains("Basic realm=\"Test Realm\""));
+
+        prepareAuthenticationRequest(request, "john", "passwd");
+
+        response = client.loadWebResponse(request);
+
+        assertNotNull(client.getCookieManager().getCookie(SESSION_HEADER_NAME.toUpperCase()));
+
+        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+        assertEquals("Protected Page", response.getContentAsString());
+
+        request.setUrl(getContextPath());
+        client.loadWebResponse(request);
+
+        assertNotNull(client.getCookieManager().getCookie(SESSION_HEADER_NAME.toUpperCase()));
     }
 
     private void prepareAuthenticationRequest(WebRequestSettings request, String john, String passwd) {
