@@ -159,4 +159,21 @@ public class IdentityConfiguration {
 
         return false;
     }
+
+    /**
+     * <p>Check if the configuration supports credential management.</p>
+     *
+     * <p>Permission management is supported if any of the configured identity stores support it.</p>
+     *
+     * @return
+     */
+    public boolean supportsPermission() {
+        for (IdentityStoreConfiguration storeConfiguration: getStoreConfiguration()) {
+            if (storeConfiguration.supportsPermissions()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

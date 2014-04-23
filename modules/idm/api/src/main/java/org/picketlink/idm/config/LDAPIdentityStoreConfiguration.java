@@ -170,6 +170,11 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         return false;
     }
 
+    @Override
+    public boolean supportsPermissions() {
+        return false;
+    }
+
     public String getUniqueIdentifierAttributeName() {
         String property = System.getProperty(ENTRY_IDENTIFIER_ATTRIBUTE_NAME);
 

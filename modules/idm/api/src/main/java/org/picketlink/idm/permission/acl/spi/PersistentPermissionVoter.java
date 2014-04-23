@@ -1,8 +1,5 @@
 package org.picketlink.idm.permission.acl.spi;
 
-import java.io.Serializable;
-import java.util.List;
-
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.PermissionManager;
 import org.picketlink.idm.RelationshipManager;
@@ -10,6 +7,9 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.permission.IdentityPermission;
 import org.picketlink.idm.permission.Permission;
 import org.picketlink.idm.permission.spi.PermissionVoter;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
  *

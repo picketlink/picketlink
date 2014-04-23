@@ -20,6 +20,7 @@ package org.picketlink.test.idm;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JDBCStoreConfigurationTester;
+import org.picketlink.test.idm.testers.JPAPermissionStoreConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreComplexSchemaConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
@@ -81,14 +82,11 @@ public class IdentityConfigurationTestFactory {
     private static List<IdentityConfigurationTester> getAllTesters() {
         List<IdentityConfigurationTester> testers = new ArrayList<IdentityConfigurationTester>();
 
-        testers.add(new FileStoreConfigurationTester());
-        testers.add(new JPAStoreConfigurationTester());
-        testers.add(new JPAStoreComplexSchemaConfigurationTester());
-        testers.add(new SingleConfigLDAPJPAStoreConfigurationTester());
-        testers.add(new LDAPStoreConfigurationTester());
-        testers.add(new LDAPUserGroupJPARoleConfigurationTester());
-        testers.add(new JDBCStoreConfigurationTester());
-        testers.add(new MultipleIdentityConfigurationTester());
+        testers.addAll(getFileStoreTesters());
+        testers.addAll(getJPAStoreTesters());
+        testers.addAll(getLDAPStoreTesters());
+        testers.addAll(getLDAPAndJPAStoreTesters());
+        testers.addAll(getJDBCStoreTesters());
 
         return testers;
     }
@@ -106,6 +104,7 @@ public class IdentityConfigurationTestFactory {
 
         testers.add(new JPAStoreConfigurationTester());
         testers.add(new JPAStoreComplexSchemaConfigurationTester());
+        testers.add(new JPAPermissionStoreConfigurationTester());
 
         return testers;
     }

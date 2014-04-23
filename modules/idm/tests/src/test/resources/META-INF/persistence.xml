@@ -44,6 +44,38 @@
     </properties>
   </persistence-unit>
 
+  <persistence-unit name="jpa-permission-store-tests-pu" transaction-type="RESOURCE_LOCAL">
+    <class>org.picketlink.idm.jpa.model.sample.simple.AttributedTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity</class>
+    <class>org.picketlink.test.idm.permission.entity.BasicPermissionTypeEntity</class>
+    <class>org.picketlink.test.idm.permission.entity.TypedPermissionTypeEntity</class>
+    <class>org.picketlink.test.idm.permission.entity.ProtectedEntity</class>
+
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+    <properties>
+      <!-- Hibernate Properties -->
+        <property name="hibernate.connection.url" value="jdbc:h2:mem:test"/>
+      <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
+      <property name="hibernate.connection.username" value="sa"/>
+      <property name="hibernate.connection.password" value=""/>
+      <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+      <property name="hibernate.show_sql" value="false"/>
+      <property name="hibernate.format_sql" value="true"/>
+
+        <!-- EclipseLink Properties-->
+        <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test;MVCC=TRUE"/>
+      <property name="javax.persistence.jdbc.user" value="sa"/>
+      <property name="javax.persistence.jdbc.password" value=""/>
+      <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>
+      <property name="eclipselink.deploy-on-startup" value="true" />
+      <property name="eclipselink.logging.level" value="INFO" />
+    </properties>
+  </persistence-unit>
+
   <persistence-unit name="ldap-usergroup-jpa-role-tests-pu" transaction-type="RESOURCE_LOCAL">
     <class>org.picketlink.idm.jpa.model.sample.simple.AttributedTypeEntity</class>
     <class>org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity</class>

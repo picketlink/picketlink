@@ -17,10 +17,11 @@
  */
 package org.picketlink.test;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.picketlink.annotations.PicketLink;
+import org.picketlink.test.idm.config.CustomConfigurationTestCase;
+import org.picketlink.test.util.ArchiveUtils;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
@@ -28,10 +29,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.picketlink.annotations.PicketLink;
-import org.picketlink.test.idm.config.CustomConfigurationTestCase;
-import org.picketlink.test.util.ArchiveUtils;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author pedroigor
@@ -39,14 +40,22 @@ import org.picketlink.test.util.ArchiveUtils;
 public abstract class AbstractJPADeploymentTestCase extends AbstractArquillianTestCase {
 
     public static WebArchive deploy(Class<?>... classesToAdd) {
+        return deploy("/META-INF/persistence.xml", classesToAdd);
+    }
+
+    public static WebArchive deploy(String persistenceXml, Class<?>... classesToAdd) {
+        return deploy("test.war", persistenceXml, classesToAdd);
+    }
+
+    public static WebArchive deploy(String deploymentName, String persistenceXml, Class<?>... classesToAdd) {
         List<Class> classes = new ArrayList<Class>(Arrays.asList(classesToAdd));
 
         classes.add(AbstractJPADeploymentTestCase.class);
         classes.add(AbstractArquillianTestCase.class);
 
-        WebArchive archive = ArchiveUtils.create(classes.toArray(new Class[classes.size()]));
+        WebArchive archive = ArchiveUtils.create(deploymentName, classes.toArray(new Class[classes.size()]));
 
-        archive.addAsResource(new File(CustomConfigurationTestCase.class.getResource("/META-INF/persistence.xml").getFile()), "META-INF/persistence.xml");
+        archive.addAsResource(new File(CustomConfigurationTestCase.class.getResource(persistenceXml).getFile()), "META-INF/persistence.xml");
         ArchiveUtils.addDependency(archive, "org.picketlink:picketlink-idm-simple-schema:" + ArchiveUtils.getCurrentProjectVersion());
 
         return archive;

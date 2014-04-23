@@ -161,4 +161,6 @@ public interface IDMInternalMessages extends IDMMessages {
     @Message(id = 800, value = "No PermissionStore configuration found for requested permission operation.")
     IdentityManagementException permissionUnsupportedOperation();
 
+    @Message(id = 801, value = "No @Entity class found to store permissions. Check if you have an @Entity class annotated with @PermissionManaged.")
+    IdentityManagementException configJpaStoreNoPermissionEntityClassProvided();
 }
