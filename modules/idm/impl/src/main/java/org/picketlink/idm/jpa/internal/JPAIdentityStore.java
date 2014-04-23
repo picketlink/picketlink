@@ -56,7 +56,6 @@ import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
 import org.picketlink.idm.jpa.annotations.entity.PermissionManaged;
 import org.picketlink.idm.jpa.internal.mappers.EntityMapper;
 import org.picketlink.idm.jpa.internal.mappers.EntityMapping;
-import org.picketlink.idm.jpa.internal.mappers.PermissionMapper;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
@@ -133,8 +132,6 @@ public class JPAIdentityStore
     public static final String EVENT_CONTEXT_IDENTITY = "IDENTITY_ENTITY";
 
     private final List<EntityMapper> entityMappers = new ArrayList<EntityMapper>();
-
-    private List<PermissionMapper> permissionMappers = new ArrayList<PermissionMapper>();
 
     @Override
     public void setup(JPAIdentityStoreConfiguration config) {
