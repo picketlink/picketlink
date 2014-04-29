@@ -17,8 +17,10 @@
  */
 package org.picketlink.authentication.web;
 
+import org.picketlink.BaseLog;
 import org.picketlink.Identity;
 import org.picketlink.annotations.PicketLink;
+import org.picketlink.authentication.AuthenticationException;
 import org.picketlink.credential.DefaultLoginCredentials;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -144,7 +146,11 @@ public class AuthenticationFilter implements Filter {
             }
 
             if (creds.getCredential() != null) {
-                identity.login();
+                try {
+                    identity.login();
+                } catch (AuthenticationException ae) {
+                    BaseLog.AUTHENTICATION_LOGGER.authenticationFailed(creds.getUserId(), ae);
+                }
             }
 
             if (identity.isLoggedIn()) {

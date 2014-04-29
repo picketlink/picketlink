@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.test.authentication.web;
+package org.picketlink.test.authentication.web.mock;
 
 import java.io.IOException;
 import java.io.InputStream;

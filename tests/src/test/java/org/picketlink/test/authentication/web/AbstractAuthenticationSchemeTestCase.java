@@ -17,19 +17,12 @@
  */
 package org.picketlink.test.authentication.web;
 
+import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.picketlink.test.AbstractArquillianTestCase;
+
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import org.jboss.arquillian.test.api.ArquillianResource;
-import org.jboss.shrinkwrap.api.asset.StringAsset;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.jboss.shrinkwrap.resolver.api.DependencyResolvers;
-import org.jboss.shrinkwrap.resolver.api.maven.MavenDependencyResolver;
-import org.picketlink.test.AbstractArquillianTestCase;
-import static org.picketlink.test.util.ArchiveUtils.create;
 
 /**
  * @author pedroigor
@@ -39,25 +32,12 @@ public abstract class AbstractAuthenticationSchemeTestCase extends AbstractArqui
     @ArquillianResource
     private URL contextPath;
 
-    public static WebArchive deploy(String name , String webXml, Class<?>... classesToAdd) {
-        List<Class<?>> classes = new ArrayList<Class<?>>();
+    public static WebArchive deploy(String name, String webXml, Class<?>... classesToAdd) {
+        WebArchive deployment = create(name, webXml, classesToAdd);
 
-        classes.add(Resources.class);
-        classes.addAll(Arrays.asList(classesToAdd));
+        deployment.addClass(Resources.class);
 
-        WebArchive archive = create(name, classes.toArray(new Class[classes.size()]));
-
-        archive.addAsLibraries(
-                DependencyResolvers.use(MavenDependencyResolver.class)
-                        .artifact("net.sourceforge.htmlunit:htmlunit:2.4")
-                        .resolveAs(JavaArchive.class));
-
-
-        archive.addAsWebResource(AbstractAuthenticationSchemeTestCase.class.getResource("/deployments/" + webXml), "WEB-INF/web.xml");
-        archive.add(new StringAsset("Index Page"), "index.html");
-        archive.add(new StringAsset("Protected Page"), "protected/index.html");
-
-        return archive;
+        return deployment;
     }
 
     public static WebArchive deploy(String webXml, Class<?>... classesToAdd) {

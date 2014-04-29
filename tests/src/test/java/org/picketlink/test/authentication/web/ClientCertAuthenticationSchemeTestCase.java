@@ -31,6 +31,8 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.picketlink.common.util.Base64;
+import org.picketlink.test.authentication.web.mock.MockClientCertAuthenticationFilter;
+
 import static org.junit.Assert.assertEquals;
 
 /**

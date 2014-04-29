@@ -21,9 +21,6 @@ import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
 import com.gargoylesoftware.htmlunit.WebResponse;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -31,6 +28,11 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -79,7 +81,7 @@ public class FormAuthenticationSchemeTestCase extends AbstractAuthenticationSche
         assertEquals(HttpStatus.SC_OK, response.getStatusCode());
         assertEquals("Login Page", response.getContentAsString());
 
-        prepareAuthenticationRequest(request, response, "john", "passwd");
+        prepareAuthenticationRequest(request, getProtectedResourceURL(), "john", "passwd");
 
         response = client.loadWebResponse(request);
 
@@ -107,7 +109,7 @@ public class FormAuthenticationSchemeTestCase extends AbstractAuthenticationSche
 
         assertEquals("Login Page", response.getContentAsString());
 
-        prepareAuthenticationRequest(request, response, "john", "bad_passwd");
+        prepareAuthenticationRequest(request, getProtectedResourceURL(), "john", "bad_passwd");
 
         response = client.loadWebResponse(request);
 
@@ -115,7 +117,7 @@ public class FormAuthenticationSchemeTestCase extends AbstractAuthenticationSche
 
     }
 
-    private void prepareAuthenticationRequest(WebRequestSettings request, WebResponse response, String userName, String password) {
+    static void prepareAuthenticationRequest(WebRequestSettings request, URL authenticationUrl, String userName, String password) {
         ArrayList<NameValuePair> parameters = new ArrayList<NameValuePair>();
 
         parameters.add(new NameValuePair("j_username", userName));
@@ -125,7 +127,7 @@ public class FormAuthenticationSchemeTestCase extends AbstractAuthenticationSche
         request.setRequestParameters(parameters);
 
         try {
-            request.setUrl(new URL(getProtectedResourceURL() + "/j_security_check"));
+            request.setUrl(new URL(authenticationUrl + "/j_security_check"));
         } catch (MalformedURLException e) {
             fail(e.getMessage());
         }

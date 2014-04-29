@@ -17,22 +17,22 @@
  */
 package org.picketlink.test.authentication.web;
 
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.model.basic.User;
+
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.PartitionManager;
-import org.picketlink.idm.credential.Digest;
-import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.model.basic.User;
 
 /**
  * @author pedroigor
  */
-@Singleton
 @Startup
-public class Resources {
+@Singleton
+public class DisabledAccountResources {
 
     public static final String DEFAULT_USERNAME = "john";
 
@@ -45,23 +45,12 @@ public class Resources {
 
         User user = new User(DEFAULT_USERNAME);
 
+        user.setEnabled(false);
+
         identityManager.add(user);
 
         Password password = new Password("passwd");
 
         identityManager.updateCredential(user, password);
-
-        Digest digestCredential = new Digest();
-
-        digestCredential.setRealm("Test Realm");
-        digestCredential.setUsername(user.getLoginName());
-        digestCredential.setPassword("passwd");
-
-        identityManager.updateCredential(user, digestCredential);
-
-        user = new User("jbid test");
-
-        identityManager.add(user);
     }
-
 }
