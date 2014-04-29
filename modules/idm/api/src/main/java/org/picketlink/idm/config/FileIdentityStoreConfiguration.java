@@ -75,4 +75,9 @@ public class FileIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
     public int getAsyncThreadPool() {
         return this.asyncThreadPool;
     }
+
+    @Override
+    public boolean supportsPermissions() {
+        return false; //TODO: permission support to the file store
+    }
 }

@@ -267,6 +267,12 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
         Partition storedPartition = getStoredPartition(partition);
 
+        IdentityConfiguration configuration = getConfigurationForPartition(storedPartition);
+
+        if (!configuration.supportsPermission()) {
+            throw MESSAGES.permissionUnsupportedOperation();
+        }
+
         try {
             return new ContextualPermissionManager(storedPartition, eventBridge, idGenerator,
                     permissionHandlerPolicy, this);
@@ -750,7 +756,6 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
     @Override
     public PermissionStore getStoreForPermissionOperation(IdentityContext context) {
-
         IdentityConfiguration identityConfiguration = null;
 
         if (this.partitionManagementConfig != null) {

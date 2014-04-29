@@ -17,12 +17,16 @@
  */
 package org.picketlink.idm.jpa.internal.mappers;
 
+import org.picketlink.common.properties.Property;
+import org.picketlink.idm.jpa.annotations.AttributeClass;
 import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.model.Attribute;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
 
 /**
  * @author pedroigor
@@ -31,8 +35,7 @@ public class AttributeTypeMapper extends AbstractModelMapper {
 
     @Override
     public boolean supports(Class<?> entityType) {
-        return  getAnnotatedProperty(AttributeName.class, entityType) != null
-                && getAnnotatedProperty(AttributeValue.class, entityType) != null;
+        return  getAnnotatedProperty(AttributeClass.class, entityType) != null;
     }
 
     @Override
@@ -41,8 +44,23 @@ public class AttributeTypeMapper extends AbstractModelMapper {
 
         EntityMapping entityMapping = new EntityMapping(Attribute.class);
 
-        entityMapping.addProperty(getNamedProperty("name", Attribute.class), getAnnotatedProperty(AttributeName.class, entityType));
-        entityMapping.addProperty(getNamedProperty("value", Attribute.class), getAnnotatedProperty(AttributeValue.class, entityType));
+        entityMapping.addNotNullMappedProperty(getAnnotatedProperty(AttributeClass.class, entityType));
+
+        Property nameProperty = getAnnotatedProperty(AttributeName.class, entityType);
+
+        if (nameProperty == null) {
+            throw MESSAGES.configJpaStoreRequiredMappingAnnotation(entityType, AttributeName.class);
+        }
+
+        entityMapping.addProperty(getNamedProperty("name", Attribute.class), nameProperty);
+
+        Property valueProperty = getAnnotatedProperty(AttributeValue.class, entityType);
+
+        if (valueProperty == null) {
+            throw MESSAGES.configJpaStoreRequiredMappingAnnotation(entityType, AttributeValue.class);
+        }
+
+        entityMapping.addProperty(getNamedProperty("value", Attribute.class), valueProperty);
 
         entityMapping.addOwnerProperty(entityType);
 

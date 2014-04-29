@@ -138,17 +138,6 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
     }
 
     @Override
-    public boolean supportsPartition() {
-        for (Class<?> supportedType : getSupportedTypes().keySet()) {
-            if (Partition.class.isAssignableFrom(supportedType)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    @Override
     public Class<? extends IdentityStore> getIdentityStoreType() {
         return this.identityStoreType;
     }
@@ -170,6 +159,17 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
     @Override
     public List<ContextInitializer> getContextInitializers() {
         return this.contextInitializers;
+    }
+
+    @Override
+    public boolean supportsPartition() {
+        for (Class<?> supportedType : getSupportedTypes().keySet()) {
+            if (Partition.class.isAssignableFrom(supportedType)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override

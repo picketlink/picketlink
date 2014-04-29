@@ -18,11 +18,11 @@
 
 package org.picketlink.idm.permission.acl.spi;
 
+import org.picketlink.idm.permission.annotations.PermissionsHandledBy;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.picketlink.idm.permission.annotations.PermissionsHandledBy;
 
 /**
  * An Identifier strategy for class-based permission checks
@@ -71,6 +71,6 @@ public class ClassPermissionHandler extends BaseAbstractPermissionHandler implem
 
     @Override
     public Class<?> unwrapResourceClass(Object resource) {
-        return Class.class;
+        return Class.class.isInstance(resource) ? (Class<?>) resource : resource.getClass();
     }
 }
