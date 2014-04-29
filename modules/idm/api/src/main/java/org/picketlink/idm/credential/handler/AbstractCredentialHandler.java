@@ -72,6 +72,8 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
         for (Class<? extends Account> accountType : getDefaultAccountTypes()) {
             IdentityQuery<Account> query = (IdentityQuery<Account>) identityManager.createIdentityQuery(accountType);
 
+            query.setParameter(Account.PARTITION, context.getPartition());
+
             String defaultAccountLoginNameProperty = this.defaultAccountLoginNameProperty;
 
             if (Agent.class.isAssignableFrom(accountType)) {

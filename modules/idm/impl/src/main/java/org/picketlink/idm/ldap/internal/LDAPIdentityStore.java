@@ -181,6 +181,10 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         List<V> results = new ArrayList<V>();
 
         try {
+            if (identityQuery.getParameter(IdentityType.PARTITION) != null) {
+                return results;
+            }
+
             if (identityQuery.getParameter(IdentityType.ID) != null) {
                 Object[] queryParameterValues = identityQuery.getParameter(IdentityType.ID);
                 SearchResult search = this.operationManager.lookupById(getConfig().getBaseDN(), queryParameterValues[0].toString(), null);

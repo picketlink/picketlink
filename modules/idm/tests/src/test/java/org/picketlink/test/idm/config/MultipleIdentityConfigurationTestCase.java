@@ -70,7 +70,7 @@ public class MultipleIdentityConfigurationTestCase extends AbstractPartitionMana
 
         IdentityManager ldapIdentityManager = partitionManager.createIdentityManager(ldapRealm);
 
-        User mary = new User("mary");
+        User mary = new User("bob");
         Password maryPassword = new Password("ldapMary");
 
         ldapIdentityManager.add(mary);
