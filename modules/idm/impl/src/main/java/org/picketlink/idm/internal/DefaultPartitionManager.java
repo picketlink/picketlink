@@ -218,17 +218,19 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
 
                 for (IdentityStoreConfiguration storeConfig : config.getStoreConfiguration()) {
                     storeMap.put(storeConfig, createIdentityStore(storeConfig));
+
+                    // Register all known relationship types so that the privilege chain query can determine inherited privileges
+                    for (Class<? extends AttributedType> supportedType : storeConfig.getSupportedTypes().keySet()) {
+                        if (Relationship.class.isAssignableFrom(supportedType)) {
+                            this.privilegeChainQuery.registerRelationshipType((Class<Relationship>) supportedType);
+                        }
+                    }
                 }
 
                 configuredStores.put(config, Collections.unmodifiableMap(storeMap));
-
-                // Register all known relationship types so that the privilege chain query can determine inherited privileges
-                for (Class<? extends Relationship> relationshipType : config.getRegisteredRelationshipTypes()) {
-                    privilegeChainQuery.registerRelationshipType(relationshipType);
-                }
             }
 
-            stores = Collections.unmodifiableMap(configuredStores);
+            this.stores = Collections.unmodifiableMap(configuredStores);
         } catch (Exception e) {
             throw MESSAGES.partitionManagerInitializationFailed(this.getClass(), e);
         }

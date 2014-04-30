@@ -20,10 +20,14 @@ package org.picketlink.test.idm.testers;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.GroupTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity;
-import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.jpa.model.sample.simple.RelationshipIdentityTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
+import org.picketlink.idm.model.basic.Grant;
+import org.picketlink.idm.model.basic.GroupMembership;
 import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.test.idm.permission.entity.BasicPermissionTypeEntity;
 import org.picketlink.test.idm.permission.entity.TypedPermissionTypeEntity;
@@ -56,8 +60,12 @@ public class JPAPermissionStoreConfigurationTester implements IdentityConfigurat
                             PartitionTypeEntity.class,
                             IdentityTypeEntity.class,
                             AccountTypeEntity.class,
+                            RoleTypeEntity.class,
+                            GroupTypeEntity.class,
                             BasicPermissionTypeEntity.class,
-                            TypedPermissionTypeEntity.class
+                            TypedPermissionTypeEntity.class,
+                            RelationshipTypeEntity.class,
+                            RelationshipIdentityTypeEntity.class
                         )
                         .addContextInitializer(new JPAContextInitializer(null) {
                             @Override
@@ -65,7 +73,8 @@ public class JPAPermissionStoreConfigurationTester implements IdentityConfigurat
                                 return entityManager;
                             }
                         })
-                        .supportType(Partition.class, Account.class)
+                        .supportAllFeatures()
+                        .supportGlobalRelationship(Grant.class, GroupMembership.class) // to check privileges inheritance we need to define all rel types
                         .supportPermissions(true)
                         .supportCredentials(false)
                         .supportAttributes(false);
