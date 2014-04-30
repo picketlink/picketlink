@@ -17,15 +17,10 @@
  */
 package org.picketlink.idm.config;
 
+import org.picketlink.idm.spi.RelationshipPolicy;
+
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.spi.RelationshipPolicy;
 
 /**
  * <p>A class used to build {@link IdentityConfiguration} instances.</p>
@@ -37,10 +32,6 @@ public class NamedIdentityConfigurationBuilder extends AbstractIdentityConfigura
     private final IdentityStoresConfigurationBuilder identityStoresConfigurationBuilder;
     private final String name;
 
-    private Set<Class<? extends IdentityType>> registeredIdentityTypes = new HashSet<Class<? extends IdentityType>>();
-
-    private Set<Class<? extends Relationship>> registeredRelationshipTypes = new HashSet<Class<? extends Relationship>>();
-
     protected NamedIdentityConfigurationBuilder(String name, IdentityConfigurationBuilder builder) {
         super(builder);
 
@@ -50,14 +41,6 @@ public class NamedIdentityConfigurationBuilder extends AbstractIdentityConfigura
 
         this.identityStoresConfigurationBuilder = new IdentityStoresConfigurationBuilder(this);
         this.name = name;
-    }
-
-    public void registerIdentityType(Class<? extends IdentityType> identityType) {
-        registeredIdentityTypes.add(identityType);
-    }
-
-    public void registerRelationshipType(Class<? extends Relationship> relationshipType) {
-        registeredRelationshipTypes.add(relationshipType);
     }
 
     /**
@@ -75,8 +58,7 @@ public class NamedIdentityConfigurationBuilder extends AbstractIdentityConfigura
         return new IdentityConfiguration(this.name,
                 this.identityStoresConfigurationBuilder.create(),
                 new RelationshipPolicy(this.identityStoresConfigurationBuilder.getSelfRelationships(),
-                        this.identityStoresConfigurationBuilder.getGlobalRelationships()),
-                registeredIdentityTypes, registeredRelationshipTypes);
+                        this.identityStoresConfigurationBuilder.getGlobalRelationships()));
     }
 
     @Override

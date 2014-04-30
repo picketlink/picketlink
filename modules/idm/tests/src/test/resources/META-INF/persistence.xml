@@ -47,11 +47,15 @@
   <persistence-unit name="jpa-permission-store-tests-pu" transaction-type="RESOURCE_LOCAL">
     <class>org.picketlink.idm.jpa.model.sample.simple.AttributedTypeEntity</class>
     <class>org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.GroupTypeEntity</class>
     <class>org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity</class>
     <class>org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity</class>
     <class>org.picketlink.test.idm.permission.entity.BasicPermissionTypeEntity</class>
     <class>org.picketlink.test.idm.permission.entity.TypedPermissionTypeEntity</class>
     <class>org.picketlink.test.idm.permission.entity.ProtectedEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.RelationshipIdentityTypeEntity</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
