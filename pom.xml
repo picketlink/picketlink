@@ -220,6 +220,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
+          <version>2.2.1</version>
           <executions>
             <execution>
               <id>attach-sources</id>
@@ -251,28 +252,6 @@
             <nexusUrl>https://repository.jboss.org/nexus</nexusUrl>
             <serverAuthId>jboss-releases-repository</serverAuthId>
           </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-assembly-plugin</artifactId>
-          <version>2.4</version>
-          <executions>
-            <execution>
-              <id>distribution</id>
-              <phase>package</phase>
-              <goals>
-                <goal>single</goal>
-              </goals>
-              <configuration>
-                <descriptors>
-                  <descriptor>src/main/assembly/assembly.xml</descriptor>
-                </descriptors>
-                <finalName>${project.build.finalName}-${project.version}</finalName>
-                <appendAssemblyId>false</appendAssemblyId>
-              </configuration>
-            </execution>
-          </executions>
         </plugin>
 
         <plugin>
@@ -335,16 +314,15 @@
         </property>
       </activation>
       <modules>
-        <module>maven-plugins/picketlink-jdocbook-style</module>
-        <module>docs</module>
-        <module>dist</module>
+        <!-- PLINK-424: Enable docs once CCMS is integrated to the build. -->
+        <!--<module>maven-plugins/picketlink-jdocbook-style</module>-->
+        <!--<module>docs</module>-->
       </modules>
       <build>
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>2.2.1</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -355,8 +333,26 @@
             </executions>
           </plugin>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.9.1</version>
+            <executions>
+              <execution>
+                <id>javadoc-jar</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>aggregate</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${project.build.directory}/javadoc</outputDirectory>
+                  <includeDependencySources>false</includeDependencySources>
+                  <excludePackageNames>org.picketlink.identity.federation.*:org.picketlink.common.*:org.picketlink.config.*:org.picketlink.social.*:org.picketlink.scim.*:org.picketlink.oauth.*</excludePackageNames>
+                  <links>
+                    <link>http://docs.oracle.com/javaee/6/api/</link>
+                    <link>http://docs.oracle.com/javase/6/docs/api/</link>
+                  </links>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>
