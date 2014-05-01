@@ -210,7 +210,6 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                 SAML2Request saml2Request = new SAML2Request();
                 try {
                     LogoutRequestType lort = saml2Request.createLogoutRequest(request.getIssuer().getValue());
-                    
                     // set NameID as per the SAML2 spec
                     Principal userPrincipal = httpRequest.getUserPrincipal();
                     if (userPrincipal == null) {
@@ -225,10 +224,8 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                     }
                     nameID.setFormat(URI.create(nameIDFormat));
                     lort.setNameID(nameID);
-                    
                     // set destination as per the SAML2 spec
                     lort.setDestination(URI.create(nextParticipant));
-                    
                     response.setResultingDocument(saml2Request.convert(lort));
                     response.setSendRequest(true);
                 } catch (Exception e) {
