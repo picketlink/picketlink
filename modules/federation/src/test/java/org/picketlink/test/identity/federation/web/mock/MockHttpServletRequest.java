@@ -60,6 +60,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     private String queryString;
 
+    public MockHttpServletRequest(String methodType) {
+        this(new MockHttpSession(), methodType);
+    }
+
     public MockHttpServletRequest(HttpSession session, String methodType) {
         this.session = session;
         this.methodType = methodType;

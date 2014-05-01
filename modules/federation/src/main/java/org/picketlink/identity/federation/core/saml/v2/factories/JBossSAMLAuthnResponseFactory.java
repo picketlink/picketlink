@@ -19,6 +19,7 @@ package org.picketlink.identity.federation.core.saml.v2.factories;
 
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
@@ -66,6 +67,32 @@ public class JBossSAMLAuthnResponseFactory {
 
         StatusType statusType = new StatusType();
         statusType.setStatusCode(sct);
+        return statusType;
+    }
+
+    /**
+     * <p>Create a <code>StatusType</code> with a top-level <code>org.picketlink.common.constants.JBossSAMLURIConstants.STATUS_RESPONDER</code>
+     * and a second-level code reflecting the given <code>statusCodeURI</code>.</p>
+     *
+     * @param statusCodeURI The second-level code.
+     *
+     * @return
+     */
+    public static StatusType createStatusTypeForResponder(String statusCodeURI) {
+        StatusCodeType topLevelCode = new StatusCodeType();
+
+        topLevelCode.setValue(URI.create(JBossSAMLURIConstants.STATUS_RESPONDER.get()));
+
+        StatusCodeType secondLevelCode = new StatusCodeType();
+
+        secondLevelCode.setValue(URI.create(statusCodeURI));
+
+        topLevelCode.setStatusCode(secondLevelCode);
+
+        StatusType statusType = new StatusType();
+
+        statusType.setStatusCode(topLevelCode);
+
         return statusType;
     }
 
