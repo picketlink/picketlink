@@ -83,6 +83,13 @@
         <version>${project.version}</version>
       </dependency>
 
+      <!-- PicketLink Social dependencies -->
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-social</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
