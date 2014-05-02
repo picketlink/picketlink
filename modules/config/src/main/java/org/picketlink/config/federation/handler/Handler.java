@@ -52,6 +52,7 @@ public class Handler {
     protected List<KeyValueType> option = new ArrayList<KeyValueType>();
     protected String name;
     protected String clazz;
+    protected Class type;
 
     public void add(KeyValueType kv) {
         this.option.add(kv);
@@ -99,6 +100,10 @@ public class Handler {
      *
      */
     public String getClazz() {
+        if (this.type != null) {
+            return this.type.getName();
+        }
+
         return clazz;
     }
 
@@ -112,4 +117,11 @@ public class Handler {
         this.clazz = value;
     }
 
+    public Class getType() {
+        return this.type;
+    }
+
+    public void setType(Class type) {
+        this.type = type;
+    }
 }

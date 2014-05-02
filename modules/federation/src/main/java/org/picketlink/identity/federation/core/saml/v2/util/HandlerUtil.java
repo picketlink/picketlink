@@ -51,33 +51,45 @@ public class HandlerUtil {
         Set<SAML2Handler> handlerSet = new LinkedHashSet<SAML2Handler>();
 
         for (Handler handler : handlerList) {
+            SAML2Handler samlhandler = createInstance(handler);
+
+            List<KeyValueType> options = handler.getOption();
+
+            Map<String, Object> mapOptions = new HashMap<String, Object>();
+
+            for (KeyValueType kvtype : options) {
+                mapOptions.put(kvtype.getKey(), kvtype.getValue());
+            }
+
+            SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
+
+            handlerConfig.set(mapOptions);
+
+            samlhandler.initHandlerConfig(handlerConfig);
+
+            handlerSet.add(samlhandler);
+        }
+
+        return handlerSet;
+    }
+
+    private static SAML2Handler createInstance(Handler handler) throws ConfigurationException {
+        Class<?> clazz = handler.getType();
+
+        if (clazz == null) {
             String clazzName = handler.getClazz();
 
-            Class<?> clazz;
-            try {
-                clazz = SecurityActions.loadClass(HandlerUtil.class, clazzName);
-                if (clazz == null)
-                    throw new RuntimeException(logger.classNotLoadedError(clazzName));
-                SAML2Handler samlhandler = (SAML2Handler) clazz.newInstance();
-                List<KeyValueType> options = handler.getOption();
+            clazz = SecurityActions.loadClass(HandlerUtil.class, clazzName);
 
-                Map<String, Object> mapOptions = new HashMap<String, Object>();
-
-                for (KeyValueType kvtype : options) {
-                    mapOptions.put(kvtype.getKey(), kvtype.getValue());
-                }
-                SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
-                handlerConfig.set(mapOptions);
-
-                samlhandler.initHandlerConfig(handlerConfig);
-
-                handlerSet.add(samlhandler);
-            } catch (InstantiationException e) {
-                throw logger.configurationError(e);
-            } catch (IllegalAccessException e) {
-                throw logger.configurationError(e);
+            if (clazz == null) {
+                throw logger.configurationError(logger.classNotLoadedError(clazzName));
             }
         }
-        return handlerSet;
+
+        try {
+            return (SAML2Handler) clazz.newInstance();
+        } catch (Exception e) {
+            throw logger.configurationError(e);
+        }
     }
 }
