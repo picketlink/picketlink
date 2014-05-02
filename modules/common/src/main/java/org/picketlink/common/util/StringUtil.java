@@ -110,6 +110,9 @@ public class StringUtil {
                 sysPropertyValue = SecurityActions.getSystemProperty(subString, defaultValue);
                 if (sysPropertyValue.isEmpty()) {
                     throw logger.systemPropertyMissingError(matcher.group(1));
+                }else{
+                    // sanitize the value before we use append-and-replace
+                    sysPropertyValue = Matcher.quoteReplacement(sysPropertyValue);
                 }
                 matcher.appendReplacement(buffer, sysPropertyValue);
             }
