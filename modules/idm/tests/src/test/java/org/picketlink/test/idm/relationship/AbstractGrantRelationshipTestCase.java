@@ -32,11 +32,12 @@ import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 
 import java.util.List;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * <p>
- * Test case for the relationship between {@link Agent} and {@link Role} types.
+ * Test case for the relationship between {@link org.picketlink.idm.model.basic.Agent} and {@link Role} types.
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *

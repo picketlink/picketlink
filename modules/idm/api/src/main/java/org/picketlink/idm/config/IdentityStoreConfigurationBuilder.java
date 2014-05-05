@@ -27,6 +27,9 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.basic.Grant;
+import org.picketlink.idm.model.basic.GroupMembership;
+import org.picketlink.idm.model.basic.GroupRole;
 import org.picketlink.idm.spi.ContextInitializer;
 
 import java.util.ArrayList;
@@ -172,6 +175,9 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
         supportType(getDefaultIdentityModelClasses());
         supportCredentials(true);
         supportGlobalRelationship(Relationship.class);
+        supportGlobalRelationship(Grant.class);
+        supportGlobalRelationship(GroupMembership.class);
+        supportGlobalRelationship(GroupRole.class);
         supportAttributes(true);
         supportPermissions(true);
 
@@ -331,9 +337,6 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
 
         // identity types
         classes.add(IdentityType.class);
-
-        // relationship types
-        classes.add(Relationship.class);
 
         // partition types
         classes.add(Partition.class);
