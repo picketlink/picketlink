@@ -1,0 +1,16 @@
+<saml2:Assertion Version="2.0"
+  ID="SamlAssertion-2bd4af0efb2d90c0cab251b0e1fed886" IssueInstant="2014-02-04T12:46:58.807Z"
+  xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+  <saml2:Issuer>foo.com</saml2:Issuer>
+  <saml2:Subject>
+    <saml2:NameID
+      Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"
+      NameQualifier="foo.com">fooissuer</saml2:NameID>
+  </saml2:Subject>
+  <saml2:AttributeStatement>
+    <saml2:Attribute Name="someEmptyAttribute"
+      NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+      <saml2:AttributeValue />
+    </saml2:Attribute>
+  </saml2:AttributeStatement>
+</saml2:Assertion>

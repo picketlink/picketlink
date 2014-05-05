@@ -307,7 +307,10 @@ public class SAMLParserUtil {
                 if (tag.equals(JBossSAMLConstants.NAMEID.get())) {
                     return parseNameIDType(xmlEventReader);
                 }
+            } else if (xmlEvent instanceof EndElement) {
+                return "";
             }
+
             throw logger.unsupportedType(StaxParserUtil.getStartElementName(startElement));
         }
 
