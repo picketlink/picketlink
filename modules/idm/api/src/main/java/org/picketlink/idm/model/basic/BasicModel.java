@@ -444,7 +444,13 @@ public class BasicModel {
         query.setParameter(Grant.ASSIGNEE, assignee);
         query.setParameter(GroupRole.ROLE, role);
 
-        return !query.getResultList().isEmpty();
+        boolean hasRole = !query.getResultList().isEmpty();
+
+        if (!hasRole) {
+            return relationshipManager.inheritsPrivileges(assignee, role);
+        }
+
+        return hasRole;
     }
 
     /**

@@ -22,10 +22,14 @@ import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.basic.Agent;
+import org.picketlink.idm.model.basic.Grant;
 import org.picketlink.idm.model.basic.Group;
+import org.picketlink.idm.model.basic.GroupMembership;
+import org.picketlink.idm.model.basic.GroupRole;
 import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.basic.AttributeReferenceTypeEntity;
+import org.picketlink.test.idm.relationship.CustomRelationshipTestCase;
 import org.picketlink.test.idm.relationship.CustomRelationshipTypeEntity;
 import org.picketlink.test.idm.relationship.RelationshipIdentityTypeReferenceEntity;
 import org.picketlink.test.idm.util.JPAContextInitializer;
@@ -74,7 +78,7 @@ public class SingleConfigLDAPJPAStoreConfigurationTester implements IdentityConf
                                 return entityManager;
                             }
                         })
-                        .supportGlobalRelationship(Relationship.class)
+                        .supportGlobalRelationship(CustomRelationshipTestCase.CustomRelationship.class, Grant.class, GroupRole.class, GroupMembership.class)
                         .supportAttributes(true)
                     .ldap()
                         .baseDN(embeddedServer.getBaseDn())

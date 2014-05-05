@@ -27,8 +27,10 @@ import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.Configuration;
+import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAPermissionStoreConfigurationTester;
+import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 
 import static org.junit.Assert.assertTrue;
 
@@ -40,7 +42,7 @@ import static org.junit.Assert.assertTrue;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@Configuration(include= {JPAPermissionStoreConfigurationTester.class})
+@Configuration(include= {JPAPermissionStoreConfigurationTester.class, FileStoreConfigurationTester.class, LDAPStoreConfigurationTester.class})
 public class InheritsPrivilegeTestCase extends AbstractPartitionManagerTestCase {
 
     public InheritsPrivilegeTestCase(IdentityConfigurationTester builder) {

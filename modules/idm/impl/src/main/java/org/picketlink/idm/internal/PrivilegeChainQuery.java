@@ -89,20 +89,30 @@ public class PrivilegeChainQuery {
 
         query.setParameter(Relationship.IDENTITY, identity);
 
+        boolean hasPrivileges = false;
+
         for (Relationship relationship : new ArrayList<Relationship>(query.getResultList())) {
             Map<Property<IdentityType>, Property<IdentityType>> propertyPropertyMap = this.privilegeChains.get(relationship.getClass());
 
             if (propertyPropertyMap != null) {
                 for (Property<IdentityType> identityProperty : propertyPropertyMap.keySet()) {
                     Property<IdentityType> assigneeProperty = propertyPropertyMap.get(identityProperty);
-                    IdentityType relationshipAssignee = assigneeProperty.getValue(relationship);
 
-                    // if the relationship assignee is the same as the given target assignee, we have a match.
-                    if (relationshipAssignee.equals(assignee)) {
-                        return true;
-                    } else if (!identity.equals(relationshipAssignee)) {
-                        // we continue the inheritance lookup if the identity is not the same as the relationship assignee
-                        return inheritsPrivileges(relationshipManager, relationshipAssignee, assignee);
+                    // only do the check if the relationship is the same type of the declaring class of the assignee property
+                    if (assigneeProperty.getDeclaringClass().equals(relationship.getClass())) {
+                        IdentityType relationshipAssignee = assigneeProperty.getValue(relationship);
+
+                        // if the relationship assignee is the same as the given target assignee, we have a match.
+                        if (relationshipAssignee.equals(assignee)) {
+                            hasPrivileges = true;
+                        } else if (!identity.equals(relationshipAssignee)) {
+                            // we continue the inheritance lookup if the identity is not the same as the relationship assignee
+                            hasPrivileges = inheritsPrivileges(relationshipManager, relationshipAssignee, assignee);
+                        }
+
+                        if (hasPrivileges) {
+                            return true;
+                        }
                     }
                 }
             }

@@ -18,7 +18,13 @@
 
 package org.picketlink.test.idm.relationship;
 
+import org.junit.Test;
+import org.picketlink.idm.RelationshipManager;
+import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.basic.BasicModel;
+import org.picketlink.idm.model.basic.Group;
+import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
@@ -27,6 +33,9 @@ import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPUserGroupJPARoleConfigurationTester;
 import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
+
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * <p>
@@ -48,7 +57,53 @@ public class UserGrantRelationshipTestCase extends AbstractGrantRelationshipTest
     protected User createIdentityType(String name) {
         return createIdentityType(name, null);
     }
-    
+
+    /**
+     * <p>
+     * Tests if roles are inherited from groups.
+     * </p>
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testInheritedRolesFromGroup() throws Exception {
+        User someUser = createIdentityType("someUser");
+        Role someRole = createRole("someRole");
+        Group someGroup = createGroup("someGroup");
+        Group someAnotherGroup = createGroup("someAnotherGroup");
+
+        RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
+
+        BasicModel.addToGroup(relationshipManager, someUser, someGroup);
+        BasicModel.addToGroup(relationshipManager, someUser, someAnotherGroup);
+
+        assertTrue(BasicModel.isMember(relationshipManager, someUser, someGroup));
+        assertTrue(BasicModel.isMember(relationshipManager, someUser, someAnotherGroup));
+
+        assertFalse(BasicModel.hasRole(relationshipManager, someGroup, someRole));
+        assertFalse(BasicModel.hasRole(relationshipManager, someAnotherGroup, someRole));
+        assertFalse(BasicModel.hasRole(relationshipManager, someUser, someRole));
+
+        BasicModel.grantRole(relationshipManager, someGroup, someRole);
+
+        assertTrue(BasicModel.hasRole(relationshipManager, someGroup, someRole));
+        assertTrue(BasicModel.hasRole(relationshipManager, someUser, someRole));
+        assertFalse(BasicModel.hasRole(relationshipManager, someAnotherGroup, someRole));
+
+        BasicModel.removeFromGroup(relationshipManager, someUser, someGroup);
+
+        assertFalse(BasicModel.hasRole(relationshipManager, someUser, someRole));
+
+        BasicModel.grantRole(relationshipManager, someAnotherGroup, someRole);
+
+        assertTrue(BasicModel.hasRole(relationshipManager, someUser, someRole));
+
+        BasicModel.revokeRole(relationshipManager, someAnotherGroup, someRole);
+
+        assertFalse(BasicModel.hasRole(relationshipManager, someAnotherGroup, someRole));
+        assertFalse(BasicModel.hasRole(relationshipManager, someUser, someRole));
+    }
+
     @Override
     protected User createIdentityType(String name, Partition partition) {
         if (name == null) {
