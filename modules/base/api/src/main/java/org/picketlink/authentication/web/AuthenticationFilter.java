@@ -23,7 +23,6 @@ import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.AuthenticationException;
 import org.picketlink.credential.DefaultLoginCredentials;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -51,7 +50,6 @@ import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
  * @author Shane Bryzak
  * @author Pedro Igor
  */
-@ApplicationScoped
 public class AuthenticationFilter implements Filter {
 
     public static final String AUTH_TYPE_INIT_PARAM = "authType";
