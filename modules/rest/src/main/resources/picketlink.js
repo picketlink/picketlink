@@ -41,5 +41,23 @@ var pl = {
     r.open("POST", pl.basePath + "/auth/login", true);
     r.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     r.send(JSON.stringify({username: username, password: password}));
+  },
+  logout: function(callback) {
+    var cb = function(response) {
+      if (typeof response == "string" && response.length > 0) {
+        var result = JSON.parse(response);
+        if (result == true) {
+          pl.loggedIn = false;
+          pl.account = null;
+          if (callback) {
+            callback.call();
+          }
+        }
+      }
+    }
+    var r = pl.createRequestObject(cb);
+    r.open("GET", pl.basePath + "/auth/logout", true);
+    r.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    r.send();
   }
 };

@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -52,5 +53,18 @@ public class AuthenticationEndpoint {
         }
 
         return identity.getAccount();
+    }
+
+    /**
+     * Logs out the currently authenticated user
+     *
+     * @return
+     */
+    @GET
+    @Path("/logout")
+    @Produces(MediaType.APPLICATION_JSON)
+    public boolean logout() {
+        identity.logout();
+        return true;
     }
 }
