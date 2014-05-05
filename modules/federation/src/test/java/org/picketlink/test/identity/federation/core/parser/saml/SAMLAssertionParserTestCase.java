@@ -21,6 +21,7 @@ import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
@@ -50,6 +51,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -286,5 +288,39 @@ public class SAMLAssertionParserTestCase extends AbstractParserTest {
         SAMLParser parser = new SAMLParser();
         AssertionType assertion = (AssertionType) parser.parse(configStream);
         assertNotNull(assertion);
+    }
+
+    @Test
+    public void showParserIsFailingWithEmptyAttributeValue() throws ParsingException {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream is = tcl.getResourceAsStream("parser/saml2/saml-assertion-empty-attrvalue.xml");
+
+        SAMLParser parser = new SAMLParser();
+
+        AssertionType assertion = (AssertionType) parser.parse(is);
+
+        assertNotNull(assertion);
+
+        Set<StatementAbstractType> statements = assertion.getStatements();
+
+        assertFalse(statements.isEmpty());
+
+        AttributeStatementType attributeStatement = (AttributeStatementType) statements.iterator().next();
+
+        List<ASTChoiceType> attributes = attributeStatement.getAttributes();
+
+        assertFalse(attributes.isEmpty());
+
+        ASTChoiceType emptyAttribute = attributes.get(0);
+
+        assertEquals("someEmptyAttribute", emptyAttribute.getAttribute().getName());
+
+        List<Object> values = emptyAttribute.getAttribute().getAttributeValue();
+
+        assertFalse(values.isEmpty());
+
+        Object o = values.get(0);
+
+        assertEquals("", o);
     }
 }
