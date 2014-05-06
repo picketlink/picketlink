@@ -7,7 +7,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 
 /**
  * Returns JavaScript resources
@@ -38,8 +37,8 @@ public class ScriptEndpoint {
     }
 
     @GET
-    @Path("/picketlink")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Path("/picketlink.js")
+    @Produces("application/javascript")
     public String getPicketLinkClientScript() {
         return picketlinkScript;
     }
