@@ -20,8 +20,7 @@
 
         <!-- Checks for imports                              -->
         <module name="AvoidStarImport">
-          <property name="allowClassImports" value="false"/>
-          <property name="allowStaticMemberImports" value="false"/>
+            <property name="allowStaticMemberImports" value="true"/>
         </module>
         <module name="RedundantImport"/>
 
