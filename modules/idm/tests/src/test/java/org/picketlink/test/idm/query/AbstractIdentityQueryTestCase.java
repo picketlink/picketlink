@@ -38,6 +38,7 @@ import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPStoreConfigurationTester;
 import org.picketlink.test.idm.testers.LDAPUserGroupJPARoleConfigurationTester;
+import org.picketlink.test.idm.testers.MultipleIdentityConfigurationTester;
 import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTester;
 
 import java.util.ArrayList;
@@ -272,6 +273,10 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
 
     @Test
+    @Configuration(exclude = {LDAPStoreConfigurationTester.class,
+        SingleConfigLDAPJPAStoreConfigurationTester.class,
+        LDAPUserGroupJPARoleConfigurationTester.class,
+        MultipleIdentityConfigurationTester.class})
     public void testFindCreationDate() throws Exception {
         T identityType = createIdentityType(null, null);
 
