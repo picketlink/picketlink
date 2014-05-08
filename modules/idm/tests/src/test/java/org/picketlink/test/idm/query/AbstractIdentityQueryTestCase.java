@@ -273,7 +273,6 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
     @Test
     public void testFindCreationDate() throws Exception {
-        Thread.sleep(1000);
         T identityType = createIdentityType(null, null);
 
         IdentityManager identityManager = getIdentityManager();
@@ -281,6 +280,8 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         IdentityQuery<T> query = identityManager.<T>createIdentityQuery((Class<T>) identityType.getClass());
 
         query.setParameter(IdentityType.CREATED_DATE, identityType.getCreatedDate());
+
+        Thread.sleep(1000);
 
         // only the previously created user
         List<T> result = query.getResultList();
