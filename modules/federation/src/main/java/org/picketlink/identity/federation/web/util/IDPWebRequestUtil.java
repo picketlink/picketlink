@@ -303,6 +303,7 @@ public class IDPWebRequestUtil {
 
         responseType = saml2Response.createResponseType(id);
         responseType.setStatus(JBossSAMLAuthnResponseFactory.createStatusTypeForResponder(status));
+        responseType.setDestination(responseURL);
 
         // Lets see how the response looks like
         if (logger.isTraceEnabled()) {
