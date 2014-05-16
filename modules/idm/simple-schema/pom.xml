@@ -17,6 +17,7 @@
       <dependency>
          <groupId>org.picketlink</groupId>
          <artifactId>picketlink-idm-api</artifactId>
+         <scope>provided</scope>
       </dependency>
       <!-- JPA Identity Store Dependencies -->
       <dependency>
