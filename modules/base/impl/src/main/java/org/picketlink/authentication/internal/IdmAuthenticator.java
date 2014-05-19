@@ -47,6 +47,9 @@ public class IdmAuthenticator extends BaseAuthenticator {
 
         identityManager.validateCredentials(creds);
 
+        this.credentials.setStatus(creds.getStatus());
+        this.credentials.setValidatedAccount(creds.getValidatedAccount());
+
         if (Credentials.Status.VALID.equals(creds.getStatus())) {
             setStatus(AuthenticationStatus.SUCCESS);
             setAccount(creds.getValidatedAccount());
