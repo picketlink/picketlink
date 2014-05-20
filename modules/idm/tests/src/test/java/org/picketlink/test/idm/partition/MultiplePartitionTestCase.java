@@ -6,6 +6,9 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity;
@@ -36,12 +39,18 @@ import org.picketlink.test.idm.util.LDAPEmbeddedServer;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-
 import java.io.Serializable;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
-import static org.picketlink.common.constants.LDAPConstants.*;
+import static org.picketlink.common.constants.LDAPConstants.CN;
+import static org.picketlink.common.constants.LDAPConstants.CREATE_TIMESTAMP;
+import static org.picketlink.common.constants.LDAPConstants.EMAIL;
+import static org.picketlink.common.constants.LDAPConstants.GROUP_OF_NAMES;
+import static org.picketlink.common.constants.LDAPConstants.SN;
+import static org.picketlink.common.constants.LDAPConstants.UID;
 
 /**
  * @author pedroigor
@@ -82,12 +91,12 @@ public class MultiplePartitionTestCase {
 
         externalIdentityManager.add(mary);
 
-        User storeJpaJohn = BasicModel.getUser(externalIdentityManager, mary.getLoginName());
+        User storeJpaMary = BasicModel.getUser(externalIdentityManager, mary.getLoginName());
 
-        assertNotNull(storeJpaJohn);
-        assertEquals(mary.getId(), storeJpaJohn.getId());
+        assertNotNull(storeJpaMary);
+        assertEquals(mary.getId(), storeJpaMary.getId());
 
-        assertFalse(storeJpaJohn.getId().equals(storeLdapJohn.getId()));
+        assertFalse(storeJpaMary.getId().equals(storeLdapJohn.getId()));
 
         storeLdapJohn.setAttribute(new Attribute<Serializable>("name", "value"));
 
@@ -98,14 +107,46 @@ public class MultiplePartitionTestCase {
         // ldap store does not support ad-hoc attributes
         assertNull(storeLdapJohn.getAttribute("name"));
 
-        storeJpaJohn.setAttribute(new Attribute<Serializable>("name", "value"));
+        storeJpaMary.setAttribute(new Attribute<Serializable>("name", "value"));
 
-        externalIdentityManager.update(storeJpaJohn);
+        externalIdentityManager.update(storeJpaMary);
 
-        storeLdapJohn = BasicModel.getUser(externalIdentityManager, john.getLoginName());
+        storeJpaMary = BasicModel.getUser(externalIdentityManager, mary.getLoginName());
 
         // jpa store supports ad-hoc attributes
-        assertNotNull(storeJpaJohn.getAttribute("name"));
+        assertNotNull(storeJpaMary.getAttribute("name"));
+
+        Password johnPassword = new Password("internal");
+
+        internalIdentityManager.updateCredential(storeLdapJohn, johnPassword);
+
+        UsernamePasswordCredentials johnCredential = new UsernamePasswordCredentials();
+
+        johnCredential.setUsername(storeLdapJohn.getLoginName());
+        johnCredential.setPassword(johnPassword);
+
+        internalIdentityManager.validateCredentials(johnCredential);
+
+        assertEquals(Credentials.Status.VALID, johnCredential.getStatus());;
+
+        Password maryPassword = new Password("external");
+
+        externalIdentityManager.updateCredential(storeJpaMary, maryPassword);
+
+        UsernamePasswordCredentials maryCredential = new UsernamePasswordCredentials();
+
+        maryCredential.setUsername(storeJpaMary.getLoginName());
+        maryCredential.setPassword(maryPassword);
+
+        externalIdentityManager.validateCredentials(maryCredential);
+
+        assertEquals(Credentials.Status.VALID, maryCredential.getStatus());;
+
+        externalIdentityManager.validateCredentials(johnCredential);
+        assertEquals(Credentials.Status.INVALID, johnCredential.getStatus());;
+
+        internalIdentityManager.validateCredentials(maryCredential);
+        assertEquals(Credentials.Status.INVALID, maryCredential.getStatus());;
     }
 
     @Before
