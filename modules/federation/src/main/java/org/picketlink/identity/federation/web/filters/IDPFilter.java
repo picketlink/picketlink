@@ -1087,13 +1087,7 @@ public class IDPFilter implements Filter {
         }
     }
 
-    /**
-     * <p>
-     * Initializes the IDP configuration.
-     * </p>
-     */
-    @SuppressWarnings("deprecation")
-    protected void initIDPConfiguration() {
+    protected void initIDPConfiguration(PicketLinkType thePicketLinkConfiguration, IDPType theIDPConfiguration){
         InputStream is = null;
 
         if (isNullOrEmpty(this.configFile)) {
@@ -1124,8 +1118,8 @@ public class IDPFilter implements Filter {
                     }
                 }
 
-                picketLinkConfiguration = configProvider.getPicketLinkConfiguration();
-                idpConfiguration = configProvider.getIDPConfiguration();
+                thePicketLinkConfiguration = configProvider.getPicketLinkConfiguration();
+                theIDPConfiguration = configProvider.getIDPConfiguration();
             } catch (ProcessingException e) {
                 throw logger.samlIDPConfigurationError(e);
             } catch (ParsingException e) {
@@ -1133,11 +1127,11 @@ public class IDPFilter implements Filter {
             }
         }
 
-        if (idpConfiguration == null) {
+        if (theIDPConfiguration == null) {
             if (is != null) {
                 try {
-                    picketLinkConfiguration = ConfigurationUtil.getConfiguration(is);
-                    idpConfiguration = (IDPType) picketLinkConfiguration.getIdpOrSP();
+                    thePicketLinkConfiguration = ConfigurationUtil.getConfiguration(is);
+                    theIDPConfiguration = (IDPType) thePicketLinkConfiguration.getIdpOrSP();
                 } catch (ParsingException e) {
                     logger.trace(e);
                     logger.samlIDPConfigurationError(e);
@@ -1150,7 +1144,7 @@ public class IDPFilter implements Filter {
                 if (is == null)
                     throw logger.configurationFileMissing(DEPRECATED_CONFIG_FILE_LOCATION);
                 try {
-                    idpConfiguration = ConfigurationUtil.getIDPConfiguration(is);
+                    theIDPConfiguration = ConfigurationUtil.getIDPConfiguration(is);
                 } catch (ParsingException e) {
                     logger.samlIDPConfigurationError(e);
                 }
@@ -1158,8 +1152,8 @@ public class IDPFilter implements Filter {
         }
 
         try {
-            if (this.picketLinkConfiguration != null) {
-                enableAudit = picketLinkConfiguration.isEnableAudit();
+            if (thePicketLinkConfiguration != null) {
+                enableAudit = thePicketLinkConfiguration.isEnableAudit();
 
                 // See if we have the system property enabled
                 if (!enableAudit) {
@@ -1180,7 +1174,7 @@ public class IDPFilter implements Filter {
             logger.trace("Identity Provider URL=" + getIdentityURL());
 
             // Get the attribute manager
-            String attributeManager = idpConfiguration.getAttributeManager();
+            String attributeManager = theIDPConfiguration.getAttributeManager();
             if (attributeManager != null && !"".equals(attributeManager)) {
                 Class<?> clazz = SecurityActions.loadClass(getClass(), attributeManager);
                 if (clazz == null)
@@ -1190,7 +1184,7 @@ public class IDPFilter implements Filter {
             }
 
             // Get the role generator
-            String roleGeneratorAttribute = idpConfiguration.getRoleGenerator();
+            String roleGeneratorAttribute = theIDPConfiguration.getRoleGenerator();
 
             if (roleGeneratorAttribute != null && !"".equals(roleGeneratorAttribute)) {
                 Class<?> clazz = SecurityActions.loadClass(getClass(), roleGeneratorAttribute);
@@ -1200,7 +1194,7 @@ public class IDPFilter implements Filter {
             }
 
             // Read SP Metadata if provided
-            List<EntityDescriptorType> entityDescriptors = CoreConfigUtil.getMetadataConfiguration(idpConfiguration,
+            List<EntityDescriptorType> entityDescriptors = CoreConfigUtil.getMetadataConfiguration(theIDPConfiguration,
                     servletContext);
             if (entityDescriptors != null) {
                 for (EntityDescriptorType entityDescriptorType : entityDescriptors) {
@@ -1215,6 +1209,16 @@ public class IDPFilter implements Filter {
         }
 
         initHostedURI();
+    }
+
+    /**
+     * <p>
+     * Initializes the IDP configuration.
+     * </p>
+     */
+    @SuppressWarnings("deprecation")
+    protected void initIDPConfiguration() {
+        initIDPConfiguration(picketLinkConfiguration,idpConfiguration);
     }
 
     /**
@@ -1270,13 +1274,14 @@ public class IDPFilter implements Filter {
             timer.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
-                    //Clear the configuration
-                    picketLinkConfiguration = null;
-                    idpConfiguration = null;
+                    PicketLinkType thePicketLinkConfiguration = new PicketLinkType();
+                    IDPType theIDPConfiguration = new IDPType();
 
-                    initIDPConfiguration();
+                    initIDPConfiguration(thePicketLinkConfiguration,theIDPConfiguration);
                     initKeyManager();
                     initHandlersChain();
+                    picketLinkConfiguration = thePicketLinkConfiguration;
+                    idpConfiguration = theIDPConfiguration;
                 }
             }, timerInterval, timerInterval);
         }
