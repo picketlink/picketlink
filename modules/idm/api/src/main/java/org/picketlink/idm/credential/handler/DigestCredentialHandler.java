@@ -79,7 +79,7 @@ public class DigestCredentialHandler<S,V,U>
     }
 
     @Override
-    protected boolean validateCredential(final CredentialStorage credentialStorage, final DigestCredentials credentials) {
+    protected boolean validateCredential(IdentityContext context, final CredentialStorage credentialStorage, final DigestCredentials credentials) {
         DigestCredentialStorage currentCredential = (DigestCredentialStorage) credentialStorage;
         Digest digest = credentials.getDigest();
 

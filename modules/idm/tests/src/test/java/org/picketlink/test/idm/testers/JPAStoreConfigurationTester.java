@@ -18,7 +18,9 @@
 package org.picketlink.test.idm.testers;
 
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.credential.Token;
 import org.picketlink.idm.credential.handler.CredentialHandler;
+import org.picketlink.idm.credential.handler.TokenCredentialHandler;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity;
@@ -31,11 +33,13 @@ import org.picketlink.idm.jpa.model.sample.simple.PasswordCredentialTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RelationshipIdentityTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.TokenCredentialTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity;
 import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.test.idm.basic.CustomAccountTestCase;
 import org.picketlink.test.idm.basic.CustomAgentTypeEntity;
 import org.picketlink.test.idm.basic.MyCustomAccountEntity;
+import org.picketlink.test.idm.credential.TokenCredentialTestCase;
 import org.picketlink.test.idm.partition.CustomPartitionEntity;
 import org.picketlink.test.idm.relationship.CustomRelationshipTypeEntity;
 import org.picketlink.test.idm.util.JPAContextInitializer;
@@ -59,6 +63,9 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
     public DefaultPartitionManager getPartitionManager() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
+        TokenCredentialTestCase.TokenAProvider tokenAProvider = new TokenCredentialTestCase.TokenAProvider();
+        TokenCredentialTestCase.TokenBProvider tokenBProvider = new TokenCredentialTestCase.TokenBProvider();
+
         builder
             .named(SIMPLE_JPA_STORE_CONFIG)
                 .stores()
@@ -79,11 +86,13 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
                                 X509CredentialTypeEntity.class,
                                 OTPCredentialTypeEntity.class,
                                 AttributeTypeEntity.class,
-                                AccountTypeEntity.class
+                                AccountTypeEntity.class,
+                                TokenCredentialTypeEntity.class
                         )
                         .supportGlobalRelationship(org.picketlink.idm.model.Relationship.class)
                         .setCredentialHandlerProperty(CredentialHandler.SUPPORTED_ACCOUNT_TYPES_PROPERTY, CustomAccountTestCase.MyCustomAccount.class)
                         .setCredentialHandlerProperty(CredentialHandler.LOGIN_NAME_PROPERTY, "userName")
+                        .setCredentialHandlerProperty(TokenCredentialHandler.TOKEN_PROVIDER, new Token.Provider[] {tokenAProvider, tokenBProvider})
                         .addContextInitializer(new JPAContextInitializer(null) {
                             @Override
                             public EntityManager getEntityManager() {
@@ -97,6 +106,9 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
         if (partitionManager.getPartition(Realm.class, Realm.DEFAULT_REALM) == null) {
             partitionManager.add(new Realm(Realm.DEFAULT_REALM));
         }
+
+        tokenAProvider.setPartitionManager(partitionManager);
+        tokenBProvider.setPartitionManager(partitionManager);
 
         return partitionManager;
     }

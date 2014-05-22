@@ -18,10 +18,13 @@
 package org.picketlink.test.idm.testers;
 
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.credential.Token;
 import org.picketlink.idm.credential.handler.CredentialHandler;
+import org.picketlink.idm.credential.handler.TokenCredentialHandler;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.test.idm.basic.CustomAccountTestCase;
+import org.picketlink.test.idm.credential.TokenCredentialTestCase;
 
 /**
  * @author pedroigor
@@ -34,6 +37,9 @@ public class FileStoreConfigurationTester implements IdentityConfigurationTester
     public DefaultPartitionManager getPartitionManager() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
+        TokenCredentialTestCase.TokenAProvider tokenAProvider = new TokenCredentialTestCase.TokenAProvider();
+        TokenCredentialTestCase.TokenBProvider tokenBProvider = new TokenCredentialTestCase.TokenBProvider();
+
         builder
             .named(SIMPLE_FILE_STORE_CONFIG)
                 .stores()
@@ -41,6 +47,7 @@ public class FileStoreConfigurationTester implements IdentityConfigurationTester
                     .preserveState(false)
                     .setCredentialHandlerProperty(CredentialHandler.SUPPORTED_ACCOUNT_TYPES_PROPERTY, new Class[]{CustomAccountTestCase.MyCustomAccount.class})
                     .setCredentialHandlerProperty(CredentialHandler.LOGIN_NAME_PROPERTY, "userName")
+                    .setCredentialHandlerProperty(TokenCredentialHandler.TOKEN_PROVIDER, new Token.Provider[]{tokenAProvider, tokenBProvider})
                     .supportAllFeatures();
 
         DefaultPartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
@@ -48,6 +55,9 @@ public class FileStoreConfigurationTester implements IdentityConfigurationTester
         if (partitionManager.getPartition(Realm.class, Realm.DEFAULT_REALM) == null) {
             partitionManager.add(new Realm(Realm.DEFAULT_REALM));
         }
+
+        tokenAProvider.setPartitionManager(partitionManager);
+        tokenBProvider.setPartitionManager(partitionManager);
 
         return partitionManager;
     }

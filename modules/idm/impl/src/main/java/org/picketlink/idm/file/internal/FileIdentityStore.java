@@ -29,6 +29,7 @@ import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.credential.handler.DigestCredentialHandler;
 import org.picketlink.idm.credential.handler.PasswordCredentialHandler;
 import org.picketlink.idm.credential.handler.TOTPCredentialHandler;
+import org.picketlink.idm.credential.handler.TokenCredentialHandler;
 import org.picketlink.idm.credential.handler.X509CertificateCredentialHandler;
 import org.picketlink.idm.credential.handler.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.storage.CredentialStorage;
@@ -74,7 +75,12 @@ import static org.picketlink.idm.credential.util.CredentialUtils.getCurrentCrede
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-@CredentialHandlers({PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class, TOTPCredentialHandler.class})
+@CredentialHandlers({
+    PasswordCredentialHandler.class,
+    X509CertificateCredentialHandler.class,
+    DigestCredentialHandler.class,
+    TOTPCredentialHandler.class,
+    TokenCredentialHandler.class})
 public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreConfiguration>
         implements PartitionStore<FileIdentityStoreConfiguration>,
         CredentialStore<FileIdentityStoreConfiguration>,
