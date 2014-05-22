@@ -18,6 +18,7 @@
     <class>org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity</class>
     <class>org.picketlink.idm.jpa.model.sample.simple.OTPCredentialTypeEntity</class>
     <class>org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.TokenCredentialTypeEntity</class>
     <class>org.picketlink.test.idm.partition.CustomPartitionEntity</class>
     <class>org.picketlink.test.idm.basic.MyCustomAccountEntity</class>
 

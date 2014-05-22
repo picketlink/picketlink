@@ -53,7 +53,7 @@ public class X509CertificateCredentialHandler<S, V, U>
     }
 
     @Override
-    protected boolean validateCredential(final CredentialStorage storage, final X509CertificateCredentials credentials) {
+    protected boolean validateCredential(IdentityContext context, final CredentialStorage storage, final X509CertificateCredentials credentials) {
         X509CertificateStorage certificateStorage = (X509CertificateStorage) storage;
 
         if (!credentials.isTrusted()) {

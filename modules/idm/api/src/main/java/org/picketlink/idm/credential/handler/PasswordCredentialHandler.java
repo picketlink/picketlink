@@ -18,17 +18,6 @@
 
 package org.picketlink.idm.credential.handler;
 
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
-import java.security.SecureRandom;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.picketlink.common.random.DefaultSecureRandomProvider;
 import org.picketlink.common.random.SecureRandomProvider;
 import org.picketlink.idm.IdentityManagementException;
@@ -43,6 +32,17 @@ import org.picketlink.idm.credential.storage.EncodedPasswordStorage;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
+
+import java.security.SecureRandom;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * <p> This particular implementation supports the validation of {@link UsernamePasswordCredentials}, and updating
@@ -154,7 +154,7 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
     }
 
     @Override
-    protected boolean validateCredential(final CredentialStorage storage, final V credentials) {
+    protected boolean validateCredential(IdentityContext context, final CredentialStorage storage, final V credentials) {
         EncodedPasswordStorage hash = (EncodedPasswordStorage) storage;
 
         if (hash != null) {

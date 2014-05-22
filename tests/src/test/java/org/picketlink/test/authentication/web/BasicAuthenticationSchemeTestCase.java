@@ -32,6 +32,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.picketlink.test.authentication.web.Resources.DEFAULT_USERNAME;
+import static org.picketlink.test.authentication.web.Resources.DEFAULT_USER_PASSWD;
 
 /**
  * @author pedroigor
@@ -92,7 +94,7 @@ public class BasicAuthenticationSchemeTestCase extends AbstractAuthenticationSch
         assertNotNull(authenticateHeader);
         assertTrue(authenticateHeader.contains("Basic realm=\"Test Realm\""));
 
-        prepareAuthenticationRequest(request, "john", "passwd");
+        prepareAuthenticationRequest(request, DEFAULT_USERNAME, DEFAULT_USER_PASSWD);
 
         response = client.loadWebResponse(request);
 
@@ -119,7 +121,7 @@ public class BasicAuthenticationSchemeTestCase extends AbstractAuthenticationSch
         WebRequestSettings request = new WebRequestSettings(getProtectedResourceURL());
         WebResponse response = client.loadWebResponse(request);
 
-        prepareAuthenticationRequest(request, "john", "bad_passwd");
+        prepareAuthenticationRequest(request, DEFAULT_USERNAME, "bad_passwd");
 
         response = client.loadWebResponse(request);
 
@@ -140,7 +142,7 @@ public class BasicAuthenticationSchemeTestCase extends AbstractAuthenticationSch
         assertNotNull(authenticateHeader);
         assertTrue(authenticateHeader.contains("Basic realm=\"Test Realm\""));
 
-        prepareAuthenticationRequest(request, "john", "passwd");
+        prepareAuthenticationRequest(request, DEFAULT_USERNAME, DEFAULT_USER_PASSWD);
 
         response = client.loadWebResponse(request);
 
@@ -175,7 +177,7 @@ public class BasicAuthenticationSchemeTestCase extends AbstractAuthenticationSch
         assertNotNull(authenticateHeader);
         assertTrue(authenticateHeader.contains("Basic realm=\"Test Realm\""));
 
-        prepareAuthenticationRequest(request, "john", "passwd");
+        prepareAuthenticationRequest(request, DEFAULT_USERNAME, DEFAULT_USER_PASSWD);
 
         response = client.loadWebResponse(request);
 
@@ -204,7 +206,7 @@ public class BasicAuthenticationSchemeTestCase extends AbstractAuthenticationSch
         assertNotNull(authenticateHeader);
         assertTrue(authenticateHeader.contains("Basic realm=\"Test Realm\""));
 
-        prepareAuthenticationRequest(request, "john", "passwd");
+        prepareAuthenticationRequest(request, DEFAULT_USERNAME, DEFAULT_USER_PASSWD);
 
         response = client.loadWebResponse(request);
 

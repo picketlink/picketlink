@@ -131,7 +131,7 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
                     CREDENTIAL_LOGGER.debugf("Current credential storage for account [%s] is [%s].", account, credentialStorage);
                 }
 
-                if (validateCredential(credentialStorage, credentials)) {
+                if (validateCredential(context, credentialStorage, credentials)) {
                     if (credentialStorage != null && CredentialUtils.isCredentialExpired(credentialStorage)) {
                         credentials.setStatus(Status.EXPIRED);
                     } else if (Status.IN_PROGRESS.equals(credentials.getStatus())) {
@@ -164,7 +164,7 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
         }
     }
 
-    protected abstract boolean validateCredential(final CredentialStorage credentialStorage, final V credentials);
+    protected abstract boolean validateCredential(IdentityContext context, final CredentialStorage credentialStorage, final V credentials);
 
     protected abstract Account getAccount(final IdentityContext context, final V credentials);
 

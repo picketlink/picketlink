@@ -132,16 +132,25 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
 
         entityManager.persist(entity);
 
+        ProtectedEntity entity2 = new ProtectedEntity();
+
+        entity2.setName("Confidential");
+
+        entityManager.persist(entity2);
+
         User bob = createUser("bob");
         PermissionManager permissionManager = getPermissionManager();
 
         permissionManager.grantPermission(bob, entity, "load");
 
         assertTrue(hasPermission(bob, permissionManager.listPermissions(ProtectedEntity.class, entity.getId())));
+        assertFalse(hasPermission(bob, permissionManager.listPermissions(entity2, "load")));
 
         permissionManager.revokePermission(bob, entity, "load");
+        permissionManager.grantPermission(bob, entity2, "load");
 
         assertFalse(hasPermission(bob, permissionManager.listPermissions(entity, "load")));
+        assertTrue(hasPermission(bob, permissionManager.listPermissions(ProtectedEntity.class, entity2.getId())));
     }
 
     @Test

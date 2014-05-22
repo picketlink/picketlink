@@ -30,6 +30,7 @@ import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.credential.handler.DigestCredentialHandler;
 import org.picketlink.idm.credential.handler.PasswordCredentialHandler;
 import org.picketlink.idm.credential.handler.TOTPCredentialHandler;
+import org.picketlink.idm.credential.handler.TokenCredentialHandler;
 import org.picketlink.idm.credential.handler.X509CertificateCredentialHandler;
 import org.picketlink.idm.credential.handler.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.storage.CredentialStorage;
@@ -113,13 +114,12 @@ import static org.picketlink.idm.IDMInternalMessages.MESSAGES;
  * @author Shane Bryzak
  * @author Pedro Silva
  */
-@CredentialHandlers(
-        {
-                PasswordCredentialHandler.class,
-                X509CertificateCredentialHandler.class,
-                DigestCredentialHandler.class,
-                TOTPCredentialHandler.class
-        })
+@CredentialHandlers({
+    PasswordCredentialHandler.class,
+    X509CertificateCredentialHandler.class,
+    DigestCredentialHandler.class,
+    TOTPCredentialHandler.class,
+    TokenCredentialHandler.class})
 public class JPAIdentityStore
         extends AbstractIdentityStore<JPAIdentityStoreConfiguration>
         implements CredentialStore<JPAIdentityStoreConfiguration>, PartitionStore<JPAIdentityStoreConfiguration>,
@@ -127,9 +127,6 @@ public class JPAIdentityStore
 
     // Invocation context parameters
     public static final String INVOCATION_CTX_ENTITY_MANAGER = "CTX_ENTITY_MANAGER";
-
-    // Event context parameters
-    public static final String EVENT_CONTEXT_IDENTITY = "IDENTITY_ENTITY";
 
     private final List<EntityMapper> entityMappers = new ArrayList<EntityMapper>();
 

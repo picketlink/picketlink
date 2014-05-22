@@ -35,6 +35,7 @@ import org.picketlink.idm.model.basic.User;
 public class Resources {
 
     public static final String DEFAULT_USERNAME = "john";
+    public static final String DEFAULT_USER_PASSWD = "passwd";
 
     @Inject
     protected PartitionManager partitionManager;
@@ -55,7 +56,7 @@ public class Resources {
 
         digestCredential.setRealm("Test Realm");
         digestCredential.setUsername(user.getLoginName());
-        digestCredential.setPassword("passwd");
+        digestCredential.setPassword(DEFAULT_USER_PASSWD);
 
         identityManager.updateCredential(user, digestCredential);
 
