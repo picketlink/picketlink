@@ -1270,17 +1270,13 @@ public class IDPFilter implements Filter {
             timer.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
-                    synchronized (picketLinkConfiguration) {
-                        synchronized (idpConfiguration) {
-                            // Clear the configuration
-                            picketLinkConfiguration = null;
-                            idpConfiguration = null;
+                    // Clear the configuration
+                    picketLinkConfiguration = null;
+                    idpConfiguration = null;
 
-                            initIDPConfiguration();
-                            initKeyManager();
-                            initHandlersChain();
-                        }
-                    }
+                    initIDPConfiguration();
+                    initKeyManager();
+                    initHandlersChain();
                 }
             }, timerInterval, timerInterval);
         }
