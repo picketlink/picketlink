@@ -1213,4 +1213,6 @@ public interface PicketLinkLogger {
 
     RuntimeException maximumNumberOfClientsReachedforPool(String max);
 
+    RuntimeException cannotSetMaxPoolSizeToNegative(String max);
+
 }

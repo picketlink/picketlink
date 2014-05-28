@@ -403,6 +403,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
      * @throws LoginException If an error occurs while trying to perform the authentication.
      */
     public boolean login() throws LoginException {
+        STSClient stsClient = null;
         try {
             final Builder builder = createBuilder();
             if (useOptionsCredentials) {
@@ -416,7 +417,8 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
             if (passwordStacking)
                 setPasswordStackingCredentials(builder);
 
-            final STSClient stsClient = createWSTrustClient(builder.build());
+            STSClientConfig stsClientConfig = builder.build();
+            stsClient = createWSTrustClient(stsClientConfig);
 
             final Element token = invokeSTS(stsClient);
 
@@ -430,6 +432,10 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
             return true;
         } catch (WSTrustException e) {
             throw logger.authLoginError(e);
+        } finally {
+            if (stsClient != null) {
+                STSClientFactory.getInstance(maxClientsInPool).returnClient(stsClient);
+            }
         }
     }
 
@@ -565,7 +571,12 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
 
     protected STSClient createWSTrustClient(final STSClientConfig config) {
         try {
-            return STSClientFactory.getInstance(maxClientsInPool).create(initialNumberOfClients, config);
+            STSClientFactory factory = STSClientFactory.getInstance(maxClientsInPool);
+            if (factory.configExists(config)) {
+                return factory.getClient(config);
+            } else {
+                return STSClientFactory.getInstance(maxClientsInPool).createPool(initialNumberOfClients, config);
+            }
         } catch (final Exception e) {
             throw logger.authCouldNotCreateWSTrustClient(e);
         }

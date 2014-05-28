@@ -49,6 +49,7 @@ import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
 import javax.xml.ws.Service.Mode;
 import javax.xml.ws.soap.SOAPBinding;
+
 import java.io.InputStream;
 import java.net.URI;
 import java.security.Principal;
@@ -60,7 +61,7 @@ import java.util.Map;
  * @author Anil.Saldhana@redhat.com
  * @since Aug 29, 2009
  */
-public class STSClient {
+public class STSClient implements STSClientConfigKeyProvider {
 
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
@@ -73,6 +74,14 @@ public class STSClient {
     private String wspAppliesTo;
 
     private String soapBinding = SOAPBinding.SOAP11HTTP_BINDING;
+
+    private String serviceName;
+
+    private String portName;
+
+    private String endPointAddress;
+
+    private String userName;
 
     /**
      * Indicates whether the request is a batch request - will be read from the {@link STSClientConfig}
@@ -100,8 +109,14 @@ public class STSClient {
      * @param config
      */
     public STSClient(STSClientConfig config) {
-        QName service = new QName(targetNS, config.getServiceName());
-        QName portName = new QName(targetNS, config.getPortName());
+
+        this.serviceName = config.getServiceName();
+        this.portName = config.getPortName();
+        this.endPointAddress = config.getEndPointAddress();
+        this.userName = config.getUsername();
+
+        QName service = new QName(targetNS, this.serviceName);
+        QName portName = new QName(targetNS, this.portName);
 
         isBatch = config.isBatch();
 
@@ -111,7 +126,7 @@ public class STSClient {
         soapBinding = config.getSoapBinding();
 
         Service jaxwsService = Service.create(service);
-        jaxwsService.addPort(portName, soapBinding, config.getEndPointAddress());
+        jaxwsService.addPort(portName, soapBinding, this.endPointAddress);
         Dispatch<Source> dispatch = jaxwsService.createDispatch(portName, Source.class, Mode.PAYLOAD);
 
         Map<String, Object> reqContext = dispatch.getRequestContext();
@@ -484,5 +499,10 @@ public class STSClient {
 
     public void setSoapBinding(String soapBinding) {
         this.soapBinding = soapBinding;
+    }
+
+    @Override
+    public String getSTSClientConfigKey() {
+        return STSClientConfig.computeSTSClientConfigKey(serviceName, portName, endPointAddress, userName);
     }
 }

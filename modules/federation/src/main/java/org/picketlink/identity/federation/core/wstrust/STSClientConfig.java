@@ -24,6 +24,7 @@ import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 
 import javax.xml.ws.soap.SOAPBinding;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -64,7 +65,7 @@ import java.util.Properties;
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
  * @author Anil Saldhana
  */
-public class STSClientConfig {
+public class STSClientConfig implements STSClientConfigKeyProvider {
 
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
@@ -373,4 +374,14 @@ public class STSClientConfig {
 
         return null;
     }
+
+    @Override
+    public String getSTSClientConfigKey() {
+        return computeSTSClientConfigKey(this.serviceName, this.portName, this.endpointAddress, this.getUsername());
+    }
+
+    static String computeSTSClientConfigKey(String serviceName, String portName, String endPointAddress, String userName) {
+        return serviceName + "|" + portName + "|" + endPointAddress + "|" + userName;
+    }
+
 }

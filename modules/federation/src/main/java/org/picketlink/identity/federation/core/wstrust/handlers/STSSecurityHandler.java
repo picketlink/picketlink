@@ -186,6 +186,7 @@ public abstract class STSSecurityHandler implements SOAPHandler<SOAPMessageConte
         if (isOutBound(messageContext))
             return true;
 
+        STSClient stsClient = null;
         try {
             final Element securityToken = extractSecurityToken(messageContext, getSecurityElementQName(),
                     getTokenElementQName());
@@ -195,7 +196,8 @@ public abstract class STSSecurityHandler implements SOAPHandler<SOAPMessageConte
 
             setUsernameFromMessageContext(messageContext, configBuilder);
             setPasswordFromMessageContext(messageContext, configBuilder);
-            final STSClient stsClient = createSTSClient(configBuilder);
+            STSClientConfig stsClientConfig = configBuilder.build();
+            stsClient = createSTSClient(stsClientConfig);
 
             if (stsClient.validateToken(securityToken) == false) {
                 throwFailedAuthentication();
@@ -204,6 +206,10 @@ public abstract class STSSecurityHandler implements SOAPHandler<SOAPMessageConte
             throwInvalidSecurity();
         } catch (ParsingException e) {
             throwInvalidSecurity();
+        } finally {
+            if (stsClient != null) {
+                STSClientFactory.getInstance().returnClient(stsClient);
+            }
         }
 
         return true;
@@ -316,8 +322,13 @@ public abstract class STSSecurityHandler implements SOAPHandler<SOAPMessageConte
         return configBuilder;
     }
 
-    STSClient createSTSClient(final STSClientConfig.Builder builder) throws ParsingException {
-        return STSClientFactory.getInstance().create(builder.build());
+    STSClient createSTSClient(final STSClientConfig config) throws ParsingException {
+        STSClientFactory factory = STSClientFactory.getInstance();
+        if (factory.configExists(config)) {
+            return factory.getClient(config);
+        } else {
+            return STSClientFactory.getInstance().createPool(config);
+        }
     }
 
     private boolean isOutBound(final SOAPMessageContext messageContext) {

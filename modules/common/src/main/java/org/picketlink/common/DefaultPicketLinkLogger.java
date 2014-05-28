@@ -2346,7 +2346,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
 
     @Override
     public RuntimeException cannotGetSTSConfigByKey(String key) {
-        return new RuntimeException("Cannot get STS config by key: " + key);
+        return new RuntimeException("Cannot get STS config by key: " + key + ". The pool for given key has to be initialized first by calling STSClientPool.initialize method.");
     }
 
     @Override
@@ -2368,4 +2368,10 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     public RuntimeException maximumNumberOfClientsReachedforPool(String max) {
         return new RuntimeException("Pool reached miximum number of clients within the pool (" + max + ")");
     }
+
+    @Override
+    public RuntimeException cannotSetMaxPoolSizeToNegative(String max) {
+        return new RuntimeException("Cannot set maximum STS client pool size to negative number (" + max + ")");
+    }
+
 }
