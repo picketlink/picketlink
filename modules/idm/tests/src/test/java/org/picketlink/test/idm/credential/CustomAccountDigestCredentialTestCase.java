@@ -18,30 +18,47 @@
 
 package org.picketlink.test.idm.credential;
 
-import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.model.Account;
+import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.Configuration;
-import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
+import org.picketlink.test.idm.model.MyCustomAccount;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.JPACustomTypesConfigurationTester;
+
+import java.util.List;
 
 /**
  * <p>
- * Test case for {@link DigestCredentials} type.
+ * Test case for {@link org.picketlink.idm.credential.UsernamePasswordCredentials} type.
  * </p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
-@Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class})
-public class DigestCredentialTestCase extends AbstractDigestCredentialTestCase {
+@Configuration(include = JPACustomTypesConfigurationTester.class)
+public class CustomAccountDigestCredentialTestCase extends AbstractDigestCredentialTestCase {
 
-    public DigestCredentialTestCase(IdentityConfigurationTester builder) {
+    public CustomAccountDigestCredentialTestCase(IdentityConfigurationTester builder) {
         super(builder);
     }
 
     @Override
     protected Account createAccount(String accountName) {
-        return createUser(accountName);
+        IdentityQuery<MyCustomAccount> query = getIdentityManager().createIdentityQuery(MyCustomAccount.class);
+
+        query.setParameter(MyCustomAccount.USER_NAME, accountName);
+
+        List<MyCustomAccount> result = query.getResultList();
+
+        if (!result.isEmpty()) {
+            getIdentityManager().remove(result.get(0));
+        }
+
+        MyCustomAccount user = new MyCustomAccount(accountName);
+
+        getIdentityManager().add(user);
+
+        return user;
+
     }
 }

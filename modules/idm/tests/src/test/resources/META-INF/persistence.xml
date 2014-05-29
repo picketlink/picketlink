@@ -20,7 +20,7 @@
     <class>org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity</class>
     <class>org.picketlink.idm.jpa.model.sample.simple.TokenCredentialTypeEntity</class>
     <class>org.picketlink.test.idm.partition.CustomPartitionEntity</class>
-    <class>org.picketlink.test.idm.basic.MyCustomAccountEntity</class>
+    <class>org.picketlink.test.idm.model.entity.MyCustomAccountEntity</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
@@ -98,7 +98,7 @@
     <class>org.picketlink.idm.jpa.model.sample.simple.OTPCredentialTypeEntity</class>
     <class>org.picketlink.test.idm.basic.AttributeReferenceTypeEntity</class>
     <class>org.picketlink.test.idm.partition.CustomPartitionEntity</class>
-    <class>org.picketlink.test.idm.basic.MyCustomAccountEntity</class>
+    <class>org.picketlink.test.idm.model.entity.MyCustomAccountEntity</class>
 
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
@@ -279,4 +279,36 @@
     </properties>
   </persistence-unit>
 
+  <persistence-unit name="jpa-identity-store-custom-types-pu" transaction-type="RESOURCE_LOCAL">
+    <class>org.picketlink.idm.jpa.model.sample.simple.AttributedTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.PasswordCredentialTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity</class>
+    <class>org.picketlink.idm.jpa.model.sample.simple.DigestCredentialTypeEntity</class>
+    <class>org.picketlink.test.idm.model.entity.MyCustomAccountEntity</class>
+
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+    <properties>
+      <!-- Hibernate Properties -->
+        <property name="hibernate.connection.url" value="jdbc:h2:mem:test"/>
+      <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
+      <property name="hibernate.connection.username" value="sa"/>
+      <property name="hibernate.connection.password" value=""/>
+      <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+      <property name="hibernate.show_sql" value="false"/>
+      <property name="hibernate.format_sql" value="true"/>
+
+        <!-- EclipseLink Properties-->
+        <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test;MVCC=TRUE"/>
+      <property name="javax.persistence.jdbc.user" value="sa"/>
+      <property name="javax.persistence.jdbc.password" value=""/>
+      <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>
+      <property name="eclipselink.deploy-on-startup" value="true" />
+      <property name="eclipselink.logging.level" value="INFO" />
+    </properties>
+  </persistence-unit>
 </persistence>

@@ -64,7 +64,9 @@ public abstract class AbstractIdentityStore<C extends IdentityStoreConfiguration
             IDENTITY_STORE_LOGGER.debug("]");
         }
 
-        initializeCredentialHandlers();
+        if (config.supportsCredential()) {
+            initializeCredentialHandlers();
+        }
     }
 
     @Override
@@ -113,6 +115,7 @@ public abstract class AbstractIdentityStore<C extends IdentityStoreConfiguration
             IdentityType identityType = (IdentityType) attributedType;
             identityType.setPartition(context.getPartition());
 
+            if (getConfig().supportsRelationship())
             removeFromRelationships(context, identityType);
 
             if (Account.class.isInstance(identityType)) {

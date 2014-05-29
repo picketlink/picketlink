@@ -18,12 +18,12 @@
 
 package org.picketlink.idm.credential.handler;
 
-import java.util.Date;
-
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityContext;
+import org.picketlink.idm.spi.IdentityStore;
+
+import java.util.Date;
 
 /**
  * Performs credential validation and persists credential state to a Store.
@@ -41,7 +41,11 @@ public interface CredentialHandler<S extends IdentityStore<?>,V extends Credenti
     /**
      * <p>This property can be used to support additional {@link Account} types. The value can be either a Array
      * of {@link Account} types or a single type.</p>
+     *
+     * @deprecated This property is no longer necessary to support custom {@link org.picketlink.idm.model.Account} types. You can achieve
+     * the same result by providing your types during the configuration, see {@link org.picketlink.idm.config.IdentityStoreConfigurationBuilder#supportType(Class[])}.
      */
+    @Deprecated
     String SUPPORTED_ACCOUNT_TYPES_PROPERTY = "SUPPORTED_ACCOUNT_TYPES";
 
     /**
@@ -53,14 +57,14 @@ public interface CredentialHandler<S extends IdentityStore<?>,V extends Credenti
     void validate(IdentityContext context, V credentials, S store);
     /**
      *
-     * @param user
+     * @param context
      * @param credential
      * @param store
      */
     void update(IdentityContext context, Account account, U credential, S store, Date effectiveDate, Date expiryDate);
 
     /**
-     * @param identityStore
+     * @param store
      */
     void setup(S store);
 }

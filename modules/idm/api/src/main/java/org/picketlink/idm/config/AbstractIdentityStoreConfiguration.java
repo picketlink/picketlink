@@ -22,6 +22,7 @@ import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.credential.handler.annotations.CredentialHandlers;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
@@ -165,6 +166,17 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
     public boolean supportsPartition() {
         for (Class<?> supportedType : getSupportedTypes().keySet()) {
             if (Partition.class.isAssignableFrom(supportedType)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean supportsRelationship() {
+        for (Class<?> supportedType : getSupportedTypes().keySet()) {
+            if (Relationship.class.isAssignableFrom(supportedType)) {
                 return true;
             }
         }

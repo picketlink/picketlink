@@ -22,9 +22,6 @@
 
 package org.picketlink.idm;
 
-import java.io.UnsupportedEncodingException;
-import java.lang.annotation.Annotation;
-
 import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
@@ -38,6 +35,9 @@ import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.spi.IdentityStore;
+
+import java.io.UnsupportedEncodingException;
+import java.lang.annotation.Annotation;
 
 /**
  * <p>
@@ -106,6 +106,9 @@ public interface IDMMessages {
 
     @Message(id = 206, value = "Multiple Account objects found with same login name [%s] for account type [%s].")
     IdentityManagementException credentialMultipleAccountsFoundForType(String loginName, Class<? extends Account> accountType);
+
+    @Message(id = 207, value = "No Account type provided. You must provide at least one Account type in order to support credential management.")
+    IdentityManagementException credentialNoAccountTypeProvided();
 
     @Message(value = "Invalid Realm or it was not provided.")
     IdentityManagementException credentialDigestInvalidRealm();
@@ -188,6 +191,4 @@ public interface IDMMessages {
 
     @Message(value = "Failed to revoke all permissions for resource [%s].")
     IdentityManagementException permissionRevokeAllFailed(Object resource, @Cause Throwable t);
-
-
 }

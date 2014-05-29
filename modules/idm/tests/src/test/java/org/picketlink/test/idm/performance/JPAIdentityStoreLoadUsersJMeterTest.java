@@ -51,7 +51,7 @@ import org.picketlink.idm.model.basic.Group;
 import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
-import org.picketlink.test.idm.basic.MyCustomAccountEntity;
+import org.picketlink.test.idm.model.entity.MyCustomAccountEntity;
 import org.picketlink.test.idm.partition.CustomPartitionEntity;
 import org.picketlink.test.idm.relationship.CustomRelationshipTypeEntity;
 import org.picketlink.test.idm.util.JPAContextInitializer;

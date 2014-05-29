@@ -17,6 +17,9 @@
  */
 package org.picketlink.idm.credential.handler;
 
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.NamedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.AbstractBaseCredentials;
@@ -24,9 +27,9 @@ import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.credential.util.CredentialUtils;
 import org.picketlink.idm.model.Account;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.basic.Agent;
-import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
@@ -74,11 +77,7 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
 
             query.setParameter(Account.PARTITION, context.getPartition());
 
-            String defaultAccountLoginNameProperty = this.defaultAccountLoginNameProperty;
-
-            if (Agent.class.isAssignableFrom(accountType)) {
-                defaultAccountLoginNameProperty = DEFAULT_ACCOUNT_LOGIN_PROPERTY_NAME;
-            }
+            String defaultAccountLoginNameProperty = getDefaultLoginNameProperty(accountType).getName();
 
             if (isDebugEnabled()) {
                 CREDENTIAL_LOGGER.credentialRetrievingAccount(loginName, accountType, defaultAccountLoginNameProperty);
@@ -185,26 +184,14 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
     private void configureDefaultSupportedAccountTypes(final S store) {
         this.defaultAccountTypes = new ArrayList<Class<? extends Account>>();
 
-        Object accountTypesOption = store.getConfig().getCredentialHandlerProperties().get(SUPPORTED_ACCOUNT_TYPES_PROPERTY);
-
-        if (accountTypesOption != null) {
-            if (accountTypesOption.getClass().isArray()) {
-                Class<? extends Account>[] defaultAccountTypes = (Class<? extends Account>[]) accountTypesOption;
-
-                for (Class<? extends Account> accountType : defaultAccountTypes) {
-                    this.defaultAccountTypes.add(accountType);
-                }
-            } else {
-                this.defaultAccountTypes.add((Class<? extends Account>) accountTypesOption);
+        for (Class<? extends AttributedType> supportedType : store.getConfig().getSupportedTypes().keySet()) {
+            if (!Account.class.equals(supportedType) && Account.class.isAssignableFrom(supportedType)) {
+                this.defaultAccountTypes.add((Class<? extends Account>) supportedType);
             }
         }
 
-        if (!this.defaultAccountTypes.contains(User.class)) {
-            this.defaultAccountTypes.add(User.class);
-        }
-
-        if (!this.defaultAccountTypes.contains(Agent.class)) {
-            this.defaultAccountTypes.add(Agent.class);
+        if (this.defaultAccountTypes.isEmpty()) {
+            throw MESSAGES.credentialNoAccountTypeProvided();
         }
 
         String defaultAccountLoginNameOption = (String) store.getConfig().getCredentialHandlerProperties().get(LOGIN_NAME_PROPERTY);
@@ -226,4 +213,15 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
         return CREDENTIAL_LOGGER.isDebugEnabled();
     }
 
+    protected Property getDefaultLoginNameProperty(Class<? extends Account> accountType) {
+        String defaultAccountLoginNameProperty = this.defaultAccountLoginNameProperty;
+
+        if (Agent.class.isAssignableFrom(accountType)) {
+            defaultAccountLoginNameProperty = DEFAULT_ACCOUNT_LOGIN_PROPERTY_NAME;
+        }
+
+        return PropertyQueries.createQuery(accountType)
+            .addCriteria(new NamedPropertyCriteria(defaultAccountLoginNameProperty))
+            .getSingleResult();
+    }
 }
