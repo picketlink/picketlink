@@ -83,7 +83,7 @@ public class WSTrustClient {
         int index = 0;
         for (String endpointURI : endpointURIs) {
             builder.endpointAddress(endpointURI);
-            this.clients[index++] = STSClientFactory.getInstance().create(builder.build());
+            this.clients[index++] = STSClientFactory.getInstance().createPool(builder.build());
         }
 
     }
@@ -386,5 +386,14 @@ public class WSTrustClient {
         if (throwable instanceof java.net.ConnectException && throwable.getMessage().equals("Connection refused"))
             return true;
         return false;
+    }
+
+    /**
+     * This method returns all allocated clients back to the STSClientPool when pooling is enabled.
+     */
+    public void close() {
+        for (STSClient client: this.clients) {
+            STSClientFactory.getInstance().returnClient(client);
+        }
     }
 }

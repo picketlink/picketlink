@@ -28,7 +28,6 @@ import org.jboss.security.mapping.MappingManager;
 import org.jboss.security.mapping.MappingType;
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.fed.WSTrustException;
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.core.constants.AttributeConstants;
@@ -244,6 +243,16 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
     public static final String IS_BATCH = "isBatch";
 
     /**
+     * Paramater name.
+     */
+    public static final String MAX_CLIENTS_IN_POOL = "maxClientsInPool";
+
+    /**
+     * Paramater name.
+     */
+    public static final String INITIAL_NUMBER_OF_CLIENTS = "initialNumberOfClients";
+
+    /**
      * The subject to be populated.
      */
     protected Subject subject;
@@ -309,6 +318,16 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
     protected boolean isBatch = false;
 
     /**
+     * Maximal number of clients in the STS Client Pool.
+     */
+    protected int maxClientsInPool = 0;
+
+    /**
+     * Number of clients initialized for in case pool is out of free clients.
+     */
+    protected int initialNumberOfClients = 0;
+
+    /**
      * Initialized this login module. Simple stores the passed in fields and also validates the options.
      *
      * @param subject The subject to authenticate/populate.
@@ -353,6 +372,25 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
         if (StringUtil.isNotNull(batchIssueString)) {
             this.isBatch = Boolean.parseBoolean(batchIssueString);
         }
+
+        String maxClientsString = (String) options.get(MAX_CLIENTS_IN_POOL);
+        if (StringUtil.isNotNull(maxClientsString)) {
+            try {
+                this.maxClientsInPool = Integer.parseInt(maxClientsString);
+            } catch (Exception e) {
+                logger.cannotParseParameterValue(MAX_CLIENTS_IN_POOL, e);
+            }
+        }
+
+        String initialNumberOfClientsString = (String) options.get(INITIAL_NUMBER_OF_CLIENTS);
+        if (StringUtil.isNotNull(initialNumberOfClientsString)) {
+            try {
+                this.initialNumberOfClients = Integer.parseInt(initialNumberOfClientsString);
+            } catch (Exception e) {
+                logger.cannotParseParameterValue(INITIAL_NUMBER_OF_CLIENTS, e);
+            }
+        }
+
     }
 
     /**
@@ -365,6 +403,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
      * @throws LoginException If an error occurs while trying to perform the authentication.
      */
     public boolean login() throws LoginException {
+        STSClient stsClient = null;
         try {
             final Builder builder = createBuilder();
             if (useOptionsCredentials) {
@@ -378,7 +417,8 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
             if (passwordStacking)
                 setPasswordStackingCredentials(builder);
 
-            final STSClient stsClient = createWSTrustClient(builder.build());
+            STSClientConfig stsClientConfig = builder.build();
+            stsClient = createWSTrustClient(stsClientConfig);
 
             final Element token = invokeSTS(stsClient);
 
@@ -392,6 +432,10 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
             return true;
         } catch (WSTrustException e) {
             throw logger.authLoginError(e);
+        } finally {
+            if (stsClient != null) {
+                STSClientFactory.getInstance(maxClientsInPool).returnClient(stsClient);
+            }
         }
     }
 
@@ -527,8 +571,13 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
 
     protected STSClient createWSTrustClient(final STSClientConfig config) {
         try {
-            return STSClientFactory.getInstance().create(config);
-        } catch (final ParsingException e) {
+            STSClientFactory factory = STSClientFactory.getInstance(maxClientsInPool);
+            if (factory.configExists(config)) {
+                return factory.getClient(config);
+            } else {
+                return STSClientFactory.getInstance(maxClientsInPool).createPool(initialNumberOfClients, config);
+            }
+        } catch (final Exception e) {
             throw logger.authCouldNotCreateWSTrustClient(e);
         }
     }

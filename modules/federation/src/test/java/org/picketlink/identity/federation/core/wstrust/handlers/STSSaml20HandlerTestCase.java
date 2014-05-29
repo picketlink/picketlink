@@ -23,7 +23,7 @@ import org.picketlink.common.ErrorCodes;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.util.SOAPUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
-import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
 import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
@@ -203,7 +203,7 @@ public class STSSaml20HandlerTestCase {
         }
 
         @Override
-        protected STSClient createSTSClient(Builder builder) throws ParsingException {
+        protected STSClient createSTSClient(STSClientConfig config) throws ParsingException {
             return stsClient;
         }
     }
