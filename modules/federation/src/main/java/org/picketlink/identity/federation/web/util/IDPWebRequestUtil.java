@@ -87,6 +87,18 @@ public class IDPWebRequestUtil {
         this.postProfile = "POST".equals(request.getMethod());
     }
 
+    public IDPWebRequestUtil(String samlBinding, HttpServletRequest request, IDPType idp, TrustKeyManager keym) {
+        this.idpConfiguration = idp;
+        this.keyManager = keym;
+        if(samlBinding !=null){
+            this.redirectProfile = "GET".equals(samlBinding);
+            this.postProfile = "POST".equals(samlBinding);
+        } else {
+            this.redirectProfile = "GET".equals(request.getMethod());
+            this.postProfile = "POST".equals(request.getMethod());
+        }
+    }
+
     public String getCanonicalizationMethod() {
         return canonicalizationMethod;
     }
