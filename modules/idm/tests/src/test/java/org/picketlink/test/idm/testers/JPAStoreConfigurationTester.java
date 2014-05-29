@@ -36,10 +36,10 @@ import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.TokenCredentialTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity;
 import org.picketlink.idm.model.basic.Realm;
-import org.picketlink.test.idm.basic.CustomAccountTestCase;
 import org.picketlink.test.idm.basic.CustomAgentTypeEntity;
-import org.picketlink.test.idm.basic.MyCustomAccountEntity;
+import org.picketlink.test.idm.model.entity.MyCustomAccountEntity;
 import org.picketlink.test.idm.credential.TokenCredentialTestCase;
+import org.picketlink.test.idm.model.MyCustomAccount;
 import org.picketlink.test.idm.partition.CustomPartitionEntity;
 import org.picketlink.test.idm.relationship.CustomRelationshipTypeEntity;
 import org.picketlink.test.idm.util.JPAContextInitializer;
@@ -90,7 +90,7 @@ public class JPAStoreConfigurationTester implements IdentityConfigurationTester 
                                 TokenCredentialTypeEntity.class
                         )
                         .supportGlobalRelationship(org.picketlink.idm.model.Relationship.class)
-                        .setCredentialHandlerProperty(CredentialHandler.SUPPORTED_ACCOUNT_TYPES_PROPERTY, CustomAccountTestCase.MyCustomAccount.class)
+                        .setCredentialHandlerProperty(CredentialHandler.SUPPORTED_ACCOUNT_TYPES_PROPERTY, MyCustomAccount.class)
                         .setCredentialHandlerProperty(CredentialHandler.LOGIN_NAME_PROPERTY, "userName")
                         .setCredentialHandlerProperty(TokenCredentialHandler.TOKEN_PROVIDER, new Token.Provider[] {tokenAProvider, tokenBProvider})
                         .addContextInitializer(new JPAContextInitializer(null) {

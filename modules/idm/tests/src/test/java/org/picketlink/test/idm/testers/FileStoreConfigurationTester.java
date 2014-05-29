@@ -23,8 +23,8 @@ import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.credential.handler.TokenCredentialHandler;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.basic.Realm;
-import org.picketlink.test.idm.basic.CustomAccountTestCase;
 import org.picketlink.test.idm.credential.TokenCredentialTestCase;
+import org.picketlink.test.idm.model.MyCustomAccount;
 
 /**
  * @author pedroigor
@@ -45,7 +45,7 @@ public class FileStoreConfigurationTester implements IdentityConfigurationTester
                 .stores()
                     .file()
                     .preserveState(false)
-                    .setCredentialHandlerProperty(CredentialHandler.SUPPORTED_ACCOUNT_TYPES_PROPERTY, new Class[]{CustomAccountTestCase.MyCustomAccount.class})
+                    .setCredentialHandlerProperty(CredentialHandler.SUPPORTED_ACCOUNT_TYPES_PROPERTY, new Class[]{MyCustomAccount.class})
                     .setCredentialHandlerProperty(CredentialHandler.LOGIN_NAME_PROPERTY, "userName")
                     .setCredentialHandlerProperty(TokenCredentialHandler.TOKEN_PROVIDER, new Token.Provider[]{tokenAProvider, tokenBProvider})
                     .supportAllFeatures();

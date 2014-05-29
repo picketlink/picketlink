@@ -44,7 +44,7 @@ import org.picketlink.idm.model.basic.Group;
 import org.picketlink.idm.model.basic.GroupMembership;
 import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
-import org.picketlink.test.idm.basic.MyCustomAccountEntity;
+import org.picketlink.test.idm.model.entity.MyCustomAccountEntity;
 
 import java.io.InputStream;
 import java.util.List;

@@ -27,9 +27,14 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.basic.Agent;
 import org.picketlink.idm.model.basic.Grant;
+import org.picketlink.idm.model.basic.Group;
 import org.picketlink.idm.model.basic.GroupMembership;
 import org.picketlink.idm.model.basic.GroupRole;
+import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.model.basic.Role;
+import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.spi.ContextInitializer;
 
 import java.util.ArrayList;
@@ -337,9 +342,14 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
 
         // identity types
         classes.add(IdentityType.class);
+        classes.add(User.class);
+        classes.add(Agent.class);
+        classes.add(Role.class);
+        classes.add(Group.class);
 
         // partition types
         classes.add(Partition.class);
+        classes.add(Realm.class);
 
         return (Class<? extends AttributedType>[]) classes.toArray(new Class<?>[classes.size()]);
     }

@@ -19,29 +19,28 @@ package org.picketlink.test.idm.basic;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.AbstractIdentityType;
-import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.annotation.AttributeProperty;
-import org.picketlink.idm.model.annotation.Unique;
 import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.test.idm.Configuration;
-import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
+import org.picketlink.test.idm.model.MyCustomAccount;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
-import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+import org.picketlink.test.idm.testers.JPACustomTypesConfigurationTester;
 
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author pedroigor
  */
-@Configuration(include = {JPAStoreConfigurationTester.class, FileStoreConfigurationTester.class})
-public class CustomAccountTestCase extends AbstractIdentityTypeTestCase<CustomAccountTestCase.MyCustomAccount> {
+@Configuration(include = {JPACustomTypesConfigurationTester.class})
+public class CustomAccountTestCase extends AbstractIdentityTypeTestCase<MyCustomAccount> {
 
     public static final String USER_NAME = "bob";
 
@@ -149,41 +148,4 @@ public class CustomAccountTestCase extends AbstractIdentityTypeTestCase<CustomAc
 
         return result.get(0);
     }
-
-    public static class MyCustomAccount extends AbstractIdentityType implements Account {
-
-        public static final QueryParameter USER_NAME = QUERY_ATTRIBUTE.byName("userName");
-
-        private String userName;
-
-        private Integer loginAttempts;
-
-        public MyCustomAccount() {
-            this(null);
-        }
-
-        public MyCustomAccount(String userName) {
-            this.userName = userName;
-        }
-
-        @AttributeProperty
-        @Unique
-        public String getUserName() {
-            return userName;
-        }
-
-        public void setUserName(String userName) {
-            this.userName = userName;
-        }
-
-        @AttributeProperty
-        public Integer getLoginAttempts() {
-            return this.loginAttempts;
-        }
-
-        public void setLoginAttempts(Integer loginAttempts) {
-            this.loginAttempts = loginAttempts;
-        }
-    }
-
 }

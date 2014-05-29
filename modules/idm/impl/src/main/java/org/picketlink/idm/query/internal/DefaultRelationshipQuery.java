@@ -25,6 +25,7 @@ import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.internal.RelationshipReference;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
@@ -37,6 +38,7 @@ import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.StoreSelector;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -226,7 +228,11 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
             }
         }
 
-        return storeSelector.getStoresForRelationshipQuery(context, relationshipClass, partitions);
+        try {
+            return storeSelector.getStoresForRelationshipQuery(context, relationshipClass, partitions);
+        } catch (OperationNotSupportedException onse) {
+            return Collections.EMPTY_SET;
+        }
     }
 
 }

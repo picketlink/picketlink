@@ -26,7 +26,6 @@ import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.credential.storage.DigestCredentialStorage;
 import org.picketlink.idm.credential.util.DigestUtil;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.basic.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 
@@ -113,10 +112,9 @@ public class DigestCredentialHandler<S,V,U>
             throw MESSAGES.credentialInvalidPassword();
         }
 
-        Agent agent = (Agent) account;
+        String accountName = (String) getDefaultLoginNameProperty(account.getClass()).getValue(account);
 
-        byte[] ha1 = DigestUtil.calculateA1(agent.getLoginName(), digest.getRealm(), digest.getPassword()
-                .toCharArray());
+        byte[] ha1 = DigestUtil.calculateA1(accountName, digest.getRealm(), digest.getPassword().toCharArray());
 
         DigestCredentialStorage storage = new DigestCredentialStorage(ha1, digest.getRealm());
 

@@ -439,7 +439,7 @@ public class JPAIdentityStore
 
         Entry<Property, Property> partitionProperty = rootMapper.getProperty(OwnerReference.class);
 
-        if (partitionProperty != null) {
+        if (partitionProperty != null && getConfig().supportsPartition()) {
             Join<Object, Object> join = rootEntity.join(partitionProperty.getValue().getName());
             predicates.add(cb.equal(join, entityManager.find(partitionProperty.getValue().getJavaClass(), partition.getId())));
         }

@@ -7,7 +7,7 @@
         <jpa>
           <mappedEntity
               value1="org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity"
-              value2="org.picketlink.test.idm.basic.MyCustomAccountEntity"
+              value2="org.picketlink.test.idm.model.entity.MyCustomAccountEntity"
               value3="org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity"
               value4="org.picketlink.idm.jpa.model.sample.simple.GroupTypeEntity"
               value5="org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity"

@@ -832,6 +832,12 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     }
 
     private IdentityConfiguration getConfigurationForPartition(Partition partition) {
+        if (this.partitionManagementConfig == null) {
+            if (this.configurations.size() == 1) {
+                return this.configurations.iterator().next();
+            }
+        }
+
         if (!this.partitionConfigurations.containsKey(partition)) {
             IdentityContext context = createIdentityContext();
             PartitionStore<?> store = getStoreForPartitionOperation(context, partition.getClass());

@@ -15,18 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.test.idm.basic;
+package org.picketlink.test.idm.model.entity;
 
-import javax.persistence.Entity;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
-import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity;
+import org.picketlink.test.idm.model.MyCustomAccount;
+
+import javax.persistence.Entity;
 
 /**
  * @author pedroigor
  */
-@IdentityManaged(CustomAccountTestCase.MyCustomAccount.class)
+@IdentityManaged(MyCustomAccount.class)
 @Entity
 public class MyCustomAccountEntity extends IdentityTypeEntity {
 

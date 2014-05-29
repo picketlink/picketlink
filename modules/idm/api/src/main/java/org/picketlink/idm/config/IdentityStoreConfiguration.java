@@ -67,6 +67,13 @@ public interface IdentityStoreConfiguration {
     boolean supportsCredential();
 
     /**
+     * <p>Indicates if relationships are supported.</p>
+     *
+     * @return
+     */
+    boolean supportsRelationship();
+
+    /**
      * <p>Supported operations for @{AttributedType} types.</p>
      */
     enum IdentityOperation {
