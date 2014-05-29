@@ -79,7 +79,6 @@ import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.PartitionStore;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Id;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -470,7 +469,7 @@ public class JPAIdentityStore
                         Property ownerProperty = parameterEntityMapper.getProperty(OwnerReference.class).getValue();
 
                         if (ownerProperty != null) {
-                            if (ownerProperty.getAnnotatedElement().isAnnotationPresent(Id.class)) {
+                            if (ownerProperty.getAnnotatedElement().isAnnotationPresent(Identifier.class)) {
                                 predicates.add(cb.and(cb.equal(attributeOwnerEntity, rootEntity)));
                             } else {
                                 predicates.add(cb.and(cb.equal(attributeOwnerEntity.get(ownerProperty.getName()), rootEntity)));
@@ -502,7 +501,7 @@ public class JPAIdentityStore
             }
         }
 
-        Property idProperty = rootMapper.getProperty(Id.class).getValue();
+        Property idProperty = rootMapper.getProperty(Identifier.class).getValue();
 
         cq.select(rootEntity.get(idProperty.getName()));
 
