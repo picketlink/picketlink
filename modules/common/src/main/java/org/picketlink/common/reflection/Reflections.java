@@ -1099,11 +1099,6 @@ public class Reflections {
         return false;
     }
 
-    public static boolean isPrimitive(Type type) {
-        Class<?> rawType = getRawType(type);
-        return rawType == null ? false : rawType.isPrimitive();
-    }
-
     /**
      * <p>Creates a new instance of a class.</p>
      *
@@ -1114,10 +1109,9 @@ public class Reflections {
      * @return A newly allocated instance of the class.
      *
      * @throws ClassNotFoundException
-     * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    public static <T> T newInstance(final Class<T> fromClass) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public static <T> T newInstance(final Class<T> fromClass) throws ClassNotFoundException, InstantiationException {
         return newInstance(fromClass, fromClass.getName());
     }
 
@@ -1126,16 +1120,32 @@ public class Reflections {
      *
      * <p>This method will use the same class loader of <code>type</code> to create the new instance.</p>
      *
+     * <p>This method tries to set the constructor accessible if the type being instantiated does not have a accessible default constructor.</p>
+     *
      * @param type The class that will be used to get the class loader from.
      * @param fullQualifiedName The full qualified name of the class from which the instance will be created.
      *
      * @return A newly allocated instance of the class.
      *
      * @throws ClassNotFoundException
-     * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    public static <T> T newInstance(final Class<?> type, final String fullQualifiedName) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        return (T) classForName(fullQualifiedName, type.getClassLoader()).newInstance();
+    public static <T> T newInstance(final Class<?> type, final String fullQualifiedName) throws ClassNotFoundException, InstantiationException {
+        Class<Object> instanceType = classForName(fullQualifiedName, type.getClassLoader());
+
+        try {
+            Constructor<Object> defaultConstructor = instanceType.getDeclaredConstructor();
+
+            if (!Modifier.isPublic(defaultConstructor.getModifiers())) {
+                defaultConstructor.setAccessible(true);
+            }
+
+            return (T) defaultConstructor.newInstance();
+        } catch (NoSuchMethodException nsme) {
+            throw new InstantiationException("Type [" + fullQualifiedName + "] does not provide a default constructor.");
+        } catch (Exception e) {
+            throw new InstantiationException("Could not instantiate type [" + fullQualifiedName + "].");
+        }
+
     }
 }

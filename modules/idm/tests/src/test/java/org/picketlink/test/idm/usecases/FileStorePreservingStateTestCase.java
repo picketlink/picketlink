@@ -5,12 +5,17 @@ import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.basic.Grant;
 import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.idm.model.basic.Role;
 import org.picketlink.idm.model.basic.User;
 
 import java.io.Serializable;
+import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created with IntelliJ IDEA. User: pedroigor Date: 8/6/13 Time: 7:32 PM To change this template use File | Settings |
@@ -136,6 +141,42 @@ public class FileStorePreservingStateTestCase {
         assertEquals(storedUserA.getAttribute("userAttribute").getValue(), "1");
         assertEquals(storedUserB.getAttribute("userAttribute").getValue(), "2");
         assertEquals(storedUserC.getAttribute("userAttribute").getValue(), "3");
+
+        builder
+            .named("file-store-preserve-state")
+                .stores()
+                    .file()
+                        .preserveState(true)
+                        .workingDirectory("/tmp/teste")
+                        .supportAllFeatures();
+
+        storedRealmA = partitionManager.getPartition(Realm.class, REALM_A);
+
+        Role roleA = new Role("Role A");
+
+        partitionManager.createIdentityManager(storedRealmA).add(roleA);
+        partitionManager.createRelationshipManager().add(new Grant(storedUserA, roleA));
+
+        builder
+            .named("file-store-preserve-state")
+                .stores()
+                    .file()
+                        .preserveState(true)
+                        .workingDirectory("/tmp/teste")
+                        .supportAllFeatures();
+
+        storedRealmA = partitionManager.getPartition(Realm.class, REALM_A);
+
+        Role storedRoleA = partitionManager.createIdentityManager(storedRealmA).createIdentityQuery(Role.class)
+            .setParameter(Role.NAME, "Role A").getResultList().get(0);
+
+        assertNotNull(storedRoleA);
+
+        List<Grant> result = partitionManager.createRelationshipManager().createRelationshipQuery(Grant.class)
+            .setParameter(Grant.ASSIGNEE, storedUserA)
+            .setParameter(Grant.ROLE, storedRoleA).getResultList();
+
+        assertFalse(result.isEmpty());
     }
 
 }

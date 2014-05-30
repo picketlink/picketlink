@@ -31,6 +31,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import static org.picketlink.common.reflection.Reflections.newInstance;
+
 /**
  * @author Pedro Silva
  *
@@ -48,7 +50,7 @@ public abstract class AbstractFileAttributedType<T extends AttributedType> exten
     }
 
     protected T doCreateInstance(Map<String, Serializable> properties) throws Exception {
-        return (T) Class.forName(getType()).newInstance();
+        return (T) newInstance(getClass(), getType());
     }
 
     @Override
