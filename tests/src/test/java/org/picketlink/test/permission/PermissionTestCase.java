@@ -27,6 +27,7 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.Identity;
+import org.picketlink.annotations.PicketLink;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -38,6 +39,12 @@ import org.picketlink.test.AbstractArquillianTestCase;
 import org.picketlink.test.AbstractJPADeploymentTestCase;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
+import javax.transaction.UserTransaction;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -61,9 +68,16 @@ public class PermissionTestCase extends AbstractJPADeploymentTestCase {
     @Inject
     private PermissionManager permissionManager;
 
+    @Inject
+    @PicketLink
+    private EntityManager entityManager;
+
+    @Inject
+    private UserTransaction userTransaction;
+
     @Deployment (name="permission-support")
     public static WebArchive deployPermissionSupport() {
-        return deploy("/META-INF/persistence-with-permission.xml", GenericPermissionTypeEntity.class, AbstractArquillianTestCase.class);
+        return deploy("/META-INF/persistence-with-permission.xml", GenericPermissionTypeEntity.class, SomeEntity.class, AbstractArquillianTestCase.class);
     }
 
     @Deployment (name="no-permission-support")
@@ -72,7 +86,7 @@ public class PermissionTestCase extends AbstractJPADeploymentTestCase {
     }
 
     @Before
-    public void onSetup() {
+    public void onSetup() throws HeuristicRollbackException, RollbackException, HeuristicMixedException, SystemException {
         User user = getUser(this.identityManager, "john");
 
         if (user == null) {
@@ -83,6 +97,8 @@ public class PermissionTestCase extends AbstractJPADeploymentTestCase {
             Password password = new Password("mypasswd");
 
             this.identityManager.updateCredential(user, password);
+
+            this.userTransaction.commit();
         }
 
         this.credentials.setUserId(user.getLoginName());
@@ -109,6 +125,33 @@ public class PermissionTestCase extends AbstractJPADeploymentTestCase {
 
         assertFalse(this.identity.hasPermission(User.class, "read"));
         assertFalse(this.identity.hasPermission("somefile.txt", "read"));
+    }
+
+    @Test
+    @OperateOnDeployment("permission-support")
+    public void testGrantAndRevokeEntityPermission() {
+        Account user = this.identity.getAccount();
+
+        assertNotNull(user);
+
+        SomeEntity entity = new SomeEntity();
+
+        this.entityManager.persist(entity);
+
+        SomeEntity entity2 = new SomeEntity();
+
+        this.entityManager.persist(entity2);
+
+        this.permissionManager.grantPermission(user, entity, "load");
+
+        assertTrue(this.identity.hasPermission(SomeEntity.class, entity.getId(), "load"));
+        assertFalse(this.identity.hasPermission(SomeEntity.class, entity2.getId(), "load"));
+
+        permissionManager.revokePermission(user, entity, "load");
+        permissionManager.grantPermission(user, entity2, "load");
+
+        assertFalse(this.identity.hasPermission(SomeEntity.class, entity.getId(), "load"));
+        assertTrue(this.identity.hasPermission(SomeEntity.class, entity2.getId(), "load"));
     }
 
     @Test(expected = IdentityManagementException.class)

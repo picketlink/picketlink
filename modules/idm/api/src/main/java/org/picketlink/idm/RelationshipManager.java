@@ -69,13 +69,13 @@ public interface RelationshipManager {
      * interface any {@link Relationship} instance that matches the provided query parameters will be returned.
      * </p>
      *
-     * @param identityType
+     * @param relationshipType
      * @return
      */
     <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType);
 
     /**
-     * Returns true if the specified identity inherits privileges assigned to the specified assignee,
+     * Returns true if the specified identity is the same or inherits privileges assigned to the specified assignee,
      * either via a relationship or a direct reference from the identity (or a combination of these)
      *
      * @param identity
