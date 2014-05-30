@@ -14,7 +14,6 @@ import java.util.List;
 /**
  *
  * @author Shane Bryzak
- *
  */
 public class PersistentPermissionVoter implements PermissionVoter {
 
@@ -29,30 +28,39 @@ public class PersistentPermissionVoter implements PermissionVoter {
             throw new IllegalArgumentException("recipient must not be null");
         }
 
-        VotingResult result = VotingResult.NOT_APPLICABLE;
 
-        PermissionManager pm = partitionManager.createPermissionManager(recipient.getPartition());
-        RelationshipManager rm = partitionManager.createRelationshipManager();
-        List<Permission> permissions = pm.listPermissions(resource, operation);
+        List<Permission> permissions = getPermissionManager(recipient).listPermissions(resource, operation);
+
+        return checkPermission(recipient, permissions);
+    }
+
+    public VotingResult hasPermission(IdentityType recipient, Class<?> resourceClass, Serializable identifier, String operation) {
+        if (recipient == null) {
+            throw new IllegalArgumentException("recipient must not be null");
+        }
+
+        List<Permission> permissions = getPermissionManager(recipient).listPermissions(resourceClass, identifier, operation);
+
+        return checkPermission(recipient, permissions);
+    }
+
+    private PermissionManager getPermissionManager(IdentityType recipient) {
+        return partitionManager.createPermissionManager(recipient.getPartition());
+    }
+
+    private VotingResult checkPermission(IdentityType recipient, List<Permission> permissions) {
+        RelationshipManager relationshipManager = partitionManager.createRelationshipManager();
 
         for (Permission permission : permissions) {
             if (permission instanceof IdentityPermission) {
                 IdentityPermission idPermission = (IdentityPermission) permission;
-                if (recipient.equals(idPermission.getAssignee())) {
-                    result = VotingResult.ALLOW;
-                    break;
-                } else if (rm.inheritsPrivileges(recipient, idPermission.getAssignee())) {
-                    result = VotingResult.ALLOW;
-                    break;
+
+                if (relationshipManager.inheritsPrivileges(recipient, idPermission.getAssignee())) {
+                    return VotingResult.ALLOW;
                 }
             }
         }
 
-        return result;
-    }
-
-    public VotingResult hasPermission(IdentityType recipient, Class<?> resourceClass, Serializable identifier, String operation) {
-        // TODO implement
-        return null;
+        return VotingResult.NOT_APPLICABLE;
     }
 }

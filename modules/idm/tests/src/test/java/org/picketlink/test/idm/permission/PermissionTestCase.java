@@ -144,13 +144,13 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
         permissionManager.grantPermission(bob, entity, "load");
 
         assertTrue(hasPermission(bob, permissionManager.listPermissions(ProtectedEntity.class, entity.getId())));
-        assertFalse(hasPermission(bob, permissionManager.listPermissions(entity2, "load")));
+        assertFalse(hasPermission(bob, permissionManager.listPermissions(ProtectedEntity.class, entity2.getId(), "load")));
 
         permissionManager.revokePermission(bob, entity, "load");
         permissionManager.grantPermission(bob, entity2, "load");
 
-        assertFalse(hasPermission(bob, permissionManager.listPermissions(entity, "load")));
-        assertTrue(hasPermission(bob, permissionManager.listPermissions(ProtectedEntity.class, entity2.getId())));
+        assertFalse(hasPermission(bob, permissionManager.listPermissions(ProtectedEntity.class, entity.getId(), "load")));
+        assertTrue(hasPermission(bob, permissionManager.listPermissions(ProtectedEntity.class, entity2.getId(), "load")));
     }
 
     @Test
@@ -180,7 +180,7 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
 
         EntityManager entityManager = getEntityManager();
 
-        List result = entityManager.createQuery("from TypedPermissionTypeEntity").getResultList();
+        List result = entityManager.createQuery("from TypedPermissionTypeEntity p").getResultList();
 
         assertEquals(0, result.size());
 
@@ -194,11 +194,11 @@ public class PermissionTestCase extends AbstractPartitionManagerTestCase {
 
         permissionManager.grantPermission(bob, entity, "load");
 
-        result = entityManager.createQuery("from TypedPermissionTypeEntity").getResultList();
+        result = entityManager.createQuery("from TypedPermissionTypeEntity p").getResultList();
 
         assertEquals(1, result.size());
 
-        result = entityManager.createQuery("from BasicPermissionTypeEntity").getResultList();
+        result = entityManager.createQuery("from BasicPermissionTypeEntity p").getResultList();
 
         assertEquals(1, result.size());
     }

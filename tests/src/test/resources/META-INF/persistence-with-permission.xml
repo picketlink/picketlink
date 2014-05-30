@@ -20,6 +20,7 @@
         <class>org.picketlink.idm.jpa.model.sample.simple.OTPCredentialTypeEntity</class>
         <class>org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity</class>
         <class>org.picketlink.test.permission.GenericPermissionTypeEntity</class>
+        <class>org.picketlink.test.permission.SomeEntity</class>
 
         <properties>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
