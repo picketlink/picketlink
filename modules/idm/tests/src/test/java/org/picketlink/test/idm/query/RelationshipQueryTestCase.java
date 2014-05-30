@@ -72,10 +72,7 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        Grant grant = new Grant();
-
-        grant.setAssignee(user);
-        grant.setRole(role);
+        Grant grant = new Grant(user, role);
 
         relationshipManager.add(grant);
 
@@ -125,10 +122,7 @@ public class RelationshipQueryTestCase extends AbstractPartitionManagerTestCase 
 
         RelationshipManager relationshipManager = getPartitionManager().createRelationshipManager();
 
-        Grant grant = new Grant();
-
-        grant.setAssignee(user);
-        grant.setRole(role);
+        Grant grant = new Grant(user, role);
 
         relationshipManager.add(grant);
 

@@ -53,11 +53,6 @@ public class FileRelationship extends AbstractFileAttributedType<Relationship> {
     }
 
     @Override
-    protected Relationship doCreateInstance(Map<String, Serializable> properties) throws Exception {
-        return (Relationship) Class.forName(getType()).newInstance();
-    }
-
-    @Override
     protected void doPopulateProperties(Map<String, Serializable> properties) throws Exception {
         super.doPopulateProperties(properties);
 
