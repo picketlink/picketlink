@@ -25,8 +25,10 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.picketlink.common.util.Base64;
+import org.picketlink.test.util.ArchiveUtils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -40,21 +42,24 @@ import static org.picketlink.test.authentication.web.Resources.DEFAULT_USER_PASS
  */
 public class BasicAuthenticationSchemeTestCase extends AbstractAuthenticationSchemeTestCase {
 
-    public static final String SESSION_HEADER_NAME = "JSESSIONID";
-
     @Deployment (name = "default", testable = false)
     public static Archive<?> deployDefault() {
-        return deploy("default.war", "authc-filter-basic-web.xml");
+        return create("default.war", "authc-filter-basic-web.xml");
     }
 
     @Deployment (name = "force-reauthentication", testable = false)
     public static Archive<?> deployWithReauthentication() {
-        return deploy("force-reauthentication.war", "authc-filter-basic-reauthc-web.xml");
+        return create("force-reauthentication.war", "authc-filter-basic-reauthc-web.xml");
     }
 
     @Deployment (name = "stateless-reauthentication", testable = false)
     public static Archive<?> deployWithStatelessAuthentication() {
-        return deploy("stateless-authentication.war", "authc-filter-basic-stateless-web.xml");
+        WebArchive webArchive = create("stateless-authentication.war", "authc-filter-basic-web.xml");
+
+        ArchiveUtils.addBeansXml(webArchive, "stateless-identity-beans.xml");
+
+        return webArchive;
+
     }
 
     @Test
@@ -186,9 +191,11 @@ public class BasicAuthenticationSchemeTestCase extends AbstractAuthenticationSch
         assertEquals(HttpStatus.SC_OK, response.getStatusCode());
         assertEquals("Protected Page", response.getContentAsString());
 
-        request.setUrl(getContextPath());
-        client.loadWebResponse(request);
+        request = new WebRequestSettings(getProtectedResourceURL());
 
+        response = client.loadWebResponse(request);
+
+        assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getStatusCode());
         assertNull(client.getCookieManager().getCookie(SESSION_HEADER_NAME.toUpperCase()));
     }
 
@@ -215,8 +222,11 @@ public class BasicAuthenticationSchemeTestCase extends AbstractAuthenticationSch
         assertEquals(HttpStatus.SC_OK, response.getStatusCode());
         assertEquals("Protected Page", response.getContentAsString());
 
-        request.setUrl(getContextPath());
-        client.loadWebResponse(request);
+        request = new WebRequestSettings(getProtectedResourceURL());
+        response = client.loadWebResponse(request);
+
+        assertEquals(HttpStatus.SC_OK, response.getStatusCode());
+        assertEquals("Protected Page", response.getContentAsString());
 
         assertNotNull(client.getCookieManager().getCookie(SESSION_HEADER_NAME.toUpperCase()));
     }

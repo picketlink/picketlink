@@ -40,7 +40,7 @@ public class LogoutTestCase extends AbstractAuthenticationTestCase {
 
     @Deployment
     public static WebArchive deploy() {
-        return deploy(LogoutTestCase.class);
+        return create(LogoutTestCase.class);
     }
     
     @Test

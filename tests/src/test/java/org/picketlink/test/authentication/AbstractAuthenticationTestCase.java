@@ -62,7 +62,7 @@ public abstract class AbstractAuthenticationTestCase extends AbstractArquillianT
     @Inject
     private IdentityManager identityManager;
 
-    public static WebArchive deploy(Class... classesToAdd) {
+    public static WebArchive create(Class... classesToAdd) {
         List<Class> classes = new ArrayList<Class>();
 
         classes.add(AbstractAuthenticationTestCase.class);

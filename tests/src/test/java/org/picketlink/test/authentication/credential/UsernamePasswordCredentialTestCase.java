@@ -34,7 +34,7 @@ public class UsernamePasswordCredentialTestCase extends AbstractAuthenticationTe
 
     @Deployment
     public static WebArchive deploy() {
-        return deploy(UsernamePasswordCredentialTestCase.class);
+        return create(UsernamePasswordCredentialTestCase.class);
     }
 
     @Test

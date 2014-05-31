@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.picketlink.Identity.Stateless;
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
@@ -55,18 +54,12 @@ public class AuthenticationFilter implements Filter {
     public static final String AUTH_TYPE_INIT_PARAM = "authType";
     public static final String UNPROTECTED_METHODS_INIT_PARAM = "unprotectedMethods";
     public static final String FORCE_REAUTHENTICATION_INIT_PARAM = "forceReAuthentication";
-    public static final String STATELESS_AUTHENTICATION_INIT_PARAM = "statelessAuthentication";
 
     private final Set<String> unprotectedMethods;
     private boolean forceReAuthentication;
-    private boolean statelessAuthentication;
 
     @Inject
     private Instance<Identity> identityInstance;
-
-    @Inject
-    @Stateless
-    private Instance<Identity> statelessIdentityInstance;
 
     @Inject
     private Instance<DefaultLoginCredentials> credentialsInstance;
@@ -87,8 +80,8 @@ public class AuthenticationFilter implements Filter {
 
     @Override
     public void init(FilterConfig config) throws ServletException {
-        authenticationScheme = resolveAuthenticationScheme(config);
-        authenticationScheme.initialize(config);
+        this.authenticationScheme = resolveAuthenticationScheme(config);
+        this.authenticationScheme.initialize(config);
 
         String unprotectedMethodsInitParam = config.getInitParameter(UNPROTECTED_METHODS_INIT_PARAM);
 
@@ -109,14 +102,6 @@ public class AuthenticationFilter implements Filter {
         }
 
         this.forceReAuthentication = Boolean.valueOf(forceReAuthentication);
-
-        String statelessAuthentication = config.getInitParameter(STATELESS_AUTHENTICATION_INIT_PARAM);
-
-        if (isNullOrEmpty(statelessAuthentication)) {
-            statelessAuthentication = "false";
-        }
-
-        this.statelessAuthentication = Boolean.valueOf(statelessAuthentication);
     }
 
     @Override
@@ -138,11 +123,6 @@ public class AuthenticationFilter implements Filter {
         }
 
         if (isProtected(request) && !identity.isLoggedIn()) {
-            if (!this.statelessAuthentication) {
-                // then we force session creation
-                request.getSession(true);
-            }
-
             if (creds.getCredential() != null) {
                 try {
                     identity.login();
@@ -191,6 +171,7 @@ public class AuthenticationFilter implements Filter {
         }
 
         Class<? extends HTTPAuthenticationScheme> authTypeClass;
+
         try {
             authTypeClass = AuthType.valueOf(authTypeName.toUpperCase()).getSchemeType();
         } catch (IllegalArgumentException iae) {
@@ -246,22 +227,14 @@ public class AuthenticationFilter implements Filter {
     }
 
     private Identity getIdentity() {
-        if (this.statelessAuthentication) {
-            return getIdentity(this.statelessIdentityInstance);
-        } else {
-            return getIdentity(this.identityInstance);
-        }
-    }
-
-    private Identity getIdentity(Instance<Identity> identityInstance) {
-        if (identityInstance.isUnsatisfied()) {
+        if (this.identityInstance.isUnsatisfied()) {
             throw new IllegalStateException("Identity not found.");
-        } else if (identityInstance.isAmbiguous()) {
+        } else if (this.identityInstance.isAmbiguous()) {
             throw new IllegalStateException("Identity is ambiguous.");
         }
 
         try {
-            return identityInstance.get();
+            return this.identityInstance.get();
         } catch (Exception e) {
             throw new IllegalStateException("Could not retrieve Identity.", e);
         }
@@ -275,7 +248,8 @@ public class AuthenticationFilter implements Filter {
         BASIC(BasicAuthenticationScheme.class),
         DIGEST(DigestAuthenticationScheme.class),
         FORM(FormAuthenticationScheme.class),
-        CLIENT_CERT(ClientCertAuthenticationScheme.class);
+        CLIENT_CERT(ClientCertAuthenticationScheme.class),
+        TOKEN(TokenAuthenticationScheme.class);
 
         private final Class<? extends HTTPAuthenticationScheme> schemeType;
 

@@ -21,12 +21,6 @@
     <filter>
         <filter-name>PicketLink Authentication Filter</filter-name>
         <filter-class>org.picketlink.authentication.web.AuthenticationFilter</filter-class>
-
-        <init-param>
-            <param-name>statelessAuthentication</param-name>
-            <param-value>true</param-value>
-        </init-param>
-
     </filter>
 
     <filter-mapping>

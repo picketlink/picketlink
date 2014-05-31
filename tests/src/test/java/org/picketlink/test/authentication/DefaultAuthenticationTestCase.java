@@ -50,7 +50,7 @@ public class DefaultAuthenticationTestCase extends AbstractAuthenticationTestCas
 
     @Deployment
     public static WebArchive deploy() {
-        return deploy(DefaultAuthenticationTestCase.class);
+        return create(DefaultAuthenticationTestCase.class);
     }
     
     @Test

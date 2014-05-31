@@ -17,15 +17,16 @@
  */
 package org.picketlink.test.authentication.web;
 
-import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.inject.Inject;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.basic.User;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.inject.Inject;
 
 /**
  * @author pedroigor
@@ -36,15 +37,30 @@ public class Resources {
 
     public static final String DEFAULT_USERNAME = "john";
     public static final String DEFAULT_USER_PASSWD = "passwd";
+    public static final String DEFAULT_DISABLED_USERNAME = "disabledUser";
 
     @Inject
     protected PartitionManager partitionManager;
 
     @PostConstruct
     public void create() {
-        IdentityManager identityManager = partitionManager.createIdentityManager();
+        User john = new User(DEFAULT_USERNAME);
 
-        User user = new User(DEFAULT_USERNAME);
+        addUser(john);
+
+        User disabledUser = new User(DEFAULT_DISABLED_USERNAME);
+
+        disabledUser.setEnabled(false);
+
+        addUser(disabledUser);
+
+        User httpCertUser = new User("jbid test");
+
+        addUser(httpCertUser);
+    }
+
+    private void addUser(User user) {
+        IdentityManager identityManager = partitionManager.createIdentityManager();
 
         identityManager.add(user);
 
@@ -59,10 +75,5 @@ public class Resources {
         digestCredential.setPassword(DEFAULT_USER_PASSWD);
 
         identityManager.updateCredential(user, digestCredential);
-
-        user = new User("jbid test");
-
-        identityManager.add(user);
     }
-
 }

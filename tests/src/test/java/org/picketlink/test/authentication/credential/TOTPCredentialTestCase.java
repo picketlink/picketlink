@@ -43,7 +43,7 @@ public class TOTPCredentialTestCase extends AbstractAuthenticationTestCase {
 
     @Deployment
     public static WebArchive deploy() {
-        return deploy(TOTPCredentialTestCase.class);
+        return create(TOTPCredentialTestCase.class);
     }
 
     @Test

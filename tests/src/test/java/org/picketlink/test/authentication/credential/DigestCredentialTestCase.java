@@ -38,7 +38,7 @@ public class DigestCredentialTestCase extends AbstractAuthenticationTestCase {
 
     @Deployment
     public static WebArchive deploy() {
-        return deploy(DigestCredentialTestCase.class);
+        return create(DigestCredentialTestCase.class);
     }
 
     @Test

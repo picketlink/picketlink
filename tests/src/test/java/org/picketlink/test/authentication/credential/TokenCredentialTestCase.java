@@ -57,7 +57,7 @@ public class TokenCredentialTestCase extends AbstractAuthenticationTestCase {
 
     @Deployment
     public static WebArchive deploy() {
-        return deploy(TokenCredentialTestCase.class);
+        return create(TokenCredentialTestCase.class);
     }
 
     @Before

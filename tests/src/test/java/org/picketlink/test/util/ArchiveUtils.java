@@ -22,6 +22,7 @@
 
 package org.picketlink.test.util;
 
+import org.jboss.shrinkwrap.api.ArchivePath;
 import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -51,9 +52,9 @@ public class ArchiveUtils {
     }
 
     public static WebArchive create(String name, Class<?>... classesToAdd) {
-        WebArchive archive = ShrinkWrap
-                .create(WebArchive.class, name)
-                .addAsWebInfResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"));
+        WebArchive archive = ShrinkWrap.create(WebArchive.class, name);
+
+        addBeansXml(archive, null);
 
         addDependency(archive, "org.picketlink:picketlink-impl:" + getCurrentProjectVersion());
 
@@ -89,6 +90,23 @@ public class ArchiveUtils {
      */
     public static String getCurrentProjectVersion() {
         return System.getProperty("project.version", "2.6.0-SNAPSHOT");
+    }
+
+    public static void addBeansXml(WebArchive webArchive, String resourcePath) {
+        webArchive.delete(ArchivePaths.create("WEB-INF/beans.xml"));
+
+        ArchivePath beansXmlPath = ArchivePaths.create("beans.xml");
+
+        if (resourcePath != null) {
+            webArchive.addAsWebInfResource(ArchiveUtils.class.getResource("/deployments/" + resourcePath), beansXmlPath);
+        } else {
+            webArchive.addAsWebInfResource(EmptyAsset.INSTANCE, beansXmlPath);
+        }
+    }
+
+    public static void addWebXml(WebArchive webArchive, String resourcePath) {
+        webArchive.delete(ArchivePaths.create("WEB-INF/web.xml"));
+        webArchive.addAsWebInfResource(ArchiveUtils.class.getResource("/deployments/" + resourcePath), ArchivePaths.create("web.xml"));
     }
 
 }

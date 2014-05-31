@@ -55,22 +55,36 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.picketlink.Identity.Stateless;
+import static org.picketlink.test.util.ArchiveUtils.addBeansXml;
 
 /**
  * @author Pedro Igor
  */
 @RunAsClient
-public class StatelessAuthenticationTestCase extends AbstractArquillianTestCase {
+public class StatelessIdentityAuthenticationTestCase extends AbstractArquillianTestCase {
 
-    @Deployment(name = "services")
-    public static WebArchive deploy() {
-        WebArchive deployment = ArchiveUtils.create(StatelessAuthenticationTestCase.class, AbstractArquillianTestCase.class);
+    @Deployment(name = "stateless-services")
+    public static WebArchive deployStateless() {
+        WebArchive webArchive = deploy("stateless-services.war");
 
+        addBeansXml(webArchive, "stateless-identity-beans.xml");
+
+        return webArchive;
+    }
+
+    @Deployment(name = "stateful-services")
+    public static WebArchive deployStateful() {
+        return deploy("stateful-services.war");
+    }
+
+    private static WebArchive deploy(String name) {
+        WebArchive deployment = ArchiveUtils.create(name);
+
+        deployment.addClass(StatelessIdentityAuthenticationTestCase.class);
+        deployment.addClass(AbstractArquillianTestCase.class);
+        deployment.addClass(StatelessIdentityAuthenticationTestCase.class);
         deployment.addClass(JaxRsActivator.class);
-        deployment.addClass(AbstractAuthenticator.class);
-        deployment.addClass(StatelessAuthenticator.class);
-        deployment.addClass(StatefulAuthenticator.class);
+        deployment.addClass(Authenticator.class);
         deployment.addClass(Token.class);
         deployment.addClass(IDMInitializer.class);
 
@@ -78,15 +92,15 @@ public class StatelessAuthenticationTestCase extends AbstractArquillianTestCase 
     }
 
     @Test
-    @OperateOnDeployment("services")
+    @OperateOnDeployment("stateful-services")
     public void testStatefulAuthentication(@ArquillianResource URL url) throws Exception {
-        assertUserAuthenticated(url, "rest/stateful", true);
+        assertUserAuthenticated(url, "rest/authenticator", true);
     }
 
     @Test
-    @OperateOnDeployment("services")
+    @OperateOnDeployment("stateless-services")
     public void testStatelessAuthentication(@ArquillianResource URL url) throws Exception {
-        assertUserAuthenticated(url, "rest/stateless", false);
+        assertUserAuthenticated(url, "rest/authenticator", false);
     }
 
     private void assertUserAuthenticated(URL url, String basePath, boolean expectUserAuthenticated) throws URISyntaxException {
@@ -123,7 +137,11 @@ public class StatelessAuthenticationTestCase extends AbstractArquillianTestCase 
 
     }
 
-    public static abstract class AbstractAuthenticator {
+    @Path("/authenticator")
+    public static class Authenticator {
+
+        @Inject
+        private Identity identity;
 
         @Inject
         private DefaultLoginCredentials credentials;
@@ -136,9 +154,9 @@ public class StatelessAuthenticationTestCase extends AbstractArquillianTestCase 
             this.credentials.setUserId(userCredentials.getUserId());
             this.credentials.setPassword(userCredentials.getPassword());
 
-            getIdentity().login();
+            this.identity.login();
 
-            if (getIdentity().isLoggedIn()) {
+            if (this.identity.isLoggedIn()) {
                 Token token = new Token();
 
                 token.setId(userCredentials.getUserId());
@@ -153,34 +171,7 @@ public class StatelessAuthenticationTestCase extends AbstractArquillianTestCase 
         @GET
         @Produces(MediaType.APPLICATION_JSON)
         public Response isAuthenticated() {
-            return Response.ok().entity(getIdentity().isLoggedIn()).build();
-        }
-
-        protected abstract Identity getIdentity();
-    }
-
-    @Path("/stateless")
-    public static class StatelessAuthenticator extends AbstractAuthenticator {
-
-        @Inject
-        @Stateless
-        private Identity identity;
-
-        @Override
-        public Identity getIdentity() {
-            return this.identity;
-        }
-    }
-
-    @Path("/stateful")
-    public static class StatefulAuthenticator extends AbstractAuthenticator {
-
-        @Inject
-        private Identity identity;
-
-        @Override
-        public Identity getIdentity() {
-            return this.identity;
+            return Response.ok().entity(this.identity.isLoggedIn()).build();
         }
     }
 

@@ -18,28 +18,20 @@
 
 package org.picketlink.internal;
 
-import javax.enterprise.context.RequestScoped;
-
-import static org.picketlink.Identity.Stateless;
+import org.picketlink.annotations.StatelessIdentity;
 
 /**
- * <p>Specialization of {@link org.picketlink.internal.DefaultIdentity} providing a stateless behavior to the authentication process. Basically,
- * this implementation is an alternative to the default behavior which uses the session scope to share the authentication state for an user between different interactions or requests.</p>
+ * <p>{@link org.picketlink.Identity} implementation providing a stateless behavior to the authentication process.</p>
  *
- * <p>In order to inject a stateless version of the {@link org.picketlink.Identity} bean, users must qualify the injection point as follows:</p>
+ * <p>Basically, this implementation is an alternative to the default behavior which uses the session scope to share the authentication
+ * state for an user between different interactions or requests.</p>
  *
- * <pre>
- *   &#064;Inject
- *   &#064;Identity.Stateless
- *   public Identity identity;
- * </pre>
- *
- * @see org.picketlink.Identity.Stateless
+ * @see org.picketlink.annotations.StatelessIdentity
+ * @see org.picketlink.internal.DefaultIdentity
  *
  * @author Pedro Igor
  */
-@Stateless
-@RequestScoped
-public class DefaultStatelessIdentity extends DefaultIdentity {
-
+@StatelessIdentity
+public class DefaultStatelessIdentity extends AbstractIdentity {
+    private static final long serialVersionUID = 7698208680810910473L;
 }
