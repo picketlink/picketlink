@@ -38,7 +38,7 @@ public class DigestAuthenticationSchemeTestCase extends AbstractAuthenticationSc
 
     @Deployment (testable = false)
     public static Archive<?> deploy() {
-        return deploy("authc-filter-digest-web.xml");
+        return create("authc-filter-digest-web.xml");
     }
 
     @Test

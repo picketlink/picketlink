@@ -18,8 +18,13 @@
 package org.picketlink.test.authentication.web;
 
 import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.shrinkwrap.api.asset.StringAsset;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.jboss.shrinkwrap.resolver.api.DependencyResolvers;
+import org.jboss.shrinkwrap.resolver.api.maven.MavenDependencyResolver;
 import org.picketlink.test.AbstractArquillianTestCase;
+import org.picketlink.test.util.ArchiveUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -29,19 +34,32 @@ import java.net.URL;
  */
 public abstract class AbstractAuthenticationSchemeTestCase extends AbstractArquillianTestCase {
 
+    public static final String SESSION_HEADER_NAME = "JSESSIONID";
+
     @ArquillianResource
     private URL contextPath;
 
-    public static WebArchive deploy(String name, String webXml, Class<?>... classesToAdd) {
-        WebArchive deployment = create(name, webXml, classesToAdd);
+    public static WebArchive create(String name, String webXml, Class<?>... classesToAdd) {
+        WebArchive archive = ArchiveUtils.create(name, classesToAdd);
 
-        deployment.addClass(Resources.class);
+        archive.addClass(Resources.class);
 
-        return deployment;
+        archive.addAsLibraries(
+            DependencyResolvers.use(MavenDependencyResolver.class)
+                .artifact("net.sourceforge.htmlunit:htmlunit:2.4")
+                .resolveAs(JavaArchive.class));
+
+
+        ArchiveUtils.addWebXml(archive, webXml);
+
+        archive.add(new StringAsset("Index Page"), "index.html");
+        archive.add(new StringAsset("Protected Page"), "protected/index.html");
+
+        return archive;
     }
 
-    public static WebArchive deploy(String webXml, Class<?>... classesToAdd) {
-        return deploy("test.war", webXml, classesToAdd);
+    public static WebArchive create(String webXml, Class<?>... classesToAdd) {
+        return create("test.war", webXml, classesToAdd);
     }
 
     protected URL getProtectedResourceURL() throws MalformedURLException {

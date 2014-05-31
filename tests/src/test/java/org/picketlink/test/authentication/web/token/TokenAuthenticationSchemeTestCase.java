@@ -24,14 +24,17 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.picketlink.common.util.Base64;
 import org.picketlink.test.authentication.web.AbstractAuthenticationSchemeTestCase;
+import org.picketlink.test.util.ArchiveUtils;
 
 import java.net.URL;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.picketlink.test.authentication.web.Resources.DEFAULT_USERNAME;
 import static org.picketlink.test.authentication.web.Resources.DEFAULT_USER_PASSWD;
@@ -43,11 +46,15 @@ public class TokenAuthenticationSchemeTestCase extends AbstractAuthenticationSch
 
     @Deployment (name = "default", testable = false)
     public static Archive<?> deployDefault() {
-        return deploy("default.war", "authc-filter-basic-token-web.xml",
+        WebArchive webArchive = create("default.war", "authc-filter-basic-token-web.xml",
             SimpleToken.class,
             SimpleTokenIDMConfiguration.class,
             SimpleTokenAuthenticationConfiguration.class,
             ProtectedServlet.class);
+
+        ArchiveUtils.addBeansXml(webArchive, "stateless-identity-beans.xml");
+
+        return webArchive;
     }
 
     @Test
@@ -73,6 +80,7 @@ public class TokenAuthenticationSchemeTestCase extends AbstractAuthenticationSch
         String responseData = response.getContentAsString();
 
         assertNotNull(responseData);
+        assertNull(client.getCookieManager().getCookie(SESSION_HEADER_NAME.toUpperCase()));
 
         String token = responseData.substring(responseData.indexOf(":") + 2, responseData.length() - 2);
 
@@ -83,5 +91,16 @@ public class TokenAuthenticationSchemeTestCase extends AbstractAuthenticationSch
 
         assertEquals(HttpStatus.SC_OK, response.getStatusCode());
         assertTrue(response.getContentAsString().contains("User is john"));
+        assertNull(client.getCookieManager().getCookie(SESSION_HEADER_NAME.toUpperCase()));
+
+        request = new WebRequestSettings(protectedServletUrl);
+        response = client.loadWebResponse(request);
+
+        assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getStatusCode());
+
+        authenticateHeader = response.getResponseHeaderValue("WWW-Authenticate");
+
+        assertNotNull(authenticateHeader);
+        assertTrue(authenticateHeader.contains("Token"));
     }
 }

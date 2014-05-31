@@ -53,7 +53,7 @@ public class CustomCredentialTestCase extends AbstractAuthenticationTestCase {
 
     @Deployment
     public static WebArchive deploy() {
-        return deploy(CustomCredentialTestCase.class);
+        return create(CustomCredentialTestCase.class);
     }
 
     @Test

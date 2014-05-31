@@ -38,24 +38,24 @@ public class CustomWebXmlAuthenticationSchemeTestCase extends AbstractAuthentica
 
     @Deployment(name = "configured-in-web-xml", testable = false)
     public static Archive<?> deployWebXml() {
-        return deploy("configured-in-web-xml.war", "authc-filter-custom-web.xml",
-                CustomAbstractHttpAuthScheme.class,
-                CustomUnqualifiedHttpAuthScheme.class);
+        return create("configured-in-web-xml.war", "authc-filter-custom-web.xml",
+            CustomAbstractHttpAuthScheme.class,
+            CustomUnqualifiedHttpAuthScheme.class);
     }
 
     @Deployment(name = "configured-by-qualified-bean", testable = false)
     public static Archive<?> deployQualified() {
-        return deploy("configured-by-qualified-bean.war", "authc-filter-not-configured-web.xml",
-                CustomAbstractHttpAuthScheme.class,
-                CustomQualifiedHttpAuthScheme.class);
+        return create("configured-by-qualified-bean.war", "authc-filter-not-configured-web.xml",
+            CustomAbstractHttpAuthScheme.class,
+            CustomQualifiedHttpAuthScheme.class);
     }
 
     @Deployment(name = "configured-by-both", testable = false)
     public static Archive<?> deployBoth() {
-        return deploy("configured-by-both.war", "authc-filter-custom-web.xml",
-                CustomAbstractHttpAuthScheme.class,
-                CustomQualifiedHttpAuthScheme.class,
-                CustomUnqualifiedHttpAuthScheme.class);
+        return create("configured-by-both.war", "authc-filter-custom-web.xml",
+            CustomAbstractHttpAuthScheme.class,
+            CustomQualifiedHttpAuthScheme.class,
+            CustomUnqualifiedHttpAuthScheme.class);
     }
 
     @Test

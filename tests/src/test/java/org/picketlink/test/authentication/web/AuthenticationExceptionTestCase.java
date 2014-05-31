@@ -29,6 +29,8 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.picketlink.test.authentication.web.FormAuthenticationSchemeTestCase.prepareAuthenticationRequest;
+import static org.picketlink.test.authentication.web.Resources.DEFAULT_DISABLED_USERNAME;
+import static org.picketlink.test.authentication.web.Resources.DEFAULT_USER_PASSWD;
 
 /**
  * @author pedroigor
@@ -37,7 +39,7 @@ public class AuthenticationExceptionTestCase extends AbstractAuthenticationSchem
 
     @Deployment(testable = false)
     public static Archive<?> deploy() {
-        WebArchive archive = create("teste.war", "authc-filter-form-web.xml", DisabledAccountResources.class);
+        WebArchive archive = create("teste.war", "authc-filter-form-web.xml");
 
         archive.add(new StringAsset("Login Page"), "login.jsp");
         archive.add(new StringAsset("Login Error Page"), "loginError.jsp");
@@ -54,7 +56,7 @@ public class AuthenticationExceptionTestCase extends AbstractAuthenticationSchem
         assertEquals(HttpStatus.SC_OK, response.getStatusCode());
         assertEquals("Login Page", response.getContentAsString());
 
-        prepareAuthenticationRequest(request, getProtectedResourceURL(), "john", "passwd");
+        prepareAuthenticationRequest(request, getProtectedResourceURL(), DEFAULT_DISABLED_USERNAME, DEFAULT_USER_PASSWD);
 
         response = client.loadWebResponse(request);
 

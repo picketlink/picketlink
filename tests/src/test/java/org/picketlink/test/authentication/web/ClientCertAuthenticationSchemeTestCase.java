@@ -42,7 +42,7 @@ public class ClientCertAuthenticationSchemeTestCase extends AbstractAuthenticati
 
     @Deployment(testable = false)
     public static Archive<?> deploy() {
-        WebArchive archive = deploy("authc-filter-client-cert-web.xml", MockClientCertAuthenticationFilter.class);
+        WebArchive archive = create("authc-filter-client-cert-web.xml", MockClientCertAuthenticationFilter.class);
 
         archive.addAsResource(new File(ClientCertAuthenticationSchemeTestCase.class.getResource("/cert/servercert.txt").getFile()));
 

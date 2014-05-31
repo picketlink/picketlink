@@ -24,7 +24,6 @@ package org.picketlink.authentication.web;
 import org.picketlink.Identity;
 import org.picketlink.authentication.AuthenticationException;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.Token;
 import org.picketlink.idm.credential.TokenCredential;
 
@@ -35,8 +34,6 @@ import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
-import static org.picketlink.Identity.Stateless;
 
 /**
  * <p>A custom {@link org.picketlink.authentication.web.HTTPAuthenticationScheme} that knows how to extract a header from
@@ -67,7 +64,6 @@ public class TokenAuthenticationScheme implements HTTPAuthenticationScheme {
     public static final String REQUIRES_AUTHENTICATION_HEADER_NAME = "WWW-Authenticate";
 
     @Inject
-    @Stateless
     private Instance<Identity> identityInstance;
 
     @Inject
@@ -81,11 +77,6 @@ public class TokenAuthenticationScheme implements HTTPAuthenticationScheme {
 
     @Override
     public void initialize(FilterConfig config) {
-        String statelessAuthentication = config.getInitParameter(AuthenticationFilter.STATELESS_AUTHENTICATION_INIT_PARAM);
-
-        if (statelessAuthentication == null || !Boolean.valueOf(statelessAuthentication)) {
-            throw new SecurityConfigurationException("TokenAuthenticationScheme only supports a stateless authentication model. Did you forget to provide the " + AuthenticationFilter.STATELESS_AUTHENTICATION_INIT_PARAM + " init parameter to the " + AuthenticationFilter.class.getName() + "?");
-        }
     }
 
     @Override

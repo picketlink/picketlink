@@ -66,7 +66,7 @@ public class AuthenticationEventHandlingTestCase extends AbstractAuthenticationT
 
     @Deployment
     public static WebArchive deploy() {
-        return deploy(AuthenticationEventHandlingTestCase.class);
+        return create(AuthenticationEventHandlingTestCase.class);
     }
 
     @Test

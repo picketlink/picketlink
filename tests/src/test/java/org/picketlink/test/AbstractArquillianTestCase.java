@@ -23,17 +23,7 @@
 package org.picketlink.test;
 
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.asset.StringAsset;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.jboss.shrinkwrap.resolver.api.DependencyResolvers;
-import org.jboss.shrinkwrap.resolver.api.maven.MavenDependencyResolver;
 import org.junit.runner.RunWith;
-import org.picketlink.test.util.ArchiveUtils;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * <p>Base class for integration tests using Arquillian.</p>
@@ -44,23 +34,4 @@ import java.util.List;
 @RunWith (Arquillian.class)
 public abstract class AbstractArquillianTestCase {
 
-    public static WebArchive create(String name, String webXml, Class<?>... classesToAdd) {
-        List<Class<?>> classes = new ArrayList<Class<?>>();
-
-        classes.addAll(Arrays.asList(classesToAdd));
-
-        WebArchive archive = ArchiveUtils.create(name, classes.toArray(new Class[classes.size()]));
-
-        archive.addAsLibraries(
-            DependencyResolvers.use(MavenDependencyResolver.class)
-                .artifact("net.sourceforge.htmlunit:htmlunit:2.4")
-                .resolveAs(JavaArchive.class));
-
-
-        archive.addAsWebResource(AbstractArquillianTestCase.class.getResource("/deployments/" + webXml), "WEB-INF/web.xml");
-        archive.add(new StringAsset("Index Page"), "index.html");
-        archive.add(new StringAsset("Protected Page"), "protected/index.html");
-
-        return archive;
-    }
 }

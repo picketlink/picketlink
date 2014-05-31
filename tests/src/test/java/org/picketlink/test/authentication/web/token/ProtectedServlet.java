@@ -40,7 +40,6 @@ import java.io.IOException;
 public class ProtectedServlet extends HttpServlet {
 
     @Inject
-    @Identity.Stateless
     private Instance<Identity> identityInstance;
 
     @Override

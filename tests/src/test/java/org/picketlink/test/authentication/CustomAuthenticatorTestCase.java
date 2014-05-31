@@ -63,7 +63,7 @@ public class CustomAuthenticatorTestCase extends AbstractAuthenticationTestCase 
 
     @Deployment
     public static WebArchive deploy() {
-        return deploy(CustomAuthenticatorTestCase.class);
+        return create(CustomAuthenticatorTestCase.class);
     }
 
     @Before

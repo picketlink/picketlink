@@ -8,7 +8,7 @@
 
     <engine>
         <!-- Uncomment to export test archives for debug purposes -->
-         <!--<property name="deploymentExportPath">target/</property>-->
+        <property name="deploymentExportPath">target/integration-tests/deployments</property>
     </engine>
 
     <container qualifier="jboss-as-7">
