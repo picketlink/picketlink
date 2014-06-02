@@ -44,7 +44,6 @@ import org.picketlink.idm.permission.spi.PermissionResolver;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.io.Serializable;
 
 /**
@@ -53,7 +52,6 @@ import java.io.Serializable;
  * @author Shane Bryzak
  * @author Pedro Igor
  */
-@Named("identity")
 public abstract class AbstractIdentity implements Identity {
 
     private static final long serialVersionUID = 8655816330461907668L;
