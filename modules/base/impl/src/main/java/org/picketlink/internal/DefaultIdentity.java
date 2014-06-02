@@ -19,6 +19,7 @@
 package org.picketlink.internal;
 
 import javax.enterprise.context.SessionScoped;
+import javax.inject.Named;
 
 /**
  * <p>Default {@link org.picketlink.Identity} implementation.</p>
@@ -29,6 +30,7 @@ import javax.enterprise.context.SessionScoped;
  * @author Pedro Igor
  */
 @SessionScoped
+@Named("identity")
 public class DefaultIdentity extends AbstractIdentity {
     private static final long serialVersionUID = 7402039728808874024L;
 }
