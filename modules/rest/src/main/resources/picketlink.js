@@ -31,9 +31,10 @@ var pl = {
         var acct = JSON.parse(response);
         if (acct != null) {
           pl.loggedIn = true;
-          var wt = pl.jwt.WebTokenParser.parse(acct.authctoken);
-          var payload = JSON.parse(pl.jwt.base64urldecode(wt.payloadSegment));
-          pl.token = payload.jti;
+//          var wt = pl.jwt.WebTokenParser.parse(acct.authctoken);
+//          var payload = JSON.parse(pl.jwt.base64urldecode(wt.payloadSegment));
+//          pl.token = payload.jti;
+          pl.token = acct.authctoken;
           pl.account = acct;
           if (callback) {
             callback.call();
