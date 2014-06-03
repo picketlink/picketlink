@@ -20,6 +20,8 @@ package org.picketlink.internal;
 
 import org.picketlink.annotations.StatelessIdentity;
 
+import javax.inject.Named;
+
 /**
  * <p>{@link org.picketlink.Identity} implementation providing a stateless behavior to the authentication process.</p>
  *
@@ -32,6 +34,7 @@ import org.picketlink.annotations.StatelessIdentity;
  * @author Pedro Igor
  */
 @StatelessIdentity
+@Named("identity")
 public class DefaultStatelessIdentity extends AbstractIdentity {
     private static final long serialVersionUID = 7698208680810910473L;
 }
