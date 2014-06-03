@@ -39,8 +39,10 @@ var pl = {
     }
     var r = pl.createRequestObject(cb);
     r.open("POST", pl.basePath + "/auth/login", true);
-    r.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    r.send(JSON.stringify({username: username, password: password}));
+//    r.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    r.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password));
+//    r.send(JSON.stringify({username: username, password: password}));
+    r.send(JSON.stringify({}));
   },
   logout: function(callback) {
     var cb = function(response) {
@@ -180,12 +182,12 @@ pl.jwt.WebToken = function(objectStr, algorithm) {
 };
 
 pl.jwt.WebToken.prototype = {
-  serialize: function _serialize(key) {
-    var header = jsonObj(this.pkAlgorithm);
+  serialize: function(key) {
+    var header = pl.jwt.jsonObj(this.pkAlgorithm);
     var jwtAlgStr = header.alg;
     var algorithm = constructAlgorithm(jwtAlgStr, key);
-    var algBytes = base64urlencode(this.pkAlgorithm);
-    var jsonBytes = base64urlencode(this.objectStr);
+    var algBytes = pl.jwt.base64urlencode(this.pkAlgorithm);
+    var jsonBytes = pl.jwt.base64urlencode(this.objectStr);
 
     var stringToSign = algBytes + "." + jsonBytes;
     algorithm.update(stringToSign);
@@ -194,8 +196,8 @@ pl.jwt.WebToken.prototype = {
     var signatureValue = algorithm.sign();
     return algBytes + "." + jsonBytes + "." + signatureValue;
   },
-  verify: function _verify(key) {
-    var header = jsonObj(this.pkAlgorithm);
+  verify: function(key) {
+    var header = pl.jwt.jsonObj(this.pkAlgorithm);
     var jwtAlgStr = header.alg;
     var algorithm = constructAlgorithm(jwtAlgStr, key);
     algorithm.update(this.headerSegment + "." + this.payloadSegment);
@@ -205,17 +207,17 @@ pl.jwt.WebToken.prototype = {
 };
 
 pl.jwt.WebTokenParser = {
-  parse: function _parse(input) {
+  parse: function(input) {
     var parts = input.split(".");
     if (parts.length != 3) {
       throw new MalformedWebToken("Must have three parts");
     }
-    var token = new WebToken();
+    var token = new pl.jwt.WebToken();
     token.headerSegment = parts[0];
     token.payloadSegment = parts[1];
     token.cryptoSegment = parts[2];
 
-    token.pkAlgorithm = base64urldecode(parts[0]);
+    token.pkAlgorithm = pl.jwt.base64urldecode(parts[0]);
     return token;
   }
 };
@@ -230,20 +232,20 @@ pl.jwt.HMACAlgorithm = function(hash, key) {
 };
 
 pl.jwt.HMACAlgorithm.prototype = {
-  update: function _update(data) {
+  update: function(data) {
     this.data = data;
   },
-  finalize: function _finalize() {
+  finalize: function() {
   },
-  sign: function _sign() {
+  sign: function() {
     var hmac = new sjcl.misc.hmac(this.key, this.hash);
     var result = hmac.encrypt(this.data);
-    return base64urlencode(window.atob(sjcl.codec.base64.fromBits(result)));
+    return pl.jwt.base64urlencode(window.atob(sjcl.codec.base64.fromBits(result)));
   },
-  verify: function _verify(sig) {
+  verify: function(sig) {
     var hmac = new sjcl.misc.hmac(this.key, this.hash);
     var result = hmac.encrypt(this.data);
-    return base64urlencode(window.atob(sjcl.codec.base64.fromBits(result))) == sig; 
+    return pl.jwt.base64urlencode(window.atob(sjcl.codec.base64.fromBits(result))) == sig; 
   }
 };
 
@@ -259,19 +261,19 @@ pl.jwt.RSASHAAlgorithm = function(hash, keyPEM) {
 };
 
 pl.jwt.RSASHAAlgorithm.prototype = {
-  update: function _update(data) {
+  update: function(data) {
     this.data = data;
   },
-  finalize: function _finalize() {
+  finalize: function() {
   },
-  sign: function _sign() {
+  sign: function() {
     var rsa = new RSAKey();
     rsa.readPrivateKeyFromPEMString(this.keyPEM);
     var hSig = rsa.signString(this.data, this.hash);
-    return base64urlencode(base64urldecode(hex2b64(hSig))); // TODO replace this with hex2b64urlencode!
+    return pl.jwt.base64urlencode(pl.jwt.base64urldecode(hex2b64(hSig))); // TODO replace this with hex2b64urlencode!
   },
-  verify: function _verify(sig) {
-    var result = this.keyPEM.verifyString(this.data, b64urltohex(sig));
+  verify: function(sig) {
+    var result = this.keyPEM.verifyString(this.data, pl.jwt.b64urltohex(sig));
     return result;
   }
 };
