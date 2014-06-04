@@ -64,9 +64,9 @@ public class XMLEncryptionUtil {
 
     public static final String XMLNS = "http://www.w3.org/2000/xmlns/";
 
-    public static String XMLSIG_NS = "http://www.w3.org/2000/09/xmldsig#";
+    public static final String XMLSIG_NS = "http://www.w3.org/2000/09/xmldsig#";
 
-    public static String XMLENC_NS = "http://www.w3.org/2001/04/xmlenc#";
+    public static final String XMLENC_NS = "http://www.w3.org/2001/04/xmlenc#";
 
     private static HashMap<String, EncryptionAlgorithm> algorithms = new HashMap<String, EncryptionAlgorithm>(4);
 
