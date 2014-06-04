@@ -55,7 +55,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.picketlink.test.util.ArchiveUtils.addBeansXml;
 
 /**
  * @author Pedro Igor
@@ -67,7 +66,7 @@ public class StatelessIdentityAuthenticationTestCase extends AbstractArquillianT
     public static WebArchive deployStateless() {
         WebArchive webArchive = deploy("stateless-services.war");
 
-        addBeansXml(webArchive, "stateless-identity-beans.xml");
+        webArchive.addClass(StatelessIdentityBeanConfiguration.class);
 
         return webArchive;
     }

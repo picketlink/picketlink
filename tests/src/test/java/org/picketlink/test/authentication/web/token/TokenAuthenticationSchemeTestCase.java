@@ -27,8 +27,8 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.picketlink.common.util.Base64;
+import org.picketlink.test.authentication.StatelessIdentityBeanConfiguration;
 import org.picketlink.test.authentication.web.AbstractAuthenticationSchemeTestCase;
-import org.picketlink.test.util.ArchiveUtils;
 
 import java.net.URL;
 
@@ -50,9 +50,8 @@ public class TokenAuthenticationSchemeTestCase extends AbstractAuthenticationSch
             SimpleToken.class,
             SimpleTokenIDMConfiguration.class,
             SimpleTokenAuthenticationConfiguration.class,
-            ProtectedServlet.class);
-
-        ArchiveUtils.addBeansXml(webArchive, "stateless-identity-beans.xml");
+            ProtectedServlet.class,
+            StatelessIdentityBeanConfiguration.class);
 
         return webArchive;
     }

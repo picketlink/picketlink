@@ -13,6 +13,8 @@ import org.picketlink.idm.credential.UsernamePasswordCredentials;
 
 import javax.inject.Inject;
 
+import static org.picketlink.BaseLog.AUTHENTICATION_LOGGER;
+
 /**
  * Authenticator that uses the Identity Management API to authenticate.
  *
@@ -32,7 +34,7 @@ public class IdmAuthenticator extends BaseAuthenticator {
             return;
         }
 
-        Credentials creds = null;
+        Credentials creds;
 
         if (isUsernamePasswordCredential()) {
             creds = new UsernamePasswordCredentials(credentials.getUserId(),
@@ -45,10 +47,18 @@ public class IdmAuthenticator extends BaseAuthenticator {
             throw new UnexpectedCredentialException("Unsupported credential type [" + credentials.getCredential() + "].");
         }
 
+        if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
+            AUTHENTICATION_LOGGER.debugf("Validating credentials [%s] using PicketLink IDM.", creds);
+        }
+
         identityManager.validateCredentials(creds);
 
         this.credentials.setStatus(creds.getStatus());
         this.credentials.setValidatedAccount(creds.getValidatedAccount());
+
+        if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
+            AUTHENTICATION_LOGGER.debugf("Credential status is [%s] and validated account [%s]", this.credentials.getStatus(), this.credentials.getValidatedAccount());
+        }
 
         if (Credentials.Status.VALID.equals(creds.getStatus())) {
             setStatus(AuthenticationStatus.SUCCESS);

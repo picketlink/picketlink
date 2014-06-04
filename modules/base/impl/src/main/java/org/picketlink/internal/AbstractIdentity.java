@@ -42,9 +42,10 @@ import org.picketlink.idm.model.Account;
 import org.picketlink.idm.permission.spi.PermissionResolver;
 
 import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import java.io.Serializable;
+
+import static org.picketlink.BaseLog.AUTHENTICATION_LOGGER;
 
 /**
  * <p>Base implementation for {@link org.picketlink.Identity} types.</p>
@@ -57,7 +58,7 @@ public abstract class AbstractIdentity implements Identity {
     private static final long serialVersionUID = 8655816330461907668L;
 
     @Inject
-    private BeanManager beanManager;
+    private CDIEventBridge eventBridge;
 
     @Inject
     private DefaultLoginCredentials loginCredential;
@@ -92,6 +93,11 @@ public abstract class AbstractIdentity implements Identity {
     @Override
     public AuthenticationResult login() {
         try {
+            if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
+                AUTHENTICATION_LOGGER.debugf("Performing authentication using credentials [%s]. User id is [%s].", this.loginCredential
+                    .getCredential(), this.loginCredential.getUserId());
+            }
+
             if (isLoggedIn()) {
                 throw new UserAlreadyLoggedInException("active agent: " + this.account.toString());
             }
@@ -117,12 +123,19 @@ public abstract class AbstractIdentity implements Identity {
             }
 
             throw new AuthenticationException("Login failed with a unexpected error.", e);
+        } finally {
+            if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
+                AUTHENTICATION_LOGGER
+                    .debugf("Authentication is finished using credentials [%s]. User id is [%s].", this.loginCredential
+                        .getCredential(), this.loginCredential.getUserId());
+            }
         }
     }
 
     protected void handleSuccessfulLoginAttempt(Account validatedAccount) {
+        AUTHENTICATION_LOGGER.debugf("Authentication was successful for credentials [%s]. User id is [%s].", this.loginCredential.getCredential(), this.loginCredential.getUserId());
         this.account = validatedAccount;
-        beanManager.fireEvent(new LoggedInEvent());
+        eventBridge.fireEvent(new LoggedInEvent());
     }
 
     protected void handleUnsuccesfulLoginAttempt(Throwable e) {
@@ -130,13 +143,18 @@ public abstract class AbstractIdentity implements Identity {
             if (UnexpectedCredentialException.class.isInstance(e)) {
                 //X TODO discuss special handling of UnexpectedCredentialException
             } else if (UserAlreadyLoggedInException.class.isInstance(e)) {
-                beanManager.fireEvent(new AlreadyLoggedInEvent());
+                eventBridge.fireEvent(new AlreadyLoggedInEvent());
             } else if (LockedAccountException.class.isInstance(e)) {
-                beanManager.fireEvent(new LockedAccountEvent());
+                eventBridge.fireEvent(new LockedAccountEvent());
             }
         }
 
-        beanManager.fireEvent(new LoginFailedEvent(e));
+        if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
+            AUTHENTICATION_LOGGER.debugf("Authentication failed for credentials [%s]. User id is [%s].", this.loginCredential
+                .getCredential(), this.loginCredential.getUserId(), e);
+        }
+
+        eventBridge.fireEvent(new LoginFailedEvent(e));
     }
 
     protected Account authenticate() throws AuthenticationException {
@@ -150,7 +168,7 @@ public abstract class AbstractIdentity implements Identity {
         try {
             authenticating = true;
 
-            beanManager.fireEvent(new PreAuthenticateEvent());
+            eventBridge.fireEvent(new PreAuthenticateEvent());
 
             Authenticator authenticator = authenticatorInstance.isUnsatisfied() ?
                 idmAuthenticatorInstance.get() :
@@ -158,6 +176,10 @@ public abstract class AbstractIdentity implements Identity {
 
             if (authenticator == null) {
                 throw new AuthenticationException("No Authenticator has been configured.");
+            }
+
+            if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
+                AUTHENTICATION_LOGGER.debugf("Authentication is going to be performed by authenticator [%s]", authenticator);
             }
 
             authenticator.authenticate();
@@ -171,7 +193,7 @@ public abstract class AbstractIdentity implements Identity {
                 postAuthenticate(authenticator);
             }
         } catch (AuthenticationException e) {
-            throw (AuthenticationException) e;
+            throw e;
         } catch (Throwable ex) {
             throw new AuthenticationException("Authentication failed.", ex);
         } finally {
@@ -188,7 +210,7 @@ public abstract class AbstractIdentity implements Identity {
             return;
         }
 
-        beanManager.fireEvent(new PostAuthenticateEvent());
+        eventBridge.fireEvent(new PostAuthenticateEvent());
     }
 
     @Override
@@ -198,13 +220,13 @@ public abstract class AbstractIdentity implements Identity {
 
     protected void logout(boolean invalidateLoginCredential) {
         if (isLoggedIn()) {
-            beanManager.fireEvent(new PreLoggedOutEvent(this.account));
+            eventBridge.fireEvent(new PreLoggedOutEvent(this.account));
 
             PostLoggedOutEvent postLoggedOutEvent = new PostLoggedOutEvent(this.account);
 
             unAuthenticate(invalidateLoginCredential);
 
-            beanManager.fireEvent(postLoggedOutEvent);
+            eventBridge.fireEvent(postLoggedOutEvent);
         }
     }
 

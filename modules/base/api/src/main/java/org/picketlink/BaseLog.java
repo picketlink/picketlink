@@ -48,6 +48,9 @@ public interface BaseLog extends Log {
     BaseLog AUTHENTICATION_LOGGER = LogFactory.getLog(BaseLog.class, BaseLog.class.getPackage().getName() + ".authentication");
 
     // General logging messages. Ids 2000-2099.
+    @LogMessage(level = Logger.Level.INFO)
+    @Message(id = 2000, value = "Bootstrapping PicketLink")
+    void picketlinkBootstrap();
 
     // Authentication logging messages. Ids 2100-2199.
 
