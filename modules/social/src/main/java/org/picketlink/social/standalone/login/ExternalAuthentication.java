@@ -516,8 +516,9 @@ public class ExternalAuthentication {
 
     private String readUrlContent(URLConnection connection) {
         StringBuilder result = new StringBuilder();
+        Reader reader = null;
         try {
-            Reader reader = new InputStreamReader(connection.getInputStream());
+            reader = new InputStreamReader(connection.getInputStream());
             char[] buffer = new char[50];
             int nrOfChars;
             while ((nrOfChars = reader.read(buffer)) != -1) {
@@ -525,6 +526,13 @@ public class ExternalAuthentication {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally{
+            try{
+                if(reader != null){
+                    reader.close();
+                }
+            }catch (IOException ignore){
+            }
         }
         return result.toString();
     }
