@@ -140,6 +140,9 @@ public class RelationshipJdbcType extends AbstractJdbcType {
                     paramValues = getValuesFromParamMap(params, (AttributeParameter) queryParameter);
                 }
             }
+            if(paramValues == null){
+                throw IDMMessages.MESSAGES.nullArgument("paramValues");
+            }
             Object paramValue = paramValues[0]; // Consider first
             if (paramValue instanceof User) {
                 User user = (User) paramValue;
