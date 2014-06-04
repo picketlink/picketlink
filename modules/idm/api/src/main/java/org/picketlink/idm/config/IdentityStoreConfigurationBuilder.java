@@ -140,8 +140,10 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
             operations = IdentityOperation.values();
         }
 
-        for (IdentityOperation op : operations) {
-            this.unsupportedTypes.get(type).add(op);
+        if (operations != null) {
+            for (IdentityOperation op : operations) {
+                this.unsupportedTypes.get(type).add(op);
+            }
         }
 
         return (S) this;
