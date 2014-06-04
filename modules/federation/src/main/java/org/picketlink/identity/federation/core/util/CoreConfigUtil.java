@@ -287,7 +287,7 @@ public class CoreConfigUtil {
                 if (keyValueList.get(0) instanceof AuthPropertyType)
                     newKVT = new AuthPropertyType();
                 newKVT.setKey(kvt.getKey());
-                newKVT.setValue(new String(decodedValue));
+                newKVT.setValue(decodedValue);
                 returningList.add(newKVT);
             } else {
                 returningList.add(kvt);
