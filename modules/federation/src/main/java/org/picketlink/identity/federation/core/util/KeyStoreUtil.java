@@ -184,8 +184,18 @@ public class KeyStoreUtil {
         keystore.setCertificateEntry(alias, cert);
 
         // Save the new keystore contents
-        FileOutputStream out = new FileOutputStream(keystoreFile);
-        keystore.store(out, storePass);
-        out.close();
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(keystoreFile);
+            keystore.store(out, storePass);
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException ioe) {
+                    // Ignore
+                }
+            }
+        }
     }
 }
