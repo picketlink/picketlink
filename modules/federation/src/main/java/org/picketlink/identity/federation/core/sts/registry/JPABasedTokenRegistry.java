@@ -133,7 +133,9 @@ public class JPABasedTokenRegistry extends AbstractJPARegistry implements Securi
                 transaction.commit();
             }
 
-            manager.close();
+            if(manager != null) {
+                manager.close();
+            }
         }
     }
 
