@@ -480,6 +480,10 @@ public class XMLEncryptionUtil {
             }
         }
 
+        if(decryptedDoc == null){
+            throw logger.nullValueError("decryptedDoc");
+        }
+
         Element decryptedRoot = decryptedDoc.getDocumentElement();
         Element dataElement = getNextElementNode(decryptedRoot.getFirstChild());
         if (dataElement == null)
