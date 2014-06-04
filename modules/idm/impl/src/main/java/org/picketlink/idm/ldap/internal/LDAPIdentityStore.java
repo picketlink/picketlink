@@ -566,11 +566,12 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 }
             }
 
-            if (mappedAttribute.size() == 0) {
+            if (mappedAttribute != null && mappedAttribute.size() == 0) {
                 mappedAttribute.add(EMPTY_ATTRIBUTE_VALUE);
             }
-
-            this.operationManager.modifyAttribute(getBindingDN(ownerType), mappedAttribute);
+            if (mappedAttribute != null) {
+                this.operationManager.modifyAttribute(getBindingDN(ownerType), mappedAttribute);
+            }
         }
     }
 
