@@ -18,13 +18,12 @@
 
 package org.picketlink.config.idm.resolver;
 
-import org.picketlink.common.reflection.Reflections;
+import java.beans.PropertyEditor;
+import java.beans.PropertyEditorManager;
+
 import org.picketlink.common.reflection.Types;
 import org.picketlink.config.idm.XMLConfigurationProvider;
 import org.picketlink.idm.config.SecurityConfigurationException;
-
-import java.beans.PropertyEditor;
-import java.beans.PropertyEditorManager;
 
 /**
  * Base class for resolvers, which are able to map simple String to expected java type
@@ -81,12 +80,7 @@ public abstract class BasicPropertyResolver<V> implements  PropertyResolver<V> {
 
         @Override
         protected Class resolvePropertyFromString(String propertyValue, Class<Class> propertyClass) {
-            try {
-                // Property value represents className, TODO: classloader's list should be probably configurable
-                return Reflections.classForName(propertyValue, XMLConfigurationProvider.IDM_CLASSLOADERS);
-            } catch (ClassNotFoundException cnfe) {
-                throw new SecurityConfigurationException(cnfe);
-            }
+            return XMLConfigurationProvider.safeLoad(propertyValue);
         }
     }
 
