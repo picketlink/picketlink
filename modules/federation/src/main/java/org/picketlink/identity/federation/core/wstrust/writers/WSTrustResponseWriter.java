@@ -23,6 +23,7 @@ import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.StaxUtil;
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
@@ -275,8 +276,9 @@ public class WSTrustResponseWriter {
                     WSTrustConstants.BASE_NAMESPACE);
 
             // write the status code.
-            if (status.getCode() == null || status.getCode() == "")
+            if (StringUtil.isNullOrEmpty(status.getCode())) {
                 throw logger.wsTrustValidationStatusCodeMissing();
+            }
             StaxUtil.writeStartElement(this.writer, WSTrustConstants.PREFIX, WSTrustConstants.CODE,
                     WSTrustConstants.BASE_NAMESPACE);
             StaxUtil.writeCharacters(this.writer, response.getStatus().getCode());

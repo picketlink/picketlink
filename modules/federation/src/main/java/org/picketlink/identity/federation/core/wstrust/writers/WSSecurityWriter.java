@@ -107,7 +107,7 @@ public class WSSecurityWriter {
         StaxUtil.writeNameSpace(writer, WSSE_PREFIX, WSSE_NS);
 
         // write the id attribute, if available.
-        if (secRef.getId() != null && secRef.getId() != "") {
+        if (StringUtil.isNotNull(secRef.getId())) {
             QName wsuIDQName = new QName(WSU_NS, ID, WSU_PREFIX);
             StaxUtil.writeNameSpace(writer, WSU_PREFIX, WSU_NS);
             StaxUtil.writeAttribute(writer, wsuIDQName, secRef.getId());
