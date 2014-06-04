@@ -99,14 +99,23 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
 
         File identityProviderFile = new File(builder.toString());
         if (identityProviderFile.exists()) {
+            FileInputStream fis = null;
             try {
-                idp.load(new FileInputStream(identityProviderFile));
+                fis = new FileInputStream(identityProviderFile);
+                idp.load(fis);
                 String listOfIDP = (String) idp.get("IDP");
                 if (StringUtil.isNotNull(listOfIDP)) {
                     identityProviders.addAll(StringUtil.tokenize(listOfIDP));
                 }
             } catch (Exception e) {
                 logger.samlMetaDataIdentityProviderLoadingError(e);
+            } finally {
+                if(fis != null){
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                    }
+                }
             }
         }
         return identityProviders;
@@ -125,8 +134,10 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
         File serviceProviderFile = new File(builder.toString());
 
         if (serviceProviderFile.exists()) {
+            FileInputStream fis = null;
             try {
-                sp.load(new FileInputStream(serviceProviderFile));
+                fis = new FileInputStream(serviceProviderFile);
+                sp.load(fis);
                 String listOfSP = (String) sp.get("SP");
 
                 // Comma separated list
@@ -137,6 +148,13 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
                 }
             } catch (Exception e) {
                 logger.samlMetaDataServiceProviderLoadingError(e);
+            } finally {
+                if(fis != null){
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                    }
+                }
             }
         }
         return serviceProviders;
@@ -214,8 +232,12 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
             Map<String, String> trustedMap = (Map<String, String>) ois.readObject();
             return trustedMap;
         } finally {
-            if (ois != null)
-                ois.close();
+            if (ois != null) {
+                try {
+                    ois.close();
+                } catch (IOException ioe) {
+                }
+            }
         }
     }
 
@@ -231,8 +253,12 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
             oos = new ObjectOutputStream(new FileOutputStream(trustedFile));
             oos.writeObject(trusted);
         } finally {
-            if (oos != null)
-                oos.close();
+            if (oos != null) {
+                try {
+                    oos.close();
+                } catch (IOException ioe) {
+                }
+            }
         }
 
         logger.trace("Persisted trusted map into " + trustedFile.getPath());
@@ -282,11 +308,13 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
 
         File serviceProviderFile = new File(builder.toString());
 
+        FileInputStream fileInputStream = null;
         try {
             if (serviceProviderFile.exists() == false)
                 serviceProviderFile.createNewFile();
 
-            sp.load(new FileInputStream(serviceProviderFile));
+            fileInputStream = new FileInputStream(serviceProviderFile);
+            sp.load(fileInputStream);
             String listOfSP = (String) sp.get("SP");
             if (listOfSP == null) {
                 listOfSP = id;
@@ -298,6 +326,13 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
             sp.store(new FileWriter(serviceProviderFile), "");
         } catch (Exception e) {
             logger.samlMetaDataServiceProviderLoadingError(e);
+        } finally {
+            if(fileInputStream != null){
+                try{
+                    fileInputStream.close();
+                } catch (IOException ioe){
+                }
+            }
         }
     }
 
@@ -309,11 +344,13 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
 
         File idpProviderFile = new File(builder.toString());
 
+        FileInputStream fileInputStream = null;
         try {
             if (idpProviderFile.exists() == false)
                 idpProviderFile.createNewFile();
 
-            idp.load(new FileInputStream(idpProviderFile));
+            fileInputStream = new FileInputStream(idpProviderFile);
+            idp.load(fileInputStream);
             String listOfIDP = (String) idp.get("IDP");
             if (listOfIDP == null) {
                 listOfIDP = id;
@@ -325,6 +362,13 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
             idp.store(new FileWriter(idpProviderFile), "");
         } catch (Exception e) {
             logger.samlMetaDataIdentityProviderLoadingError(e);
+        } finally {
+            if(fileInputStream != null){
+                try{
+                    fileInputStream.close();
+                } catch (IOException ioe){
+                }
+            }
         }
     }
 
