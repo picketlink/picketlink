@@ -57,7 +57,7 @@ public class FacebookProcessor {
     public static ThreadLocal<Principal> cachedPrincipal = new ThreadLocal<Principal>();
 
     public static ThreadLocal<List<String>> cachedRoles = new ThreadLocal<List<String>>();
-    public static String EMPTY_PASSWORD = "EMPTY";
+    public static final String EMPTY_PASSWORD = "EMPTY";
 
     protected List<String> roles = new ArrayList<String>();
 

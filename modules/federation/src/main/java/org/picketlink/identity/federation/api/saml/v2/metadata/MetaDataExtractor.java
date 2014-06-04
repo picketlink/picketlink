@@ -42,7 +42,7 @@ import java.util.List;
  */
 public class MetaDataExtractor {
 
-    public static String LINE_SEPARATOR = SecurityActions.getSystemProperty("line.separator", "\n");
+    public static final String LINE_SEPARATOR = SecurityActions.getSystemProperty("line.separator", "\n");
 
     /**
      * Get the {@link X509Certificate} from the KeyInfo
