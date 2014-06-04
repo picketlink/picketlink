@@ -34,18 +34,19 @@ import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.permission.acl.spi.PermissionHandler;
 import org.picketlink.internal.CDIEventBridge;
 import org.picketlink.internal.IdentityStoreAutoConfiguration;
+import org.picketlink.internal.PicketLinkExtension;
 import org.picketlink.internal.SecuredIdentityManager;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import static org.picketlink.BaseLog.ROOT_LOGGER;
 
 /**
  * <p>This bean is responsible for initializing the PicketLink IDM subsystem as well produce some core components
@@ -87,12 +88,6 @@ public class IdentityManagerProducer {
     private Instance<PermissionHandler> permissionHandlerInstance;
 
     @Inject
-    private Event<IdentityConfigurationEvent> identityConfigEvent;
-
-    @Inject
-    private Event<PartitionManagerCreateEvent> partitionManagerCreateEvent;
-
-    @Inject
     @PicketLink
     private Instance<PartitionManager> partitionManagerInstance;
 
@@ -103,6 +98,9 @@ public class IdentityManagerProducer {
     private IdentityStoreAutoConfiguration autoConfig;
 
     @Inject
+    private PicketLinkExtension picketLinkExtension;
+
+    @Inject
     @PicketLink
     private Instance<Partition> defaultPartition;
 
@@ -110,8 +108,13 @@ public class IdentityManagerProducer {
 
     @Inject
     public void init() {
+        ROOT_LOGGER.picketlinkBootstrap();
+
         if (isPartitionManagerProduced()) {
             this.partitionManager = this.partitionManagerInstance.get();
+            if (ROOT_LOGGER.isDebugEnabled()) {
+                ROOT_LOGGER.debugf("PartitionManager provided by the application.");
+            }
         } else {
             this.partitionManager = createEmbeddedPartitionManager();
         }
@@ -159,12 +162,20 @@ public class IdentityManagerProducer {
         List<IdentityConfiguration> configurations = getIdentityConfiguration();
 
         if (configurations.isEmpty()) {
+            if (ROOT_LOGGER.isDebugEnabled()) {
+                ROOT_LOGGER.debugf("IdentityConfiguration not provided by the application, creating a default IdentityConfigurationBuilder.");
+            }
+
             builder = new IdentityConfigurationBuilder();
         } else {
+            if (ROOT_LOGGER.isDebugEnabled()) {
+                ROOT_LOGGER.debugf("Found IdentityConfiguration from the environment. Creating a IdentityConfigurationBuilder with them.");
+            }
+
             builder = new IdentityConfigurationBuilder(configurations);
         }
 
-        this.identityConfigEvent.fire(new IdentityConfigurationEvent(builder));
+        this.eventBridge.fireEvent(new IdentityConfigurationEvent(builder));
 
         if (!builder.isConfigured()) {
             configureDefaults(builder);
@@ -185,21 +196,31 @@ public class IdentityManagerProducer {
             for (Iterator<IdentityConfiguration> iterator = this.identityConfigInstance.iterator(); iterator.hasNext(); ) {
                 configurations.add(iterator.next());
             }
+        } else {
+            configurations.addAll(this.picketLinkExtension.getSecurityConfiguration().getIdentityConfigurations());
         }
 
         return configurations;
     }
 
     private void configureDefaults(IdentityConfigurationBuilder builder) {
+        if (ROOT_LOGGER.isDebugEnabled()) {
+            ROOT_LOGGER.debugf("No configuration provided by the application. Configuring defaults.");
+        }
+
         this.autoConfig.configure(builder);
     }
 
     private PartitionManager createEmbeddedPartitionManager() {
+        if (ROOT_LOGGER.isDebugEnabled()) {
+            ROOT_LOGGER.debugf("Creating PartitionManager.");
+        }
+
         IdentityConfigurationBuilder builder = createIdentityConfigurationBuilder();
 
         PartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll(), this.eventBridge, getPermissionHandlers());
 
-        this.partitionManagerCreateEvent.fire(new PartitionManagerCreateEvent(partitionManager));
+        this.eventBridge.fireEvent(new PartitionManagerCreateEvent(partitionManager));
 
         createDefaultPartition(partitionManager);
 
@@ -219,10 +240,26 @@ public class IdentityManagerProducer {
     }
 
     private void createDefaultPartition(PartitionManager partitionManager) {
+        Realm defaultPartition = null;
+
         if (isPartitionSupported(partitionManager)) {
             if (partitionManager.getPartitions(Partition.class).isEmpty()) {
-                partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+                if (ROOT_LOGGER.isDebugEnabled()) {
+                    ROOT_LOGGER.debugf("Creating default partition using [%s] and name [%s].", Realm.class, Realm.DEFAULT_REALM);
+                }
+
+                defaultPartition = new Realm(Realm.DEFAULT_REALM);
+
+                partitionManager.add(defaultPartition);
+            } else {
+                if (ROOT_LOGGER.isDebugEnabled()) {
+                    ROOT_LOGGER.debugf("Found existing partitions. The default partition was not created.");
+                }
             }
+        }
+
+        if (defaultPartition == null) {
+            ROOT_LOGGER.warn("No default partition was created. You may want to create one before start managing your identity types.");
         }
     }
 

@@ -17,10 +17,11 @@ import java.util.Set;
 
 import static java.lang.reflect.Modifier.isAbstract;
 import static java.util.Collections.unmodifiableSet;
+import static org.picketlink.BaseLog.AUTHENTICATION_LOGGER;
 
 /**
- * Automatic configuration builder for JPAIdentityStore - this CDI extension registers any entity
- * bean classes that are annotated with the PicketLink Identity Management JPA annotations.
+ * Automatic configuration builder for JPAIdentityStore - this CDI extension registers any entity bean classes that are annotated
+ * with the PicketLink Identity Management JPA annotations.
  *
  * @author Shane Bryzak
  */
@@ -40,18 +41,24 @@ public class IdentityStoreAutoConfiguration implements Extension {
             getEntities().toArray(entities);
 
             builder
-                    .named(DEFAULT_CONFIGURATION_NAME)
+                .named(DEFAULT_CONFIGURATION_NAME)
                     .stores()
-                    .jpa()
-                    .mappedEntity(entities)
-                    .addContextInitializer(getJPAContextInitializer())
-                    .supportAllFeatures();
+                        .jpa()
+                            .mappedEntity(entities)
+                            .addContextInitializer(getJPAContextInitializer())
+                            .supportAllFeatures();
+            if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
+                AUTHENTICATION_LOGGER.debugf("Auto configuring JPA Identity Store. All features are going to be supported. Entities [%s]", entities);
+            }
         } else {
             builder
-                    .named(DEFAULT_CONFIGURATION_NAME)
+                .named(DEFAULT_CONFIGURATION_NAME)
                     .stores()
-                    .file()
-                    .supportAllFeatures();
+                        .file()
+                            .supportAllFeatures();
+            if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
+                AUTHENTICATION_LOGGER.debugf("Auto configuring File Identity Store. All features are going to be supported.", entities);
+            }
         }
     }
 
@@ -62,6 +69,10 @@ public class IdentityStoreAutoConfiguration implements Extension {
             Class<X> entityType = type.getJavaClass();
 
             if (!isAbstract(entityType.getModifiers()) && isIdentityEntity(entityType)) {
+                if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
+                    AUTHENTICATION_LOGGER.debugf("PicketLink IDM mapped entity found [%s].", entityType);
+                }
+
                 entities.add(entityType);
             }
         }
@@ -104,15 +115,14 @@ public class IdentityStoreAutoConfiguration implements Extension {
 
         if (beans.isEmpty()) {
             throw new SecurityException("Could not find JPA Context Initializer. Expected type [" +
-                    EEJPAContextInitializer.class + "].");
+                EEJPAContextInitializer.class + "].");
         } else if (beans.size() > 1) {
             throw new SecurityException("Multiple references found for JPA Context Initializer. " +
-                    "Expected type [" + EEJPAContextInitializer.class + "].");
+                "Expected type [" + EEJPAContextInitializer.class + "].");
         }
 
         Bean<?> bean = beans.iterator().next();
 
-        return (EEJPAContextInitializer) this.beanManager.getReference(bean, EEJPAContextInitializer.class,
-                this.beanManager.createCreationalContext(bean));
+        return (EEJPAContextInitializer) this.beanManager.getReference(bean, EEJPAContextInitializer.class, this.beanManager.createCreationalContext(bean));
     }
 }

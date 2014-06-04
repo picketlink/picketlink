@@ -135,7 +135,17 @@ public abstract class AbstractIdentityStoreConfiguration implements IdentityStor
             throw MESSAGES.nullArgument("TypeOperation");
         }
 
-        return isTypeOperationSupported(type, operation, this.supportedTypes, this.unsupportedTypes) != -1;
+        boolean supportsType = isTypeOperationSupported(type, operation, this.supportedTypes, this.unsupportedTypes) != -1;
+
+        if (!supportsType) {
+            for (Class<? extends AttributedType> supportedType: this.supportedTypes.keySet()) {
+                if (type.isAssignableFrom(supportedType)) {
+                    return true;
+                }
+            }
+        }
+
+        return supportsType;
     }
 
     @Override

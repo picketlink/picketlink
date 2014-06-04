@@ -28,7 +28,7 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
 import org.picketlink.common.util.Base64;
-import org.picketlink.test.util.ArchiveUtils;
+import org.picketlink.test.authentication.StatelessIdentityBeanConfiguration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -56,7 +56,7 @@ public class BasicAuthenticationSchemeTestCase extends AbstractAuthenticationSch
     public static Archive<?> deployWithStatelessAuthentication() {
         WebArchive webArchive = create("stateless-authentication.war", "authc-filter-basic-web.xml");
 
-        ArchiveUtils.addBeansXml(webArchive, "stateless-identity-beans.xml");
+        webArchive.addClass(StatelessIdentityBeanConfiguration.class);
 
         return webArchive;
 

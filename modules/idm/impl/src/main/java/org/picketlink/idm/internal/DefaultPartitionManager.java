@@ -513,11 +513,17 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     public Set<IdentityStore<?>> getStoresForIdentityQuery(final IdentityContext context, final Class<? extends IdentityType> identityType) {
         Set<IdentityStore<?>> identityStores = new HashSet<IdentityStore<?>>();
 
-        for (IdentityConfiguration configuration : this.configurations) {
-            for (IdentityStoreConfiguration storeConfig : configuration.getStoreConfiguration()) {
-                if (storeConfig.supportsType(identityType, IdentityOperation.read) || IdentityType.class.equals(identityType)) {
-                    identityStores.add(getIdentityStoreAndInitializeContext(context, configuration, storeConfig));
-                }
+        IdentityConfiguration identityConfiguration = null;
+
+        if (this.partitionManagementConfig != null) {
+            identityConfiguration = getConfigurationForPartition(context.getPartition());
+        } else if (this.configurations.size() == 1) {
+            identityConfiguration = this.configurations.iterator().next();
+        }
+
+        for (IdentityStoreConfiguration storeConfig : identityConfiguration.getStoreConfiguration()) {
+            if (storeConfig.supportsType(identityType, IdentityOperation.read)) {
+                identityStores.add(getIdentityStoreAndInitializeContext(context, identityConfiguration, storeConfig));
             }
         }
 
