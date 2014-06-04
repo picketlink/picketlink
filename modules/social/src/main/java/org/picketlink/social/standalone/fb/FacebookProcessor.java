@@ -253,8 +253,9 @@ public class FacebookProcessor {
 
     private String readUrlContent(URLConnection connection) {
         StringBuilder result = new StringBuilder();
+        Reader reader = null;
         try {
-            Reader reader = new InputStreamReader(connection.getInputStream());
+            reader = new InputStreamReader(connection.getInputStream());
             char[] buffer = new char[50];
             int nrOfChars;
             while ((nrOfChars = reader.read(buffer)) != -1) {
@@ -262,6 +263,13 @@ public class FacebookProcessor {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally{
+            try{
+                if(reader != null){
+                    reader.close();
+                }
+            }catch(IOException ioe){
+            }
         }
         return result.toString();
     }
