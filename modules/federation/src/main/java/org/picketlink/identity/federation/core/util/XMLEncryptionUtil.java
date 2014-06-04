@@ -26,6 +26,7 @@ import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -215,7 +216,7 @@ public class XMLEncryptionUtil {
         // Create the wrapping element and set its attribute NS
         Element wrappingElement = encryptedDoc.createElementNS(wrappingElementQName.getNamespaceURI(), wrappingElementName);
 
-        if (wrappingElementPrefix == null || wrappingElementPrefix == "") {
+        if (StringUtil.isNullOrEmpty(wrappingElementPrefix)) {
             wrappingElementName = wrappingElementQName.getLocalPart();
         }
         wrappingElement.setAttributeNS(XMLNS, "xmlns:" + wrappingElementPrefix, wrappingElementQName.getNamespaceURI());
@@ -384,7 +385,7 @@ public class XMLEncryptionUtil {
         // Create the wrapping element and set its attribute NS
         Element wrappingElement = encryptedDoc.createElementNS(wrappingElementQName.getNamespaceURI(), wrappingElementName);
 
-        if (wrappingElementPrefix == null || wrappingElementPrefix == "") {
+        if (StringUtil.isNullOrEmpty(wrappingElementPrefix)) {
             wrappingElementName = wrappingElementQName.getLocalPart();
         }
         wrappingElement.setAttributeNS(XMLNS, "xmlns:" + wrappingElementPrefix, wrappingElementQName.getNamespaceURI());

@@ -22,6 +22,8 @@ import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,7 +46,43 @@ import org.picketlink.idm.config.annotation.ParameterConfigID;
  */
 public class XMLConfigurationProvider {
 
-    public static final ClassLoader[] IDM_CLASSLOADERS = {IdentityManager.class.getClassLoader(), XMLConfigurationProvider.class.getClassLoader()};
+    private static final ClassLoader[] IDM_CLASSLOADERS = { IdentityManager.class.getClassLoader(),
+            XMLConfigurationProvider.class.getClassLoader() };
+
+    /**
+     * Safely load a class based on the classloaders known
+     *
+     * @param fqn
+     * @return
+     */
+    public static Class<?> safeLoad(String fqn) {
+        ClassLoader tccl = null;
+        if (System.getSecurityManager() == null) {
+            tccl = Thread.currentThread().getContextClassLoader();
+        } else {
+            tccl = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+                @Override
+                public ClassLoader run() {
+                    return Thread.currentThread().getContextClassLoader();
+                }
+            });
+        }
+        try {
+            if (tccl != null) {
+                return Class.forName(fqn, true, tccl);
+            } else {
+                return Class.forName(fqn);
+            }
+        } catch (ClassNotFoundException cnfe) {
+            for (ClassLoader classLoader : IDM_CLASSLOADERS) {
+                try {
+                    return Class.forName(fqn, true, classLoader);
+                } catch (ClassNotFoundException ex) {
+                }
+            }
+        }
+        return null;
+    }
 
     /**
      * Create and initialize IdentityConfigurationBuilder and fill it with content from XML configuration
@@ -111,7 +149,8 @@ public class XMLConfigurationProvider {
                     // We likely have correct method if params sizes are the same
                     if (paramsCount == requiredParamsCount) {
                         return candidate;
-                        // Otherwise if last parameter is array (varargs), we can have more parameters provided from configuration
+                        // Otherwise if last parameter is array (varargs), we can have more parameters provided from
+                        // configuration
                     } else if (requiredParamsCount + 1 >= paramsCount && paramsCount >= 1 && params[paramsCount - 1].isArray()) {
                         return candidate;
                     }
@@ -119,7 +158,8 @@ public class XMLConfigurationProvider {
             }
         }
 
-        throw new SecurityConfigurationException("Not found method " + methodId + " with required params " + methodParams + " on object " + builderClass);
+        throw new SecurityConfigurationException("Not found method " + methodId + " with required params " + methodParams
+                + " on object " + builderClass);
     }
 
     protected Object[] getMethodParameters(Method builderMethod, Map<String, String> unparsedParameters) {
@@ -139,10 +179,12 @@ public class XMLConfigurationProvider {
 
             String unparsedParamValue = unparsedParameters.get(paramName);
             if (unparsedParamValue == null) {
-                throw new SecurityConfigurationException("No value found for parameter " + paramName + " in params " + unparsedParameters);
+                throw new SecurityConfigurationException("No value found for parameter " + paramName + " in params "
+                        + unparsedParameters);
             }
             if (paramIndex >= paramTypes.length) {
-                throw new SecurityConfigurationException("Index too big. paramName: " + paramName + ", paramIndex: " + paramIndex + ", paramTypes length: " + paramTypes.length);
+                throw new SecurityConfigurationException("Index too big. paramName: " + paramName + ", paramIndex: "
+                        + paramIndex + ", paramTypes length: " + paramTypes.length);
             }
 
             Class<?> expectedParamType = paramTypes[paramIndex];
@@ -180,7 +222,8 @@ public class XMLConfigurationProvider {
             paramsResolved[paramIndex] = true;
         }
 
-        // Handle the case when last parameter of current builder method is 'varargs' parameters. Parameters needs to be converted, so that last parameters are wrapped into array
+        // Handle the case when last parameter of current builder method is 'varargs' parameters. Parameters needs to be
+        // converted, so that last parameters are wrapped into array
         if (paramTypes.length > 0 && paramTypes[paramTypes.length - 1].isArray()) {
             params = varargsConvert(params, paramTypes.length, paramTypes[paramTypes.length - 1].getComponentType());
         }
@@ -191,9 +234,8 @@ public class XMLConfigurationProvider {
     /**
      * Return mapping of names of ParameterConfigID to indexes of current parameter.
      *
-     * Example: For method like:
-     * public String test2(@ParameterConfigID(name="firstArg") String firstArg, @ParameterConfigID(name="secondArg")
-     * String secondArg, Object... lastArgs);
+     * Example: For method like: public String test2(@ParameterConfigID(name="firstArg") String firstArg,
+     * @ParameterConfigID(name="secondArg") String secondArg, Object... lastArgs);
      *
      * The result will be map(("firstArg" -> 0),("secondArg" -> 1))
      */
@@ -218,8 +260,7 @@ public class XMLConfigurationProvider {
      * Convert parameters to be passed to varargs method, so that last parameter will be array.
      *
      * Example: We have method myMethod(String param1, Integer param2, String... param3), which means that
-     * expectedParamsLength=3 and arrayType=String.class
-     * and we have params array like {"String1", 23, "String2", "String3"} .
+     * expectedParamsLength=3 and arrayType=String.class and we have params array like {"String1", 23, "String2", "String3"} .
      * Then result will be array like {"String1", 23 {"String2", "String3"}}
      *
      * @param params params from XML configuration
