@@ -64,6 +64,9 @@ public class IDPMetadataConfigurationProvider extends AbstractSAMLConfigurationP
         if (fileAvailable()) {
             try {
                 EntitiesDescriptorType entities = parseMDFile();
+                if(entities == null){
+                    throw logger.nullValueError("entities");
+                }
                 IDPSSODescriptorType idpSSO = CoreConfigUtil.getIDPDescriptor(entities);
 
                 if (idpSSO != null) {
