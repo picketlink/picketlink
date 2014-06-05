@@ -36,6 +36,7 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.InjectionTarget;
 import javax.enterprise.inject.spi.PassivationCapable;
 import javax.enterprise.util.AnnotationLiteral;
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -48,7 +49,9 @@ import java.util.Set;
  *
  * @author Pedro Igor
  */
-public class IdentityBeanDefinition implements Bean<DefaultIdentity>, PassivationCapable {
+public class IdentityBeanDefinition implements Bean<DefaultIdentity>, Serializable, PassivationCapable {
+
+    private static final long serialVersionUID = -4725126763788040967L;
 
     private final BeanManager beanManager;
     private final InjectionTarget<DefaultIdentity> injectionTarget;
