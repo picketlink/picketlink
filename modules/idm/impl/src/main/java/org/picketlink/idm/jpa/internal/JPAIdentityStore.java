@@ -1695,10 +1695,12 @@ public class JPAIdentityStore
         private EntityMapper mapper;
         private AllowedOperations perms;
         private Object entity;
+        private Class resourceClass;
 
         public PermissionOperationSet(Object entity, Class resourceClass, EntityMapper mapper) {
             this.entity = entity;
             this.mapper = mapper;
+            this.resourceClass = resourceClass;
             this.perms = (AllowedOperations) resourceClass.getAnnotation(AllowedOperations.class);
         }
 
@@ -1808,8 +1810,8 @@ public class JPAIdentityStore
                 } else {
                     // Trying to set an operation value that isn't defined - throw an exception
                     throw new IllegalArgumentException(String.format(
-                            "Attempted to set illegal permission operation [%s] for object [%s]",
-                            operation, entity));
+                            "Attempted to set illegal permission operation [%s] for resource [%s]",
+                            operation, resourceClass));
                 }
             } else {
                 mapper.getProperty(PermissionOperation.class).getValue().setValue(entity,
