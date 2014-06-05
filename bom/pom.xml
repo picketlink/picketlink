@@ -43,7 +43,7 @@
 
   <properties>
     <!-- Version of Apache Deltaspike -->
-    <version.org.apache.deltaspike>0.5</version.org.apache.deltaspike>
+    <version.org.apache.deltaspike>0.7</version.org.apache.deltaspike>
 
     <!-- Repository Deployment URLs -->
     <jboss.releases.repo.url>
