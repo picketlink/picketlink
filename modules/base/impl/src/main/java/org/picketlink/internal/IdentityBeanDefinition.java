@@ -34,6 +34,7 @@ import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.InjectionTarget;
+import javax.enterprise.inject.spi.PassivationCapable;
 import javax.enterprise.util.AnnotationLiteral;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -47,7 +48,7 @@ import java.util.Set;
  *
  * @author Pedro Igor
  */
-public class IdentityBeanDefinition implements Bean<DefaultIdentity> {
+public class IdentityBeanDefinition implements Bean<DefaultIdentity>, PassivationCapable {
 
     private final BeanManager beanManager;
     private final InjectionTarget<DefaultIdentity> injectionTarget;
@@ -141,4 +142,8 @@ public class IdentityBeanDefinition implements Bean<DefaultIdentity> {
         return this.securityConfiguration != null && this.securityConfiguration.getIdentityBeanConfiguration().isStateless();
     }
 
+    @Override
+    public String getId() {
+        return IdentityBeanDefinition.class.getName();
+    }
 }
