@@ -2,7 +2,6 @@ package org.picketlink.idm.ldap.internal;
 
 import org.picketlink.idm.IdentityManagementException;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -13,12 +12,6 @@ import java.util.TimeZone;
  * @author Pedro Igor
  */
 public class LDAPUtil {
-
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss'Z'");
-
-    static {
-        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
-    }
 
     /**
      * <p>Formats the given date.</p>
@@ -32,7 +25,11 @@ public class LDAPUtil {
             throw new IllegalArgumentException("You must provide a date.");
         }
 
-        return DATE_FORMAT.format(date);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss'Z'");
+
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        return dateFormat.format(date);
     }
 
     /**
