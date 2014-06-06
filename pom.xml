@@ -139,6 +139,12 @@
         <version>${project.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
       <!-- Deltaspike Core -->
       <dependency>
         <groupId>org.apache.deltaspike.core</groupId>
