@@ -18,6 +18,7 @@
 package org.picketlink.idm.model;
 
 import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
  * Represents a relationship between two or more {@link IdentityType}, which is also
@@ -33,4 +34,17 @@ public interface Relationship extends AttributedType {
      * A query parameter that can be used to obtain all relationships for a given {@link IdentityType}.
      */
     QueryParameter IDENTITY = new QueryParameter() {};
+
+    public final class RELATIONSHIP_QUERY_ATTRIBUTE {
+        public static RelationshipQueryParameter byName(final String name) {
+            return new RelationshipQueryParameter() {
+
+                @Override
+                public String getName() {
+                    return name;
+                }
+            };
+        }
+    }
+
 }

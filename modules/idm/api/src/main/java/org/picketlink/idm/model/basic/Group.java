@@ -19,15 +19,20 @@ package org.picketlink.idm.model.basic;
 
 import org.picketlink.idm.model.AbstractIdentityType;
 import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.model.annotation.IdentityStereotype;
 import org.picketlink.idm.model.annotation.InheritsPrivileges;
+import org.picketlink.idm.model.annotation.StereotypeProperty;
 import org.picketlink.idm.model.annotation.Unique;
 import org.picketlink.idm.query.QueryParameter;
+
+import static org.picketlink.idm.model.annotation.StereotypeProperty.Property.IDENTITY_GROUP_NAME;
 
 /**
  * Represents a Group, which may be used to form collections of other identity objects
  *
  * @author Shane Bryzak
  */
+@IdentityStereotype(IdentityStereotype.Stereotype.GROUP)
 public class Group extends AbstractIdentityType {
 
     private static final long serialVersionUID = -3553832607918448916L;
@@ -78,6 +83,7 @@ public class Group extends AbstractIdentityType {
     }
 
     @AttributeProperty
+    @StereotypeProperty(IDENTITY_GROUP_NAME)
     public String getName() {
         return name;
     }

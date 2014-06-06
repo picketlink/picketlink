@@ -1,4 +1,4 @@
-package org.picketlink.test.permission;
+package org.picketlink.test.authorization.permission;
 
 import java.io.File;
 
@@ -20,10 +20,10 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.permission.PermissionManager;
-import org.picketlink.test.permission.action.FooAction;
-import org.picketlink.test.permission.resource.Resources;
-import org.picketlink.test.permission.schema.Foo;
-import org.picketlink.test.permission.schema.Permissions;
+import org.picketlink.test.authorization.permission.action.FooAction;
+import org.picketlink.test.authorization.permission.resource.Resources;
+import org.picketlink.test.authorization.permission.schema.Foo;
+import org.picketlink.test.authorization.permission.schema.Permissions;
 
 /**
  * 

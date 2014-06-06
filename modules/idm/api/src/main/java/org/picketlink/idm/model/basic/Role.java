@@ -19,8 +19,13 @@ package org.picketlink.idm.model.basic;
 
 import org.picketlink.idm.model.AbstractIdentityType;
 import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.model.annotation.IdentityStereotype;
+import org.picketlink.idm.model.annotation.StereotypeProperty;
 import org.picketlink.idm.model.annotation.Unique;
 import org.picketlink.idm.query.QueryParameter;
+
+import static org.picketlink.idm.model.annotation.IdentityStereotype.Stereotype.ROLE;
+import static org.picketlink.idm.model.annotation.StereotypeProperty.Property.IDENTITY_ROLE_NAME;
 
 /**
  * Represents a role, which may be assigned to account objects in various ways
@@ -28,6 +33,7 @@ import org.picketlink.idm.query.QueryParameter;
  *
  * @author Shane Bryzak
  */
+@IdentityStereotype(ROLE)
 public class Role extends AbstractIdentityType {
 
     private static final long serialVersionUID = -9044601754527766512L;
@@ -47,6 +53,7 @@ public class Role extends AbstractIdentityType {
     }
 
     @AttributeProperty
+    @StereotypeProperty(IDENTITY_ROLE_NAME)
     @Unique
     public String getName() {
         return name;

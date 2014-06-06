@@ -31,12 +31,7 @@ public class GroupRole extends Grant implements Relationship {
 
     private static final long serialVersionUID = 2844617870858266637L;
 
-    public static final RelationshipQueryParameter GROUP = new RelationshipQueryParameter() {
-        @Override
-        public String getName() {
-            return "group";
-        }
-    };
+    public static final RelationshipQueryParameter GROUP = RELATIONSHIP_QUERY_ATTRIBUTE.byName("group");
 
     private Group group;
 
