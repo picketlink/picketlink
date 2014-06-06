@@ -22,8 +22,8 @@
 package org.picketlink.extension;
 
 import org.picketlink.Identity;
-import org.picketlink.SecurityConfigurationEvent;
 import org.picketlink.config.SecurityConfiguration;
+import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.internal.IdentityBeanDefinition;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -40,7 +40,7 @@ import static org.picketlink.log.BaseLog.ROOT_LOGGER;
  * <p>{@link javax.enterprise.inject.spi.Extension} responsible for:</p>
  *
  * <ul>
- *     <li>Fire a {@link org.picketlink.SecurityConfigurationEvent} to allow the application provide its own configuration.</li>
+ *     <li>Fire a {@link org.picketlink.event.SecurityConfigurationEvent} to allow the application provide its own configuration.</li>
  *     <li>Register a {@link org.picketlink.internal.IdentityBeanDefinition} to properly manage the {@link org.picketlink.Identity} bean
  *     behavior.</li>
  * </ul>
