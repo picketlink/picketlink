@@ -570,11 +570,12 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                         if (handlerClass.isAnnotationPresent(SupportsCredentials.class)) {
                             for (Class<?> cls : handlerClass.getAnnotation(SupportsCredentials.class).credentialClass()) {
                                 if (cls.isAssignableFrom(credentialClass)) {
-                                    IdentityStore<?> identityStore = null;
+                                    IdentityStore<?> identityStore = getIdentityStoreAndInitializeContext(context, identityConfiguration, storeConfig);
+
                                     try {
-                                        store = getIdentityStoreAndInitializeContext(context, identityConfiguration, storeConfig);
+                                        store = (T) identityStore;
                                     } catch (ClassCastException cce) {
-                                        throw MESSAGES.storeUnexpectedType(identityStore.getClass(), CredentialStore.class);
+                                        throw MESSAGES.storeUnexpectedType(CredentialStore.class, identityStore.getClass());
                                     }
 
                                     // if we found a specific handler for the credential, immediately return.
