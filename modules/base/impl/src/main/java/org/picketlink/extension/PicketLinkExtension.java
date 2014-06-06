@@ -19,11 +19,12 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.internal;
+package org.picketlink.extension;
 
 import org.picketlink.Identity;
 import org.picketlink.SecurityConfigurationEvent;
 import org.picketlink.config.SecurityConfiguration;
+import org.picketlink.internal.IdentityBeanDefinition;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -32,6 +33,8 @@ import javax.enterprise.inject.spi.AnnotatedType;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
+
+import static org.picketlink.BaseLog.ROOT_LOGGER;
 
 /**
  * <p>{@link javax.enterprise.inject.spi.Extension} responsible for:</p>
@@ -78,6 +81,8 @@ public class PicketLinkExtension implements Extension {
      * @param beanManager
      */
     void initializeConfiguration(@Observes AfterBeanDiscovery abd, BeanManager beanManager) {
+        ROOT_LOGGER.picketlinkBootstrap();
+
         SecurityConfigurationEvent securityConfigurationEvent = new SecurityConfigurationEvent();
 
         beanManager.fireEvent(securityConfigurationEvent);
@@ -86,5 +91,4 @@ public class PicketLinkExtension implements Extension {
 
         abd.addBean(new IdentityBeanDefinition(this.securityConfiguration, beanManager));
     }
-
 }
