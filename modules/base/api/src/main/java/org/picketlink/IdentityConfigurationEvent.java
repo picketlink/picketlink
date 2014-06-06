@@ -21,34 +21,12 @@ package org.picketlink;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 
 /**
- * <p>This event is raised during PicketLink startup when building the IDM configuration.</p>
- *
- * <p>Observers can handle this event in order to get any additional configuration added to the {@link
- * IdentityConfigurationBuilder}</p> instance that will be used to build the IDM configuration.</p>
- *
- * <p>The state of the {@link IdentityConfigurationBuilder} depends on the following situations:</p>
- *
- * <ul>
- * <li>If no {@link org.picketlink.idm.config.IdentityConfiguration} was produced, the builder is just an empty
- * instance, with no configuration.</li>
- * <li>If any {@link org.picketlink.idm.config.IdentityConfiguration} was produced, the builder is already
- * populated with those configurations.</li>
- * </ul>
- *
- * <p>If the observer of this event does not provide any additional configuration and no {@link org.picketlink.idm
- * .config.IdentityConfiguration} was produced, the default configuration will be used.</p>
- *
- * @author Shane Bryzak
+ * <p>Please, use {@link org.picketlink.event.IdentityConfigurationEvent} instead.</p>
  */
-public class IdentityConfigurationEvent {
-
-    private IdentityConfigurationBuilder config;
+@Deprecated
+public class IdentityConfigurationEvent extends org.picketlink.event.IdentityConfigurationEvent {
 
     public IdentityConfigurationEvent(IdentityConfigurationBuilder config) {
-        this.config = config;
-    }
-
-    public IdentityConfigurationBuilder getConfig() {
-        return config;
+        super(config);
     }
 }
