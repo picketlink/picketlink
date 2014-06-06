@@ -42,7 +42,7 @@
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <pressgang.version>3.0.0</pressgang.version>
     <drools.version>6.0.0.CR4</drools.version>
-    <version.org.apache.deltaspike>0.5</version.org.apache.deltaspike>
+    <version.org.apache.deltaspike>0.7</version.org.apache.deltaspike>
     <version.javax.el>2.2.4</version.javax.el>
     <shrinkwrap.resolver.version>2.0.0-beta-2</shrinkwrap.resolver.version>
     <arquillian.version>1.0.3.Final</arquillian.version>
