@@ -24,7 +24,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 
-import static org.picketlink.BaseLog.AUTHENTICATION_LOGGER;
+import static org.picketlink.log.BaseLog.ROOT_LOGGER;
 
 /**
  * Converts events raised from PicketLink IDM into CDI events
@@ -43,8 +43,8 @@ public class CDIEventBridge implements EventBridge {
     }
 
     public void fireEvent(Object event) {
-        if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
-            AUTHENTICATION_LOGGER.debugf("Firing event [%s].", event);
+        if (ROOT_LOGGER.isDebugEnabled()) {
+            ROOT_LOGGER.debugf("Firing event [%s].", event);
         }
 
         this.beanManager.fireEvent(event);

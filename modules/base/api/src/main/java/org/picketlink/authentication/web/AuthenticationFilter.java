@@ -17,7 +17,6 @@
  */
 package org.picketlink.authentication.web;
 
-import org.picketlink.BaseLog;
 import org.picketlink.Identity;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.AuthenticationException;
@@ -39,6 +38,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.log.BaseLog.AUTHENTICATION_LOGGER;
 
 /**
  * <p>
@@ -107,6 +107,10 @@ public class AuthenticationFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException,
         ServletException {
+        if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
+            AUTHENTICATION_LOGGER.debugf("Preparing to authenticate using authentication scheme [%s].", this.authenticationScheme);
+        }
+
         if (!HttpServletRequest.class.isInstance(servletRequest)) {
             throw new ServletException("This filter can only process HttpServletRequest requests.");
         }
@@ -117,7 +121,15 @@ public class AuthenticationFilter implements Filter {
 
         DefaultLoginCredentials creds = extractCredentials(request);
 
+        if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
+            AUTHENTICATION_LOGGER.debugf("Credentials extracted from request [%s]", creds.getCredential());
+        }
+
         if (creds.getCredential() != null && this.forceReAuthentication) {
+            if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
+                AUTHENTICATION_LOGGER
+                    .debugf("Forcing re-authenticationg. Logging out current user [%s]", getIdentity().getAccount());
+            }
             identity.logout();
             creds = extractCredentials(request);
         }
@@ -125,17 +137,33 @@ public class AuthenticationFilter implements Filter {
         if (isProtected(request) && !identity.isLoggedIn()) {
             if (creds.getCredential() != null) {
                 try {
+                    if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
+                        AUTHENTICATION_LOGGER.debugf("Authenticating using credentials [%s]", creds.getCredential());
+                    }
+
                     identity.login();
                 } catch (AuthenticationException ae) {
-                    BaseLog.AUTHENTICATION_LOGGER.authenticationFailed(creds.getUserId(), ae);
+                    AUTHENTICATION_LOGGER.authenticationFailed(creds.getUserId(), ae);
                 }
             }
 
             if (identity.isLoggedIn()) {
                 if (this.authenticationScheme.postAuthentication(request, response)) {
+                    if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
+                        AUTHENTICATION_LOGGER.debugf("Authentication was successful. Account [%s].", getIdentity().getAccount());
+                    }
+
                     chain.doFilter(servletRequest, servletResponse);
+                } else {
+                    if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
+                        AUTHENTICATION_LOGGER.debugf("Authentication Scheme [%s] does not want to continue processing request.", this.authenticationScheme);
+                    }
                 }
             } else {
+                if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
+                    AUTHENTICATION_LOGGER.debugf("Challenging client using authentication scheme [%s].", this.authenticationScheme);
+                }
+
                 this.authenticationScheme.challengeClient(request, response);
             }
         } else {

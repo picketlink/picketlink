@@ -13,7 +13,7 @@ import org.picketlink.idm.credential.UsernamePasswordCredentials;
 
 import javax.inject.Inject;
 
-import static org.picketlink.BaseLog.AUTHENTICATION_LOGGER;
+import static org.picketlink.log.BaseLog.AUTHENTICATION_LOGGER;
 
 /**
  * Authenticator that uses the Identity Management API to authenticate.

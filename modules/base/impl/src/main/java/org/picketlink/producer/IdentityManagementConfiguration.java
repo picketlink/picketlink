@@ -22,8 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import static java.lang.reflect.Modifier.isAbstract;
-import static org.picketlink.BaseLog.AUTHENTICATION_LOGGER;
-import static org.picketlink.BaseLog.ROOT_LOGGER;
+import static org.picketlink.log.BaseLog.ROOT_LOGGER;
 
 /**
  * <p>The configuration is built depending on the existence of any {@link IdentityConfiguration} produced by the
@@ -65,6 +64,10 @@ public class IdentityManagementConfiguration {
     public void init() {
         if (this.identityConfiguration != null) {
             throw new RuntimeException("Identity Management Configuration already initialized.");
+        }
+
+        if (ROOT_LOGGER.isDebugEnabled()) {
+            ROOT_LOGGER.debugf("Building identity management configuration.");
         }
 
         List<IdentityConfiguration> configurations = new ArrayList<IdentityConfiguration>();
@@ -124,8 +127,8 @@ public class IdentityManagementConfiguration {
                 .stores()
                 .file()
                 .supportAllFeatures();
-            if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
-                AUTHENTICATION_LOGGER.debugf("Auto configuring File Identity Store. All features are going to be supported.", entities);
+            if (ROOT_LOGGER.isDebugEnabled()) {
+                ROOT_LOGGER.debugf("Auto configuring File Identity Store. All features are going to be supported.", entities);
             }
         } else {
             builder
@@ -135,8 +138,8 @@ public class IdentityManagementConfiguration {
                 .mappedEntity(entities.toArray(new Class<?>[entities.size()]))
                 .addContextInitializer(this.contextInitializer)
                 .supportAllFeatures();
-            if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
-                AUTHENTICATION_LOGGER.debugf("Auto configuring JPA Identity Store. All features are going to be supported. Entities [%s]", entities);
+            if (ROOT_LOGGER.isDebugEnabled()) {
+                ROOT_LOGGER.debugf("Auto configuring JPA Identity Store. All features are going to be supported. Entities [%s]", entities);
             }
         }
     }
@@ -151,8 +154,8 @@ public class IdentityManagementConfiguration {
                 Class<?> javaType = entityType.getJavaType();
 
                 if (!isAbstract(javaType.getModifiers()) && isIdentityEntity(javaType)) {
-                    if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
-                        AUTHENTICATION_LOGGER.debugf("PicketLink IDM mapped entity found [%s].", entityType);
+                    if (ROOT_LOGGER.isDebugEnabled()) {
+                        ROOT_LOGGER.debugf("PicketLink IDM mapped entity found [%s].", entityType);
                     }
 
                     entities.add(javaType);
