@@ -62,3 +62,5 @@ pl-release.log
 *.patch
 picketlink-core
 picketlink-bindings
+#maven shade plugin generated
+dependency-reduced-pom.xml

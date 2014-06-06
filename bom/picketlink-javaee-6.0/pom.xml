@@ -47,6 +47,13 @@
         <scope>import</scope>
       </dependency>
 
+      <!-- PicketLink Uber JAR dependency -->
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
       <!-- PicketLink Base dependencies-->
       <dependency>
         <groupId>org.picketlink</groupId>

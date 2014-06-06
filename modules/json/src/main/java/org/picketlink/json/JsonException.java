@@ -21,12 +21,10 @@
  */
 package org.picketlink.json;
 
-import org.picketlink.common.exceptions.PicketLinkException;
-
 /**
  * @author Pedro Igor
  */
-public class JsonException extends PicketLinkException {
+public class JsonException extends RuntimeException {
 
     public JsonException(String message, Throwable cause) {
         super(message, cause);
