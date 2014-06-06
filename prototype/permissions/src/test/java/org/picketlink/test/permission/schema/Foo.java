@@ -1,4 +1,4 @@
-package org.picketlink.test.permission.schema;
+package org.picketlink.test.authorization.permission.schema;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

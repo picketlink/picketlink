@@ -19,24 +19,18 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.test.permission;
+package org.picketlink.test.authorization.permission;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
 import org.junit.Test;
-import org.picketlink.Identity;
 import org.picketlink.annotations.PicketLink;
-import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.PermissionManager;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.basic.User;
-import org.picketlink.test.AbstractArquillianTestCase;
-import org.picketlink.test.AbstractJPADeploymentTestCase;
+import org.picketlink.test.authorization.AbstractAuthorizationTestCase;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -44,7 +38,6 @@ import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
-import javax.transaction.UserTransaction;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -54,35 +47,20 @@ import static org.picketlink.idm.model.basic.BasicModel.getUser;
 /**
  * @author Pedro Igor
  */
-public class PermissionTestCase extends AbstractJPADeploymentTestCase {
-
-    @Inject
-    private Identity identity;
-
-    @Inject
-    private DefaultLoginCredentials credentials;
-
-    @Inject
-    private IdentityManager identityManager;
-
-    @Inject
-    private PermissionManager permissionManager;
+public class PermissionTestCase extends AbstractAuthorizationTestCase {
 
     @Inject
     @PicketLink
     private EntityManager entityManager;
 
-    @Inject
-    private UserTransaction userTransaction;
-
     @Deployment (name="permission-support")
     public static WebArchive deployPermissionSupport() {
-        return deploy("/META-INF/persistence-with-permission.xml", GenericPermissionTypeEntity.class, SomeEntity.class, AbstractArquillianTestCase.class);
+        return create(PermissionTestCase.class);
     }
 
     @Deployment (name="no-permission-support")
     public static WebArchive deployNoPermissionSupport() {
-        return deploy("no_permission.war", "/META-INF/persistence.xml", AbstractArquillianTestCase.class);
+        return deploy("no_permission.war", "/META-INF/persistence.xml", PermissionTestCase.class, AbstractAuthorizationTestCase.class);
     }
 
     @Before
@@ -153,15 +131,4 @@ public class PermissionTestCase extends AbstractJPADeploymentTestCase {
         assertFalse(this.identity.hasPermission(SomeEntity.class, entity.getId(), "load"));
         assertTrue(this.identity.hasPermission(SomeEntity.class, entity2.getId(), "load"));
     }
-
-    @Test(expected = IdentityManagementException.class)
-    @OperateOnDeployment("no-permission-support")
-    public void failGrantPermission() {
-        Account user = this.identity.getAccount();
-
-        assertNotNull(user);
-
-        this.permissionManager.grantPermission(user, "somefile.txt", "read");
-    }
-
 }

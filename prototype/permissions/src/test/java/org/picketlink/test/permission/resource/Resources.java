@@ -1,4 +1,4 @@
-package org.picketlink.test.permission.resource;
+package org.picketlink.test.authorization.permission.resource;
 
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;

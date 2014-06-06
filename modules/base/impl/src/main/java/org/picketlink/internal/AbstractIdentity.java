@@ -242,11 +242,11 @@ public abstract class AbstractIdentity implements Identity {
     }
 
     public boolean hasPermission(Object resource, String operation) {
-        return permissionResolver.resolvePermission(account, resource, operation);
+        return isLoggedIn() && permissionResolver.resolvePermission(this.account, resource, operation);
     }
 
     public boolean hasPermission(Class<?> resourceClass, Serializable identifier, String operation) {
-        return permissionResolver.resolvePermission(account, resourceClass, identifier, operation);
+        return isLoggedIn() && permissionResolver.resolvePermission(this.account, resourceClass, identifier, operation);
     }
 
 }

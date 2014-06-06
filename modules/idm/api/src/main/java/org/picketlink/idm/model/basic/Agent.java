@@ -21,14 +21,20 @@ package org.picketlink.idm.model.basic;
 import org.picketlink.idm.model.AbstractIdentityType;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.model.annotation.IdentityStereotype;
+import org.picketlink.idm.model.annotation.StereotypeProperty;
 import org.picketlink.idm.model.annotation.Unique;
 import org.picketlink.idm.query.QueryParameter;
+
+import static org.picketlink.idm.model.annotation.IdentityStereotype.Stereotype.USER;
+import static org.picketlink.idm.model.annotation.StereotypeProperty.Property.IDENTITY_USER_NAME;
 
 /**
  * An {@link Account} implementation that represents a non-human authenticating entity
  *
  * @author Shane Bryzak
  */
+@IdentityStereotype(USER)
 public class Agent extends AbstractIdentityType implements Account {
 
     private static final long serialVersionUID = 2915865002176741632L;
@@ -46,6 +52,7 @@ public class Agent extends AbstractIdentityType implements Account {
     }
 
     @AttributeProperty
+    @StereotypeProperty(IDENTITY_USER_NAME)
     @Unique
     public String getLoginName() {
         return loginName;
