@@ -34,7 +34,7 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
 
-import static org.picketlink.BaseLog.ROOT_LOGGER;
+import static org.picketlink.log.BaseLog.ROOT_LOGGER;
 
 /**
  * <p>{@link javax.enterprise.inject.spi.Extension} responsible for:</p>

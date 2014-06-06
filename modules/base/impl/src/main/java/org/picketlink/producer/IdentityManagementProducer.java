@@ -42,7 +42,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.picketlink.BaseLog.ROOT_LOGGER;
+import static org.picketlink.log.BaseLog.ROOT_LOGGER;
 
 /**
  * <p>This bean is responsible for initializing the PicketLink IDM subsystem as well produce some core components such as:</p>
