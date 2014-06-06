@@ -19,12 +19,14 @@ package org.picketlink.identity.federation.core.wstrust;
 
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.exceptions.fed.WSTrustException;
 import org.picketlink.common.util.Base64;
 import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.SystemPropertiesUtil;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
@@ -54,6 +56,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.crypto.dsig.SignatureMethod;
 import javax.xml.namespace.QName;
+
 import java.net.URI;
 import java.security.KeyPair;
 import java.security.Principal;
@@ -81,6 +84,8 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
     private static long KEY_SIZE = 128;
 
     private STSConfiguration configuration;
+
+    private boolean base64EncodeSecretKey = Boolean.parseBoolean(SystemPropertiesUtil.getSystemProperty(GeneralConstants.BASE64_ENCODE_WSTRUST_SECRET_KEY, "false"));
 
     /*
      * (non-Javadoc)
@@ -210,8 +215,12 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                 requestedProofToken.add(new ComputedKeyType(WSTrustConstants.CK_PSHA1));
                 byte[] combinedSecret = null;
                 try {
-                    combinedSecret = Base64.encodeBytes(WSTrustUtil.P_SHA1(clientSecret, serverSecret, (int) keySize / 8))
-                            .getBytes();
+                    if( base64EncodeSecretKey == true ) {
+                        combinedSecret = Base64.encodeBytes(WSTrustUtil.P_SHA1(clientSecret, serverSecret, (int) keySize / 8))
+                                .getBytes();
+                    } else {
+                        combinedSecret = WSTrustUtil.P_SHA1(clientSecret, serverSecret, (int) keySize / 8);
+                    }
                 } catch (Exception e) {
                     throw logger.wsTrustCombinedSecretKeyError(e);
                 }
@@ -219,7 +228,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
             } else {
                 // client secret has not been specified - use the sts secret only.
                 requestedProofToken.add(serverBinarySecret);
-                requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(serverBinarySecret.getValue(), providerPublicKey,
+                requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(serverSecret, providerPublicKey,
                         keyWrapAlgo, providerCertificate));
             }
         } else if (WSTrustConstants.KEY_TYPE_PUBLIC.equalsIgnoreCase(keyType.toString())) {
