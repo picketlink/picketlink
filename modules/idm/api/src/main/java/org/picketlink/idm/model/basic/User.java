@@ -18,13 +18,17 @@
 package org.picketlink.idm.model.basic;
 
 import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.model.annotation.IdentityStereotype;
 import org.picketlink.idm.query.QueryParameter;
+
+import static org.picketlink.idm.model.annotation.IdentityStereotype.Stereotype.USER;
 
 /**
  * This class represents a User; a human agent that may authenticate with the application
  *
  * @author Shane Bryzak
  */
+@IdentityStereotype(USER)
 public class User extends Agent {
 
     private static final long serialVersionUID = 4117586097100398485L;

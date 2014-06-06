@@ -19,8 +19,10 @@
         <class>org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity</class>
         <class>org.picketlink.idm.jpa.model.sample.simple.OTPCredentialTypeEntity</class>
         <class>org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity</class>
-        <class>org.picketlink.test.permission.GenericPermissionTypeEntity</class>
-        <class>org.picketlink.test.permission.SomeEntity</class>
+        <class>org.picketlink.test.authorization.permission.GenericPermissionTypeEntity</class>
+        <class>org.picketlink.test.authorization.permission.SomeEntity</class>
+        <class>org.picketlink.test.authorization.MyCustomRoleTypeEntity</class>
+        <class>org.picketlink.test.authorization.MyCustomGroupTypeEntity</class>
 
         <properties>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />

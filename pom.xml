@@ -37,13 +37,13 @@
 
   <properties>
     <jboss.javaee.version>2.0.0.Final</jboss.javaee.version>
-    <jboss.releases.repo.url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/
-    </jboss.releases.repo.url>
-    <jboss.snapshots.repo.url>https://repository.jboss.org/nexus/content/repositories/snapshots/
-    </jboss.snapshots.repo.url>
+    <jboss.releases.repo.url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</jboss.releases.repo.url>
+    <jboss.snapshots.repo.url>https://repository.jboss.org/nexus/content/repositories/snapshots/</jboss.snapshots.repo.url>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <pressgang.version>3.0.0</pressgang.version>
     <drools.version>6.0.0.CR4</drools.version>
+    <version.org.apache.deltaspike>0.5</version.org.apache.deltaspike>
+    <version.javax.el>2.2.4</version.javax.el>
     <shrinkwrap.resolver.version>2.0.0-beta-2</shrinkwrap.resolver.version>
     <arquillian.version>1.0.3.Final</arquillian.version>
     <jboss.logging.version>3.1.1.GA</jboss.logging.version>
@@ -66,6 +66,7 @@
     <module>modules/social</module>
     <module>modules/oauth</module>
     <module>modules/rest</module>
+    <module>modules/deltaspike</module>
 
     <module>bom</module>
   </modules>
@@ -133,6 +134,38 @@
       </dependency>
 
       <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-deltaspike</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <!-- Deltaspike Core -->
+      <dependency>
+        <groupId>org.apache.deltaspike.core</groupId>
+        <artifactId>deltaspike-core-api</artifactId>
+        <version>${version.org.apache.deltaspike}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.deltaspike.core</groupId>
+        <artifactId>deltaspike-core-impl</artifactId>
+        <version>${version.org.apache.deltaspike}</version>
+      </dependency>
+
+      <!-- Security Module -->
+      <dependency>
+        <groupId>org.apache.deltaspike.modules</groupId>
+        <artifactId>deltaspike-security-module-api</artifactId>
+        <version>${version.org.apache.deltaspike}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.deltaspike.modules</groupId>
+        <artifactId>deltaspike-security-module-impl</artifactId>
+        <version>${version.org.apache.deltaspike}</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.jboss.spec</groupId>
         <artifactId>jboss-javaee-6.0</artifactId>
         <version>${jboss.javaee.version}</version>
@@ -159,6 +192,21 @@
         <groupId>org.jboss.logging</groupId>
         <artifactId>jboss-logging-processor</artifactId>
         <version>${jboss.logging.processor.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+        <!-- Not going to upgrade to org.glassfish:javax.el:3.0.0 for now, since it is only Java 7 compatible -->
+      <dependency>
+        <groupId>javax.el</groupId>
+        <artifactId>javax.el-api</artifactId>
+        <version>${version.javax.el}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.glassfish.web</groupId>
+        <artifactId>javax.el</artifactId>
+        <version>${version.javax.el}</version>
         <scope>provided</scope>
       </dependency>
 
