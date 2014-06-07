@@ -21,19 +21,17 @@
  */
 package org.picketlink.test.authentication;
 
-import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.config.SecurityConfigurationBuilder;
+import org.picketlink.event.SecurityConfigurationEvent;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 
 /**
  * @author Pedro Igor
  */
-@ApplicationScoped
 public class StatelessIdentityBeanConfiguration {
 
-    public void produceSecurityConfiguration(@Observes SecurityConfigurationEvent event) {
+    public void init(@Observes SecurityConfigurationEvent event) {
         SecurityConfigurationBuilder securityConfigurationBuilder = event.getBuilder();
 
         securityConfigurationBuilder
