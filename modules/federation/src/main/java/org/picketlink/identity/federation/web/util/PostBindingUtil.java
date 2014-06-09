@@ -144,7 +144,7 @@ public class PostBindingUtil {
         response.resetBuffer();
         response.setContentLength(str.length());
 
-        outputStream.println(str);
+        outputStream.print(str);
         outputStream.close();
     }
 
