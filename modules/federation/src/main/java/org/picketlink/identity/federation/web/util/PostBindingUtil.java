@@ -142,9 +142,10 @@ public class PostBindingUtil {
 
         // we need to re-configure the content length, because Tomcat may have written some content.
         response.resetBuffer();
-        response.setContentLength(str.length());
 
         outputStream.print(str);
+
+        response.setContentLength(str.length());
         outputStream.close();
     }
 
