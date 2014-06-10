@@ -45,7 +45,7 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import java.io.Serializable;
 
-import static org.picketlink.BaseLog.AUTHENTICATION_LOGGER;
+import static org.picketlink.log.BaseLog.AUTHENTICATION_LOGGER;
 
 /**
  * <p>Base implementation for {@link org.picketlink.Identity} types.</p>
@@ -242,11 +242,11 @@ public abstract class AbstractIdentity implements Identity {
     }
 
     public boolean hasPermission(Object resource, String operation) {
-        return permissionResolver.resolvePermission(account, resource, operation);
+        return isLoggedIn() && permissionResolver.resolvePermission(this.account, resource, operation);
     }
 
     public boolean hasPermission(Class<?> resourceClass, Serializable identifier, String operation) {
-        return permissionResolver.resolvePermission(account, resourceClass, identifier, operation);
+        return isLoggedIn() && permissionResolver.resolvePermission(this.account, resourceClass, identifier, operation);
     }
 
 }

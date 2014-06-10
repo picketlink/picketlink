@@ -17,9 +17,6 @@
  */
 package org.picketlink.json.util;
 
-import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.common.util.Base64;
-
 import java.io.UnsupportedEncodingException;
 
 import static org.picketlink.json.JsonMessages.MESSAGES;
@@ -41,7 +38,6 @@ public class JsonUtil {
      *
      * @param str
      * @return
-     * @throws ProcessingException
      */
     public static String b64Encode(String str) {
         try {

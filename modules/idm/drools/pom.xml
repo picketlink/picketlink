@@ -14,10 +14,6 @@
 
 	<name>PicketLink Identity Management Drools Integration</name>
 	
-	<properties>
-	  <deltaspike.version>0.5</deltaspike.version>
-	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.picketlink</groupId>

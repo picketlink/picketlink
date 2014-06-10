@@ -21,21 +21,12 @@ package org.picketlink;
 import org.picketlink.idm.PartitionManager;
 
 /**
- * <p>This event is fired during PicketLink startup after creating the {@link PartitionManager}.</p>
- *
- * <p>Observers can handle this event in order to perform any initialization right after the {@link PartitionManager} was built.</p>
- *
- * @author Pedro Igor
+ * <p>Please, use {@link org.picketlink.event.PartitionManagerCreateEvent} instead.</p>
  */
-public class PartitionManagerCreateEvent {
+@Deprecated
+public class PartitionManagerCreateEvent extends org.picketlink.event.PartitionManagerCreateEvent {
 
-    private final PartitionManager partitionManager;
-
-    public PartitionManagerCreateEvent(final PartitionManager partitionManager) {
-        this.partitionManager = partitionManager;
-    }
-
-    public PartitionManager getPartitionManager() {
-        return this.partitionManager;
+    public PartitionManagerCreateEvent(PartitionManager partitionManager) {
+        super(partitionManager);
     }
 }

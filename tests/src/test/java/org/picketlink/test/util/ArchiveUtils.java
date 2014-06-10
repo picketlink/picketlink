@@ -26,6 +26,7 @@ import org.jboss.shrinkwrap.api.ArchivePath;
 import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.DependencyResolvers;
@@ -52,11 +53,21 @@ public class ArchiveUtils {
     }
 
     public static WebArchive create(String name, Class<?>... classesToAdd) {
-        WebArchive archive = ShrinkWrap.create(WebArchive.class, name);
-
-        addBeansXml(archive, null);
+        WebArchive archive = ShrinkWrap
+                .create(WebArchive.class, name)
+                .addAsWebInfResource(new StringAsset("<beans xmlns=\"http://java.sun.com/xml/ns/javaee\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                    "   xsi:schemaLocation=\"\n" +
+                    "        http://java.sun.com/xml/ns/javaee \n" +
+                    "        http://java.sun.com/xml/ns/javaee/beans_1_0.xsd\">\n" +
+                    "        \n" +
+                    "        <interceptors>\n" +
+                    "        \t<class>org.apache.deltaspike.security.impl.extension.SecurityInterceptor</class>\n" +
+                    "        </interceptors>\n" +
+                    "        \n" +
+                    "</beans>"), ArchivePaths.create("beans.xml"));
 
         addDependency(archive, "org.picketlink:picketlink-impl:" + getCurrentProjectVersion());
+        addDependency(archive, "org.picketlink:picketlink-deltaspike:" + getCurrentProjectVersion());
 
         if (classesToAdd != null) {
             for (Class<?> classToAdd : classesToAdd) {

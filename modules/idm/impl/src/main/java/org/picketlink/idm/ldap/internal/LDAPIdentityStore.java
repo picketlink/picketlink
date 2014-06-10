@@ -866,7 +866,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 throw new IdentityManagementException("Could not retrieve identifier for entry [" + getBindingDN(attributedType) + "].");
             }
 
-            return id.get().toString();
+            return this.operationManager.decodeEntryUUID(id.get());
         } catch (NamingException ne) {
             throw new IdentityManagementException("Could not add type [" + attributedType + "].", ne);
         }

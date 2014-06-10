@@ -22,31 +22,25 @@ import org.picketlink.idm.model.AbstractAttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.annotation.InheritsPrivileges;
+import org.picketlink.idm.model.annotation.RelationshipStereotype;
+import org.picketlink.idm.model.annotation.StereotypeProperty;
 import org.picketlink.idm.query.RelationshipQueryParameter;
+
+import static org.picketlink.idm.model.annotation.RelationshipStereotype.Stereotype.GRANT;
+import static org.picketlink.idm.model.annotation.StereotypeProperty.Property.RELATIONSHIP_GRANT_ASSIGNEE;
+import static org.picketlink.idm.model.annotation.StereotypeProperty.Property.RELATIONSHIP_GRANT_ROLE;
 
 /**
  * Represents the grant of a Role to an Assignee
  *
  * @author Shane Bryzak
  */
+@RelationshipStereotype(GRANT)
 public class Grant extends AbstractAttributedType implements Relationship {
     private static final long serialVersionUID = -200089007240264375L;
 
-    public static final RelationshipQueryParameter ASSIGNEE = new RelationshipQueryParameter() {
-
-        @Override
-        public String getName() {
-            return "assignee";
-        }
-    };;
-
-    public static final RelationshipQueryParameter ROLE = new RelationshipQueryParameter() {
-
-        @Override
-        public String getName() {
-            return "role";
-        }
-    };;
+    public static final RelationshipQueryParameter ASSIGNEE = RELATIONSHIP_QUERY_ATTRIBUTE.byName("assignee");
+    public static final RelationshipQueryParameter ROLE = RELATIONSHIP_QUERY_ATTRIBUTE.byName("role");
 
     private IdentityType assignee;
     private Role role;
@@ -61,6 +55,7 @@ public class Grant extends AbstractAttributedType implements Relationship {
     }
 
     @InheritsPrivileges("role")
+    @StereotypeProperty(RELATIONSHIP_GRANT_ASSIGNEE)
     public IdentityType getAssignee() {
         return assignee;
     }
@@ -69,6 +64,7 @@ public class Grant extends AbstractAttributedType implements Relationship {
         this.assignee = assignee;
     }
 
+    @StereotypeProperty(RELATIONSHIP_GRANT_ROLE)
     public Role getRole() {
         return role;
     }

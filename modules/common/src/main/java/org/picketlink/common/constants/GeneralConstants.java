@@ -144,4 +144,6 @@ public interface GeneralConstants {
 
     String AUTHN_CONTEXT_CLASSES = "AUTHN_CONTEXT_CLASSES";
     String REQUESTED_AUTHN_CONTEXT_COMPARISON = "REQUESTED_AUTHN_CONTEXT_COMPARISON";
+
+    String BASE64_ENCODE_WSTRUST_SECRET_KEY = "picketlink.wstrust.base64_encode_wstrust_secret_key";
 }

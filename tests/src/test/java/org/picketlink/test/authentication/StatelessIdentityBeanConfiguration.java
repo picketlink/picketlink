@@ -21,7 +21,7 @@
  */
 package org.picketlink.test.authentication;
 
-import org.picketlink.SecurityConfigurationEvent;
+import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.config.SecurityConfigurationBuilder;
 
 import javax.enterprise.context.ApplicationScoped;

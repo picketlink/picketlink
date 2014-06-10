@@ -47,6 +47,13 @@
         <scope>import</scope>
       </dependency>
 
+      <!-- PicketLink Uber JAR dependency -->
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
       <!-- PicketLink Base dependencies-->
       <dependency>
         <groupId>org.picketlink</groupId>
@@ -83,13 +90,45 @@
         <version>${project.version}</version>
       </dependency>
 
-      <!-- PicketLink Social dependencies -->
-      <dependency>
+        <!-- PicketLink Social dependencies -->
+        <dependency>
         <groupId>org.picketlink</groupId>
         <artifactId>picketlink-social</artifactId>
         <version>${project.version}</version>
       </dependency>
 
+      <!-- PicketLink DeltaSpike -->
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-deltaspike</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+        <!-- Deltaspike Core -->
+      <dependency>
+        <groupId>org.apache.deltaspike.core</groupId>
+        <artifactId>deltaspike-core-api</artifactId>
+        <version>${version.org.apache.deltaspike}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.deltaspike.core</groupId>
+        <artifactId>deltaspike-core-impl</artifactId>
+        <version>${version.org.apache.deltaspike}</version>
+      </dependency>
+
+        <!-- Security Module -->
+        <dependency>
+        <groupId>org.apache.deltaspike.modules</groupId>
+        <artifactId>deltaspike-security-module-api</artifactId>
+        <version>${version.org.apache.deltaspike}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.deltaspike.modules</groupId>
+        <artifactId>deltaspike-security-module-impl</artifactId>
+        <version>${version.org.apache.deltaspike}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

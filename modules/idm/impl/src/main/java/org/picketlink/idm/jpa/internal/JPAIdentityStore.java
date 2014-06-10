@@ -495,7 +495,7 @@ public class JPAIdentityStore
 
                         predicates.add(cb.equal(attributeOwnerEntity.get(attributeProperty.getName()), parameterValue));
                     }
-                } else {
+                } else if (getConfig().supportsAttribute()) {
                     addAttributeQueryPredicates(type, cb, cq, rootEntity, predicates, attributeParameter, parameterValues);
                 }
             }

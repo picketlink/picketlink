@@ -2,7 +2,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
     version="1.0">
-    <persistence-unit name="jpa-store-default-schema">
+    <persistence-unit name="jpa-store-default-schema" transaction-type="JTA">
         <provider>org.hibernate.ejb.HibernatePersistence</provider>
         <jta-data-source>jboss/datasources/ExampleDS</jta-data-source>
 
@@ -19,12 +19,14 @@
         <class>org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity</class>
         <class>org.picketlink.idm.jpa.model.sample.simple.OTPCredentialTypeEntity</class>
         <class>org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity</class>
-        <class>org.picketlink.test.permission.GenericPermissionTypeEntity</class>
-        <class>org.picketlink.test.permission.SomeEntity</class>
+        <class>org.picketlink.test.authorization.permission.GenericPermissionTypeEntity</class>
+        <class>org.picketlink.test.authorization.permission.SomeEntity</class>
+        <class>org.picketlink.test.authorization.MyCustomRoleTypeEntity</class>
+        <class>org.picketlink.test.authorization.MyCustomGroupTypeEntity</class>
 
         <properties>
             <property name="hibernate.hbm2ddl.auto" value="create-drop" />
-			<property name="hibernate.show_sql" value="true" />
+			<property name="hibernate.show_sql" value="false" />
 			<property name="hibernate.format_sql" value="true" />
         </properties>
     </persistence-unit>
