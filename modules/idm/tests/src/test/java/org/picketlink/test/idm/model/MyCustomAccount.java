@@ -24,12 +24,18 @@ package org.picketlink.test.idm.model;
 import org.picketlink.idm.model.AbstractIdentityType;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.annotation.AttributeProperty;
+import org.picketlink.idm.model.annotation.IdentityStereotype;
+import org.picketlink.idm.model.annotation.StereotypeProperty;
 import org.picketlink.idm.model.annotation.Unique;
 import org.picketlink.idm.query.QueryParameter;
+
+import static org.picketlink.idm.model.annotation.IdentityStereotype.Stereotype.USER;
+import static org.picketlink.idm.model.annotation.StereotypeProperty.Property.IDENTITY_USER_NAME;
 
 /**
  * @author Pedro Igor
  */
+@IdentityStereotype(USER)
 public class MyCustomAccount extends AbstractIdentityType implements Account {
 
     public static final QueryParameter USER_NAME = QUERY_ATTRIBUTE.byName("userName");
@@ -47,6 +53,7 @@ public class MyCustomAccount extends AbstractIdentityType implements Account {
     }
 
     @AttributeProperty
+    @StereotypeProperty(IDENTITY_USER_NAME)
     @Unique
     public String getUserName() {
         return userName;

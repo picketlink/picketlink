@@ -33,22 +33,6 @@ import java.util.Date;
 public interface CredentialHandler<S extends IdentityStore<?>,V extends Credentials,U> {
 
     /**
-     * <p>This is the name of the identity type property that will be used to retrieve the account's
-     * login name, used for account lookup.</p>
-     */
-    String LOGIN_NAME_PROPERTY = "LOGIN_NAME_PROPERTY";
-
-    /**
-     * <p>This property can be used to support additional {@link Account} types. The value can be either a Array
-     * of {@link Account} types or a single type.</p>
-     *
-     * @deprecated This property is no longer necessary to support custom {@link org.picketlink.idm.model.Account} types. You can achieve
-     * the same result by providing your types during the configuration, see {@link org.picketlink.idm.config.IdentityStoreConfigurationBuilder#supportType(Class[])}.
-     */
-    @Deprecated
-    String SUPPORTED_ACCOUNT_TYPES_PROPERTY = "SUPPORTED_ACCOUNT_TYPES";
-
-    /**
      *
      * @param credentials
      * @param store

@@ -18,8 +18,9 @@
 package org.picketlink.idm.credential.handler;
 
 import org.picketlink.common.properties.Property;
-import org.picketlink.common.properties.query.NamedPropertyCriteria;
+import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.AbstractBaseCredentials;
@@ -29,7 +30,7 @@ import org.picketlink.idm.credential.util.CredentialUtils;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.basic.Agent;
+import org.picketlink.idm.model.annotation.StereotypeProperty;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
@@ -47,10 +48,6 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
  */
 public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V extends AbstractBaseCredentials, U>
         implements CredentialHandler<S, V, U> {
-
-    private static final String DEFAULT_ACCOUNT_LOGIN_PROPERTY_NAME = "loginName";
-
-    private String defaultAccountLoginNameProperty = DEFAULT_ACCOUNT_LOGIN_PROPERTY_NAME;
 
     private List<Class<? extends Account>> defaultAccountTypes;
 
@@ -77,13 +74,13 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
 
             query.setParameter(Account.PARTITION, context.getPartition());
 
-            String defaultAccountLoginNameProperty = getDefaultLoginNameProperty(accountType).getName();
+            String loginNameProperty = getDefaultLoginNameProperty(accountType).getName();
 
             if (isDebugEnabled()) {
-                CREDENTIAL_LOGGER.credentialRetrievingAccount(loginName, accountType, defaultAccountLoginNameProperty);
+                CREDENTIAL_LOGGER.credentialRetrievingAccount(loginName, accountType, loginNameProperty);
             }
 
-            query.setParameter(Account.QUERY_ATTRIBUTE.byName(defaultAccountLoginNameProperty), loginName);
+            query.setParameter(Account.QUERY_ATTRIBUTE.byName(loginNameProperty), loginName);
 
             List<? extends IdentityType> result = query.getResultList();
 
@@ -96,8 +93,8 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
 
                 return (Account) account;
             } else if (result.size() > 1) {
-                CREDENTIAL_LOGGER.errorf("Multiple Account objects found with the same login name [%s] for type [%s]: [%s]", defaultAccountLoginNameProperty, accountType, result);
-                throw MESSAGES.credentialMultipleAccountsFoundForType(defaultAccountLoginNameProperty, accountType);
+                CREDENTIAL_LOGGER.errorf("Multiple Account objects found with the same login name [%s] for type [%s]: [%s]", loginNameProperty, accountType, result);
+                throw MESSAGES.credentialMultipleAccountsFoundForType(loginNameProperty, accountType);
             }
         }
 
@@ -193,12 +190,6 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
         if (this.defaultAccountTypes.isEmpty()) {
             throw MESSAGES.credentialNoAccountTypeProvided();
         }
-
-        String defaultAccountLoginNameOption = (String) store.getConfig().getCredentialHandlerProperties().get(LOGIN_NAME_PROPERTY);
-
-        if (defaultAccountLoginNameOption != null) {
-            this.defaultAccountLoginNameProperty = defaultAccountLoginNameOption;
-        }
     }
 
     private List<Class<? extends Account>> getDefaultAccountTypes() {
@@ -214,14 +205,18 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
     }
 
     protected Property getDefaultLoginNameProperty(Class<? extends Account> accountType) {
-        String defaultAccountLoginNameProperty = this.defaultAccountLoginNameProperty;
+        List<Property<Object>> properties = PropertyQueries
+            .createQuery(accountType)
+            .addCriteria(new AnnotatedPropertyCriteria(StereotypeProperty.class)).getResultList();
 
-        if (Agent.class.isAssignableFrom(accountType)) {
-            defaultAccountLoginNameProperty = DEFAULT_ACCOUNT_LOGIN_PROPERTY_NAME;
+        for (Property property : properties) {
+            StereotypeProperty stereotypeProperty = property.getAnnotatedElement().getAnnotation(StereotypeProperty.class);
+
+            if (StereotypeProperty.Property.IDENTITY_USER_NAME.equals(stereotypeProperty.value())) {
+                return property;
+            }
         }
 
-        return PropertyQueries.createQuery(accountType)
-            .addCriteria(new NamedPropertyCriteria(defaultAccountLoginNameProperty))
-            .getSingleResult();
+        throw IDMMessages.MESSAGES.credentialUnknownUserNameProperty(accountType);
     }
 }

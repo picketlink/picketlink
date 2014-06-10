@@ -18,7 +18,6 @@
 package org.picketlink.test.idm.testers;
 
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.credential.handler.PasswordCredentialHandler;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.DigestCredentialTypeEntity;
@@ -69,7 +68,6 @@ public class JPACustomTypesConfigurationTester implements IdentityConfigurationT
                                 return entityManager;
                             }
                         })
-                        .setCredentialHandlerProperty(PasswordCredentialHandler.LOGIN_NAME_PROPERTY, "userName")
                         .supportType(MyCustomAccount.class)
                         .supportAttributes(true)
                         .supportCredentials(true);
