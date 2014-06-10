@@ -110,6 +110,9 @@ public interface IDMMessages {
     @Message(id = 207, value = "No Account type provided. You must provide at least one Account type in order to support credential management.")
     IdentityManagementException credentialNoAccountTypeProvided();
 
+    @Message(id = 208, value = "Account type [%s] does not provide a property annotated with @StereotypeProperty(IDENTITY_USER_NAME). Without this the account can not be retrieved from the store based on the user name.")
+    IdentityManagementException credentialUnknownUserNameProperty(Class<? extends Account> accountType);
+
     @Message(value = "Invalid Realm or it was not provided.")
     IdentityManagementException credentialDigestInvalidRealm();
 
