@@ -204,11 +204,8 @@ public class IDPFilter implements Filter {
             return;
         }
 
-        // first, we populate all required parameters sent into session for later retrieval. If they exists.
-        //populateSessionWithSAMLParameters(httpServletRequest);
-
         // get an authenticated user or tries to authenticate if this is a authentication request
-        Principal userPrincipal = getUserPrincipal(httpServletRequest, httpServletResponse);
+        Principal userPrincipal = httpServletRequest.getUserPrincipal();
 
         // we only handle SAML messages for authenticated users.
         if (userPrincipal != null) {
@@ -275,39 +272,6 @@ public class IDPFilter implements Filter {
             } else {
                 chain.doFilter(request, response);
             }
-
-            /*HttpSession session = request.getSession();
-
-            String samlRequestMessage = (String) session.getAttribute(GeneralConstants.SAML_REQUEST_KEY);
-            String samlResponseMessage = (String) session.getAttribute(GeneralConstants.SAML_RESPONSE_KEY);
-
-            *//**
-             * Since the container has finished the authentication, we can retrieve the original saml message as well as any
-             * relay state from the SP
-             *//*
-            String relayState = (String) session.getAttribute(GeneralConstants.RELAY_STATE);
-            String signature = (String) session.getAttribute(GeneralConstants.SAML_SIGNATURE_REQUEST_KEY);
-            String sigAlg = (String) session.getAttribute(GeneralConstants.SAML_SIG_ALG_REQUEST_KEY);
-
-            if (logger.isTraceEnabled()) {
-                StringBuilder builder = new StringBuilder();
-                builder.append("Retrieved saml messages and relay state from session");
-                builder.append("saml Request message=").append(samlRequestMessage);
-                builder.append("::").append("SAMLResponseMessage=");
-                builder.append(samlResponseMessage).append(":").append("relay state=").append(relayState);
-
-                builder.append("Signature=").append(signature).append("::sigAlg=").append(sigAlg);
-                logger.trace(builder.toString());
-            }
-
-            if (isNotNull(samlRequestMessage)) {
-                processSAMLRequestMessage(request, response);
-            } else if (isNotNull(samlResponseMessage)) {
-                processSAMLResponseMessage(request, response);
-            } else if (request.getRequestURI().equals(request.getContextPath() + "/")) {
-                // no SAML processing and the request is asking for /.
-                forwardHosted(request, response);
-            }*/
         }
     }
 
@@ -356,48 +320,6 @@ public class IDPFilter implements Filter {
     private void includeResource(ServletRequest request, HttpServletResponse response, RequestDispatcher dispatch)
             throws ServletException, IOException {
         dispatch.include(request, response);
-
-        // we need to re-configure the content length because Tomcat will truncate the output with the size of the welcome page
-        // (eg.: index.html).
-        //response.setContentLength(response.g.getContentCount());
-    }
-
-    /**
-     * <p>
-     * SAML parameters are also populated into session if they are present in the request. This allows the IDP to retrieve them
-     * later when handling a specific SAML request or response.
-     * </p>
-     *
-     * @param request
-     * @return
-     * @throws IOException
-     */
-    private void populateSessionWithSAMLParameters(HttpServletRequest request) throws IOException {
-        String samlRequestMessage = request.getParameter(GeneralConstants.SAML_REQUEST_KEY);
-        String samlResponseMessage = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY);
-
-        boolean containsSAMLRequestMessage = isNotNull(samlRequestMessage);
-        boolean containsSAMLResponseMessage = isNotNull(samlResponseMessage);
-
-        String signature = request.getParameter(GeneralConstants.SAML_SIGNATURE_REQUEST_KEY);
-        String sigAlg = request.getParameter(GeneralConstants.SAML_SIG_ALG_REQUEST_KEY);
-        String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
-
-        HttpSession session = request.getSession();
-
-        if (containsSAMLRequestMessage || containsSAMLResponseMessage) {
-            logger.trace("Storing the SAMLRequest/SAMLResponse and RelayState in session");
-            if (isNotNull(samlRequestMessage))
-                session.setAttribute(GeneralConstants.SAML_REQUEST_KEY, samlRequestMessage);
-            if (isNotNull(samlResponseMessage))
-                session.setAttribute(GeneralConstants.SAML_RESPONSE_KEY, samlResponseMessage);
-            if (isNotNull(relayState))
-                session.setAttribute(GeneralConstants.RELAY_STATE, relayState.trim());
-            if (isNotNull(signature))
-                session.setAttribute(GeneralConstants.SAML_SIGNATURE_REQUEST_KEY, signature.trim());
-            if (isNotNull(sigAlg))
-                session.setAttribute(GeneralConstants.SAML_SIG_ALG_REQUEST_KEY, sigAlg.trim());
-        }
     }
 
     /**
@@ -440,27 +362,6 @@ public class IDPFilter implements Filter {
 
     private boolean isUnauthorized(HttpServletResponse response) {
         return response.getStatus() == HttpServletResponse.SC_FORBIDDEN;
-    }
-
-    /**
-     * <p>
-     * Returns the authenticated principal. If there is no principal associated with the {@link javax.servlet.http.HttpServletRequest}, null is returned.
-     * </p>
-     *
-     * @param request
-     * @param response
-     * @return
-     * @throws IOException
-     * @throws ServletException
-     */
-    private Principal getUserPrincipal(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        Principal userPrincipal = request.getUserPrincipal();
-
-        if (userPrincipal == null) {
-            userPrincipal = request.getUserPrincipal();
-        }
-
-        return userPrincipal;
     }
 
     protected void handleSAML11(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
