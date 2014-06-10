@@ -43,7 +43,9 @@ public class ClassPermissionHandler extends BaseAbstractPermissionHandler implem
             throw new IllegalArgumentException("Resource [" + resource + "] must be instance of Class");
         }
 
-        return getIdentifierName((Class<?>) resource);
+        return Class.class.getName();
+
+        //return getIdentifierName((Class<?>) resource);
     }
 
     private String getIdentifierName(Class<?> cls) {

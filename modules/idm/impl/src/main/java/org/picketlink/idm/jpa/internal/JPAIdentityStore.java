@@ -1616,8 +1616,10 @@ public class JPAIdentityStore
 
         predicates.add(cb.equal(from.get(resourceClassProperty.getName()),
                 ctx.getPermissionHandlerPolicy().getResourceClass(resource).getName()));
+
+        // TODO we need some conversion API to convert identifiers to the correct type
         predicates.add(cb.equal(from.get(resourceIdentifierProperty.getName()),
-            ctx.getPermissionHandlerPolicy().getIdentifier(resource)));
+            ctx.getPermissionHandlerPolicy().getIdentifier(resource).toString()));
 
         cq.where(predicates.toArray(new Predicate[predicates.size()]));
 
@@ -1661,7 +1663,7 @@ public class JPAIdentityStore
                 }
 
                 // Set the resource class
-                resourceClassProperty.setValue(entity, resourceClass.getName());
+                resourceClassProperty.setValue(entity, context.getPermissionHandlerPolicy().getResourceClass(resource).getName());
 
                 // Set the resource identifier
                 Serializable resourceIdentifier = context.getPermissionHandlerPolicy().getIdentifier(resource);
