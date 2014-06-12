@@ -33,6 +33,18 @@ import java.io.IOException;
  */
 public class SAMLClient {
     /**
+     * Given an assertion byte array, parse into {@link org.picketlink.identity.federation.saml.v2.assertion.AssertionType}
+     * @param assertionAsString
+     * @return
+     * @throws IOException
+     * @throws ParsingException
+     */
+    public AssertionType parseAssertion(byte[] assertionAsBytes) throws IOException, ParsingException{
+        SAMLParser samlParser = new SAMLParser();
+        return (AssertionType) samlParser.parse(new ByteArrayInputStream(assertionAsBytes));
+    }
+
+    /**
      * Given an assertion as a string, parse into {@link org.picketlink.identity.federation.saml.v2.assertion.AssertionType}
      * @param assertionAsString
      * @return
@@ -40,8 +52,7 @@ public class SAMLClient {
      * @throws ParsingException
      */
     public AssertionType parseAssertion(String assertionAsString) throws IOException, ParsingException{
-        SAMLParser samlParser = new SAMLParser();
-        return (AssertionType) samlParser.parse(new ByteArrayInputStream(assertionAsString.getBytes("UTF-8")));
+        return parseAssertion(assertionAsString.getBytes("UTF-8"));
     }
 
     /**
