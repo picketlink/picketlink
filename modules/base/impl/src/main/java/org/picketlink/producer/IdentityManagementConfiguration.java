@@ -8,7 +8,6 @@ import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.internal.CDIEventBridge;
 import org.picketlink.internal.EEJPAContextInitializer;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -36,7 +35,6 @@ import static org.picketlink.log.BaseLog.ROOT_LOGGER;
  * @author Shane Bryzak
  * @author Pedro Igor
  */
-@ApplicationScoped
 public class IdentityManagementConfiguration {
 
     private static final String DEFAULT_CONFIGURATION_NAME = "default";
@@ -60,57 +58,52 @@ public class IdentityManagementConfiguration {
 
     private List<IdentityConfiguration> identityConfiguration;
 
-    @Inject
-    public void init() {
-        if (this.identityConfiguration != null) {
-            throw new RuntimeException("Identity Management Configuration already initialized.");
-        }
-
-        if (ROOT_LOGGER.isDebugEnabled()) {
-            ROOT_LOGGER.debugf("Building identity management configuration.");
-        }
-
-        List<IdentityConfiguration> configurations = new ArrayList<IdentityConfiguration>();
-
-        if (!this.identityConfigInstance.isUnsatisfied()) {
-            for (Iterator<IdentityConfiguration> iterator = this.identityConfigInstance.iterator(); iterator.hasNext(); ) {
-                configurations.add(iterator.next());
-            }
-        } else {
-            configurations.addAll(this.picketLinkExtension.getSecurityConfiguration().getIdentityConfigurations());
-        }
-
-        IdentityConfigurationBuilder builder;
-
-        if (configurations.isEmpty()) {
-            if (ROOT_LOGGER.isDebugEnabled()) {
-                ROOT_LOGGER.debugf("IdentityConfiguration not provided by the application, creating a default IdentityConfigurationBuilder.");
-            }
-
-            builder = new IdentityConfigurationBuilder();
-        } else {
-            if (ROOT_LOGGER.isDebugEnabled()) {
-                ROOT_LOGGER.debugf("Found IdentityConfiguration from the environment. Creating a IdentityConfigurationBuilder with them.");
-            }
-
-            builder = new IdentityConfigurationBuilder(configurations);
-        }
-
-        this.eventBridge.fireEvent(new IdentityConfigurationEvent(builder));
-
-        if (!builder.isConfigured()) {
-            configureDefaults(builder);
-        }
-
-        this.identityConfiguration = builder.buildAll();
-    }
-
     /**
      * <p>Returns all configurations produced by the application.</p>
      *
      * @return
      */
     List<IdentityConfiguration> getIdentityConfiguration() {
+        if (this.identityConfiguration == null) {
+            if (ROOT_LOGGER.isDebugEnabled()) {
+                ROOT_LOGGER.debugf("Building identity management configuration.");
+            }
+
+            List<IdentityConfiguration> configurations = new ArrayList<IdentityConfiguration>();
+
+            if (!this.identityConfigInstance.isUnsatisfied()) {
+                for (Iterator<IdentityConfiguration> iterator = this.identityConfigInstance.iterator(); iterator.hasNext(); ) {
+                    configurations.add(iterator.next());
+                }
+            } else {
+                configurations.addAll(this.picketLinkExtension.getSecurityConfiguration().getIdentityConfigurations());
+            }
+
+            IdentityConfigurationBuilder builder;
+
+            if (configurations.isEmpty()) {
+                if (ROOT_LOGGER.isDebugEnabled()) {
+                    ROOT_LOGGER.debugf("IdentityConfiguration not provided by the application, creating a default IdentityConfigurationBuilder.");
+                }
+
+                builder = new IdentityConfigurationBuilder();
+            } else {
+                if (ROOT_LOGGER.isDebugEnabled()) {
+                    ROOT_LOGGER.debugf("Found IdentityConfiguration from the environment. Creating a IdentityConfigurationBuilder with them.");
+                }
+
+                builder = new IdentityConfigurationBuilder(configurations);
+            }
+
+            this.eventBridge.fireEvent(new IdentityConfigurationEvent(builder));
+
+            if (!builder.isConfigured()) {
+                configureDefaults(builder);
+            }
+
+            this.identityConfiguration = builder.buildAll();
+        }
+
         return this.identityConfiguration;
     }
 

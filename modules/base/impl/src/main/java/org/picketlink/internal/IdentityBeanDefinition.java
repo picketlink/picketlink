@@ -55,14 +55,17 @@ public class IdentityBeanDefinition implements Bean<DefaultIdentity>, Serializab
 
     private final BeanManager beanManager;
     private final InjectionTarget<DefaultIdentity> injectionTarget;
-    private final SecurityConfiguration securityConfiguration;
+    private SecurityConfiguration securityConfiguration;
 
-    public IdentityBeanDefinition(SecurityConfiguration securityConfiguration, BeanManager beanManager) {
-        this.securityConfiguration = securityConfiguration;
+    public IdentityBeanDefinition(BeanManager beanManager) {
         this.beanManager = beanManager;
 
         AnnotatedType<DefaultIdentity> annotatedType = this.beanManager.createAnnotatedType(getBeanClass());
         this.injectionTarget = this.beanManager.createInjectionTarget(annotatedType);
+    }
+
+    public void setSecurityConfiguration(SecurityConfiguration securityConfiguration) {
+        this.securityConfiguration = securityConfiguration;
     }
 
     @Override

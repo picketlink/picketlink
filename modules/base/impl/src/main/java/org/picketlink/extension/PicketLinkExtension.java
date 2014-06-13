@@ -29,6 +29,7 @@ import org.picketlink.internal.IdentityBeanDefinition;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
+import javax.enterprise.inject.spi.AfterDeploymentValidation;
 import javax.enterprise.inject.spi.AnnotatedType;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.Extension;
@@ -51,6 +52,7 @@ import static org.picketlink.log.BaseLog.ROOT_LOGGER;
 public class PicketLinkExtension implements Extension {
 
     private SecurityConfiguration securityConfiguration;
+    private IdentityBeanDefinition identityBeanDefinition;
 
     public SecurityConfiguration getSecurityConfiguration() {
         return this.securityConfiguration;
@@ -80,7 +82,18 @@ public class PicketLinkExtension implements Extension {
      * @param abd
      * @param beanManager
      */
-    void initializeConfiguration(@Observes AfterBeanDiscovery abd, BeanManager beanManager) {
+    void installIdentityBean(@Observes AfterBeanDiscovery abd, BeanManager beanManager) {
+        this.identityBeanDefinition = new IdentityBeanDefinition(beanManager);
+        abd.addBean(identityBeanDefinition);
+    }
+
+    /**
+     * <p>Initializes the PicketLink configuration.</p>
+     *
+     * @param adv
+     * @param beanManager
+     */
+    void initializeConfiguration(@Observes AfterDeploymentValidation adv, BeanManager beanManager) {
         ROOT_LOGGER.picketlinkBootstrap();
 
         SecurityConfigurationEvent securityConfigurationEvent = new SecurityConfigurationEvent();
@@ -89,6 +102,6 @@ public class PicketLinkExtension implements Extension {
 
         this.securityConfiguration = securityConfigurationEvent.getBuilder().build();
 
-        abd.addBean(new IdentityBeanDefinition(this.securityConfiguration, beanManager));
+        this.identityBeanDefinition.setSecurityConfiguration(this.securityConfiguration);
     }
 }
