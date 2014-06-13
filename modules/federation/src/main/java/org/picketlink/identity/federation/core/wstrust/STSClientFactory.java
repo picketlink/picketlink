@@ -26,7 +26,7 @@ package org.picketlink.identity.federation.core.wstrust;
  */
 public final class STSClientFactory {
 
-    private final STSClientPool stsClientPool;
+    private STSClientPool stsClientPool;
 
     private STSClientFactory() {
         stsClientPool = new STSClientPool();
@@ -36,81 +36,101 @@ public final class STSClientFactory {
         private static final STSClientFactory INSTANCE = new STSClientFactory();
     }
 
+    /**
+     * Get instance of {@link STSClientFactory}.
+     *
+     * For the first time use getInstance(maxClientsInPool) to initialize the pool.
+     *
+     * @return {@link STSClientFactory} instance
+     */
     public static STSClientFactory getInstance() {
         return LazySTSClientFactory.INSTANCE;
     }
 
+    /**
+     * Get instance of {@link STSClientFactory} and initialize underlying pool.
+     *
+     * Subsequent calls to this method simply return already initialize instance with no change to poll max number of clients.
+     *
+     * @param maxClientsInPool maximum number of {@link STSClients}s to be able to store in the pool.
+     * @return {@link STSClientFactory} instance
+     */
     public static STSClientFactory getInstance(int maxClientsInPool) {
         LazySTSClientFactory.INSTANCE.stsClientPool.initializePool(maxClientsInPool);
         return LazySTSClientFactory.INSTANCE;
     }
 
     /**
-     * This method creates STS client directly without pooling based on config.
+     * This method creates STS client directly without pooling based on STSClient config.
      *
-     * Recommended method to use instead is createPool(final STSClientConfig config).
+     * Recommended method to use instead is getClient(final STSClientConfig config).
      *
      * @param config
-     * @return
+     * @return STSClient
      */
     @Deprecated
     public STSClient create(final STSClientConfig config) {
-        return createPool(0, config);
+        return new STSClient(config);
     }
 
     /**
      * This method initializes sub pool of clients by given configuration data and returns client from that pool.
      *
-     * When pooling is disabled it just creates client and return it.
+     * When pooling is disabled it does nothing.
      *
      * @param config to construct the pool of clients
-     * @return STSClient from new pool
      */
-    public STSClient createPool(final STSClientConfig config) {
-        return createPool(0, config);
+    public void createPool(final STSClientConfig config) {
+        createPool(0, config);
     }
 
     /**
      * This method initializes sub pool of clients by given configuration data and returns client from that pool.
      * initialNumberOfClients is used to initialize the pool for the given number of clients.
      *
-     * When pooling is disabled it just creates client and return it.
+     * When pooling is disabled it does nothing.
      *
      * @param initialNumberOfClients initial number of clients in the pool
      * @param config to construct the pool of clients
-     * @return STSClient from new pool
      */
-    public STSClient createPool(int initialNumberOfClients, final STSClientConfig config) {
-        if (stsClientPool.isPoolingDisabled()) {
-            return new STSClient(config);
+    public void createPool(int initialNumberOfClients, final STSClientConfig config) {
+        if (stsClientPool.isPoolingDisabled() == false) {
+            stsClientPool.initialize(initialNumberOfClients, config);
         }
-        stsClientPool.initialize(initialNumberOfClients, config);
-        return stsClientPool.takeOut(config);
     }
 
     /**
-     * This method initializes sub pool of clients by given configuration data and returns client from that pool.
+     * This method initializes sub pool of clients by given configuration data.
      * initialNumberOfClients is used to initialize the pool for the given number of clients.
      *
-     * When pooling is disabled it just creates client and return it.
+     * When pooling is disabled it does nothing.
      *
      * @param initialNumberOfClients initial number of clients in the pool
      * @param callBack which provide configuration
-     * @return STSClient from new pool
      */
 
-    public STSClient createPool(int initialNumberOfClients, final STSClientCreationCallBack callBack) {
-        if (stsClientPool.isPoolingDisabled()) {
-            return callBack.createClient();
+    public void createPool(int initialNumberOfClients, final STSClientCreationCallBack callBack) {
+        if (stsClientPool.isPoolingDisabled() == false) {
+            stsClientPool.initialize(initialNumberOfClients, callBack);
         }
-        stsClientPool.initialize(initialNumberOfClients, callBack);
-        return stsClientPool.takeOut(callBack.getKey());
     }
 
     /**
-     * Returns STS client back to the sub pool of clients.
+     * Destroys client sub pool denoted by given config.
      *
-     * @param stsClient client to return
+     * @param config {@link STSClientConfiguration} to find client sub pool to destroy
+     */
+    public void destroyPool(final STSClientConfig config) {
+        if (stsClientPool.isPoolingDisabled() == false) {
+            stsClientPool.destroy(config);
+        }
+    }
+
+    /**
+     * Returns given {@link STSClient} back to the sub pool of clients.
+     * Sub pool is determined automatically from client configuration.
+     *
+     * @param {@link STSClient} to return back to the sub pool of clients
      */
     public void returnClient(final STSClient stsClient) {
         if (stsClientPool.isPoolingDisabled() == false) {
@@ -118,6 +138,11 @@ public final class STSClientFactory {
         }
     }
 
+    /**
+     * Get STSClient from sub pool denoted by config.
+     * @param config {@link STSClientConfiguration} to find client sub pool
+     * @return {@link STSClient} from the sub pool of clients
+     */
     public STSClient getClient(final STSClientConfig config) {
         if (stsClientPool.isPoolingDisabled()) {
             return new STSClient(config);
@@ -125,7 +150,25 @@ public final class STSClientFactory {
         return stsClientPool.takeOut(config);
     }
 
+    /**
+     * Checks whether given config has already sub pool of clients created.
+     *
+     * @param config {@link STSClientConfiguration} to find client sub pool
+     * @return true if config was already used as sub pool key
+     */
     public boolean configExists(final STSClientConfig config) {
         return stsClientPool.isConfigInitialized(config);
     }
+
+
+    /**
+     * Throw away {@link STSClientPool} managed by this factory and create new default one.
+     * Use STSClientFactory.getInstance(int) to initialize new {@link STSClientPool}.
+     *
+     * <p><b>Use with caution: this method will throw away all client sub pools</b>
+     */
+    public void resetFactory() {
+        this.stsClientPool = new STSClientPool();
+    }
+
 }

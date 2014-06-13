@@ -324,11 +324,10 @@ public abstract class STSSecurityHandler implements SOAPHandler<SOAPMessageConte
 
     STSClient createSTSClient(final STSClientConfig config) throws ParsingException {
         STSClientFactory factory = STSClientFactory.getInstance();
-        if (factory.configExists(config)) {
-            return factory.getClient(config);
-        } else {
-            return STSClientFactory.getInstance().createPool(config);
+        if (factory.configExists(config) == false) {
+            factory.createPool(config);
         }
+        return factory.getClient(config);
     }
 
     private boolean isOutBound(final SOAPMessageContext messageContext) {
