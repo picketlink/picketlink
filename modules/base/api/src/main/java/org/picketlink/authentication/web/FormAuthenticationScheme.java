@@ -17,7 +17,9 @@
  */
 package org.picketlink.authentication.web;
 
-import java.io.IOException;
+import org.picketlink.authentication.web.support.RequestCache;
+import org.picketlink.authentication.web.support.SavedRequest;
+import org.picketlink.credential.DefaultLoginCredentials;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.RequestDispatcher;
@@ -25,10 +27,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.picketlink.authentication.web.support.RequestCache;
-import org.picketlink.authentication.web.support.SavedRequest;
-import org.picketlink.credential.DefaultLoginCredentials;
+import java.io.IOException;
 
 /**
  * An implementation of {@link HTTPAuthenticationScheme} that supports the Servlet Specification
@@ -108,9 +107,12 @@ public class FormAuthenticationScheme implements HTTPAuthenticationScheme{
             session.setAttribute(STATE,STATES.AFTER_LOGIN.toString());
 
             response.sendRedirect(requestedURI);
+
+            return false;
+
         }
 
-        return false;
+        return true;
     }
 
     @Override
