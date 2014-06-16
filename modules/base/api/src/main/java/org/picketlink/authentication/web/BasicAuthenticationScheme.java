@@ -70,7 +70,13 @@ public class BasicAuthenticationScheme implements HTTPAuthenticationScheme {
     @Override
     public void challengeClient(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setHeader("WWW-Authenticate", "Basic realm=\"" + this.realm + "\"");
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+
+        // this usually means we have a failing authentication request from an ajax client. so we return SC_FORBIDDEN instead.
+        if (isAjaxRequest(request)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        } else {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        }
     }
 
     @Override
@@ -109,4 +115,9 @@ public class BasicAuthenticationScheme implements HTTPAuthenticationScheme {
 
         return new String[]{username, password};
     }
+
+    private boolean isAjaxRequest(HttpServletRequest request) {
+        return request.getHeader("X-Requested-With") != null && "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With"));
+    }
+
 }
