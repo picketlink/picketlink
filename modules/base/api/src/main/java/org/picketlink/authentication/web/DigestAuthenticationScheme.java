@@ -22,17 +22,16 @@
 
 package org.picketlink.authentication.web;
 
-import java.io.IOException;
-import java.util.Timer;
-
-import javax.servlet.FilterConfig;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.picketlink.authentication.web.support.HTTPDigestUtil;
 import org.picketlink.authentication.web.support.NonceCache;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.credential.Digest;
+
+import javax.servlet.FilterConfig;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Timer;
 
 /**
  * @author Shane Bryzak
@@ -98,7 +97,13 @@ public class DigestAuthenticationScheme implements HTTPAuthenticationScheme {
         str.append("stale=\"").append(false).append("\"");
 
         response.setHeader("WWW-Authenticate", str.toString());
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+
+        // this usually means we have a failing authentication request from an ajax client. so we return SC_FORBIDDEN instead.
+        if (isAjaxRequest(request)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        } else {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        }
     }
 
     @Override
@@ -126,5 +131,9 @@ public class DigestAuthenticationScheme implements HTTPAuthenticationScheme {
         String authorizationHeader = getAuthorizationHeader(request);
 
         return authorizationHeader != null && authorizationHeader.startsWith("Digest ");
+    }
+
+    private boolean isAjaxRequest(HttpServletRequest request) {
+        return request.getHeader("X-Requested-With") != null && "XMLHttpRequest".equalsIgnoreCase(request.getHeader("X-Requested-With"));
     }
 }
