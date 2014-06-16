@@ -22,8 +22,8 @@
 package org.picketlink.test.authorization;
 
 import org.picketlink.authorization.annotations.GroupsAllowed;
+import org.picketlink.authorization.annotations.LoggedIn;
 import org.picketlink.authorization.annotations.PartitionsAllowed;
-import org.picketlink.authorization.annotations.RequiresAccount;
 import org.picketlink.authorization.annotations.RequiresPermission;
 import org.picketlink.authorization.annotations.RolesAllowed;
 import org.picketlink.idm.model.basic.Realm;
@@ -34,7 +34,7 @@ import org.picketlink.idm.model.basic.Tier;
  */
 public class AnnotationProtectedBean {
 
-    @RequiresAccount
+    @LoggedIn
     public void protectedFromUnauthenticatedUsers(){
 
     }
