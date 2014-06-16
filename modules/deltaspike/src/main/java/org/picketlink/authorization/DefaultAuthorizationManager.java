@@ -24,8 +24,8 @@ package org.picketlink.authorization;
 import org.apache.deltaspike.security.api.authorization.Secures;
 import org.picketlink.Identity;
 import org.picketlink.authorization.annotations.GroupsAllowed;
+import org.picketlink.authorization.annotations.LoggedIn;
 import org.picketlink.authorization.annotations.PartitionsAllowed;
-import org.picketlink.authorization.annotations.RequiresAccount;
 import org.picketlink.authorization.annotations.RequiresPermission;
 import org.picketlink.authorization.annotations.Restrict;
 import org.picketlink.authorization.annotations.RolesAllowed;
@@ -70,13 +70,13 @@ public class DefaultAuthorizationManager {
     private RelationshipManager relationshipManager;
 
     @Secures
-    @RequiresAccount
+    @LoggedIn
     public boolean isLoggedIn(InvocationContext invocationContext) {
-        RequiresAccount requiresAccount = getAnnotation(invocationContext, RequiresAccount.class);
+        LoggedIn loggedIn = getAnnotation(invocationContext, LoggedIn.class);
         Class<? extends Account> accountType = Account.class;
 
-        if (requiresAccount != null) {
-            accountType = requiresAccount.type();
+        if (loggedIn != null) {
+            accountType = loggedIn.requiresAccount();
         }
 
         Account account = getIdentity().getAccount();

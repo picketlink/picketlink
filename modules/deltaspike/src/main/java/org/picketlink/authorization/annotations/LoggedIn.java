@@ -42,7 +42,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Documented
 @SecurityBindingType
-public @interface RequiresAccount {
+public @interface LoggedIn {
 
     /**
      * <p>If defined, checks if the authenticated account is the same or a subclass of the given {@link org.picketlink.idm.model.Account} type.</p>
@@ -52,6 +52,6 @@ public @interface RequiresAccount {
      * @return
      */
     @Nonbinding
-    Class<? extends Account> type() default Account.class;
+    Class<? extends Account> requiresAccount() default Account.class;
 
 }
