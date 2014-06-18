@@ -40,6 +40,7 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
 import static org.picketlink.common.util.StringUtil.isNotNull;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * Handles SAML2 Signature
@@ -49,6 +50,8 @@ import static org.picketlink.common.util.StringUtil.isNotNull;
  */
 public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
 
+    public static final String SIGN_DIGEST = "SIGN_DIGEST";
+    public static final String SIGN_METHOD = "SIGN_METHOD";
     public static final String SIGN_ASSERTION_ONLY = "SIGN_ASSERTION_ONLY";
     public static final String SIGN_RESPONSE_AND_ASSERTION = "SIGN_RESPONSE_AND_ASSERTION";
 
@@ -143,6 +146,19 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
 
     private void signDocument(Document samlDocument, KeyPair keypair, X509Certificate x509Certificate) throws ProcessingException {
         SAML2Signature samlSignature = new SAML2Signature();
+
+        String signatureMethod = getSignatureMethod();
+
+        if (signatureMethod != null) {
+            samlSignature.setSignatureMethod(signatureMethod);
+        }
+
+        String signatureDigest = getSignatureDigestMethod();
+
+        if (signatureDigest != null) {
+            samlSignature.setDigestMethod(signatureDigest);
+        }
+
         Node nextSibling = samlSignature.getNextSiblingOfIssuer(samlDocument);
 
         samlSignature.setNextSibling(nextSibling);
@@ -198,6 +214,18 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
 
     private boolean isSignResponseAndAssertion() {
         return this.handlerConfig.getParameter(SIGN_RESPONSE_AND_ASSERTION) != null ? Boolean.valueOf(this.handlerConfig.getParameter(SIGN_RESPONSE_AND_ASSERTION).toString()) : false;
+    }
+
+    private String getSignatureMethod() {
+        Object parameter = this.handlerConfig.getParameter(SIGN_METHOD);
+
+        return parameter != null && !isNullOrEmpty(parameter.toString()) ? parameter.toString() : null;
+    }
+
+    private String getSignatureDigestMethod() {
+        Object parameter = this.handlerConfig.getParameter(SIGN_DIGEST);
+
+        return parameter != null && !isNullOrEmpty(parameter.toString()) ? parameter.toString() : null;
     }
 
 }

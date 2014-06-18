@@ -44,7 +44,15 @@ import org.picketlink.test.identity.federation.web.mock.MockHttpServletResponse;
 import org.picketlink.test.identity.federation.web.mock.MockHttpSession;
 import org.picketlink.test.identity.federation.web.mock.MockServletContext;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
+import javax.xml.crypto.dsig.DigestMethod;
+import javax.xml.crypto.dsig.SignatureMethod;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.util.HashMap;
@@ -66,7 +74,29 @@ public class SAML2SignatureHandlerUnitTestCase extends TestCase {
         doSignatureTest(false);
     }
 
+    public void testSignaturesRedirectBindingRSA_SHA256() throws Exception {
+        DefaultSAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
+
+        handlerConfig.addParameter(SAML2SignatureGenerationHandler.SIGN_METHOD, "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
+        handlerConfig.addParameter(SAML2SignatureGenerationHandler.SIGN_DIGEST, "http://www.w3.org/2001/04/xmlenc#sha256");
+
+        doSignatureTest(false, handlerConfig);
+    }
+
+    public void testSignaturesPostBindingRSA_SHA256() throws Exception {
+        DefaultSAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
+
+        handlerConfig.addParameter(SAML2SignatureGenerationHandler.SIGN_METHOD, "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
+        handlerConfig.addParameter(SAML2SignatureGenerationHandler.SIGN_DIGEST, "http://www.w3.org/2001/04/xmlenc#sha256");
+
+        doSignatureTest(true, handlerConfig);
+    }
+
     private void doSignatureTest(boolean isPostBinding) throws Exception {
+        doSignatureTest(isPostBinding, new DefaultSAML2HandlerConfig());
+    }
+
+    private void doSignatureTest(boolean isPostBinding, SAML2HandlerConfig handlerConfig) throws Exception {
         SAML2Request saml2Request = new SAML2Request();
         String id = IDGenerator.create("ID_");
         String assertionConsumerURL = "http://sp";
@@ -82,7 +112,6 @@ public class SAML2SignatureHandlerUnitTestCase extends TestCase {
         SAML2SignatureGenerationHandler handler = new SAML2SignatureGenerationHandler();
 
         SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
-        SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
 
         Map<String, Object> chainOptions = new HashMap<String, Object>();
         SPType idpType = new SPType();
@@ -121,6 +150,9 @@ public class SAML2SignatureHandlerUnitTestCase extends TestCase {
         handler.generateSAMLRequest(request, response);
         Document signedDoc = response.getResultingDocument();
 
+        validatedSignatureMethod(handlerConfig, signedDoc);
+        validatedSignatureDigest(handlerConfig, signedDoc);
+
         assertNotNull("Signed Doc is not null", signedDoc);
         SAMLDocumentHolder signedHolder = new SAMLDocumentHolder(signedDoc);
         request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), signedHolder,
@@ -137,5 +169,49 @@ public class SAML2SignatureHandlerUnitTestCase extends TestCase {
         validHandler.initHandlerConfig(handlerConfig);
 
         validHandler.handleStatusResponseType(request, response);
+    }
+
+    private void validatedSignatureMethod(SAML2HandlerConfig handlerConfig, Document signedDoc) throws XPathExpressionException {
+        XPathFactory xPathfactory = XPathFactory.newInstance();
+        XPath xpath = xPathfactory.newXPath();
+        XPathExpression expr = xpath.compile("//*[local-name()='SignatureMethod']");
+
+        Node signatureMethodElement = (Node) expr.evaluate(signedDoc, XPathConstants.NODE);
+
+        assertNotNull(signatureMethodElement);
+
+        Node algorithm = signatureMethodElement.getAttributes().getNamedItem("Algorithm");
+
+        assertNotNull(algorithm);
+
+        Object expectedSignatureMethod = handlerConfig.getParameter(SAML2SignatureGenerationHandler.SIGN_METHOD);
+
+        if (expectedSignatureMethod != null) {
+            assertEquals(expectedSignatureMethod.toString(), algorithm.getNodeValue());
+        } else {
+            assertEquals(SignatureMethod.RSA_SHA1, algorithm.getNodeValue());
+        }
+    }
+
+    private void validatedSignatureDigest(SAML2HandlerConfig handlerConfig, Document signedDoc) throws XPathExpressionException {
+        XPathFactory xPathfactory = XPathFactory.newInstance();
+        XPath xpath = xPathfactory.newXPath();
+        XPathExpression expr = xpath.compile("//*[local-name()='DigestMethod']");
+
+        Node digestMethodElement = (Node) expr.evaluate(signedDoc, XPathConstants.NODE);
+
+        assertNotNull(digestMethodElement);
+
+        Node algorithm = digestMethodElement.getAttributes().getNamedItem("Algorithm");
+
+        assertNotNull(algorithm);
+
+        Object expectedSignatureDigest = handlerConfig.getParameter(SAML2SignatureGenerationHandler.SIGN_DIGEST);
+
+        if (expectedSignatureDigest != null) {
+            assertEquals(expectedSignatureDigest.toString(), algorithm.getNodeValue());
+        } else {
+            assertEquals(DigestMethod.SHA1, algorithm.getNodeValue());
+        }
     }
 }
