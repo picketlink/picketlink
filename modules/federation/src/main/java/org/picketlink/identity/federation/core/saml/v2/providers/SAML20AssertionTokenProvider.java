@@ -213,8 +213,9 @@ public class SAML20AssertionTokenProvider extends AbstractSecurityTokenProvider 
         AssertionType issuedAssertion = samlProtocolContext.getIssuedAssertion();
 
         try {
-            if (!AssertionUtil.hasExpired(issuedAssertion))
+            if (AssertionUtil.hasExpired(issuedAssertion)) {
                 throw logger.samlAssertionExpiredError();
+            }
         } catch (ConfigurationException e) {
             throw logger.processingError(e);
         }
