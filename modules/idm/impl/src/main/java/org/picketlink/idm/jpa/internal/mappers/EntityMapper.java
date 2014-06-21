@@ -23,12 +23,14 @@ import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
+import org.picketlink.idm.jpa.annotations.RelationshipMember;
 import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
 import org.picketlink.idm.jpa.annotations.entity.MappedAttribute;
 import org.picketlink.idm.jpa.internal.AttributeList;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Relationship;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -150,17 +152,15 @@ public class EntityMapper {
         P attributedType = null;
 
         if (entityInstance != null) {
-            if (!getEntityType().equals(entityInstance.getClass()) && !getEntityType().isAssignableFrom(entityInstance
-                    .getClass())) {
+            // if the instance is not of the same or a child of the mappper's type, we assume a one-to-one relationship.
+            // in this case we need to start to create the type and populate it of the referenced owner entity.
+            if (!getEntityType().equals(entityInstance.getClass()) && !getEntityType().isAssignableFrom(entityInstance.getClass())) {
                 EntityMapper entityMapper = this.store.getMapperForEntity(entityInstance.getClass());
                 Entry<Property, Property> property = entityMapper.getProperty(OwnerReference.class);
 
-                if (property == null) {
-                    throw new IdentityManagementException("Entity instance is not a " + getEntityType() + " or does " +
-                            "not have a owner reference to this type.");
+                if (property != null) {
+                    entityInstance = property.getValue().getValue(entityInstance);
                 }
-
-                entityInstance = property.getValue().getValue(entityInstance);
             }
 
             try {
@@ -284,16 +284,6 @@ public class EntityMapper {
         return getTypeProperty() != null;
     }
 
-    public boolean isPersist() {
-        for (EntityMapping entityMapping : getEntityMappings()) {
-            if (entityMapping.getTypeProperty() != null) {
-                return entityMapping.isPersist();
-            }
-        }
-
-        return true;
-    }
-
     public List getAssociatedEntities(AttributedType attributedType, EntityMapper entityMapper, EntityManager entityManager) {
         if (!entityMapper.getEntityType().isAnnotationPresent(IdentityManaged.class)) {
             return Collections.emptyList();
@@ -405,7 +395,7 @@ public class EntityMapper {
         entityManager.persist(entityInstance);
     }
 
-    private Property getTypeProperty() {
+    public Property getTypeProperty() {
         for (EntityMapping entityMapping : getEntityMappings()) {
             if (entityMapping.getTypeProperty() != null) {
                 return entityMapping.getTypeProperty();
@@ -432,6 +422,11 @@ public class EntityMapper {
     }
 
     private Object getEntityInstance(AttributedType attributedType, EntityManager entityManager) {
+        // we don't persist relationship identity types
+        if (getProperty(RelationshipMember.class) != null) {
+            return null;
+        }
+
         Object entityInstance = null;
 
         if (getEntityType().isAnnotationPresent(MappedAttribute.class)) {
@@ -459,10 +454,10 @@ public class EntityMapper {
                         .getFirstResult();
 
                 // first we check if this mapper refers to an entity mapped directly into the current type. If so,
-                // we just set the owner property.
+                // we just get the property.
                 if (attributeProperty != null) {
                     entityInstance = attributeProperty.getValue(attributedType);
-                } else {
+                } else if (!Relationship.class.isInstance(attributedType)) {
                     List associatedEntities = getAssociatedEntities(attributedType, this, entityManager);
 
                     if (!associatedEntities.isEmpty()) {

@@ -19,8 +19,11 @@ package org.picketlink.idm.jpa.internal.mappers;
 
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.jpa.annotations.RelationshipDescriptor;
 import org.picketlink.idm.jpa.annotations.RelationshipMember;
+import org.picketlink.idm.jpa.annotations.entity.IdentityManaged;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Relationship;
 
 import java.util.ArrayList;
@@ -45,7 +48,21 @@ public class RelationshipIdentityMapper extends AbstractModelMapper {
     protected List<EntityMapping> doCreateMapping(final Class<?> entityType) {
         List<EntityMapping> mappings = new ArrayList<EntityMapping>();
 
-        EntityMapping entityMapping = new EntityMapping(Relationship.class);
+        Class<?> mappedClass = Relationship.class;
+        IdentityManaged identityManaged = entityType.getAnnotation(IdentityManaged.class);
+
+        if (identityManaged != null) {
+            Class<? extends AttributedType>[] value = identityManaged.value();
+
+            if (value.length > 1) {
+                throw new IdentityManagementException("Relationship identity mappings must map to a single @IdentityManaged type.");
+            }
+
+            mappedClass = value[0];
+        }
+
+        EntityMapping entityMapping = new EntityMapping(mappedClass);
+
 
         entityMapping.addMappedProperty(getAnnotatedProperty(RelationshipDescriptor.class, entityType));
         entityMapping.addMappedProperty(getAnnotatedProperty(RelationshipMember.class, entityType));
