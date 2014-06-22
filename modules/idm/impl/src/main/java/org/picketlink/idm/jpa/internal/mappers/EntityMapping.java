@@ -33,9 +33,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.picketlink.common.properties.query.TypedPropertyCriteria.MatchOption;
-import static org.picketlink.idm.IDMMessages.MESSAGES;
-
 /**
  * @author pedroigor
  */
@@ -57,18 +54,20 @@ public class EntityMapping {
     }
 
     public void addTypeProperty(Property property) {
-        addProperty(new PropertyMapping() {
-            @Override
-            public Object getValue(Object instance) {
-                return instance.getClass().getName();
-            }
+        if (property != null) {
+            addProperty(new PropertyMapping() {
+                @Override
+                public Object getValue(Object instance) {
+                    return instance.getClass().getName();
+                }
 
-            @Override
-            public void setValue(Object instance, Object value) {
-                //TODO: Implement setValue
-            }
-        }, property);
-        this.typeProperty = property;
+                @Override
+                public void setValue(Object instance, Object value) {
+                    //TODO: Implement setValue
+                }
+            }, property);
+            this.typeProperty = property;
+        }
     }
 
     public Map<Property, Property> getProperties() {
@@ -95,51 +94,49 @@ public class EntityMapping {
                 .addCriteria(new AnnotatedPropertyCriteria(OwnerReference.class))
                 .getFirstResult();
 
-        if (ownerProperty == null) {
-            throw MESSAGES.configJpaStoreRequiredMappingAnnotation(entityType, OwnerReference.class);
-        }
+        if (ownerProperty != null) {
+            addProperty(new PropertyMapping() {
 
-        addProperty(new PropertyMapping() {
-
-            @Override
-            public Object getValue(Object instance) {
-                IdentityManaged identityManaged =
+                @Override
+                public Object getValue(Object instance) {
+                    IdentityManaged identityManaged =
                         (IdentityManaged) ownerProperty.getJavaClass().getAnnotation(IdentityManaged.class);
 
-                if (identityManaged != null) {
-                    for (Class<?> ownerType : identityManaged.value()) {
-                        Property<Object> ownerProperty = PropertyQueries
+                    if (identityManaged != null) {
+                        for (Class<?> ownerType : identityManaged.value()) {
+                            Property<Object> ownerProperty = PropertyQueries
                                 .createQuery(instance.getClass())
-                                .addCriteria(new TypedPropertyCriteria(ownerType, MatchOption.ALL))
+                                .addCriteria(new TypedPropertyCriteria(ownerType, TypedPropertyCriteria.MatchOption.ALL))
                                 .getFirstResult();
 
-                        if (ownerProperty != null && !ownerProperty.getJavaClass().equals(instance.getClass())) {
-                            return ownerProperty.getValue(instance);
+                            if (ownerProperty != null && !ownerProperty.getJavaClass().equals(instance.getClass())) {
+                                return ownerProperty.getValue(instance);
+                            }
+                        }
+                    }
+
+                    return instance;
+                }
+
+                @Override
+                public void setValue(Object instance, Object value) {
+                    IdentityManaged identityManaged =
+                        (IdentityManaged) ownerProperty.getJavaClass().getAnnotation(IdentityManaged.class);
+
+                    for (Class<?> ownerType : identityManaged.value()) {
+                        Property<Object> ownerProperty = PropertyQueries
+                            .createQuery(instance.getClass())
+                            .addCriteria(new TypedPropertyCriteria(ownerType, TypedPropertyCriteria.MatchOption.ALL))
+                            .getFirstResult();
+
+                        if (ownerProperty != null && ownerType.isInstance(value)) {
+                            ownerProperty.setValue(instance, value);
+                            return;
                         }
                     }
                 }
-
-                return instance;
-            }
-
-            @Override
-            public void setValue(Object instance, Object value) {
-                IdentityManaged identityManaged =
-                        (IdentityManaged) ownerProperty.getJavaClass().getAnnotation(IdentityManaged.class);
-
-                for (Class<?> ownerType : identityManaged.value()) {
-                    Property<Object> ownerProperty = PropertyQueries
-                            .createQuery(instance.getClass())
-                            .addCriteria(new TypedPropertyCriteria(ownerType, MatchOption.ALL))
-                            .getFirstResult();
-
-                    if (ownerProperty != null && ownerType.isInstance(value)) {
-                        ownerProperty.setValue(instance, value);
-                        return;
-                    }
-                }
-            }
-        }, ownerProperty);
+            }, ownerProperty);
+        }
     }
 
     public void addProperty(final String propertyName, Property mappedProperty) {

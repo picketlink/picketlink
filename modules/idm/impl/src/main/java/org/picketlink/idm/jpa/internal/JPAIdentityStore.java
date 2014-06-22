@@ -27,6 +27,7 @@ import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.handler.DigestCredentialHandler;
 import org.picketlink.idm.credential.handler.PasswordCredentialHandler;
 import org.picketlink.idm.credential.handler.TOTPCredentialHandler;
@@ -41,6 +42,7 @@ import org.picketlink.idm.jpa.annotations.AttributeName;
 import org.picketlink.idm.jpa.annotations.AttributeValue;
 import org.picketlink.idm.jpa.annotations.CredentialClass;
 import org.picketlink.idm.jpa.annotations.EffectiveDate;
+import org.picketlink.idm.jpa.annotations.ExpiryDate;
 import org.picketlink.idm.jpa.annotations.Identifier;
 import org.picketlink.idm.jpa.annotations.IdentityClass;
 import org.picketlink.idm.jpa.annotations.OwnerReference;
@@ -143,6 +145,8 @@ public class JPAIdentityStore
         }
 
         logEntityMappers();
+
+        validateConfiguration();
     }
 
     @Override
@@ -1233,13 +1237,7 @@ public class JPAIdentityStore
     }
 
     private EntityMapper getAttributeMapper(Class<? extends AttributedType> attributedType) {
-        List<EntityMapper> attributeMappers = new ArrayList<EntityMapper>();
-
-        for (EntityMapper entityMapper : this.entityMappers) {
-            if (entityMapper.getProperty(AttributeClass.class) != null) {
-                attributeMappers.add(entityMapper);
-            }
-        }
+        List<EntityMapper> attributeMappers = getAttributeMappers();
 
         if (!attributeMappers.isEmpty()) {
             boolean supportsType = getConfig().supportsType(attributedType, IdentityOperation.create);
@@ -1283,6 +1281,17 @@ public class JPAIdentityStore
         }
 
         throw new IdentityManagementException("Could not find attribute mapper for type [" + attributedType + "].");
+    }
+
+    private List<EntityMapper> getAttributeMappers() {
+        List<EntityMapper> attributeMappers = new ArrayList<EntityMapper>();
+
+        for (EntityMapper entityMapper : this.entityMappers) {
+            if (entityMapper.getProperty(AttributeClass.class) != null) {
+                attributeMappers.add(entityMapper);
+            }
+        }
+        return attributeMappers;
     }
 
     private void storeRelationshipMembers(Relationship relationship, EntityManager entityManager) {
@@ -1878,4 +1887,123 @@ public class JPAIdentityStore
             em.remove(result);
         }
     }
+
+    private void validateConfiguration() {
+        Set<Class<? extends AttributedType>> supportedTypes = getConfig().getSupportedTypes().keySet();
+
+        validateTypeMapping(supportedTypes);
+        validateAttributeMapping();
+        validateCredentialMapping();
+    }
+
+    private void validateCredentialMapping() {
+        if (getConfig().supportsCredential()) {
+            for (EntityMapper entityMapper : getEntityMappers()) {
+                ManagedCredential managedCredential = entityMapper.getEntityType().getAnnotation(ManagedCredential.class);
+
+                if (managedCredential != null) {
+                    checkIfAnnotationIsDefinedForCredential(entityMapper, CredentialClass.class);
+                    checkIfAnnotationIsDefinedForCredential(entityMapper, EffectiveDate.class);
+                    checkIfAnnotationIsDefinedForCredential(entityMapper, ExpiryDate.class);
+                    return;
+                }
+            }
+
+            throw MESSAGES.configJpaStoreMappedNoCredentialStorageMappingFound();
+        }
+    }
+
+    private void validateAttributeMapping() {
+        if (getConfig().supportsAttribute()) {
+            for (EntityMapper entityMapper : getEntityMappers()) {
+                if (entityMapper.getProperty(AttributeClass.class) != null) {
+                    checkIfAnnotationIsDefinedForAttribute(entityMapper, AttributeName.class);
+                    checkIfAnnotationIsDefinedForAttribute(entityMapper, AttributeValue.class);
+                    checkIfAnnotationIsDefinedForAttribute(entityMapper, OwnerReference.class);
+                    return;
+                }
+            }
+
+            throw MESSAGES.configJpaStoreMappedNoAttributeMappingFound();
+        }
+    }
+
+    private void validateTypeMapping(Set<Class<? extends AttributedType>> supportedTypes) {
+        for (Class<? extends AttributedType> supportedType : supportedTypes) {
+            // we only validate user-defined types
+            if (Relationship.class.equals(supportedType)
+                || Partition.class.equals(supportedType)
+                || IdentityType.class.equals(supportedType)
+                || Account.class.equals(supportedType)) {
+                continue;
+            }
+
+            checkIfAnnotationIsDefined(supportedType, Identifier.class);
+
+            if (Partition.class.isAssignableFrom(supportedType)) {
+                checkIfAnnotationIsDefined(supportedType, PartitionClass.class);
+            }
+
+            if (IdentityType.class.isAssignableFrom(supportedType)) {
+                checkIfAnnotationIsDefined(supportedType, IdentityClass.class);
+
+                if (getConfig().supportsPartition()) {
+                    checkIfAnnotationIsDefined(supportedType, OwnerReference.class);
+                }
+            }
+
+            if (Relationship.class.isAssignableFrom(supportedType)) {
+                checkIfAnnotationIsDefined(supportedType, RelationshipClass.class);
+                checkIfAnnotationIsDefined(supportedType, RelationshipDescriptor.class);
+                checkIfAnnotationIsDefined(supportedType, RelationshipMember.class);
+                checkIfAnnotationIsDefined(supportedType, OwnerReference.class);
+            }
+        }
+    }
+
+    /**
+     * <p>Checks if the given {@link java.lang.annotation.Annotation} was define during the mapping of a specific
+     * {@link org.picketlink.idm.model.AttributedType}.</p>
+     *
+     * @param attributedType
+     * @param annotation
+     *
+     * @throws org.picketlink.idm.config.SecurityConfigurationException If not annotation was defined to map the type.
+     */
+    private void checkIfAnnotationIsDefined(Class<? extends AttributedType> attributedType, Class<? extends Annotation> annotation) throws SecurityConfigurationException {
+        if (getEntityMapperForProperty(attributedType, annotation) == null) {
+            throw MESSAGES.configJpaStoreRequiredMappingAnnotationForAttributedType(attributedType, annotation);
+        }
+    }
+
+    /**
+     * <p>Checks if the given {@link java.lang.annotation.Annotation} was define during the mapping of a specific
+     * {@link org.picketlink.idm.model.Attribute} mapping.</p>
+     *
+     * @param mapper
+     * @param annotation
+     *
+     * @throws org.picketlink.idm.config.SecurityConfigurationException If not annotation was defined to map the type.
+     */
+    private void checkIfAnnotationIsDefinedForAttribute(EntityMapper mapper, Class<? extends Annotation> annotation) throws SecurityConfigurationException {
+        if (mapper.getProperty(annotation) == null) {
+            throw MESSAGES.configJpaStoreRequiredMappingAnnotation(mapper.getEntityType(), annotation);
+        }
+    }
+
+    /**
+     * <p>Checks if the given {@link java.lang.annotation.Annotation} was define during the mapping of a specific
+     * {@link org.picketlink.idm.credential.storage.CredentialStorage} mapping.</p>
+     *
+     * @param mapper
+     * @param annotation
+     *
+     * @throws org.picketlink.idm.config.SecurityConfigurationException If not annotation was defined to map the type.
+     */
+    private void checkIfAnnotationIsDefinedForCredential(EntityMapper mapper, Class<? extends Annotation> annotation) throws SecurityConfigurationException {
+        if (mapper.getProperty(annotation) == null) {
+            throw MESSAGES.configJpaStoreRequiredMappingAnnotation(mapper.getEntityType(), annotation);
+        }
+    }
+
 }

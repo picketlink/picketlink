@@ -19,6 +19,8 @@ package org.picketlink.test.idm.testers;
 
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
+import org.picketlink.idm.jpa.model.sample.complex.CustomerUser;
+import org.picketlink.idm.jpa.model.sample.complex.EmployeeUser;
 import org.picketlink.idm.jpa.model.sample.complex.entity.Application;
 import org.picketlink.idm.jpa.model.sample.complex.entity.ApplicationAttribute;
 import org.picketlink.idm.jpa.model.sample.complex.entity.ApplicationAuthorization;
@@ -39,7 +41,6 @@ import org.picketlink.test.idm.util.JPAContextInitializer;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 import static org.picketlink.test.idm.util.PersistenceUtil.createEntityManagerFactory;
 
@@ -86,7 +87,16 @@ public class JPAStoreComplexSchemaConfigurationTester implements IdentityConfigu
                         return entityManager;
                     }
                 })
-                .supportAllFeatures();
+                .supportType(
+                    org.picketlink.idm.jpa.model.sample.complex.Application.class,
+                    org.picketlink.idm.jpa.model.sample.complex.Company.class,
+                    CustomerUser.class,
+                    EmployeeUser.class,
+                    org.picketlink.idm.jpa.model.sample.complex.OrganizationUnit.class)
+                .supportGlobalRelationship(
+                    org.picketlink.idm.jpa.model.sample.complex.ApplicationAuthorization.class
+                )
+                .supportAttributes(true);
 
         return new DefaultPartitionManager(builder.buildAll());
     }

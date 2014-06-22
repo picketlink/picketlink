@@ -22,7 +22,6 @@ import org.picketlink.test.idm.other.shane.model.scenario1.User;
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.City;
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.Country;
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.EmployeeContract;
-import org.picketlink.test.idm.other.shane.model.scenario1.entity.IdentityObjectAttribute;
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.PartitionAttribute;
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.PasswordHash;
 import org.picketlink.test.idm.other.shane.model.scenario1.entity.RoleDetail;
@@ -34,7 +33,6 @@ import org.picketlink.test.idm.other.shane.model.scenario2.entity.Customer;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -410,7 +408,8 @@ public class ShanesBigSanityCheckTestCase {
                         }
                     })
                     .addCredentialHandler(UserPasswordCredentialHandler.class)
-                    .supportAllFeatures();
+                    .supportType(org.picketlink.test.idm.other.shane.model.scenario2.User.class, Realm.class)
+                    .supportPermissions(true);
 
         PartitionManager partitionManager = new DefaultPartitionManager(builder.buildAll());
 
