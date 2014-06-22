@@ -31,7 +31,15 @@ import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.internal.DefaultPartitionManager;
+import org.picketlink.idm.jpa.model.sample.simple.AccountTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.AttributeTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.GroupTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.IdentityTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.PartitionTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.PasswordCredentialTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.RelationshipIdentityTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
+import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
@@ -211,6 +219,17 @@ public class ConfigurationTestCase {
                         .supportType(Partition.class)
                         .supportType(User.class)
                     .jpa()
+                        .mappedEntity(
+                            PartitionTypeEntity.class,
+                            RoleTypeEntity.class,
+                            GroupTypeEntity.class,
+                            IdentityTypeEntity.class,
+                            RelationshipTypeEntity.class,
+                            RelationshipIdentityTypeEntity.class,
+                            PasswordCredentialTypeEntity.class,
+                            AttributeTypeEntity.class,
+                            AccountTypeEntity.class
+                        )
                         .supportCredentials(false)
                         .supportType(Relationship.class);
 

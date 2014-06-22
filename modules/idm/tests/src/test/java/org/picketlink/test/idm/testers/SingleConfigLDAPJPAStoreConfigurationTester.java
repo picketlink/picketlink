@@ -20,7 +20,6 @@ package org.picketlink.test.idm.testers;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.jpa.model.sample.simple.RelationshipTypeEntity;
-import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.basic.Agent;
 import org.picketlink.idm.model.basic.Grant;
 import org.picketlink.idm.model.basic.Group;
@@ -80,6 +79,7 @@ public class SingleConfigLDAPJPAStoreConfigurationTester implements IdentityConf
                         })
                         .supportGlobalRelationship(CustomRelationshipTestCase.CustomRelationship.class, Grant.class, GroupRole.class, GroupMembership.class)
                         .supportAttributes(true)
+                        .supportCredentials(false)
                     .ldap()
                         .baseDN(embeddedServer.getBaseDn())
                         .bindDN(embeddedServer.getBindDn())

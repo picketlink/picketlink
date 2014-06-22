@@ -74,7 +74,7 @@ public class EntityMapper {
         this.entityMappings = Collections.unmodifiableList(mappings);
     }
 
-    public void persist(AttributedType attributedType, EntityManager entityManager) {
+    public Object persist(AttributedType attributedType, EntityManager entityManager) {
         Object entity = getEntityInstance(attributedType, entityManager);
 
         if (entity != null) {
@@ -114,6 +114,8 @@ public class EntityMapper {
 
             entityManager.persist(entity);
         }
+
+        return entity;
     }
 
     public Object updateEntity(AttributedType attributedType, EntityManager entityManager) {

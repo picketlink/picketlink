@@ -33,6 +33,7 @@ import org.picketlink.idm.credential.encoder.PasswordEncoder;
 import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.Account;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.spi.IdentityStore;
 
@@ -159,6 +160,16 @@ public interface IDMMessages {
     @Message(value = "Entity [%s] must have a field annotated with %s.")
     SecurityConfigurationException configJpaStoreRequiredMappingAnnotation(Class<?> entityType,
                                                                            Class<? extends Annotation> annotation);
+
+    @Message(value = "Invalid mapping for type [%s]. No entity found with a field annotated with %s.")
+    SecurityConfigurationException configJpaStoreRequiredMappingAnnotationForAttributedType(Class<? extends AttributedType> attributedType,
+        Class<? extends Annotation> annotation);
+
+    @Message(value = "Attribute support is enabled (ad-hoc). But no entity was found with the necessary mapping to store attributes.")
+    SecurityConfigurationException configJpaStoreMappedNoAttributeMappingFound();
+
+    @Message(value = "Credential support is enabled. But no entity was found with the necessary mapping to store any CredentialStorage.")
+    SecurityConfigurationException configJpaStoreMappedNoCredentialStorageMappingFound();
 
     @Message(value = "Mapped attribute [%s.%s] does not map to any field for type [%s].")
     SecurityConfigurationException configJpaStoreMappedPropertyNotFound(final Class<?> entityType, String propertyName, Class<?> type);
