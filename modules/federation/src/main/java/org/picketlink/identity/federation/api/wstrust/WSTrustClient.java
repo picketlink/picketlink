@@ -24,6 +24,7 @@ import org.picketlink.common.exceptions.fed.WSTrustException;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
+import org.picketlink.identity.federation.core.wstrust.STSClientPool;
 import org.picketlink.identity.federation.core.wstrust.STSClientFactory;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
@@ -80,13 +81,13 @@ public class WSTrustClient {
         Builder builder = new STSClientConfig.Builder();
         builder.serviceName(serviceName).portName(port).username(secInfo.username).password(secInfo.passwd);
 
+        STSClientPool pool = STSClientFactory.getInstance();
         int index = 0;
         for (String endpointURI : endpointURIs) {
             builder.endpointAddress(endpointURI);
             STSClientConfig config = builder.build();
-            STSClientFactory cf = STSClientFactory.getInstance();
-            cf.createPool(config);
-            this.clients[index++] = cf.getClient(config);
+            pool.createPool(config);
+            this.clients[index++] = pool.getClient(config);
         }
 
     }
@@ -395,8 +396,9 @@ public class WSTrustClient {
      * This method returns all allocated clients back to the STSClientPool when pooling is enabled.
      */
     public void close() {
+        STSClientPool pool = STSClientFactory.getInstance();
         for (STSClient client: this.clients) {
-            STSClientFactory.getInstance().returnClient(client);
+            pool.returnClient(client);
         }
     }
 }

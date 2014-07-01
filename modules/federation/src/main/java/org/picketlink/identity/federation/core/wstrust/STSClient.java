@@ -503,6 +503,6 @@ public class STSClient implements STSClientConfigKeyProvider {
 
     @Override
     public String getSTSClientConfigKey() {
-        return STSClientConfig.computeSTSClientConfigKey(serviceName, portName, endPointAddress, userName);
+        return STSClientConfig.computeSTSClientConfigKey(STSClientConfig.SUBSTITUTE_MODULE, serviceName, portName, endPointAddress, userName);
     }
 }

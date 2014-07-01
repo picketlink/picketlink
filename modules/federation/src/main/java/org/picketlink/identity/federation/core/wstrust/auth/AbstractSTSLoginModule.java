@@ -37,8 +37,9 @@ import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidat
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
-import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 import org.picketlink.identity.federation.core.wstrust.STSClientFactory;
+import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
+import org.picketlink.identity.federation.core.wstrust.STSClientPool;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
@@ -53,6 +54,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.xml.datatype.XMLGregorianCalendar;
+
 import java.io.IOException;
 import java.security.Principal;
 import java.security.acl.Group;
@@ -245,12 +247,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
     /**
      * Paramater name.
      */
-    public static final String MAX_CLIENTS_IN_POOL = "maxClientsInPool";
-
-    /**
-     * Paramater name.
-     */
-    public static final String INITIAL_NUMBER_OF_CLIENTS = "initialNumberOfClients";
+    public static final String INITIAL_CLIENTS_IN_POOL = "initialClientsInPool";
 
     /**
      * The subject to be populated.
@@ -318,14 +315,9 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
     protected boolean isBatch = false;
 
     /**
-     * Maximal number of clients in the STS Client Pool.
+     * Number of clients initialized for in case pool is out of free clients. 0 = pooling is disabled.
      */
-    protected int maxClientsInPool = 0;
-
-    /**
-     * Number of clients initialized for in case pool is out of free clients.
-     */
-    protected int initialNumberOfClients = 0;
+    protected int initialClientsInPool = 0;
 
     /**
      * Initialized this login module. Simple stores the passed in fields and also validates the options.
@@ -373,21 +365,12 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
             this.isBatch = Boolean.parseBoolean(batchIssueString);
         }
 
-        String maxClientsString = (String) options.get(MAX_CLIENTS_IN_POOL);
-        if (StringUtil.isNotNull(maxClientsString)) {
+        String initialClientsInPoolString = (String) options.get(INITIAL_CLIENTS_IN_POOL);
+        if (StringUtil.isNotNull(initialClientsInPoolString)) {
             try {
-                this.maxClientsInPool = Integer.parseInt(maxClientsString);
+                this.initialClientsInPool = Integer.parseInt(initialClientsInPoolString);
             } catch (Exception e) {
-                logger.cannotParseParameterValue(MAX_CLIENTS_IN_POOL, e);
-            }
-        }
-
-        String initialNumberOfClientsString = (String) options.get(INITIAL_NUMBER_OF_CLIENTS);
-        if (StringUtil.isNotNull(initialNumberOfClientsString)) {
-            try {
-                this.initialNumberOfClients = Integer.parseInt(initialNumberOfClientsString);
-            } catch (Exception e) {
-                logger.cannotParseParameterValue(INITIAL_NUMBER_OF_CLIENTS, e);
+                logger.cannotParseParameterValue(initialClientsInPoolString, e);
             }
         }
 
@@ -434,7 +417,10 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
             throw logger.authLoginError(e);
         } finally {
             if (stsClient != null) {
-                STSClientFactory.getInstance().returnClient(stsClient);
+                STSClientPool pool = STSClientFactory.getInstance();
+                if (pool != null) {
+                    pool.returnClient(stsClient);
+                }
             }
         }
     }
@@ -571,14 +557,11 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
 
     protected STSClient createWSTrustClient(final STSClientConfig config) {
         try {
-            STSClientFactory factory = STSClientFactory.getInstance(maxClientsInPool);
-            if (factory.configExists(config)) {
-                return factory.getClient(config);
-            } else {
-                STSClientFactory cf = STSClientFactory.getInstance(maxClientsInPool);
-                cf.createPool(initialNumberOfClients, config);
-                return cf.getClient(config);
+            STSClientPool pool = STSClientFactory.getInstance();
+            if (initialClientsInPool > 0) {
+                pool.createPool(initialClientsInPool, config);
             }
+            return pool.getClient(config);
         } catch (final Exception e) {
             throw logger.authCouldNotCreateWSTrustClient(e);
         }
