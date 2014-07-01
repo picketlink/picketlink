@@ -1215,4 +1215,6 @@ public interface PicketLinkLogger {
 
     RuntimeException cannotSetMaxPoolSizeToNegative(String max);
 
+    RuntimeException parserFeatureNotSupported(String feature);
+
 }

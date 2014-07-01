@@ -66,6 +66,10 @@ public class DocumentUtil {
 
     private static DocumentBuilderFactory documentBuilderFactory;
 
+    public static final String feature_external_general_entities = "http://xml.org/sax/features/external-general-entities";
+    public static final String feature_external_parameter_entities = "http://xml.org/sax/features/external-parameter-entities";
+    public static final String feature_disallow_doctype_decl = "http://apache.org/xml/features/disallow-doctype-decl";
+
     /**
      * Check whether a node belongs to a document
      *
@@ -517,6 +521,17 @@ public class DocumentUtil {
                 documentBuilderFactory = DocumentBuilderFactory.newInstance();
                 documentBuilderFactory.setNamespaceAware(true);
                 documentBuilderFactory.setXIncludeAware(true);
+                String feature = "";
+                try {
+                    feature = feature_disallow_doctype_decl;
+                    documentBuilderFactory.setFeature(feature, true);
+                    feature = feature_external_general_entities;
+                    documentBuilderFactory.setFeature(feature, false);
+                    feature = feature_external_parameter_entities;
+                    documentBuilderFactory.setFeature(feature, false);
+                } catch (ParserConfigurationException e) {
+                    throw logger.parserFeatureNotSupported(feature);
+                }
             } finally {
                 if (tccl_jaxp) {
                     SecurityActions.setTCCL(prevTCCL);
