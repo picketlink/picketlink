@@ -37,6 +37,9 @@ import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.event.EventBridge;
+import org.picketlink.idm.event.PartitionCreatedEvent;
+import org.picketlink.idm.event.PartitionDeletedEvent;
+import org.picketlink.idm.event.PartitionUpdatedEvent;
 import org.picketlink.idm.file.internal.FileIdentityStore;
 import org.picketlink.idm.internal.util.RelationshipMetadata;
 import org.picketlink.idm.jdbc.internal.JDBCIdentityStore;
@@ -404,6 +407,8 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                         attributeStore.setAttribute(context, partition, attribute);
                     }
                 }
+
+                this.eventBridge.raiseEvent(new PartitionCreatedEvent(partition, this));
             } catch (Exception e) {
                 throw MESSAGES.partitionAddFailed(partition, configurationName, e);
             }
@@ -434,6 +439,8 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                     attributeStore.setAttribute(context, partition, attribute);
                 }
             }
+
+            this.eventBridge.raiseEvent(new PartitionUpdatedEvent(partition, this));
         } catch (Exception e) {
             throw MESSAGES.partitionUpdateFailed(partition, e);
         }
@@ -465,6 +472,8 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
             }
 
             getStoreForPartitionOperation(context, partition.getClass()).remove(context, partition);
+
+            this.eventBridge.raiseEvent(new PartitionDeletedEvent(partition, this));
         } catch (Exception e) {
             throw MESSAGES.partitionRemoveFailed(partition, e);
         }
