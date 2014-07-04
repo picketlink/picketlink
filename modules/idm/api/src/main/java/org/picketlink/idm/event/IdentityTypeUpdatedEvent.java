@@ -1,5 +1,6 @@
 package org.picketlink.idm.event;
 
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.IdentityType;
 
 /**
@@ -9,9 +10,10 @@ import org.picketlink.idm.model.IdentityType;
  */
 public class IdentityTypeUpdatedEvent extends AbstractBaseEvent {
 
-    private IdentityType identityType;
+    private final IdentityType identityType;
 
-    public IdentityTypeUpdatedEvent(IdentityType identityType) {
+    public IdentityTypeUpdatedEvent(IdentityType identityType, PartitionManager partitionManager) {
+        super(partitionManager);
         this.identityType = identityType;
     }
 

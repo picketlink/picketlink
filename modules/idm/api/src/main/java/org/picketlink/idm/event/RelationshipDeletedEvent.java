@@ -18,6 +18,7 @@
 
 package org.picketlink.idm.event;
 
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Relationship;
 
 /**
@@ -27,13 +28,14 @@ import org.picketlink.idm.model.Relationship;
  */
 public class RelationshipDeletedEvent extends AbstractBaseEvent {
 
-    private Relationship relationship;
+    private final Relationship relationship;
 
-    public RelationshipDeletedEvent(Relationship relationship) {
+    public RelationshipDeletedEvent(Relationship relationship, PartitionManager partitionManager) {
+        super(partitionManager);
         this.relationship = relationship;
     }
 
     public Relationship getRelationship() {
-        return relationship;
+        return this.relationship;
     }
 }
