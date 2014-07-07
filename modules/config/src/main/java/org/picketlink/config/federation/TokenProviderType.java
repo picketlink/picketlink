@@ -63,7 +63,7 @@ public class TokenProviderType {
     }
 
     public void remove(KeyValueType kv) {
-        this.remove(kv);
+        property.remove(kv);
     }
 
     /**
