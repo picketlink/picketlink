@@ -55,6 +55,7 @@ public class LDAPMappingConfigurationBuilder extends
     private Class<? extends AttributedType> relatedAttributedType;
     private String parentMembershipAttributeName;
     private int hierarchySearchDepth = 3;
+    private String bindingProperty;
 
     public LDAPMappingConfigurationBuilder(Class<? extends AttributedType> attributedType, LDAPStoreConfigurationBuilder builder) {
         super(builder);
@@ -69,6 +70,7 @@ public class LDAPMappingConfigurationBuilder extends
                 this.objectClasses,
                 this.baseDN,
                 this.idPropertyName,
+                this.bindingProperty,
                 this.mappedProperties,
                 this.readOnlyAttributes,
                 this.parentMapping,
@@ -150,6 +152,22 @@ public class LDAPMappingConfigurationBuilder extends
     public LDAPMappingConfigurationBuilder attribute(@ParameterConfigID(name = "propertyName") String propertyName,
                                                      @ParameterConfigID(name = "ldapAttributeName") String ldapAttributeName) {
         this.mappedProperties.put(propertyName, ldapAttributeName);
+        return this;
+    }
+
+    /**
+     * <p>Maps a type property to a specific LDAP attribute. The given LDAP attribute will be used to construct the distinguished name
+     * of entries.
+     *
+     * @param propertyName
+     * @param ldapAttributeName
+     *
+     * @return
+     */
+    public LDAPMappingConfigurationBuilder bindingAttribute(@ParameterConfigID(name = "propertyName") String propertyName,
+        @ParameterConfigID(name = "ldapAttributeName") String ldapAttributeName) {
+        this.mappedProperties.put(propertyName, ldapAttributeName);
+        this.bindingProperty = propertyName;
         return this;
     }
 

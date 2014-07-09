@@ -32,8 +32,6 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
@@ -122,19 +120,40 @@ public class LDAPOperationManager {
      *
      * @return
      */
-    public void removeEntryById(final String baseDN, final String id) {
+    public void removeEntryById(final String baseDN, final String id, final LDAPMappingConfiguration mappingConfiguration) {
+        final String filter = getFilterById(baseDN, id);
+
         try {
-            final Attributes attributesToSearch = new BasicAttributes(true);
+            final SearchControls cons = new SearchControls();
 
-            attributesToSearch.put(new BasicAttribute(getUniqueIdentifierAttributeName(), id));
+            cons.setSearchScope(SUBTREE_SCOPE);
+            cons.setReturningObjFlag(false);
+            cons.setCountLimit(1);
 
-            execute(new LdapOperation<Void>() {
+            List<String> returningAttributes = getReturningAttributes(mappingConfiguration);
+
+            cons.setReturningAttributes(returningAttributes.toArray(new String[returningAttributes.size()]));
+
+            execute(new LdapOperation<SearchResult>() {
                 @Override
-                public Void execute(LdapContext context) throws NamingException {
-                    NamingEnumeration<SearchResult> result = context.search(baseDN, attributesToSearch);
+                public SearchResult execute(LdapContext context) throws NamingException {
+                    NamingEnumeration<SearchResult> result = context.search(baseDN, filter, cons);
 
                     if (result.hasMore()) {
                         SearchResult sr = result.next();
+                        if (LDAP_STORE_LOGGER.isDebugEnabled()) {
+                            LDAP_STORE_LOGGER.debugf("Removing entry [%s] with attributes: [", sr.getNameInNamespace());
+
+                            NamingEnumeration<? extends Attribute> all = sr.getAttributes().getAll();
+
+                            while (all.hasMore()) {
+                                Attribute attribute = all.next();
+
+                                LDAP_STORE_LOGGER.debugf("  %s = %s", attribute.getID(), attribute.get());
+                            }
+
+                            LDAP_STORE_LOGGER.debugf("]");
+                        }
                         destroySubcontext(context, sr.getNameInNamespace());
                     }
 
@@ -213,43 +232,39 @@ public class LDAPOperationManager {
     public SearchResult lookupById(final String baseDN, final String id, final LDAPMappingConfiguration mappingConfiguration) {
         final String filter = getFilterById(baseDN, id);
 
-        if (filter != null) {
-            try {
-                final SearchControls cons = new SearchControls();
+        try {
+            final SearchControls cons = new SearchControls();
 
-                cons.setSearchScope(SUBTREE_SCOPE);
-                cons.setReturningObjFlag(false);
-                cons.setCountLimit(1);
+            cons.setSearchScope(SUBTREE_SCOPE);
+            cons.setReturningObjFlag(false);
+            cons.setCountLimit(1);
 
-                List<String> returningAttributes = getReturningAttributes(mappingConfiguration);
+            List<String> returningAttributes = getReturningAttributes(mappingConfiguration);
 
-                cons.setReturningAttributes(returningAttributes.toArray(new String[returningAttributes.size()]));
+            cons.setReturningAttributes(returningAttributes.toArray(new String[returningAttributes.size()]));
 
-                return execute(new LdapOperation<SearchResult>() {
-                    @Override
-                    public SearchResult execute(LdapContext context) throws NamingException {
-                        NamingEnumeration<SearchResult> search = context.search(baseDN, filter, cons);
+            return execute(new LdapOperation<SearchResult>() {
+                @Override
+                public SearchResult execute(LdapContext context) throws NamingException {
+                    NamingEnumeration<SearchResult> search = context.search(baseDN, filter, cons);
 
-                        try {
-                            if (search.hasMoreElements()) {
-                                return search.next();
-                            }
-                        } finally {
-                            if (search != null) {
-                                search.close();
-                            }
+                    try {
+                        if (search.hasMoreElements()) {
+                            return search.next();
                         }
-
-                        return null;
+                    } finally {
+                        if (search != null) {
+                            search.close();
+                        }
                     }
-                });
-            } catch (NamingException e) {
-                LDAP_STORE_LOGGER.errorf(e, "Could not query server using DN [%s] and filter [%s]", baseDN, filter);
-                throw new RuntimeException(e);
-            }
-        }
 
-        return null;
+                    return null;
+                }
+            });
+        } catch (NamingException e) {
+            LDAP_STORE_LOGGER.errorf(e, "Could not query server using DN [%s] and filter [%s]", baseDN, filter);
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -334,7 +349,15 @@ public class LDAPOperationManager {
                 LDAP_STORE_LOGGER.debugf("Modifying attributes for entry [%s]: [", dn);
 
                 for (ModificationItem item : mods) {
-                    LDAP_STORE_LOGGER.debugf("  Op [%s]: %s = %s", item.getModificationOp(), item.getAttribute().getID(), item.getAttribute().get());
+                    Object values;
+
+                    if (item.getAttribute().size() > 0) {
+                        values = item.getAttribute().get();
+                    } else {
+                        values = "No values";
+                    }
+
+                    LDAP_STORE_LOGGER.debugf("  Op [%s]: %s = %s", item.getModificationOp(), item.getAttribute().getID(), values);
                 }
 
                 LDAP_STORE_LOGGER.debugf("]");
