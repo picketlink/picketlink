@@ -435,7 +435,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         return baseDN;
     }
 
-    private <V extends IdentityType> StringBuilder createIdentityTypeSearchFilter(final IdentityQuery<V> identityQuery, final LDAPMappingConfiguration ldapEntryConfig) {
+    protected <V extends IdentityType> StringBuilder createIdentityTypeSearchFilter(final IdentityQuery<V> identityQuery, final LDAPMappingConfiguration ldapEntryConfig) {
         StringBuilder filter = new StringBuilder();
 
         for (Entry<QueryParameter, Object[]> entry : identityQuery.getParameters().entrySet()) {
@@ -749,7 +749,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         return objectClasses;
     }
 
-    private BasicAttributes extractAttributes(AttributedType attributedType, boolean extractObjectClasses) {
+    protected BasicAttributes extractAttributes(AttributedType attributedType, boolean extractObjectClasses) {
         BasicAttributes entryAttributes = new BasicAttributes();
         Map<String, String> mappedProperties = getMappingConfig(attributedType.getClass()).getMappedProperties();
 
@@ -804,11 +804,11 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         return mappingConfig;
     }
 
-    LDAPOperationManager getOperationManager() {
+    protected LDAPOperationManager getOperationManager() {
         return this.operationManager;
     }
 
-    String getBindingDN(AttributedType attributedType, boolean appendBaseDN) {
+    protected String getBindingDN(AttributedType attributedType, boolean appendBaseDN) {
         LDAPMappingConfiguration mappingConfig = getMappingConfig(attributedType.getClass());
         Property<String> idProperty = mappingConfig.getIdProperty();
 
@@ -873,7 +873,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         return baseDN;
     }
 
-    private void addToParentAsMember(final AttributedType attributedType) {
+    protected void addToParentAsMember(final AttributedType attributedType) {
         LDAPMappingConfiguration entryConfig = getMappingConfig(attributedType.getClass());
 
         if (entryConfig.getParentMembershipAttributeName() != null) {
@@ -897,7 +897,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         }
     }
 
-    private String getEntryIdentifier(final AttributedType attributedType) {
+    protected String getEntryIdentifier(final AttributedType attributedType) {
         try {
             // we need this to retrieve the entry's identifier from the ldap server
             List<SearchResult> search = this.operationManager.search(getBaseDN(attributedType), "(" + getBindingDN(attributedType, false) + ")", getMappingConfig(attributedType.getClass()));
