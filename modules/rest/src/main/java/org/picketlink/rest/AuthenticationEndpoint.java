@@ -55,6 +55,17 @@ public class AuthenticationEndpoint {
         return identity.getAccount();
     }
 
+    @GET
+    @Path("/status")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Account status() {
+        if (identity.isLoggedIn()) {
+            return identity.getAccount();
+        } else {
+            return null;
+        }
+    }
+
     /**
      * Logs out the currently authenticated user
      *

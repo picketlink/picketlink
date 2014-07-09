@@ -1,9 +1,23 @@
 var pl = {
-  loggedIn: false,
+  loggedIn: undefined,
   token: null,
   account: null,
   basePath: "",
-  createRequestObject: function(callback) {
+  getToken: function() {
+    var token = window.localStorage.getItem("token");
+    if (token == null) {
+      token = pl.token;
+    }
+    return token;
+  },
+  setToken: function(token) {
+    window.localStorage.setItem("token", token);
+    pl.token = token;
+  },
+  clearToken: function() {
+    window.localStorage.removeItem("token");
+  },
+  createRequestObject: function(callback, failCallback) {
     var r;
     if (window.XMLHttpRequest) {
       r = new XMLHttpRequest();
@@ -20,10 +34,44 @@ var pl = {
           if (callback) {
             callback(r.responseText);
           }
+        } else if (r.status == 401) { // unauthorized
+          // Done to avoid a memory leak
+          window.setTimeout(function() {
+            r.onreadystatechange = function() {};
+          }, 0);
+          if (failCallback) {
+            failCallback(r.responseText);
+          }        
         }
       }
     }
     return r;
+  },
+  status: function(callback) {
+    var cb = function(response) {
+      if (typeof response == "string" && response.length > 0) {
+        var acct = JSON.parse(response);
+        if (acct != null) {
+          pl.loggedIn = true;
+          pl.account = acct;
+        }
+      }
+      if (callback) {
+        callback.call();
+      }      
+    };
+    var cbFail = function() {
+      pl.loggedIn = false;
+      if (callback) {
+        callback.call();
+      }
+    }
+    var r = pl.createRequestObject(cb, cbFail);
+    r.open("GET", pl.basePath + "/auth/status", true);
+    if (pl.getToken() != null) {
+      r.setRequestHeader("Authorization", "Token " + pl.getToken());
+    }
+    r.send();
   },
   login: function(username, password, callback) {
     var cb = function(response) {
@@ -34,14 +82,14 @@ var pl = {
 //          var wt = pl.jwt.WebTokenParser.parse(acct.authctoken);
 //          var payload = JSON.parse(pl.jwt.base64urldecode(wt.payloadSegment));
 //          pl.token = payload.jti;
-          pl.token = acct.authctoken;
+          pl.setToken(acct.authctoken);
           pl.account = acct;
           if (callback) {
             callback.call();
           }
         }
       }
-    }
+    };
     var r = pl.createRequestObject(cb);
     r.open("POST", pl.basePath + "/auth/login", true);
 //    r.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
@@ -56,6 +104,7 @@ var pl = {
         if (result == true) {
           pl.loggedIn = false;
           pl.account = null;
+          pl.clearToken();
           if (callback) {
             callback.call();
           }
@@ -64,7 +113,9 @@ var pl = {
     }
     var r = pl.createRequestObject(cb);
     r.open("GET", pl.basePath + "/auth/logout", true);
-    r.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    if (pl.getToken() != null) {
+      r.setRequestHeader("Authorization", "Token " + pl.getToken());
+    }    
     r.send();
   }
 };
