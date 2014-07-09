@@ -149,7 +149,7 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
             throw MESSAGES.nullArgument("IdentityType class");
         }
 
-        if (identityType == null) {
+        if (id == null) {
             throw MESSAGES.nullArgument("Identifier");
         }
 
