@@ -25,16 +25,17 @@ import org.picketlink.common.PicketLinkLoggerFactory;
 
 /**
  * Simple pool of {@link STSClient} classes.
+ * This class is not intended to be used directly by user code. Use {@link STSClientFactory} class instead.
  *
- * @author Peter Skopek pskopek at (redhat.com)
+ * @author Peter Skopek : pskopek at (redhat.com)
  *
  */
-public class STSClientPool {
+class STSClientPool {
 
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
     static final int DEFAULT_NUM_STS_CLIENTS = 10;
 
-    private int maxPoolSize = 0;  // disable pooling by default
+    private int maxPoolSize = -1;
 
     private Hashtable<String, ArrayList<STSClient>> free = new Hashtable<String, ArrayList<STSClient>>();
     private Hashtable<String, ArrayList<STSClient>> inUse = new Hashtable<String, ArrayList<STSClient>>();
@@ -47,25 +48,40 @@ public class STSClientPool {
         if (maxPoolSize < 0) {
             throw logger.cannotSetMaxPoolSizeToNegative(String.valueOf(maxPoolSize));
         }
-        this.maxPoolSize = maxPoolSize;
+        if (this.maxPoolSize == -1) {
+            this.maxPoolSize = maxPoolSize;
+        }
     }
 
-    public void initialize(int numberOfSTSClients, STSClientConfig stsClientConfig) {
+    void initialize(int numberOfSTSClients, STSClientConfig stsClientConfig) {
         internalInitialize(numberOfSTSClients, stsClientConfig, null);
     }
 
-    public void initialize(STSClientConfig stsClientConfig) {
+    void initialize(STSClientConfig stsClientConfig) {
         internalInitialize(0, stsClientConfig, null);
     }
 
 
-    public void initialize(int numberOfSTSClients, STSClientCreationCallBack clientCreationCallBack) {
+    void initialize(int numberOfSTSClients, STSClientCreationCallBack clientCreationCallBack) {
         internalInitialize(numberOfSTSClients, null, clientCreationCallBack);
     }
 
-    private void internalInitialize(int numberOfSTSClients, STSClientConfig stsClientConfig, STSClientCreationCallBack clientCreationCallBack) {
+    private synchronized void internalInitialize(int numberOfSTSClients, STSClientConfig stsClientConfig, STSClientCreationCallBack clientCreationCallBack) {
 
-        int initSTSCLients = (numberOfSTSClients > 0 ? numberOfSTSClients : DEFAULT_NUM_STS_CLIENTS);
+        if (isPoolingDisabled()) {
+            return;
+        }
+
+        int initSTSClients = (numberOfSTSClients > 0 ? numberOfSTSClients : DEFAULT_NUM_STS_CLIENTS);
+        int numOfallClients = numberOfAllClients();
+
+        if (numOfallClients >= maxPoolSize) {
+            throw logger.maximumNumberOfClientsReachedforPool(String.valueOf(maxPoolSize));
+        }
+
+        if (maxPoolSize - initSTSClients < 0) {
+            initSTSClients = maxPoolSize - numOfallClients;
+        }
 
         String key = null;
         if (clientCreationCallBack != null) {
@@ -73,31 +89,30 @@ public class STSClientPool {
         } else {
             key = key(stsClientConfig);
         }
-        if (!free.containsKey(key)) {
-            ArrayList<STSClient> clients = new ArrayList<STSClient>(initSTSCLients);
+
+        if (!configs.containsKey(key)) {
+            ArrayList<STSClient> clients = new ArrayList<STSClient>(initSTSClients);
             if (clientCreationCallBack != null) {
-                for (int i = 0; i < initSTSCLients; i++) {
+                for (int i = 0; i < initSTSClients; i++) {
                     clients.add(clientCreationCallBack.createClient());
                 }
             } else {
-                for (int i = 0; i < initSTSCLients; i++) {
+                for (int i = 0; i < initSTSClients; i++) {
                     clients.add(new STSClient(stsClientConfig));
                 }
             }
-            synchronized (free) {
-                STSConfigData configData = new STSConfigData();
-                configData.initialNumberOfClients = initSTSCLients;
-                if (clientCreationCallBack != null) {
-                    configData.config = null;
-                    configData.callBack = clientCreationCallBack;
-                } else {
-                    configData.config = stsClientConfig;
-                    configData.callBack = null;
-                }
-                configs.put(key, configData);
-                free.put(key, clients);
-                inUse.put(key, new ArrayList<STSClient>(initSTSCLients));
+            STSConfigData configData = new STSConfigData();
+            configData.initialNumberOfClients = initSTSClients;
+            if (clientCreationCallBack != null) {
+                configData.config = null;
+                configData.callBack = clientCreationCallBack;
+            } else {
+                configData.config = stsClientConfig;
+                configData.callBack = null;
             }
+            configs.put(key, configData);
+            free.put(key, clients);
+            inUse.put(key, new ArrayList<STSClient>(initSTSClients));
         } else {
             // free pool already contains given key:
             throw logger.freePoolAlreadyContainsGivenKey(key);
@@ -105,7 +120,17 @@ public class STSClientPool {
 
     }
 
-    public STSClient takeOut(STSClientConfig stsClientConfig) {
+    synchronized void destroy(STSClientConfig stsClientConfig) {
+        String key = key(stsClientConfig);
+        free.remove(key);
+        inUse.remove(key);
+        configs.remove(key);
+    }
+
+    STSClient takeOut(STSClientConfig stsClientConfig) {
+        if (isPoolingDisabled()) {
+            return new STSClient(stsClientConfig);
+        }
         String key = key(stsClientConfig);
         STSClient client = takeOutInternal(key);
         if (client == null) {
@@ -120,7 +145,10 @@ public class STSClientPool {
     }
 
 
-    public STSClient takeOut(String key) {
+    STSClient takeOut(String key) {
+        if (isPoolingDisabled()) {
+            return null;
+        }
         STSClient client = takeOutInternal(key);
         if (client == null) {
             STSConfigData configData = configs.get(key);
@@ -135,7 +163,7 @@ public class STSClientPool {
         return client;
     }
 
-    public boolean isConfigInitialized(STSClientConfig stsClientConfig) {
+    boolean isConfigInitialized(STSClientConfig stsClientConfig) {
         if (isPoolingDisabled() == false || stsClientConfig == null) {
             return false;
          }
@@ -143,7 +171,7 @@ public class STSClientPool {
         return (configData != null);
     }
 
-    public boolean isConfigInitialized(String key) {
+    boolean isConfigInitialized(String key) {
         if (isPoolingDisabled() == false || key == null) {
            return false;
         }
@@ -151,20 +179,20 @@ public class STSClientPool {
         return (configData != null);
     }
 
-    public void putIn(STSClientConfigKeyProvider keyProvider, STSClient client) {
+    void putIn(STSClientConfigKeyProvider keyProvider, STSClient client) {
         if (isPoolingDisabled() == false) {
             String key = keyProvider.getSTSClientConfigKey();
             putInInternal(key, client);
         }
     }
 
-    public void putIn(String key, STSClient client) {
+    void putIn(String key, STSClient client) {
         if (isPoolingDisabled() == false) {
             putInInternal(key, client);
         }
     }
 
-    public void putIn(STSClient client) {
+    void putIn(STSClient client) {
         if (isPoolingDisabled() == false) {
             putInInternal(client.getSTSClientConfigKey(), client);
         }
@@ -191,6 +219,10 @@ public class STSClientPool {
             return client;
         }
         return null;
+    }
+
+    private int numberOfAllClients() {
+        return free.size() + inUse.size();
     }
 
     private int numClientsToAllocate(String key) {
@@ -276,8 +308,8 @@ public class STSClientPool {
         return stsClientConfig.getSTSClientConfigKey();
     }
 
-    public boolean isPoolingDisabled() {
-        return maxPoolSize == 0;
+    boolean isPoolingDisabled() {
+        return maxPoolSize == 0 || maxPoolSize == -1;
     }
 
 }

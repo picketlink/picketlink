@@ -434,7 +434,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
             throw logger.authLoginError(e);
         } finally {
             if (stsClient != null) {
-                STSClientFactory.getInstance(maxClientsInPool).returnClient(stsClient);
+                STSClientFactory.getInstance().returnClient(stsClient);
             }
         }
     }
@@ -575,7 +575,9 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
             if (factory.configExists(config)) {
                 return factory.getClient(config);
             } else {
-                return STSClientFactory.getInstance(maxClientsInPool).createPool(initialNumberOfClients, config);
+                STSClientFactory cf = STSClientFactory.getInstance(maxClientsInPool);
+                cf.createPool(initialNumberOfClients, config);
+                return cf.getClient(config);
             }
         } catch (final Exception e) {
             throw logger.authCouldNotCreateWSTrustClient(e);

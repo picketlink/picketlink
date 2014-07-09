@@ -83,7 +83,10 @@ public class WSTrustClient {
         int index = 0;
         for (String endpointURI : endpointURIs) {
             builder.endpointAddress(endpointURI);
-            this.clients[index++] = STSClientFactory.getInstance().createPool(builder.build());
+            STSClientConfig config = builder.build();
+            STSClientFactory cf = STSClientFactory.getInstance();
+            cf.createPool(config);
+            this.clients[index++] = cf.getClient(config);
         }
 
     }

@@ -380,7 +380,7 @@ public class STSClientConfig implements STSClientConfigKeyProvider {
         return computeSTSClientConfigKey(this.serviceName, this.portName, this.endpointAddress, this.getUsername());
     }
 
-    static String computeSTSClientConfigKey(String serviceName, String portName, String endPointAddress, String userName) {
+    public static String computeSTSClientConfigKey(String serviceName, String portName, String endPointAddress, String userName) {
         return serviceName + "|" + portName + "|" + endPointAddress + "|" + userName;
     }
 
