@@ -18,9 +18,13 @@
 package org.picketlink.idm.internal;
 
 import org.picketlink.idm.IdGenerator;
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.event.EventBridge;
+import org.picketlink.idm.event.RelationshipCreatedEvent;
+import org.picketlink.idm.event.RelationshipDeletedEvent;
+import org.picketlink.idm.event.RelationshipUpdatedEvent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
@@ -64,6 +68,8 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
             storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.create).add(this, relationship);
 
             addAttributes(relationship);
+
+            getEventBridge().raiseEvent(new RelationshipCreatedEvent(relationship, getPartitionManager()));
         } catch (Exception e) {
             throw MESSAGES.attributedTypeAddFailed(relationship, e);
         }
@@ -80,6 +86,8 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
 
             removeAttributes(relationship);
             addAttributes(relationship);
+
+            getEventBridge().raiseEvent(new RelationshipUpdatedEvent(relationship, getPartitionManager()));
         } catch (Exception e) {
             throw MESSAGES.attributedTypeUpdateFailed(relationship, e);
         }
@@ -101,6 +109,8 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
             }
 
             storeSelector.getStoreForRelationshipOperation(this, relationship.getClass(), relationship, IdentityOperation.delete).remove(this, relationship);
+
+            getEventBridge().raiseEvent(new RelationshipDeletedEvent(relationship, getPartitionManager()));
         } catch (Exception e) {
             throw MESSAGES.attributedTypeRemoveFailed(relationship, e);
         }
@@ -174,5 +184,9 @@ public class ContextualRelationshipManager extends AbstractIdentityContext imple
         }
 
         return privilegeChainQuery.inheritsPrivileges(this, identity, assignee);
+    }
+
+    private PartitionManager getPartitionManager() {
+        return (PartitionManager) this.storeSelector;
     }
 }

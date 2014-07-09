@@ -30,6 +30,9 @@ import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.event.EventBridge;
+import org.picketlink.idm.event.IdentityTypeCreatedEvent;
+import org.picketlink.idm.event.IdentityTypeDeletedEvent;
+import org.picketlink.idm.event.IdentityTypeUpdatedEvent;
 import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
@@ -87,6 +90,8 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
             configureDefaultPartition(identityType, identityStore, getPartitionManager());
 
             addAttributes(identityType);
+
+            getEventBridge().raiseEvent(new IdentityTypeCreatedEvent(identityType, getPartitionManager()));
         } catch (Exception e) {
             throw MESSAGES.attributedTypeAddFailed(identityType, e);
         }
@@ -106,6 +111,8 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
 
             removeAttributes(identityType);
             addAttributes(identityType);
+
+            getEventBridge().raiseEvent(new IdentityTypeUpdatedEvent(identityType, getPartitionManager()));
         } catch (Exception e) {
             throw MESSAGES.attributedTypeUpdateFailed(identityType, e);
         }
@@ -128,6 +135,8 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
 
             storeSelector.getStoreForIdentityOperation(this, IdentityStore.class, identityType.getClass(), IdentityOperation.delete)
                     .remove(this, identityType);
+
+            getEventBridge().raiseEvent(new IdentityTypeDeletedEvent(identityType, getPartitionManager()));
         } catch (Exception e) {
             throw MESSAGES.attributedTypeRemoveFailed(identityType, e);
         }
