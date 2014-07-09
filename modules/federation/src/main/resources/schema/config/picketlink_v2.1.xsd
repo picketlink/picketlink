@@ -25,6 +25,9 @@
         <attribute name="AttributeManager" type="string" use="optional"
                    default="org.picketlink.identity.federation.bindings.tomcat.TomcatAttributeManager">
         </attribute>
+        <attribute name="HostedURI" type="string" use="optional"
+                   default="/hosted/">
+        </attribute>
         <attribute name="Encrypt" type="boolean" use="optional"
                    default="false">
         </attribute>
