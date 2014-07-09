@@ -82,7 +82,7 @@ public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
 
                 LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) store;
                 char[] password = credentials.getPassword().getValue();
-                String bindingDN = ldapIdentityStore.getBindingDN(account);
+                String bindingDN = ldapIdentityStore.getBindingDN(account, true);
                 LDAPOperationManager operationManager = ldapIdentityStore.getOperationManager();
 
                 if (operationManager.authenticate(bindingDN, new String(password))) {
@@ -121,7 +121,7 @@ public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
 
                 mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, mod0);
 
-                store.getOperationManager().modifyAttribute(store.getBindingDN(account), mod0);
+                store.getOperationManager().modifyAttribute(store.getBindingDN(account, true), mod0);
             } catch (Exception e) {
                 throw new IdentityManagementException("Error updating password.", e);
             }
@@ -137,7 +137,7 @@ public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
 
             BasicAttribute unicodePwd = new BasicAttribute("unicodePwd", newUnicodePassword);
 
-            store.getOperationManager().modifyAttribute(store.getBindingDN(account), unicodePwd);
+            store.getOperationManager().modifyAttribute(store.getBindingDN(account, true), unicodePwd);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

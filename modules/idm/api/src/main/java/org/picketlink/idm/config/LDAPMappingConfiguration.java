@@ -21,6 +21,7 @@ import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.IdentityType;
 
 import java.util.Map;
 import java.util.Set;
@@ -40,17 +41,19 @@ public class LDAPMappingConfiguration {
     private final Map<String, String> parentMapping;
     private final Set<String> readOnlyAttributes;
     private final int hierarchySearchDepth;
+    private final Property<String> bindingProperty;
 
     LDAPMappingConfiguration(Class<? extends AttributedType> mappedClass,
-                             Set<String> objectClasses,
-                             String baseDN,
-                             String idPropertyName,
-                             Map<String, String> mappedProperties,
-                             Set<String> readOnlyAttributes,
-                             Map<String, String> parentMapping,
-                             Class<? extends AttributedType> relatedAttributedType,
-                             String parentMembershipAttributeName,
-                             int hierarchySearchDepth) {
+        Set<String> objectClasses,
+        String baseDN,
+        String idPropertyName,
+        String bindingPropertyName,
+        Map<String, String> mappedProperties,
+        Set<String> readOnlyAttributes,
+        Map<String, String> parentMapping,
+        Class<? extends AttributedType> relatedAttributedType,
+        String parentMembershipAttributeName,
+        int hierarchySearchDepth) {
         this.mappedClass = mappedClass;
         this.objectClasses = objectClasses;
         this.baseDN = baseDN;
@@ -61,12 +64,29 @@ public class LDAPMappingConfiguration {
 
         if (idPropertyName != null) {
             this.idProperty = PropertyQueries
-                    .<String>createQuery(getMappedClass())
-                    .addCriteria(new NamedPropertyCriteria(idPropertyName)).getFirstResult();
+                .<String>createQuery(getMappedClass())
+                .addCriteria(new NamedPropertyCriteria(idPropertyName)).getFirstResult();
         } else {
             this.idProperty = null;
         }
 
+        if (IdentityType.class.isAssignableFrom(mappedClass) && idProperty == null) {
+            throw new SecurityConfigurationException("Id attribute not mapped to any property of [" + mappedClass + "].");
+        }
+
+        Property bindingProperty = this.idProperty;
+
+        if (bindingPropertyName != null) {
+            bindingProperty = PropertyQueries
+                .<String>createQuery(getMappedClass())
+                .addCriteria(new NamedPropertyCriteria(bindingPropertyName)).getFirstResult();
+
+            if (bindingProperty == null) {
+                throw new SecurityConfigurationException("Binding property not found for type [" + mappedClass + "].");
+            }
+        }
+
+        this.bindingProperty = bindingProperty;
         this.relatedAttributedType = relatedAttributedType;
         this.parentMembershipAttributeName = parentMembershipAttributeName;
     }
@@ -89,6 +109,10 @@ public class LDAPMappingConfiguration {
 
     public Property<String> getIdProperty() {
         return this.idProperty;
+    }
+
+    public Property<String> getBindingProperty() {
+        return this.bindingProperty;
     }
 
     public Class<? extends AttributedType> getRelatedAttributedType() {
