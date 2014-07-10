@@ -75,15 +75,13 @@
     <module>modules/config</module>
     <module>modules/idm</module>
     <module>modules/base</module>
-
-    <module>tests</module>
-
     <module>modules/federation</module>
     <module>modules/json</module>
     <module>modules/social</module>
     <module>modules/oauth</module>
     <module>modules/rest</module>
     <module>modules/deltaspike</module>
+    <module>tests</module>
     <module>dist</module>
     <module>bom</module>
   </modules>
