@@ -31,4 +31,11 @@
     <module>impl</module>
   </modules>
 
+  <build>
+    <plugins>
+      <plugin>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 </project>

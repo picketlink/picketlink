@@ -67,6 +67,9 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
     </plugins>
   </build>
 
@@ -224,6 +227,6 @@
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
-
   </dependencies>
+
 </project>

@@ -18,15 +18,4 @@
       <url>http://www.apache.org/licenses/LICENSE-2.0</url>
     </license>
   </licenses>
-
-  <build>
-      <plugins>
-          <plugin>
-              <artifactId>maven-checkstyle-plugin</artifactId>
-              <configuration>
-                  <skip>true</skip>
-              </configuration>
-          </plugin>
-      </plugins>
-  </build>
 </project>
