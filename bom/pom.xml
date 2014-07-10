@@ -56,7 +56,6 @@
 
   <modules>
     <module>picketlink-javaee-6.0</module>
-    <module>picketlink-javaee-6.0-with-deltaspike</module>
   </modules>
 
   <distributionManagement>

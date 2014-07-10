@@ -36,10 +36,27 @@
   </licenses>
 
   <properties>
-    <jboss.javaee.version>2.0.0.Final</jboss.javaee.version>
+    <!-- Maven Compiler Options -->
+    <maven.compiler.source>1.6</maven.compiler.source>
+    <maven.compiler.target>1.6</maven.compiler.target>
+
+    <!-- Build Options-->
+    <maven.jdk.version>1.7</maven.jdk.version>
+    <maven.version>3.0.4</maven.version>
+
+    <!-- Maven Plugin Versions -->
+    <version.enforcer.plugin>1.3.1</version.enforcer.plugin>
+    <version.compiler.plugin>3.1</version.compiler.plugin>
+    <version.javadoc.plugin>2.9.1</version.javadoc.plugin>
+    <version.checkstyle.plugin>2.12.1</version.checkstyle.plugin>
+    <version.surefire.plugin>2.17</version.surefire.plugin>
+    <version.deploy.plugin>2.8.1</version.deploy.plugin>
+
+    <!-- Distribution Options -->
     <jboss.releases.repo.url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</jboss.releases.repo.url>
     <jboss.snapshots.repo.url>https://repository.jboss.org/nexus/content/repositories/snapshots/</jboss.snapshots.repo.url>
-    <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+
+    <jboss.javaee.version>2.0.0.Final</jboss.javaee.version>
     <pressgang.version>3.0.0</pressgang.version>
     <drools.version>6.0.0.CR4</drools.version>
     <version.org.apache.deltaspike>1.0.0</version.org.apache.deltaspike>
@@ -250,68 +267,58 @@
   </dependencyManagement>
 
   <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+    </plugins>
     <pluginManagement>
       <plugins>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>2.2.1</version>
-          <configuration>
-            <autoVersionSubmodules>true</autoVersionSubmodules>
-          </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>2.5.1</version>
-          <configuration>
-            <source>1.6</source>
-            <target>1.6</target>
-          </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-source-plugin</artifactId>
-          <version>2.2.1</version>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>${version.enforcer.plugin}</version>
           <executions>
             <execution>
-              <id>attach-sources</id>
+              <id>enforce-versions</id>
               <goals>
-                <goal>jar</goal>
+                <goal>enforce</goal>
               </goals>
+              <configuration>
+                <rules>
+                  <requireMavenVersion>
+                    <version>${maven.version}</version>
+                  </requireMavenVersion>
+                  <requireJavaVersion>
+                    <version>${maven.jdk.version}</version>
+                  </requireJavaVersion>
+                </rules>
+              </configuration>
             </execution>
           </executions>
         </plugin>
-
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.6</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>2.3.1</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.sonatype.plugins</groupId>
-          <artifactId>nexus-maven-plugin</artifactId>
-          <version>1.7</version>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${version.compiler.plugin}</version>
           <configuration>
-            <auto>true</auto>
-            <nexusUrl>https://repository.jboss.org/nexus</nexusUrl>
-            <serverAuthId>jboss-releases-repository</serverAuthId>
+            <source>${maven.compiler.source}</source>
+            <target>${maven.compiler.target}</target>
+            <encoding>UTF-8</encoding>
           </configuration>
         </plugin>
-
         <plugin>
-          <groupId>org.jboss.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.8</version>
+          <version>${version.javadoc.plugin}</version>
           <configuration>
             <links>
               <link>http://download.oracle.com/javaee/6/api</link>
@@ -319,13 +326,28 @@
             <keywords>true</keywords>
             <author>true</author>
           </configuration>
+          <executions>
+            <execution>
+              <id>javadoc-jar</id>
+              <phase>package</phase>
+              <goals>
+                <goal>aggregate</goal>
+              </goals>
+              <configuration>
+                <outputDirectory>${project.build.directory}/javadoc</outputDirectory>
+                <includeDependencySources>false</includeDependencySources>
+                <excludePackageNames>org.picketlink.identity.federation.*:org.picketlink.common.*:org.picketlink.config.*:org.picketlink.social.*:org.picketlink.scim.*:org.picketlink.oauth.*</excludePackageNames>
+                <links>
+                  <link>http://docs.oracle.com/javaee/6/api/</link>
+                  <link>http://docs.oracle.com/javase/6/docs/api/</link>
+                </links>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
-
-        <!-- Checkstyle -->
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>2.9.1</version>
+          <version>${version.checkstyle.plugin}</version>
           <dependencies>
             <dependency>
               <groupId>org.picketlink</groupId>
@@ -334,7 +356,7 @@
             </dependency>
           </dependencies>
           <configuration>
-            <configLocation>picketlink-checkstyle/checkstyle.xml</configLocation>
+            <configLocation>/picketlink-checkstyle/checkstyle.xml</configLocation>
             <consoleOutput>true</consoleOutput>
             <failsOnError>true</failsOnError>
             <useFile />
@@ -349,11 +371,21 @@
             </execution>
           </executions>
         </plugin>
-
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.12</version>
+          <version>${version.surefire.plugin}</version>
+          <configuration>
+            <printSummary>true</printSummary>
+            <disableXmlReport>false</disableXmlReport>
+            <testFailureIgnore>false</testFailureIgnore>
+            <forkMode>pertest</forkMode>
+            <useFile>false</useFile>
+            <trimStackTrace>false</trimStackTrace>
+            </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>${version.deploy.plugin}</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -367,47 +399,10 @@
           <name>release</name>
         </property>
       </activation>
-      <modules>
-        <!-- PLINK-424: Enable docs once CCMS is integrated to the build. -->
-        <!--<module>maven-plugins/picketlink-jdocbook-style</module>-->
-        <!--<module>docs</module>-->
-          <module>dist</module>
-      </modules>
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.9.1</version>
-            <executions>
-              <execution>
-                <id>javadoc-jar</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>aggregate</goal>
-                </goals>
-                <configuration>
-                  <outputDirectory>${project.build.directory}/javadoc</outputDirectory>
-                  <includeDependencySources>false</includeDependencySources>
-                  <excludePackageNames>org.picketlink.identity.federation.*:org.picketlink.common.*:org.picketlink.config.*:org.picketlink.social.*:org.picketlink.scim.*:org.picketlink.oauth.*</excludePackageNames>
-                  <links>
-                    <link>http://docs.oracle.com/javaee/6/api/</link>
-                    <link>http://docs.oracle.com/javase/6/docs/api/</link>
-                  </links>
-                </configuration>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
       </build>

@@ -34,35 +34,6 @@
     <version.jackson.core>1.9.9</version.jackson.core>
   </properties>
 
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.7.1</version>
-        <configuration>
-          <additionalClasspathElements>
-            <additionalClasspathElement>${basedir}/src/test/resources/endorsed/xercesImpl.jar
-            </additionalClasspathElement>
-          </additionalClasspathElements>
-          <printSummary>true</printSummary>
-          <disableXmlReport>false</disableXmlReport>
-          <testFailureIgnore>false</testFailureIgnore>
-          <includes>
-            <include>**/**TestCase.java</include>
-          </includes>
-          <forkMode>pertest</forkMode>
-          <argLine>-Djava.endorsed.dirs=${basedir}/src/test/resources/endorsed</argLine>
-          <useFile>false</useFile>
-          <trimStackTrace>false</trimStackTrace>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
-
   <dependencies>
     <dependency>
       <groupId>org.picketlink</groupId>
