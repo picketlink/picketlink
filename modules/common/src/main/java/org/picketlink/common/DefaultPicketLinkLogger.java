@@ -2374,4 +2374,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
         return new RuntimeException("Cannot set maximum STS client pool size to negative number (" + max + ")");
     }
 
+    @Override
+    public RuntimeException parserFeatureNotSupported(String feature) {
+        return new RuntimeException("Parser feature " + feature + " not supported.");
+    }
+
 }
