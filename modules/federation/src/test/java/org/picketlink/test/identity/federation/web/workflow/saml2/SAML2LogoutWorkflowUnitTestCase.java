@@ -29,6 +29,7 @@ import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.web.core.IdentityServer;
+import org.picketlink.identity.federation.web.core.SessionManager;
 import org.picketlink.identity.federation.web.filters.SPFilter;
 import org.picketlink.identity.federation.web.servlets.IDPServlet;
 import org.picketlink.identity.federation.web.util.PostBindingUtil;
@@ -47,6 +48,7 @@ import org.w3c.dom.NodeList;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionListener;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
@@ -95,7 +97,7 @@ public class SAML2LogoutWorkflowUnitTestCase {
         rolesList.add("manager");
         session.setAttribute(GeneralConstants.ROLES_ID, rolesList);
 
-        ServletContext servletContext = new MockServletContext();
+        ServletContext servletContext = createServletContext();
         session.setServletContext(servletContext);
 
         // Let us feed the LogOutRequest to the SPFilter
@@ -155,7 +157,7 @@ public class SAML2LogoutWorkflowUnitTestCase {
         URL url = Thread.currentThread().getContextClassLoader().getResource("roles.properties");
         assertNotNull("roles.properties visible?", url);
 
-        ServletContext servletContext = new MockServletContext();
+        ServletContext servletContext = createServletContext();
         session.setServletContext(servletContext);
 
         IdentityServer server = this.getIdentityServer(session);
@@ -225,7 +227,13 @@ public class SAML2LogoutWorkflowUnitTestCase {
         spEmpl.init(filterConfig);
 
         MockHttpSession filterSession = new MockHttpSession();
+
+        filterSession.setServletContext(servletContext);
+
         MockHttpServletRequest filterRequest = new MockHttpServletRequest(filterSession, "POST");
+
+        filterRequest.setServletContext(servletContext);
+
         filterRequest.addParameter("SAMLResponse", logoutOrigResponse);
         filterRequest.addParameter("RelayState", relayState);
 
@@ -290,6 +298,19 @@ public class SAML2LogoutWorkflowUnitTestCase {
 
         // Finally the session should be invalidated
         assertTrue(filterSession.isInvalidated());
+    }
+
+    private MockServletContext createServletContext() {
+        MockServletContext mockServletContext = new MockServletContext();
+
+        new SessionManager(mockServletContext, new SessionManager.InitializationCallback() {
+            @Override
+            public void registerSessionListener(Class<? extends HttpSessionListener> listener) {
+
+            }
+        });
+
+        return mockServletContext;
     }
 
     private MockContextClassLoader setupTCL(String resource) {

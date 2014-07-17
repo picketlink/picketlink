@@ -39,6 +39,7 @@ import org.picketlink.identity.federation.core.saml.v2.common.SAMLProtocolContex
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
@@ -54,15 +55,23 @@ import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
+import org.picketlink.identity.federation.web.core.SessionManager;
+import org.picketlink.identity.federation.web.util.PostBindingUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.w3c.dom.Document;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.Map;
 import java.util.Set;
@@ -74,6 +83,8 @@ import java.util.Set;
  * @since Sep 17, 2009
  */
 public class SAML2LogOutHandler extends BaseSAML2Handler {
+
+    public static final String BACK_CHANNEL_LOGOUT = "BACK_CHANNEL_LOGOUT";
 
     private final IDPLogOutHandler idp = new IDPLogOutHandler();
 
@@ -128,6 +139,13 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
         }
     }
 
+    public static boolean isBackChannelLogoutRequest(SAML2HandlerRequest request) {
+        HTTPContext httpContext = (HTTPContext) request.getContext();
+        HttpServletRequest httpServletRequest = httpContext.getRequest();
+
+        return httpServletRequest.getParameter(BACK_CHANNEL_LOGOUT) != null;
+    }
+
     private class IDPLogOutHandler {
 
         public void generateSAMLRequest(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
@@ -138,17 +156,23 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             // we got a logout response from a SP
             SAML2Object samlObject = request.getSAML2Object();
             StatusResponseType statusResponseType = (StatusResponseType) samlObject;
+            String statusIssuer = statusResponseType.getIssuer().getValue();
+
+            if (statusIssuer.equals(getProviderconfig().getIdentityURL())) {
+                response.setDestination(getProviderconfig().getIdentityURL());
+                return;
+            }
 
             HTTPContext httpContext = (HTTPContext) request.getContext();
             HttpServletRequest httpRequest = httpContext.getRequest();
             HttpSession httpSession = httpRequest.getSession(false);
 
             String relayState = request.getRelayState();
-
             String decodedRelayState = relayState;
-            try{
+
+            try {
                 decodedRelayState = RedirectBindingUtil.urlDecode(relayState);
-            }catch(IOException ignore){
+            } catch (IOException ignore) {
                 decodedRelayState = relayState;
             }
 
@@ -160,10 +184,10 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
             String sessionID = httpSession.getId();
 
-            String statusIssuer = statusResponseType.getIssuer().getValue();
             server.stack().deRegisterTransitParticipant(sessionID, statusIssuer);
 
             String nextParticipant = this.getParticipant(server, sessionID, decodedRelayState);
+
             if (nextParticipant == null || nextParticipant.equals(decodedRelayState)) {
                 // we are done with logout - First ask STS to cancel the token
                 AssertionType assertion = (AssertionType) httpSession.getAttribute(GeneralConstants.ASSERTION);
@@ -238,75 +262,21 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             HTTPContext httpContext = (HTTPContext) request.getContext();
             HttpServletRequest httpServletRequest = httpContext.getRequest();
             HttpSession session = httpServletRequest.getSession(false);
-            String sessionID = session.getId();
 
             String relayState = httpContext.getRequest().getParameter(GeneralConstants.RELAY_STATE);
-
             LogoutRequestType logOutRequest = (LogoutRequestType) request.getSAML2Object();
             String issuer = logOutRequest.getIssuer().getValue();
+
             try {
-                SAML2Request saml2Request = new SAML2Request();
-
-                ServletContext servletCtx = httpContext.getServletContext();
-                IdentityServer server = (IdentityServer) servletCtx.getAttribute(GeneralConstants.IDENTITY_SERVER);
-
-                if (server == null)
-                    throw logger.samlHandlerIdentityServerNotFoundError();
-
                 String originalIssuer = (relayState == null) ? issuer : relayState;
 
-                String participant = this.getParticipant(server, sessionID, originalIssuer);
+                if (getIdentityServer(session.getServletContext()) == null)
+                    throw logger.samlHandlerIdentityServerNotFoundError();
 
-                if (participant == null || participant.equals(originalIssuer)) {
-                    // All log out is done
-                    session.invalidate();
-                    server.stack().pop(sessionID);
-
-                    generateSuccessStatusResponseType(logOutRequest.getID(), request, response, originalIssuer);
-
-                    boolean isPost = isPostBindingForResponse(server, participant, request);
-                    response.setPostBindingForResponse(isPost);
-
-                    response.setSendRequest(false);
+                if (isBackChannelLogout()) {
+                    performBackChannelLogout(request, originalIssuer);
                 } else {
-                    // Put the participant in transit mode
-                    server.stack().registerTransitParticipant(sessionID, participant);
-
-                    if (relayState == null) {
-                        relayState = originalIssuer;
-                    }
-
-                    // send logout request to participant with relaystate to orig
-                    response.setRelayState(originalIssuer);
-
-                    response.setDestination(participant);
-
-                    boolean isPost = isPostBindingForResponse(server, participant, request);
-                    response.setPostBindingForResponse(isPost);
-
-                    LogoutRequestType lort = saml2Request.createLogoutRequest(request.getIssuer().getValue());
-
-                    Principal userPrincipal = httpServletRequest.getUserPrincipal();
-                    if (userPrincipal == null) {
-                        throw logger.samlHandlerPrincipalNotFoundError();
-                    }
-                    NameIDType nameID = new NameIDType();
-                    nameID.setValue(userPrincipal.getName());
-                    //Deal with NameID Format
-                    String nameIDFormat = (String) handlerConfig.getParameter(GeneralConstants.NAMEID_FORMAT);
-                    if(StringUtil.isNullOrEmpty(nameIDFormat)){
-                        nameIDFormat = JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get();
-                    }
-                    nameID.setFormat(URI.create(nameIDFormat));
-                    lort.setNameID(nameID);
-
-                    long assertionValidity = PicketLinkCoreSTS.instance().getConfiguration().getIssuedTokenTimeout();
-
-                    lort.setNotOnOrAfter(XMLTimeUtil.add(lort.getIssueInstant(), assertionValidity));
-                    lort.setDestination(URI.create(participant));
-
-                    response.setResultingDocument(saml2Request.convert(lort));
-                    response.setSendRequest(true);
+                    performFrontChannelLogout(request, response, logOutRequest, originalIssuer, relayState);
                 }
             } catch (ParserConfigurationException pe) {
                 throw logger.processingError(pe);
@@ -317,6 +287,154 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             }
 
             return;
+        }
+
+        private void performFrontChannelLogout(SAML2HandlerRequest request, SAML2HandlerResponse response, LogoutRequestType logOutRequest, String originalIssuer, String relayState) throws ConfigurationException, ParserConfigurationException, ProcessingException, ParsingException {
+            HTTPContext httpContext = (HTTPContext) request.getContext();
+            HttpServletRequest httpServletRequest = httpContext.getRequest();
+            HttpSession session = httpServletRequest.getSession(false);
+            String sessionID = session.getId();
+            ServletContext servletCtx = httpContext.getServletContext();
+            IdentityServer server = getIdentityServer(servletCtx);
+
+            String participant = this.getParticipant(server, sessionID, originalIssuer);
+            boolean isIssuer = participant.equals(originalIssuer);
+
+            if (participant == null || isIssuer) {
+                // All log out is done
+                session.invalidate();
+                server.stack().pop(sessionID);
+
+                if (participant.equals(getProviderconfig().getIdentityURL())) {
+                    response.setDestination(getProviderconfig().getIdentityURL());
+                } else {
+                    generateSuccessStatusResponseType(logOutRequest.getID(), request, response, originalIssuer);
+
+                    boolean isPost = isPostBindingForResponse(server, participant, request);
+                    response.setPostBindingForResponse(isPost);
+                }
+            } else {
+                // Put the participant in transit mode
+                server.stack().registerTransitParticipant(sessionID, participant);
+
+                // send logout request to participant with relaystate to orig
+                response.setRelayState(originalIssuer);
+
+                response.setDestination(participant);
+
+                boolean isPost = isPostBindingForResponse(server, participant, request);
+                response.setPostBindingForResponse(isPost);
+
+                LogoutRequestType lort = createLogoutRequest(request, participant);
+
+                response.setResultingDocument(new SAML2Request().convert(lort));
+                response.setSendRequest(true);
+            }
+        }
+
+        private void performBackChannelLogout(SAML2HandlerRequest request, String originalIssuer) throws ProcessingException {
+            String partitipant = originalIssuer;
+            HTTPContext httpContext = (HTTPContext) request.getContext();
+            HttpServletRequest httpServletRequest = httpContext.getRequest();
+            HttpSession session = httpServletRequest.getSession(false);
+            String sessionID = session.getId();
+            ServletContext servletCtx = httpContext.getServletContext();
+            IdentityServer server = getIdentityServer(servletCtx);
+
+            while (partitipant != null) {
+                HttpURLConnection urlConnection = null;
+
+                try {
+                    URL participantURL = new URL(partitipant);
+                    urlConnection = (HttpURLConnection) participantURL.openConnection();
+
+                    urlConnection.setRequestMethod("POST");
+                    urlConnection.setDoOutput(true);
+                    urlConnection.setAllowUserInteraction(false);
+                    urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+                    LogoutRequestType logoutRequest = createLogoutRequest(request, partitipant);
+                    Document logoutRequestDocument = new SAML2Request().convert(logoutRequest);
+
+                    byte[] responseBytes = DocumentUtil.getDocumentAsString(logoutRequestDocument).getBytes("UTF-8");
+                    String samlResponse = PostBindingUtil.base64Encode(new String(responseBytes));
+
+                    StringBuilder parameterBuilder = new StringBuilder();
+
+                    parameterBuilder
+                        .append(GeneralConstants.SAML_REQUEST_KEY)
+                        .append("=")
+                        .append(URLEncoder.encode(samlResponse, "UTF-8"))
+                        .append("&")
+                        .append(BACK_CHANNEL_LOGOUT)
+                        .append("=")
+                        .append(BACK_CHANNEL_LOGOUT);
+
+                    urlConnection.setRequestProperty("Content-Length", Integer.toString(parameterBuilder.length()));
+
+                    DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream());
+
+                    wr.writeBytes(parameterBuilder.toString());
+                    wr.flush();
+                    wr.close();
+
+                    InputStream inputStream = urlConnection.getInputStream();
+                    inputStream.close();
+                } catch (Exception ignore) {
+                    logger.warn("Could not perform global logout from service provider [" + partitipant + "].");
+                    logger.samlLogoutError(ignore);
+                } finally {
+                    if (urlConnection != null) {
+                        urlConnection.disconnect();
+                    }
+                }
+
+                partitipant = server.stack().pop(sessionID);
+            }
+
+            session.invalidate();
+
+            try {
+                HttpServletResponse httpServletResponse = httpContext.getResponse();
+                httpServletResponse.sendRedirect(getProviderconfig().getIdentityURL());
+            } catch (IOException e) {
+                throw new ProcessingException("Could not redirect to IdP after a successful logout.", e);
+            }
+        }
+
+        private IdentityServer getIdentityServer(ServletContext servletCtx) {
+            return (IdentityServer) servletCtx.getAttribute(GeneralConstants.IDENTITY_SERVER);
+        }
+
+        private LogoutRequestType createLogoutRequest(SAML2HandlerRequest request, String participant) throws ConfigurationException, ProcessingException {
+            HTTPContext httpContext = (HTTPContext) request.getContext();
+            HttpServletRequest httpServletRequest = httpContext.getRequest();
+
+            LogoutRequestType lort = new SAML2Request().createLogoutRequest(request.getIssuer().getValue());
+
+            Principal userPrincipal = httpServletRequest.getUserPrincipal();
+            if (userPrincipal == null) {
+                throw logger.samlHandlerPrincipalNotFoundError();
+            }
+            NameIDType nameID = new NameIDType();
+            nameID.setValue(userPrincipal.getName());
+            //Deal with NameID Format
+            String nameIDFormat = (String) handlerConfig.getParameter(GeneralConstants.NAMEID_FORMAT);
+            if (StringUtil.isNullOrEmpty(nameIDFormat)) {
+                nameIDFormat = JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get();
+            }
+            nameID.setFormat(URI.create(nameIDFormat));
+            lort.setNameID(nameID);
+
+            long assertionValidity = PicketLinkCoreSTS.instance().getConfiguration().getIssuedTokenTimeout();
+
+            lort.setNotOnOrAfter(XMLTimeUtil.add(lort.getIssueInstant(), assertionValidity));
+            lort.setDestination(URI.create(participant));
+            return lort;
+        }
+
+        private boolean isBackChannelLogout() {
+            return handlerConfig.getParameter(BACK_CHANNEL_LOGOUT) != null ? Boolean.valueOf(handlerConfig.getParameter(BACK_CHANNEL_LOGOUT).toString()) : false;
         }
 
         private void generateSuccessStatusResponseType(String logOutRequestID, SAML2HandlerRequest request,
@@ -487,10 +605,16 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             HTTPContext httpContext = (HTTPContext) request.getContext();
             HttpServletRequest servletRequest = httpContext.getRequest();
             HttpSession session = servletRequest.getSession(false);
+            SessionManager sessionManager = SessionManager.get(session.getServletContext());
 
-            String relayState = servletRequest.getParameter("RelayState");
+            final String pricipalName = logOutRequest.getNameID().getValue();
 
-            session.invalidate(); // Invalidate the current session at the SP
+            sessionManager.invalidate(new Principal() {
+                    @Override
+                    public String getName() {
+                        return pricipalName;
+                    }
+                });
 
             // Generate a Logout Response
             StatusResponseType statusResponse = null;
@@ -527,6 +651,8 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             } catch (Exception je) {
                 throw logger.processingError(je);
             }
+
+            String relayState = servletRequest.getParameter("RelayState");
 
             response.setRelayState(relayState);
             response.setSendRequest(false);

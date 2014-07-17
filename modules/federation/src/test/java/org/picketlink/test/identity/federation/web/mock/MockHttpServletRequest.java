@@ -59,6 +59,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private String methodType;
 
     private String queryString;
+    private ServletContext servletContext;
 
     public MockHttpServletRequest(String methodType) {
         this(new MockHttpSession(), methodType);
@@ -352,7 +353,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     public ServletContext getServletContext() {
-        return null;
+        return this.servletContext;
     }
 
     public AsyncContext startAsync() throws IllegalStateException {
@@ -397,4 +398,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
     public Part getPart(String name) throws IOException, ServletException {
         return null;
     }
+
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
+    }
+
+
 }
