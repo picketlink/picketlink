@@ -73,6 +73,7 @@ import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoice
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
+import org.picketlink.identity.federation.web.core.SessionManager;
 import org.picketlink.identity.federation.web.interfaces.IRoleValidator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -455,6 +456,10 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 }
 
                 session.setAttribute(GeneralConstants.ASSERTION_SESSION_ATTRIBUTE_NAME, assertionDocument);
+
+                SessionManager sessionManager = SessionManager.get(session.getServletContext());
+
+                sessionManager.add(userPrincipal, session);
             }
         }
 

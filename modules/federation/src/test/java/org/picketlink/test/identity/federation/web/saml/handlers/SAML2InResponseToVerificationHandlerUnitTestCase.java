@@ -45,6 +45,7 @@ import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
+import org.picketlink.identity.federation.web.core.SessionManager;
 import org.picketlink.identity.federation.web.handlers.saml2.BaseSAML2Handler;
 import org.picketlink.identity.federation.web.handlers.saml2.SAML2AuthenticationHandler;
 import org.picketlink.identity.federation.web.handlers.saml2.SAML2InResponseToVerificationHandler;
@@ -55,6 +56,7 @@ import org.picketlink.test.identity.federation.web.mock.MockServletContext;
 import org.w3c.dom.Document;
 
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionListener;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.Principal;
@@ -94,8 +96,11 @@ public class SAML2InResponseToVerificationHandlerUnitTestCase extends TestCase {
         verificationHandler.initHandlerConfig(handlerConfig);
 
         // Create a Protocol Context
+        MockServletContext servletContext = createServletContext();
         MockHttpSession session = new MockHttpSession();
-        MockServletContext servletContext = new MockServletContext();
+
+        session.setServletContext(servletContext);
+
         MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
@@ -272,6 +277,19 @@ public class SAML2InResponseToVerificationHandlerUnitTestCase extends TestCase {
             this.request = request;
             this.response = response;
         }
+    }
+
+    private MockServletContext createServletContext() {
+        MockServletContext mockServletContext = new MockServletContext();
+
+        new SessionManager(mockServletContext, new SessionManager.InitializationCallback() {
+            @Override
+            public void registerSessionListener(Class<? extends HttpSessionListener> listener) {
+
+            }
+        });
+
+        return mockServletContext;
     }
 
 }

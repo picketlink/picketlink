@@ -17,13 +17,92 @@
  */
 package org.picketlink.identity.federation.web.filters;
 
-import static org.picketlink.common.constants.GeneralConstants.AUDIT_HELPER;
-import static org.picketlink.common.constants.GeneralConstants.CONFIG_FILE_LOCATION;
-import static org.picketlink.common.constants.GeneralConstants.CONFIG_PROVIDER;
-import static org.picketlink.common.constants.GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION;
-import static org.picketlink.common.util.StringUtil.isNotNull;
-import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import org.jboss.security.audit.AuditLevel;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.fed.IssuerNotTrustedException;
+import org.picketlink.common.util.StaxUtil;
+import org.picketlink.common.util.StringUtil;
+import org.picketlink.common.util.SystemPropertiesUtil;
+import org.picketlink.config.federation.AuthPropertyType;
+import org.picketlink.config.federation.IDPType;
+import org.picketlink.config.federation.KeyProviderType;
+import org.picketlink.config.federation.PicketLinkType;
+import org.picketlink.config.federation.handler.Handlers;
+import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
+import org.picketlink.identity.federation.core.impl.DelegatedAttributeManager;
+import org.picketlink.identity.federation.core.interfaces.AttributeManager;
+import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
+import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.core.saml.v1.SAML11ProtocolContext;
+import org.picketlink.identity.federation.core.saml.v1.writers.SAML11ResponseWriter;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
+import org.picketlink.identity.federation.core.saml.v2.factories.SAML2HandlerChainFactory;
+import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
+import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChainConfig;
+import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerRequest;
+import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerResponse;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChain;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.HandlerUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
+import org.picketlink.identity.federation.core.util.CoreConfigUtil;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
+import org.picketlink.identity.federation.core.wstrust.PicketLinkSTSConfiguration;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeStatementType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11NameIdentifierType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
+import org.picketlink.identity.federation.saml.v1.protocol.SAML11ResponseType;
+import org.picketlink.identity.federation.saml.v1.protocol.SAML11StatusType;
+import org.picketlink.identity.federation.saml.v2.SAML2Object;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
+import org.picketlink.identity.federation.web.config.AbstractSAMLConfigurationProvider;
+import org.picketlink.identity.federation.web.core.HTTPContext;
+import org.picketlink.identity.federation.web.core.IdentityParticipantStack;
+import org.picketlink.identity.federation.web.core.IdentityServer;
+import org.picketlink.identity.federation.web.util.ConfigurationUtil;
+import org.picketlink.identity.federation.web.util.IDPWebRequestUtil;
+import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
+import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
+import org.w3c.dom.Document;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -48,86 +127,13 @@ import java.util.TimerTask;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import org.jboss.security.audit.AuditLevel;
-import org.picketlink.common.PicketLinkLogger;
-import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.common.constants.GeneralConstants;
-import org.picketlink.common.constants.JBossSAMLConstants;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
-import org.picketlink.common.exceptions.ConfigurationException;
-import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.common.exceptions.fed.IssuerNotTrustedException;
-import org.picketlink.common.util.StaxUtil;
-import org.picketlink.common.util.StringUtil;
-import org.picketlink.common.util.SystemPropertiesUtil;
-import org.picketlink.config.federation.AuthPropertyType;
-import org.picketlink.config.federation.IDPType;
-import org.picketlink.config.federation.KeyProviderType;
-import org.picketlink.config.federation.PicketLinkType;
-import org.picketlink.config.federation.handler.Handlers;
-import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
-import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
-import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
-import org.picketlink.identity.federation.core.impl.DelegatedAttributeManager;
-import org.picketlink.identity.federation.core.interfaces.AttributeManager;
-import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
-import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
-import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
-import org.picketlink.identity.federation.core.saml.v1.SAML11ProtocolContext;
-import org.picketlink.identity.federation.core.saml.v1.writers.SAML11ResponseWriter;
-import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
-import org.picketlink.identity.federation.core.saml.v2.factories.SAML2HandlerChainFactory;
-import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
-import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChainConfig;
-import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerRequest;
-import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerResponse;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChain;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
-import org.picketlink.identity.federation.core.saml.v2.util.HandlerUtil;
-import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
-import org.picketlink.identity.federation.core.util.CoreConfigUtil;
-import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
-import org.picketlink.identity.federation.core.wstrust.PicketLinkSTSConfiguration;
-import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
-import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeStatementType;
-import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeType;
-import org.picketlink.identity.federation.saml.v1.assertion.SAML11NameIdentifierType;
-import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
-import org.picketlink.identity.federation.saml.v1.protocol.SAML11ResponseType;
-import org.picketlink.identity.federation.saml.v1.protocol.SAML11StatusType;
-import org.picketlink.identity.federation.saml.v2.SAML2Object;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
-import org.picketlink.identity.federation.web.config.AbstractSAMLConfigurationProvider;
-import org.picketlink.identity.federation.web.core.HTTPContext;
-import org.picketlink.identity.federation.web.core.IdentityParticipantStack;
-import org.picketlink.identity.federation.web.core.IdentityServer;
-import org.picketlink.identity.federation.web.util.ConfigurationUtil;
-import org.picketlink.identity.federation.web.util.IDPWebRequestUtil;
-import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
-import org.w3c.dom.Document;
+import static org.picketlink.common.constants.GeneralConstants.AUDIT_HELPER;
+import static org.picketlink.common.constants.GeneralConstants.CONFIG_FILE_LOCATION;
+import static org.picketlink.common.constants.GeneralConstants.CONFIG_PROVIDER;
+import static org.picketlink.common.constants.GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION;
+import static org.picketlink.common.constants.GeneralConstants.SAML_REQUEST_KEY;
+import static org.picketlink.common.util.StringUtil.isNotNull;
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
 
 /**
  * A {@link javax.servlet.Filter} that can be configured to convert a
@@ -209,6 +215,10 @@ public class IDPFilter implements Filter {
 
         // we only handle SAML messages for authenticated users.
         if (userPrincipal != null) {
+            if (isGlobalLogout(httpServletRequest)) {
+                httpServletRequest = prepareLocalGlobalLogoutRequest(httpServletRequest, userPrincipal);
+            }
+
             handleSAMLMessage(httpServletRequest, httpServletResponse, chain);
         }else {
             chain.doFilter(request,response);
@@ -1319,6 +1329,46 @@ public class IDPFilter implements Filter {
                 }
             }
         }
+    }
+
+    /**
+     * <p>This method populate the request and session with a logout requests to start a global logout from the IdP.</p>
+     *  @param request
+     * @param userPrincipal
+     */
+    private HttpServletRequestWrapper prepareLocalGlobalLogoutRequest(HttpServletRequest request, Principal userPrincipal) {
+        try {
+            SAML2Request saml2Request = new SAML2Request();
+            LogoutRequestType lort = saml2Request.createLogoutRequest(getIdentityURL());
+
+            NameIDType nameID = new NameIDType();
+
+            nameID.setValue(userPrincipal.getName());
+            nameID.setFormat(URI.create(JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get()));
+
+            lort.setNameID(nameID);
+            lort.setDestination(URI.create(getIdentityURL()));
+
+            byte[] responseBytes = DocumentUtil.getDocumentAsString(saml2Request.convert(lort)).getBytes("UTF-8");
+            final String samlRequest = RedirectBindingUtil.deflateBase64Encode(responseBytes);
+
+            return new HttpServletRequestWrapper(request) {
+                @Override
+                public String getParameter(String name) {
+                    if (SAML_REQUEST_KEY.equals(name)) {
+                        return samlRequest;
+                    }
+
+                    return super.getParameter(name);
+                }
+            };
+        } catch (Exception e) {
+            throw new RuntimeException("Could not perform IdP Initiated Single Logout.", e);
+        }
+    }
+
+    private boolean isGlobalLogout(HttpServletRequest request) {
+        return request.getParameter(GeneralConstants.GLOBAL_LOGOUT) != null;
     }
 
     public SAMLConfigurationProvider getConfigProvider() {

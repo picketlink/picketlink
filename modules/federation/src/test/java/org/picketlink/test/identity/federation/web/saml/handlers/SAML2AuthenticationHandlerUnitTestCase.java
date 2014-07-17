@@ -67,6 +67,7 @@ import org.picketlink.identity.federation.saml.v2.protocol.RequestedAuthnContext
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
+import org.picketlink.identity.federation.web.core.SessionManager;
 import org.picketlink.identity.federation.web.handlers.saml2.SAML2AuthenticationHandler;
 import org.picketlink.test.identity.federation.web.mock.MockHttpServletRequest;
 import org.picketlink.test.identity.federation.web.mock.MockHttpServletResponse;
@@ -76,6 +77,7 @@ import org.w3c.dom.Document;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.HttpSessionListener;
 import javax.xml.namespace.QName;
 import java.security.KeyPair;
 import java.security.Principal;
@@ -120,8 +122,11 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         handler.initHandlerConfig(handlerConfig);
 
         // Create a Protocol Context
+        MockServletContext servletContext = createServletContext();
         MockHttpSession session = new MockHttpSession();
-        MockServletContext servletContext = new MockServletContext();
+
+        session.setServletContext(servletContext);
+
         MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
@@ -166,7 +171,7 @@ public class SAML2AuthenticationHandlerUnitTestCase {
 
         // Create a Protocol Context
         MockHttpSession session = new MockHttpSession();
-        MockServletContext servletContext = new MockServletContext();
+        MockServletContext servletContext = createServletContext();
         MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
@@ -244,7 +249,7 @@ public class SAML2AuthenticationHandlerUnitTestCase {
 
         // Create a Protocol Context
         MockHttpSession session = new MockHttpSession();
-        MockServletContext servletContext = new MockServletContext();
+        MockServletContext servletContext = createServletContext();
         MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
@@ -344,8 +349,11 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         handler.initHandlerConfig(handlerConfig);
 
         // Create a Protocol Context
+        MockServletContext servletContext = createServletContext();
         MockHttpSession session = new MockHttpSession();
-        MockServletContext servletContext = new MockServletContext();
+
+        session.setServletContext(servletContext);
+
         MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
@@ -387,6 +395,19 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         assertNotNull(session.getAttribute("org.picketlink.sp.SAML_ASSERTION"));
     }
 
+    private MockServletContext createServletContext() {
+        MockServletContext mockServletContext = new MockServletContext();
+
+        new SessionManager(mockServletContext, new SessionManager.InitializationCallback() {
+            @Override
+            public void registerSessionListener(Class<? extends HttpSessionListener> listener) {
+
+            }
+        });
+
+        return mockServletContext;
+    }
+
     @Test
     public void handleRequestedAuthnContextCustomization() throws Exception {
         SAML2AuthenticationHandler handler = new SAML2AuthenticationHandler();
@@ -409,7 +430,7 @@ public class SAML2AuthenticationHandlerUnitTestCase {
 
         // Create a Protocol Context
         MockHttpSession session = new MockHttpSession();
-        MockServletContext servletContext = new MockServletContext();
+        MockServletContext servletContext = createServletContext();
         MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);

@@ -59,18 +59,12 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
 
     // Same method can be used for "handleRequestType" and "handleStatusResponseType" validations
     private void validateSender(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
-        if (!isSupportsSignature(request)) {
+        if (!isSupportsSignature(request) || isIgnoreSignature(request)) {
             return;
         }
 
         Map<String, Object> requestOptions = request.getOptions();
         PicketLinkAuditHelper auditHelper = (PicketLinkAuditHelper) requestOptions.get(GeneralConstants.AUDIT_HELPER);
-        Boolean ignoreSignatures = (Boolean) requestOptions.get(GeneralConstants.IGNORE_SIGNATURES);
-        if(ignoreSignatures == null){
-            ignoreSignatures = Boolean.FALSE;
-        }
-        if (ignoreSignatures == Boolean.TRUE)
-            return;
 
         Document signedDocument = request.getRequestDocument();
 
@@ -113,6 +107,22 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
             response.setError(SAML2HandlerErrorCodes.SIGNATURE_INVALID, "Signature Validation Failed");
             throw pe;
         }
+    }
+
+    private Boolean isIgnoreSignature(SAML2HandlerRequest request) {
+        Map<String, Object> requestOptions = request.getOptions();
+        Boolean ignoreSignatures = (Boolean) requestOptions.get(GeneralConstants.IGNORE_SIGNATURES);
+
+        if (ignoreSignatures == null){
+            ignoreSignatures = Boolean.FALSE;
+        }
+
+        //TODO: check signatures for GLO logout requests when using a backchannel
+        if (SAML2LogOutHandler.isBackChannelLogoutRequest(request)) {
+            return Boolean.TRUE;
+        }
+
+        return ignoreSignatures;
     }
 
     private boolean verifyPostBindingSignature(Document signedDocument, PublicKey publicKey) throws ProcessingException {
