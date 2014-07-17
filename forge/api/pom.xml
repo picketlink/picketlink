@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.picketlink.forge</groupId>
     <artifactId>picketlink-forge-parent</artifactId>
-    <version>2.6.1-SNAPSHOT</version>
+    <version>2.6.1.Final</version>
   </parent>
   <artifactId>picketlink-forge-api</artifactId>
   <dependencies>
