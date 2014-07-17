@@ -1,16 +1,31 @@
 #!/bin/sh
 
-RELEASE_LOG_FILE="pl-release.log"
-RELEASE_VERSION=""
+RELEASE_WORK_DIR="target/release_work"
+RELEASE_LOG_FILE="$RELEASE_WORK_DIR/pl-release.log"
+
+prompt_for_boolean() {
+    while true; do
+        read -p "$1[Yy/Nn]" yn
+        case $yn in
+            [Yy]* ) return 0;;
+            [Nn]* ) return 1;;
+            * ) echo "You must provide [Yy] or [Nn].";;
+        esac
+    done
+}
 
 # simple function used to execute comands from the script
 execute_cmd() {
+    if [ ! -d "$RELEASE_WORK_DIR" ]; then
+        mkdir -p "$RELEASE_WORK_DIR"
+    fi
+
     "$@" > $RELEASE_LOG_FILE
 }
 
 # check if a previous maven build was successful or not
 check_build_result() {
-    if tail -n 100 pl-release.log|grep -F "BUILD SUCCESS" 
+    if tail -n 100 pl-release.log|grep -F "BUILD SUCCESS"
     then
         return 0
     else
@@ -21,34 +36,127 @@ check_build_result() {
 # check if the release version was specified
 check_release_version() {
 	if [ "$RELEASE_VERSION" == "" ]; then
-	   echo "--version not specified. Please use: --version X"
+	   echo "Release version not specified. Please use: -v RELEASE_VERSION. Eg.: -v 2.6.0.Final."
+	   exit 1
+	fi
+}
+
+# check if the snapshot version was specified
+check_snapshot_version() {
+	if [ "$SNAPSHOT_VERSION" == "" ]; then
+	   echo "Current snapshot version not specified. Please use: -s CURRENT_SNAPSHOT_VERSION. Eg.: -s 2.6.0-SNAPSHOT."
 	   exit 1
 	fi
 }
 
 # clean the local repo and revert all local modifications
-clean_local_repo() {
+clean_working_copy() {
+	echo "Fetching latest changes from upstream..."
+	execute_cmd git fetch upstream master
+	echo "Cleaning up working copy..."
     git clean -f -d
     git reset --hard upstream/master
-    rm -rf $RELEASE_LOG_FILE
+	echo "    Pulling changes from master..."
+	execute_cmd git pull upstream master
+}
+
+# check if all project dependencies can be resolved
+check_project_dependencies() {
+    if prompt_for_boolean "Check all project dependencies before releasing ?"; then
+        TMP_LOCAL_MVN_REPO="$RELEASE_WORK_DIR/mvn_local_repo"
+
+		echo "Checking project dependencies. Temporary Local Maven Repository will be created at $TMP_LOCAL_MVN_REPO"
+
+		execute_cmd mvn -DskipTests=true clean install dependency:resolve -Dmaven.repo.local=$TMP_LOCAL_MVN_REPO
+
+		if check_build_result; then
+			echo "All project dependencies were resolved."
+		else
+			echo "ERROR: Error checking dependencies. Check the logs."
+			exit 1;
+		fi
+    fi
+}
+
+# builds the project and checks if it was successful
+build_project() {
+    echo "Building project ..."
+    execute_cmd mvn clean install
+    execute_cmd mvn -DskipTests=true -Prelease clean install
+
+    echo ""
+
+    if check_build_result; then
+        echo "Done."
+    else
+        echo "ERROR: Build failed."
+        exit 1
+    fi
+}
+
+# update project version to the release version
+update_project_version() {
+    echo "Updating project version to $RELEASE_VERSION..."
+
+    execute_cmd perl -pi -e 's/'$SNAPSHOT_VERSION'/'$RELEASE_VERSION'/g' `find . -name pom.xml`
+
+    GIT_STATUS_OUTPUT=$(git status -s)
+
+    if [ -z "$GIT_STATUS_OUTPUT" ]; then
+        echo "Project version was not updated to $RELEASE_VERSION. Make sure you provided the correct SNAPSHOT version."
+        exit 1;
+    fi
+}
+
+# deploy the released artifacts to jboss nexus
+deploy_artifacts() {
+    if prompt_for_boolean "Do you want to publish artifacts to JBoss Nexus ?"; then
+		echo "Publishing artifacts to JBoss Nexus..."
+		execute_cmd mvn -Prelease -DskipTests=true clean source:jar deploy
+		echo "Artifacts deployed. Don't forget to Close and Release the newly created Staging Repository in JBoss Nexus."
+    fi
+}
+
+# build and publish docs
+publish_documentation() {
+    if prompt_for_boolean "Do you want to publish documentation ?"; then
+		echo "Publishing documentation..."
+    fi
+}
+
+# tag the released version in github
+tag_project() {
+    if prompt_for_boolean "Do you want to tag this version ?"; then
+        TAG_NAME = "v$RELEASE_VERSION"
+        echo "Tagging version $RELEASE_VERSION..."
+
+        execute_cmd git add .
+        execute_cmd git commit -m "Release $RELEASE_VERSION."
+        execute_cmd git tag -a v$RELEASE_VERSION -m "Version $RELEASE_VERSION."
+        execute_cmd git push --tags upstream
+
+        echo "Tag $TAG_NAME created for Version $RELEASE_VERSION."
+    fi
 }
 
 # rollback a previous release attempt and prepare the local repo for another one
 rollback() {
 	check_release_version
-    echo "Aborting ..."
-    clean_local_repo
-    git checkout develop
-    clean_local_repo
-    git checkout master
-    clean_local_repo
-    git branch -D release/$RELEASE_VERSION
-    git push origin :release/$RELEASE_VERSION
-    git push upstream :release/$RELEASE_VERSION
+    echo "Aborting Release: " + $RELEASE_VERSION
+    clean_working_copy
     git tag -d v$RELEASE_VERSION
     git push origin :refs/tags/v$RELEASE_VERSION
     git push upstream :refs/tags/v$RELEASE_VERSION
     echo "Done."
+    echo "==============================================="
+    echo ""
+    echo "           POST EXECUTION INSTRUCTIONS         "
+    echo ""
+    echo "==============================================="
+    echo ""
+    echo "* Go to https://repository.jboss.org/nexus/ and Drop any Staging Repository associated with the release."
+    echo ""
+    echo "==============================================="
 }
 
 # upload the docs to jboss.org/docs
@@ -91,115 +199,65 @@ upload_distribution() {
 
 # perform the release
 release() {
-	if [ "$DEVELOPMENT_VERSION" == "" ]; then
-	   echo "--snapshot not specified. Please use: --snapshot X"
-	   exit 1
-	fi
 
+    check_snapshot_version
 	check_release_version
+	clean_working_copy
 
-	rm -rf $RELEASE_LOG_FILE
-
-	echo "###################################################"
+	echo "==================================================="
+	echo ""
 	echo "            PicketLink Release Script              "
-	echo "###################################################"
-
 	echo ""
-
-	echo "Current version: $DEVELOPMENT_VERSION"
-	echo "Release version: $RELEASE_VERSION"
+	echo "SNAPSHOT Version: $SNAPSHOT_VERSION"
+	echo "Release Version : $RELEASE_VERSION"
 	echo ""
+    echo "==================================================="
 
-	echo "Preparing local repository to release."
-	execute_cmd git checkout master
-	echo "    Fetching latest changes from upstream..."
-	execute_cmd git fetch upstream master
-	echo "    Pulling changes from master..."
-	execute_cmd git pull upstream master
-	echo "Done."
-	echo ""
-
-        read -p "Check all project dependencies before releasing ?[y/n] " FLAG_NO_DEPENDENCY_CHECK
-
-	if [ "$FLAG_NO_DEPENDENCY_CHECK" == "y" ]; then
-		echo "Checking dependencies."
-		execute_cmd mvn -DskipTests=true clean install dependency:resolve -Dmaven.repo.local=/tmp/release_repo
-		if check_build_result; then
-			echo "Done."
-		else
-			echo "ERROR: Error checking dependencies. Check the logs."
-			exit 1;
-		fi
-	else
-		echo "WARNING: Depedencies were not checked. This can impact users when downloading the project's artifacts."
-	fi
-	echo ""
-
-	echo "Preparing to release using git flow."
-	echo "    Starting release $RELEASE_VERSION..."
-	execute_cmd git checkout -b release/v$RELEASE_VERSION
-	echo "Done."
-	echo ""
-
-	FLAG_PERFORM_RELEASE="false"
-
-    echo "Releasing version $RELEASE_VERSION."
-    execute_cmd perl -pi -e 's/'$DEVELOPMENT_VERSION'/'$RELEASE_VERSION'/g' `find . -name pom.xml`
-    execute_cmd cd maven-plugins/picketlink-jdocbook-style/
-    execute_cmd mvn -Prelease -DskipTests=true clean install
-    execute_cmd cd ../../
-    execute_cmd mvn -Prelease -DskipTests=true clean install
-    if check_build_result; then
-        echo "Done."
-    else
-        echo "ERROR: Release failed."
-        exit 1
+    if ! prompt_for_boolean "Are sure you want to release version $RELEASE_VERSION from snapshot $SNAPSHOT_VERSION ?"; then
+        echo "Aborting release."
+        exit 0;
     fi
 
-    execute_cmd git add .
-    execute_cmd git commit -m "Release $RELEASE_VERSION."
-    execute_cmd git tag -a v$RELEASE_VERSION -m "Version $RELEASE_VERSION."
-    execute_cmd git push --tags upstream
+	echo ""
+
+    update_project_version
+
+    echo ""
+
+    check_project_dependencies
+
+    echo ""
+
+    build_project
 
 	echo ""
 
-	FLAG_PUBLISH_NEXUS="n"
-	read -p "Do you want to publish artifacts to Nexus staging repository ?[y/n] " FLAG_PUBLISH_NEXUS
+	tag_project
 
-	if [ "$FLAG_PUBLISH_NEXUS" == "y" ]; then
-		echo "Publishing artifacts to Nexus. "
-		execute_cmd mvn -Prelease -DskipTests=true clean source:jar deploy
-		echo "Done. You can now go to Nexus and finish release the artifacts."
-	fi
+    echo ""
+
+    deploy_artifacts
+
+    clean_working_copy
+
+	echo "==================================================="
 	echo ""
-
-	FLAG_UPLOAD_DOC="n"
-	read -p "Do you want to upload the documentation to docs.jboss.org ?[y/n] " FLAG_UPLOAD_DOC
-
-	if [ "$FLAG_UPLOAD_DOC" == "y" ]; then
-		echo "Uploading documentation to docs.jboss.org. "
-		upload_docs
-		echo "Done. Check if the documentation is now available at http://docs.jboss.org/picketlink/2/latest"
-	fi
+	echo "         Version $RELEASE_VERSION Released !       "
 	echo ""
-
-	FLAG_UPLOAD_DIST="n"
-	read -p "Do you want to upload distribution to downloads.jboss.org ?[y/n] " FLAG_UPLOAD_DIST
-
-	if [ "$FLAG_UPLOAD_DIST" == "y" ]; then
-		echo "Uploading distribution to downloads.jboss.org. "
-		upload_distribution
-		echo "Done. Check if the distribution is now available at http://downloads.jboss.org/picketlink/2/latest/picketlink-$RELEASE_VERSION.zip"
-	fi
+    echo "==================================================="
+    echo "             POST RELEASE INSTRUCTIONS             "
+	echo "==================================================="
 	echo ""
+	echo " * Go to https://repository.jboss.org/nexus/ and Drop any Staging Repository associated with the release."
+	echo " * Check if the documentation can be access at http://docs.jboss.org/picketlink/2/latest/. Make sure it is referencing the released version."
+	echo " * Check if the PicketLink Installer can be accessed from http://downloads.jboss.org/picketlink/2/$RELEASE_VERSION/picketlink-installer-$RELEASE_VERSION.zip."
+	echo " * Update the http://picketlink.org site."
+	echo " * Announce in User Forum https://community.jboss.org/en/picketlink."
+	echo " * Tell the world about it using Twitter, Google+, Facebook or any other social media."
+	echo " * And congratulations ! :)"
+	echo ""
+    echo "==================================================="
 
-	echo "Finishing the release."
-	git flow release finish $RELEASE_VERSION
-        clean_local_repo
-        git checkout master
-        git branch -D release/v$RELEASE_VERSION
-        git reset --hard upstream/master
-	echo "Done."
 	exit 0
 }
 
@@ -211,57 +269,49 @@ usage: $0 options
 Use this script to release PicketLink versions.
 
 OPTIONS:
-   --snapshot      Snapshot version number to update from.
-   --version       New snapshot version number to update to, if undefined, defaults to the version number updated from.
-   --rollback      Undo a previous release attempt and prepares the local repo for a new one.
-   --upload-docs   Only upload the docs.
+   -s      Snapshot version number to update from.
+   -v      New snapshot version number to update to, if undefined, defaults to the version number updated from.
+   -r      Undo a previous release attempt and prepares the local repo for a new one.
+   -da     Build and deploy artitacts.
+   -pd     Build and publish docs.
 EOF
 }
 
-DEVELOPMENT_VERSION=""
-FLAG_NO_DEPENDENCY_CHECK="false"
-ROLLBACK="false"
+SNAPSHOT_VERSION=""
+RELEASE_VERSION=""
 
 while true; do
   case "$1" in
-	 --help)
+	 -h)
 		 usage
 		 exit
 		 ;;
-	 --snapshot )
-		 DEVELOPMENT_VERSION=$2
+	 -s )
+		 SNAPSHOT_VERSION=$2
 		 shift
 		 shift
 		 ;;
-	 --version )
+	 -v )
 		 RELEASE_VERSION=$2
 		 shift
 		 shift
 		 ;;
-	 --rollback )
-		 ROLLBACK="true"
-		 shift
+	 -r )
+         rollback
+         exit 0
 		 ;;
-     --upload-docs )
-		 upload_docs
+	 -da )
+         deploy_artifacts
          exit 0
-         ;;
-     --upload-dist )
-		 upload_distribution
+		 ;;
+	 -pd )
+         publish_documentation
          exit 0
-         ;;
-	 -- )
-	     shift;
-	     break ;;
+		 ;;
      * )
          break
          ;;
   esac
 done
-
-if [ "$ROLLBACK" == "true" ]; then
-	rollback
-	exit 0
-fi
 
 release

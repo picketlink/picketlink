@@ -6,17 +6,13 @@ Before releasing make sure your environment is properly configured as follows:
 
 1. Make sure your ~/.m2/settings.xml is properly configured to allow you to publish artifacts to JBoss Nexus. And that you have access to upload artifacts.
     
-2. Make sure you're able to upload files to docs.jboss.org/picketlink.
+2. Make sure you're able to upload files to picketlink@filemgmt.jboss.org
 
-3. Make sure you're able to upload files to downloads.jboss.org/picketlink.
+3. Make sure you have cloned the picketlink site at https://github.com/picketlink/web-picketlink.org.
 
-4. Make sure you're able to upload files to picketlink.org.
+4. Make sure you have awestruct properly installed. Check this documentation https://docs.jboss.org/author/display/PLINK/Website+using+Awestruct.
 
-5. Make sure you have cloned the picketlink site at https://github.com/picketlink/web-picketlink.org.
-
-6. Make sure you have awestruct properly installed. Check this documentation https://docs.jboss.org/author/display/PLINK/Website+using+Awestruct.
-
-7. If you are in a fork, check if you have a remote repository configured as follows:
+5. If you are in a fork, check if you have a remote repository configured as follows:
 
         git remote add upstream https://github.com/picketlink/picketlink
 
@@ -26,13 +22,13 @@ Before releasing make sure your environment is properly configured as follows:
 
 To release, simply run:  
       
-      ./release.sh --snapshot <from snapshot version> --version <release version>
+      ./release.sh -s <from snapshot version> -v <release version>
 
   This will perform the following steps:
   
   1. Update your master branch with the latest changes from upstream.
   3. Check if all depencies are available in central.
-  4. Change pom version to 
+  4. Change pom versions.
   5. Perform the release.
   6. Create a tag for the new version.
   7. Publish the artifacts into JBoss Nexus.
