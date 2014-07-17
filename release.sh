@@ -1,6 +1,6 @@
 #!/bin/sh
 
-RELEASE_WORK_DIR="target/release_work"
+RELEASE_WORK_DIR="/tmp/release_work"
 RELEASE_LOG_FILE="$RELEASE_WORK_DIR/pl-release.log"
 
 prompt_for_boolean() {
