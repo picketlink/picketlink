@@ -21,13 +21,8 @@
  */
 package org.picketlink.json.jwt;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import java.io.ByteArrayInputStream;
-import java.lang.reflect.Constructor;
-
+import static org.picketlink.json.JsonConstants.COMMON.HEADER_CONTENT_TYPE;
+import static org.picketlink.json.JsonConstants.COMMON.HEADER_TYPE;
 import static org.picketlink.json.JsonConstants.COMMON.PERIOD;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_AUDIENCE;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_EXPIRATION;
@@ -36,19 +31,32 @@ import static org.picketlink.json.JsonConstants.JWT.CLAIM_ISSUED_AT;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_ISSUER;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_NOT_BEFORE;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_SUBJECT;
-import static org.picketlink.json.JsonConstants.JWT.HEADER_CONTENT_TYPE;
-import static org.picketlink.json.JsonConstants.JWT.HEADER_TYPE;
 import static org.picketlink.json.JsonMessages.MESSAGES;
 import static org.picketlink.json.util.JsonUtil.b64Decode;
 
+import java.io.ByteArrayInputStream;
+import java.lang.reflect.Constructor;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+
 /**
- * <p>A {@link JWTBuilder} is used to construct {@link JWT} instances.
- * It provides a fluent API with methods to populate the claims for a given {@link JWT} type.</p>
+ * <p>
+ * A {@link JWTBuilder} is used to construct {@link JWT} instances. It provides a fluent API with methods to populate the claims
+ * for a given {@link JWT} type.
+ * </p>
  *
- * <p>{@link JWT} instances may also be built from a {@link java.lang.String} representing the
- * token in a JSON format.</p>
+ * <p>
+ * {@link JWT} instances may also be built from a {@link java.lang.String} representing the token in a JSON format.
+ * </p>
  *
- * <p>The default implementation builds {@link JWT} instances.</p>
+ * <p>
+ * The default implementation builds {@link JWT} instances.
+ * </p>
  *
  * @param <T>
  * @param <B>
@@ -145,8 +153,15 @@ public class JWTBuilder<T extends JWT, B extends JWTBuilder> {
         return (B) this;
     }
 
+    public B header(String name, List<JsonObject> value) {
+        setJsonObject(this.headersBuilder, name, value);
+        return (B) this;
+    }
+
     /**
-     * <p>Builds a {@link JWT} instance using the provided claims.</p>
+     * <p>
+     * Builds a {@link JWT} instance using the provided claims.
+     * </p>
      *
      * @return
      */
@@ -155,7 +170,9 @@ public class JWTBuilder<T extends JWT, B extends JWTBuilder> {
     }
 
     /**
-     * <p>Builds a {@link JWT} instance from its JSON representation.</p>
+     * <p>
+     * Builds a {@link JWT} instance from its JSON representation.
+     * </p>
      *
      * @return
      */
@@ -173,8 +190,10 @@ public class JWTBuilder<T extends JWT, B extends JWTBuilder> {
     }
 
     /**
-     * <p>Subclasses can use this method to obatain a reference to the {@link javax.json.JsonObjectBuilder} being
-     * used to manage the claims set.</p>
+     * <p>
+     * Subclasses can use this method to obatain a reference to the {@link javax.json.JsonObjectBuilder} being used to manage
+     * the claims set.
+     * </p>
      *
      * @return
      */
@@ -231,6 +250,16 @@ public class JWTBuilder<T extends JWT, B extends JWTBuilder> {
             builder.add(name, arrayBuilder);
         }
 
+        return (B) this;
+    }
+
+    private B setJsonObject(JsonObjectBuilder builder, String name, List<JsonObject> values) {
+        JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+        Iterator<JsonObject> iterator = values.iterator();
+        while (iterator.hasNext()) {
+            arrayBuilder.add(iterator.next());
+        }
+        builder.add(name, arrayBuilder);
         return (B) this;
     }
 }

@@ -44,34 +44,46 @@ import static org.picketlink.json.JsonConstants.JWT.CLAIM_ISSUED_AT;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_ISSUER;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_NOT_BEFORE;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_SUBJECT;
-import static org.picketlink.json.JsonConstants.JWT.HEADER_CONTENT_TYPE;
-import static org.picketlink.json.JsonConstants.JWT.HEADER_TYPE;
+import static org.picketlink.json.JsonConstants.COMMON.HEADER_CONTENT_TYPE;
+import static org.picketlink.json.JsonConstants.COMMON.HEADER_TYPE;
 import static org.picketlink.json.util.JsonUtil.b64Encode;
 
 /**
- * <p>This class represents a JSON Web Token, providing the standard claims set defined by its specification.
- * It is a representation of the claims to be transferred between two parties. </p>
+ * <p>
+ * This class represents a JSON Web Token, providing the standard claims set defined by its specification. It is a
+ * representation of the claims to be transferred between two parties.
+ * </p>
  *
- * <p>Instances must be created by their corresponding {@link JWTBuilder}. Once created, instances are immutable.</p>
+ * <p>
+ * Instances must be created by their corresponding {@link JWTBuilder}. Once created, instances are immutable.
+ * </p>
  *
- * <p>The JSON representation of a token is obtained via <code>toString()</code> method.</p>
+ * <p>
+ * The JSON representation of a token is obtained via <code>toString()</code> method.
+ * </p>
  *
  * @author Pedro Igor
  */
 public class JWT {
 
     /**
-     * <p>Holds the headers and their respective values.</p>
+     * <p>
+     * Holds the headers and their respective values.
+     * </p>
      */
     private JsonObject headers;
 
     /**
-     * <p>Holds the claims set and their respective values.</p>
+     * <p>
+     * Holds the claims set and their respective values.
+     * </p>
      */
     private final JsonObject claims;
 
     /**
-     * <p>Creates a new instance using the claims set and values from the given {@link javax.json.JsonObject}.</p>
+     * <p>
+     * Creates a new instance using the claims set and values from the given {@link javax.json.JsonObject}.
+     * </p>
      *
      * @param claims The claims set and their respective values.
      */
@@ -81,9 +93,13 @@ public class JWT {
     }
 
     /**
-     * <p>Ecodes the JSON representation of a JWT according with the specification.</p>
+     * <p>
+     * Ecodes the JSON representation of a JWT according with the specification.
+     * </p>
      *
-     * <p>In order to decode, refer to the corresponding {@link JWTBuilder} of this class.</p>
+     * <p>
+     * In order to decode, refer to the corresponding {@link JWTBuilder} of this class.
+     * </p>
      *
      * @return
      */
@@ -92,7 +108,9 @@ public class JWT {
     }
 
     /**
-     * <p>Declares the MIME Media Type [IANA.MediaTypes] of this complete JWT in contexts where this is useful to the application.</p>
+     * <p>
+     * Declares the MIME Media Type [IANA.MediaTypes] of this complete JWT in contexts where this is useful to the application.
+     * </p>
      *
      * @return
      */
@@ -101,7 +119,9 @@ public class JWT {
     }
 
     /**
-     * <p>Used by this specification to convey structural information about the JWT.</p>
+     * <p>
+     * Used by this specification to convey structural information about the JWT.
+     * </p>
      *
      * @return
      */
@@ -110,7 +130,9 @@ public class JWT {
     }
 
     /**
-     * <p>The unique identifier for a JWT.</p>
+     * <p>
+     * The unique identifier for a JWT.
+     * </p>
      *
      * @return
      */
@@ -119,7 +141,9 @@ public class JWT {
     }
 
     /**
-     * <p>The principal that issued the JWT.</p>
+     * <p>
+     * The principal that issued the JWT.
+     * </p>
      *
      * @return
      */
@@ -128,7 +152,9 @@ public class JWT {
     }
 
     /**
-     * <p>Identifies the audience that the JWT is intended for.</p>
+     * <p>
+     * Identifies the audience that the JWT is intended for.
+     * </p>
      *
      * @return
      */
@@ -137,7 +163,9 @@ public class JWT {
     }
 
     /**
-     * <p>Identifies the principal that is the subject of the JWT.</p>
+     * <p>
+     * Identifies the principal that is the subject of the JWT.
+     * </p>
      *
      * @return
      */
@@ -146,7 +174,9 @@ public class JWT {
     }
 
     /**
-     * <p>The time at which the JWT was issued.</p>
+     * <p>
+     * The time at which the JWT was issued.
+     * </p>
      *
      * @return
      */
@@ -155,7 +185,9 @@ public class JWT {
     }
 
     /**
-     * <p>The expiration time on or after which the token MUST NOT be accepted for processing.</p>
+     * <p>
+     * The expiration time on or after which the token MUST NOT be accepted for processing.
+     * </p>
      *
      * @return
      */
@@ -164,7 +196,9 @@ public class JWT {
     }
 
     /**
-     * <p>The time before which the token MUST NOT be accepted for processing</p>
+     * <p>
+     * The time before which the token MUST NOT be accepted for processing
+     * </p>
      *
      * @return
      */
@@ -178,7 +212,10 @@ public class JWT {
     }
 
     /**
-     * <p>Subclasses can obtain from this method a {@link javax.json.JsonObject} instance containing the claims set and their respective values.</p>
+     * <p>
+     * Subclasses can obtain from this method a {@link javax.json.JsonObject} instance containing the claims set and their
+     * respective values.
+     * </p>
      *
      * @return
      */
@@ -187,7 +224,10 @@ public class JWT {
     }
 
     /**
-     * <p>Subclasses can obtain from this method a {@link javax.json.JsonObject} instance containing headers and their respective values.</p>
+     * <p>
+     * Subclasses can obtain from this method a {@link javax.json.JsonObject} instance containing headers and their respective
+     * values.
+     * </p>
      *
      * @return
      */
@@ -196,7 +236,9 @@ public class JWT {
     }
 
     /**
-     * <p>Returns a claim given its name. If the claim represents an array, only the first value is returned.</p>
+     * <p>
+     * Returns a claim given its name. If the claim represents an array, only the first value is returned.
+     * </p>
      *
      * @param name
      * @return
@@ -206,7 +248,9 @@ public class JWT {
     }
 
     /**
-     * <p>Returns a claim given its name.</p>
+     * <p>
+     * Returns a claim given its name.
+     * </p>
      *
      * @param name
      * @return
@@ -216,7 +260,9 @@ public class JWT {
     }
 
     /**
-     * <p>Returns a header given its name. If the header represents an array, only the first value is returned.</p>
+     * <p>
+     * Returns a header given its name. If the header represents an array, only the first value is returned.
+     * </p>
      *
      * @param name
      * @return
@@ -226,7 +272,9 @@ public class JWT {
     }
 
     /**
-     * <p>Returns a header given its name.</p>
+     * <p>
+     * Returns a header given its name.
+     * </p>
      *
      * @param name
      * @return
@@ -236,7 +284,9 @@ public class JWT {
     }
 
     /**
-     * <p>Returns a {@link java.lang.StringBuilder} representing a JWT using its encoded format.</p>
+     * <p>
+     * Returns a {@link java.lang.StringBuilder} representing a JWT using its encoded format.
+     * </p>
      *
      * @param header The string representing the header.
      * @param claimsSet The string representing the claims set.

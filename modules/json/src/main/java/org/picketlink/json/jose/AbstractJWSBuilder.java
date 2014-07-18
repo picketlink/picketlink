@@ -21,15 +21,11 @@
  */
 package org.picketlink.json.jose;
 
-import org.picketlink.json.jose.crypto.Algorithm;
-import org.picketlink.json.jwt.JWTBuilder;
-
-import javax.json.JsonObject;
-import java.lang.reflect.Constructor;
-
-import static org.picketlink.json.JsonMessages.MESSAGES;
 import static org.picketlink.json.JsonConstants.COMMON.ALG;
 import static org.picketlink.json.JsonConstants.COMMON.PERIOD;
+import static org.picketlink.json.JsonConstants.COMMON.KEY_ID;
+import static org.picketlink.json.JsonConstants.COMMON.HEADER_JSON_WEB_KEY;
+import static org.picketlink.json.JsonMessages.MESSAGES;
 import static org.picketlink.json.jose.crypto.Algorithm.HS256;
 import static org.picketlink.json.jose.crypto.Algorithm.HS384;
 import static org.picketlink.json.jose.crypto.Algorithm.HS512;
@@ -37,6 +33,16 @@ import static org.picketlink.json.jose.crypto.Algorithm.RS256;
 import static org.picketlink.json.jose.crypto.Algorithm.RS384;
 import static org.picketlink.json.jose.crypto.Algorithm.RS512;
 import static org.picketlink.json.util.JsonUtil.b64Decode;
+
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.json.JsonObject;
+
+import org.picketlink.json.jose.crypto.Algorithm;
+import org.picketlink.json.jwt.JWTBuilder;
 
 /**
  * @author Pedro Igor
@@ -48,6 +54,11 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
     protected AbstractJWSBuilder(Class<T> tokenType) {
         super(tokenType);
         header(ALG, Algorithm.NONE.getAlgorithm());
+    }
+
+    public B kid(String kid) {
+        header(KEY_ID, kid);
+        return (B) this;
     }
 
     public B hmac256(byte[] key) {
@@ -86,6 +97,16 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
         return (B) this;
     }
 
+    public B keys(List<JWK> values) {
+        List<JsonObject> jwkJsonObject = new ArrayList<JsonObject>();
+        Iterator<JWK> iterator = values.iterator();
+        while (iterator.hasNext()) {
+            jwkJsonObject.add(iterator.next().getKeyParameters());
+        }
+        header(HEADER_JSON_WEB_KEY, jwkJsonObject);
+        return (B) this;
+    }
+
     @Override
     protected T build(JsonObject headersObject, JsonObject claimsObject) {
         try {
@@ -105,7 +126,9 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
     }
 
     /**
-     * <p>Builds a {@link JWS} with the given key.</p>
+     * <p>
+     * Builds a {@link JWS} with the given key.
+     * </p>
      *
      * @param json
      * @param key
