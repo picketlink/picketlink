@@ -21,6 +21,20 @@
  */
 package org.picketlink.json.jose;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonString;
+import javax.json.JsonValue;
+import java.io.StringWriter;
+import java.math.BigInteger;
+import java.security.KeyFactory;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.RSAPublicKeySpec;
+import java.util.ArrayList;
+import java.util.List;
+
 import static javax.json.JsonValue.ValueType.ARRAY;
 import static javax.json.JsonValue.ValueType.FALSE;
 import static javax.json.JsonValue.ValueType.NUMBER;
@@ -48,28 +62,8 @@ import static org.picketlink.json.JsonConstants.JWK_RSA.PRIME_P;
 import static org.picketlink.json.JsonConstants.JWK_RSA.PRIME_Q;
 import static org.picketlink.json.JsonConstants.JWK_RSA.PRIVATE_EXPONENT;
 import static org.picketlink.json.JsonConstants.JWK_RSA.PUBLIC_EXPONENT;
+import static org.picketlink.json.JsonMessages.MESSAGES;
 import static org.picketlink.json.util.JsonUtil.b64Decode;
-import static org.picketlink.json.util.JsonUtil.b64Encode;
-
-import java.io.StringWriter;
-import java.math.BigInteger;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.RSAPrivateCrtKeySpec;
-import java.security.spec.RSAPrivateKeySpec;
-import java.security.spec.RSAPublicKeySpec;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonNumber;
-import javax.json.JsonObject;
-import javax.json.JsonString;
-import javax.json.JsonValue;
 
 /**
  * @author Giriraj Sharma
@@ -80,10 +74,6 @@ public class JWK {
 
     protected JWK(JsonObject keyParameters) {
         this.keyParameters = keyParameters;
-    }
-
-    public String encode() {
-        return b64Encode(getPlainkeyParameters());
     }
 
     public String getKeyType() {
@@ -179,11 +169,7 @@ public class JWK {
         return getPlainkeyParameters();
     }
 
-    public JsonObject getKeyParameters() {
-        return this.keyParameters;
-    }
-
-    public String getKeyParameter(String name) {
+    private String getKeyParameter(String name) {
         return getValue(name, this.keyParameters);
     }
 
@@ -238,104 +224,47 @@ public class JWK {
     private String getValue(String name, JsonObject jsonObject) {
         JsonValue value = jsonObject.get(name);
 
-        if (ARRAY.equals(value.getValueType())) {
-            JsonArray array = (JsonArray) value;
-            for (JsonValue jsonValue : array) {
-                return getValue(jsonValue);
+        if (value != null) {
+            if (ARRAY.equals(value.getValueType())) {
+                JsonArray array = (JsonArray) value;
+                for (JsonValue jsonValue : array) {
+                    return getValue(jsonValue);
+                }
+            } else if (STRING.equals(value.getValueType())) {
+                return ((JsonString) value).getString();
+            } else if (NUMBER.equals(value.getValueType())) {
+                return ((JsonNumber) value).bigDecimalValue().toPlainString();
+            } else if (TRUE.equals(value.getValueType()) || FALSE.equals(value.getValueType())) {
+                return value.toString();
             }
-        } else if (STRING.equals(value.getValueType())) {
-            return ((JsonString) value).getString();
-        } else if (NUMBER.equals(value.getValueType())) {
-            return ((JsonNumber) value).bigDecimalValue().toPlainString();
-        } else if (TRUE.equals(value.getValueType()) || FALSE.equals(value.getValueType())) {
-            return value.toString();
         }
 
         return null;
     }
 
-    public static RSAPublicKey toRSAPublicKey(JWK rsaJWK)
-        throws NoSuchAlgorithmException, InvalidKeySpecException {
-
-        BigInteger modulus = new BigInteger(b64Decode(rsaJWK.getModulus()));
-        BigInteger publicExponent = new BigInteger(b64Decode(rsaJWK.getPublicExponent()));
-
-        RSAPublicKeySpec spec = new RSAPublicKeySpec(modulus, publicExponent);
-        KeyFactory factory = KeyFactory.getInstance("RSA");
-
-        return (RSAPublicKey) factory.generatePublic(spec);
-    }
-
-    public static RSAPrivateKey toRSAPrivateKey(JWK rsaJWK)
-        throws NoSuchAlgorithmException, InvalidKeySpecException {
-
-        RSAPrivateKeySpec spec;
-
-        if (rsaJWK.getPrivateExponent() == null) {
-            return null;
+    public RSAPublicKey toRSAPublicKey() {
+        if (getModulus() == null) {
+            throw MESSAGES.invalidNullArgument("Modulus");
         }
 
-        BigInteger modulus = new BigInteger(b64Decode(rsaJWK.getModulus()));
-        BigInteger privateExponent = new BigInteger(b64Decode(rsaJWK.getPrivateExponent()));
-
-        if (rsaJWK.getPrimeP() == null) {
-            spec = new RSAPrivateKeySpec(modulus, privateExponent);
-        } else {
-            BigInteger publicExponent = new BigInteger(b64Decode(rsaJWK.getPublicExponent()));
-            BigInteger primeP = new BigInteger(b64Decode(rsaJWK.getPrimeP()));
-            BigInteger primeQ = new BigInteger(b64Decode(rsaJWK.getPrimeQ()));
-            BigInteger primeExponentP = new BigInteger(b64Decode(rsaJWK.getPrimeExponentP()));
-            BigInteger primeExponentQ = new BigInteger(b64Decode(rsaJWK.getPrimeExponentQ()));
-            BigInteger crtCoefficient = new BigInteger(b64Decode(rsaJWK.getCRTCoefficient()));
-
-            spec = new RSAPrivateCrtKeySpec(modulus,
-                publicExponent,
-                privateExponent,
-                primeP,
-                primeQ,
-                primeExponentP,
-                primeExponentQ,
-                crtCoefficient);
+        if (getPublicExponent() == null) {
+            throw MESSAGES.invalidNullArgument("Public Exponent");
         }
-        KeyFactory factory = KeyFactory.getInstance("RSA");
-        return (RSAPrivateKey) factory.generatePrivate(spec);
+
+        try {
+            BigInteger modulus = new BigInteger(b64Decode(getModulus()));
+            BigInteger publicExponent = new BigInteger(b64Decode(getPublicExponent()));
+
+            RSAPublicKeySpec spec = new RSAPublicKeySpec(modulus, publicExponent);
+            KeyFactory factory = KeyFactory.getInstance("RSA");
+
+            return (RSAPublicKey) factory.generatePublic(spec);
+        } catch (Exception e) {
+            throw MESSAGES.cryptoCouldNotParseKey(toString(), e);
+        }
     }
 
-    // TODO : FIX ME Using Bouncy Castle API Classes
-    // public static ECPublicKey toECPublicKey(JWK ecJWK)
-    // throws NoSuchAlgorithmException, InvalidKeySpecException {
-    //
-    // ECParameterSpec spec = crv.toECParameterSpec();
-    // if (spec == null) {
-    // throw new NoSuchAlgorithmException("Couldn't get EC parameter spec for curve " + crv);
-    // }
-    //
-    // BigInteger x = new BigInteger(b64Decode(ecJWK.getX()));
-    // BigInteger y = new BigInteger(b64Decode(ecJWK.getY()));
-    // ECPoint w = new ECPoint(x, y);
-    // ECPublicKeySpec publicKeySpec = new ECPublicKeySpec(w, spec);
-    // KeyFactory keyFactory = KeyFactory.getInstance("EC");
-    //
-    // return (ECPublicKey)keyFactory.generatePublic(publicKeySpec);
-    // }
-
-    // TODO : FIX ME Using Bouncy Castle API Classes
-    // public static ECPrivateKey toECPrivateKey(JWK ecJWK)
-    // throws NoSuchAlgorithmException, InvalidKeySpecException {
-    //
-    // BigInteger d = new BigInteger(b64Decode(ecJWK.getD()));
-    // if (d == null) {
-    // return null;
-    // }
-    //
-    // ECParameterSpec spec = crv.toECParameterSpec();
-    // if (spec == null) {
-    // throw new NoSuchAlgorithmException("Couldn't get EC parameter spec for curve " + crv);
-    // }
-    //
-    // ECPrivateKeySpec privateKeySpec = new ECPrivateKeySpec(d, spec);
-    // KeyFactory keyFactory = KeyFactory.getInstance("EC");
-    // return (ECPrivateKey)keyFactory.generatePrivate(privateKeySpec);
-    // }
-
+    public JsonObject getJsonObject() {
+        return this.keyParameters;
+    }
 }

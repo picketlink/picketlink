@@ -21,165 +21,66 @@
  */
 package org.picketlink.test.json.api;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.interfaces.RSAPublicKey;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.json.JsonException;
 import org.picketlink.json.jose.JWK;
 import org.picketlink.json.jose.JWKBuilder;
+import org.picketlink.json.jose.JWKSet;
 import org.picketlink.json.jose.JWS;
 import org.picketlink.json.jose.JWSBuilder;
+
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.interfaces.RSAPublicKey;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.picketlink.json.JsonConstants.RSA;
+
 /**
  * @author Pedro Igor
  */
 public class JWSRSAAPITestCase {
 
-    private KeyPair keyPair;
-    private KeyPair anotherKeyPair;
-//    private X509CertImpl certificate;
+    private JWKSet keySet;
+    private KeyPair keyPair1;
+    private KeyPair keyPair2;
 
     @Before
     public void onBefore() throws Exception {
-        this.keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
-        this.anotherKeyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        this.keySet = new JWKSet();
+        this.keyPair1 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
 
-//        PrivateKey privkey = this.keyPair.getPrivate();
-//        X509CertInfo info = new X509CertInfo();
-//        Date from = new Date();
-//        Date to = new Date(from.getTime() + 10 * 86400000l);
-//        CertificateValidity interval = new CertificateValidity(from, to);
-//        BigInteger sn = new BigInteger(64, new SecureRandom());
-//        X500Name owner = new X500Name("CN=picketlink");
-//
-//        info.set(X509CertInfo.VALIDITY, interval);
-//        info.set(X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber(sn));
-//        info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(owner));
-//        info.set(X509CertInfo.ISSUER, new CertificateIssuerName(owner));
-//        info.set(X509CertInfo.KEY, new CertificateX509Key(this.keyPair.getPublic()));
-//        info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
-//        AlgorithmId algo = new AlgorithmId(AlgorithmId.md5WithRSAEncryption_oid);
-//        info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(algo));
-//
-//        // Sign the cert to identify the algorithm that's used.
-//        this.certificate = new X509CertImpl(info);
-//
-//        String algorithm = Algorithm.RS512.getAlgorithm();
-//
-//        this.certificate.sign(privkey, algorithm);
-//
-//        // Update the algorithm, and resign.
-//        algo = (AlgorithmId) this.certificate.get(X509CertImpl.SIG_ALG);
-//        info.set(CertificateAlgorithmId.NAME + "." + CertificateAlgorithmId.ALGORITHM, algo);
-//
-//        this.certificate = new X509CertImpl(info);
-//
-//        this.certificate.sign(privkey, algorithm);
+        registerPublicKey("1", (RSAPublicKey) this.keyPair1.getPublic());
+
+        this.keyPair2 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+
+        registerPublicKey("2", (RSAPublicKey) this.keyPair2.getPublic());
     }
-    
-    @Test
-    public void testRSAPublicKey() {
 
-        List<JWK> jwk = new ArrayList<JWK>();
-        RSAPublicKey publicKey = (RSAPublicKey) this.keyPair.getPublic();
-
+    private void registerPublicKey(String kid, RSAPublicKey publicKey) {
         JWK rsaJWK = new JWKBuilder()
             .modulus(publicKey.getModulus())
             .publicExponent(publicKey.getPublicExponent())
-            .keyIdentifier("1")
-            .keyType("RSA")
+            .keyIdentifier(kid)
+            .keyType(RSA)
             .keyAlgorithm(publicKey.getAlgorithm())
-            .keyUse("enc")
-            .build();
-        jwk.add(rsaJWK);
-
-        JWK ecJWK = new JWKBuilder()
-            .keyIdentifier("2")
-            .keyType("EC")
-            .keyAlgorithm("ES256")
-            .keyOperations("sign", "verify")
-            .curve("P-256")
-            .build();
-        jwk.add(ecJWK);
-
-        JWK octetJWK = new JWKBuilder()
-            .keyIdentifier("3")
-            .keyType("oct")
-            .keyAlgorithm("A128KW")
-            .keyOperations("encrypt", "decrypt")
-            .build();
-        jwk.add(octetJWK);
-
-        JWS token = new JWSBuilder()
-            .kid(rsaJWK.getKeyIdentifier())
-            .rsa256(this.keyPair.getPrivate().getEncoded())
-            .keys(jwk)
-            .id("1")
-            .issuer("issuer")
-            .subject("subject")
-            .audience("audience")
-            .expiration(123)
-            .issuedAt(456)
-            .notBefore(789)
+            .keyUse("sign")
             .build();
 
-        String jsonString = token.toString();
-
-        String jsonEncoded = token.encode();
-
-        JWS parsedToken = null;
-        try {
-            parsedToken = new JWSBuilder().build(jsonEncoded, JWK.toRSAPublicKey(rsaJWK).getEncoded());
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to retrieve RSAPublicKey from JWK");
-        }
-
-        assertNotNull(parsedToken);
+        this.keySet.add(rsaJWK);
     }
-
+    
     @Test
-    public void testRSA256Signature() {
-
-        List<JWK> jwk = new ArrayList<JWK>();
-        RSAPublicKey publicKey = (RSAPublicKey) this.keyPair.getPublic();
-
-        JWK rsaJWK = new JWKBuilder()
-            .publicExponent(publicKey.getPublicExponent())
-            .keyIdentifier("1")
-            .keyType("RSA")
-            .keyAlgorithm(publicKey.getAlgorithm())
-            .keyUse("enc")
-            .build();
-        jwk.add(rsaJWK);
-
-        JWK ecJWK = new JWKBuilder()
-            .keyIdentifier("2")
-            .keyType("EC")
-            .keyAlgorithm("ES256")
-            .keyOperations("sign", "verify")
-            .curve("P-256")
-            .build();
-        jwk.add(ecJWK);
-
-        JWK octetJWK = new JWKBuilder()
-            .keyIdentifier("3")
-            .keyType("oct")
-            .keyAlgorithm("A128KW")
-            .keyOperations("encrypt", "decrypt")
-            .build();
-        jwk.add(octetJWK);
+    public void testRSA256Signature() throws Exception {
+        PrivateKey privateKey = this.keyPair1.getPrivate();
 
         JWS token = new JWSBuilder()
-            .kid(rsaJWK.getKeyIdentifier())
-            .rsa256(this.keyPair.getPrivate().getEncoded())
-            .keys(jwk)
+            .rsa256(privateKey.getEncoded())
+            .keys(this.keySet)
+            .kid("1")
             .id("1")
             .issuer("issuer")
             .subject("subject")
@@ -191,45 +92,26 @@ public class JWSRSAAPITestCase {
 
         String jsonString = token.toString();
 
-        assertEquals(
-            "{\"typ\":\"JWT\",\"alg\":\"RS256\",\"kid\":\"1\",\"keys\":[{\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"enc\"},{\"kid\":\"2\",\"kty\":\"EC\",\"alg\":\"ES256\",\"key_ops\":[\"sign\",\"verify\"],\"crv\":\"P-256\"},{\"kid\":\"3\",\"kty\":\"oct\",\"alg\":\"A128KW\",\"key_ops\":[\"encrypt\",\"decrypt\"]}]}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}",
-            jsonString);
+        JWK jwkKeyPair1 = this.keySet.get("1");
+        JWK jwkKeyPair2 = this.keySet.get("2");
+
+        assertEquals("{\"typ\":\"JWT\",\"alg\":\"RS256\",\"keys\":[{\"n\":\"" + jwkKeyPair2.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"sign\"},{\"n\":\"" + jwkKeyPair1.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"sign\"}],\"kid\":\"1\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}", jsonString);
 
         String jsonEncoded = token.encode();
 
-        JWS parsedToken = new JWSBuilder().build(jsonEncoded, this.keyPair.getPublic().getEncoded());
+        JWS parsedToken = new JWSBuilder().build(jsonEncoded);
 
         assertNotNull(parsedToken);
     }
 
     @Test
     public void testRSA384Signature() {
-
-        List<JWK> jwk = new ArrayList<JWK>();
-        RSAPublicKey publicKey = (RSAPublicKey) this.keyPair.getPublic();
-
-        JWK rsaJWK = new JWKBuilder()
-            .publicExponent(publicKey.getPublicExponent())
-            .keyIdentifier("1")
-            .keyType("RSA")
-            .keyAlgorithm(publicKey.getAlgorithm())
-            .keyUse("enc")
-            .build();
-        jwk.add(rsaJWK);
-
-        JWK ecJWK = new JWKBuilder()
-            .keyIdentifier("2")
-            .keyType("EC")
-            .keyAlgorithm("ES256")
-            .keyOperations("encrypt", "decrypt")
-            .curve("P-256")
-            .build();
-        jwk.add(ecJWK);
+        PrivateKey privateKey = this.keyPair1.getPrivate();
 
         JWS token = new JWSBuilder()
-            .kid(rsaJWK.getKeyIdentifier())
-            .rsa384(this.keyPair.getPrivate().getEncoded())
-            .keys(jwk)
+            .rsa384(privateKey.getEncoded())
+            .keys(this.keySet)
+            .kid("1")
             .id("1")
             .issuer("issuer")
             .subject("subject")
@@ -241,36 +123,26 @@ public class JWSRSAAPITestCase {
 
         String jsonString = token.toString();
 
-        assertEquals(
-            "{\"typ\":\"JWT\",\"alg\":\"RS384\",\"kid\":\"1\",\"keys\":[{\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"enc\"},{\"kid\":\"2\",\"kty\":\"EC\",\"alg\":\"ES256\",\"key_ops\":[\"encrypt\",\"decrypt\"],\"crv\":\"P-256\"}]}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}",
-            jsonString);
+        JWK jwkKeyPair1 = this.keySet.get("1");
+        JWK jwkKeyPair2 = this.keySet.get("2");
+
+        assertEquals("{\"typ\":\"JWT\",\"alg\":\"RS384\",\"keys\":[{\"n\":\"" + jwkKeyPair2.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"sign\"},{\"n\":\"" + jwkKeyPair1.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"sign\"}],\"kid\":\"1\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}", jsonString);
 
         String jsonEncoded = token.encode();
 
-        JWS parsedToken = new JWSBuilder().build(jsonEncoded, this.keyPair.getPublic().getEncoded());
+        JWS parsedToken = new JWSBuilder().build(jsonEncoded);
 
         assertNotNull(parsedToken);
     }
 
     @Test
     public void testRSA512Signature() {
-
-        List<JWK> jwk = new ArrayList<JWK>();
-        RSAPublicKey publicKey = (RSAPublicKey) this.keyPair.getPublic();
-
-        JWK rsaJWK = new JWKBuilder()
-            .publicExponent(publicKey.getPublicExponent())
-            .keyIdentifier("1")
-            .keyType("RSA")
-            .keyAlgorithm(publicKey.getAlgorithm())
-            .keyUse("enc")
-            .build();
-        jwk.add(rsaJWK);
+        PrivateKey privateKey = this.keyPair1.getPrivate();
 
         JWS token = new JWSBuilder()
-            .kid(rsaJWK.getKeyIdentifier())
-            .rsa512(this.keyPair.getPrivate().getEncoded())
-            .keys(jwk)
+            .rsa512(privateKey.getEncoded())
+            .keys(this.keySet)
+            .kid("1")
             .id("1")
             .issuer("issuer")
             .subject("subject")
@@ -282,36 +154,87 @@ public class JWSRSAAPITestCase {
 
         String jsonString = token.toString();
 
-        assertEquals(
-            "{\"typ\":\"JWT\",\"alg\":\"RS512\",\"kid\":\"1\",\"keys\":[{\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"enc\"}]}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}",
-            jsonString);
+        JWK jwkKeyPair1 = this.keySet.get("1");
+        JWK jwkKeyPair2 = this.keySet.get("2");
+
+        assertEquals("{\"typ\":\"JWT\",\"alg\":\"RS512\",\"keys\":[{\"n\":\"" + jwkKeyPair2.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"sign\"},{\"n\":\"" + jwkKeyPair1.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"sign\"}],\"kid\":\"1\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}", jsonString);
 
         String jsonEncoded = token.encode();
 
-        JWS parsedToken = new JWSBuilder().build(jsonEncoded, this.keyPair.getPublic().getEncoded());
+        JWS parsedToken = new JWSBuilder().build(jsonEncoded);
+
+        assertNotNull(parsedToken);
+    }
+
+    @Test
+    public void testRSA512SignatureUsingPublicKeyInstance() {
+        PrivateKey privateKey = this.keyPair1.getPrivate();
+
+        JWS token = new JWSBuilder()
+            .rsa512(privateKey.getEncoded())
+            .keys(this.keySet)
+            .kid("1")
+            .id("1")
+            .issuer("issuer")
+            .subject("subject")
+            .audience("audience")
+            .expiration(123)
+            .issuedAt(456)
+            .notBefore(789)
+            .build();
+
+        JWS parsedToken = new JWSBuilder().build(token.encode(), this.keyPair1.getPublic().getEncoded());
+
+        assertNotNull(parsedToken);
+    }
+
+    @Test
+    public void testRSA512SignatureWithoutJWKSet() {
+        PrivateKey privateKey = this.keyPair1.getPrivate();
+
+        JWS token = new JWSBuilder()
+            .rsa512(privateKey.getEncoded())
+            .id("1")
+            .issuer("issuer")
+            .subject("subject")
+            .audience("audience")
+            .expiration(123)
+            .issuedAt(456)
+            .notBefore(789)
+            .build();
+
+        JWS parsedToken = new JWSBuilder().build(token.encode(), this.keyPair1.getPublic().getEncoded());
+
+        assertNotNull(parsedToken);
+    }
+
+    @Test
+    public void testNoSignature() {
+        JWS token = new JWSBuilder()
+            .id("1")
+            .issuer("issuer")
+            .subject("subject")
+            .audience("audience")
+            .expiration(123)
+            .issuedAt(456)
+            .notBefore(789)
+            .build();
+
+        assertEquals("{\"typ\":\"JWT\",\"alg\":\"none\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}", token.toString());
+
+        JWS parsedToken = new JWSBuilder().build(token.encode(), this.keyPair1.getPublic().getEncoded());
 
         assertNotNull(parsedToken);
     }
 
     @Test(expected = JsonException.class)
     public void failInvalidSignature() {
-
-        List<JWK> jwk = new ArrayList<JWK>();
-        RSAPublicKey publicKey = (RSAPublicKey) this.keyPair.getPublic();
-
-        JWK rsaJWK = new JWKBuilder()
-            .publicExponent(publicKey.getPublicExponent())
-            .keyIdentifier("1")
-            .keyType("RSA")
-            .keyAlgorithm(publicKey.getAlgorithm())
-            .keyUse("enc")
-            .build();
-        jwk.add(rsaJWK);
+        PrivateKey privateKey = this.keyPair1.getPrivate();
 
         JWS token = new JWSBuilder()
-            .kid(rsaJWK.getKeyIdentifier())
-            .rsa256(this.keyPair.getPrivate().getEncoded())
-            .keys(jwk)
+            .rsa512(privateKey.getEncoded())
+            .keys(this.keySet)
+            .kid("1")
             .id("1")
             .issuer("issuer")
             .subject("subject")
@@ -321,31 +244,27 @@ public class JWSRSAAPITestCase {
             .notBefore(789)
             .build();
 
-        // here we define a custom claim
-        String jsonEncoded = new StringBuilder(token.encode()).insert(3, "tampered").toString();
+        String jsonString = token.toString();
 
-        new JWSBuilder().build(jsonEncoded, this.keyPair.getPublic().getEncoded());
+        JWK jwkKeyPair1 = this.keySet.get("1");
+        JWK jwkKeyPair2 = this.keySet.get("2");
+
+        assertEquals("{\"typ\":\"JWT\",\"alg\":\"RS512\",\"keys\":[{\"n\":\"" + jwkKeyPair2.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"sign\"},{\"n\":\"" + jwkKeyPair1.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"sign\"}],\"kid\":\"1\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}", jsonString);
+
+        // here we define a custom claim
+        String tamperedToken = new StringBuilder(token.encode()).insert(3, "tampered").toString();
+
+        new JWSBuilder().build(tamperedToken);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = JsonException.class)
     public void failInvalidKey() {
-
-        List<JWK> jwk = new ArrayList<JWK>();
-        RSAPublicKey publicKey = (RSAPublicKey) this.keyPair.getPublic();
-
-        JWK rsaJWK = new JWKBuilder()
-            .publicExponent(publicKey.getPublicExponent())
-            .keyIdentifier("1")
-            .keyType("RSA")
-            .keyAlgorithm(publicKey.getAlgorithm())
-            .keyUse("enc")
-            .build();
-        jwk.add(rsaJWK);
+        PrivateKey privateKey = this.keyPair1.getPrivate();
 
         JWS token = new JWSBuilder()
-            .kid(rsaJWK.getKeyIdentifier())
-            .rsa256(this.anotherKeyPair.getPrivate().getEncoded())
-            .keys(jwk)
+            .rsa512(privateKey.getEncoded())
+            .keys(this.keySet)
+            .kid("2")
             .id("1")
             .issuer("issuer")
             .subject("subject")
@@ -355,9 +274,7 @@ public class JWSRSAAPITestCase {
             .notBefore(789)
             .build();
 
-        // here we define a custom claim
-        String jsonEncoded = token.encode();
-
-        new JWSBuilder().build(jsonEncoded, this.keyPair.getPublic().getEncoded());
+        // token was signed with key 1 but is referencing key 2.
+        new JWSBuilder().build(token.encode());
     }
 }

@@ -21,10 +21,20 @@
  */
 package org.picketlink.json.jose;
 
+import org.picketlink.json.JsonConstants;
+import org.picketlink.json.jose.crypto.Algorithm;
+import org.picketlink.json.jwt.JWTBuilder;
+
+import javax.json.JsonObject;
+import javax.json.JsonValue;
+import java.lang.reflect.Constructor;
+import java.security.PublicKey;
+
+import static javax.json.JsonValue.ValueType.ARRAY;
 import static org.picketlink.json.JsonConstants.COMMON.ALG;
-import static org.picketlink.json.JsonConstants.COMMON.PERIOD;
-import static org.picketlink.json.JsonConstants.COMMON.KEY_ID;
 import static org.picketlink.json.JsonConstants.COMMON.HEADER_JSON_WEB_KEY;
+import static org.picketlink.json.JsonConstants.COMMON.KEY_ID;
+import static org.picketlink.json.JsonConstants.COMMON.PERIOD;
 import static org.picketlink.json.JsonMessages.MESSAGES;
 import static org.picketlink.json.jose.crypto.Algorithm.HS256;
 import static org.picketlink.json.jose.crypto.Algorithm.HS384;
@@ -33,16 +43,6 @@ import static org.picketlink.json.jose.crypto.Algorithm.RS256;
 import static org.picketlink.json.jose.crypto.Algorithm.RS384;
 import static org.picketlink.json.jose.crypto.Algorithm.RS512;
 import static org.picketlink.json.util.JsonUtil.b64Decode;
-
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.json.JsonObject;
-
-import org.picketlink.json.jose.crypto.Algorithm;
-import org.picketlink.json.jwt.JWTBuilder;
 
 /**
  * @author Pedro Igor
@@ -97,14 +97,14 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
         return (B) this;
     }
 
-    public B keys(List<JWK> values) {
-        List<JsonObject> jwkJsonObject = new ArrayList<JsonObject>();
-        Iterator<JWK> iterator = values.iterator();
-        while (iterator.hasNext()) {
-            jwkJsonObject.add(iterator.next().getKeyParameters());
-        }
-        header(HEADER_JSON_WEB_KEY, jwkJsonObject);
+    public B keys(JWKSet keySet) {
+        header(HEADER_JSON_WEB_KEY, keySet.getJsonObject().getJsonArray(HEADER_JSON_WEB_KEY));
         return (B) this;
+    }
+
+    public B keys(JWK... keys) {
+        JWKSet jwkSet = new JWKSet(keys);
+        return keys(jwkSet);
     }
 
     @Override
@@ -122,6 +122,33 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
 
     @Override
     public T build(String json) {
+        T uncheckedToken = super.build(json);
+        String keyId = uncheckedToken.getHeader(KEY_ID);
+
+        if (keyId != null) {
+            JsonValue keysHeader = uncheckedToken.getHeaders().get(HEADER_JSON_WEB_KEY);
+
+            if (keysHeader != null) {
+                if (ARRAY.equals(keysHeader.getValueType())) {
+                    JWKSet jwkSet = new JWKSet((javax.json.JsonArray) keysHeader);
+                    JWK jwk = jwkSet.get(keyId);
+                    PublicKey publicKey;
+
+                    if (!JsonConstants.RSA.equals(jwk.getKeyType())) {
+                        throw MESSAGES.cryptoUnsupportedKey(jwk.getKeyType());
+                    }
+
+                    try {
+                        publicKey = jwk.toRSAPublicKey();
+                    } catch (Exception e) {
+                        throw MESSAGES.cryptoCouldNotParseKey(jwk.toString(), e);
+                    }
+
+                    return build(json, publicKey.getEncoded());
+                }
+            }
+        }
+
         return build(json, this.key);
     }
 
@@ -135,6 +162,10 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
      * @return
      */
     public T build(String json, byte[] key) {
+        if (key == null) {
+            throw MESSAGES.invalidNullArgument("Encoded Public Key.");
+        }
+
         T token = super.build(json);
         Algorithm algorithm = Algorithm.resolve(token.getAlgorithm().toUpperCase());
 

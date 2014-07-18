@@ -17,6 +17,14 @@
  */
 package org.picketlink.json.jose;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import java.io.ByteArrayInputStream;
+import java.lang.reflect.Constructor;
+import java.math.BigInteger;
+
 import static org.picketlink.json.JsonConstants.JWK.KEY_ALGORITHM;
 import static org.picketlink.json.JsonConstants.JWK.KEY_IDENTIFIER;
 import static org.picketlink.json.JsonConstants.JWK.KEY_OPERATIONS;
@@ -40,17 +48,7 @@ import static org.picketlink.json.JsonConstants.JWK_RSA.PRIME_Q;
 import static org.picketlink.json.JsonConstants.JWK_RSA.PRIVATE_EXPONENT;
 import static org.picketlink.json.JsonConstants.JWK_RSA.PUBLIC_EXPONENT;
 import static org.picketlink.json.JsonMessages.MESSAGES;
-import static org.picketlink.json.util.JsonUtil.b64Decode;
 import static org.picketlink.json.util.JsonUtil.b64Encode;
-
-import java.io.ByteArrayInputStream;
-import java.lang.reflect.Constructor;
-import java.math.BigInteger;
-
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
 
 /**
  * @author Giriraj Sharma
@@ -209,9 +207,7 @@ public class JWKBuilder<T extends JWK, B extends JWKBuilder<T, B>> {
     }
 
     public T build(String json) {
-
-        byte[] keyParameters = b64Decode(json);
-        return build(Json.createReader(new ByteArrayInputStream(keyParameters)).readObject());
+        return build(Json.createReader(new ByteArrayInputStream(json.getBytes())).readObject());
     }
 
     protected JsonObjectBuilder getkeyParametersBuilder() {

@@ -21,6 +21,16 @@
  */
 package org.picketlink.json.jwt;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import java.io.ByteArrayInputStream;
+import java.lang.reflect.Constructor;
+import java.util.Iterator;
+import java.util.List;
+
 import static org.picketlink.json.JsonConstants.COMMON.HEADER_CONTENT_TYPE;
 import static org.picketlink.json.JsonConstants.COMMON.HEADER_TYPE;
 import static org.picketlink.json.JsonConstants.COMMON.PERIOD;
@@ -33,16 +43,6 @@ import static org.picketlink.json.JsonConstants.JWT.CLAIM_NOT_BEFORE;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_SUBJECT;
 import static org.picketlink.json.JsonMessages.MESSAGES;
 import static org.picketlink.json.util.JsonUtil.b64Decode;
-
-import java.io.ByteArrayInputStream;
-import java.lang.reflect.Constructor;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
 
 /**
  * <p>
@@ -158,6 +158,11 @@ public class JWTBuilder<T extends JWT, B extends JWTBuilder> {
         return (B) this;
     }
 
+    public B header(String name, JsonArray value) {
+        setJsonObject(this.headersBuilder, name, value);
+        return (B) this;
+    }
+
     /**
      * <p>
      * Builds a {@link JWT} instance using the provided claims.
@@ -262,4 +267,10 @@ public class JWTBuilder<T extends JWT, B extends JWTBuilder> {
         builder.add(name, arrayBuilder);
         return (B) this;
     }
+
+    private B setJsonObject(JsonObjectBuilder builder, String name, JsonArray values) {
+        builder.add(name, values);
+        return (B) this;
+    }
+
 }

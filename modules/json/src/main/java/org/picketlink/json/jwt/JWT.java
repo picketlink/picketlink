@@ -36,6 +36,8 @@ import static javax.json.JsonValue.ValueType.FALSE;
 import static javax.json.JsonValue.ValueType.NUMBER;
 import static javax.json.JsonValue.ValueType.STRING;
 import static javax.json.JsonValue.ValueType.TRUE;
+import static org.picketlink.json.JsonConstants.COMMON.HEADER_CONTENT_TYPE;
+import static org.picketlink.json.JsonConstants.COMMON.HEADER_TYPE;
 import static org.picketlink.json.JsonConstants.COMMON.PERIOD;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_AUDIENCE;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_EXPIRATION;
@@ -44,8 +46,6 @@ import static org.picketlink.json.JsonConstants.JWT.CLAIM_ISSUED_AT;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_ISSUER;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_NOT_BEFORE;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_SUBJECT;
-import static org.picketlink.json.JsonConstants.COMMON.HEADER_CONTENT_TYPE;
-import static org.picketlink.json.JsonConstants.COMMON.HEADER_TYPE;
 import static org.picketlink.json.util.JsonUtil.b64Encode;
 
 /**
@@ -351,17 +351,19 @@ public class JWT {
     private String getValue(String name, JsonObject jsonObject) {
         JsonValue value = jsonObject.get(name);
 
-        if (ARRAY.equals(value.getValueType())) {
-            JsonArray array = (JsonArray) value;
-            for (JsonValue jsonValue : array) {
-                return getValue(jsonValue);
+        if (value != null) {
+            if (ARRAY.equals(value.getValueType())) {
+                JsonArray array = (JsonArray) value;
+                for (JsonValue jsonValue : array) {
+                    return getValue(jsonValue);
+                }
+            } else if (STRING.equals(value.getValueType())) {
+                return ((JsonString) value).getString();
+            } else if (NUMBER.equals(value.getValueType())) {
+                return ((JsonNumber) value).bigDecimalValue().toPlainString();
+            } else if (TRUE.equals(value.getValueType()) || FALSE.equals(value.getValueType())) {
+                return value.toString();
             }
-        } else if (STRING.equals(value.getValueType())) {
-            return ((JsonString) value).getString();
-        } else if (NUMBER.equals(value.getValueType())) {
-            return ((JsonNumber) value).bigDecimalValue().toPlainString();
-        } else if (TRUE.equals(value.getValueType()) || FALSE.equals(value.getValueType())) {
-            return value.toString();
         }
 
         return null;

@@ -66,8 +66,13 @@ public interface JsonMessages {
     @Message(id = 25, value = "Signature not present: [%s].")
     JsonException cryptoSignatureNotPresent(String json);
 
+    @Message(id = 26, value = "Could not parse key: [%s].")
+    JsonException cryptoCouldNotParseKey(String json, @Cause Throwable t);
 
-//FIXME: need to review JWE and support JSR-353
+    @Message(id = 28, value = "Unsupported key type: [%s].")
+    JsonException cryptoUnsupportedKey(String keyType);
+
+    //FIXME: need to review JWE and support JSR-353
 //    @Message(id = 1, value = "keydatalen should be a multiple of 8")
 //    IllegalArgumentException keyDataLenError();
 //

@@ -21,84 +21,81 @@
  */
 package org.picketlink.test.json.api;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.Before;
+import org.junit.Test;
+import org.picketlink.json.jose.JWK;
+import org.picketlink.json.jose.JWKBuilder;
+import org.picketlink.json.jose.JWKSet;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPublicKey;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.picketlink.json.jose.JWK;
-import org.picketlink.json.jose.JWKBuilder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Giriraj Sharma
  */
 public class JWKAPITestCase {
 
-    private KeyPair keyPair;
+    private KeyPair keyPair1;
+    private KeyPair keyPair2;
+    private KeyPair keyPair3;
+    private KeyPair keyPair4;
 
     @Before
     public void onBefore() throws Exception {
-        this.keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        this.keyPair1 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        this.keyPair2 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        this.keyPair3 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        this.keyPair4 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
     }
 
     @Test
     public void testRSAJWK() {
+        RSAPublicKey publicKey = (RSAPublicKey) this.keyPair1.getPublic();
 
-        RSAPublicKey publicKey = (RSAPublicKey) this.keyPair.getPublic();
-        JWK rsaJWK = new JWKBuilder()
+        JWK jwk = createJWK(publicKey, "1");
+
+        String jsonString = jwk.toString();
+
+        assertEquals("{\"n\":\"" + jwk.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"enc\"}", jsonString);
+
+        JWK parsedJwk = new JWKBuilder().build(jsonString);
+
+        assertNotNull(parsedJwk);
+        assertEquals(this.keyPair1.getPublic(), parsedJwk.toRSAPublicKey());
+    }
+
+    @Test
+    public void testJWKSet() {
+        JWK jwkKeyPair1 = createJWK((RSAPublicKey) this.keyPair1.getPublic(), "1");
+        JWK jwkKeyPair2 = createJWK((RSAPublicKey) this.keyPair2.getPublic(), "2");
+        JWK jwkKeyPair3 = createJWK((RSAPublicKey) this.keyPair3.getPublic(), "3");
+        JWK jwkKeyPair4 = createJWK((RSAPublicKey) this.keyPair4.getPublic(), "4");
+
+        JWKSet jwkSet = new JWKSet(jwkKeyPair1, jwkKeyPair2, jwkKeyPair3, jwkKeyPair4);
+        String jsonKeySet = jwkSet.toString();
+
+        assertEquals("{\"keys\":[{\"n\":\"" + jwkKeyPair3.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"3\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"enc\"},{\"n\":\"" + jwkKeyPair2.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"enc\"},{\"n\":\"" + jwkKeyPair1.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"enc\"},{\"n\":\"" + jwkKeyPair4.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"4\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"enc\"}]}", jsonKeySet);
+
+        JWKSet parsedKeySet = new JWKSet(jsonKeySet);
+
+        assertNotNull(parsedKeySet.get("1"));
+        assertNotNull(parsedKeySet.get("2"));
+        assertNotNull(parsedKeySet.get("3"));
+        assertNotNull(parsedKeySet.get("4"));
+    }
+
+    public JWK createJWK(RSAPublicKey publicKey, String keyId) {
+        return new JWKBuilder()
+            .modulus(publicKey.getModulus())
             .publicExponent(publicKey.getPublicExponent())
-            .keyIdentifier("1")
+            .keyIdentifier(keyId)
             .keyType("RSA")
             .keyAlgorithm(publicKey.getAlgorithm())
             .keyUse("enc")
             .build();
-
-        String jsonString = rsaJWK.toString();
-
-        assertEquals("{\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"enc\"}", jsonString);
-
-        String jsonEncoded = rsaJWK.encode();
-        assertNotNull(jsonEncoded);
-    }
-
-    @Test
-    public void testECJWK() {
-
-        JWK ecJWK = new JWKBuilder()
-            .keyIdentifier("2")
-            .keyType("EC")
-            .keyAlgorithm("ES256")
-            .keyOperations("sign", "verify")
-            .curve("P-256")
-            .build();
-
-        String jsonString = ecJWK.toString();
-
-        assertEquals("{\"kid\":\"2\",\"kty\":\"EC\",\"alg\":\"ES256\",\"key_ops\":[\"sign\",\"verify\"],\"crv\":\"P-256\"}", jsonString);
-
-        String jsonEncoded = ecJWK.encode();
-        assertNotNull(jsonEncoded);
-    }
-
-    @Test
-    public void testOctetJWK() {
-
-        JWK octetJWK = new JWKBuilder()
-            .keyIdentifier("3")
-            .keyType("oct")
-            .keyAlgorithm("A128KW")
-            .keyOperations("encrypt", "decrypt")
-            .build();
-
-        String jsonString = octetJWK.toString();
-
-        assertEquals("{\"kid\":\"3\",\"kty\":\"oct\",\"alg\":\"A128KW\",\"key_ops\":[\"encrypt\",\"decrypt\"]}", jsonString);
-
-        String jsonEncoded = octetJWK.encode();
-        assertNotNull(jsonEncoded);
     }
 }
