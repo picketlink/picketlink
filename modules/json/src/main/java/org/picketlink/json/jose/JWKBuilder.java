@@ -17,14 +17,6 @@
  */
 package org.picketlink.json.jose;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import java.io.ByteArrayInputStream;
-import java.lang.reflect.Constructor;
-import java.math.BigInteger;
-
 import static org.picketlink.json.JsonConstants.JWK.KEY_ALGORITHM;
 import static org.picketlink.json.JsonConstants.JWK.KEY_IDENTIFIER;
 import static org.picketlink.json.JsonConstants.JWK.KEY_OPERATIONS;
@@ -34,11 +26,6 @@ import static org.picketlink.json.JsonConstants.JWK.X509_CERTIFICATE_CHAIN;
 import static org.picketlink.json.JsonConstants.JWK.X509_CERTIFICATE_SHA1_THUMBPRINT;
 import static org.picketlink.json.JsonConstants.JWK.X509_CERTIFICATE_SHA256_THUMBPRINT;
 import static org.picketlink.json.JsonConstants.JWK.X509_URL;
-import static org.picketlink.json.JsonConstants.JWK_EC.CURVE;
-import static org.picketlink.json.JsonConstants.JWK_EC.PRIVATE_D;
-import static org.picketlink.json.JsonConstants.JWK_EC.PUBLIC_X;
-import static org.picketlink.json.JsonConstants.JWK_EC.PUBLIC_Y;
-import static org.picketlink.json.JsonConstants.JWK_OCTET.PRIVATE_KEY_VALUE;
 import static org.picketlink.json.JsonConstants.JWK_RSA.CRT_COEFFICIENT;
 import static org.picketlink.json.JsonConstants.JWK_RSA.MODULUS;
 import static org.picketlink.json.JsonConstants.JWK_RSA.PRIME_EXPONENT_P;
@@ -49,6 +36,15 @@ import static org.picketlink.json.JsonConstants.JWK_RSA.PRIVATE_EXPONENT;
 import static org.picketlink.json.JsonConstants.JWK_RSA.PUBLIC_EXPONENT;
 import static org.picketlink.json.JsonMessages.MESSAGES;
 import static org.picketlink.json.util.JsonUtil.b64Encode;
+
+import java.io.ByteArrayInputStream;
+import java.lang.reflect.Constructor;
+import java.math.BigInteger;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 /**
  * @author Giriraj Sharma
@@ -169,31 +165,6 @@ public class JWKBuilder<T extends JWK, B extends JWKBuilder<T, B>> {
 
     public B crtCoefficient(BigInteger crtCoefficient) {
         keyParameter(CRT_COEFFICIENT, b64Encode(crtCoefficient.toByteArray()));
-        return (B) this;
-    }
-
-    public B curve(String curve) {
-        keyParameter(CURVE, curve);
-        return (B) this;
-    }
-
-    public B x(BigInteger x) {
-        keyParameter(PUBLIC_X, b64Encode(x.toByteArray()));
-        return (B) this;
-    }
-
-    public B y(BigInteger y) {
-        keyParameter(PUBLIC_Y, b64Encode(y.toByteArray()));
-        return (B) this;
-    }
-
-    public B d(BigInteger d) {
-        keyParameter(PRIVATE_D, b64Encode(d.toByteArray()));
-        return (B) this;
-    }
-
-    public B k(BigInteger value) {
-        keyParameter(PRIVATE_KEY_VALUE, b64Encode(value.toByteArray()));
         return (B) this;
     }
 

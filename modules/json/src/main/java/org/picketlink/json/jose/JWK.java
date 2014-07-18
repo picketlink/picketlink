@@ -21,20 +21,6 @@
  */
 package org.picketlink.json.jose;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonNumber;
-import javax.json.JsonObject;
-import javax.json.JsonString;
-import javax.json.JsonValue;
-import java.io.StringWriter;
-import java.math.BigInteger;
-import java.security.KeyFactory;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.RSAPublicKeySpec;
-import java.util.ArrayList;
-import java.util.List;
-
 import static javax.json.JsonValue.ValueType.ARRAY;
 import static javax.json.JsonValue.ValueType.FALSE;
 import static javax.json.JsonValue.ValueType.NUMBER;
@@ -49,11 +35,6 @@ import static org.picketlink.json.JsonConstants.JWK.X509_CERTIFICATE_CHAIN;
 import static org.picketlink.json.JsonConstants.JWK.X509_CERTIFICATE_SHA1_THUMBPRINT;
 import static org.picketlink.json.JsonConstants.JWK.X509_CERTIFICATE_SHA256_THUMBPRINT;
 import static org.picketlink.json.JsonConstants.JWK.X509_URL;
-import static org.picketlink.json.JsonConstants.JWK_EC.CURVE;
-import static org.picketlink.json.JsonConstants.JWK_EC.PRIVATE_D;
-import static org.picketlink.json.JsonConstants.JWK_EC.PUBLIC_X;
-import static org.picketlink.json.JsonConstants.JWK_EC.PUBLIC_Y;
-import static org.picketlink.json.JsonConstants.JWK_OCTET.PRIVATE_KEY_VALUE;
 import static org.picketlink.json.JsonConstants.JWK_RSA.CRT_COEFFICIENT;
 import static org.picketlink.json.JsonConstants.JWK_RSA.MODULUS;
 import static org.picketlink.json.JsonConstants.JWK_RSA.PRIME_EXPONENT_P;
@@ -64,6 +45,21 @@ import static org.picketlink.json.JsonConstants.JWK_RSA.PRIVATE_EXPONENT;
 import static org.picketlink.json.JsonConstants.JWK_RSA.PUBLIC_EXPONENT;
 import static org.picketlink.json.JsonMessages.MESSAGES;
 import static org.picketlink.json.util.JsonUtil.b64Decode;
+
+import java.io.StringWriter;
+import java.math.BigInteger;
+import java.security.KeyFactory;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.RSAPublicKeySpec;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonString;
+import javax.json.JsonValue;
 
 /**
  * @author Giriraj Sharma
@@ -142,26 +138,6 @@ public class JWK {
 
     public String getCRTCoefficient() {
         return getKeyParameter(CRT_COEFFICIENT);
-    }
-
-    public String getCurve() {
-        return getKeyParameter(CURVE);
-    }
-
-    public String getX() {
-        return getKeyParameter(PUBLIC_X);
-    }
-
-    public String getY() {
-        return getKeyParameter(PUBLIC_Y);
-    }
-
-    public String getD() {
-        return getKeyParameter(PRIVATE_D);
-    }
-
-    public String getK() {
-        return getKeyParameter(PRIVATE_KEY_VALUE);
     }
 
     @Override
