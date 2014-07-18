@@ -19,30 +19,33 @@ package org.picketlink.json;
 
 /**
  * Define JSON Constants
+ *
  * @author Anil Saldhana
  * @since March 07, 2014
  */
 public interface JsonConstants {
 
     String EC = "EC";
-    String EXP = "exp";
-    String MOD = "mod";
-    String KEYS = "keys";
-    String KID = "kid";
     String RSA = "RSA";
-    String RSA_SHA_256 = "RS256";
-    String SIG = "sig";
+    String OCT = "oct";
 
     interface COMMON {
         String ALG = "alg";
         String ENC = "enc";
+        String SIG = "sig";
+        String KEY_ID = "kid";
+
+        String HEADER_TYPE = "typ";
+        String HEADER_CONTENT_TYPE = "cty";
+        String HEADER_JWK_SET_URL = "jku";
+        String HEADER_JSON_WEB_KEY = "keys";
+
+        String RSA_SHA_256 = "RS256";
         String HMAC_SHA_256 = "HS256";
         String PERIOD = ".";
     }
 
     interface JWT {
-        String HEADER_TYPE = "typ";
-        String HEADER_CONTENT_TYPE = "cty";
         String CLAIM_ISSUER = "iss";
         String CLAIM_SUBJECT = "sub";
         String CLAIM_AUDIENCE = "aud";
@@ -50,6 +53,40 @@ public interface JsonConstants {
         String CLAIM_NOT_BEFORE = "nbf";
         String CLAIM_ISSUED_AT = "iat";
         String CLAIM_ID = "jti";
+    }
+
+    interface JWK {
+        String KEY_TYPE = "kty";
+        String KEY_USE = "use";
+        String KEY_OPERATIONS = "key_ops";
+        String KEY_ALGORITHM = "alg";
+        String KEY_IDENTIFIER = "kid";
+        String X509_URL = "x5u";
+        String X509_CERTIFICATE_CHAIN = "x5c";
+        String X509_CERTIFICATE_SHA1_THUMBPRINT = "x5t";
+        String X509_CERTIFICATE_SHA256_THUMBPRINT = "x5t#S256";
+    }
+
+    interface JWK_EC {
+        String CURVE = "crv";
+        String PUBLIC_X = "x";
+        String PUBLIC_Y = "y";
+        String PRIVATE_D = "d";
+    }
+
+    interface JWK_RSA {
+        String MODULUS = "n";
+        String PUBLIC_EXPONENT = "e";
+        String PRIVATE_EXPONENT = "d";
+        String PRIME_P = "p";
+        String PRIME_Q = "q";
+        String PRIME_EXPONENT_P = "dp";
+        String PRIME_EXPONENT_Q = "dq";
+        String CRT_COEFFICIENT = "qi";
+    }
+
+    interface JWK_OCTET {
+        String PRIVATE_KEY_VALUE = "k";
     }
 
     interface JWS {
@@ -67,6 +104,8 @@ public interface JsonConstants {
     }
 
     interface JWE {
+        String COMPRESSION_ALG = "zip";
+
         String AES = "AES";
         String AES_CBC_128 = "A128CBC";
         String AES_GCM_256 = "A256GCM";
