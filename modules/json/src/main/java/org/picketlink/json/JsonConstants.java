@@ -25,9 +25,7 @@ package org.picketlink.json;
  */
 public interface JsonConstants {
 
-    String EC = "EC";
     String RSA = "RSA";
-    String OCT = "oct";
 
     interface COMMON {
         String ALG = "alg";
@@ -67,13 +65,6 @@ public interface JsonConstants {
         String X509_CERTIFICATE_SHA256_THUMBPRINT = "x5t#S256";
     }
 
-    interface JWK_EC {
-        String CURVE = "crv";
-        String PUBLIC_X = "x";
-        String PUBLIC_Y = "y";
-        String PRIVATE_D = "d";
-    }
-
     interface JWK_RSA {
         String MODULUS = "n";
         String PUBLIC_EXPONENT = "e";
@@ -83,10 +74,6 @@ public interface JsonConstants {
         String PRIME_EXPONENT_P = "dp";
         String PRIME_EXPONENT_Q = "dq";
         String CRT_COEFFICIENT = "qi";
-    }
-
-    interface JWK_OCTET {
-        String PRIVATE_KEY_VALUE = "k";
     }
 
     interface JWS {
