@@ -71,7 +71,7 @@ public class JWTBuilder<T extends JWT, B extends JWTBuilder> {
         this((Class<T>) JWT.class);
     }
 
-    protected JWTBuilder(Class<T> tokenType) {
+    public JWTBuilder(Class<T> tokenType) {
         this.tokenType = tokenType;
         this.headersBuilder = Json.createObjectBuilder();
         this.claimsBuilder = Json.createObjectBuilder();

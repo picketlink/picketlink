@@ -17,6 +17,7 @@
  */
 package org.picketlink.json.util;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import static org.picketlink.json.JsonMessages.MESSAGES;
@@ -41,7 +42,7 @@ public class JsonUtil {
      */
     public static String b64Encode(String str) {
         try {
-            return Base64.encodeBytes(str.getBytes("UTF-8"), Base64.DONT_BREAK_LINES);
+            return b64Encode(str.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw MESSAGES.failEncodeToken(e);
         }
@@ -50,15 +51,40 @@ public class JsonUtil {
     /**
      * Base64 Encode without breaking lines
      *
-     * @param str
+     * @param bytes
      * @return
      */
-    public static String b64Encode(byte[] str) {
-        return Base64.encodeBytes(str, Base64.DONT_BREAK_LINES);
+    public static String b64Encode(byte[] bytes) {
+        String s = Base64.encodeBytes(bytes);
+
+        s = s.split("=")[0]; // Remove any trailing '='s
+        s = s.replace('+', '-'); // 62nd char of encoding
+        s = s.replace('/', '_'); // 63rd char of encoding
+
+        return s;
     }
 
-    public static byte[] b64Decode(String str) {
-        return Base64.decode(str);
+    public static byte[] b64Decode(String s) {
+        s = s.replace('-', '+'); // 62nd char of encoding
+        s = s.replace('_', '/'); // 63rd char of encoding
+        switch (s.length() % 4) { // Pad with trailing '='s
+            case 0:
+                break; // No pad chars in this case
+            case 2:
+                s += "==";
+                break; // Two pad chars
+            case 3:
+                s += "=";
+                break; // One pad char
+            default:
+                throw new RuntimeException("Illegal base64url string!");
+        }
+
+        try {
+            return Base64.decode(s);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 //FIXME: need to review JWE and support JSR-353
