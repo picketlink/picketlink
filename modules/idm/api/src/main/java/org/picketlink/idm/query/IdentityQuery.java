@@ -35,6 +35,19 @@ public interface IdentityQuery<T extends IdentityType> {
     IdentityQuery<T> setLimit(int limit);
 
     /**
+     * Used for pagination models like LDAP when search will return some object (like cookie) for searching on next page
+     *
+     * @param object to be used for search next page
+     * @return this query
+     */
+    IdentityQuery<T> setPaginationContext(Object object);
+
+    /**
+     * @see #setPaginationContext(Object object)
+     */
+    Object getPaginationContext();
+
+    /**
      * Parameters used to sort the results. First parameter has biggest priority.
      * For example: setSortParameter(User.LAST_NAME, User.FIRST_NAME) means that results will be sorted primarily by lastName
      * and firstName will be used to sort only records with same lastName

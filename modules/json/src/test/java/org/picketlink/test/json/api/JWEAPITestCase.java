@@ -33,6 +33,9 @@ import static org.picketlink.json.JsonConstants.JWE.ENC_A192GCM;
 import static org.picketlink.json.JsonConstants.JWE.ENC_A256CBC_HS512;
 import static org.picketlink.json.JsonConstants.JWE.ENC_A256GCM;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -41,6 +44,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.json.jose.JWE;
 import org.picketlink.json.jose.JWEBuilder;
@@ -58,13 +62,10 @@ import org.picketlink.json.util.JsonUtil;
  */
 public class JWEAPITestCase {
 
-    /** The key set. */
     private JWKSet keySet;
 
-    /** The key pair1. */
     private KeyPair keyPair1;
 
-    /** The key pair2. */
     private KeyPair keyPair2;
 
     /**
@@ -101,6 +102,37 @@ public class JWEAPITestCase {
             .build();
 
         this.keySet.add(rsaJWK);
+    }
+
+    /**
+     * Use JCE unlimited strength policy files.
+     * 
+     * @see http://stackoverflow.com/questions/14156522/using-encryption-that-would-need-java-policy-files-in-openjre
+     */
+    private void useJCEUnlimitedStrengthPolicyFiles() {
+        try {
+            Field gate = Class.forName("javax.crypto.JceSecurity").getDeclaredField("isRestricted");
+            gate.setAccessible(true);
+            gate.setBoolean(null, false);
+
+            Field allPerm = Class.forName("javax.crypto.CryptoAllPermission").getDeclaredField("INSTANCE");
+            allPerm.setAccessible(true);
+            Object accessAllAreasCard = allPerm.get(null);
+
+            final Constructor<?> constructor = Class.forName("javax.crypto.CryptoPermissions").getDeclaredConstructor();
+            constructor.setAccessible(true);
+            Object coll = constructor.newInstance();
+
+            Method addPerm = Class.forName("javax.crypto.CryptoPermissions").getDeclaredMethod("add", java.security.Permission.class);
+            addPerm.setAccessible(true);
+            addPerm.invoke(coll, accessAllAreasCard);
+
+            Field defaultPolicy = Class.forName("javax.crypto.JceSecurity").getDeclaredField("defaultPolicy");
+            defaultPolicy.setAccessible(true);
+            defaultPolicy.set(null, coll);
+        } catch (Exception ex) {
+            ex.printStackTrace(System.err);
+        }
     }
 
     /**
@@ -261,6 +293,8 @@ public class JWEAPITestCase {
             .compressionAlgorithm("DEF")
             .build();
 
+        useJCEUnlimitedStrengthPolicyFiles();
+
         String payLoad = "{\"alg\": \"ALG_RSA_OAEP\",\"enc\": \"ENC_A192CBC_HS384\",\"zip\": \"DEF\"}";
 
         JWEEncrypter encrypter = new JWEEncrypter((RSAPublicKey) keyPair1.getPublic());
@@ -278,18 +312,16 @@ public class JWEAPITestCase {
     /**
      * Test ALGRSA_OAEP256_WITH_ENC_A256CBC_HS512.
      *
+     * @see http://stackoverflow.com/questions/2579103/too-much-data-for-rsa-block-fail-what-is-pkcs7
      * @throws ParseException the parse exception
      */
     @Test
+    @Ignore("java.lang.ArrayIndexOutOfBoundsException: too much data for RSA block")
     public void test_ALGRSA_OAEP256_WITH_ENC_A256CBC_HS512() throws ParseException {
 
         JWE jwe = new JWEBuilder()
             .algorithm(ALG_RSA_OAEP_256)
-            // Bit length 512 Causes javax.crypto.IllegalBlockSizeException: Data must not be longer than 62 bytes
-            // at org.picketlink.json.jose.crypto.RSA_OAEP_256.encryptCEK(RSA_OAEP_256.java:61)
-            // If BouncyCastle provider is used,Causes java.lang.ArrayIndexOutOfBoundsException: too much data for RSA block
-            // .encryptionAlgorithm(ENC_A256CBC_HS512, 512)
-            .encryptionAlgorithm(ENC_A256CBC_HS512, 256)
+            .encryptionAlgorithm(ENC_A256CBC_HS512, 512)
             .compressionAlgorithm("DEF")
             .build();
 

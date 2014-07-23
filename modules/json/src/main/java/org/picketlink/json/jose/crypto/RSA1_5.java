@@ -28,6 +28,8 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
 /**
  * RSAES-PKCS1-V1_5 methods for Content Encryption Key (CEK) encryption and decryption.
  *
@@ -48,7 +50,7 @@ public class RSA1_5 {
     public static byte[] encryptCEK(final RSAPublicKey pub, final SecretKey cek) {
 
         try {
-            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", new BouncyCastleProvider());
             cipher.init(Cipher.ENCRYPT_MODE, pub);
             return cipher.doFinal(cek.getEncoded());
 
@@ -76,7 +78,7 @@ public class RSA1_5 {
         final int keyLength) {
 
         try {
-            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", new BouncyCastleProvider());
             cipher.init(Cipher.DECRYPT_MODE, priv);
             byte[] secretKeyBytes = cipher.doFinal(encryptedCEK);
 
