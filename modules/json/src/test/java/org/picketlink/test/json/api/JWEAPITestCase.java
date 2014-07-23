@@ -197,7 +197,6 @@ public class JWEAPITestCase {
      * @throws ParseException the parse exception
      */
     @Test
-    @Ignore("Failing")
     public void test_ALG_RSA_OAEP_256() throws ParseException {
 
         JWE jwe = new JWEBuilder()
@@ -342,7 +341,6 @@ public class JWEAPITestCase {
      * @throws ParseException the parse exception
      */
     @Test(expected = ParseException.class)
-    @Ignore("Failing")
     public void test_INVALID_SERIALIZATION_1() throws ParseException {
 
         JWE jwe = new JWEBuilder()
@@ -373,7 +371,6 @@ public class JWEAPITestCase {
      * @throws ParseException the parse exception
      */
     @Test(expected = ParseException.class)
-    @Ignore("Failing")
     public void test_INVALID_SERIALIZATION_2() throws ParseException {
 
         JWE jwe = new JWEBuilder()
