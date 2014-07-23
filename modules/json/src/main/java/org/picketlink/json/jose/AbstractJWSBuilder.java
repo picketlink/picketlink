@@ -45,73 +45,139 @@ import static org.picketlink.json.jose.crypto.Algorithm.RS512;
 import static org.picketlink.json.util.JsonUtil.b64Decode;
 
 /**
+ * The Class AbstractJWSBuilder.
+ *
  * @author Pedro Igor
+ * @param <T> the generic type
+ * @param <B> the generic type
  */
 public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBuilder<T, B>> extends JWTBuilder<T, B> {
 
+    /** The key. */
     private byte[] key;
 
+    /**
+     * Instantiates a new abstract jws builder.
+     *
+     * @param tokenType the token type
+     */
     protected AbstractJWSBuilder(Class<T> tokenType) {
         super(tokenType);
         header(ALG, Algorithm.NONE.getAlgorithm());
     }
 
+    /**
+     * Kid.
+     *
+     * @param kid the kid
+     * @return
+     */
     public B kid(String kid) {
         header(KEY_ID, kid);
         return (B) this;
     }
 
+    /**
+     * Hmac256.
+     *
+     * @param key the key
+     * @return
+     */
     public B hmac256(byte[] key) {
         header(ALG, HS256.name());
         this.key = key;
         return (B) this;
     }
 
+    /**
+     * Hmac384.
+     *
+     * @param key the key
+     * @return
+     */
     public B hmac384(byte[] key) {
         header(ALG, HS384.name());
         this.key = key;
         return (B) this;
     }
 
+    /**
+     * Hmac512.
+     *
+     * @param key the key
+     * @return
+     */
     public B hmac512(byte[] key) {
         header(ALG, HS512.name());
         this.key = key;
         return (B) this;
     }
 
+    /**
+     * Rsa256.
+     *
+     * @param key the key
+     * @return
+     */
     public B rsa256(byte[] key) {
         header(ALG, RS256.name());
         this.key = key;
         return (B) this;
     }
 
+    /**
+     * Rsa384.
+     *
+     * @param key the key
+     * @return
+     */
     public B rsa384(byte[] key) {
         header(ALG, RS384.name());
         this.key = key;
         return (B) this;
     }
 
+    /**
+     * Rsa512.
+     *
+     * @param key the key
+     * @return
+     */
     public B rsa512(byte[] key) {
         header(ALG, RS512.name());
         this.key = key;
         return (B) this;
     }
 
+    /**
+     * Keys.
+     *
+     * @param keySet the key set
+     * @return
+     */
     public B keys(JWKSet keySet) {
         header(HEADER_JSON_WEB_KEY, keySet.getJsonObject().getJsonArray(HEADER_JSON_WEB_KEY));
         return (B) this;
     }
 
+    /**
+     * Keys.
+     *
+     * @param keys the keys
+     * @return
+     */
     public B keys(JWK... keys) {
         JWKSet jwkSet = new JWKSet(keys);
         return keys(jwkSet);
     }
 
+    /**
+     * @see org.picketlink.json.jwt.JWTBuilder#build(javax.json.JsonObject, javax.json.JsonObject)
+     */
     @Override
     protected T build(JsonObject headersObject, JsonObject claimsObject) {
         try {
             Constructor<T> constructor = getTokenType().getDeclaredConstructor(JsonObject.class, JsonObject.class, byte[].class);
-
             constructor.setAccessible(true);
 
             return (T) constructor.newInstance(headersObject, claimsObject, this.key);
@@ -120,6 +186,9 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
         }
     }
 
+    /**
+     * @see org.picketlink.json.jwt.JWTBuilder#build(java.lang.String)
+     */
     @Override
     public T build(String json) {
         T uncheckedToken = super.build(json);
@@ -157,8 +226,8 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
      * Builds a {@link JWS} with the given key.
      * </p>
      *
-     * @param json
-     * @param key
+     * @param json the json
+     * @param key the key
      * @return
      */
     public T build(String json, byte[] key) {
@@ -170,12 +239,7 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
         Algorithm algorithm = Algorithm.resolve(token.getAlgorithm().toUpperCase());
 
         if (!algorithm.isNone()) {
-            if (key == null) {
-                throw MESSAGES.invalidNullArgument("Signature Key");
-            }
-
             String[] portions = json.split("\\" + PERIOD);
-
             if (portions.length < 2) {
                 throw MESSAGES.cryptoSignatureNotPresent(json);
             }
@@ -188,8 +252,6 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
                 throw MESSAGES.cryptoInvalidSignature(json);
             }
         }
-
         return token;
     }
-
 }

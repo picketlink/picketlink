@@ -24,44 +24,87 @@ package org.picketlink.json.jose.crypto;
 import static org.picketlink.json.JsonMessages.MESSAGES;
 
 /**
- * <p>{@link java.lang.Enum} representing all supported crypto algorithms.</p>
+ * <p>
+ * {@link java.lang.Enum} representing all supported crypto algorithms.
+ * </p>
  *
  * @author Pedro Igor
  */
 public enum Algorithm {
 
+    /** The none. */
     NONE("none", null),
 
     // HMAC
+    /** The HMACSHA256. */
     HS256("HMACSHA256", HMACSignatureProvider.instance()),
+
+    /** The HMACSHA384. */
     HS384("HMACSHA384", HMACSignatureProvider.instance()),
+
+    /** The HMACSHA512. */
     HS512("HMACSHA512", HMACSignatureProvider.instance()),
 
     // RSASSA-PKCS1-v1_5
+    /** The SHA256withRSA. */
     RS256("SHA256withRSA", RSASignatureProvider.instance()),
+
+    /** The SHA384withRSA. */
     RS384("SHA384withRSA", RSASignatureProvider.instance()),
+
+    /** The SHA512withRSA. */
     RS512("SHA512withRSA", RSASignatureProvider.instance());
 
+    /** The algorithm. */
     private final String algorithm;
+
+    /** The signature provider. */
     private final SignatureProvider signatureProvider;
 
+    /**
+     * Instantiates a new algorithm.
+     *
+     * @param algorithm the algorithm
+     * @param signatureProvider the signature provider
+     */
     Algorithm(String algorithm, SignatureProvider signatureProvider) {
         this.algorithm = algorithm;
         this.signatureProvider = signatureProvider;
     }
 
+    /**
+     * Gets the algorithm.
+     *
+     * @return the algorithm
+     */
     public String getAlgorithm() {
         return this.algorithm;
     }
 
+    /**
+     * Checks if is none.
+     *
+     * @return true, if is none
+     */
     public boolean isNone() {
         return NONE.equals(this);
     }
 
+    /**
+     * Gets the signature provider.
+     *
+     * @return the signature provider
+     */
     public SignatureProvider getSignatureProvider() {
         return this.signatureProvider;
     }
 
+    /**
+     * Resolves name of algorithm.
+     *
+     * @param name the name
+     * @return the algorithm
+     */
     public static Algorithm resolve(String name) {
         try {
             return valueOf(name);

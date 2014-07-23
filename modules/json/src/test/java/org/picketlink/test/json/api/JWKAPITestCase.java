@@ -21,29 +21,43 @@
  */
 package org.picketlink.test.json.api;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.interfaces.RSAPublicKey;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.json.jose.JWK;
 import org.picketlink.json.jose.JWKBuilder;
 import org.picketlink.json.jose.JWKSet;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.interfaces.RSAPublicKey;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 /**
+ * The Class JWKAPITestCase.
+ *
  * @author Giriraj Sharma
  */
 public class JWKAPITestCase {
 
+    /** The key pair1. */
     private KeyPair keyPair1;
+    
+    /** The key pair2. */
     private KeyPair keyPair2;
+    
+    /** The key pair3. */
     private KeyPair keyPair3;
+    
+    /** The key pair4. */
     private KeyPair keyPair4;
 
+    /**
+     * On before.
+     *
+     * @throws Exception the exception
+     */
     @Before
     public void onBefore() throws Exception {
         this.keyPair1 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
@@ -52,6 +66,9 @@ public class JWKAPITestCase {
         this.keyPair4 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
     }
 
+    /**
+     * Test rsajwk.
+     */
     @Test
     public void testRSAJWK() {
         RSAPublicKey publicKey = (RSAPublicKey) this.keyPair1.getPublic();
@@ -68,6 +85,9 @@ public class JWKAPITestCase {
         assertEquals(this.keyPair1.getPublic(), parsedJwk.toRSAPublicKey());
     }
 
+    /**
+     * Test jwk set.
+     */
     @Test
     public void testJWKSet() {
         JWK jwkKeyPair1 = createJWK((RSAPublicKey) this.keyPair1.getPublic(), "1");
@@ -88,6 +108,13 @@ public class JWKAPITestCase {
         assertNotNull(parsedKeySet.get("4"));
     }
 
+    /**
+     * Creates the jwk.
+     *
+     * @param publicKey the public key
+     * @param keyId the key id
+     * @return the jwk
+     */
     public JWK createJWK(RSAPublicKey publicKey, String keyId) {
         return new JWKBuilder()
             .modulus(publicKey.getModulus())

@@ -22,14 +22,25 @@
 package org.picketlink.json.jose;
 
 /**
+ * The Class JWSBuilder.
+ *
  * @author Pedro Igor
  */
 public class JWSBuilder extends AbstractJWSBuilder<JWS, JWSBuilder> {
 
+    /**
+     * Instantiates a new JWS builder.
+     *
+     * @param <T> the generic type
+     * @param tokenType the token type
+     */
     public <T extends JWS> JWSBuilder(Class<T> tokenType) {
         super((Class<JWS>) tokenType);
     }
 
+    /**
+     * Instantiates a new JWS builder.
+     */
     public JWSBuilder() {
         super(JWS.class);
     }

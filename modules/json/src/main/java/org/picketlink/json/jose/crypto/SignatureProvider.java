@@ -24,11 +24,32 @@ package org.picketlink.json.jose.crypto;
 import org.picketlink.json.JsonException;
 
 /**
- * @author  Pedro Igor
+ * The Interface SignatureProvider.
+ *
+ * @author Pedro Igor
  */
 public interface SignatureProvider {
 
+    /**
+     * Sign.
+     *
+     * @param data the data
+     * @param algorithm the algorithm
+     * @param key the key
+     * @return the byte[]
+     * @throws JsonException the json exception
+     */
     byte[] sign(byte[] data, Algorithm algorithm, byte[] key) throws JsonException;
+
+    /**
+     * Verify.
+     *
+     * @param data the data
+     * @param algorithm the algorithm
+     * @param signature the signature
+     * @param key the key
+     * @return true, if successful
+     */
     boolean verify(byte[] data, Algorithm algorithm, byte[] signature, byte[] key);
 
 }

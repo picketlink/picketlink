@@ -214,12 +214,6 @@ public interface JsonConstants {
         /** The ENC_A256CBC_HS512 encryption algorithm. */
         String ENC_A256CBC_HS512 = "A256CBC-HS512";
 
-        /** The ENC_A128CBC_HS256_DEPRECATED encryption algorithm. */
-        String ENC_A128CBC_HS256_DEPRECATED = "A128CBC+HS256";
-
-        /** The ENC_A256CBC_HS512_DEPRECATED encryption algorithm. */
-        String ENC_A256CBC_HS512_DEPRECATED = "A256CBC+HS512";
-
         /** The ENC_A128GCM encryption algorithm. */
         String ENC_A128GCM = "A128GCM";
 
@@ -237,48 +231,6 @@ public interface JsonConstants {
 
         /** The ALG_RSA_OAEP_256 algorithm. */
         String ALG_RSA_OAEP_256 = "RSA-OAEP-256";
-
-        /** The ALG_A128KW algorithm. */
-        String ALG_A128KW = "A128KW";
-
-        /** The ALG_A192KW algorithm. */
-        String ALG_A192KW = "A192KW";
-
-        /** The ALG_A256KW algorithm. */
-        String ALG_A256KW = "A256KW";
-
-        /** The dir. */
-        String DIR = "dir";
-
-        /** The ALG_ECDH_ES algorithm. */
-        String ALG_ECDH_ES = "ECDH_ES";
-
-        /** The ALG_ECDH_ES_A128KW algorithm. */
-        String ALG_ECDH_ES_A128KW = "ECDH-ES+A128KW";
-
-        /** The ALG_ECDH_ES_A192KW algorithm. */
-        String ALG_ECDH_ES_A192KW = "ECDH-ES+A192KW";
-
-        /** The ALG_ECDH_ES_A256KW algorithm. */
-        String ALG_ECDH_ES_A256KW = "ECDH-ES+A256KW";
-
-        /** The ALG_A128GCMKW algorithm. */
-        String ALG_A128GCMKW = "A128GCMKW";
-
-        /** The ALG_A192GCMKW algorithm. */
-        String ALG_A192GCMKW = "A192GCMKW";
-
-        /** The ALG_A256GCMKW algorithm. */
-        String ALG_A256GCMKW = "A256GCMKW";
-
-        /** The ALG_PBES2_HS256_A128KW algorithm. */
-        String ALG_PBES2_HS256_A128KW = "PBES2-HS256+A128KW";
-
-        /** The ALG_PBES2_HS256_A192KW algorithm. */
-        String ALG_PBES2_HS256_A192KW = "PBES2-HS256+A192KW";
-
-        /** The ALG_PBES2_HS256_A256KW algorithm. */
-        String ALG_PBES2_HS256_A256KW = "PBES2-HS256+A256KW";
 
     }
 }

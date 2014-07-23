@@ -21,6 +21,17 @@
  */
 package org.picketlink.test.json.api;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonString;
+
 import org.junit.Test;
 import org.picketlink.json.JsonException;
 import org.picketlink.json.jose.AbstractJWSBuilder;
@@ -29,22 +40,16 @@ import org.picketlink.json.jose.JWSBuilder;
 import org.picketlink.json.jwt.JWT;
 import org.picketlink.json.jwt.JWTBuilder;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonString;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 /**
+ * The Class JWSHMACAPITestCase.
+ *
  * @author Pedro Igor
  */
 public class JWSHMACAPITestCase {
 
+    /**
+     * Test hmac256 signature.
+     */
     @Test
     public void testHMAC256Signature() {
         byte[] secretKey = new String("super_secret_key").getBytes();
@@ -73,6 +78,9 @@ public class JWSHMACAPITestCase {
         assertNotNull(parsedToken);
     }
 
+    /**
+     * Test hmac384 signature.
+     */
     @Test
     public void testHMAC384Signature() {
         byte[] secretKey = new String("super_secret_key").getBytes();
@@ -99,6 +107,9 @@ public class JWSHMACAPITestCase {
         assertNotNull(parsedToken);
     }
 
+    /**
+     * Test hmac512 signature.
+     */
     @Test
     public void testHMAC512Signature() {
         byte[] secretKey = new String("super_secret_key").getBytes();
@@ -125,6 +136,9 @@ public class JWSHMACAPITestCase {
         assertNotNull(parsedToken);
     }
 
+    /**
+     * Test custom web token build.
+     */
     @Test
     public void testCustomWebTokenBuild() {
         byte[] secretKey = new String("super_secret_key").getBytes();
@@ -152,6 +166,9 @@ public class JWSHMACAPITestCase {
         assertNotNull(parsedToken);
     }
 
+    /**
+     * Test no signature.
+     */
     @Test
     public void testNoSignature() {
         byte[] secretKey = new String("super_secret_key").getBytes();
@@ -179,6 +196,9 @@ public class JWSHMACAPITestCase {
         assertNotNull(parsedToken);
     }
 
+    /**
+     * Fail invalid secret key.
+     */
     @Test(expected = RuntimeException.class)
     public void failInvalidSecretKey() {
         byte[] secretKey = new String("super_secret_key").getBytes();
@@ -202,6 +222,9 @@ public class JWSHMACAPITestCase {
         new MyWebToken.MyWebTokenBuilder().build(jsonEncoded, invalidSecretKey);
     }
 
+    /**
+     * Fail invalid signature.
+     */
     @Test(expected = JsonException.class)
     public void failInvalidSignature() {
         byte[] secretKey = new String("super_secret_key").getBytes();
@@ -223,6 +246,9 @@ public class JWSHMACAPITestCase {
         new MyWebToken.MyWebTokenBuilder().build(jsonEncoded, secretKey);
     }
 
+    /**
+     * Fail missing algorithm header.
+     */
     @Test (expected = JsonException.class)
     public void failMissingAlgorithmHeader() {
         JWT token = new JWTBuilder()
@@ -239,14 +265,30 @@ public class JWSHMACAPITestCase {
         new JWSBuilder().build(token.encode());
     }
 
+    /**
+     * The Class MyWebToken.
+     */
     public static class MyWebToken extends JWS {
 
+        /** The Constant CLAIM_ROLES. */
         public static final String CLAIM_ROLES = "roles";
 
+        /**
+         * Instantiates a new my web token.
+         *
+         * @param headers the headers
+         * @param claims the claims
+         * @param key the key
+         */
         public MyWebToken(JsonObject headers, JsonObject claims, byte[] key) {
             super(headers, claims, key);
         }
 
+        /**
+         * Gets the roles.
+         *
+         * @return the roles
+         */
         public List<String> getRoles() {
             List<String> roles = new ArrayList<String>();
 
@@ -257,21 +299,31 @@ public class JWSHMACAPITestCase {
             return roles;
         }
 
+        /**
+         * The Class MyWebTokenBuilder.
+         */
         public static class MyWebTokenBuilder extends AbstractJWSBuilder<MyWebToken, MyWebTokenBuilder> {
 
+            /**
+             * Instantiates a new my web token builder.
+             */
             public MyWebTokenBuilder() {
                 super(MyWebToken.class);
             }
 
+            /**
+             * Roles.
+             *
+             * @param roles the roles
+             * @return the my web token builder
+             */
             public MyWebTokenBuilder roles(String... roles) {
                 JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
 
                 for (String role : roles) {
                     arrayBuilder.add(role);
                 }
-
                 getClaimsBuilder().add(CLAIM_ROLES, arrayBuilder);
-
                 return this;
             }
         }
