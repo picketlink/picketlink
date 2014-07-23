@@ -804,11 +804,11 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         return mappingConfig;
     }
 
-    protected LDAPOperationManager getOperationManager() {
+    public LDAPOperationManager getOperationManager() {
         return this.operationManager;
     }
 
-    protected String getBindingDN(AttributedType attributedType, boolean appendBaseDN) {
+    public String getBindingDN(AttributedType attributedType, boolean appendBaseDN) {
         LDAPMappingConfiguration mappingConfig = getMappingConfig(attributedType.getClass());
         Property<String> idProperty = mappingConfig.getIdProperty();
 

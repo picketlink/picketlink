@@ -29,6 +29,7 @@ import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.config.IdentityStoreConfiguration.IdentityOperation;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.storage.CredentialStorage;
+import org.picketlink.idm.event.CredentialUpdatedEvent;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.event.IdentityTypeCreatedEvent;
 import org.picketlink.idm.event.IdentityTypeDeletedEvent;
@@ -210,6 +211,8 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
 
         try {
             storeSelector.getStoreForCredentialOperation(this, credential.getClass()).updateCredential(this, account, credential, effectiveDate, expiryDate);
+
+            getEventBridge().raiseEvent(new CredentialUpdatedEvent(account, credential, effectiveDate, expiryDate, getPartitionManager()));
         } catch (Exception e) {
             throw MESSAGES.credentialUpdateFailed(account, credential, e);
         }
