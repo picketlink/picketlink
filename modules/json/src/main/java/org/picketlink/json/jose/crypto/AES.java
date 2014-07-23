@@ -30,6 +30,7 @@ import javax.crypto.SecretKey;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
  * AES encryption, decryption and key generation methods.
@@ -43,11 +44,11 @@ public class AES {
      *
      * @return The AES key generator.
      *
-     * @throws JOSEException If an AES key generator couldn't be instantiated.
+     * @throws RuntimeException If an AES key generator couldn't be instantiated.
      */
     public static KeyGenerator createKeyGenerator() {
         try {
-            return KeyGenerator.getInstance("AES");
+            return KeyGenerator.getInstance("AES", new BouncyCastleProvider());
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -60,7 +61,7 @@ public class AES {
      *
      * @return The AES key.
      *
-     * @throws JOSEException If an AES key couldn't be generated.
+     * @throws RuntimeException If an AES key couldn't be generated.
      */
     public static SecretKey generateKey(final int keyBitLength,
         final SecureRandom random) {
