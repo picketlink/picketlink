@@ -33,6 +33,8 @@ import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
 /**
  * RSAES OAEP (SHA-256) methods for Content Encryption Key (CEK) encryption and decryption.
  *
@@ -56,7 +58,7 @@ public class RSA_OAEP_256 {
             AlgorithmParameters algp = AlgorithmParameters.getInstance("OAEP");
             AlgorithmParameterSpec paramSpec = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
             algp.init(paramSpec);
-            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding", new BouncyCastleProvider());
             cipher.init(Cipher.ENCRYPT_MODE, pub, algp);
             return cipher.doFinal(cek.getEncoded());
 
@@ -87,7 +89,7 @@ public class RSA_OAEP_256 {
             AlgorithmParameters algp = AlgorithmParameters.getInstance("OAEP");
             AlgorithmParameterSpec paramSpec = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
             algp.init(paramSpec);
-            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding", new BouncyCastleProvider());
             cipher.init(Cipher.DECRYPT_MODE, priv, algp);
             return new SecretKeySpec(cipher.doFinal(encryptedCEK), "AES");
 
