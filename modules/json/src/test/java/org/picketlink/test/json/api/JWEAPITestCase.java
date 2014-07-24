@@ -41,7 +41,6 @@ import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.json.jose.JWE;
 import org.picketlink.json.jose.JWEBuilder;
@@ -61,10 +60,10 @@ public class JWEAPITestCase {
 
     /** The key set. */
     private JWKSet keySet;
-    
+
     /** The key pair1. */
     private KeyPair keyPair1;
-    
+
     /** The key pair2. */
     private KeyPair keyPair2;
 
@@ -218,7 +217,7 @@ public class JWEAPITestCase {
 
         assertEquals(payLoad, decryptedPayload);
     }
-    
+
     /**
      * Test ALGRSA1_5_WITH_ENC_A128CBC_HS256.
      *
@@ -246,12 +245,12 @@ public class JWEAPITestCase {
 
         assertEquals(payLoad, decryptedPayload);
     }
-    
+
     /**
      * Test ALGRSA_OAEP_WITH_ENC_A192CBC_HS384.
      *
      * @throws ParseException the parse exception
-     * @throws NoSuchAlgorithmException 
+     * @throws NoSuchAlgorithmException
      */
     @Test
     public void test_ALGRSA_OAEP_WITH_ENC_A192CBC_HS384() throws ParseException, NoSuchAlgorithmException {
@@ -275,7 +274,7 @@ public class JWEAPITestCase {
 
         assertEquals(payLoad, decryptedPayload);
     }
-    
+
     /**
      * Test ALGRSA_OAEP256_WITH_ENC_A256CBC_HS512.
      *
@@ -288,7 +287,8 @@ public class JWEAPITestCase {
             .algorithm(ALG_RSA_OAEP_256)
             // Bit length 512 Causes javax.crypto.IllegalBlockSizeException: Data must not be longer than 62 bytes
             // at org.picketlink.json.jose.crypto.RSA_OAEP_256.encryptCEK(RSA_OAEP_256.java:61)
-            //.encryptionAlgorithm(ENC_A256CBC_HS512, 512)
+            // If BouncyCastle provider is used,Causes java.lang.ArrayIndexOutOfBoundsException: too much data for RSA block
+            // .encryptionAlgorithm(ENC_A256CBC_HS512, 512)
             .encryptionAlgorithm(ENC_A256CBC_HS512, 256)
             .compressionAlgorithm("DEF")
             .build();
@@ -306,7 +306,7 @@ public class JWEAPITestCase {
 
         assertEquals(payLoad, decryptedPayload);
     }
-    
+
     /**
      * Test invalid private key.
      *
