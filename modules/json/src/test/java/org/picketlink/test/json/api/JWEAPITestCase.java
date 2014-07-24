@@ -21,6 +21,25 @@
  */
 package org.picketlink.test.json.api;
 
+import static org.junit.Assert.assertEquals;
+import static org.picketlink.json.JsonConstants.RSA;
+import static org.picketlink.json.JsonConstants.JWE.ALG_RSA1_5;
+import static org.picketlink.json.JsonConstants.JWE.ALG_RSA_OAEP;
+import static org.picketlink.json.JsonConstants.JWE.ALG_RSA_OAEP_256;
+import static org.picketlink.json.JsonConstants.JWE.ENC_A128CBC_HS256;
+import static org.picketlink.json.JsonConstants.JWE.ENC_A128GCM;
+import static org.picketlink.json.JsonConstants.JWE.ENC_A192CBC_HS384;
+import static org.picketlink.json.JsonConstants.JWE.ENC_A192GCM;
+import static org.picketlink.json.JsonConstants.JWE.ENC_A256CBC_HS512;
+import static org.picketlink.json.JsonConstants.JWE.ENC_A256GCM;
+
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.text.ParseException;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -32,21 +51,6 @@ import org.picketlink.json.jose.JWKSet;
 import org.picketlink.json.jose.crypto.JWEDecrypter;
 import org.picketlink.json.jose.crypto.JWEEncrypter;
 import org.picketlink.json.util.JsonUtil;
-
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.text.ParseException;
-
-import static org.junit.Assert.assertEquals;
-import static org.picketlink.json.JsonConstants.JWE.ALG_RSA1_5;
-import static org.picketlink.json.JsonConstants.JWE.ALG_RSA_OAEP;
-import static org.picketlink.json.JsonConstants.JWE.ALG_RSA_OAEP_256;
-import static org.picketlink.json.JsonConstants.JWE.ENC_A128GCM;
-import static org.picketlink.json.JsonConstants.JWE.ENC_A192GCM;
-import static org.picketlink.json.JsonConstants.JWE.ENC_A256GCM;
-import static org.picketlink.json.JsonConstants.RSA;
 
 /**
  * The Class JWEAPITestCase.
@@ -193,7 +197,6 @@ public class JWEAPITestCase {
      * @throws ParseException the parse exception
      */
     @Test
-    @Ignore("Failing")
     public void test_ALG_RSA_OAEP_256() throws ParseException {
 
         JWE jwe = new JWEBuilder()
@@ -203,6 +206,94 @@ public class JWEAPITestCase {
             .build();
 
         String payLoad = "{\"alg\": \"ALG_RSA_OAEP_256\",\"enc\": \"ENC_A256GCM\",\"zip\": \"DEF\"}";
+
+        JWEEncrypter encrypter = new JWEEncrypter((RSAPublicKey) keyPair1.getPublic());
+        String encryptedPayload = encrypter.encrypt(jwe, payLoad.getBytes());
+
+        String[] cryptoPart = JsonUtil.split(encryptedPayload);
+
+        JWEDecrypter decrypter = new JWEDecrypter((RSAPrivateKey) keyPair1.getPrivate());
+        byte[] decryptedByteArray = decrypter.decrypt(jwe, cryptoPart[1], cryptoPart[2], cryptoPart[3], cryptoPart[4]);
+        String decryptedPayload = new String(decryptedByteArray);
+
+        assertEquals(payLoad, decryptedPayload);
+    }
+    
+    /**
+     * Test ALGRSA1_5_WITH_ENC_A128CBC_HS256.
+     *
+     * @throws ParseException the parse exception
+     */
+    @Test
+    public void test_ALGRSA1_5_WITH_ENC_A128CBC_HS256() throws ParseException {
+
+        JWE jwe = new JWEBuilder()
+            .algorithm(ALG_RSA1_5)
+            .encryptionAlgorithm(ENC_A128CBC_HS256, 256)
+            .compressionAlgorithm("DEF")
+            .build();
+
+        String payLoad = "{\"alg\": \"ALG_RSA1_5\",\"enc\": \"ENC_A128CBC_HS256\",\"zip\": \"DEF\"}";
+
+        JWEEncrypter encrypter = new JWEEncrypter((RSAPublicKey) keyPair1.getPublic());
+        String encryptedPayload = encrypter.encrypt(jwe, payLoad.getBytes());
+
+        String[] cryptoPart = JsonUtil.split(encryptedPayload);
+
+        JWEDecrypter decrypter = new JWEDecrypter((RSAPrivateKey) keyPair1.getPrivate());
+        byte[] decryptedByteArray = decrypter.decrypt(jwe, cryptoPart[1], cryptoPart[2], cryptoPart[3], cryptoPart[4]);
+        String decryptedPayload = new String(decryptedByteArray);
+
+        assertEquals(payLoad, decryptedPayload);
+    }
+    
+    /**
+     * Test ALGRSA_OAEP_WITH_ENC_A192CBC_HS384.
+     *
+     * @throws ParseException the parse exception
+     * @throws NoSuchAlgorithmException 
+     */
+    @Test
+    public void test_ALGRSA_OAEP_WITH_ENC_A192CBC_HS384() throws ParseException, NoSuchAlgorithmException {
+
+        JWE jwe = new JWEBuilder()
+            .algorithm(ALG_RSA_OAEP)
+            .encryptionAlgorithm(ENC_A192CBC_HS384, 384)
+            .compressionAlgorithm("DEF")
+            .build();
+
+        String payLoad = "{\"alg\": \"ALG_RSA_OAEP\",\"enc\": \"ENC_A192CBC_HS384\",\"zip\": \"DEF\"}";
+
+        JWEEncrypter encrypter = new JWEEncrypter((RSAPublicKey) keyPair1.getPublic());
+        String encryptedPayload = encrypter.encrypt(jwe, payLoad.getBytes());
+
+        String[] cryptoPart = JsonUtil.split(encryptedPayload);
+
+        JWEDecrypter decrypter = new JWEDecrypter((RSAPrivateKey) keyPair1.getPrivate());
+        byte[] decryptedByteArray = decrypter.decrypt(jwe, cryptoPart[1], cryptoPart[2], cryptoPart[3], cryptoPart[4]);
+        String decryptedPayload = new String(decryptedByteArray);
+
+        assertEquals(payLoad, decryptedPayload);
+    }
+    
+    /**
+     * Test ALGRSA_OAEP256_WITH_ENC_A256CBC_HS512.
+     *
+     * @throws ParseException the parse exception
+     */
+    @Test
+    public void test_ALGRSA_OAEP256_WITH_ENC_A256CBC_HS512() throws ParseException {
+
+        JWE jwe = new JWEBuilder()
+            .algorithm(ALG_RSA_OAEP_256)
+            // Bit length 512 Causes javax.crypto.IllegalBlockSizeException: Data must not be longer than 62 bytes
+            // at org.picketlink.json.jose.crypto.RSA_OAEP_256.encryptCEK(RSA_OAEP_256.java:61)
+            //.encryptionAlgorithm(ENC_A256CBC_HS512, 512)
+            .encryptionAlgorithm(ENC_A256CBC_HS512, 256)
+            .compressionAlgorithm("DEF")
+            .build();
+
+        String payLoad = "{\"alg\": \"ALG_RSA_OAEP_256\",\"enc\": \"ENC_A256CBC_HS512\",\"zip\": \"DEF\"}";
 
         JWEEncrypter encrypter = new JWEEncrypter((RSAPublicKey) keyPair1.getPublic());
         String encryptedPayload = encrypter.encrypt(jwe, payLoad.getBytes());
@@ -250,7 +341,6 @@ public class JWEAPITestCase {
      * @throws ParseException the parse exception
      */
     @Test(expected = ParseException.class)
-    @Ignore("Failing")
     public void test_INVALID_SERIALIZATION_1() throws ParseException {
 
         JWE jwe = new JWEBuilder()
@@ -281,7 +371,6 @@ public class JWEAPITestCase {
      * @throws ParseException the parse exception
      */
     @Test(expected = ParseException.class)
-    @Ignore("Failing")
     public void test_INVALID_SERIALIZATION_2() throws ParseException {
 
         JWE jwe = new JWEBuilder()

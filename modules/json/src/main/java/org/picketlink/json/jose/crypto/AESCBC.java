@@ -21,6 +21,7 @@
  */
 package org.picketlink.json.jose.crypto;
 
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -30,7 +31,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.picketlink.json.jose.JWE;
 import org.picketlink.json.util.JsonUtil;
 
 /**
@@ -79,6 +79,16 @@ public class AESCBC {
         final byte[] iv) {
 
         Cipher cipher;
+
+        // http://stackoverflow.com/questions/3425766/how-would-i-use-maven-to-install-the-jce-unlimited-strength-policy-files?rq=1
+        // Simple hack for using policies of jce-unlimited-strength-policy-files
+        try {
+            Field field = Class.forName("javax.crypto.JceSecurity").getDeclaredField("isRestricted");
+            field.setAccessible(true);
+            field.set(null, java.lang.Boolean.FALSE);
+        } catch (Exception ex) {
+            ex.printStackTrace(System.err);
+        }
 
         try {
             cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
@@ -174,43 +184,6 @@ public class AESCBC {
     }
 
     /**
-     * Encrypts the specified plain text using the deprecated concat KDF from JOSE draft suite 09.
-     *
-     * @param header The JWE header. Must not be {@code null}.
-     * @param secretKey The secret key. Must be 256 or 512 bits long. Must not be {@code null}.
-     * @param encryptedKey The encrypted key. Must not be {@code null}.
-     * @param iv The initialisation vector (IV). Must not be {@code null}.
-     * @param plainText The plain text. Must not be {@code null}.
-     *
-     * @return The authenticated cipher text.
-     *
-     * @throws RuntimeException If encryption failed.
-     */
-    public static AuthenticatedCipherText encryptWithConcatKDF(JWE jweheader,
-        final SecretKey secretKey,
-        final byte[] encryptedKey,
-        final byte[] iv,
-        final byte[] plainText) {
-
-        // Generate alternative CEK using concat-KDF
-        SecretKey altCEK = ConcatKDF.generateCEK(secretKey, jweheader.getEncryptionAlgorithm());
-
-        byte[] cipherText = AESCBC.encrypt(altCEK, iv, plainText);
-
-        // Generate content integrity key for HMAC
-        SecretKey cik = ConcatKDF.generateCIK(secretKey, jweheader.getEncryptionAlgorithm());
-
-        String macInput = JsonUtil.b64Encode(jweheader.toString()) + "." +
-            encryptedKey + "." +
-            JsonUtil.b64Encode(iv)+ "." +
-            JsonUtil.b64Encode(cipherText);
-
-        byte[] mac = HMAC.compute(cik, macInput.getBytes());
-
-        return new AuthenticatedCipherText(cipherText, mac);
-    }
-
-    /**
      * Decrypts the specified cipher text using AES/CBC/PKCS5Padding.
      *
      * @param secretKey The AES key. Must not be {@code null}.
@@ -277,42 +250,6 @@ public class AESCBC {
         byte[] plainText = decrypt(compositeKey.getAESKey(), iv, cipherText);
         if (!macCheckPassed) {
             throw new RuntimeException("MAC check failed");
-        }
-        return plainText;
-    }
-
-    /**
-     * Decrypts the specified cipher text using the deprecated concat KDF from JOSE draft suite 09.
-     *
-     * @param header The JWE header. Must not be {@code null}.
-     * @param secretKey The secret key. Must be 256 or 512 bits long. Must not be {@code null}.
-     * @param encryptedKey The encrypted key. Must not be {@code null}.
-     * @param iv The initialization vector (IV). Must not be {@code null}.
-     * @param cipherText The cipher text. Must not be {@code null}.
-     * @param authTag The authentication tag. Must not be {@code null}.
-     *
-     * @return The decrypted plain text.
-     *
-     * @throws RuntimeException If decryption failed.
-     */
-    public static byte[] decryptWithConcatKDF(final JWE jweHeader,
-        final SecretKey secretKey,
-        final String encryptedKey,
-        final String iv,
-        final String cipherText,
-        final String authTag) {
-
-        SecretKey cekAlt = ConcatKDF.generateCEK(secretKey, jweHeader.getEncryptionAlgorithm());
-        final byte[] plainText = AESCBC.decrypt(cekAlt, JsonUtil.b64Decode(iv) , JsonUtil.b64Decode(cipherText));
-        SecretKey cik = ConcatKDF.generateCIK(secretKey, jweHeader.getEncryptionAlgorithm());
-        String macInput = JsonUtil.b64Encode(jweHeader.toString()) + "." +
-            encryptedKey + "." +
-            iv + "." +
-            cipherText;
-
-        byte[] mac = HMAC.compute(cik, macInput.getBytes());
-        if (!JsonUtil.constantTimeAreEqual(JsonUtil.b64Decode(authTag), mac)) {
-            throw new RuntimeException("HMAC integrity check failed");
         }
         return plainText;
     }

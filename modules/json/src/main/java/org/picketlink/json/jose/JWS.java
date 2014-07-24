@@ -61,10 +61,12 @@ public class JWS extends JWT {
         if (!getHeaders().containsKey(ALG)) {
             throw MESSAGES.missingHeader(ALG);
         }
-
         return getHeaders().getString(ALG);
     }
 
+    /**
+     * @see org.picketlink.json.jwt.JWT#encode()
+     */
     @Override
     public String encode() {
         String token = super.encode();
@@ -80,7 +82,6 @@ public class JWS extends JWT {
 
             token = new StringBuilder(token).append(PERIOD).append(b64Encode(signature)).toString();
         }
-
         return token;
     }
 

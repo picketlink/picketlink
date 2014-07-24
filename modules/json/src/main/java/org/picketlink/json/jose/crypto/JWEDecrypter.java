@@ -25,12 +25,10 @@ import static org.picketlink.json.JsonConstants.JWE.ALG_RSA1_5;
 import static org.picketlink.json.JsonConstants.JWE.ALG_RSA_OAEP;
 import static org.picketlink.json.JsonConstants.JWE.ALG_RSA_OAEP_256;
 import static org.picketlink.json.JsonConstants.JWE.ENC_A128CBC_HS256;
-import static org.picketlink.json.JsonConstants.JWE.ENC_A128CBC_HS256_DEPRECATED;
 import static org.picketlink.json.JsonConstants.JWE.ENC_A128GCM;
 import static org.picketlink.json.JsonConstants.JWE.ENC_A192CBC_HS384;
 import static org.picketlink.json.JsonConstants.JWE.ENC_A192GCM;
 import static org.picketlink.json.JsonConstants.JWE.ENC_A256CBC_HS512;
-import static org.picketlink.json.JsonConstants.JWE.ENC_A256CBC_HS512_DEPRECATED;
 import static org.picketlink.json.JsonConstants.JWE.ENC_A256GCM;
 
 import java.io.IOException;
@@ -178,17 +176,6 @@ public class JWEDecrypter {
                 JsonUtil.b64Decode(cipherText),
                 aad,
                 JsonUtil.b64Decode(authTag));
-
-        } else if (enc.equals(ENC_A128CBC_HS256_DEPRECATED) ||
-            enc.equals(ENC_A256CBC_HS512_DEPRECATED)) {
-
-            plainText = AESCBC.decryptWithConcatKDF(
-                jweHeader,
-                cek,
-                encryptedKey,
-                iv,
-                cipherText,
-                authTag);
 
         } else {
             throw new RuntimeException("Unsupported encryption method, must be A128CBC_HS256, A192CBC_HS384, A256CBC_HS512, A128GCM, A192GCM or A256GCM");

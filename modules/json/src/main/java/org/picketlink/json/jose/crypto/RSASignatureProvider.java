@@ -10,13 +10,23 @@ import java.security.spec.X509EncodedKeySpec;
 import static org.picketlink.json.JsonMessages.MESSAGES;
 
 /**
+ * The Class RSASignatureProvider.
+ *
  * @author Pedro Igor
  */
 public class RSASignatureProvider implements SignatureProvider {
 
+    /** The Constant ALGORITHM. */
     private static final String ALGORITHM = "RSA";
+
+    /** The instance. */
     private static RSASignatureProvider instance;
 
+    /**
+     * Instance.
+     *
+     * @return the signature provider
+     */
     static final SignatureProvider instance() {
         if (instance == null) {
             instance = new RSASignatureProvider();
@@ -25,6 +35,9 @@ public class RSASignatureProvider implements SignatureProvider {
         return instance;
     }
 
+    /**
+     * @see org.picketlink.json.jose.crypto.SignatureProvider#sign(byte[], org.picketlink.json.jose.crypto.Algorithm, byte[])
+     */
     public byte[] sign(byte[] data, Algorithm algorithm, byte[] key) {
         try {
             PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(key);
@@ -41,6 +54,10 @@ public class RSASignatureProvider implements SignatureProvider {
         }
     }
 
+    /**
+     * @see org.picketlink.json.jose.crypto.SignatureProvider#verify(byte[], org.picketlink.json.jose.crypto.Algorithm, byte[],
+     *      byte[])
+     */
     public boolean verify(byte[] data, Algorithm algorithm, byte[] signature, byte[] key) {
         try {
             X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(key);
@@ -57,6 +74,5 @@ public class RSASignatureProvider implements SignatureProvider {
         }
 
     }
-
 
 }

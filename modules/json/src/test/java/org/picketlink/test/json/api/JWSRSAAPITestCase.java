@@ -40,14 +40,26 @@ import static org.junit.Assert.assertNotNull;
 import static org.picketlink.json.JsonConstants.RSA;
 
 /**
+ * The Class JWSRSAAPITestCase.
+ *
  * @author Pedro Igor
  */
 public class JWSRSAAPITestCase {
 
+    /** The key set. */
     private JWKSet keySet;
+    
+    /** The key pair1. */
     private KeyPair keyPair1;
+    
+    /** The key pair2. */
     private KeyPair keyPair2;
 
+    /**
+     * On before.
+     *
+     * @throws Exception the exception
+     */
     @Before
     public void onBefore() throws Exception {
         this.keySet = new JWKSet();
@@ -60,6 +72,12 @@ public class JWSRSAAPITestCase {
         registerPublicKey("2", (RSAPublicKey) this.keyPair2.getPublic());
     }
 
+    /**
+     * Register public key.
+     *
+     * @param kid the kid
+     * @param publicKey the public key
+     */
     private void registerPublicKey(String kid, RSAPublicKey publicKey) {
         JWK rsaJWK = new JWKBuilder()
             .modulus(publicKey.getModulus())
@@ -72,6 +90,11 @@ public class JWSRSAAPITestCase {
         this.keySet.add(rsaJWK);
     }
     
+    /**
+     * Test rsa256 signature.
+     *
+     * @throws Exception the exception
+     */
     @Test
     public void testRSA256Signature() throws Exception {
         PrivateKey privateKey = this.keyPair1.getPrivate();
@@ -103,6 +126,9 @@ public class JWSRSAAPITestCase {
         assertNotNull(parsedToken);
     }
 
+    /**
+     * Test rsa384 signature.
+     */
     @Test
     public void testRSA384Signature() {
         PrivateKey privateKey = this.keyPair1.getPrivate();
@@ -134,6 +160,9 @@ public class JWSRSAAPITestCase {
         assertNotNull(parsedToken);
     }
 
+    /**
+     * Test rsa512 signature.
+     */
     @Test
     public void testRSA512Signature() {
         PrivateKey privateKey = this.keyPair1.getPrivate();
@@ -165,6 +194,9 @@ public class JWSRSAAPITestCase {
         assertNotNull(parsedToken);
     }
 
+    /**
+     * Test rsa512 signature using public key instance.
+     */
     @Test
     public void testRSA512SignatureUsingPublicKeyInstance() {
         PrivateKey privateKey = this.keyPair1.getPrivate();
@@ -187,6 +219,9 @@ public class JWSRSAAPITestCase {
         assertNotNull(parsedToken);
     }
 
+    /**
+     * Test rsa512 signature without jwk set.
+     */
     @Test
     public void testRSA512SignatureWithoutJWKSet() {
         PrivateKey privateKey = this.keyPair1.getPrivate();
@@ -207,6 +242,9 @@ public class JWSRSAAPITestCase {
         assertNotNull(parsedToken);
     }
 
+    /**
+     * Test no signature.
+     */
     @Test
     public void testNoSignature() {
         JWS token = new JWSBuilder()
@@ -226,6 +264,9 @@ public class JWSRSAAPITestCase {
         assertNotNull(parsedToken);
     }
 
+    /**
+     * Fail invalid signature.
+     */
     @Test(expected = JsonException.class)
     public void failInvalidSignature() {
         PrivateKey privateKey = this.keyPair1.getPrivate();
@@ -256,6 +297,9 @@ public class JWSRSAAPITestCase {
         new JWSBuilder().build(tamperedToken);
     }
 
+    /**
+     * Fail invalid key.
+     */
     @Test(expected = JsonException.class)
     public void failInvalidKey() {
         PrivateKey privateKey = this.keyPair1.getPrivate();

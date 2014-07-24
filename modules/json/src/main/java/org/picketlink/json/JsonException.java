@@ -21,19 +21,38 @@
  */
 package org.picketlink.json;
 
+// TODO: Auto-generated Javadoc
 /**
+ * The Class JsonException.
+ *
  * @author Pedro Igor
  */
 public class JsonException extends RuntimeException {
 
+    /**
+     * Instantiates a new json exception.
+     *
+     * @param message the message
+     * @param cause the cause
+     */
     public JsonException(String message, Throwable cause) {
         super(message, cause);
     }
 
+    /**
+     * Instantiates a new json exception.
+     *
+     * @param message the message
+     */
     public JsonException(String message) {
         super(message);
     }
 
+    /**
+     * Instantiates a new json exception.
+     *
+     * @param cause the cause
+     */
     public JsonException(Throwable cause) {
         super(cause);
     }

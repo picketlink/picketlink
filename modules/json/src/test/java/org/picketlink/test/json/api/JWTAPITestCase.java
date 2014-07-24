@@ -38,10 +38,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
+ * The Class JWTAPITestCase.
+ *
  * @author Pedro Igor
  */
 public class JWTAPITestCase {
 
+    /**
+     * Test standard build.
+     */
     @Test
     public void testStandardBuild() {
         JWT token = new JWTBuilder()
@@ -71,6 +76,9 @@ public class JWTAPITestCase {
         assertEquals(Integer.valueOf(789), parsedToken.getNotBefore());
     }
 
+    /**
+     * Test custom web token build.
+     */
     @Test
     public void testCustomWebTokenBuild() {
         MyWebToken token = new MyWebToken.MyWebTokenBuilder()
@@ -95,6 +103,9 @@ public class JWTAPITestCase {
         assertNotNull(parsedToken);
     }
 
+    /**
+     * Test custom claims.
+     */
     @Test
     public void testCustomClaims() {
         JWT token = new JWTBuilder()
@@ -123,6 +134,9 @@ public class JWTAPITestCase {
         assertEquals("1", parsedToken.getClaim("ints"));
     }
 
+    /**
+     * Test multiple audience.
+     */
     @Test
     public void testMultipleAudience() {
         JWT token = new JWTBuilder()
@@ -146,14 +160,29 @@ public class JWTAPITestCase {
         assertNotNull(parsedToken);
     }
 
+    /**
+     * The Class MyWebToken.
+     */
     public static class MyWebToken extends JWT {
 
+        /** The Constant CLAIM_ROLES. */
         public static final String CLAIM_ROLES = "roles";
 
+        /**
+         * Instantiates a new my web token.
+         *
+         * @param headers the headers
+         * @param claims the claims
+         */
         public MyWebToken(JsonObject headers, JsonObject claims) {
             super(headers, claims);
         }
 
+        /**
+         * Gets the roles.
+         *
+         * @return the roles
+         */
         public List<String> getRoles() {
             List<String> roles = new ArrayList<String>();
 
@@ -164,12 +193,24 @@ public class JWTAPITestCase {
             return roles;
         }
 
+        /**
+         * The Class MyWebTokenBuilder.
+         */
         public static class MyWebTokenBuilder extends JWTBuilder<MyWebToken, MyWebTokenBuilder> {
 
+            /**
+             * Instantiates a new my web token builder.
+             */
             public MyWebTokenBuilder() {
                 super(MyWebToken.class);
             }
 
+            /**
+             * Roles.
+             *
+             * @param roles the roles
+             * @return the my web token builder
+             */
             public MyWebTokenBuilder roles(String... roles) {
                 JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
 
