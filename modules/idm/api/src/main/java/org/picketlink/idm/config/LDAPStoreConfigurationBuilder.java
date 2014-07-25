@@ -52,6 +52,7 @@ public class LDAPStoreConfigurationBuilder extends
     private Properties connectionProperties;
     private Set<LDAPMappingConfigurationBuilder> mappingBuilders = new HashSet<LDAPMappingConfigurationBuilder>();
     private boolean pagination;
+    private String uniqueIdentifierAttributeName;
 
     public LDAPStoreConfigurationBuilder(IdentityStoresConfigurationBuilder builder) {
         super(builder);
@@ -123,6 +124,20 @@ public class LDAPStoreConfigurationBuilder extends
         return this;
     }
 
+
+    /**
+     * <p>Name of unique identifier attribute (ID) which may differ in various LDAP servers. Will use default value {@link org.picketlink.common.constants.LDAPConstants#ENTRY_UUID}
+     * or {@link org.picketlink.common.constants.LDAPConstants#OBJECT_GUID} for Active Directory if not provided in configuration</p>
+     *
+     * @param uniqueIdentifierAttributeName
+     * @return
+     */
+    public LDAPStoreConfigurationBuilder uniqueIdentifierAttributeName(String uniqueIdentifierAttributeName) {
+        this.uniqueIdentifierAttributeName = uniqueIdentifierAttributeName;
+        return this;
+    }
+
+
     /**
      * <p>Maps a specific {@link AttributedType}.</p>
      *
@@ -170,14 +185,15 @@ public class LDAPStoreConfigurationBuilder extends
                 this.bindCredential,
                 this.baseDN,
                 this.activeDirectory,
+                this.pagination,
+                this.uniqueIdentifierAttributeName,
                 mappingConfig,
                 getSupportedTypes(),
                 getUnsupportedTypes(),
                 getContextInitializers(),
                 getCredentialHandlerProperties(),
                 getCredentialHandlers(),
-                isSupportCredentials(),
-                pagination);
+                isSupportCredentials());
     }
 
     @Override
@@ -218,6 +234,7 @@ public class LDAPStoreConfigurationBuilder extends
         this.activeDirectory = configuration.isActiveDirectory();
         this.connectionProperties = configuration.getConnectionProperties();
         this.pagination = configuration.isPagination();
+        this.uniqueIdentifierAttributeName = configuration.getUniqueIdentifierAttributeName();
 
         for (Class<? extends AttributedType> attributedType: configuration.getMappingConfig().keySet()) {
             LDAPMappingConfiguration mappingConfiguration = configuration.getMappingConfig().get(attributedType);
