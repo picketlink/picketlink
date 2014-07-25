@@ -53,6 +53,7 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     private final StoreSelector storeSelector;
     private int offset;
     private int limit;
+    private Object paginationContext;
     private QueryParameter[] sortParameters;
     private boolean sortAscending = true;
 
@@ -107,6 +108,11 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     @Override
     public int getOffset() {
         return offset;
+    }
+
+    @Override
+    public Object getPaginationContext() {
+        return paginationContext;
     }
 
     /**
@@ -188,6 +194,12 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     @Override
     public IdentityQuery<T> setSortAscending(boolean sortAscending) {
         this.sortAscending = sortAscending;
+        return this;
+    }
+
+    @Override
+    public IdentityQuery<T> setPaginationContext(Object object) {
+        this.paginationContext = object;
         return this;
     }
 

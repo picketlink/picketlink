@@ -201,13 +201,18 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                 LDAPMappingConfiguration ldapEntryConfig = getMappingConfig(identityQuery.getIdentityType());
                 StringBuilder filter = createIdentityTypeSearchFilter(identityQuery, ldapEntryConfig);
 
-                if (filter.length() != 0) {
-                    List<SearchResult> search = this.operationManager.search(getBaseDN(ldapEntryConfig), filter.toString(), ldapEntryConfig);
 
-                    for (SearchResult result : search) {
-                        results.add((V) populateAttributedType(result, null));
-                    }
+                List<SearchResult> search;
+                if (getConfig().isPagination()) {
+                    search = this.operationManager.searchPaginated(getBaseDN(ldapEntryConfig), filter.toString(), ldapEntryConfig, identityQuery);
+                } else {
+                    search = this.operationManager.search(getBaseDN(ldapEntryConfig), filter.toString(), ldapEntryConfig);
                 }
+
+                for (SearchResult result : search) {
+                    results.add((V) populateAttributedType(result, null));
+                }
+
             }
         } catch (Exception e) {
             throw MESSAGES.queryIdentityTypeFailed(identityQuery, e);
@@ -470,17 +475,16 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
             }
         }
 
-        if (filter.length() != 0) {
-            filter.insert(0, "(&(");
 
-            if (ldapEntryConfig != null) {
-                filter.append(getObjectClassesFilter(ldapEntryConfig));
-            } else {
-                filter.append("(").append(OBJECT_CLASS).append(EQUAL).append("*").append(")");
-            }
+        filter.insert(0, "(&(");
 
-            filter.append("))");
+        if (ldapEntryConfig != null) {
+            filter.append(getObjectClassesFilter(ldapEntryConfig));
+        } else {
+            filter.append("(").append(OBJECT_CLASS).append(EQUAL).append("*").append(")");
         }
+
+        filter.append("))");
 
         return filter;
     }
@@ -804,11 +808,11 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         return mappingConfig;
     }
 
-    protected LDAPOperationManager getOperationManager() {
+    public LDAPOperationManager getOperationManager() {
         return this.operationManager;
     }
 
-    protected String getBindingDN(AttributedType attributedType, boolean appendBaseDN) {
+    public String getBindingDN(AttributedType attributedType, boolean appendBaseDN) {
         LDAPMappingConfiguration mappingConfig = getMappingConfig(attributedType.getClass());
         Property<String> idProperty = mappingConfig.getIdProperty();
 

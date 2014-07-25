@@ -51,6 +51,7 @@ public class LDAPStoreConfigurationBuilder extends
     private boolean activeDirectory;
     private Properties connectionProperties;
     private Set<LDAPMappingConfigurationBuilder> mappingBuilders = new HashSet<LDAPMappingConfigurationBuilder>();
+    private boolean pagination;
 
     public LDAPStoreConfigurationBuilder(IdentityStoresConfigurationBuilder builder) {
         super(builder);
@@ -112,6 +113,17 @@ public class LDAPStoreConfigurationBuilder extends
     }
 
     /**
+     * <p>Indicates if pagination will be used for searching identity objects. Needs that LDAP server supports {@link javax.naming.ldap.PagedResultsControl}</p>
+     *
+     * @param pagination
+     * @return
+     */
+    public LDAPStoreConfigurationBuilder pagination(boolean pagination) {
+        this.pagination = pagination;
+        return this;
+    }
+
+    /**
      * <p>Maps a specific {@link AttributedType}.</p>
      *
      * @param attributedType
@@ -164,7 +176,8 @@ public class LDAPStoreConfigurationBuilder extends
                 getContextInitializers(),
                 getCredentialHandlerProperties(),
                 getCredentialHandlers(),
-                isSupportCredentials());
+                isSupportCredentials(),
+                pagination);
     }
 
     @Override
@@ -204,6 +217,7 @@ public class LDAPStoreConfigurationBuilder extends
         this.url = configuration.getLdapURL();
         this.activeDirectory = configuration.isActiveDirectory();
         this.connectionProperties = configuration.getConnectionProperties();
+        this.pagination = configuration.isPagination();
 
         for (Class<? extends AttributedType> attributedType: configuration.getMappingConfig().keySet()) {
             LDAPMappingConfiguration mappingConfiguration = configuration.getMappingConfig().get(attributedType);
