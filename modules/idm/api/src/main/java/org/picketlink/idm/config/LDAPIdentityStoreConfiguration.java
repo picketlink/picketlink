@@ -41,8 +41,6 @@ import static org.picketlink.common.constants.LDAPConstants.OBJECT_GUID;
 
 public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfiguration {
 
-    public static final String ENTRY_IDENTIFIER_ATTRIBUTE_NAME = "org.picketlink.idm.config.ldap.id_attribute_name";
-
     private final String ldapURL;
     private String factoryName = "com.sun.jndi.ldap.LdapCtxFactory";
     private String authType = "simple";
@@ -52,6 +50,7 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
     private final boolean activeDirectory;
     private final Properties connectionProperties;
     private final boolean pagination;
+    private final String uniqueIdentifierAttributeName;
 
     private String baseDN;
     private final Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig;
@@ -62,13 +61,14 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             String bindCredential,
             String baseDN,
             final boolean activeDirectory,
+            boolean pagination,
+            String uniqueIdentifierAttributeName,
             Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig, Map<Class<? extends AttributedType>, Set<IdentityOperation>> supportedTypes,
             Map<Class<? extends AttributedType>, Set<IdentityOperation>> unsupportedTypes,
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
             Set<Class<? extends CredentialHandler>> credentialHandlers,
-            boolean supportsCredential,
-            boolean pagination) {
+            boolean supportsCredential) {
         super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers,
                 false, supportsCredential, false);
         this.ldapURL = url;
@@ -79,6 +79,11 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         this.baseDN = baseDN;
         this.mappingConfig = mappingConfig;
         this.pagination = pagination;
+        if (uniqueIdentifierAttributeName != null) {
+            this.uniqueIdentifierAttributeName = uniqueIdentifierAttributeName;
+        } else {
+            this.uniqueIdentifierAttributeName = activeDirectory ? OBJECT_GUID : ENTRY_UUID;
+        }
     }
 
     public String getLdapURL() {
@@ -179,13 +184,7 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
     }
 
     public String getUniqueIdentifierAttributeName() {
-        String property = System.getProperty(ENTRY_IDENTIFIER_ATTRIBUTE_NAME);
-
-        if (property != null) {
-            return property;
-        }
-
-        return isActiveDirectory() ? OBJECT_GUID : ENTRY_UUID;
+        return uniqueIdentifierAttributeName;
     }
 
     public boolean isPagination() {
