@@ -24,6 +24,8 @@ import org.picketlink.idm.IDMLog;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPMappingConfiguration;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.query.IdentityQuery;
 
 import javax.naming.Binding;
 import javax.naming.Context;
@@ -36,8 +38,13 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
+import javax.naming.ldap.PagedResultsControl;
+import javax.naming.ldap.PagedResultsResponseControl;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -170,14 +177,7 @@ public class LDAPOperationManager {
 
     public List<SearchResult> search(final String baseDN, final String filter, LDAPMappingConfiguration mappingConfiguration) throws NamingException {
         final List<SearchResult> result = new ArrayList<SearchResult>();
-        final SearchControls cons = new SearchControls();
-
-        cons.setSearchScope(SUBTREE_SCOPE);
-        cons.setReturningObjFlag(false);
-
-        List<String> returningAttributes = getReturningAttributes(mappingConfiguration);
-
-        cons.setReturningAttributes(returningAttributes.toArray(new String[returningAttributes.size()]));
+        final SearchControls cons = getSearchControls(mappingConfiguration);
 
         try {
             return execute(new LdapOperation<List<SearchResult>>() {
@@ -198,6 +198,63 @@ public class LDAPOperationManager {
             LDAP_STORE_LOGGER.errorf(e, "Could not query server using DN [%s] and filter [%s]", baseDN, filter);
             throw e;
         }
+    }
+
+    public <V extends IdentityType> List<SearchResult> searchPaginated(final String baseDN, final String filter, LDAPMappingConfiguration mappingConfiguration, final IdentityQuery<V> identityQuery) throws NamingException {
+        final List<SearchResult> result = new ArrayList<SearchResult>();
+        final SearchControls cons = getSearchControls(mappingConfiguration);
+
+        try {
+            return execute(new LdapOperation<List<SearchResult>>() {
+                @Override
+                public List<SearchResult> execute(LdapContext context) throws NamingException {
+                    try {
+                        byte[] cookie = (byte[])identityQuery.getPaginationContext();
+                        PagedResultsControl pagedControls = new PagedResultsControl(identityQuery.getLimit(), cookie, Control.CRITICAL);
+                        context.setRequestControls(new Control[] { pagedControls });
+
+                        NamingEnumeration<SearchResult> search = context.search(baseDN, filter, cons);
+
+                        while (search.hasMoreElements()) {
+                            result.add(search.nextElement());
+                        }
+
+                        search.close();
+
+                        Control[] responseControls = context.getResponseControls();
+                        if (responseControls != null) {
+                            for (Control respControl : responseControls) {
+                                if (respControl instanceof PagedResultsResponseControl) {
+                                    PagedResultsResponseControl prrc = (PagedResultsResponseControl)respControl;
+                                    cookie = prrc.getCookie();
+                                    identityQuery.setPaginationContext(cookie);
+                                }
+                            }
+                        }
+
+                        return result;
+                    } catch (IOException ioe) {
+                        LDAP_STORE_LOGGER.errorf(ioe, "Could not query server with paginated query using DN [%s], filter [%s]", baseDN, filter);
+                        throw new NamingException(ioe.getMessage());
+                    }
+                }
+            });
+        } catch (NamingException e) {
+            LDAP_STORE_LOGGER.errorf(e, "Could not query server using DN [%s] and filter [%s]", baseDN, filter);
+            throw e;
+        }
+    }
+
+    private SearchControls getSearchControls(LDAPMappingConfiguration mappingConfiguration) {
+        final SearchControls cons = new SearchControls();
+
+        cons.setSearchScope(SUBTREE_SCOPE);
+        cons.setReturningObjFlag(false);
+
+        List<String> returningAttributes = getReturningAttributes(mappingConfiguration);
+
+        cons.setReturningAttributes(returningAttributes.toArray(new String[returningAttributes.size()]));
+        return cons;
     }
 
     public String getFilterById(String baseDN, String id) {

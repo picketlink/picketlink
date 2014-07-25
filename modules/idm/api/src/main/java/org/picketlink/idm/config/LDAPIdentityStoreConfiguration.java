@@ -51,6 +51,7 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
     private final String bindCredential;
     private final boolean activeDirectory;
     private final Properties connectionProperties;
+    private final boolean pagination;
 
     private String baseDN;
     private final Map<Class<? extends AttributedType>, LDAPMappingConfiguration> mappingConfig;
@@ -66,7 +67,8 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
             List<ContextInitializer> contextInitializers,
             Map<String, Object> credentialHandlerProperties,
             Set<Class<? extends CredentialHandler>> credentialHandlers,
-            boolean supportsCredential) {
+            boolean supportsCredential,
+            boolean pagination) {
         super(supportedTypes, unsupportedTypes, contextInitializers, credentialHandlerProperties, credentialHandlers,
                 false, supportsCredential, false);
         this.ldapURL = url;
@@ -76,6 +78,7 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         this.activeDirectory = activeDirectory;
         this.baseDN = baseDN;
         this.mappingConfig = mappingConfig;
+        this.pagination = pagination;
     }
 
     public String getLdapURL() {
@@ -183,5 +186,9 @@ public class LDAPIdentityStoreConfiguration extends AbstractIdentityStoreConfigu
         }
 
         return isActiveDirectory() ? OBJECT_GUID : ENTRY_UUID;
+    }
+
+    public boolean isPagination() {
+        return pagination;
     }
 }
