@@ -21,7 +21,6 @@
  */
 package org.picketlink.json.jose.crypto;
 
-import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -31,6 +30,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.picketlink.json.util.JsonUtil;
 
 /**
@@ -80,18 +80,8 @@ public class AESCBC {
 
         Cipher cipher;
 
-        // http://stackoverflow.com/questions/3425766/how-would-i-use-maven-to-install-the-jce-unlimited-strength-policy-files?rq=1
-        // Simple hack for using policies of jce-unlimited-strength-policy-files
         try {
-            Field field = Class.forName("javax.crypto.JceSecurity").getDeclaredField("isRestricted");
-            field.setAccessible(true);
-            field.set(null, java.lang.Boolean.FALSE);
-        } catch (Exception ex) {
-            ex.printStackTrace(System.err);
-        }
-
-        try {
-            cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", new BouncyCastleProvider());
             SecretKeySpec keyspec = new SecretKeySpec(secretKey.getEncoded(), "AES");
             IvParameterSpec ivSpec = new IvParameterSpec(iv);
             if (forEncryption) {

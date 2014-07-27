@@ -43,7 +43,7 @@ public interface JsonConstants {
         /** The signature algorithm. */
         String SIG = "sig";
 
-        /** The key id. */
+        /** The key id, optional. */
         String KEY_ID = "kid";
 
         /** The header type. */
@@ -52,10 +52,10 @@ public interface JsonConstants {
         /** The header content type. */
         String HEADER_CONTENT_TYPE = "cty";
 
-        /** The header jwk set url. */
+        /** The header JWK Set URL. */
         String HEADER_JWK_SET_URL = "jku";
 
-        /** The header json web key. */
+        /** The header JSON Web Key. */
         String HEADER_JSON_WEB_KEY = "keys";
 
         /** The RSA_SHA_256 algorithm. */
@@ -100,31 +100,31 @@ public interface JsonConstants {
      */
     interface JWK {
 
-        /** The key type. */
+        /** The key type, required. */
         String KEY_TYPE = "kty";
 
-        /** The key use. */
+        /** The key use, optional. */
         String KEY_USE = "use";
 
-        /** The key operations. */
+        /** The key operations, optional. */
         String KEY_OPERATIONS = "key_ops";
 
-        /** The key algorithm. */
+        /** The intended JOSE algorithm for the key, optional. */
         String KEY_ALGORITHM = "alg";
 
-        /** The key identifier. */
+        /** The key identifier, optional. */
         String KEY_IDENTIFIER = "kid";
 
-        /** The X509 certificate url. */
+        /** The X509 certificate URL, optional. */
         String X509_URL = "x5u";
 
-        /** The X509 certificate chain. */
+        /** The X509 certificate chain. optional. */
         String X509_CERTIFICATE_CHAIN = "x5c";
 
-        /** The X509 certificate SHA1 thumbprint. */
+        /** The X509 certificate SHA1 Thumbprint, optional. */
         String X509_CERTIFICATE_SHA1_THUMBPRINT = "x5t";
 
-        /** The X509 certificate SHA256 thumbprint. */
+        /** The X509 certificate SHA256 Thumbprint, optional. */
         String X509_CERTIFICATE_SHA256_THUMBPRINT = "x5t#S256";
     }
 
@@ -133,28 +133,34 @@ public interface JsonConstants {
      */
     interface JWK_RSA {
 
-        /** The modulus. */
+        /** The modulus value for the RSA key. */
         String MODULUS = "n";
 
-        /** The public exponent. */
+        /** The public exponent of the RSA key. */
         String PUBLIC_EXPONENT = "e";
 
-        /** The private exponent. */
+        /** The private exponent of the RSA key. */
         String PRIVATE_EXPONENT = "d";
 
-        /** The prime p. */
+        /** The first prime factor of the private RSA key. */
         String PRIME_P = "p";
 
-        /** The prime q. */
+        /** The second prime factor of the private RSA key. */
         String PRIME_Q = "q";
 
-        /** The prime exponent p. */
+        /**
+         * The first factor Chinese Remainder Theorem exponent of the private RSA key.
+         */
         String PRIME_EXPONENT_P = "dp";
 
-        /** The prime exponent q. */
+        /**
+         * The second factor Chinese Remainder Theorem exponent of the private RSA key.
+         */
         String PRIME_EXPONENT_Q = "dq";
 
-        /** The crt coefficient. */
+        /**
+         * The first Chinese Remainder Theorem coefficient of the private RSA key.
+         */
         String CRT_COEFFICIENT = "qi";
     }
 
@@ -163,31 +169,31 @@ public interface JsonConstants {
      */
     interface JWS {
 
-        /** The SIGN_ALG_HS256 signature algorithm. */
+        /** HMAC using SHA-256 hash algorithm (required). */
         String SIGN_ALG_HS256 = "HS256";
 
-        /** The SIGN_ALG_HS384 signature algorithm. */
+        /** HMAC using SHA-384 hash algorithm (optional). */
         String SIGN_ALG_HS384 = "HS384";
 
-        /** The SIGN_ALG_HS512 signature algorithm. */
+        /** HMAC using SHA-512 hash algorithm (optional). */
         String SIGN_ALG_HS512 = "HS512";
 
-        /** The SIGN_ALG_ES256 signature algorithm. */
+        /** ECDSA using P-256 curve and SHA-256 hash algorithm (recommended). */
         String SIGN_ALG_ES256 = "ES256";
 
-        /** The SIGN_ALG_ES383 signature algorithm. */
+        /** ECDSA using P-384 curve and SHA-384 hash algorithm (optional). */
         String SIGN_ALG_ES383 = "ES384";
 
-        /** The SIGN_ALG_ES512 signature algorithm. */
+        /** ECDSA using P-521 curve and SHA-512 hash algorithm (optional). */
         String SIGN_ALG_ES512 = "ES512";
 
-        /** The SIGN_ALG_RS256 signature algorithm. */
+        /** RSASSA-PKCS-v1_5 using SHA-256 hash algorithm (recommended). */
         String SIGN_ALG_RS256 = "RS256";
 
-        /** The SIGN_ALG_RS383 signature algorithm. */
+        /** RSASSA-PKCS-v1_5 using SHA-384 hash algorithm (optional). */
         String SIGN_ALG_RS383 = "RS384";
 
-        /** The SIGN_ALG_RS512 signature algorithm. */
+        /** RSASSA-PKCS-v1_5 using SHA-512 hash algorithm (optional). */
         String SIGN_ALG_RS512 = "RS512";
     }
 
@@ -199,37 +205,65 @@ public interface JsonConstants {
         /** The header critical parameter. */
         String HEADER_CRITICAL_PARAMETER = "crit";
 
-        /** The content encryption key bitlength. */
+        /** The Content Encryption Key (CEK) bit length. */
         String CEK_BITLENGTH = "cek_bitlength";
 
         /** The compression algorithm. */
         String COMPRESSION_ALG = "zip";
 
-        /** The ENC_A128CBC_HS256 encryption algorithm. */
+        /**
+         * JWE Encryption Methods
+         */
+
+        /**
+         * AES_128_CBC_HMAC_SHA_256 authenticated encryption using a 256 bit key (required).
+         */
         String ENC_A128CBC_HS256 = "A128CBC-HS256";
 
-        /** The ENC_A192CBC_HS384 encryption algorithm. */
+        /**
+         * AES_192_CBC_HMAC_SHA_384 authenticated encryption using a 384 bit key (optional).
+         */
         String ENC_A192CBC_HS384 = "A192CBC-HS384";
 
-        /** The ENC_A256CBC_HS512 encryption algorithm. */
+        /**
+         * AES_256_CBC_HMAC_SHA_512 authenticated encryption using a 512 bit key (required).
+         */
         String ENC_A256CBC_HS512 = "A256CBC-HS512";
 
-        /** The ENC_A128GCM encryption algorithm. */
+        /**
+         * AES in Galois/Counter Mode (GCM) (NIST.800-38D) using a 128 bit key (recommended).
+         */
         String ENC_A128GCM = "A128GCM";
 
-        /** The ENC_A192GCM encryption algorithm. */
+        /**
+         * AES in Galois/Counter Mode (GCM) (NIST.800-38D) using a 192 bit key (optional).
+         */
         String ENC_A192GCM = "A192GCM";
 
-        /** The ENC_A256GCM encryption algorithm. */
+        /**
+         * AES in Galois/Counter Mode (GCM) (NIST.800-38D) using a 256 bit key (recommended).
+         */
         String ENC_A256GCM = "A256GCM";
 
-        /** The ALG_RSA1_5 algorithm. */
+        /**
+         * JWE Algorithms
+         */
+
+        /**
+         * RSAES-PKCS1-V1_5 (RFC 3447) (required).
+         */
         String ALG_RSA1_5 = "RSA1_5";
 
-        /** The ALG_RSA_OAEP algorithm. */
+        /**
+         * RSAES using Optimal Asymmetric Encryption Padding (OAEP) (RFC 3447), with the default parameters specified by RFC
+         * 3447 in section A.2.1 (recommended).
+         */
         String ALG_RSA_OAEP = "RSA-OAEP";
 
-        /** The ALG_RSA_OAEP_256 algorithm. */
+        /**
+         * RSAES using Optimal Asymmetric Encryption Padding (OAEP) (RFC 3447), with the SHA-256 hash function and the MGF1 with
+         * SHA-256 mask generation function (recommended).
+         */
         String ALG_RSA_OAEP_256 = "RSA-OAEP-256";
 
     }
