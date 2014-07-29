@@ -19,7 +19,6 @@ package org.picketlink.idm.ldap.internal;
 
 import org.picketlink.common.constants.LDAPConstants;
 import org.picketlink.common.properties.Property;
-import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
@@ -34,7 +33,6 @@ import org.picketlink.idm.model.Account;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.annotation.AttributeProperty;
 import org.picketlink.idm.query.AttributeParameter;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
@@ -50,6 +48,8 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchResult;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -203,7 +203,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
 
 
                 List<SearchResult> search;
-                if (getConfig().isPagination()) {
+                if (getConfig().isPagination() && identityQuery.getLimit() > 0) {
                     search = this.operationManager.searchPaginated(getBaseDN(ldapEntryConfig), filter.toString(), ldapEntryConfig, identityQuery);
                 } else {
                     search = this.operationManager.search(getBaseDN(ldapEntryConfig), filter.toString(), ldapEntryConfig);
@@ -641,21 +641,22 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                     continue;
                 }
 
-                String attributeName = ldapAttribute.getID();
+                String ldapAttributeName = ldapAttribute.getID();
 
-                if (attributeName.toLowerCase().equals(getConfig().getUniqueIdentifierAttributeName().toLowerCase())) {
+                if (ldapAttributeName.toLowerCase().equals(getConfig().getUniqueIdentifierAttributeName().toLowerCase())) {
                     attributedType.setId(this.operationManager.decodeEntryUUID(attributeValue));
                 } else {
-                    List<Property<Object>> properties = PropertyQueries
-                            .createQuery(attributedType.getClass())
-                            .addCriteria(new AnnotatedPropertyCriteria(AttributeProperty.class)).getResultList();
+                    String attributeName = findAttributeName(mappingConfig.getMappedProperties(), ldapAttributeName);
 
-                    for (Property property : properties) {
-                        String ldapAttributeName = mappingConfig.getMappedProperties().get(property.getName());
+                    if (attributeName != null) {
+                        // Find if it's java property or attribute
+                        Property<Object> property = PropertyQueries
+                                .createQuery(attributedType.getClass())
+                                .addCriteria(new NamedPropertyCriteria(attributeName)).getFirstResult();
 
-                        if (ldapAttributeName != null && ldapAttributeName.toLowerCase().equals(attributeName.toLowerCase())) {
+                        if (property != null) {
                             if (LDAP_STORE_LOGGER.isTraceEnabled()) {
-                                LDAP_STORE_LOGGER.tracef("Populating property [%s] from ldap attribute [%s] with value [%s] from DN [%s].", property.getName(), attributeName, attributeValue, entryBaseDN);
+                                LDAP_STORE_LOGGER.tracef("Populating property [%s] from ldap attribute [%s] with value [%s] from DN [%s].", property.getName(), ldapAttributeName, attributeValue, entryBaseDN);
                             }
 
                             if (property.getJavaClass().equals(Date.class)) {
@@ -663,6 +664,12 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                             } else {
                                 property.setValue(attributedType, attributeValue);
                             }
+                        } else {
+                            if (LDAP_STORE_LOGGER.isTraceEnabled()) {
+                                LDAP_STORE_LOGGER.tracef("Populating attribute [%s] from ldap attribute [%s] with value [%s] from DN [%s].", attributeName, ldapAttributeName, attributeValue, entryBaseDN);
+                            }
+
+                            attributedType.setAttribute(new org.picketlink.idm.model.Attribute(attributeName, (Serializable) attributeValue));
                         }
                     }
                 }
@@ -736,6 +743,16 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         return attributedType;
     }
 
+    private String findAttributeName(Map<String, String> attrMapping, String propertyValue) {
+        for (Map.Entry<String,String> currentAttr : attrMapping.entrySet()) {
+            if (currentAttr.getValue().equalsIgnoreCase(propertyValue)) {
+                return currentAttr.getKey();
+            }
+        }
+
+        return null;
+    }
+
     private List<String> getEntryObjectClasses(final Attributes attributes) throws NamingException {
         Attribute objectClassesAttribute = attributes.get(OBJECT_CLASS);
         List<String> objectClasses = new ArrayList<String>();
@@ -761,8 +778,19 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
             if (!getMappingConfig(attributedType.getClass()).getReadOnlyAttributes().contains(propertyName)) {
                 Property<Object> property = PropertyQueries
                         .<Object>createQuery(attributedType.getClass())
-                        .addCriteria(new NamedPropertyCriteria(propertyName)).getSingleResult();
-                Object propertyValue = property.getValue(attributedType);
+                        .addCriteria(new NamedPropertyCriteria(propertyName)).getFirstResult();
+
+                Object propertyValue = null;
+                if (property != null) {
+                    // Mapped Java property on the object
+                    propertyValue = property.getValue(attributedType);
+                } else {
+                    // Not mapped property. So fallback to attribute
+                    org.picketlink.idm.model.Attribute<?> attribute = attributedType.getAttribute(propertyName);
+                    if (attribute != null) {
+                        propertyValue = attribute.getValue();
+                    }
+                }
 
                 if (AttributedType.class.isInstance(propertyValue)) {
                     AttributedType referencedType = (AttributedType) propertyValue;
