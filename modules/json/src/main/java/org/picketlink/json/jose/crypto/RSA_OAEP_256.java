@@ -55,7 +55,7 @@ public class RSA_OAEP_256 {
     public static byte[] encryptCEK(final RSAPublicKey pub, final SecretKey cek) {
 
         try {
-            AlgorithmParameters algp = AlgorithmParameters.getInstance("OAEP");
+            AlgorithmParameters algp = AlgorithmParameters.getInstance("OAEP", new BouncyCastleProvider());
             AlgorithmParameterSpec paramSpec = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
             algp.init(paramSpec);
             Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding", new BouncyCastleProvider());
@@ -86,7 +86,7 @@ public class RSA_OAEP_256 {
         final byte[] encryptedCEK) {
 
         try {
-            AlgorithmParameters algp = AlgorithmParameters.getInstance("OAEP");
+            AlgorithmParameters algp = AlgorithmParameters.getInstance("OAEP", new BouncyCastleProvider());
             AlgorithmParameterSpec paramSpec = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
             algp.init(paramSpec);
             Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding", new BouncyCastleProvider());
