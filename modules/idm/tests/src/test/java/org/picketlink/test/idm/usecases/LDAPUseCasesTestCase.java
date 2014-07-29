@@ -21,6 +21,7 @@ package org.picketlink.test.idm.usecases;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.After;
@@ -120,37 +121,43 @@ public class LDAPUseCasesTestCase {
     @Test
     public void testDynamicAttributes() throws Exception {
         IdentityManager identityManager = partitionManager.createIdentityManager();
-        User john = new User("john");
+        User john = new User("johny1");
         john.setFirstName("wontBeUsed");
         john.setLastName("Anthon");
-        john.setEmail("john@email.org");
+        john.setEmail("johny1@email.org");
         john.setAttribute(new Attribute("fooFirstName", "John"));
         identityManager.add(john);
 
-        // modifyDate is null after creation
-        john = BasicModel.getUser(identityManager, "john");
+        // modifyDate may be null after creation (depends on LDAP server)
+        john = BasicModel.getUser(identityManager, "johny1");
         Assert.assertNotNull(john.getCreatedDate());
-        Assert.assertNull(john.getAttribute("modifyDate"));
 
         john.setLastName("Anthony");
         identityManager.update(john);
 
-        john = BasicModel.getUser(identityManager, "john");
+        john = BasicModel.getUser(identityManager, "johny1");
         Assert.assertNull(john.getFirstName());
         Assert.assertEquals("Anthony", john.getLastName());
-        Assert.assertEquals("john@email.org", john.getEmail());
+        Assert.assertEquals("johny1@email.org", john.getEmail());
         Assert.assertEquals("John", john.getAttribute("fooFirstName").getValue());
         Assert.assertNotNull(john.getCreatedDate());
         Assert.assertNotNull(john.getAttribute("modifyDate"));
+
+        identityManager.remove(john);
+        Assert.assertNull(BasicModel.getUser(identityManager, "johny1"));
     }
 
     private PartitionManager getPartitionManager() {
+        Properties connectionProps = new Properties();
+        connectionProps.put("com.sun.jndi.ldap.connect.pool", "true");
+
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
         builder
             .named(SIMPLE_LDAP_STORE_CONFIG)
                 .stores()
                     .ldap()
+                        .connectionProperties(connectionProps)
                         .baseDN(embeddedServer.getBaseDn())
                         .bindDN(embeddedServer.getBindDn())
                         .bindCredential(embeddedServer.getBindCredential())

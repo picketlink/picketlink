@@ -764,12 +764,13 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         return objectClasses;
     }
 
-    protected BasicAttributes extractAttributes(AttributedType attributedType, boolean extractObjectClasses) {
+    protected BasicAttributes extractAttributes(AttributedType attributedType, boolean isCreate) {
         BasicAttributes entryAttributes = new BasicAttributes();
-        Map<String, String> mappedProperties = getMappingConfig(attributedType.getClass()).getMappedProperties();
+        LDAPMappingConfiguration mappingConfig = getMappingConfig(attributedType.getClass());
+        Map<String, String> mappedProperties = mappingConfig.getMappedProperties();
 
         for (String propertyName : mappedProperties.keySet()) {
-            if (!getMappingConfig(attributedType.getClass()).getReadOnlyAttributes().contains(propertyName)) {
+            if (!mappingConfig.getReadOnlyAttributes().contains(propertyName) && (isCreate || !mappingConfig.getBindingProperty().getName().equals(propertyName))) {
                 Property<Object> property = PropertyQueries
                         .<Object>createQuery(attributedType.getClass())
                         .addCriteria(new NamedPropertyCriteria(propertyName)).getFirstResult();
@@ -799,7 +800,8 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
             }
         }
 
-        if (extractObjectClasses) {
+        // Don't extract object classes for update
+        if (isCreate) {
             LDAPMappingConfiguration ldapEntryConfig = getMappingConfig(attributedType.getClass());
 
             BasicAttribute objectClassAttribute = new BasicAttribute(OBJECT_CLASS);
