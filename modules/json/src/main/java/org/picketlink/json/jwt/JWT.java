@@ -62,6 +62,20 @@ import static org.picketlink.json.util.JsonUtil.b64Encode;
  * The JSON representation of a token is obtained via <code>toString()</code> method.
  * </p>
  *
+ * <p>
+ * Supports all registered claims of the JWT specification:
+ *
+ * <ul>
+ * <li>iss - Issuer
+ * <li>sub - Subject
+ * <li>aud - Audience
+ * <li>exp - Expiration Time
+ * <li>nbf - Not Before
+ * <li>iat - Issued At
+ * <li>jti - JWT ID
+ * <li>typ - Type
+ * </ul>
+ *
  * @author Pedro Igor
  */
 public class JWT {
@@ -82,9 +96,11 @@ public class JWT {
 
     /**
      * <p>
-     * Creates a new instance using the claims set and values from the given {@link javax.json.JsonObject}.
+     * Creates a new instance using the headers set and claims set using their values from the given
+     * {@link javax.json.JsonObject}.
      * </p>
      *
+     * @param headers the headers
      * @param claims The claims set and their respective values.
      */
     protected JWT(JsonObject headers, JsonObject claims) {
@@ -94,14 +110,14 @@ public class JWT {
 
     /**
      * <p>
-     * Ecodes the JSON representation of a JWT according with the specification.
+     * Encodes the JSON representation of headers and claims of a JWT according to the specification.
      * </p>
      *
      * <p>
      * In order to decode, refer to the corresponding {@link JWTBuilder} of this class.
      * </p>
      *
-     * @return
+     * @return the string
      */
     public String encode() {
         return format(b64Encode(getPlainHeader()), b64Encode(getPlainClaims())).toString();
@@ -112,7 +128,7 @@ public class JWT {
      * Declares the MIME Media Type [IANA.MediaTypes] of this complete JWT in contexts where this is useful to the application.
      * </p>
      *
-     * @return
+     * @return the string
      */
     public String geType() {
         return getHeader(HEADER_TYPE);
@@ -123,7 +139,7 @@ public class JWT {
      * Used by this specification to convey structural information about the JWT.
      * </p>
      *
-     * @return
+     * @return the content type
      */
     public String getContentType() {
         return getHeader(HEADER_CONTENT_TYPE);
@@ -134,7 +150,7 @@ public class JWT {
      * The unique identifier for a JWT.
      * </p>
      *
-     * @return
+     * @return the id
      */
     public String getId() {
         return getClaim(CLAIM_ID);
@@ -145,7 +161,7 @@ public class JWT {
      * The principal that issued the JWT.
      * </p>
      *
-     * @return
+     * @return the issuer
      */
     public String getIssuer() {
         return getClaim(CLAIM_ISSUER);
@@ -156,7 +172,7 @@ public class JWT {
      * Identifies the audience that the JWT is intended for.
      * </p>
      *
-     * @return
+     * @return the audience
      */
     public List<String> getAudience() {
         return getClaimValues(CLAIM_AUDIENCE);
@@ -167,7 +183,7 @@ public class JWT {
      * Identifies the principal that is the subject of the JWT.
      * </p>
      *
-     * @return
+     * @return the subject
      */
     public String getSubject() {
         return getClaim(CLAIM_SUBJECT);
@@ -178,7 +194,7 @@ public class JWT {
      * The time at which the JWT was issued.
      * </p>
      *
-     * @return
+     * @return the issued at
      */
     public Integer getIssuedAt() {
         return Integer.valueOf(getClaim(CLAIM_ISSUED_AT).toString());
@@ -189,7 +205,7 @@ public class JWT {
      * The expiration time on or after which the token MUST NOT be accepted for processing.
      * </p>
      *
-     * @return
+     * @return the expiration
      */
     public Integer getExpiration() {
         return Integer.valueOf(getClaim(CLAIM_EXPIRATION).toString());
@@ -199,13 +215,17 @@ public class JWT {
      * <p>
      * The time before which the token MUST NOT be accepted for processing
      * </p>
+     * .
      *
-     * @return
+     * @return the not before
      */
     public Integer getNotBefore() {
         return Integer.valueOf(getClaim(CLAIM_NOT_BEFORE).toString());
     }
 
+    /**
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
         return format(getPlainHeader(), getPlainClaims()).toString();
@@ -217,7 +237,7 @@ public class JWT {
      * respective values.
      * </p>
      *
-     * @return
+     * @return the claims
      */
     public JsonObject getClaims() {
         return this.claims;
@@ -229,7 +249,7 @@ public class JWT {
      * values.
      * </p>
      *
-     * @return
+     * @return the headers
      */
     public JsonObject getHeaders() {
         return this.headers;
@@ -240,8 +260,8 @@ public class JWT {
      * Returns a claim given its name. If the claim represents an array, only the first value is returned.
      * </p>
      *
-     * @param name
-     * @return
+     * @param name the name
+     * @return the claim
      */
     public String getClaim(String name) {
         return getValue(name, this.claims);
@@ -252,8 +272,8 @@ public class JWT {
      * Returns a claim given its name.
      * </p>
      *
-     * @param name
-     * @return
+     * @param name the name
+     * @return the claim values
      */
     public List<String> getClaimValues(String name) {
         return getValues(name, this.claims);
@@ -264,8 +284,8 @@ public class JWT {
      * Returns a header given its name. If the header represents an array, only the first value is returned.
      * </p>
      *
-     * @param name
-     * @return
+     * @param name the name
+     * @return the header
      */
     public String getHeader(String name) {
         return getValue(name, this.headers);
@@ -276,8 +296,8 @@ public class JWT {
      * Returns a header given its name.
      * </p>
      *
-     * @param name
-     * @return
+     * @param name the name
+     * @return the header values
      */
     public List<String> getHeaderValues(String name) {
         return getValues(name, this.headers);
@@ -290,12 +310,17 @@ public class JWT {
      *
      * @param header The string representing the header.
      * @param claimsSet The string representing the claims set.
-     * @return
+     * @return the string builder
      */
     private StringBuilder format(String header, String claimsSet) {
         return new StringBuilder().append(header).append(PERIOD).append(claimsSet);
     }
 
+    /**
+     * Gets the plain claims set as a string representation.
+     *
+     * @return the plain claims set
+     */
     private String getPlainClaims() {
         StringWriter claimsWriter = new StringWriter();
 
@@ -304,6 +329,11 @@ public class JWT {
         return claimsWriter.getBuffer().toString();
     }
 
+    /**
+     * Gets the plain header as a string representation.
+     *
+     * @return the plain header set
+     */
     private String getPlainHeader() {
         StringWriter headerWriter = new StringWriter();
 
@@ -312,6 +342,13 @@ public class JWT {
         return headerWriter.getBuffer().toString();
     }
 
+    /**
+     * Parses the specified key value from the {@link javax.json.JsonObject} into a collection of strings.
+     *
+     * @param name the header or claim name
+     * @param jsonObject the JSON object representing the headers set or the claims set.
+     * @return a collection of values for the specified key in JsonObject
+     */
     private List<String> getValues(String name, JsonObject jsonObject) {
         JsonValue headerValue = jsonObject.get(name);
         List<String> values = new ArrayList<String>();
@@ -327,10 +364,16 @@ public class JWT {
                 values.add(getValue(name, jsonObject).toString());
             }
         }
-
         return values;
     }
 
+    /**
+     * Gets the key value from the {@link javax.json.JsonValue}.
+     *
+     * @param <R> the generic type as value could be an object, array, number, string or boolean value.
+     * @param value the JsonValue which is to be parsed.
+     * @return
+     */
     private <R> R getValue(JsonValue value) {
         if (ARRAY.equals(value.getValueType())) {
             JsonArray array = (JsonArray) value;
@@ -348,6 +391,13 @@ public class JWT {
         return null;
     }
 
+    /**
+     * Gets the value of the specified key from the {@link javax.json.JsonObject}
+     *
+     * @param name the key whose value is to be retrieved.
+     * @param jsonObject the JSON object representing headers or claims set.
+     * @return the value of the specified key.
+     */
     private String getValue(String name, JsonObject jsonObject) {
         JsonValue value = jsonObject.get(name);
 

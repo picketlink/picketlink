@@ -62,17 +62,91 @@ import javax.json.JsonString;
 import javax.json.JsonValue;
 
 /**
- * The Class JWK.
+ * The base class for JSON Web Keys (JWKs). It serializes to a JSON object.
+ *
+ * <p>
+ * The following JSON object members are common to all JWK types:
+ *
+ * <ul>
+ * <li>{@link #getKeyType kty} (required)
+ * <li>{@link #getKeyUse use} (optional)
+ * <li>{@link #getKeyOperations key_ops} (optional)
+ * <li>{@link #getKeyIdentifier kid} (optional)
+ * </ul>
+ *
+ * <p>
+ * Example JSON object representation of a public RSA JWK:
+ *
+ * <pre>
+ * {
+ *   "kty" : "RSA",
+ *   "n"   : "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx
+ *            4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMs
+ *            tn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2
+ *            QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbI
+ *            SD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqb
+ *            w0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw",
+ *   "e"   : "AQAB",
+ *   "alg" : "RS256",
+ *   "kid" : "2011-04-29"
+ * }
+ * </pre>
+ *
+ * <p>
+ * Example JSON object representation of a public and private RSA JWK (with both the first and the second private key
+ * representations):
+ *
+ * <pre>
+ * {
+ *   "kty" : "RSA",
+ *   "n"   : "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx
+ *            4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMs
+ *            tn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2
+ *            QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbI
+ *            SD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqb
+ *            w0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw",
+ *   "e"   : "AQAB",
+ *   "d"   : "X4cTteJY_gn4FYPsXB8rdXix5vwsg1FLN5E3EaG6RJoVH-HLLKD9
+ *            M7dx5oo7GURknchnrRweUkC7hT5fJLM0WbFAKNLWY2vv7B6NqXSzUvxT0_YSfqij
+ *            wp3RTzlBaCxWp4doFk5N2o8Gy_nHNKroADIkJ46pRUohsXywbReAdYaMwFs9tv8d
+ *            _cPVY3i07a3t8MN6TNwm0dSawm9v47UiCl3Sk5ZiG7xojPLu4sbg1U2jx4IBTNBz
+ *            nbJSzFHK66jT8bgkuqsk0GjskDJk19Z4qwjwbsnn4j2WBii3RL-Us2lGVkY8fkFz
+ *            me1z0HbIkfz0Y6mqnOYtqc0X4jfcKoAC8Q",
+ *   "p"   : "83i-7IvMGXoMXCskv73TKr8637FiO7Z27zv8oj6pbWUQyLPQBQxtPV
+ *            nwD20R-60eTDmD2ujnMt5PoqMrm8RfmNhVWDtjjMmCMjOpSXicFHj7XOuVIYQyqV
+ *            WlWEh6dN36GVZYk93N8Bc9vY41xy8B9RzzOGVQzXvNEvn7O0nVbfs",
+ *   "q"   : "3dfOR9cuYq-0S-mkFLzgItgMEfFzB2q3hWehMuG0oCuqnb3vobLyum
+ *            qjVZQO1dIrdwgTnCdpYzBcOfW5r370AFXjiWft_NGEiovonizhKpo9VVS78TzFgx
+ *            kIdrecRezsZ-1kYd_s1qDbxtkDEgfAITAG9LUnADun4vIcb6yelxk",
+ *   "dp"  : "G4sPXkc6Ya9y8oJW9_ILj4xuppu0lzi_H7VTkS8xj5SdX3coE0oim
+ *            YwxIi2emTAue0UOa5dpgFGyBJ4c8tQ2VF402XRugKDTP8akYhFo5tAA77Qe_Nmtu
+ *            YZc3C3m3I24G2GvR5sSDxUyAN2zq8Lfn9EUms6rY3Ob8YeiKkTiBj0",
+ *   "dq"  : "s9lAH9fggBsoFR8Oac2R_E2gw282rT2kGOAhvIllETE1efrA6huUU
+ *            vMfBcMpn8lqeW6vzznYY5SSQF7pMdC_agI3nG8Ibp1BUb0JUiraRNqUfLhcQb_d9
+ *            GF4Dh7e74WbRsobRonujTYN1xCaP6TO61jvWrX-L18txXw494Q_cgk",
+ *   "qi"  : "GyM_p6JrXySiz1toFgKbWV-JdI3jQ4ypu9rbMWx3rQJBfmt0FoYzg
+ *            UIZEVFEcOqwemRN81zoDAaa-Bk0KWNGDjJHZDdDmFhW3AN7lI-puxk_mHZGJ11rx
+ *            yR8O55XLSe3SPmRfKwZI6yU24ZxvQKFYItdldUKGzO6Ia6zTKhAVRU",
+ *   "alg" : "RS256",
+ *   "kid" : "2011-04-29"
+ * }
+ * </pre>
+ *
+ * <p>
+ * See RFC 3447.
+ *
+ * <p>
+ * See http://en.wikipedia.org/wiki/RSA_%28algorithm%29
  *
  * @author Giriraj Sharma
  */
 public class JWK {
 
-    /** The key parameters. */
+    /** The key parameters for JWK implementation of JOSE. */
     private JsonObject keyParameters;
 
     /**
-     * Instantiates a new jwk.
+     * Instantiates a new JWK.
      *
      * @param keyParameters the key parameters
      */
@@ -81,7 +155,7 @@ public class JWK {
     }
 
     /**
-     * Gets the key type.
+     * Gets the key type, required.
      *
      * @return the key type
      */
@@ -90,7 +164,7 @@ public class JWK {
     }
 
     /**
-     * Gets the key use.
+     * Gets the key use, optional.
      *
      * @return the key use
      */
@@ -99,7 +173,7 @@ public class JWK {
     }
 
     /**
-     * Gets the key operations.
+     * Gets the key operations, optional.
      *
      * @return the key operations
      */
@@ -108,7 +182,7 @@ public class JWK {
     }
 
     /**
-     * Gets the key algorithm.
+     * Gets the intended JOSE algorithm for the key, optional.
      *
      * @return the key algorithm
      */
@@ -117,7 +191,7 @@ public class JWK {
     }
 
     /**
-     * Gets the key identifier.
+     * Gets the key identifier, optional.
      *
      * @return the key identifier
      */
@@ -126,9 +200,9 @@ public class JWK {
     }
 
     /**
-     * Gets the x509 url.
+     * Gets the x509 URL.
      *
-     * @return the x509 url
+     * @return the x509 URL
      */
     public String getX509Url() {
         return getKeyParameter(X509_URL);
@@ -144,25 +218,25 @@ public class JWK {
     }
 
     /**
-     * Gets the x509 sha1 certificate thumbprint.
+     * Gets the x509 SHA1 certificate thumbprint.
      *
-     * @return the x509 sha1 certificate thumbprint
+     * @return the x509 SHA1 certificate thumbprint
      */
     public String getX509SHA1CertificateThumbprint() {
         return getKeyParameter(X509_CERTIFICATE_SHA1_THUMBPRINT);
     }
 
     /**
-     * Gets the x509 sha256 certificate thumbprint.
+     * Gets the x509 SHA256 certificate thumbprint.
      *
-     * @return the x509 sha256 certificate thumbprint
+     * @return the x509 SHA256 certificate thumbprint
      */
     public String getX509SHA256CertificateThumbprint() {
         return getKeyParameter(X509_CERTIFICATE_SHA256_THUMBPRINT);
     }
 
     /**
-     * Gets the modulus.
+     * Gets the modulus value for the RSA key.
      *
      * @return the modulus
      */
@@ -171,7 +245,7 @@ public class JWK {
     }
 
     /**
-     * Gets the public exponent.
+     * Gets the public exponent of the RSA key.
      *
      * @return the public exponent
      */
@@ -180,7 +254,7 @@ public class JWK {
     }
 
     /**
-     * Gets the private exponent.
+     * Gets the private exponent of the RSA key.
      *
      * @return the private exponent
      */
@@ -189,7 +263,7 @@ public class JWK {
     }
 
     /**
-     * Gets the prime p.
+     * Gets the first prime factor of the private RSA key.
      *
      * @return the prime p
      */
@@ -198,7 +272,7 @@ public class JWK {
     }
 
     /**
-     * Gets the prime q.
+     * Gets second prime factor of the private RSA key.
      *
      * @return the prime q
      */
@@ -207,7 +281,7 @@ public class JWK {
     }
 
     /**
-     * Gets the prime exponent p.
+     * Gets the first factor Chinese Remainder Theorem exponent of the private RSA key.
      *
      * @return the prime exponent p
      */
@@ -216,7 +290,7 @@ public class JWK {
     }
 
     /**
-     * Gets the prime exponent q.
+     * Gets the second factor Chinese Remainder Theorem exponent of the private RSA key.
      *
      * @return the prime exponent q
      */
@@ -225,7 +299,7 @@ public class JWK {
     }
 
     /**
-     * Gets the CRT coefficient.
+     * Gets the The first Chinese Remainder Theorem coefficient of the private RSA key.
      *
      * @return the CRT coefficient
      */
@@ -275,11 +349,11 @@ public class JWK {
     }
 
     /**
-     * Gets the values.
+     * Parses the specified key parameter value from the {@link javax.json.JsonObject} into a collection of strings.
      *
-     * @param name the name
-     * @param jsonObject the json object
-     * @return the values
+     * @param name the parameter name
+     * @param jsonObject the JSON object representing the key parameters set.
+     * @return a collection of values for the specified key parameter in JsonObject
      */
     private List<String> getValues(String name, JsonObject jsonObject) {
         JsonValue headerValue = jsonObject.get(name);
@@ -301,11 +375,11 @@ public class JWK {
     }
 
     /**
-     * Gets the value.
+     * Gets the parameter value from the {@link javax.json.JsonValue}.
      *
-     * @param <R> the generic type
-     * @param value the value
-     * @return the value
+     * @param <R> the generic type as value could be an object, array, number, string or boolean value.
+     * @param value the JsonValue which is to be parsed.
+     * @return
      */
     private <R> R getValue(JsonValue value) {
         if (ARRAY.equals(value.getValueType())) {
@@ -325,11 +399,11 @@ public class JWK {
     }
 
     /**
-     * Gets the value.
+     * Gets the value of the specified key from the {@link javax.json.JsonObject}
      *
-     * @param name the name
-     * @param jsonObject the json object
-     * @return the value
+     * @param name the parameter whose value is to be retrieved.
+     * @param jsonObject the JSON object representing headers or claims set.
+     * @return the value of the specified key.
      */
     private String getValue(String name, JsonObject jsonObject) {
         JsonValue value = jsonObject.get(name);
@@ -353,7 +427,7 @@ public class JWK {
     }
 
     /**
-     * To rsa public key.
+     * Builds up the {@link java.security.interfaces.RSAPublicKey} using modulus and public exponent of RSA Key.
      *
      * @return the RSA public key
      */
@@ -380,9 +454,9 @@ public class JWK {
     }
 
     /**
-     * Gets the json object.
+     * Gets the {@link javax.json.JsonObject}.
      *
-     * @return the json object
+     * @return the JSON object
      */
     public JsonObject getJsonObject() {
         return this.keyParameters;

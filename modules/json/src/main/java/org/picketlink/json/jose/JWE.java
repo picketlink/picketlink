@@ -28,18 +28,18 @@ import static javax.json.JsonValue.ValueType.STRING;
 import static javax.json.JsonValue.ValueType.TRUE;
 import static org.picketlink.json.JsonConstants.COMMON.ALG;
 import static org.picketlink.json.JsonConstants.COMMON.ENC;
-import static org.picketlink.json.JsonConstants.COMMON.KEY_ID;
-import static org.picketlink.json.JsonConstants.COMMON.HEADER_TYPE;
 import static org.picketlink.json.JsonConstants.COMMON.HEADER_CONTENT_TYPE;
-import static org.picketlink.json.JsonConstants.COMMON.HEADER_JWK_SET_URL;
 import static org.picketlink.json.JsonConstants.COMMON.HEADER_JSON_WEB_KEY;
-import static org.picketlink.json.JsonConstants.JWK.X509_URL;
+import static org.picketlink.json.JsonConstants.COMMON.HEADER_JWK_SET_URL;
+import static org.picketlink.json.JsonConstants.COMMON.HEADER_TYPE;
+import static org.picketlink.json.JsonConstants.COMMON.KEY_ID;
+import static org.picketlink.json.JsonConstants.JWE.CEK_BITLENGTH;
+import static org.picketlink.json.JsonConstants.JWE.COMPRESSION_ALG;
+import static org.picketlink.json.JsonConstants.JWE.HEADER_CRITICAL_PARAMETER;
 import static org.picketlink.json.JsonConstants.JWK.X509_CERTIFICATE_CHAIN;
 import static org.picketlink.json.JsonConstants.JWK.X509_CERTIFICATE_SHA1_THUMBPRINT;
 import static org.picketlink.json.JsonConstants.JWK.X509_CERTIFICATE_SHA256_THUMBPRINT;
-import static org.picketlink.json.JsonConstants.JWE.COMPRESSION_ALG;
-import static org.picketlink.json.JsonConstants.JWE.HEADER_CRITICAL_PARAMETER;
-import static org.picketlink.json.JsonConstants.JWE.CEK_BITLENGTH;
+import static org.picketlink.json.JsonConstants.JWK.X509_URL;
 import static org.picketlink.json.util.JsonUtil.b64Encode;
 
 import java.io.StringWriter;
@@ -54,17 +54,45 @@ import javax.json.JsonString;
 import javax.json.JsonValue;
 
 /**
- * The Class JWE.
+ * JSON Web Encryption (JWE) header.
+ *
+ * <p>
+ * Supports all Principal Registered Parameter Names of the JWE specification:
+ *
+ * <ul>
+ * <li>alg
+ * <li>enc
+ * <li>epk
+ * <li>zip
+ * <li>jku
+ * <li>jwk
+ * <li>x5u
+ * <li>x5t
+ * <li>x5c
+ * <li>kid
+ * <li>typ
+ * <li>cty
+ * </ul>
+ *
+ * <p>
+ * Example header:
+ *
+ * <pre>
+ * {
+ *   "alg" : "RSA1_5",
+ *   "enc" : "A128CBC-HS256"
+ * }
+ * </pre>
  *
  * @author Giriraj Sharma
  */
 public class JWE {
 
-    /** The headers. */
+    /** The JOSE headers for JWE. */
     private JsonObject headers;
 
     /**
-     * Instantiates a new jwe.
+     * Instantiates a new JWE.
      *
      * @param headers the headers
      */
@@ -73,7 +101,13 @@ public class JWE {
     }
 
     /**
-     * Encode.
+     * <p>
+     * Encodes the JSON representation of headers of a JWE according to the specification.
+     * </p>
+     *
+     * <p>
+     * In order to decode, refer to the corresponding {@link JWEBuilder} of this class.
+     * </p>
      *
      * @return the string
      */
@@ -82,7 +116,7 @@ public class JWE {
     }
 
     /**
-     * Ge type.
+     * Gets the type of JOSE Header.
      *
      * @return the string
      */
@@ -91,7 +125,7 @@ public class JWE {
     }
 
     /**
-     * Gets the content type.
+     * Gets the content type of JOSE Header.
      *
      * @return the content type
      */
@@ -100,7 +134,14 @@ public class JWE {
     }
 
     /**
-     * Gets the algorithm.
+     * Gets the algorithm used to encrypt or determine the value of the Content Encryption Key (CEK).
+     *
+     *
+     * <ul>
+     * <li>{@link #RSA1_5}
+     * <li>{@link #RSA_OAEP RSA-OAEP}
+     * <li>{@link #RSA_OAEP_256 RSA-OAEP-256}
+     * </ul>
      *
      * @return the algorithm
      */
@@ -109,7 +150,16 @@ public class JWE {
     }
 
     /**
-     * Gets the encryption algorithm.
+     * Gets the encryption algorithm used to encrypt the Plaintext to produce the Ciphertext.
+     *
+     * <ul>
+     * <li>{@link #A128CBC_HS256 A128CBC-HS256}
+     * <li>{@link #A192CBC_HS384 A192CBC-HS384}
+     * <li>{@link #A256CBC_HS512 A256CBC-HS512}
+     * <li>{@link #A128GCM}
+     * <li>{@link #A192GCM}
+     * <li>{@link #A256GCM}
+     * </ul>
      *
      * @return the encryption algorithm
      */
@@ -118,16 +168,16 @@ public class JWE {
     }
 
     /**
-     * Gets the CEK bit length.
+     * Gets the Content Encryption Key bit length.
      *
-     * @return the CEK bit length
+     * @return the Content Encryption Key bit length
      */
     public String getCEKBitLength() {
         return getHeader(CEK_BITLENGTH);
     }
 
     /**
-     * Gets the key identifier.
+     * Gets the key identifier used to determine the private key needed to decrypt the JWE.
      *
      * @return the key identifier
      */
@@ -136,7 +186,12 @@ public class JWE {
     }
 
     /**
-     * Gets the compression algorithm.
+     * Gets the compression algorithm. The zip (compression algorithm) applied to the Plaintext before encryption, if any. The
+     * zip value defined by this specification is:
+     *
+     * <ul>
+     * DEF - Compression with the DEFLATE [RFC1951] algorithm
+     * </ul>
      *
      * @return the compression algorithm
      */
@@ -145,27 +200,39 @@ public class JWE {
     }
 
     /**
-     * Gets the JWK set.
+     * Gets the JWK Set.
      *
-     * @return the JWK set
+     * <p>
+     * The JWK Set resource contains the public key to which the JWE was encrypted; this can be used to determine the private
+     * key needed to decrypt the JWE.
+     *
+     * @return the JWK Set
      */
     public String getJWKSet() {
         return getHeader(HEADER_JWK_SET_URL);
     }
 
     /**
-     * Gets the jwk.
+     * Gets the JWK.
      *
-     * @return the jwk
+     * <p>
+     * JWK key is the public key to which the JWE was encrypted; this can be used to determine the private key needed to decrypt
+     * the JWE.
+     *
+     * @return the JWK
      */
     public String getJWK() {
         return getHeader(HEADER_JSON_WEB_KEY);
     }
 
     /**
-     * Gets the x509 url.
+     * Gets the x509 URL.
      *
-     * @return the x509 url
+     * <p>
+     * X.509 public key certificate or certificate chain [RFC5280] contains the public key to which the JWE was encrypted; this
+     * can be used to determine the private key needed to decrypt the JWE.
+     *
+     * @return the x509 URL
      */
     public String getX509Url() {
         return getHeader(X509_URL);
@@ -174,6 +241,10 @@ public class JWE {
     /**
      * Gets the x509 certificate chain.
      *
+     * <p>
+     * The X.509 public key certificate or certificate chain [RFC5280] contains the public key to which the JWE was encrypted;
+     * this can be used to determine the private key needed to decrypt the JWE.
+     *
      * @return the x509 certificate chain
      */
     public List<String> getX509CertificateChain() {
@@ -181,18 +252,26 @@ public class JWE {
     }
 
     /**
-     * Gets the x509 sha1 certificate thumbprint.
+     * Gets the x509 SHA1 certificate thumbprint.
      *
-     * @return the x509 sha1 certificate thumbprint
+     * <p>
+     * The certificate referenced by the thumbprint contains the public key to which the JWE was encrypted; this can be used to
+     * determine the private key needed to decrypt the JWE.
+     *
+     * @return the x509 SHA1 certificate thumbprint
      */
     public String getX509SHA1CertificateThumbprint() {
         return getHeader(X509_CERTIFICATE_SHA1_THUMBPRINT);
     }
 
     /**
-     * Gets the x509 sha256 certificate thumbprint.
+     * Gets the x509 SHA256 certificate thumbprint.
      *
-     * @return the x509 sha256 certificate thumbprint
+     * <p>
+     * The certificate referenced by the thumbprint contains the public key to which the JWE was encrypted; this can be used to
+     * determine the private key needed to decrypt the JWE.
+     *
+     * @return the x509 SHA256 certificate thumbprint
      */
     public String getX509SHA256CertificateThumbprint() {
         return getHeader(X509_CERTIFICATE_SHA256_THUMBPRINT);
@@ -200,6 +279,11 @@ public class JWE {
 
     /**
      * Gets the critical header.
+     *
+     * <p>
+     * The "crit" (critical) Header Parameter indicates that extensions to the initial RFC versions of [[ this specification ]]
+     * and [JWA] are being used that MUST be understood and processed. Its value is an array listing the Header Parameter names
+     * present in the JOSE Header that use those extensions.
      *
      * @return the critical header
      */
@@ -216,7 +300,7 @@ public class JWE {
     }
 
     /**
-     * Gets the headers.
+     * Gets the {@link javax.json.JsonObject} headers.
      *
      * @return the headers
      */
@@ -225,7 +309,7 @@ public class JWE {
     }
 
     /**
-     * Gets the header.
+     * Gets the string representation of headers.
      *
      * @param name the name
      * @return the header
@@ -235,7 +319,7 @@ public class JWE {
     }
 
     /**
-     * Gets the header values.
+     * Gets the header values for the specified name.
      *
      * @param name the name
      * @return the header values
@@ -245,9 +329,9 @@ public class JWE {
     }
 
     /**
-     * Gets the json object.
+     * Gets the {@link javax.json.JsonObject}.
      *
-     * @return the json object
+     * @return the JSON object
      */
     public JsonObject getJsonObject() {
         return this.headers;
@@ -267,11 +351,11 @@ public class JWE {
     }
 
     /**
-     * Gets the values.
+     * Parses the specified header value from the {@link javax.json.JsonObject} into a collection of strings.
      *
-     * @param name the name
-     * @param jsonObject the json object
-     * @return the values
+     * @param name the parameter name
+     * @param jsonObject the JSON object representing the headers set.
+     * @return a collection of values for the specified header parameter in JsonObject
      */
     private List<String> getValues(String name, JsonObject jsonObject) {
         JsonValue headerValue = jsonObject.get(name);
@@ -293,11 +377,11 @@ public class JWE {
     }
 
     /**
-     * Gets the value.
+     * Gets the header parameter value from the {@link javax.json.JsonValue}.
      *
-     * @param <R> the generic type
-     * @param value the value
-     * @return the value
+     * @param <R> the generic type as value could be an object, array, number, string or boolean value.
+     * @param value the JsonValue which is to be parsed.
+     * @return
      */
     private <R> R getValue(JsonValue value) {
         if (ARRAY.equals(value.getValueType())) {
@@ -317,11 +401,11 @@ public class JWE {
     }
 
     /**
-     * Gets the value.
+     * Gets the value of the specified header from the {@link javax.json.JsonObject}
      *
-     * @param name the name
-     * @param jsonObject the json object
-     * @return the value
+     * @param name the header parameter whose value is to be retrieved.
+     * @param jsonObject the JSON object representing headers set.
+     * @return the value of the specified header.
      */
     private String getValue(String name, JsonObject jsonObject) {
         JsonValue value = jsonObject.get(name);
