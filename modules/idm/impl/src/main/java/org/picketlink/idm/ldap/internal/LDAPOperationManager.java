@@ -92,6 +92,31 @@ public class LDAPOperationManager {
 
     /**
      * <p>
+     * Modifies the given {@link Attribute} instances using the given DN. This method performs a REPLACE_ATTRIBUTE
+     * operation.
+     * </p>
+     *
+     * @param dn
+     * @param attributes
+     */
+    public void modifyAttributes(String dn,  NamingEnumeration<Attribute> attributes) {
+        try {
+            List<ModificationItem> modItems = new ArrayList<ModificationItem>();
+            while (attributes.hasMore()) {
+                ModificationItem modItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, attributes.next());
+                modItems.add(modItem);
+            }
+
+            modifyAttributes(dn, modItems.toArray(new ModificationItem[] {}));
+        } catch (NamingException ne) {
+            LDAP_STORE_LOGGER.errorf(ne, "Could not modify attributes on entry from DN [%s]", dn);
+            throw new RuntimeException(ne);
+        }
+
+    }
+
+    /**
+     * <p>
      * Removes the given {@link Attribute} instance using the given DN. This method performs a REMOVE_ATTRIBUTE
      * operation.
      * </p>

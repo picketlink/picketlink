@@ -123,13 +123,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
             BasicAttributes updatedAttributes = extractAttributes(attributedType, false);
             NamingEnumeration<Attribute> attributes = updatedAttributes.getAll();
 
-            try {
-                while (attributes.hasMore()) {
-                    this.operationManager.modifyAttribute(getBindingDN(attributedType, true), attributes.next());
-                }
-            } catch (NamingException ne) {
-                throw new IdentityManagementException("Could not update attributes.", ne);
-            }
+            this.operationManager.modifyAttributes(getBindingDN(attributedType, true), attributes);
         }
     }
 
