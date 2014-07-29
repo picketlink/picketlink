@@ -19,6 +19,7 @@
 package org.picketlink.test.idm.usecases;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -34,7 +35,9 @@ import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.internal.DefaultPartitionManager;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.basic.Agent;
+import org.picketlink.idm.model.basic.BasicModel;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.util.LDAPEmbeddedServer;
@@ -45,13 +48,14 @@ import static org.junit.Assert.assertTrue;
 import static org.picketlink.common.constants.LDAPConstants.CN;
 import static org.picketlink.common.constants.LDAPConstants.CREATE_TIMESTAMP;
 import static org.picketlink.common.constants.LDAPConstants.EMAIL;
+import static org.picketlink.common.constants.LDAPConstants.MODIFY_TIMESTAMP;
 import static org.picketlink.common.constants.LDAPConstants.SN;
 import static org.picketlink.common.constants.LDAPConstants.UID;
 
 /**
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class LDAPPaginationTestCase {
+public class LDAPUseCasesTestCase {
 
     public static final String SIMPLE_LDAP_STORE_CONFIG = "SIMPLE_LDAP_STORE_CONFIG";
     private final LDAPEmbeddedServer embeddedServer = new LDAPEmbeddedServer();
@@ -113,6 +117,33 @@ public class LDAPPaginationTestCase {
         }
     }
 
+    @Test
+    public void testDynamicAttributes() throws Exception {
+        IdentityManager identityManager = partitionManager.createIdentityManager();
+        User john = new User("john");
+        john.setFirstName("wontBeUsed");
+        john.setLastName("Anthon");
+        john.setEmail("john@email.org");
+        john.setAttribute(new Attribute("fooFirstName", "John"));
+        identityManager.add(john);
+
+        // modifyDate is null after creation
+        john = BasicModel.getUser(identityManager, "john");
+        Assert.assertNotNull(john.getCreatedDate());
+        Assert.assertNull(john.getAttribute("modifyDate"));
+
+        john.setLastName("Anthony");
+        identityManager.update(john);
+
+        john = BasicModel.getUser(identityManager, "john");
+        Assert.assertNull(john.getFirstName());
+        Assert.assertEquals("Anthony", john.getLastName());
+        Assert.assertEquals("john@email.org", john.getEmail());
+        Assert.assertEquals("John", john.getAttribute("fooFirstName").getValue());
+        Assert.assertNotNull(john.getCreatedDate());
+        Assert.assertNotNull(john.getAttribute("modifyDate"));
+    }
+
     private PartitionManager getPartitionManager() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
@@ -126,16 +157,15 @@ public class LDAPPaginationTestCase {
                         .url(embeddedServer.getConnectionUrl())
                         .supportAllFeatures()
                         .pagination(true)
-                        .activeDirectory(true)
                         .mapping(User.class)
                             .baseDN(embeddedServer.getUserDnSuffix())
-                            .baseDN("ou=People,o=keycloak,dc=jboss,dc=test1")
                             .objectClasses("inetOrgPerson", "organizationalPerson")
-                            .attribute("loginName", CN, true)
-                            .attribute("firstName", "givenName")
+                            .attribute("loginName", UID, true)
+                            .attribute("fooFirstName", CN)
                             .attribute("lastName", SN)
                             .attribute("email", EMAIL)
-                            .readOnlyAttribute("createdDate", CREATE_TIMESTAMP);
+                            .readOnlyAttribute("createdDate", CREATE_TIMESTAMP)
+                            .readOnlyAttribute("modifyDate", MODIFY_TIMESTAMP);
 
         return new DefaultPartitionManager(builder.buildAll());
     }

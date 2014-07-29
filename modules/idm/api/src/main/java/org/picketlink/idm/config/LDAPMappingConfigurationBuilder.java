@@ -99,11 +99,7 @@ public class LDAPMappingConfigurationBuilder extends
             Property<String> property =
                     PropertyQueries.<String>createQuery(this.mappedClass).addCriteria(new NamedPropertyCriteria(propertyName)).getFirstResult();
 
-            if (property == null) {
-                throw new SecurityConfigurationException("Could not resolve property [" + propertyName + "] from mapped class [" + this.mappedClass + "].");
-            }
-
-            if (!property.isAnnotationPresent(AttributeProperty.class) && !Relationship.class.isAssignableFrom(this.mappedClass)) {
+            if (property != null && !property.isAnnotationPresent(AttributeProperty.class) && !Relationship.class.isAssignableFrom(this.mappedClass)) {
                 throw new SecurityConfigurationException("Mapped properties must be annotated with @AttributeProperty. Property [" + this.mappedClass + "." + propertyName + "].");
             }
         }

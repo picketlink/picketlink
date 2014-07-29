@@ -47,5 +47,6 @@ public interface LDAPConstants {
     String ENTRY_UUID = "entryUUID";
     String OBJECT_GUID = "objectGUID";
     String CREATE_TIMESTAMP = "createTimeStamp";
+    String MODIFY_TIMESTAMP = "modifyTimeStamp";
 
 }
