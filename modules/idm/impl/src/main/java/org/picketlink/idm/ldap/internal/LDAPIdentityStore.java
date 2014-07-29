@@ -743,9 +743,9 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         return attributedType;
     }
 
-    private String findAttributeName(Map<String, String> attrMapping, String propertyValue) {
+    private String findAttributeName(Map<String, String> attrMapping, String ldapAttributeName) {
         for (Map.Entry<String,String> currentAttr : attrMapping.entrySet()) {
-            if (currentAttr.getValue().equalsIgnoreCase(propertyValue)) {
+            if (currentAttr.getValue().equalsIgnoreCase(ldapAttributeName)) {
                 return currentAttr.getKey();
             }
         }
