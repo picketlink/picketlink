@@ -19,45 +19,29 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.idm.jpa.model.sample.simple;
-
-import org.picketlink.idm.credential.storage.TokenCredentialStorage;
-import org.picketlink.idm.jpa.annotations.CredentialProperty;
-import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
+package org.picketlink.idm.credential;
 
 /**
- * <p>{@link javax.persistence.Entity} representing a {@link org.picketlink.idm.credential.Token}.</p>
+ * <p>A default {@link org.picketlink.idm.credential.Token} implementation.</p>
  *
  * @author Pedro Igor
  */
-@ManagedCredential(TokenCredentialStorage.class)
-@Entity
-public class TokenCredentialTypeEntity extends AbstractCredentialTypeEntity {
+public abstract class AbstractToken implements Token {
 
-    @CredentialProperty
-    @Column
-    private String type;
+    private final String type = getClass().getName();
+    private final String token;
 
-    @CredentialProperty
-    @Column(columnDefinition = "TEXT")
-    private String token;
+    public AbstractToken(String token) {
+        this.token = token;
+    }
 
+    @Override
     public String getType() {
-        return this.type;
+        return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
+    @Override
     public String getToken() {
         return this.token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
     }
 }

@@ -48,9 +48,6 @@ public interface IDMInternalMessages extends IDMMessages {
 
     IDMInternalMessages MESSAGES = Messages.getBundle(IDMInternalMessages.class);
 
-    @Message(id = 6, value = "Could not initialize Partition Manager [%s].")
-    IdentityManagementException partitionManagerInitializationFailed(Class<? extends PartitionManager> partitionManagerType, @Cause Throwable t);
-
     // identity store API messages 300-399
     @Message(id = 300, value = "No store found with type [%s].")
     IdentityManagementException storeNotFound(Class<? extends IdentityStore> partitionStoreClass);

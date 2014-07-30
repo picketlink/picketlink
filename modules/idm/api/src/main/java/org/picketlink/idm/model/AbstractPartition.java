@@ -62,7 +62,8 @@ public abstract class AbstractPartition extends AbstractAttributedType implement
 
         Partition other = (Partition) obj;
 
-        return getId() != null && other.getId() != null && getId().equals(other.getId());
+        return (getId() != null && other.getId() != null && getId().equals(other.getId()))
+            || (getName() != null && other.getName() != null && getName().equals(other.getName()));
     }
 
     @Override

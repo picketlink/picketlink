@@ -19,45 +19,18 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.idm.jpa.model.sample.simple;
-
-import org.picketlink.idm.credential.storage.TokenCredentialStorage;
-import org.picketlink.idm.jpa.annotations.CredentialProperty;
-import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
+package org.picketlink.common.exceptions;
 
 /**
- * <p>{@link javax.persistence.Entity} representing a {@link org.picketlink.idm.credential.Token}.</p>
+ * <p>An exception that indicates that something is not ready for use. Usually, this exception is thrown from methods not
+ * fully implemented or tested but available for invocation.</p>
  *
  * @author Pedro Igor
  */
-@ManagedCredential(TokenCredentialStorage.class)
-@Entity
-public class TokenCredentialTypeEntity extends AbstractCredentialTypeEntity {
+public class NotImplementedException extends PicketLinkException {
 
-    @CredentialProperty
-    @Column
-    private String type;
-
-    @CredentialProperty
-    @Column(columnDefinition = "TEXT")
-    private String token;
-
-    public String getType() {
-        return this.type;
+    public NotImplementedException(String message) {
+        super(message);
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getToken() {
-        return this.token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
 }

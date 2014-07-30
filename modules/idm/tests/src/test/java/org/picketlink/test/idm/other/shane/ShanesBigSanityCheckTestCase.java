@@ -351,10 +351,13 @@ public class ShanesBigSanityCheckTestCase {
         Password newPwd = new Password("newpassword1234");
         identityManager.updateCredential(u, newPwd, tomorrow, null);
 
-        // Confirm that the old password still validates
-        creds = new UsernamePasswordCredentials("jsmith", pwd);
-        identityManager.validateCredentials(creds);
-        assert Credentials.Status.VALID.equals(creds.getStatus());
+        /**
+         * COMMENTED BECAUSE CREDENTIALS HISTORY IS NOT KEPT ANYMORE
+         * // Confirm that the old password still validates
+         * creds = new UsernamePasswordCredentials("jsmith", pwd);
+         * identityManager.validateCredentials(creds);
+         * assert Credentials.Status.VALID.equals(creds.getStatus());
+         */
 
         // Confirm that the new password doesn't validate yet
         creds = new UsernamePasswordCredentials("jsmith", newPwd);

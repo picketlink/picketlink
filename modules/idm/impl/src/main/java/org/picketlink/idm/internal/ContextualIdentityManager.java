@@ -262,6 +262,23 @@ public class ContextualIdentityManager extends AbstractIdentityContext implement
         return storages;
     }
 
+    @Override
+    public void removeCredential(Account account, Class<? extends CredentialStorage> storageClass) {
+        checkIfIdentityTypeExists(account);
+
+        if (storageClass == null) {
+            throw MESSAGES.nullArgument("CredentialStorage type");
+        }
+
+        try {
+            for (CredentialStore credentialStore : this.storeSelector.getStoresForCredentialStorage(this, storageClass)) {
+                credentialStore.removeCredential(this, account, storageClass);
+            }
+        } catch (Exception e) {
+            throw MESSAGES.credentialRetrievalFailed(account, storageClass, e);
+        }
+    }
+
     private void checkUniqueness(IdentityType identityType) {
         if (identityType == null) {
             throw MESSAGES.nullArgument("IdentityType");

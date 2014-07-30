@@ -53,7 +53,7 @@ public class X509CertificateCredentialHandler<S, V, U>
     }
 
     @Override
-    protected boolean validateCredential(IdentityContext context, final CredentialStorage storage, final X509CertificateCredentials credentials) {
+    protected boolean validateCredential(IdentityContext context, final CredentialStorage storage, final X509CertificateCredentials credentials, CredentialStore<?> store) {
         X509CertificateStorage certificateStorage = (X509CertificateStorage) storage;
 
         if (!credentials.isTrusted()) {
@@ -79,8 +79,8 @@ public class X509CertificateCredentialHandler<S, V, U>
     }
 
     @Override
-    public void update(IdentityContext context, Account account, X509Certificate cert, CredentialStore<?> store,
-                       Date effectiveDate, Date expiryDate) {
+    public CredentialStorage createCredentialStorage(IdentityContext context, Account account, X509Certificate cert, CredentialStore<?> store,
+        Date effectiveDate, Date expiryDate) {
         X509CertificateStorage storage = new X509CertificateStorage(cert);
 
         if (effectiveDate != null) {
@@ -89,7 +89,6 @@ public class X509CertificateCredentialHandler<S, V, U>
 
         storage.setExpiryDate(expiryDate);
 
-        store.storeCredential(context, account, storage);
+        return storage;
     }
-
 }

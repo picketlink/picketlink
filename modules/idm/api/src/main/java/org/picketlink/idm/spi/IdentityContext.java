@@ -32,6 +32,17 @@ import org.picketlink.idm.permission.acl.spi.PermissionHandlerPolicy;
 public interface IdentityContext {
 
     /**
+     * <p>Name of the context parameter that provides a reference to an authenticated account. Useful if the identity store
+     * needs a reference to the authenticated account performing a specific operation.</p>
+     */
+    String AUTHENTICATED_ACCOUNT = "AUTHENTICATED_ACCOUNT";
+    /**
+     * <p>Name of the context parameter that provides a reference to the credentials associated with the invocation context for a
+     * specific operation.</p>
+     */
+    String CREDENTIALS = "CREDENTIALS";
+
+    /**
      * Returns the parameter value with the specified name
      *
      * @return

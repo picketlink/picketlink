@@ -33,17 +33,23 @@ import java.util.Date;
 public interface CredentialHandler<S extends IdentityStore<?>,V extends Credentials,U> {
 
     /**
+     * <p>Validates a credential.</p>
      *
-     * @param credentials
-     * @param store
-     * @return
+     * @param context The contextual invocation context.
+     * @param credentials The credential to be validated.
+     * @param store The underlying identity store.
      */
     void validate(IdentityContext context, V credentials, S store);
+
     /**
+     * <p>Updates the credential for a certain {@link org.picketlink.idm.model.Account}.</p>
      *
-     * @param context
-     * @param credential
-     * @param store
+     * @param context The contextual invocation context.
+     * @param account The account which credentials should be removed.
+     * @param credential The credential to be updated.
+     * @param store The underlying identity store.
+     * @param effectiveDate The date specifying from when this credential is valid.
+     * @param expiryDate The date specifying when the credential expires.
      */
     void update(IdentityContext context, Account account, U credential, S store, Date effectiveDate, Date expiryDate);
 

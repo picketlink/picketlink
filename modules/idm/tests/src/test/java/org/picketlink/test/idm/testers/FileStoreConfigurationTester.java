@@ -18,12 +18,11 @@
 package org.picketlink.test.idm.testers;
 
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.credential.Token;
-import org.picketlink.idm.credential.handler.TokenCredentialHandler;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.basic.Realm;
-import org.picketlink.test.idm.credential.TokenCredentialTestCase;
 import org.picketlink.test.idm.model.MyCustomAccount;
+import org.picketlink.test.idm.token.TokenACredentialHandler;
+import org.picketlink.test.idm.token.TokenBCredentialHandler;
 
 /**
  * @author pedroigor
@@ -36,15 +35,13 @@ public class FileStoreConfigurationTester implements IdentityConfigurationTester
     public DefaultPartitionManager getPartitionManager() {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
 
-        TokenCredentialTestCase.TokenAProvider tokenAProvider = new TokenCredentialTestCase.TokenAProvider();
-        TokenCredentialTestCase.TokenBProvider tokenBProvider = new TokenCredentialTestCase.TokenBProvider();
-
         builder
             .named(SIMPLE_FILE_STORE_CONFIG)
                 .stores()
                     .file()
                     .preserveState(false)
-                    .setCredentialHandlerProperty(TokenCredentialHandler.TOKEN_PROVIDER, new Token.Provider[]{tokenAProvider, tokenBProvider})
+                    .addCredentialHandler(TokenACredentialHandler.class)
+                    .addCredentialHandler(TokenBCredentialHandler.class)
                     .supportType(MyCustomAccount.class)
                     .supportAllFeatures();
 
@@ -53,9 +50,6 @@ public class FileStoreConfigurationTester implements IdentityConfigurationTester
         if (partitionManager.getPartition(Realm.class, Realm.DEFAULT_REALM) == null) {
             partitionManager.add(new Realm(Realm.DEFAULT_REALM));
         }
-
-        tokenAProvider.setPartitionManager(partitionManager);
-        tokenBProvider.setPartitionManager(partitionManager);
 
         return partitionManager;
     }

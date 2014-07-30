@@ -16,12 +16,23 @@
  */
 package org.picketlink.idm.credential;
 
+import static org.picketlink.idm.credential.Token.Builder.create;
+
 /**
- * <p>Represents the credentials typically used to by token-based authentication.</p>
+ * <p>Represents the credentials typically used when performing authentication based on tokens.</p>
+ *
+ * @author Pedro Igor
+ *
+ * @see org.picketlink.idm.credential.Token
+ * @see org.picketlink.idm.credential.handler.TokenCredentialHandler
  */
 public class TokenCredential extends AbstractBaseCredentials {
 
     private Token token;
+
+    public TokenCredential(String token) {
+        this(create(AbstractToken.class.getName(), token));
+    }
 
     public TokenCredential(Token token) {
         this.token = token;

@@ -745,42 +745,23 @@ public class JPAIdentityStore
     @Override
     public <T extends CredentialStorage> List<T> retrieveCredentials(IdentityContext context, Account
             account, Class<T> storageClass) {
-        EntityMapper attributeMapper = getCredentialAttributeMapper(storageClass);
-        EntityManager entityManager = getEntityManager(context);
-
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<?> criteria = builder.createQuery(attributeMapper.getEntityType());
-        Root<?> root = criteria.from(attributeMapper.getEntityType());
-        List<Predicate> predicates = new ArrayList<Predicate>();
-
-        Object agentInstance = getRootEntity(account, entityManager);
-
-        Property identityTypeProperty = attributeMapper.getProperty(storageClass, OwnerReference.class).getValue();
-
-        predicates.add(builder.equal(root.get(identityTypeProperty.getName()), agentInstance));
-
-        Property typeProperty = attributeMapper.getProperty(storageClass, CredentialClass.class).getValue();
-
-        Property effectiveProperty = attributeMapper.getProperty(storageClass, EffectiveDate.class).getValue();
-
-        predicates.add(builder.equal(root.get(typeProperty.getName()), storageClass.getName()));
-
-        Predicate conjunction = builder.conjunction();
-
-        conjunction.getExpressions().add(builder.lessThanOrEqualTo(root.<Date>get(effectiveProperty.getName()), new Date()));
-
-        predicates.add(conjunction);
-
-        criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-        criteria.orderBy(builder.desc(root.get(effectiveProperty.getName())));
-
         List<T> storages = new ArrayList<T>();
 
-        for (Object object : entityManager.createQuery(criteria).getResultList()) {
+        for (Object object : findCredentials(context, account, storageClass)) {
             storages.add(convertToCredentialStorage(object, storageClass));
         }
 
         return storages;
+    }
+
+    @Override
+    public void removeCredential(IdentityContext context, Account account, Class<? extends CredentialStorage> storageClass) {
+        List<?> credentials = findCredentials(context, account, storageClass);
+        EntityManager entityManager = getEntityManager(context);
+
+        for (Object credential : credentials) {
+            entityManager.remove(credential);
+        }
     }
 
     public Object getOwnerEntity(final AttributedType attributedType, final Property ownerProperty,
@@ -1049,6 +1030,40 @@ public class JPAIdentityStore
 
         return em.createQuery(criteria).getResultList();
     }
+
+    private <T extends CredentialStorage> List<?> findCredentials(IdentityContext context, Account account, Class<T> storageClass) {
+        EntityMapper attributeMapper = getCredentialAttributeMapper(storageClass);
+        EntityManager entityManager = getEntityManager(context);
+
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<?> criteria = builder.createQuery(attributeMapper.getEntityType());
+        Root<?> root = criteria.from(attributeMapper.getEntityType());
+        List<Predicate> predicates = new ArrayList<Predicate>();
+
+        Object agentInstance = getRootEntity(account, entityManager);
+
+        Property identityTypeProperty = attributeMapper.getProperty(storageClass, OwnerReference.class).getValue();
+
+        predicates.add(builder.equal(root.get(identityTypeProperty.getName()), agentInstance));
+
+        Property typeProperty = attributeMapper.getProperty(storageClass, CredentialClass.class).getValue();
+
+        Property effectiveProperty = attributeMapper.getProperty(storageClass, EffectiveDate.class).getValue();
+
+        predicates.add(builder.equal(root.get(typeProperty.getName()), storageClass.getName()));
+
+        Predicate conjunction = builder.conjunction();
+
+        conjunction.getExpressions().add(builder.lessThanOrEqualTo(root.<Date>get(effectiveProperty.getName()), new Date()));
+
+        predicates.add(conjunction);
+
+        criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+        criteria.orderBy(builder.desc(root.get(effectiveProperty.getName())));
+
+        return entityManager.createQuery(criteria).getResultList();
+    }
+
 
     private <T extends CredentialStorage> T convertToCredentialStorage(Object entity, Class<T> storageType) {
         T storage = null;

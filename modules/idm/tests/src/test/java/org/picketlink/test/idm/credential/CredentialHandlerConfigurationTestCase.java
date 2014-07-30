@@ -22,7 +22,6 @@
 
 package org.picketlink.test.idm.credential;
 
-import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
@@ -38,6 +37,9 @@ import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
+
+import java.util.Date;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;

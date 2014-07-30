@@ -27,19 +27,19 @@ import org.picketlink.idm.credential.storage.annotations.Stored;
  * <p>{@link org.picketlink.idm.credential.storage.CredentialStorage} used to store token-based credentials. Token value
  * is always represented by a string.</p>
  *
- * <p>This default implementation stores the only the <code>type</code> and <code>value</code> of a token.</p>
+ * <p>This default implementation stores only the <code>type</code> and <code>value</code> of a token.</p>
  *
- * <p>Classes can provide additional state by extending this class and use the {@link org.picketlink.idm.credential.Token.Provider#getTokenStorage(org.picketlink.idm.model.Account, org.picketlink.idm.credential.Token)}
- * method to provide the additional state.</p>
+ * <p>Classes can provide additional state by extending this class and and also {@link org.picketlink.idm.credential.handler.TokenCredentialHandler}.</p>
  *
  * @author Pedro Igor
+ *
+ * @see org.picketlink.idm.credential.Token
  * @see org.picketlink.idm.credential.handler.TokenCredentialHandler
- * @see org.picketlink.idm.credential.Token.Provider
  */
 public class TokenCredentialStorage extends AbstractCredentialStorage {
 
     private String type;
-    private String value;
+    private String token;
 
     @Stored
     public String getType() {
@@ -51,11 +51,11 @@ public class TokenCredentialStorage extends AbstractCredentialStorage {
     }
 
     @Stored
-    public String getValue() {
-        return this.value;
+    public String getToken() {
+        return this.token;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setToken(String token) {
+        this.token = token;
     }
 }

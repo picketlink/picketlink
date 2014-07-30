@@ -34,6 +34,8 @@ public interface IdentityStoreConfigurationChildBuilder extends IdentityConfigur
 
     LDAPStoreConfigurationBuilder ldap();
 
+    TokenStoreConfigurationBuilder token();
+
     <T extends IdentityStoreConfigurationBuilder<?, ?>> T add(Class<? extends IdentityStoreConfiguration> identityStoreConfiguration, Class<T> builder);
 
 }

@@ -36,7 +36,7 @@ import java.util.List;
  *
  */
 @Configuration(include = JPACustomTypesConfigurationTester.class)
-public class CustomAccountTOTPCredentialTestCase extends AbstractDigestCredentialTestCase {
+public class CustomAccountTOTPCredentialTestCase extends AbstractPasswordCredentialTestCase {
 
     public CustomAccountTOTPCredentialTestCase(IdentityConfigurationTester builder) {
         super(builder);

@@ -122,9 +122,9 @@ public interface IdentityManager {
      * Updates a credential for the given {@link Account}.
      * </p>
      *
-     * @param agent
-     * @param credential The <code>credential</code> must be a object supported by any {@link CredentialHandler}. Examples of
-     *        credentials are the {@link Password} and {@link Digest} types.
+     * @param account
+     * @param credential The <code>credential</code> must be a object supported by any {@link org.picketlink.idm.credential.handler.CredentialHandler}.
+     *          Examples of credentials are the {@link org.picketlink.idm.credential.Password} and {@link org.picketlink.idm.credential.Digest} types.
      */
     void updateCredential(Account account, Object credential);
 
@@ -136,16 +136,16 @@ public interface IdentityManager {
      * This methods also allows to specify the expiration and effective date for the credential.
      * </p>
      *
-     * @param agent
-     * @param credential The <code>credential</code> must be a object supported by any {@link CredentialHandler}. Examples of
-     *        credentials are the {@link Password} and {@link Digest} types.
+     * @param account
+     * @param credential The <code>credential</code> must be a object supported by any {@link org.picketlink.idm.credential.handler.CredentialHandler}.
+     *          Examples of credentials are the {@link org.picketlink.idm.credential.Password} and {@link org.picketlink.idm.credential.Digest} types.
      */
     void updateCredential(Account account, Object credential, Date effectiveDate, Date expiryDate);
 
     /**
      * Returns the current stored credential value for the specific account and credential storage class
      *
-     * @param agent
+     * @param account
      * @param storageClass
      * @return
      */
@@ -154,10 +154,19 @@ public interface IdentityManager {
     /**
      * Returns a list of all stored credential values for the specified account and credential storage class
      *
-     * @param agent
+     * @param account
      * @param storageClass
      * @return
      */
     <T extends CredentialStorage> List<T> retrieveCredentials(Account account, Class<T> storageClass);
+
+    /**
+     * <p>Removes all credentials stored by a certain {@link org.picketlink.idm.credential.storage.CredentialStorage} associated
+     * with the given {@link org.picketlink.idm.model.Account}.</p>
+     *
+     * @param account The account which credentials should be removed.
+     * @param storageClass The credential storage type specifying which credential types should be removed.
+     */
+    void removeCredential(Account account, Class<? extends CredentialStorage> storageClass);
 
 }

@@ -188,25 +188,21 @@ public class CustomIdentityStoreTestCase {
 
         @Override
         public <V extends IdentityType> int countQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         @Override
         public <V extends Relationship> List<V> fetchQueryResults(IdentityContext context, RelationshipQuery<V> query) {
-            // TODO Auto-generated method stub
             return null;
         }
 
         @Override
         public <V extends Relationship> int countQueryResults(IdentityContext context, RelationshipQuery<V> query) {
-            // TODO Auto-generated method stub
             return 0;
         }
 
         @Override
         public void validateCredentials(IdentityContext context, Credentials credentials) {
-            // TODO Auto-generated method stub
 
         }
 
@@ -235,6 +231,11 @@ public class CustomIdentityStoreTestCase {
                 Class<T> storageClass) {
             // TODO Auto-generated method stub
             return null;
+        }
+
+        @Override
+        public void removeCredential(IdentityContext context, Account account, Class<? extends CredentialStorage> storageClass) {
+
         }
     }
 

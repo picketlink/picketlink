@@ -33,27 +33,43 @@ import java.util.List;
 public interface CredentialStore<T extends IdentityStoreConfiguration> extends IdentityStore<T> {
 
     /**
-     * Store the specified credential state
+     * Stores the specified credential state.
      *
-     * @param storage
+     * @param context The contextual invocation context.
+     * @param account The account which credentials should be removed.
+     * @param storage The credential storage instance to be stored.
      */
     void storeCredential(IdentityContext context, Account account, CredentialStorage storage);
 
     /**
-     * Return the currently active credential state of the specified class, for the specified Account
+     * Returns the currently active credential state of the specified {@link T}, for the specified {@link org.picketlink.idm.model.Account}.
      *
-     * @param storageClass
+     * @param context The contextual invocation context.
+     * @param account The account which credentials should be removed.
+     * @param storageClass The credential storage type specifying which credential types should be removed.
+     *
      * @return
      */
     <T extends CredentialStorage> T retrieveCurrentCredential(IdentityContext context, Account account, Class<T> storageClass);
 
     /**
-     * Returns a List of all credential state of the specified class, for the specified Account
+     * Returns a list of all credential state of the specified {@link T}, for the specified {@link org.picketlink.idm.model.Account}.
      *
-     * @param account
-     * @param storageClass
+     * @param context The contextual invocation context.
+     * @param account The account which credentials should be removed.
+     * @param storageClass The credential storage type specifying which credential types should be removed.
+     *
      * @return
      */
     <T extends CredentialStorage> List<T> retrieveCredentials(IdentityContext context, Account account, Class<T> storageClass);
 
+    /**
+     * <p>Removes all credentials stored by a certain {@link org.picketlink.idm.credential.storage.CredentialStorage} associated
+     * with the given {@link org.picketlink.idm.model.Account}.</p>
+     *
+     * @param context The contextual invocation context.
+     * @param account The account which credentials should be removed.
+     * @param storageClass The credential storage type specifying which credential types should be removed.
+     */
+    void removeCredential(IdentityContext context, Account account, Class<? extends CredentialStorage> storageClass);
 }

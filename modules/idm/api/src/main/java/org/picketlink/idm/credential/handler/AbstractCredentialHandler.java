@@ -32,10 +32,11 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.annotation.StereotypeProperty;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
-import org.picketlink.idm.spi.IdentityStore;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.picketlink.idm.IDMLog.CREDENTIAL_LOGGER;
@@ -46,7 +47,7 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
  *
  * @author pedroigor
  */
-public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V extends AbstractBaseCredentials, U>
+public abstract class AbstractCredentialHandler<S extends CredentialStore<?>, V extends AbstractBaseCredentials, U>
         implements CredentialHandler<S, V, U> {
 
     private List<Class<? extends Account>> defaultAccountTypes;
@@ -58,15 +59,18 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
 
     /**
      * <p>Custom {@link CredentialHandler} implementations may override this method to perform the lookup of {@link
-     * Account}
-     * instances based on the <code>loginName</code>.</p>
+     * Account} instances based on the <code>userName</code>.</p>
      *
      * @param context
-     * @param loginName The login name of the account that will be used to retrieve the instance.
+     * @param userName The login name of the account that will be used to retrieve the instance.
      *
      * @return
      */
-    protected Account getAccount(IdentityContext context, String loginName) {
+    protected Account getAccount(IdentityContext context, String userName) {
+        if (userName == null) {
+            return null;
+        }
+
         IdentityManager identityManager = getIdentityManager(context);
 
         for (Class<? extends Account> accountType : getDefaultAccountTypes()) {
@@ -77,10 +81,10 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
             String loginNameProperty = getDefaultLoginNameProperty(accountType).getName();
 
             if (isDebugEnabled()) {
-                CREDENTIAL_LOGGER.credentialRetrievingAccount(loginName, accountType, loginNameProperty);
+                CREDENTIAL_LOGGER.credentialRetrievingAccount(userName, accountType, loginNameProperty);
             }
 
-            query.setParameter(Account.QUERY_ATTRIBUTE.byName(loginNameProperty), loginName);
+            query.setParameter(Account.QUERY_ATTRIBUTE.byName(loginNameProperty), userName);
 
             List<? extends IdentityType> result = query.getResultList();
 
@@ -95,6 +99,52 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
             } else if (result.size() > 1) {
                 CREDENTIAL_LOGGER.errorf("Multiple Account objects found with the same login name [%s] for type [%s]: [%s]", loginNameProperty, accountType, result);
                 throw MESSAGES.credentialMultipleAccountsFoundForType(loginNameProperty, accountType);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * <p>Custom {@link CredentialHandler} implementations may override this method to perform the lookup of {@link
+     * Account} instances based on the <code>identifier</code>.</p>
+     *
+     * @param context
+     * @param identifier The identifier of the account that will be used to retrieve the instance.
+     *
+     * @return
+     */
+    protected Account getAccountById(IdentityContext context, String identifier) {
+        if (identifier == null) {
+            return null;
+        }
+
+        IdentityManager identityManager = getIdentityManager(context);
+
+        for (Class<? extends Account> accountType : getDefaultAccountTypes()) {
+            IdentityQuery<Account> query = (IdentityQuery<Account>) identityManager.createIdentityQuery(accountType);
+
+            query.setParameter(Account.PARTITION, context.getPartition());
+
+            if (isDebugEnabled()) {
+                CREDENTIAL_LOGGER.credentialRetrievingAccount(identifier, accountType, "ID");
+            }
+
+            query.setParameter(Account.ID, identifier);
+
+            List<? extends IdentityType> result = query.getResultList();
+
+            if (result.size() == 1) {
+                IdentityType account = result.get(0);
+
+                if (!Account.class.isInstance(account)) {
+                    throw MESSAGES.credentialInvalidAccountType(account.getClass());
+                }
+
+                return (Account) account;
+            } else if (result.size() > 1) {
+                CREDENTIAL_LOGGER.errorf("Multiple Account objects found with the same login name [%s] for type [%s]: [%s]", "ID", accountType, result);
+                throw MESSAGES.credentialMultipleAccountsFoundForType("ID", accountType);
             }
         }
 
@@ -127,7 +177,7 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
                     CREDENTIAL_LOGGER.debugf("Current credential storage for account [%s] is [%s].", account, credentialStorage);
                 }
 
-                if (validateCredential(context, credentialStorage, credentials)) {
+                if (validateCredential(context, credentialStorage, credentials, store)) {
                     if (credentialStorage != null && CredentialUtils.isCredentialExpired(credentialStorage)) {
                         credentials.setStatus(Status.EXPIRED);
                     } else if (Status.IN_PROGRESS.equals(credentials.getStatus())) {
@@ -160,7 +210,21 @@ public abstract class AbstractCredentialHandler<S extends IdentityStore<?>, V ex
         }
     }
 
-    protected abstract boolean validateCredential(IdentityContext context, final CredentialStorage credentialStorage, final V credentials);
+    @Override
+    public void update(IdentityContext context, Account account, U password, S store, Date effectiveDate, Date expiryDate) {
+        CredentialStorage storage = createCredentialStorage(context, account, password, store, effectiveDate, expiryDate);
+
+        if (storage == null) {
+            throw new IdentityManagementException("CredentialStorage returned by handler [" + this + "is null.");
+        }
+
+        store.removeCredential(context, account, storage.getClass());
+        store.storeCredential(context, account, storage);
+    }
+
+    protected abstract CredentialStorage createCredentialStorage(IdentityContext context, Account account, U password, S store, Date effectiveDate, Date expiryDate);
+
+    protected abstract boolean validateCredential(IdentityContext context, final CredentialStorage credentialStorage, final V credentials, S store);
 
     protected abstract Account getAccount(final IdentityContext context, final V credentials);
 

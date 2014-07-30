@@ -23,10 +23,10 @@ package org.picketlink.extension;
 
 import org.picketlink.Identity;
 import org.picketlink.config.SecurityConfiguration;
+import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.internal.IdentityBeanDefinition;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.AfterDeploymentValidation;
@@ -48,15 +48,10 @@ import static org.picketlink.log.BaseLog.ROOT_LOGGER;
  *
  * @author Pedro Igor
  */
-@ApplicationScoped
 public class PicketLinkExtension implements Extension {
 
-    private SecurityConfiguration securityConfiguration;
     private IdentityBeanDefinition identityBeanDefinition;
-
-    public SecurityConfiguration getSecurityConfiguration() {
-        return this.securityConfiguration;
-    }
+    private SecurityConfigurationBuilder securityConfigurationBuilder;
 
     /**
      * <p>Veto all {@link org.picketlink.Identity} implementations.</p>
@@ -100,8 +95,15 @@ public class PicketLinkExtension implements Extension {
 
         beanManager.fireEvent(securityConfigurationEvent);
 
-        this.securityConfiguration = securityConfigurationEvent.getBuilder().build();
+        // TODO: best is fire an event. We're not doing that because of issues in EAP and WildFly when using PL jars from modules.
+        this.securityConfigurationBuilder = securityConfigurationEvent.getBuilder();
 
-        this.identityBeanDefinition.setSecurityConfiguration(this.securityConfiguration);
+        SecurityConfiguration securityConfiguration = this.securityConfigurationBuilder.build();
+
+        this.identityBeanDefinition.setSecurityConfiguration(securityConfiguration);
+    }
+
+    public SecurityConfigurationBuilder getSecurityConfigurationBuilder() {
+        return this.securityConfigurationBuilder;
     }
 }

@@ -154,7 +154,7 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
     }
 
     @Override
-    protected boolean validateCredential(IdentityContext context, final CredentialStorage storage, final V credentials) {
+    protected boolean validateCredential(IdentityContext context, final CredentialStorage storage, final V credentials, S store) {
         EncodedPasswordStorage hash = (EncodedPasswordStorage) storage;
 
         if (hash != null) {
@@ -166,8 +166,8 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
     }
 
     @Override
-    public void update(IdentityContext context, Account account, U password, S store,
-                       Date effectiveDate, Date expiryDate) {
+    public CredentialStorage createCredentialStorage(IdentityContext context, Account account, U password, S store,
+        Date effectiveDate, Date expiryDate) {
 
         EncodedPasswordStorage hash = new EncodedPasswordStorage();
 
@@ -188,7 +188,7 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
 
         hash.setExpiryDate(expiryDate);
 
-        store.storeCredential(context, account, hash);
+        return hash;
     }
 
     protected SecureRandomProvider getSecureRandomProvider() {
@@ -211,7 +211,7 @@ public class PasswordCredentialHandler<S extends CredentialStore<?>, V extends U
      *
      * @return
      */
-    private String generateSalt() {
+    protected String generateSalt() {
         return String.valueOf(getSecureRandom().nextLong());
     }
 

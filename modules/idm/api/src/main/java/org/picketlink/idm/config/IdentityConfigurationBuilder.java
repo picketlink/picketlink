@@ -23,6 +23,7 @@
 package org.picketlink.idm.config;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,6 +120,15 @@ public class IdentityConfigurationBuilder extends Builder<List<IdentityConfigura
      */
     public boolean isConfigured() {
         return !this.namedIdentityConfigurationBuilders.isEmpty();
+    }
+
+    /**
+     * <p>Returns all {@link org.picketlink.idm.config.NamedIdentityConfigurationBuilder}.</p>
+     *
+     * @return
+     */
+    public Collection<NamedIdentityConfigurationBuilder> getNamedIdentityConfigurationBuilders() {
+        return this.namedIdentityConfigurationBuilders.values();
     }
 
     @Override

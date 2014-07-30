@@ -29,6 +29,7 @@ import javax.json.JsonString;
 import javax.json.JsonValue;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static javax.json.JsonValue.ValueType.ARRAY;
@@ -181,7 +182,28 @@ public class JWT {
      * @return
      */
     public Integer getIssuedAt() {
-        return Integer.valueOf(getClaim(CLAIM_ISSUED_AT).toString());
+        String claim = getClaim(CLAIM_ISSUED_AT);
+
+        if (claim != null) {
+            return Integer.valueOf(claim.toString());
+        }
+
+        return null;
+    }
+
+    /**
+     * <p>Returns a {@link java.util.Date} representation of the {@link org.picketlink.json.jwt.JWT#getIssuedAt()}.</p>
+     *
+     * @return
+     */
+    public Date getIssuedAtDate() {
+        Integer issuedAt = getIssuedAt();
+
+        if (issuedAt != null) {
+            return new Date(issuedAt * 1000L);
+        }
+
+        return null;
     }
 
     /**
@@ -192,7 +214,28 @@ public class JWT {
      * @return
      */
     public Integer getExpiration() {
-        return Integer.valueOf(getClaim(CLAIM_EXPIRATION).toString());
+        String claim = getClaim(CLAIM_EXPIRATION);
+
+        if (claim != null) {
+            return Integer.valueOf(claim.toString());
+        }
+
+        return null;
+    }
+
+    /**
+     * <p>Returns a {@link java.util.Date} representation of the {@link JWT#getExpiration()}.</p>
+     *
+     * @return
+     */
+    public Date getExpirationDate() {
+        Integer expiration = getExpiration();
+
+        if (expiration != null) {
+            return new Date(expiration * 1000L);
+        }
+
+        return null;
     }
 
     /**
@@ -203,7 +246,28 @@ public class JWT {
      * @return
      */
     public Integer getNotBefore() {
-        return Integer.valueOf(getClaim(CLAIM_NOT_BEFORE).toString());
+        String claim = getClaim(CLAIM_NOT_BEFORE);
+
+        if (claim != null) {
+            return Integer.valueOf(claim.toString());
+        }
+
+        return null;
+    }
+
+    /**
+     * <p>Returns a {@link java.util.Date} representation of the {@link JWT#getNotBeforeDate()}.</p>
+     *
+     * @return
+     */
+    public Date getNotBeforeDate() {
+        Integer notBefore = getNotBefore();
+
+        if (notBefore != null) {
+            return new Date(notBefore * 1000L);
+        }
+
+        return null;
     }
 
     @Override
