@@ -147,6 +147,62 @@ public class LDAPUseCasesTestCase {
         Assert.assertNull(BasicModel.getUser(identityManager, "johny1"));
     }
 
+    @Test
+    public void testChanges() throws Exception {
+        IdentityManager identityManager = partitionManager.createIdentityManager();
+
+        Date start = new Date();
+        User user1 = new User("user1");
+        User user2 = new User("user2");
+        identityManager.add(user1);
+        identityManager.add(user2);
+
+        List<User> users = identityManager.createIdentityQuery(User.class)
+                .setParameter(User.CREATED_AFTER, start).getResultList();
+        Assert.assertEquals(2, users.size());
+
+        sleep(1000);
+        Date beforeModifications = new Date();
+        user1.setLastName("Foo1");
+        identityManager.update(user1);
+
+        users = identityManager.createIdentityQuery(User.class)
+                .setParameter(User.MODIFIED_AFTER, beforeModifications).getResultList();
+        Assert.assertEquals(1, users.size());
+        Assert.assertEquals("user1", users.get(0).getLoginName());
+
+        sleep(1000);
+        Date beforeModifications2 = new Date();
+        user2.setLastName("Foo2");
+        identityManager.update(user2);
+
+        users = identityManager.createIdentityQuery(User.class)
+                .setParameter(User.MODIFIED_AFTER, beforeModifications2).getResultList();
+        Assert.assertEquals(1, users.size());
+        Assert.assertEquals("user2", users.get(0).getLoginName());
+
+        user1.setLastName("Foo3");
+        identityManager.update(user1);
+        users = identityManager.createIdentityQuery(User.class)
+                .setParameter(User.MODIFIED_AFTER, beforeModifications2).getResultList();
+        Assert.assertEquals(2, users.size());
+
+        users = identityManager.createIdentityQuery(User.class)
+                .setParameter(User.CREATED_AFTER, beforeModifications2).getResultList();
+        Assert.assertEquals(0, users.size());
+
+        identityManager.remove(user1);
+        identityManager.remove(user2);
+    }
+
+    private void sleep(int i) {
+        try {
+            Thread.sleep(i);
+        } catch (InterruptedException ie) {
+            throw new RuntimeException(ie);
+        }
+    }
+
     private PartitionManager getPartitionManager() {
         Properties connectionProps = new Properties();
         connectionProps.put("com.sun.jndi.ldap.connect.pool", "true");

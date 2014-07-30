@@ -456,7 +456,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
                                 attributeValue = formatDate((Date) attributeValue);
                             }
 
-                            if (queryParameter.equals(IdentityType.CREATED_AFTER)) {
+                            if (queryParameter.equals(IdentityType.CREATED_AFTER) || queryParameter.equals(IdentityType.MODIFIED_AFTER)) {
                                 filter.append("(").append(attributeName).append(">=").append(attributeValue).append(")");
                             } else if (queryParameter.equals(IdentityType.CREATED_BEFORE)) {
                                 filter.append("(").append(attributeName).append("<=").append(attributeValue).append(")");
