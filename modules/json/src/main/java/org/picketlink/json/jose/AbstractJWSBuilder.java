@@ -53,7 +53,6 @@ import static org.picketlink.json.util.JsonUtil.b64Decode;
  */
 public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBuilder<T, B>> extends JWTBuilder<T, B> {
 
-    /** The key. */
     private byte[] key;
 
     /**
@@ -72,9 +71,9 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
      * @param kid the kid
      * @return
      */
-    public B kid(String kid) {
+    public AbstractJWSBuilder<T, B> kid(String kid) {
         header(KEY_ID, kid);
-        return (B) this;
+        return this;
     }
 
     /**
@@ -83,10 +82,10 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
      * @param key the key
      * @return
      */
-    public B hmac256(byte[] key) {
+    public AbstractJWSBuilder<T, B> hmac256(byte[] key) {
         header(ALG, HS256.name());
         this.key = key;
-        return (B) this;
+        return this;
     }
 
     /**
@@ -95,10 +94,10 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
      * @param key the key
      * @return
      */
-    public B hmac384(byte[] key) {
+    public AbstractJWSBuilder<T, B> hmac384(byte[] key) {
         header(ALG, HS384.name());
         this.key = key;
-        return (B) this;
+        return this;
     }
 
     /**
@@ -107,10 +106,10 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
      * @param key the key
      * @return
      */
-    public B hmac512(byte[] key) {
+    public AbstractJWSBuilder<T, B> hmac512(byte[] key) {
         header(ALG, HS512.name());
         this.key = key;
-        return (B) this;
+        return this;
     }
 
     /**
@@ -119,10 +118,10 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
      * @param key the key
      * @return
      */
-    public B rsa256(byte[] key) {
+    public AbstractJWSBuilder<T, B> rsa256(byte[] key) {
         header(ALG, RS256.name());
         this.key = key;
-        return (B) this;
+        return this;
     }
 
     /**
@@ -131,10 +130,10 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
      * @param key the key
      * @return
      */
-    public B rsa384(byte[] key) {
+    public AbstractJWSBuilder<T, B> rsa384(byte[] key) {
         header(ALG, RS384.name());
         this.key = key;
-        return (B) this;
+        return this;
     }
 
     /**
@@ -143,10 +142,10 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
      * @param key the key
      * @return
      */
-    public B rsa512(byte[] key) {
+    public AbstractJWSBuilder<T, B> rsa512(byte[] key) {
         header(ALG, RS512.name());
         this.key = key;
-        return (B) this;
+        return this;
     }
 
     /**
@@ -155,9 +154,9 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
      * @param keySet the key set
      * @return
      */
-    public B keys(JWKSet keySet) {
+    public AbstractJWSBuilder<T, B> keys(JWKSet keySet) {
         header(HEADER_JSON_WEB_KEY, keySet.getJsonObject().getJsonArray(HEADER_JSON_WEB_KEY));
-        return (B) this;
+        return this;
     }
 
     /**
@@ -166,7 +165,7 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
      * @param keys the keys
      * @return
      */
-    public B keys(JWK... keys) {
+    public AbstractJWSBuilder<T, B> keys(JWK... keys) {
         JWKSet jwkSet = new JWKSet(keys);
         return keys(jwkSet);
     }

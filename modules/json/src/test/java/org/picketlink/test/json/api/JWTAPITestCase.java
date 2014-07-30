@@ -82,6 +82,7 @@ public class JWTAPITestCase {
     @Test
     public void testCustomWebTokenBuild() {
         MyWebToken token = new MyWebToken.MyWebTokenBuilder()
+            .roles("maintainer", "profile") // here we define a custom claim
             .id("1")
             .issuer("issuer")
             .subject("subject")
@@ -89,12 +90,11 @@ public class JWTAPITestCase {
             .expiration(123)
             .issuedAt(456)
             .notBefore(789)
-            .roles("maintainer", "profile") // here we define a custom claim
             .build();
 
         String jsonString = token.toString();
 
-        assertEquals("{\"typ\":\"JWT\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789,\"roles\":[\"maintainer\",\"profile\"]}", jsonString);
+        assertEquals("{\"typ\":\"JWT\"}.{\"roles\":[\"maintainer\",\"profile\"],\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}", jsonString);
 
         String jsonEncoded = token.encode();
 

@@ -144,6 +144,7 @@ public class JWSHMACAPITestCase {
         byte[] secretKey = new String("super_secret_key").getBytes();
 
         MyWebToken token = new MyWebToken.MyWebTokenBuilder()
+            .roles("maintainer", "profile") // here we define a custom claim
             .hmac256(secretKey)
             .id("1")
             .issuer("issuer")
@@ -152,12 +153,11 @@ public class JWSHMACAPITestCase {
             .expiration(123)
             .issuedAt(456)
             .notBefore(789)
-            .roles("maintainer", "profile")
-            .build(); // here we define a custom claim
+            .build();
 
         String jsonString = token.toString();
 
-        assertEquals("{\"typ\":\"JWT\",\"alg\":\"HS256\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789,\"roles\":[\"maintainer\",\"profile\"]}", jsonString);
+        assertEquals("{\"typ\":\"JWT\",\"alg\":\"HS256\"}.{\"roles\":[\"maintainer\",\"profile\"],\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}", jsonString);
 
         String jsonEncoded = token.encode();
 
@@ -204,6 +204,7 @@ public class JWSHMACAPITestCase {
         byte[] secretKey = new String("super_secret_key").getBytes();
 
         MyWebToken token = new MyWebToken.MyWebTokenBuilder()
+            .roles("maintainer", "profile")  // here we define a custom claim
             .hmac256(secretKey)
             .id("1")
             .issuer("issuer")
@@ -212,8 +213,7 @@ public class JWSHMACAPITestCase {
             .expiration(123)
             .issuedAt(456)
             .notBefore(789)
-            .roles("maintainer", "profile")
-            .build(); // here we define a custom claim
+            .build();
 
         String jsonEncoded = token.encode();
 
@@ -230,6 +230,7 @@ public class JWSHMACAPITestCase {
         byte[] secretKey = new String("super_secret_key").getBytes();
 
         MyWebToken token = new MyWebToken.MyWebTokenBuilder()
+            .roles("maintainer", "profile") // here we define a custom claim
             .hmac256(secretKey)
             .id("1")
             .issuer("issuer")
@@ -238,8 +239,7 @@ public class JWSHMACAPITestCase {
             .expiration(123)
             .issuedAt(456)
             .notBefore(789)
-            .roles("maintainer", "profile")
-            .build(); // here we define a custom claim
+            .build();
 
         String jsonEncoded = new StringBuilder(token.encode()).insert(3, "tampered").toString();
 
