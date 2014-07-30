@@ -25,7 +25,7 @@ public class LDAPUtil {
             throw new IllegalArgumentException("You must provide a date.");
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss'Z'");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss'.0Z'");
 
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 

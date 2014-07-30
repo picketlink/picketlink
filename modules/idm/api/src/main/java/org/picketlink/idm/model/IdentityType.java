@@ -51,6 +51,11 @@ public interface IdentityType extends AttributedType {
     QueryParameter CREATED_AFTER = new AttributeParameter("createdDate");
 
     /**
+     * A query parameter used to set the modified after date
+     */
+    QueryParameter MODIFIED_AFTER = new AttributeParameter("modifyDate");
+
+    /**
      * A query parameter used to set the created before date
      */
     QueryParameter CREATED_BEFORE = new AttributeParameter("createdDate");
