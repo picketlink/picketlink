@@ -23,12 +23,28 @@ import java.text.ParseException;
 
 import static org.picketlink.json.JsonMessages.MESSAGES;
 
-// TODO: Auto-generated Javadoc
 /**
- * PicketLink JSON Utility Class.
+ * Parses a JSON object.
+ *
+ * <p>
+ * Specific JSON to Java entity mapping (as per JSON Smart):
+ *
+ * <ul>
+ * <li>JSON true|false map to {@link java.lang.Boolean}.
+ * <li>JSON numbers map to {@link java.lang.Number}.
+ * <ul>
+ * <li>JSON integer numbers map to {@link java.lang.Long}.
+ * <li>JSON fraction numbers map to {@link java.lang.Double}.
+ * </ul>
+ * <li>JSON strings map to {@link java.lang.String}.
+ * <li>JSON arrays map to {@link javax.json.JsonArray}.
+ * <li>JSON objects map to {@link javax.json.JsonObject}.
+ * </ul>
+ *
+ * @throws ParseException If the string cannot be parsed to a valid JSON object.
  *
  * @author Anil Saldhana
- * @since March 07, 2014
+ * @author Giriraj Sharma
  */
 public class JsonUtil {
 
@@ -68,7 +84,7 @@ public class JsonUtil {
     }
 
     /**
-     * B64 decode.
+     * Base64 decode.
      *
      * @param s the string to be decoded
      * @return the byte[]
@@ -97,11 +113,12 @@ public class JsonUtil {
     }
 
     /**
-     * Constant time are equal.
+     * Checks the specified arrays for equality in constant time. Intended to mitigate timing attacks.
      *
-     * @param a the a
-     * @param b the b
-     * @return true, if successful
+     * @param a The first array. Must not be {@code null}.
+     * @param b The second array. Must not be {@code null}.
+     *
+     * @return {@code true} if the two arrays are equal, else {@code false}.
      */
     public static boolean constantTimeAreEqual(final byte[] a, final byte[] b) {
         // From http://codahale.com/a-lesson-in-timing-attacks/
@@ -116,11 +133,13 @@ public class JsonUtil {
     }
 
     /**
-     * Split.
+     * Splits a serialized JOSE object into its Base64URL-encoded parts.
      *
-     * @param s the s
-     * @return the string[]
-     * @throws ParseException the parse exception
+     * @param s The serialized JOSE object to split. Must not be {@code null}.
+     *
+     * @return The JOSE Base64URL-encoded parts (three for plaintext and JWS objects, five for JWE objects).
+     *
+     * @throws ParseException If the specified string couldn't be split into three or five Base64URL-encoded parts.
      */
     public static String[] split(final String s)
         throws ParseException {

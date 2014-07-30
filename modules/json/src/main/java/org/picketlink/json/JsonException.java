@@ -21,13 +21,14 @@
  */
 package org.picketlink.json;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class JsonException.
  *
  * @author Pedro Igor
  */
 public class JsonException extends RuntimeException {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Instantiates a new json exception.

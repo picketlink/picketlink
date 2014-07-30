@@ -47,13 +47,25 @@ import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
 /**
- * The Class JWKBuilder.
+ * The base class for building JSON Web Keys (JWKs) with desired key parameters.
  *
- * @author Giriraj Sharma
+ * <p>
+ * The following JSON object members are common to all JWK types:
+ *
+ * <ul>
+ * <li>{@link #getKeyType kty} (required)
+ * <li>{@link #getKeyUse use} (optional)
+ * <li>{@link #getKeyOperations key_ops} (optional)
+ * <li>{@link #getKeyID kid} (optional)
+ * </ul>
+ *
  * @param <T> the generic type
  * @param <B> the generic type
+ *
+ * @author Giriraj Sharma
  */
-public class JWKBuilder<T extends JWK, B extends JWKBuilder<T, B>> {
+
+public class JWKBuilder<T extends JWK, B extends JWKBuilder<?, ?>> {
 
     /** The key parameters builder. */
     private final JsonObjectBuilder keyParametersBuilder;
@@ -79,34 +91,45 @@ public class JWKBuilder<T extends JWK, B extends JWKBuilder<T, B>> {
     }
 
     /**
-     * Key type.
+     * Sets the key type, required.
      *
-     * @param typeype
+     * @param type
      * @return
      */
-    public B keyType(String type) {
+    public JWKBuilder<T, B> keyType(String type) {
         keyParameter(KEY_TYPE, type);
-        return (B) this;
+        return this;
     }
 
     /**
-     * Key use.
+     * Sets the key use, optional.
      *
      * @param use the use
      * @return
      */
-    public B keyUse(String use) {
+    public JWKBuilder<T, B> keyUse(String use) {
         keyParameter(KEY_USE, use);
-        return (B) this;
+        return this;
     }
 
     /**
-     * Key operations.
+     * Sets the key operations, optional.
+     *
+     * <ul>
+     * <li>{@link #SIGN sign}
+     * <li>{@link #VERIFY verify}
+     * <li>{@link #ENCRYPT encrypt}
+     * <li>{@link #DECRYPT decrypt}
+     * <li>{@link #WRAP_KEY wrapKey}
+     * <li>{@link #UNWRAP_KEY unwrapKey}
+     * <li>{@link #DERIVE_KEY deriveKey}
+     * <li>{@link #DERIVE_BITS deriveBits}
+     * </ul>
      *
      * @param keyOperations the key operations
      * @return
      */
-    public B keyOperations(String... keyOperations) {
+    public JWKBuilder<T, B> keyOperations(String... keyOperations) {
         if (keyOperations.length == 1) {
             keyParameter(KEY_OPERATIONS, keyOperations[0]);
         } else if (keyOperations.length > 1) {
@@ -118,49 +141,49 @@ public class JWKBuilder<T extends JWK, B extends JWKBuilder<T, B>> {
 
             this.keyParametersBuilder.add(KEY_OPERATIONS, arrayBuilder);
         }
-        return (B) this;
+        return this;
     }
 
     /**
-     * Key algorithm.
+     * Sets the intended JOSE algorithm for the key, optional.
      *
      * @param algorithm the algorithm
      * @return
      */
-    public B keyAlgorithm(String algorithm) {
+    public JWKBuilder<T, B> keyAlgorithm(String algorithm) {
         keyParameter(KEY_ALGORITHM, algorithm);
-        return (B) this;
+        return this;
     }
 
     /**
-     * Key identifier.
+     * Sets the key identifier, optional.
      *
      * @param identifier the identifier
      * @return
      */
-    public B keyIdentifier(String identifier) {
+    public JWKBuilder<T, B> keyIdentifier(String identifier) {
         keyParameter(KEY_IDENTIFIER, identifier);
-        return (B) this;
+        return this;
     }
 
     /**
-     * X509 url.
+     * Sets the x509 URL.
      *
      * @param url the url
      * @return
      */
-    public B X509Url(String url) {
+    public JWKBuilder<T, B> X509Url(String url) {
         keyParameter(X509_URL, url);
-        return (B) this;
+        return this;
     }
 
     /**
-     * X509 certificate chain.
+     * Sets the x509 certificate chain.
      *
      * @param X509CertificateChain the x509 certificate chain
      * @return
      */
-    public B X509CertificateChain(String... X509CertificateChain) {
+    public JWKBuilder<T, B> X509CertificateChain(String... X509CertificateChain) {
         if (X509CertificateChain.length == 1) {
             keyParameter(X509_CERTIFICATE_CHAIN, X509CertificateChain[0]);
         } else if (X509CertificateChain.length > 1) {
@@ -172,133 +195,133 @@ public class JWKBuilder<T extends JWK, B extends JWKBuilder<T, B>> {
 
             this.keyParametersBuilder.add(X509_CERTIFICATE_CHAIN, arrayBuilder);
         }
-        return (B) this;
+        return this;
     }
 
     /**
-     * X509 certificate sha1 thumbprint.
+     * Sets the x509 SHA1 certificate thumbprint.
      *
-     * @param sha1Thumbprint the sha1 thumbprint
+     * @param sha1Thumbprint the SHA1 thumbprint
      * @return
      */
-    public B X509CertificateSHA1Thumbprint(String sha1Thumbprint) {
+    public JWKBuilder<T, B> X509CertificateSHA1Thumbprint(String sha1Thumbprint) {
         keyParameter(X509_CERTIFICATE_SHA1_THUMBPRINT, sha1Thumbprint);
-        return (B) this;
+        return this;
     }
 
     /**
-     * X509 certificate sha256 thumbprint.
+     * Sets the x509 SHA256 certificate thumbprint.
      *
-     * @param sha256Thumbprint the sha256 thumbprint
+     * @param sha256Thumbprint the SHA256 thumbprint
      * @return
      */
-    public B X509CertificateSHA256Thumbprint(String sha256Thumbprint) {
+    public JWKBuilder<T, B> X509CertificateSHA256Thumbprint(String sha256Thumbprint) {
         keyParameter(X509_CERTIFICATE_SHA256_THUMBPRINT, sha256Thumbprint);
-        return (B) this;
+        return this;
     }
 
     /**
-     * Modulus.
+     * Sets the modulus value for the RSA key.
      *
      * @param modulus the modulus
      * @return
      */
-    public B modulus(BigInteger modulus) {
+    public JWKBuilder<T, B> modulus(BigInteger modulus) {
         keyParameter(MODULUS, b64Encode(modulus.toByteArray()));
-        return (B) this;
+        return this;
     }
 
     /**
-     * Public exponent.
+     * Sets the public exponent of the RSA key.
      *
      * @param publicExponent the public exponent
      * @return
      */
-    public B publicExponent(BigInteger publicExponent) {
+    public JWKBuilder<T, B> publicExponent(BigInteger publicExponent) {
         keyParameter(PUBLIC_EXPONENT, b64Encode(publicExponent.toByteArray()));
-        return (B) this;
+        return this;
     }
 
     /**
-     * Private exponent.
+     * Sets the private exponent of the RSA key.
      *
      * @param privateExponent the private exponent
      * @return
      */
-    public B privateExponent(BigInteger privateExponent) {
+    public JWKBuilder<T, B> privateExponent(BigInteger privateExponent) {
         keyParameter(PRIVATE_EXPONENT, b64Encode(privateExponent.toByteArray()));
-        return (B) this;
+        return this;
     }
 
     /**
-     * Prime p.
+     * Sets the first prime factor of the private RSA key.
      *
      * @param primeP the prime p
      * @return
      */
-    public B primeP(BigInteger primeP) {
+    public JWKBuilder<T, B> primeP(BigInteger primeP) {
         keyParameter(PRIME_P, b64Encode(primeP.toByteArray()));
-        return (B) this;
+        return this;
     }
 
     /**
-     * Prime q.
+     * Sets second prime factor of the private RSA key.
      *
      * @param primeQ the prime q
      * @return
      */
-    public B primeQ(BigInteger primeQ) {
+    public JWKBuilder<T, B> primeQ(BigInteger primeQ) {
         keyParameter(PRIME_Q, b64Encode(primeQ.toByteArray()));
-        return (B) this;
+        return this;
     }
 
     /**
-     * Prime exponent p.
+     * Sets the first factor Chinese Remainder Theorem exponent of the private RSA key.
      *
      * @param primeExponentP the prime exponent p
      * @return
      */
-    public B primeExponentP(BigInteger primeExponentP) {
+    public JWKBuilder<T, B> primeExponentP(BigInteger primeExponentP) {
         keyParameter(PRIME_EXPONENT_P, b64Encode(primeExponentP.toByteArray()));
-        return (B) this;
+        return this;
     }
 
     /**
-     * Prime exponent q.
+     * Sets the second factor Chinese Remainder Theorem exponent of the private RSA key.
      *
      * @param primeExponentQ the prime exponent q
      * @return
      */
-    public B primeExponentQ(BigInteger primeExponentQ) {
+    public JWKBuilder<T, B> primeExponentQ(BigInteger primeExponentQ) {
         keyParameter(PRIME_EXPONENT_Q, b64Encode(primeExponentQ.toByteArray()));
-        return (B) this;
+        return this;
     }
 
     /**
-     * CRT coefficient.
+     * Sets the The first Chinese Remainder Theorem coefficient of the private RSA key.
      *
      * @param crtCoefficient the CRT coefficient
      * @return
      */
-    public B crtCoefficient(BigInteger crtCoefficient) {
+    public JWKBuilder<T, B> crtCoefficient(BigInteger crtCoefficient) {
         keyParameter(CRT_COEFFICIENT, b64Encode(crtCoefficient.toByteArray()));
-        return (B) this;
+        return this;
     }
 
     /**
-     * Key parameter.
+     * Sets the Key parameter.
      *
-     * @param name the name
-     * @param value the value
+     * @param name the name of key parameter
+     * @param value the value(s) of key parameter
      * @return
      */
-    public B keyParameter(String name, String... value) {
+    public JWKBuilder<T, B> keyParameter(String name, String... value) {
         setString(this.keyParametersBuilder, name, value);
-        return (B) this;
+        return this;
     }
 
     /**
-     * Builds.
+     * Builds {@link javax.json.JsonObjectBuilder} of key parameters.
      *
      * @return
      */
@@ -309,7 +332,7 @@ public class JWKBuilder<T extends JWK, B extends JWKBuilder<T, B>> {
     /**
      * Builds the String JSON.
      *
-     * @param json the json
+     * @param json the JSON formatted string
      * @return
      */
     public T build(String json) {
@@ -335,7 +358,7 @@ public class JWKBuilder<T extends JWK, B extends JWKBuilder<T, B>> {
     }
 
     /**
-     * Builds the JsonObject.
+     * Builds the key {@link javax.json.JsonObject}.
      *
      * @param keyParametersObject the key parameters object
      * @return
@@ -352,14 +375,14 @@ public class JWKBuilder<T extends JWK, B extends JWKBuilder<T, B>> {
     }
 
     /**
-     * Sets the string.
+     * Updates the {@link javax.json.JsonObjectBuilder} with specified key parameter and its value(s).
      *
      * @param builderuilder
      * @param name the name
      * @param values the values
      * @return
      */
-    private B setString(JsonObjectBuilder builder, String name, String... values) {
+    private JWKBuilder<T, B> setString(JsonObjectBuilder builder, String name, String... values) {
         if (values.length == 1) {
             builder.add(name, values[0]);
         } else if (values.length > 1) {
@@ -370,6 +393,6 @@ public class JWKBuilder<T extends JWK, B extends JWKBuilder<T, B>> {
             }
             builder.add(name, arrayBuilder);
         }
-        return (B) this;
+        return this;
     }
 }

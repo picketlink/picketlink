@@ -360,6 +360,11 @@ public class JWT {
         return new StringBuilder().append(header).append(PERIOD).append(claimsSet);
     }
 
+    /**
+     * Gets the plain claims set as a string representation.
+     *
+     * @return the plain claims set
+     */
     private String getPlainClaims() {
         StringWriter claimsWriter = new StringWriter();
 
@@ -368,6 +373,11 @@ public class JWT {
         return claimsWriter.getBuffer().toString();
     }
 
+    /**
+     * Gets the plain header as a string representation.
+     *
+     * @return the plain header set
+     */
     private String getPlainHeader() {
         StringWriter headerWriter = new StringWriter();
 
@@ -376,6 +386,13 @@ public class JWT {
         return headerWriter.getBuffer().toString();
     }
 
+    /**
+     * Parses the specified key value from the {@link javax.json.JsonObject} into a collection of strings.
+     *
+     * @param name the header or claim name
+     * @param jsonObject the JSON object representing the headers set or the claims set.
+     * @return a collection of values for the specified key in JsonObject
+     */
     private List<String> getValues(String name, JsonObject jsonObject) {
         JsonValue headerValue = jsonObject.get(name);
         List<String> values = new ArrayList<String>();
@@ -391,10 +408,16 @@ public class JWT {
                 values.add(getValue(name, jsonObject).toString());
             }
         }
-
         return values;
     }
 
+    /**
+     * Gets the key value from the {@link javax.json.JsonValue}.
+     *
+     * @param <R> the generic type as value could be an object, array, number, string or boolean value.
+     * @param value the JsonValue which is to be parsed.
+     * @return
+     */
     private <R> R getValue(JsonValue value) {
         if (ARRAY.equals(value.getValueType())) {
             JsonArray array = (JsonArray) value;
@@ -412,6 +435,13 @@ public class JWT {
         return null;
     }
 
+    /**
+     * Gets the value of the specified key from the {@link javax.json.JsonObject}
+     *
+     * @param name the key whose value is to be retrieved.
+     * @param jsonObject the JSON object representing headers or claims set.
+     * @return the value of the specified key.
+     */
     private String getValue(String name, JsonObject jsonObject) {
         JsonValue value = jsonObject.get(name);
 
