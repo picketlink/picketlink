@@ -45,13 +45,42 @@ import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
 /**
- * The Class JWEBuilder.
+ * JSON Web Encryption (JWE) header Builder.
  *
- * @author Giriraj Sharma
+ * <p>
+ * Supports build of all Principal Registered Parameter Names of the JWE specification:
+ *
+ * <ul>
+ * <li>alg
+ * <li>enc
+ * <li>epk
+ * <li>zip
+ * <li>jku
+ * <li>jwk
+ * <li>x5u
+ * <li>x5t
+ * <li>x5c
+ * <li>kid
+ * <li>typ
+ * <li>cty
+ * </ul>
+ *
+ * <p>
+ * Example header:
+ *
+ * <pre>
+ * {
+ *   "alg" : "RSA1_5",
+ *   "enc" : "A128CBC-HS256"
+ * }
+ * </pre>
+ *
  * @param <T> the generic type
  * @param <B> the generic type
+ * @author Giriraj Sharma
  */
-public class JWEBuilder<T extends JWE, B extends JWEBuilder<T, B>> {
+
+public class JWEBuilder<T extends JWE, B extends JWEBuilder<?, ?>> {
 
     /** The header builder. */
     private final JsonObjectBuilder headerBuilder;
@@ -67,7 +96,7 @@ public class JWEBuilder<T extends JWE, B extends JWEBuilder<T, B>> {
     }
 
     /**
-     * Instantiates a new JWE builder.
+     * Instantiates a new {@link org.picketlink.json.jose.JWE} builder.
      *
      * @param tokenType the token type
      */
@@ -77,124 +106,161 @@ public class JWEBuilder<T extends JWE, B extends JWEBuilder<T, B>> {
     }
 
     /**
-     * Type.
+     * Sets the type of JOSE Header.
      *
-     * @param type the type
+     * @param type the String type
      * @return
      */
-    public B type(String type) {
+    public JWEBuilder<T, B> type(String type) {
         header(HEADER_TYPE, type);
-        return (B) this;
+        return this;
     }
 
     /**
-     * Content type.
+     * Sets the content type of JOSE Header.
      *
-     * @param contentType the content type
+     * @param contentType the String content type
      * @return
      */
-    public B contentType(String contentType) {
+    public JWEBuilder<T, B> contentType(String contentType) {
         header(HEADER_CONTENT_TYPE, contentType);
-        return (B) this;
+        return this;
     }
 
     /**
-     * Algorithm.
+     * Sets the algorithm used to encrypt or determine the value of the Content Encryption Key (CEK).
      *
-     * @param algorithm the algorithm
+     *
+     * <ul>
+     * <li>{@link #RSA1_5}
+     * <li>{@link #RSA_OAEP RSA-OAEP}
+     * <li>{@link #RSA_OAEP_256 RSA-OAEP-256}
+     * </ul>
+     *
+     * @param algorithm the algorithm as a string
      * @return
      */
-    public B algorithm(String algorithm) {
+    public JWEBuilder<T, B> algorithm(String algorithm) {
         header(ALG, algorithm);
-        return (B) this;
+        return this;
     }
 
     /**
-     * Encryption algorithm.
+     * Gets the encryption algorithm used to encrypt the Plaintext to produce the Ciphertext.
      *
-     * @param encAlgorithm the enc algorithm
-     * @param cekBitLength the cek bit length
+     * <ul>
+     * <li>{@link #A128CBC_HS256 A128CBC-HS256}
+     * <li>{@link #A192CBC_HS384 A192CBC-HS384}
+     * <li>{@link #A256CBC_HS512 A256CBC-HS512}
+     * <li>{@link #A128GCM}
+     * <li>{@link #A192GCM}
+     * <li>{@link #A256GCM}
+     * </ul>
+     *
+     * @param encAlgorithm the encryption algorithm
+     * @param cekBitLength the content encryption key bit length
      * @return
      */
-    public B encryptionAlgorithm(String encAlgorithm, int cekBitLength) {
+    public JWEBuilder<T, B> encryptionAlgorithm(String encAlgorithm, int cekBitLength) {
         header(ENC, encAlgorithm);
         header(CEK_BITLENGTH, cekBitLength);
-        return (B) this;
+        return this;
     }
 
     /**
-     * Key identifier.
+     * Sets the key identifier used to determine the private key needed to decrypt the JWE.
      *
      * @param keyId the key id
      * @return
      */
-    public B keyIdentifier(String keyId) {
+    public JWEBuilder<T, B> keyIdentifier(String keyId) {
         header(KEY_ID, keyId);
-        return (B) this;
+        return this;
     }
 
     /**
-     * Compression algorithm.
+     * Sets the compression algorithm. The zip (compression algorithm) applied to the Plaintext before encryption, if any. The
+     * zip value defined by this specification is:
+     *
+     * <ul>
+     * DEF - Compression with the DEFLATE [RFC1951] algorithm
+     * </ul>
      *
      * @param zipAlgorithm the zip algorithm
      * @return
      */
-    public B compressionAlgorithm(String zipAlgorithm) {
+    public JWEBuilder<T, B> compressionAlgorithm(String zipAlgorithm) {
         header(COMPRESSION_ALG, zipAlgorithm);
-        return (B) this;
+        return this;
     }
 
     /**
-     * Keys.
+     * Sets the JWK Set.
+     *
+     * <p>
+     * The JWK Set resource contains the public key to which the JWE was encrypted; this can be used to determine the private
+     * key needed to decrypt the JWE.
      *
      * @param keySet the key set
      * @return
      */
-    public B keys(JWKSet keySet) {
+    public JWEBuilder<T, B> keys(JWKSet keySet) {
         header(HEADER_JSON_WEB_KEY, keySet.getJsonObject().getJsonArray(HEADER_JSON_WEB_KEY));
-        return (B) this;
+        return this;
     }
 
     /**
-     * Keys.
+     * Sets the JWK keys.
+     *
+     * <p>
+     * The JWK Keys contains the public key to which the JWE was encrypted; this can be used to determine the private key needed
+     * to decrypt the JWE.
      *
      * @param keys the keys
      * @return
      */
-    public B keys(JWK... keys) {
+    public JWEBuilder<T, B> keys(JWK... keys) {
         JWKSet jwkSet = new JWKSet(keys);
         return keys(jwkSet);
     }
 
     /**
-     * JWK set.
+     * Updates the {@link org.picketlink.json.jose.JWE} JSON with the JWKSetURL.
      *
      * @param jwkSetURL the JWK Set URL
      * @return
      */
-    public B JWKSet(String jwkSetURL) {
+    public JWEBuilder<T, B> JWKSet(String jwkSetURL) {
         header(HEADER_JWK_SET_URL, jwkSetURL);
-        return (B) this;
+        return this;
     }
 
     /**
-     * X509 url.
+     * Sets the x509 URL.
+     *
+     * <p>
+     * X.509 public key certificate or certificate chain [RFC5280] contains the public key to which the JWE was encrypted; this
+     * can be used to determine the private key needed to decrypt the JWE.
      *
      * @param x509URL the x509 url
      * @return
      */
-    public B X509URL(String x509URL) {
+    public JWEBuilder<T, B> X509URL(String x509URL) {
         header(X509_URL, x509URL);
-        return (B) this;
+        return this;
     }
 
     /**
-     * X509 certificate chain.
+     * Sets the x509 certificate chain.
+     *
+     * <p>
+     * The X.509 public key certificate or certificate chain [RFC5280] contains the public key to which the JWE was encrypted;
+     * this can be used to determine the private key needed to decrypt the JWE.
      *
      * @param certificates the certificates
      * @return
      */
-    public B X509CertificateChain(String... certificates) {
+    public JWEBuilder<T, B> X509CertificateChain(String... certificates) {
         if (certificates.length == 1) {
             header(X509_CERTIFICATE_CHAIN, certificates[0]);
         } else if (certificates.length > 1) {
@@ -206,81 +272,89 @@ public class JWEBuilder<T extends JWE, B extends JWEBuilder<T, B>> {
 
             this.headerBuilder.add(X509_CERTIFICATE_CHAIN, arrayBuilder);
         }
-        return (B) this;
+        return this;
     }
 
     /**
-     * X509 certificate sha1 thumbprint.
+     * Sets the x509 SHA1 certificate thumbprint.
+     *
+     * <p>
+     * The certificate referenced by the thumbprint contains the public key to which the JWE was encrypted; this can be used to
+     * determine the private key needed to decrypt the JWE.
      *
      * @param sha1Thumbprint the sha1 thumbprint
      * @return
      */
-    public B X509CertificateSHA1Thumbprint(String sha1Thumbprint) {
+    public JWEBuilder<T, B> X509CertificateSHA1Thumbprint(String sha1Thumbprint) {
         header(X509_CERTIFICATE_SHA1_THUMBPRINT, sha1Thumbprint);
-        return (B) this;
+        return this;
     }
 
     /**
-     * X509 certificate sha256 thumbprint.
+     * Sets the x509 SHA256 certificate thumbprint.
+     *
+     * <p>
+     * The certificate referenced by the thumbprint contains the public key to which the JWE was encrypted; this can be used to
+     * determine the private key needed to decrypt the JWE.
      *
      * @param sha256Thumbprint the sha256 thumbprint
      * @return
      */
-    public B X509CertificateSHA256Thumbprint(String sha256Thumbprint) {
+    public JWEBuilder<T, B> X509CertificateSHA256Thumbprint(String sha256Thumbprint) {
         header(X509_CERTIFICATE_SHA256_THUMBPRINT, sha256Thumbprint);
-        return (B) this;
+        return this;
     }
 
     /**
-     * Header.
+     * Updates {@link org.picketlink.json.jose.JWE} Header with the specified string header and its value(s).
      *
      * @param name the name
      * @param value the value
      * @return
      */
-    public B header(String name, String... value) {
+    public JWEBuilder<T, B> header(String name, String... value) {
         setString(this.headerBuilder, name, value);
-        return (B) this;
+        return this;
     }
 
     /**
-     * Header.
+     * Updates {@link org.picketlink.json.jose.JWE} Header with the specified string header and its value(s).
      *
      * @param name the name
      * @param value the value
      * @return
      */
-    public B header(String name, int... value) {
+    public JWEBuilder<T, B> header(String name, int... value) {
         setInt(this.headerBuilder, name, value);
-        return (B) this;
+        return this;
     }
 
     /**
-     * Header.
+     * Updates {@link org.picketlink.json.jose.JWE} Header with the specified string header and its value(s).
      *
      * @param name the name
      * @param value the value
      * @return
      */
-    public B header(String name, List<JsonObject> value) {
+    public JWEBuilder<T, B> header(String name, List<JsonObject> value) {
         setJsonObject(this.headerBuilder, name, value);
-        return (B) this;
+        return this;
     }
 
     /**
-     * Header.
+     * Updates {@link org.picketlink.json.jose.JWE} Header with the specified string header and its value(s).
      *
      * @param name the name
      * @param value the value
      * @return
      */
-    public B header(String name, JsonArray value) {
+    public JWEBuilder<T, B> header(String name, JsonArray value) {
         setJsonObject(this.headerBuilder, name, value);
-        return (B) this;
+        return this;
     }
 
     /**
-     * Builds.
+     * Builds {@link javax.json.JsonObjectBuilder}.
      *
      * @return
      */
@@ -337,14 +411,14 @@ public class JWEBuilder<T extends JWE, B extends JWEBuilder<T, B>> {
     }
 
     /**
-     * Sets the string.
+     * Updates the {@link javax.json.JsonObjectBuilder} with specified header parameter and its value(s).
      *
-     * @param builder the builder
+     * @param builderuilder
      * @param name the name
      * @param values the values
      * @return
      */
-    private B setString(JsonObjectBuilder builder, String name, String... values) {
+    private JWEBuilder<T, B> setString(JsonObjectBuilder builder, String name, String... values) {
         if (values.length == 1) {
             builder.add(name, values[0]);
         } else if (values.length > 1) {
@@ -356,18 +430,18 @@ public class JWEBuilder<T extends JWE, B extends JWEBuilder<T, B>> {
 
             builder.add(name, arrayBuilder);
         }
-        return (B) this;
+        return this;
     }
 
     /**
-     * Sets the int.
+     * Updates the {@link javax.json.JsonObjectBuilder} with specified header parameter and its value(s).
      *
-     * @param builder the builder
+     * @param builderuilder
      * @param name the name
      * @param values the values
      * @return
      */
-    private B setInt(JsonObjectBuilder builder, String name, int... values) {
+    private JWEBuilder<T, B> setInt(JsonObjectBuilder builder, String name, int... values) {
         if (values.length == 1) {
             builder.add(name, values[0]);
         } else if (values.length > 1) {
@@ -380,38 +454,40 @@ public class JWEBuilder<T extends JWE, B extends JWEBuilder<T, B>> {
             builder.add(name, arrayBuilder);
         }
 
-        return (B) this;
+        return this;
     }
 
     /**
-     * Sets the json object.
+     * POpulates the specified header parameter of {@link javax.json.JsonObjectBuilder} with its collection.
      *
-     * @param builder the builder
+     * @param builderuilder
      * @param name the name
      * @param values the values
      * @return
      */
-    private B setJsonObject(JsonObjectBuilder builder, String name, List<JsonObject> values) {
+    private JWEBuilder<T, B> setJsonObject(JsonObjectBuilder builder, String name, List<JsonObject> values) {
         JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
         Iterator<JsonObject> iterator = values.iterator();
         while (iterator.hasNext()) {
             arrayBuilder.add(iterator.next());
         }
         builder.add(name, arrayBuilder);
-        return (B) this;
+        return this;
     }
 
     /**
-     * Sets the json object.
+     * <p>
+     * Updates the the specified header of {@link javax.json.JsonObjectBuilder} with the {@link javax.json.JsonArray}.
+     * </p>
      *
      * @param builder the builder
-     * @param name the name
-     * @param values the values
+     * @param name the name of the header or claim
+     * @param values the values for the header or claim
      * @return
      */
-    private B setJsonObject(JsonObjectBuilder builder, String name, JsonArray values) {
+    private JWEBuilder<T, B> setJsonObject(JsonObjectBuilder builder, String name, JsonArray values) {
         builder.add(name, values);
-        return (B) this;
+        return this;
     }
 
 }

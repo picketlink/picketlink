@@ -184,9 +184,6 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
         Algorithm algorithm = Algorithm.resolve(token.getAlgorithm().toUpperCase());
 
         if (!algorithm.isNone()) {
-            if (key == null) {
-                throw MESSAGES.invalidNullArgument("Signature Key");
-            }
 
             String[] portions = json.split("\\" + PERIOD);
 
