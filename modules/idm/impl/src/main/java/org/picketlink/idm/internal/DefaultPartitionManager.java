@@ -33,6 +33,7 @@ import org.picketlink.idm.config.JDBCIdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.config.OperationNotSupportedException;
+import org.picketlink.idm.config.TokenStoreConfiguration;
 import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
 import org.picketlink.idm.credential.storage.CredentialStorage;
@@ -62,6 +63,7 @@ import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.StoreSelector;
+import org.picketlink.idm.token.internal.TokenIdentityStore;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -247,6 +249,10 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
     @Override
     public IdentityManager createIdentityManager(Partition partition) throws IdentityManagementException {
         if (partition == null) {
+            if (this.partitionManagementConfig == null) {
+                return createIdentityManager();
+            }
+
             throw MESSAGES.nullArgument("Partition");
         }
 
@@ -815,6 +821,8 @@ public class DefaultPartitionManager implements PartitionManager, StoreSelector 
                 storeClass = (Class<T>) LDAPIdentityStore.class;
             } else if (JDBCIdentityStoreConfiguration.class.isInstance(storeConfiguration)) {
                 storeClass = (Class<T>) JDBCIdentityStore.class;
+            } else if (TokenStoreConfiguration.class.isInstance(storeConfiguration)) {
+                storeClass = (Class<T>) TokenIdentityStore.class;
             }
         }
 

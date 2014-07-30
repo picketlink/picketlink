@@ -5,6 +5,13 @@ import org.picketlink.annotations.PicketLink;
 import org.picketlink.extension.PicketLinkExtension;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
+import org.picketlink.idm.config.IdentityStoresConfigurationBuilder;
+import org.picketlink.idm.config.JPAStoreConfigurationBuilder;
+import org.picketlink.idm.config.NamedIdentityConfigurationBuilder;
+import org.picketlink.idm.config.TokenStoreConfigurationBuilder;
+import org.picketlink.idm.credential.Token;
+import org.picketlink.internal.AuthenticatedAccountContextInitializer;
 import org.picketlink.internal.CDIEventBridge;
 import org.picketlink.internal.EEJPAContextInitializer;
 
@@ -41,17 +48,26 @@ public class IdentityManagementConfiguration {
     private static final String JPA_ANNOTATION_PACKAGE = "org.picketlink.idm.jpa.annotations";
 
     @Inject
-    private Instance<IdentityConfiguration> identityConfigInstance;
+    private PicketLinkExtension picketLinkExtension;
 
     @Inject
-    private PicketLinkExtension picketLinkExtension;
+    private Instance<IdentityConfiguration> identityConfigInstance;
 
     @Inject
     @PicketLink
     private Instance<EntityManager> entityManagerInstance;
 
     @Inject
-    private EEJPAContextInitializer contextInitializer;
+    private EEJPAContextInitializer entityManagerContextInitializer;
+
+    @Inject
+    private AuthenticatedAccountContextInitializer authenticatedAccountContextInitializer;
+
+    @Inject
+    private Instance<Token.Consumer<?>> tokenConsumerInstance;
+
+    @Inject
+    private Instance<Token.Provider<?>> tokenProviderInstance;
 
     @Inject
     private CDIEventBridge eventBridge;
@@ -75,8 +91,6 @@ public class IdentityManagementConfiguration {
                 for (Iterator<IdentityConfiguration> iterator = this.identityConfigInstance.iterator(); iterator.hasNext(); ) {
                     configurations.add(iterator.next());
                 }
-            } else {
-                configurations.addAll(this.picketLinkExtension.getSecurityConfiguration().getIdentityConfigurations());
             }
 
             IdentityConfigurationBuilder builder;
@@ -86,7 +100,7 @@ public class IdentityManagementConfiguration {
                     ROOT_LOGGER.debugf("IdentityConfiguration not provided by the application, creating a default IdentityConfigurationBuilder.");
                 }
 
-                builder = new IdentityConfigurationBuilder();
+                builder = this.picketLinkExtension.getSecurityConfigurationBuilder().idmConfig();
             } else {
                 if (ROOT_LOGGER.isDebugEnabled()) {
                     ROOT_LOGGER.debugf("Found IdentityConfiguration from the environment. Creating a IdentityConfigurationBuilder with them.");
@@ -101,10 +115,34 @@ public class IdentityManagementConfiguration {
                 configureDefaults(builder);
             }
 
+            configureIdentityStores(builder);
+
             this.identityConfiguration = builder.buildAll();
         }
 
         return this.identityConfiguration;
+    }
+
+    private void configureIdentityStores(IdentityConfigurationBuilder builder) {
+        for (NamedIdentityConfigurationBuilder identityConfigurationBuilder : builder.getNamedIdentityConfigurationBuilders()) {
+            IdentityStoresConfigurationBuilder stores = identityConfigurationBuilder.stores();
+
+            for (IdentityStoreConfigurationBuilder storeConfigurationBuilder : stores.getIdentityStoresConfigurationBuilder()) {
+                storeConfigurationBuilder.addContextInitializer(this.authenticatedAccountContextInitializer);
+
+                if (JPAStoreConfigurationBuilder.class.isInstance(storeConfigurationBuilder)) {
+                    storeConfigurationBuilder.addContextInitializer(this.entityManagerContextInitializer);
+                }
+
+                if (TokenStoreConfigurationBuilder.class.isInstance(storeConfigurationBuilder)) {
+                    TokenStoreConfigurationBuilder tokenStoreBuilder = (TokenStoreConfigurationBuilder) storeConfigurationBuilder;
+
+                    if (!this.tokenConsumerInstance.isUnsatisfied()) {
+                        tokenStoreBuilder.tokenConsumer(this.tokenConsumerInstance.get());
+                    }
+                }
+            }
+        }
     }
 
     private void configureDefaults(IdentityConfigurationBuilder builder) {
@@ -129,7 +167,7 @@ public class IdentityManagementConfiguration {
                 .stores()
                 .jpa()
                 .mappedEntity(entities.toArray(new Class<?>[entities.size()]))
-                .addContextInitializer(this.contextInitializer)
+                .addContextInitializer(this.entityManagerContextInitializer)
                 .supportAllFeatures();
             if (ROOT_LOGGER.isDebugEnabled()) {
                 ROOT_LOGGER.debugf("Auto configuring JPA Identity Store. All features are going to be supported. Entities [%s]", entities);

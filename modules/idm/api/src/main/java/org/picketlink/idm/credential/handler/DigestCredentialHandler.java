@@ -78,7 +78,7 @@ public class DigestCredentialHandler<S,V,U>
     }
 
     @Override
-    protected boolean validateCredential(IdentityContext context, final CredentialStorage credentialStorage, final DigestCredentials credentials) {
+    protected boolean validateCredential(IdentityContext context, final CredentialStorage credentialStorage, final DigestCredentials credentials, CredentialStore<?> store) {
         DigestCredentialStorage currentCredential = (DigestCredentialStorage) credentialStorage;
         Digest digest = credentials.getDigest();
 
@@ -102,8 +102,8 @@ public class DigestCredentialHandler<S,V,U>
     }
 
     @Override
-    public void update(IdentityContext context, Account account, Digest digest, CredentialStore<?> store,
-            Date effectiveDate, Date expiryDate) {
+    public CredentialStorage createCredentialStorage(IdentityContext context, Account account, Digest digest, CredentialStore<?> store,
+        Date effectiveDate, Date expiryDate) {
         if (isNullOrEmpty(digest.getRealm())) {
             throw MESSAGES.credentialDigestInvalidRealm();
         }
@@ -124,7 +124,7 @@ public class DigestCredentialHandler<S,V,U>
 
         storage.setExpiryDate(expiryDate);
 
-        store.storeCredential(context, account, storage);
+        return storage;
     }
 
 }

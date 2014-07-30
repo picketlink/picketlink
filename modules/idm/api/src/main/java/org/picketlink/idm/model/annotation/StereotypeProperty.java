@@ -49,6 +49,13 @@ public @interface StereotypeProperty {
     public enum Property {
         /**
          * <p>
+         *     Should be used to mark a property of an {@link org.picketlink.idm.model.IdentityType} as the unique and never reassigned idenfifier.
+         * </p>
+         */
+        IDENTITY_ID,
+
+        /**
+         * <p>
          *     Should be used to mark a property of an {@link org.picketlink.idm.model.IdentityType} as the name of a {@link org.picketlink.idm.model.annotation.IdentityStereotype.Stereotype#ROLE} stereotype.
          * </p>
          */

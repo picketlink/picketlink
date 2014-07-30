@@ -34,10 +34,7 @@ import org.picketlink.test.authorization.AbstractAuthorizationTestCase;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
+import javax.transaction.Status;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -64,7 +61,7 @@ public class PermissionTestCase extends AbstractAuthorizationTestCase {
     }
 
     @Before
-    public void onSetup() throws HeuristicRollbackException, RollbackException, HeuristicMixedException, SystemException {
+    public void onSetup() throws Exception {
         User user = getUser(this.identityManager, "john");
 
         if (user == null) {
@@ -83,6 +80,10 @@ public class PermissionTestCase extends AbstractAuthorizationTestCase {
         this.credentials.setPassword("mypasswd");
 
         this.identity.login();
+
+        if (Status.STATUS_NO_TRANSACTION == this.userTransaction.getStatus()) {
+            this.userTransaction.begin();
+        }
     }
 
     @Test

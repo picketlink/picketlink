@@ -259,9 +259,7 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
 
         credentials.add(new FileCredentialStorage(storage));
 
-        Partition partition = context.getPartition();
-
-        this.fileDataSource.flushCredentials(resolve(partition.getClass(), partition.getName()));
+        flushCredentials(context.getPartition());
     }
 
     @Override
@@ -287,6 +285,17 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
         });
 
         return storedCredentials;
+    }
+
+    @Override
+    public void removeCredential(IdentityContext context, Account account, Class<? extends CredentialStorage> storageClass) {
+        List<FileCredentialStorage> credentials = getCredentials(account, storageClass);
+
+        if (credentials != null) {
+            credentials.clear();
+        }
+
+        flushCredentials(context.getPartition());
     }
 
     @Override
@@ -717,4 +726,7 @@ public class FileIdentityStore extends AbstractIdentityStore<FileIdentityStoreCo
         return false;
     }
 
+    private void flushCredentials(Partition partition) {
+        this.fileDataSource.flushCredentials(resolve(partition.getClass(), partition.getName()));
+    }
 }

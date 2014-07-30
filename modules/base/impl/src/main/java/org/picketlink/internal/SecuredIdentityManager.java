@@ -96,4 +96,8 @@ public class SecuredIdentityManager implements IdentityManager {
         return decorated.retrieveCredentials(account, storageClass);
     }
 
+    @Override
+    public void removeCredential(Account account, Class<? extends CredentialStorage> storageClass) {
+        decorated.removeCredential(account, storageClass);
+    }
 }

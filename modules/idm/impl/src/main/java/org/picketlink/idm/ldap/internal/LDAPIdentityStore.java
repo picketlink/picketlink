@@ -177,7 +177,8 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
         List<V> results = new ArrayList<V>();
 
         try {
-            if (identityQuery.getParameter(IdentityType.PARTITION) != null) {
+            if (identityQuery.getParameters().size() == 1 && identityQuery.getParameter(IdentityType.PARTITION) != null) {
+                // we don't query the ldap tree using only the partition as a parameter due to the cost of doing so.
                 return results;
             }
 
@@ -420,8 +421,14 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPIdentityStoreCo
     }
 
     @Override
+    public void removeCredential(IdentityContext context, Account account, Class<? extends CredentialStorage> storageClass) {
+        // does not makes sense remove credentials in LDAP. You probably want to disable an account ?
+        throw MESSAGES.notImplemented();
+    }
+
+    @Override
     protected void removeCredentials(final IdentityContext context, final Account account) {
-        //no-op
+        // not supported
     }
 
     private String getBaseDN(final LDAPMappingConfiguration ldapEntryConfig) {

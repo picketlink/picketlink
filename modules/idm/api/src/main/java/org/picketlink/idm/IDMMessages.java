@@ -26,9 +26,11 @@ import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
 import org.jboss.logging.Messages;
+import org.picketlink.common.exceptions.NotImplementedException;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.Token;
 import org.picketlink.idm.credential.encoder.PasswordEncoder;
 import org.picketlink.idm.credential.handler.CredentialHandler;
 import org.picketlink.idm.credential.storage.CredentialStorage;
@@ -86,6 +88,12 @@ public interface IDMMessages {
     @Message(id = 5, value = "Unexpected type [%s].")
     IdentityManagementException unexpectedType(Class<?> unexpectedType);
 
+    @Message(id = 6, value = "Could not initialize Partition Manager [%s].")
+    IdentityManagementException partitionManagerInitializationFailed(Class<? extends PartitionManager> partitionManagerType, @Cause Throwable t);
+
+    @Message(id = 7, value = "Not implemented.")
+    NotImplementedException notImplemented();
+
     // credential API messages 200-299
     @Message(id = 200, value = "Credential validation failed [%s].")
     IdentityManagementException credentialValidationFailed(Credentials credentials, @Cause Throwable t);
@@ -128,6 +136,9 @@ public interface IDMMessages {
 
     @Message(value = "No such algorithm [%s] for encoding passwords. Using PasswordEncoder [%s].")
     IdentityManagementException credentialInvalidEncodingAlgorithm(String algorithm, PasswordEncoder encoder, @Cause Throwable t);
+
+    @Message(value = "There is no Token.Consumer that supports this token [%s].")
+    IdentityManagementException credentialNoConsumerForToken(Token token);
 
     // configuration api messages 700-799
     @Message(id = 700, value = "Could not create configuration.")

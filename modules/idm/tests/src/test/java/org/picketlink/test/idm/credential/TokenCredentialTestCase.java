@@ -18,29 +18,26 @@
 
 package org.picketlink.test.idm.credential;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.credential.Credentials.Status;
-import org.picketlink.idm.credential.Token;
-import org.picketlink.idm.credential.TokenCredential;
-import org.picketlink.idm.credential.storage.TokenCredentialStorage;
 import org.picketlink.idm.credential.util.CredentialUtils;
-import org.picketlink.idm.internal.DefaultPartitionManager;
-import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.model.basic.User;
-import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractPartitionManagerTestCase;
 import org.picketlink.test.idm.Configuration;
 import org.picketlink.test.idm.testers.FileStoreConfigurationTester;
 import org.picketlink.test.idm.testers.IdentityConfigurationTester;
 import org.picketlink.test.idm.testers.JPAStoreConfigurationTester;
+import org.picketlink.test.idm.token.TokenA;
+import org.picketlink.test.idm.token.TokenACredential;
+import org.picketlink.test.idm.token.TokenACredentialHandler;
+import org.picketlink.test.idm.token.TokenAProvider;
+import org.picketlink.test.idm.token.TokenB;
+import org.picketlink.test.idm.token.TokenBCredential;
+import org.picketlink.test.idm.token.TokenBProvider;
 
 import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -62,143 +59,157 @@ public class TokenCredentialTestCase extends AbstractPartitionManagerTestCase {
         super(builder);
     }
 
+    @Before
+    public void onBefore() {
+        super.onBefore();
+    }
+
     @Test
     public void testSuccessfulValidation() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
-        TokenA token = createTokenA(user);
+        TokenAProvider tokenAProvider = new TokenAProvider(getPartitionManager());
+        TokenA token = tokenAProvider.issue(user);
 
-        identityManager.updateCredential(user, token);
-
-        TokenCredential credential = new TokenCredential(token);
+        TokenACredential credential = new TokenACredential(token);
 
         identityManager.validateCredentials(credential);
 
         assertEquals(Status.VALID, credential.getStatus());
-        assertNotNull(credential.getValidatedAccount());
+        assertEquals(user, credential.getValidatedAccount());
     }
 
     @Test
     public void testUnsuccessfulValidation() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
-        TokenA token = createTokenA(user);
+        TokenAProvider tokenAProvider = new TokenAProvider(getPartitionManager());
+        TokenA token = tokenAProvider.issue(user);
 
-        identityManager.updateCredential(user, token);
-
-        TokenCredential badUserName = new TokenCredential(new TokenA("bad_token"));
+        TokenACredential badUserName = new TokenACredential(new TokenA("bad_token"));
 
         identityManager.validateCredentials(badUserName);
 
         assertEquals(Status.INVALID, badUserName.getStatus());
         assertNull(badUserName.getValidatedAccount());
+
+        TokenACredential credential = new TokenACredential(token);
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.VALID, credential.getStatus());
+        assertEquals(user, credential.getValidatedAccount());
     }
 
     @Test
     public void testExpiration() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
-        TokenA token = createTokenA(user);
-
         Calendar expirationDate = Calendar.getInstance();
 
         expirationDate.add(Calendar.MINUTE, -5);
 
-        identityManager.updateCredential(user, token, new Date(), expirationDate.getTime());
+        TokenAProvider tokenAProvider = new TokenAProvider(getPartitionManager(), expirationDate.getTime());
+        TokenA token = tokenAProvider.issue(user);
 
-        TokenCredential credential = new TokenCredential(token);
+        TokenACredential credential = new TokenACredential(token);
 
         identityManager.validateCredentials(credential);
 
         assertEquals(Status.EXPIRED, credential.getStatus());
 
-        TokenA newToken = createTokenA(user);
+        tokenAProvider = new TokenAProvider(getPartitionManager());
+        TokenA newToken = tokenAProvider.issue(user);
 
         Thread.sleep(1000);
 
         identityManager.updateCredential(user, newToken);
 
-        credential = new TokenCredential(newToken);
+        credential = new TokenACredential(newToken);
 
         identityManager.validateCredentials(credential);
 
         assertEquals(Status.VALID, credential.getStatus());
+        assertEquals(user, credential.getValidatedAccount());
     }
 
     @Test
-    public void testUpdatePassword() throws Exception {
+    public void testUpdateToken() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
-        TokenA firstToken = createTokenA(user);
+        TokenAProvider tokenAProvider = new TokenAProvider(getPartitionManager());
+        TokenA firstToken = tokenAProvider.issue(user);
 
-        identityManager.updateCredential(user, firstToken);
-
-        TokenCredential firstCredential = new TokenCredential(firstToken);
+        TokenACredential firstCredential = new TokenACredential(firstToken);
 
         identityManager.validateCredentials(firstCredential);
 
         assertEquals(Status.VALID, firstCredential.getStatus());
+        assertEquals(user, firstCredential.getValidatedAccount());
 
-        TokenA secondToken = createTokenA(user);
-
-        Thread.sleep(1000);
+        TokenA secondToken = tokenAProvider.issue(user);
 
         identityManager.updateCredential(user, secondToken);
 
-        TokenCredential secondCredential = new TokenCredential(secondToken);
+        TokenACredential secondCredential = new TokenACredential(secondToken);
 
         identityManager.validateCredentials(secondCredential);
 
         assertEquals(Status.VALID, secondCredential.getStatus());
+        assertEquals(user, secondCredential.getValidatedAccount());
 
         identityManager.validateCredentials(firstCredential);
 
         assertEquals(Status.INVALID, firstCredential.getStatus());
+        assertNull(firstCredential.getValidatedAccount());
     }
 
     @Test
     public void testUserDeletion() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User john = createUser("john");
-        TokenA johnToken = createTokenA(john);
+        TokenAProvider tokenAProvider = new TokenAProvider(getPartitionManager());
+        TokenA johnToken = tokenAProvider.issue(john);
 
-        identityManager.updateCredential(john, johnToken);
-
-        TokenCredential johnCredential = new TokenCredential(johnToken);
+        TokenACredential johnCredential = new TokenACredential(johnToken);
 
         identityManager.validateCredentials(johnCredential);
 
         assertEquals(Status.VALID, johnCredential.getStatus());
+        assertEquals(john, johnCredential.getValidatedAccount());
 
         User francesco = createUser("francesco");
-        TokenA francescoToken = createTokenA(francesco);
+        TokenA francescoToken = tokenAProvider.issue(francesco);
 
         identityManager.updateCredential(francesco, francescoToken);
 
-        TokenCredential francescoCredential = new TokenCredential(francescoToken);
+        TokenACredential francescoCredential = new TokenACredential(francescoToken);
 
         identityManager.validateCredentials(francescoCredential);
 
         assertEquals(Status.VALID, francescoCredential.getStatus());
+        assertEquals(francesco, francescoCredential.getValidatedAccount());
 
         identityManager.remove(francesco);
 
         identityManager.validateCredentials(johnCredential);
+
+        assertEquals(Status.VALID, johnCredential.getStatus());
+        assertEquals(john, johnCredential.getValidatedAccount());
     }
 
     @Test
     public void testUserDisabled() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
-        TokenA token = createTokenA(user);
+        TokenA token = new TokenAProvider(getPartitionManager()).issue(user);
 
-        identityManager.updateCredential(user, token);
-
-        TokenCredential credential = new TokenCredential(token);
+        TokenACredential credential = new TokenACredential(token);
 
         identityManager.validateCredentials(credential);
 
         assertEquals(Status.VALID, credential.getStatus());
+        assertEquals(user, credential.getValidatedAccount());
 
         user.setEnabled(false);
 
@@ -207,187 +218,63 @@ public class TokenCredentialTestCase extends AbstractPartitionManagerTestCase {
         identityManager.validateCredentials(credential);
 
         assertEquals(Status.ACCOUNT_DISABLED, credential.getStatus());
+        assertNull(credential.getValidatedAccount());
     }
 
     @Test
     public void testRetrieveCurrentCredential() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
-        TokenA token = createTokenA(user);
+        TokenA token = new TokenAProvider(getPartitionManager()).issue(user);
 
         identityManager.updateCredential(user, token);
 
-        TokenCredentialStorage currentStorage = identityManager.retrieveCurrentCredential(user, TokenCredentialStorage.class);
+        TokenACredentialHandler.TokenACredentialStorage currentStorage = identityManager.retrieveCurrentCredential(user, TokenACredentialHandler.TokenACredentialStorage.class);
 
         assertNotNull(currentStorage);
         assertTrue(CredentialUtils.isCurrentCredential(currentStorage));
 
         assertNotNull(currentStorage.getEffectiveDate());
-        assertNotNull(currentStorage.getValue());
-        assertEquals(token.getToken(), currentStorage.getValue());
+        assertNotNull(currentStorage.getToken());
+        assertEquals(token.getToken(), currentStorage.getToken());
         assertEquals(TokenA.class.getName(), currentStorage.getType());
     }
 
     @Test
     public void testMultipleTokenSupport() throws Exception {
         User user = createUser("mary");
-        TokenA tokenA = createTokenA(user);
+        TokenAProvider tokenAProvider = new TokenAProvider(getPartitionManager());
+        TokenA tokenA = tokenAProvider.issue(user);
         IdentityManager identityManager = getIdentityManager();
 
-        identityManager.updateCredential(user, tokenA);
-
-        TokenCredential tokenACredential = new TokenCredential(tokenA);
+        TokenACredential tokenACredential = new TokenACredential(tokenA);
 
         identityManager.validateCredentials(tokenACredential);
 
         assertEquals(Status.VALID, tokenACredential.getStatus());
+        assertEquals(user, tokenACredential.getValidatedAccount());
 
-        TokenB tokenB = createTokenB(user);
+        TokenBProvider tokenBProvider = new TokenBProvider(getPartitionManager());
+        TokenB tokenB = tokenBProvider.issue(user);
 
-        TokenCredential tokenBCredential = new TokenCredential(tokenB);
+        TokenBCredential tokenBCredential = new TokenBCredential(tokenB);
 
         identityManager.validateCredentials(tokenBCredential);
-
-        assertEquals(Status.INVALID, tokenBCredential.getStatus());
-
-        identityManager.updateCredential(user, tokenB);
-        identityManager.validateCredentials(tokenBCredential);
-
         assertEquals(Status.VALID, tokenBCredential.getStatus());
+        assertEquals(user, tokenBCredential.getValidatedAccount());
+
+        identityManager.validateCredentials(tokenACredential);
+        assertEquals(Status.VALID, tokenACredential.getStatus());
+        assertEquals(user, tokenACredential.getValidatedAccount());
+
+        tokenAProvider.invalidate(user);
+
+        identityManager.validateCredentials(tokenACredential);
+        assertEquals(Status.INVALID, tokenACredential.getStatus());
+        assertNull(tokenACredential.getValidatedAccount());
+
+        identityManager.validateCredentials(tokenBCredential);
+        assertEquals(Status.VALID, tokenBCredential.getStatus());
+        assertEquals(user, tokenBCredential.getValidatedAccount());
     }
-
-    private TokenA createTokenA(User user) {
-        return createToken(TokenA.class, user);
-    }
-
-    private TokenB createTokenB(User user) {
-        return createToken(TokenB.class, user);
-    }
-
-    public static class TokenA extends Token {
-
-        public TokenA(String token) {
-            super(token);
-        }
-    }
-
-    public static class TokenAProvider implements Token.Provider {
-
-        private PartitionManager partitionManager;
-
-        @Override
-        public Account getAccount(Token token) {
-            String[] claims = token.getToken().split(";");
-
-            if (claims.length != 3) {
-                return null;
-            }
-
-            String realmName = claims[2].substring("issuer".length() + 1);
-            String subject = claims[1].substring("subject".length() + 1);
-            Realm partition = this.partitionManager.getPartition(Realm.class, realmName);
-            IdentityManager identityManager = this.partitionManager.createIdentityManager(partition);
-
-            IdentityQuery<User> query = identityManager.createIdentityQuery(User.class)
-                .setParameter(User.LOGIN_NAME, subject);
-
-            List<User> result = query.getResultList();
-
-            if (!result.isEmpty()) {
-                return result.get(0);
-            }
-
-            return null;
-        }
-
-        @Override
-        public Token create(Object value) {
-            return new TokenA(value.toString());
-        }
-
-        @Override
-        public Token issue(Account account) {
-            User user = (User) account;
-            Token token = createToken(TokenA.class, user);
-
-            getIdentityManager(user).updateCredential(account, token);
-
-            return token;
-        }
-
-        private IdentityManager getIdentityManager(User user) {
-            return this.partitionManager.createIdentityManager(user.getPartition());
-        }
-
-        @Override
-        public Token renew(Token currentToken) {
-            return issue(getAccount(currentToken));
-        }
-
-        @Override
-        public boolean validate(Token token) {
-            User user = (User) getAccount(token);
-            TokenCredentialStorage tokenStorage = getIdentityManager(user)
-                .retrieveCurrentCredential(user, TokenCredentialStorage.class);
-
-            return tokenStorage.getValue().equals(token.getToken());
-        }
-
-        @Override
-        public void invalidate(Account account) {
-
-        }
-
-        @Override
-        public boolean supports(Token token) {
-            return TokenA.class.equals(token.getClass());
-        }
-
-        @Override
-        public <T extends TokenCredentialStorage> T getTokenStorage(Account account, Token token) {
-            return null;
-        }
-
-        public void setPartitionManager(DefaultPartitionManager partitionManager) {
-            this.partitionManager = partitionManager;
-        }
-    }
-
-    public static class TokenB extends Token {
-
-        public TokenB(String token) {
-            super(token);
-        }
-    }
-
-    public static class TokenBProvider extends TokenAProvider {
-
-        @Override
-        public Token issue(Account account) {
-            return new TokenB(super.issue(account).getToken());
-        }
-
-        @Override
-        public boolean supports(Token token) {
-            return TokenB.class.equals(token.getClass());
-        }
-    }
-
-    public static <T extends Token> T createToken(Class<T> tokenType, User user) {
-        StringBuilder builder = new StringBuilder();
-
-        builder
-            .append("id=").append(UUID.randomUUID().toString())
-            .append(";")
-            .append("subject=").append(user.getLoginName())
-            .append(";")
-            .append("issuer=").append(user.getPartition().getName());
-
-        if (TokenA.class.equals(tokenType)) {
-            return (T) new TokenA(builder.toString());
-        } else {
-            return (T) new TokenB(builder.toString());
-        }
-    }
-
 }

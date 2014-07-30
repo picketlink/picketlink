@@ -21,6 +21,7 @@
  */
 package org.picketlink.idm.credential.handler;
 
+import org.picketlink.common.reflection.Reflections;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.credential.Token;
@@ -37,6 +38,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static org.picketlink.idm.credential.Token.Consumer;
+
 /**
  * @author Pedro Igor
  */
@@ -47,61 +50,83 @@ import java.util.List;
 public class TokenCredentialHandler<S extends CredentialStore<?>, V extends TokenCredential, U extends Token> extends AbstractCredentialHandler<S, V, U> {
 
     /**
-     * <p>Stores a <b>stateless</b> and thread-safe instance of {@link org.picketlink.idm.credential.Token.Provider}.</p>
+     * <p>Stores a <b>stateless</b> and thread-safe instances of {@link org.picketlink.idm.credential.Token.Consumer}. The value can be
+     * a single instance, a {@list List} or an array.</p>
      */
-    public static final String TOKEN_PROVIDER = "TOKEN_PROVIDER";
+    public static final String TOKEN_CONSUMER = "TOKEN_CONSUMER";
 
-    private final List<Token.Provider> tokenProvider = new ArrayList<Token.Provider>();
+    private final List<Consumer> tokenConsumers = new ArrayList<Consumer>();
 
     @Override
     public void setup(S store) {
         super.setup(store);
 
-        Object configuredTokenProviders = store.getConfig().getCredentialHandlerProperties().get(TOKEN_PROVIDER);
+        Object configuredTokenConsumers = store.getConfig().getCredentialHandlerProperties().get(TOKEN_CONSUMER);
 
-        if (configuredTokenProviders != null) {
+        if (configuredTokenConsumers != null) {
             try {
-                if (Token.Provider.class.isInstance(configuredTokenProviders)) {
-                    this.tokenProvider.add((Token.Provider) configuredTokenProviders);
-                } else if (configuredTokenProviders.getClass().isArray()) {
-                    this.tokenProvider.addAll(Arrays.asList((Token.Provider[]) configuredTokenProviders));
-                } else if (List.class.isInstance(configuredTokenProviders)) {
-                    this.tokenProvider.addAll((List<Token.Provider>) configuredTokenProviders);
+                if (Consumer.class.isInstance(configuredTokenConsumers)) {
+                    this.tokenConsumers.add((Consumer) configuredTokenConsumers);
+                } else if (configuredTokenConsumers.getClass().isArray()) {
+                    this.tokenConsumers.addAll(Arrays.asList((Consumer[]) configuredTokenConsumers));
+                } else if (List.class.isInstance(configuredTokenConsumers)) {
+                    this.tokenConsumers.addAll((List<Consumer>) configuredTokenConsumers);
                 }
             } catch (ClassCastException cce) {
-                throw new SecurityConfigurationException("Token provider is not a " + Token.Provider.class.getName() + " instance. You provided " + configuredTokenProviders);
+                throw new SecurityConfigurationException("Token consumer is not a " + Consumer.class.getName() + " instance. You provided " + configuredTokenConsumers);
             }
         }
     }
 
     @Override
-    protected boolean validateCredential(IdentityContext context, CredentialStorage credentialStorage, V credentials) {
-        return getTokenProvider(credentials.getToken()).validate(credentials.getToken());
+    protected boolean validateCredential(IdentityContext context, CredentialStorage credentialStorage, V credentials, S store) {
+        Token token = credentials.getToken();
+
+        if (getTokenConsumer(token) != null) {
+            return getTokenConsumer(token).validate(token);
+        }
+
+        if (credentialStorage != null) {
+            TokenCredentialStorage tokenCredentialStorage = (TokenCredentialStorage) credentialStorage;
+
+            if (tokenCredentialStorage.getToken().equals(token.getToken())
+                && tokenCredentialStorage.getType().equals(token.getType())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
     protected Account getAccount(IdentityContext context, V credentials) {
         Token token = credentials.getToken();
 
-        return getTokenProvider(token).getAccount(token);
+        if (token != null) {
+            String subject = token.getSubject();
+            Account account = getAccount(context, subject);
+
+            if (account == null) {
+                account = getAccountById(context, subject);
+            }
+
+            return account;
+        }
+
+        return null;
     }
 
     @Override
     protected CredentialStorage getCredentialStorage(IdentityContext context, Account account, V credentials, S store) {
-        return store.retrieveCurrentCredential(context, account, TokenCredentialStorage.class);
+        return store.retrieveCurrentCredential(context, account, getCredentialStorageType());
     }
 
     @Override
-    public void update(IdentityContext context, Account account, U credential, S store, Date effectiveDate, Date expiryDate) {
-        TokenCredentialStorage tokenStorage = getTokenProvider(credential).getTokenStorage(account, credential);
+    public CredentialStorage createCredentialStorage(IdentityContext context, Account account, U credential, S store, Date effectiveDate, Date expiryDate) {
+        TokenCredentialStorage tokenStorage = createCredentialStorageInstance();
 
-        // if no storage was provided by the token provider, we use the default one.
-        if (tokenStorage == null) {
-            tokenStorage = new TokenCredentialStorage();
-
-            tokenStorage.setType(credential.getType());
-            tokenStorage.setValue(credential.getToken());
-        }
+        tokenStorage.setType(credential.getType());
+        tokenStorage.setToken(credential.getToken());
 
         if (effectiveDate != null) {
             tokenStorage.setEffectiveDate(effectiveDate);
@@ -115,20 +140,35 @@ public class TokenCredentialHandler<S extends CredentialStore<?>, V extends Toke
             throw new IdentityManagementException("TokenCredentialStorage can not have a null type.");
         }
 
-        store.storeCredential(context, account, tokenStorage);
+        return tokenStorage;
     }
 
-    private Token.Provider getTokenProvider(Token token) {
-        if (this.tokenProvider.isEmpty()) {
-            throw new SecurityConfigurationException("You must provide one or more(Array or List) " + Token.Provider.class.getName() + " instances using the following credential property: " + TokenCredentialHandler.class.getName() + ".TOKEN_PROVIDER");
-        }
+    protected Class<? extends TokenCredentialStorage> getCredentialStorageType() {
+        SupportsCredentials supportsCredentials = getClass().getAnnotation(SupportsCredentials.class);
+        Class<? extends CredentialStorage> credentialStorage = supportsCredentials.credentialStorage();
 
-        for (Token.Provider selectedProvider : this.tokenProvider) {
-            if (selectedProvider.supports(token)) {
-                return selectedProvider;
+        try {
+            return (Class<? extends TokenCredentialStorage>) credentialStorage;
+        } catch (ClassCastException cce) {
+            throw new IdentityManagementException("CredentialStorage [" + credentialStorage + "] is not a " + TokenCredentialStorage.class + " type.", cce);
+        }
+    }
+
+    protected TokenCredentialStorage createCredentialStorageInstance() {
+        try {
+            return Reflections.newInstance(getCredentialStorageType());
+        } catch (Exception e) {
+            throw new IdentityManagementException("Could not create TokenStorageCredential [" + getCredentialStorageType() + "].", e);
+        }
+    }
+
+    private <T extends Token> Consumer<T> getTokenConsumer(T token) {
+        for (Consumer selectedConsumer : this.tokenConsumers) {
+            if (selectedConsumer.getTokenType().isAssignableFrom(token.getClass())) {
+                return selectedConsumer;
             }
         }
 
-        throw new SecurityConfigurationException("There is no " + Token.Provider.class.getName() + " that supports this token [" + token + "]");
+        return null;
     }
 }

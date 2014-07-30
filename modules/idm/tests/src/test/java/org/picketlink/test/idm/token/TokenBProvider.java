@@ -19,45 +19,33 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.idm.jpa.model.sample.simple;
+package org.picketlink.test.idm.token;
 
+import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.credential.storage.TokenCredentialStorage;
-import org.picketlink.idm.jpa.annotations.CredentialProperty;
-import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import java.util.Date;
 
 /**
- * <p>{@link javax.persistence.Entity} representing a {@link org.picketlink.idm.credential.Token}.</p>
- *
  * @author Pedro Igor
  */
-@ManagedCredential(TokenCredentialStorage.class)
-@Entity
-public class TokenCredentialTypeEntity extends AbstractCredentialTypeEntity {
+public class TokenBProvider extends AbstractTokenProvider<TokenB> {
 
-    @CredentialProperty
-    @Column
-    private String type;
-
-    @CredentialProperty
-    @Column(columnDefinition = "TEXT")
-    private String token;
-
-    public String getType() {
-        return this.type;
+    public TokenBProvider(PartitionManager partitionManager, Date expirationTime) {
+        super(partitionManager, expirationTime);
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public TokenBProvider(PartitionManager partitionManager) {
+        this(partitionManager, null);
     }
 
-    public String getToken() {
-        return this.token;
+    @Override
+    public Class<TokenB> getTokenType() {
+        return TokenB.class;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    @Override
+    protected Class<? extends TokenCredentialStorage> getCredentialStorageType() {
+        return TokenBCredentialHandler.TokenBCredentialStorage.class;
     }
 }

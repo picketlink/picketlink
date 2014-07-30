@@ -19,25 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.test.authentication.web.token;
-
-import org.picketlink.annotations.PicketLink;
-import org.picketlink.authentication.web.TokenAuthenticationScheme;
-
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
+package org.picketlink.test.idm.token;
 
 /**
  * @author Pedro Igor
  */
-public class SimpleTokenAuthenticationConfiguration {
+public class TokenB extends AbstractSimpleToken {
 
-    @Inject
-    private TokenAuthenticationScheme tokenAuthenticationScheme;
-
-    @Produces
-    @PicketLink
-    public TokenAuthenticationScheme configureTokenAuthenticationScheme() {
-        return this.tokenAuthenticationScheme;
+    public TokenB(String token) {
+        super(token);
     }
 }

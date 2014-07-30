@@ -19,45 +19,22 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.idm.jpa.model.sample.simple;
+package org.picketlink.test.idm.token;
 
 import org.picketlink.idm.credential.storage.TokenCredentialStorage;
-import org.picketlink.idm.jpa.annotations.CredentialProperty;
-import org.picketlink.idm.jpa.annotations.entity.ManagedCredential;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
 
 /**
- * <p>{@link javax.persistence.Entity} representing a {@link org.picketlink.idm.credential.Token}.</p>
- *
  * @author Pedro Igor
  */
-@ManagedCredential(TokenCredentialStorage.class)
-@Entity
-public class TokenCredentialTypeEntity extends AbstractCredentialTypeEntity {
+public class TokenAConsumer extends AbstractTokenConsumer<TokenA> {
 
-    @CredentialProperty
-    @Column
-    private String type;
-
-    @CredentialProperty
-    @Column(columnDefinition = "TEXT")
-    private String token;
-
-    public String getType() {
-        return this.type;
+    @Override
+    public Class<TokenA> getTokenType() {
+        return TokenA.class;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getToken() {
-        return this.token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
+    @Override
+    protected Class<? extends TokenCredentialStorage> getCredentialStorageType() {
+        return TokenACredentialHandler.TokenACredentialStorage.class;
     }
 }

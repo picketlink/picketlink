@@ -99,10 +99,15 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
         return this.identityStoresConfigurationBuilder.ldap();
     }
 
+    @Override
+    public TokenStoreConfigurationBuilder token() {
+        return this.identityStoresConfigurationBuilder.token();
+    }
+
     /**
      * <p>Defines which types should be supported by this configuration.</p>
      *
-     * @param types
+     * @param attributedTypes
      * @return
      */
     public S supportType(Class<? extends AttributedType>... attributedTypes) {
@@ -128,7 +133,7 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
      * not be supported.</p>
      *
      * @param type
-     * @param operation
+     * @param operations
      * @return
      */
     public S unsupportType(Class<? extends AttributedType> type, IdentityOperation... operations) {
@@ -198,7 +203,10 @@ public abstract class IdentityStoreConfigurationBuilder<T extends IdentityStoreC
      * @return
      */
     public S addContextInitializer(ContextInitializer contextInitializer) {
-        this.contextInitializers.add(contextInitializer);
+        if (!this.contextInitializers.contains(contextInitializer)) {
+            this.contextInitializers.add(contextInitializer);
+        }
+
         return (S) this;
     }
 

@@ -17,16 +17,6 @@
  */
 package org.picketlink.idm.jdbc.internal;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
 import org.picketlink.idm.config.JDBCIdentityStoreConfiguration;
 import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.internal.AbstractIdentityStore;
@@ -49,6 +39,17 @@ import org.picketlink.idm.spi.AttributeStore;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityContext;
 import org.picketlink.idm.spi.PartitionStore;
+
+import javax.sql.DataSource;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 /**
  * Implementation of {@link IdentityStore} using JDBC
@@ -109,19 +110,24 @@ public class JDBCIdentityStore extends AbstractIdentityStore<JDBCIdentityStoreCo
 
     @Override
     public void storeCredential(IdentityContext context, Account account, CredentialStorage storage) {
-        throw new RuntimeException();
+        throw MESSAGES.notImplemented();
     }
 
     @Override
     public <T extends CredentialStorage> T retrieveCurrentCredential(IdentityContext context, Account account,
             Class<T> storageClass) {
-        throw new RuntimeException();
+        throw MESSAGES.notImplemented();
     }
 
     @Override
     public <T extends CredentialStorage> List<T> retrieveCredentials(IdentityContext context, Account account,
             Class<T> storageClass) {
-        throw new RuntimeException();
+        throw MESSAGES.notImplemented();
+    }
+
+    @Override
+    public void removeCredential(IdentityContext context, Account account, Class<? extends CredentialStorage> storageClass) {
+        throw MESSAGES.notImplemented();
     }
 
     @Override
@@ -157,7 +163,7 @@ public class JDBCIdentityStore extends AbstractIdentityStore<JDBCIdentityStoreCo
 
     @Override
     public <V extends IdentityType> int countQueryResults(IdentityContext context, IdentityQuery<V> identityQuery) {
-        throw new RuntimeException();
+        throw MESSAGES.notImplemented();
     }
 
     @Override
@@ -175,7 +181,7 @@ public class JDBCIdentityStore extends AbstractIdentityStore<JDBCIdentityStoreCo
 
     @Override
     public <V extends Relationship> int countQueryResults(IdentityContext context, RelationshipQuery<V> query) {
-        throw new RuntimeException();
+        throw MESSAGES.notImplemented();
     }
 
     @Override
@@ -240,12 +246,12 @@ public class JDBCIdentityStore extends AbstractIdentityStore<JDBCIdentityStoreCo
 
     @Override
     public <P extends Partition> List<P> get(IdentityContext identityContext, Class<P> partitionClass) {
-        throw new RuntimeException();
+        throw MESSAGES.notImplemented();
     }
 
     @Override
     public <P extends Partition> P lookupById(IdentityContext context, Class<P> partitionClass, String id) {
-        throw new RuntimeException();
+        throw MESSAGES.notImplemented();
     }
 
     @Override
@@ -265,11 +271,11 @@ public class JDBCIdentityStore extends AbstractIdentityStore<JDBCIdentityStoreCo
 
     @Override
     public void update(IdentityContext identityContext, Partition partition) {
-        throw new RuntimeException();
+        throw MESSAGES.notImplemented();
     }
 
     @Override
     public void remove(IdentityContext identityContext, Partition partition) {
-        throw new RuntimeException();
+        throw MESSAGES.notImplemented();
     }
 }

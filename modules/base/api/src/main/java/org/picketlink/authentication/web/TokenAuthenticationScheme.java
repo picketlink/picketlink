@@ -35,6 +35,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static org.picketlink.idm.credential.Token.Builder.create;
+import static org.picketlink.idm.credential.Token.Consumer;
+import static org.picketlink.idm.credential.Token.Provider;
+
 /**
  * <p>A custom {@link org.picketlink.authentication.web.HTTPAuthenticationScheme} that knows how to extract a header from
  * the request containing a token to authenticate/re-authenticate an user.</p>
@@ -46,13 +50,10 @@ import java.io.IOException;
  * change it, subclasses may override the <code>getPrimaryAuthenticationScheme</code> method.</p>
  *
  * <p>Once a token is issued, it will be written to the {@link javax.servlet.http.HttpServletResponse} using a JSON format. In order to
- * change how tokens are returned to clients, subclasses may override the <code>issueToken</code> method.</p>
- *
- * <p>The authentication is stateless, which means that security state is discarded once the request finishes. The token must be always
- * provided in order to create the security context for a request and provide access to protected resources.</p>
+ * change how tokens are returned to clients, subclasses may override the {@link org.picketlink.authentication.web.TokenAuthenticationScheme#writeToken(String, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}.</p>
  *
  * <p>This scheme is used by the {@link org.picketlink.authentication.web.AuthenticationFilter}, which is configured in the web application
- * deployment descriptor(web.xml).</p>
+ * deployment descriptor (web.xml).</p>
  *
  * @author Pedro Igor
  */
@@ -73,7 +74,10 @@ public class TokenAuthenticationScheme implements HTTPAuthenticationScheme {
     private BasicAuthenticationScheme basicAuthenticationScheme;
 
     @Inject
-    private Instance<Token.Provider> tokenProvider;
+    private Instance<Provider<?>> tokenProvider;
+
+    @Inject
+    private Instance<Consumer<?>> tokenConsumer;
 
     @Override
     public void initialize(FilterConfig config) {
@@ -86,7 +90,11 @@ public class TokenAuthenticationScheme implements HTTPAuthenticationScheme {
 
         // if credentials are not present, we try to extract the token from the request.
         if (creds.getCredential() == null) {
-            extractTokenFromRequest(request, creds);
+            String extractedToken = extractTokenFromRequest(request);
+
+            if (extractedToken != null) {
+                creds.setCredential(createCredential(extractedToken));
+            }
         }
     }
 
@@ -114,19 +122,17 @@ public class TokenAuthenticationScheme implements HTTPAuthenticationScheme {
     @Override
     public boolean postAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (isPrimaryAuthenticationRequest() && getIdentity().isLoggedIn()) {
-            issueToken(request, response);
+            String issuedToken = issueToken(request, response);
+
+            writeToken(issuedToken, request, response);
+
+            // we stop the filter processing. By default, the token is written to the response.
             return false;
         }
 
         return true;
     }
 
-    /**
-     * <p>We only initiate the authentication process if any credential is present in the request.</p>
-     *
-     * @param request
-     * @return
-     */
     @Override
     public boolean isProtected(HttpServletRequest request) {
         return true;
@@ -151,8 +157,10 @@ public class TokenAuthenticationScheme implements HTTPAuthenticationScheme {
     }
 
     /**
-     * <p>Returns the primary {@link org.picketlink.authentication.web.HTTPAuthenticationScheme} used to validate user's credential
-     * before issuing a new token..</p>
+     * <p>Returns the primary {@link org.picketlink.authentication.web.HTTPAuthenticationScheme} that will be used to validate user's
+     * credential before issuing a new token.</p>
+     *
+     * <p>Default authentication scheme is {@link org.picketlink.authentication.web.BasicAuthenticationScheme}.</p>
      *
      * @return
      */
@@ -161,57 +169,107 @@ public class TokenAuthenticationScheme implements HTTPAuthenticationScheme {
     }
 
     /**
-     * <p>Extracts the token from the {@link javax.servlet.http.HttpServletRequest} and populates the given {@link org.picketlink.credential.DefaultLoginCredentials}
-     * with the proper credentials.</p>
+     * <p>Extracts the token from the {@link javax.servlet.http.HttpServletRequest}.</p>
+     * <p>Subclasses can override this method to customize how tokens are extracted from the request.</p>
      *
-     * <p>Subclasses can override this method to customize how tokens are extracted from the request and how a {@link org.picketlink.idm.credential.TokenCredential}
-     * is built.</p>
-     *
-     * @param request
-     * @param creds
+     *  @param request
+     *  @return A String representing the token extracted from the request.
      */
-    protected void extractTokenFromRequest(HttpServletRequest request, DefaultLoginCredentials creds) {
+    protected String extractTokenFromRequest(HttpServletRequest request) {
         String authorizationHeader = request.getHeader(AUTHORIZATION_TOKEN_HEADER_NAME);
 
         if (authorizationHeader != null && authorizationHeader.contains(AUTHENTICATION_SCHEME_NAME)) {
-            String tokenValue = authorizationHeader.substring(AUTHENTICATION_SCHEME_NAME.length() + 1);
-
-            if (tokenValue != null) {
-                Token token = getTokenProvider().create(tokenValue);
-
-                creds.setCredential(new TokenCredential(token));
-            }
+            return authorizationHeader.substring(AUTHENTICATION_SCHEME_NAME.length() + 1);
         }
+
+        return null;
     }
 
     /**
-     * <p>Writes to the response the token after a successful authentication.</p>
+     * <p>Creates a {@link org.picketlink.idm.credential.TokenCredential} using the token previously extracted from the request.</p>
      *
-     * <p>Subclasses can override this method in order to customize how tokens are written to the response.</p>
+     * <p>Subclasses can override this method to customize how the credential is created. Defaults to an instance of {@link org.picketlink.idm.credential.TokenCredential}.</p>
+     *
+     * @param extractedToken The token previously extracted from the request.
+     * @return
+     */
+    protected TokenCredential createCredential(String extractedToken) {
+        Token token;
+        Provider tokenProvider = getTokenProvider();
+
+        if (tokenProvider != null) {
+            token = create(getTokenProvider().getTokenType().getName(), extractedToken);
+        } else {
+            Consumer tokenConsumer = getTokenConsumer();
+
+            if (tokenConsumer == null) {
+                throw new AuthenticationException("You must provide a " + Token.Provider.class.getName() + " or " + Token.Consumer.class.getName() + ".");
+            }
+
+            token = create(getTokenConsumer().getTokenType().getName(), extractedToken);
+        }
+
+        return new TokenCredential(token);
+    }
+
+    /**
+     * <p>Issues a token for a previously authenticated {@link org.picketlink.idm.model.Account} using the
+     * configured {@link org.picketlink.idm.credential.Token.Provider}.</p>
      *
      * @param request
      * @param response
      */
-    protected void issueToken(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            String token = getTokenProvider().issue(getIdentity().getAccount()).getToken();
+    protected String issueToken(HttpServletRequest request, HttpServletResponse response) {
+        Provider tokenProvider = getTokenProvider();
 
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().print("{\"authctoken\":\"" + token + "\"}");
-        } catch (Exception e) {
-            throw new AuthenticationException("Could not issue token.", e);
+        if (tokenProvider == null) {
+            throw new AuthenticationException("No " + Token.Provider.class.getName() + " was found.");
         }
+
+        return tokenProvider.issue(getIdentity().getAccount()).getToken();
+    }
+
+    /**
+     * <p>Writes the <code>issuedToken</code> to the {@link javax.servlet.http.HttpServletResponse}.</p>
+     *
+     * @param issuedToken
+     * @param request
+     * @param response
+     */
+    protected void writeToken(String issuedToken, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter().print("{\"authctoken\":\"" + issuedToken + "\"}");
+        } catch (Exception e) {
+            throw new AuthenticationException("Could not write token to response.", e);
+        }
+    }
+
+    protected Provider getTokenProvider() {
+        if (this.tokenProvider.isAmbiguous()) {
+            throw new AuthenticationException("You must provide exactly one " + Provider.class.getName() + " implementation.");
+        }
+
+        if (!this.tokenProvider.isUnsatisfied()) {
+            return this.tokenProvider.get();
+        }
+
+        return null;
+    }
+
+    protected Consumer getTokenConsumer() {
+        if (this.tokenConsumer.isAmbiguous()) {
+            throw new AuthenticationException("You must provide exactly one " + Consumer.class.getName() + " implementation.");
+        }
+
+        if (!this.tokenConsumer.isUnsatisfied()) {
+            return this.tokenConsumer.get();
+        }
+
+        return null;
     }
 
     private boolean isPrimaryAuthenticationRequest() {
         return getCredentials().getCredential() != null && !TokenCredential.class.isInstance(getCredentials().getCredential());
-    }
-
-    private Token.Provider getTokenProvider() {
-        if (this.tokenProvider.isAmbiguous() || this.tokenProvider.isUnsatisfied()) {
-            throw new AuthenticationException("You must provide exactly one " + Token.Provider.class.getName() + " implementation.");
-        }
-
-        return this.tokenProvider.get();
     }
 }

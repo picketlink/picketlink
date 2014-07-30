@@ -42,14 +42,22 @@ import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.model.basic.User;
+import org.picketlink.idm.spi.CredentialStore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import static org.junit.Assert.*;
-import static org.picketlink.idm.credential.handler.PasswordCredentialHandler.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.picketlink.idm.credential.handler.PasswordCredentialHandler.PASSWORD_ENCODER;
 import static org.picketlink.idm.credential.handler.annotations.SupportsCredentials.NO_CREDENTIAL_STORAGE;
-import static org.picketlink.idm.model.basic.BasicModel.*;
+import static org.picketlink.idm.model.basic.BasicModel.getUser;
 
 /**
  * <p>Some tests for the configuration of the encoding when using the {@link PasswordCredentialHandler}.</p>
@@ -307,6 +315,55 @@ public class PasswordCredentialHandlerConfigurationTestCase {
         assertEquals("SHA1PRNG", ((DefaultSecureRandomProvider) MockPasswordCredentialHandler.secureRandomProvider).getAlgorithm());
     }
 
+    @Test
+    public void testRandomSaltGeneration() throws Exception {
+        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
+
+        builder
+            .named("default")
+                .stores()
+                    .file()
+                        .addCredentialHandler(MockPasswordCredentialHandler.class)
+                        .supportAllFeatures();
+
+        PartitionManager partitionManager = new DefaultPartitionManager(builder.build());
+
+        partitionManager.add(new Realm(Realm.DEFAULT_REALM));
+
+        IdentityManager identityManager = partitionManager.createIdentityManager();
+
+        User user = new User("user");
+
+        identityManager.add(user);
+
+        user = getUser(identityManager, user.getLoginName());
+
+        assertNotNull(user);
+
+        Password password = new Password("123");
+
+        identityManager.updateCredential(user, password);
+        identityManager.updateCredential(user, password);
+        identityManager.updateCredential(user, password);
+        identityManager.updateCredential(user, password);
+        identityManager.updateCredential(user, password);
+        identityManager.updateCredential(user, password);
+        identityManager.updateCredential(user, password);
+        identityManager.updateCredential(user, password);
+        identityManager.updateCredential(user, password);
+        identityManager.updateCredential(user, password);
+
+        List<String> generatedSalts = MockPasswordCredentialHandler.salts;
+
+        assertEquals(10, generatedSalts.size());
+
+        Set<String> uniqueSalts = new HashSet<String>();
+
+        for (String salt : generatedSalts) {
+            assertTrue(uniqueSalts.add(salt));
+        }
+    }
+
     @Test (expected=IdentityManagementException.class)
     public void failInvalidEncodingAlgorithm() throws Exception {
         IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
@@ -350,16 +407,32 @@ public class PasswordCredentialHandlerConfigurationTestCase {
     }
 
     @SupportsCredentials(
-            credentialClass = {UsernamePasswordCredentials.class, Password.class},
-            credentialStorage = NO_CREDENTIAL_STORAGE.class)
+        credentialClass = {UsernamePasswordCredentials.class, Password.class},
+        credentialStorage = NO_CREDENTIAL_STORAGE.class)
     public static class MockPasswordCredentialHandler extends PasswordCredentialHandler {
 
+        public static List<String> salts = new ArrayList<String>();
         public static SecureRandomProvider secureRandomProvider;
+
+        @Override
+        public void setup(CredentialStore store) {
+            super.setup(store);
+            salts.clear();
+        }
 
         @Override
         public SecureRandomProvider getSecureRandomProvider() {
             secureRandomProvider = super.getSecureRandomProvider();
             return secureRandomProvider;
+        }
+
+        @Override
+        protected String generateSalt() {
+            String salt = super.generateSalt();
+
+            salts.add(salt);
+
+            return salt;
         }
     }
 }

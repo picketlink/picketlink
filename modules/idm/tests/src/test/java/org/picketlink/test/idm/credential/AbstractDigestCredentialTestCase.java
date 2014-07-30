@@ -207,52 +207,6 @@ public abstract class AbstractDigestCredentialTestCase extends AbstractPartition
     }
 
     @Test
-    public void testMultipleRealms() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-        String accountName = "someUser";
-        Account user = createAccount(accountName);
-        Digest realmAPassword = new Digest();
-
-        realmAPassword.setRealm("Realm A");
-        realmAPassword.setUsername(accountName);
-        realmAPassword.setPassword("somePassword");
-
-        identityManager.updateCredential(user, realmAPassword);
-
-        Digest realmBPassword = new Digest();
-
-        realmBPassword.setRealm("Realm B");
-        realmBPassword.setUsername(accountName);
-        realmBPassword.setPassword("somePassword");
-
-        identityManager.updateCredential(user, realmBPassword);
-
-        realmAPassword.setDigest(DigestUtil.calculateA1(accountName, realmAPassword.getRealm(), realmAPassword.getPassword().toCharArray()));
-
-        DigestCredentials realmACredentials = new DigestCredentials(realmAPassword);
-
-        identityManager.validateCredentials(realmACredentials);
-
-        assertEquals(Credentials.Status.VALID, realmACredentials.getStatus());
-
-        realmBPassword.setDigest(DigestUtil.calculateA1(accountName, realmBPassword.getRealm(), realmBPassword.getPassword().toCharArray()));
-
-        DigestCredentials realmBCredentials = new DigestCredentials(realmBPassword);
-
-        identityManager.validateCredentials(realmBCredentials);
-
-        assertEquals(Credentials.Status.VALID, realmBCredentials.getStatus());
-
-        realmBPassword.setDigest(DigestUtil.calculateA1(accountName, realmAPassword.getRealm(), realmBPassword.getPassword().toCharArray()));
-
-        realmBCredentials = new DigestCredentials(realmBPassword);
-
-        identityManager.validateCredentials(realmBCredentials);
-
-        assertEquals(Credentials.Status.INVALID, realmBCredentials.getStatus());
-    }
-
-    @Test
     public void testUserDisabled() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         String accountName = "someUser";

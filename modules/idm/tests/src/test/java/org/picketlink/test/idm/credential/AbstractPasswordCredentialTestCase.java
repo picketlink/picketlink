@@ -38,12 +38,8 @@ import org.picketlink.test.idm.testers.SingleConfigLDAPJPAStoreConfigurationTest
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -293,33 +289,6 @@ public abstract class AbstractPasswordCredentialTestCase extends AbstractPartiti
         identityManager.validateCredentials(credential);
 
         assertEquals(Credentials.Status.ACCOUNT_DISABLED, credential.getStatus());
-    }
-
-    @Test
-    @Configuration(exclude = {LDAPStoreConfigurationTester.class, SingleConfigLDAPJPAStoreConfigurationTester.class, LDAPUserGroupJPARoleConfigurationTester.class})
-    public void testRandomSaltGeneration() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-        String accountName = "someUser";
-        Account user = createAccount(accountName);
-        Password plainTextPassword = new Password("updated_password".toCharArray());
-
-        identityManager.updateCredential(user, plainTextPassword);
-        identityManager.updateCredential(user, plainTextPassword);
-        identityManager.updateCredential(user, plainTextPassword);
-        identityManager.updateCredential(user, plainTextPassword);
-        identityManager.updateCredential(user, plainTextPassword);
-        identityManager.updateCredential(user, plainTextPassword);
-
-        List<EncodedPasswordStorage> storages = identityManager.retrieveCredentials(user, EncodedPasswordStorage.class);
-
-        assertFalse(storages.isEmpty());
-        assertEquals(6, storages.size());
-
-        Set<String> salts = new HashSet<String>();
-
-        for (EncodedPasswordStorage storage: storages) {
-            assertTrue(salts.add(storage.getSalt()));
-        }
     }
 
     @Test

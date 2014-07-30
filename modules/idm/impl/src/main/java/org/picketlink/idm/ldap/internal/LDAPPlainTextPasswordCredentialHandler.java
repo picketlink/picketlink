@@ -19,24 +19,18 @@
 package org.picketlink.idm.ldap.internal;
 
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
-import org.picketlink.idm.credential.handler.CredentialHandler;
+import org.picketlink.idm.credential.handler.AbstractCredentialHandler;
 import org.picketlink.idm.credential.handler.annotations.SupportsCredentials;
+import org.picketlink.idm.credential.storage.CredentialStorage;
 import org.picketlink.idm.model.Account;
-import org.picketlink.idm.model.basic.Agent;
 import org.picketlink.idm.spi.IdentityContext;
 
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import java.util.Date;
-
-import static org.picketlink.idm.IDMLog.CREDENTIAL_LOGGER;
-import static org.picketlink.idm.credential.Credentials.Status;
-import static org.picketlink.idm.model.basic.BasicModel.getAgent;
-import static org.picketlink.idm.model.basic.BasicModel.getUser;
 
 /**
  * This particular implementation supports the validation of UsernamePasswordCredentials, and updating PlainTextPassword
@@ -48,69 +42,39 @@ import static org.picketlink.idm.model.basic.BasicModel.getUser;
 @SupportsCredentials(
         credentialClass = {UsernamePasswordCredentials.class, Password.class},
         credentialStorage = SupportsCredentials.NO_CREDENTIAL_STORAGE.class)
-public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
-    implements CredentialHandler<LDAPIdentityStore, UsernamePasswordCredentials, Password> {
+public class LDAPPlainTextPasswordCredentialHandler<S, V, U> extends AbstractCredentialHandler<LDAPIdentityStore, UsernamePasswordCredentials, Password> {
 
     private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
 
     @Override
-    public void setup(LDAPIdentityStore store) {
+    protected boolean validateCredential(IdentityContext context, CredentialStorage credentialStorage, UsernamePasswordCredentials credentials, LDAPIdentityStore store) {
+        Account account = getAccount(context, credentials.getUsername());
+
+        LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) store;
+        char[] password = credentials.getPassword().getValue();
+        String bindingDN = ldapIdentityStore.getBindingDN(account, true);
+        LDAPOperationManager operationManager = ldapIdentityStore.getOperationManager();
+
+        if (operationManager.authenticate(bindingDN, new String(password))) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override
-    public void validate(IdentityContext context, UsernamePasswordCredentials credentials,
-            LDAPIdentityStore store) {
-        credentials.setStatus(Status.INVALID);
-        credentials.setValidatedAccount(null);
+    protected Account getAccount(IdentityContext context, UsernamePasswordCredentials credentials) {
+        return getAccount(context, credentials.getUsername());
+    }
 
-        if (CREDENTIAL_LOGGER.isDebugEnabled()) {
-            CREDENTIAL_LOGGER.debugf("Validating credentials [%s][%s] using identity store [%s] and credential handler [%s].", credentials.getClass(), credentials, store, this);
-        }
-
-        Account account = getAccount(context, credentials.getUsername());
-
-        // If the user for the provided username cannot be found we fail validation
-        if (account != null) {
-            if (CREDENTIAL_LOGGER.isDebugEnabled()) {
-                CREDENTIAL_LOGGER.debugf("Found account [%s] from credentials [%s].", account, credentials);
-            }
-
-            if (account.isEnabled()) {
-                if (CREDENTIAL_LOGGER.isDebugEnabled()) {
-                    CREDENTIAL_LOGGER.debugf("Account [%s] is ENABLED.", account, credentials);
-                }
-
-                LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) store;
-                char[] password = credentials.getPassword().getValue();
-                String bindingDN = ldapIdentityStore.getBindingDN(account, true);
-                LDAPOperationManager operationManager = ldapIdentityStore.getOperationManager();
-
-                if (operationManager.authenticate(bindingDN, new String(password))) {
-                    credentials.setValidatedAccount(account);
-                    credentials.setStatus(Status.VALID);
-                }
-            } else {
-                if (CREDENTIAL_LOGGER.isDebugEnabled()) {
-                    CREDENTIAL_LOGGER.debugf("Account [%s] is DISABLED.", account, credentials);
-                }
-                credentials.setStatus(Status.ACCOUNT_DISABLED);
-            }
-        } else {
-            if (CREDENTIAL_LOGGER.isDebugEnabled()) {
-                CREDENTIAL_LOGGER.debugf("Account NOT FOUND for credentials [%s][%s].", credentials.getClass(), credentials);
-            }
-        }
-
-        if (CREDENTIAL_LOGGER.isDebugEnabled()) {
-            CREDENTIAL_LOGGER.debugf("Credential [%s][%s] validated using identity store [%s] and credential handler [%s]. Status [%s]. Validated Account [%s]",
-                    credentials.getClass(), credentials, store, this, credentials.getStatus(), credentials.getValidatedAccount());
-        }
+    @Override
+    protected CredentialStorage getCredentialStorage(IdentityContext context, Account account, UsernamePasswordCredentials credentials, LDAPIdentityStore store) {
+        return null; // dummy storage, this handler does not store passwords using a credential storage.
     }
 
     @Override
     public void update(IdentityContext context, Account account, Password password, LDAPIdentityStore store,
-                       Date effectiveDate, Date expiryDate) {
-
+        Date effectiveDate, Date expiryDate) {
         if (store.getConfig().isActiveDirectory()) {
             updateADPassword(account, new String(password.getValue()), store);
         } else {
@@ -128,6 +92,11 @@ public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
         }
     }
 
+    @Override
+    protected CredentialStorage createCredentialStorage(IdentityContext context, Account account, Password password, LDAPIdentityStore store, Date effectiveDate, Date expiryDate) {
+        throw new RuntimeException("This handler does not store passwords using a credential storage.");
+    }
+
     private void updateADPassword(Account account, String password, LDAPIdentityStore store) {
         try {
             // Replace the "unicdodePwd" attribute with a new value
@@ -141,31 +110,5 @@ public class LDAPPlainTextPasswordCredentialHandler<S, V, U>
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    protected Account getAccount(IdentityContext context, String loginName) {
-        IdentityManager identityManager = getIdentityManager(context);
-
-        if (CREDENTIAL_LOGGER.isDebugEnabled()) {
-            CREDENTIAL_LOGGER.debugf("Trying to find account [%s] using default account type [%s]. If you're using a custom account type, it will not be retrieved until you provide a credential handler that knows how to retrieve it.", loginName, Agent.class);
-        }
-
-        Account agent = getAgent(identityManager, loginName);
-
-        if (agent == null) {
-            agent = getUser(identityManager, loginName);
-        }
-
-        return agent;
-    }
-
-    protected IdentityManager getIdentityManager(IdentityContext context) {
-        IdentityManager identityManager = context.getParameter(IdentityManager.IDENTITY_MANAGER_CTX_PARAMETER);
-
-        if (identityManager == null) {
-            throw new IdentityManagementException("IdentityManager not set into context.");
-        }
-
-        return identityManager;
     }
 }

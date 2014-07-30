@@ -61,6 +61,7 @@ public class IdentityStoresConfigurationBuilder
         this.supportedStoreBuilders.put(JPAIdentityStoreConfiguration.class, JPAStoreConfigurationBuilder.class);
         this.supportedStoreBuilders.put(LDAPIdentityStoreConfiguration.class, LDAPStoreConfigurationBuilder.class);
         this.supportedStoreBuilders.put(JDBCIdentityStoreConfiguration.class, JDBCStoreConfigurationBuilder.class);
+        this.supportedStoreBuilders.put(TokenStoreConfiguration.class, TokenStoreConfigurationBuilder.class);
     }
 
     /**
@@ -102,12 +103,26 @@ public class IdentityStoresConfigurationBuilder
     }
 
     /**
-     * <p>Adds support for a custom {@link IdentityStore}.</p>
+     * <p>Configures a token-based identity store for this configuration.</p>
+     *
+     * <p>This identity store does not persist data, but only extracts information from tokens in order to perform some basic
+     * identity management operations. In this case, a token acts as a temporary identity store from where all identity data will
+     * be retrieved.</p>
+     *
+     * <p>Usually, tokens are a self-contained repository for the identities or claims for a particular subject.</p>
+     *
+     * @return
+     */
+    @Override
+    public TokenStoreConfigurationBuilder token() {
+        return forIdentityStoreConfig(TokenStoreConfiguration.class, true);
+    }
+
+    /**
+     * <p>Adds support for a custom {@link org.picketlink.idm.spi.IdentityStore}.</p>
      *
      * @param identityStoreConfiguration
-     * @param identityStore
      * @param builder
-     * @param <T>
      *
      * @return
      */
@@ -117,6 +132,10 @@ public class IdentityStoresConfigurationBuilder
             @ParameterConfigID(name = "builderClass") Class<T> builder) {
         this.supportedStoreBuilders.put(identityStoreConfiguration, builder);
         return forIdentityStoreConfig(identityStoreConfiguration, true);
+    }
+
+    public List<IdentityStoreConfigurationBuilder<?, ?>> getIdentityStoresConfigurationBuilder() {
+        return this.identityStoresConfiguration;
     }
 
     @Override

@@ -19,34 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.test.authentication.web.token;
-
-import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.credential.handler.TokenCredentialHandler;
-
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
+package org.picketlink.test.idm.token;
 
 /**
  * @author Pedro Igor
  */
-public class SimpleTokenIDMConfiguration {
+public class TokenA extends AbstractSimpleToken {
 
-    @Inject
-    private SimpleToken.SimpleTokenProvider tokenProvider;
-
-    @Produces
-    public IdentityConfiguration produceConfiguration() {
-        IdentityConfigurationBuilder builder = new IdentityConfigurationBuilder();
-
-        builder
-            .named("custom-config")
-            .stores()
-            .file()
-            .setCredentialHandlerProperty(TokenCredentialHandler.TOKEN_PROVIDER, this.tokenProvider)
-            .supportAllFeatures();
-
-        return builder.build();
+    public TokenA(String token) {
+        super(token);
     }
 }

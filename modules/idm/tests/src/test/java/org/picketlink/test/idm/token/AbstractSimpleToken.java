@@ -19,36 +19,48 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.test.authentication.web.token;
+package org.picketlink.test.idm.token;
 
-import org.picketlink.Identity;
-import org.picketlink.idm.model.basic.User;
+import org.picketlink.idm.credential.AbstractToken;
 
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.util.Date;
 
 /**
  * @author Pedro Igor
  */
-@WebServlet(name = "ProtectedServlet", urlPatterns = "/protected/servlet")
-public class ProtectedServlet extends HttpServlet {
+public class AbstractSimpleToken extends AbstractToken {
 
-    @Inject
-    private Instance<Identity> identityInstance;
+    public AbstractSimpleToken(String token) {
+        super(token);
+    }
 
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        User user = (User) getIdentity().getAccount();
-        resp.getWriter().println("User is " + user.getLoginName());
+    public String getSubject() {
+        return getClaim(1, "subject");
     }
 
-    private Identity getIdentity() {
-        return this.identityInstance.get();
+    public String getIssuer() {
+        return getClaim(2, "issuer");
     }
+
+    public String getUserName() {
+        return getClaim(3, "userName");
+    }
+
+    public Date getExpiration() {
+        return new Date(System.currentTimeMillis() + Integer.valueOf(getClaim(4, "expiration")));
+    }
+
+    public String getClaim(int position, String name) {
+        if (position >= getClaims().length) {
+            return null;
+        }
+
+        return getClaims()[position].substring(name.length() + 1);
+    }
+
+    public String[] getClaims() {
+        return getToken().split(";");
+    }
+
 }
