@@ -20,9 +20,13 @@ package org.picketlink.idm.config;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Member;
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,7 +51,7 @@ public class LDAPMappingConfiguration {
         Set<String> objectClasses,
         String baseDN,
         String idPropertyName,
-        String bindingPropertyName,
+        final String bindingPropertyName,
         Map<String, String> mappedProperties,
         Set<String> readOnlyAttributes,
         Map<String, String> parentMapping,
@@ -77,13 +81,7 @@ public class LDAPMappingConfiguration {
         Property bindingProperty = this.idProperty;
 
         if (bindingPropertyName != null) {
-            bindingProperty = PropertyQueries
-                .<String>createQuery(getMappedClass())
-                .addCriteria(new NamedPropertyCriteria(bindingPropertyName)).getFirstResult();
-
-            if (bindingProperty == null) {
-                throw new SecurityConfigurationException("Binding property not found for type [" + mappedClass + "].");
-            }
+            bindingProperty = getBindingProperty(bindingPropertyName);
         }
 
         this.bindingProperty = bindingProperty;
@@ -133,5 +131,85 @@ public class LDAPMappingConfiguration {
 
     public int getHierarchySearchDepth() {
         return this.hierarchySearchDepth;
+    }
+
+    private Property getBindingProperty(final String bindingPropertyName) {
+        Property bindingProperty = PropertyQueries
+                .<String>createQuery(getMappedClass())
+                .addCriteria(new NamedPropertyCriteria(bindingPropertyName)).getFirstResult();
+
+        // We don't have Java property, so actually delegate to setAttribute/getAttribute
+        if (bindingProperty == null) {
+            bindingProperty = new Property<String>() {
+
+                @Override
+                public String getName() {
+                    return bindingPropertyName;
+                }
+
+                @Override
+                public Type getBaseType() {
+                    return null;
+                }
+
+                @Override
+                public Class<String> getJavaClass() {
+                    return String.class;
+                }
+
+                @Override
+                public AnnotatedElement getAnnotatedElement() {
+                    return null;
+                }
+
+                @Override
+                public Member getMember() {
+                    return null;
+                }
+
+                @Override
+                public String getValue(Object instance) {
+                    if (!(instance instanceof AttributedType)) {
+                        throw new IllegalStateException("Instance [ " + instance + " ] not an instance of AttributedType");
+                    }
+
+                    AttributedType attributedType = (AttributedType) instance;
+                    Attribute<String> attr = attributedType.getAttribute(bindingPropertyName);
+                    return attr!=null ? attr.getValue() : null;
+                }
+
+                @Override
+                public void setValue(Object instance, String value) {
+                    if (!(instance instanceof AttributedType)) {
+                        throw new IllegalStateException("Instance [ " + instance + " ] not an instance of AttributedType");
+                    }
+
+                    AttributedType attributedType = (AttributedType) instance;
+                    attributedType.setAttribute(new Attribute(bindingPropertyName, value));
+                }
+
+                @Override
+                public Class<?> getDeclaringClass() {
+                    return null;
+                }
+
+                @Override
+                public boolean isReadOnly() {
+                    return false;
+                }
+
+                @Override
+                public void setAccessible() {
+
+                }
+
+                @Override
+                public boolean isAnnotationPresent(Class annotation) {
+                    return false;
+                }
+            };
+        }
+
+        return bindingProperty;
     }
 }
