@@ -86,7 +86,13 @@ public class TokenCredentialTestCase extends AbstractPartitionManagerTestCase {
         TokenAProvider tokenAProvider = new TokenAProvider(getPartitionManager());
         TokenA token = tokenAProvider.issue(user);
 
-        TokenACredential badUserName = new TokenACredential(new TokenA("bad_token"));
+        User invalidUser = new User("bad_user");
+
+        invalidUser.setPartition(user.getPartition());
+
+        invalidUser.setId("invalid_id");
+
+        TokenACredential badUserName = new TokenACredential(TokenAProvider.createToken(TokenA.class, invalidUser));
 
         identityManager.validateCredentials(badUserName);
 

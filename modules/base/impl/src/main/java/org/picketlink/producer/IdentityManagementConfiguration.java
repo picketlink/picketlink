@@ -131,6 +131,12 @@ public class IdentityManagementConfiguration {
                 storeConfigurationBuilder.addContextInitializer(this.authenticatedAccountContextInitializer);
 
                 if (JPAStoreConfigurationBuilder.class.isInstance(storeConfigurationBuilder)) {
+                    JPAStoreConfigurationBuilder jpaStoreBuilder = (JPAStoreConfigurationBuilder) storeConfigurationBuilder;
+
+                    if (jpaStoreBuilder.getMappedEntities().isEmpty()) {
+                        jpaStoreBuilder.mappedEntity(getEntities());
+                    }
+
                     storeConfigurationBuilder.addContextInitializer(this.entityManagerContextInitializer);
                 }
 
@@ -150,9 +156,9 @@ public class IdentityManagementConfiguration {
             ROOT_LOGGER.debugf("No configuration provided by the application. Configuring defaults.");
         }
 
-        Set<Class<?>> entities = getEntities();
+        Class<?>[] entities = getEntities();
 
-        if (entities.isEmpty()) {
+        if (entities.length == 0) {
             builder
                 .named(DEFAULT_CONFIGURATION_NAME)
                 .stores()
@@ -166,7 +172,7 @@ public class IdentityManagementConfiguration {
                 .named(DEFAULT_CONFIGURATION_NAME)
                 .stores()
                 .jpa()
-                .mappedEntity(entities.toArray(new Class<?>[entities.size()]))
+                .mappedEntity(entities)
                 .addContextInitializer(this.entityManagerContextInitializer)
                 .supportAllFeatures();
             if (ROOT_LOGGER.isDebugEnabled()) {
@@ -175,7 +181,7 @@ public class IdentityManagementConfiguration {
         }
     }
 
-    private Set<Class<?>> getEntities() {
+    private Class<?>[] getEntities() {
         Set<Class<?>> entities = new HashSet<Class<?>>();
 
         if (!this.entityManagerInstance.isUnsatisfied()) {
@@ -194,7 +200,7 @@ public class IdentityManagementConfiguration {
             }
         }
 
-        return entities;
+        return entities.toArray(new Class<?>[entities.size()]);
     }
 
     private boolean isIdentityEntity(Class<?> cls) {
