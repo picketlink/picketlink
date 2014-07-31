@@ -83,7 +83,7 @@ public class JPAStoreConfigurationBuilder extends
         return this;
     }
 
-    protected Set<Class<?>> getMappedEntities() {
+    public Set<Class<?>> getMappedEntities() {
         return this.mappedEntities;
     }
 }

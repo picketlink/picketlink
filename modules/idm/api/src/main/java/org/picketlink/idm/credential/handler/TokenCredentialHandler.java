@@ -104,6 +104,11 @@ public class TokenCredentialHandler<S extends CredentialStore<?>, V extends Toke
 
         if (token != null) {
             String subject = token.getSubject();
+
+            if (subject == null) {
+                throw new IdentityManagementException("No subject returned from token [" + token + "].");
+            }
+
             Account account = getAccount(context, subject);
 
             if (account == null) {
