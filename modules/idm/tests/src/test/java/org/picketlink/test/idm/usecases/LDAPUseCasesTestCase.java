@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -32,20 +31,13 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
-import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.internal.DefaultPartitionManager;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.basic.Agent;
 import org.picketlink.idm.model.basic.BasicModel;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.util.LDAPEmbeddedServer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.picketlink.common.constants.LDAPConstants.CN;
 import static org.picketlink.common.constants.LDAPConstants.CREATE_TIMESTAMP;
 import static org.picketlink.common.constants.LDAPConstants.EMAIL;
@@ -126,6 +118,7 @@ public class LDAPUseCasesTestCase {
         john.setLastName("Anthon");
         john.setEmail("johny1@email.org");
         john.setAttribute(new Attribute("fooFirstName", "John"));
+        john.setAttribute(new Attribute("fullName", "John Anthon"));
         identityManager.add(john);
 
         // modifyDate may be null after creation (depends on LDAP server)
