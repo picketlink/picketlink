@@ -25,7 +25,7 @@ execute_cmd() {
 
 # check if a previous maven build was successful or not
 check_build_result() {
-    if tail -n 100 pl-release.log|grep -F "BUILD SUCCESS"
+    if tail -n 100 $RELEASE_LOG_FILE|grep -F "BUILD SUCCESS"
     then
         return 0
     else
