@@ -19,13 +19,11 @@ package org.picketlink.test.idm.config;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
-import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Password;
@@ -45,7 +43,7 @@ import org.picketlink.idm.jpa.model.sample.simple.RoleTypeEntity;
 import org.picketlink.idm.jpa.model.sample.simple.X509CredentialTypeEntity;
 import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.idm.model.basic.User;
-import org.picketlink.internal.EEJPAContextInitializer;
+import org.picketlink.internal.EntityManagerContextInitializer;
 import org.picketlink.test.AbstractJPADeploymentTestCase;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -102,7 +100,7 @@ public class ProducePartitionManagerTestCase extends AbstractJPADeploymentTestCa
     public static class IDMConfiguration {
 
         @Inject
-        private EEJPAContextInitializer contextInitializer;
+        private EntityManagerContextInitializer contextInitializer;
 
         @PicketLink
         @Produces
