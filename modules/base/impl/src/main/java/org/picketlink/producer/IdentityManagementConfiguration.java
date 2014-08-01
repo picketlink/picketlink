@@ -1,7 +1,6 @@
 package org.picketlink.producer;
 
 import org.picketlink.IdentityConfigurationEvent;
-import org.picketlink.annotations.PicketLink;
 import org.picketlink.extension.PicketLinkExtension;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
@@ -9,25 +8,20 @@ import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
 import org.picketlink.idm.config.IdentityStoresConfigurationBuilder;
 import org.picketlink.idm.config.JPAStoreConfigurationBuilder;
 import org.picketlink.idm.config.NamedIdentityConfigurationBuilder;
+import org.picketlink.idm.config.SecurityConfigurationException;
 import org.picketlink.idm.config.TokenStoreConfigurationBuilder;
 import org.picketlink.idm.credential.Token;
 import org.picketlink.internal.AuthenticatedAccountContextInitializer;
 import org.picketlink.internal.CDIEventBridge;
-import org.picketlink.internal.EEJPAContextInitializer;
+import org.picketlink.internal.EntityManagerContextInitializer;
+import org.picketlink.internal.EntityManagerProvider;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.metamodel.EntityType;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
-import static java.lang.reflect.Modifier.isAbstract;
 import static org.picketlink.log.BaseLog.ROOT_LOGGER;
 
 /**
@@ -36,7 +30,7 @@ import static org.picketlink.log.BaseLog.ROOT_LOGGER;
  *
  * <p>It's also possible to observe a specific event during the startup of the PicketLink IDM subsystem. In such
  * situations the application can provide any additional information as a last attempt before the subsystem is fully
- * initialized. See {@link IdentityConfigurationEvent}.
+ * initialized. See {@link org.picketlink.event.IdentityConfigurationEvent}.
  * </p>
  *
  * @author Shane Bryzak
@@ -45,7 +39,6 @@ import static org.picketlink.log.BaseLog.ROOT_LOGGER;
 public class IdentityManagementConfiguration {
 
     private static final String DEFAULT_CONFIGURATION_NAME = "default";
-    private static final String JPA_ANNOTATION_PACKAGE = "org.picketlink.idm.jpa.annotations";
 
     @Inject
     private PicketLinkExtension picketLinkExtension;
@@ -54,11 +47,10 @@ public class IdentityManagementConfiguration {
     private Instance<IdentityConfiguration> identityConfigInstance;
 
     @Inject
-    @PicketLink
-    private Instance<EntityManager> entityManagerInstance;
+    private EntityManagerProvider entityManagerProvider;
 
     @Inject
-    private EEJPAContextInitializer entityManagerContextInitializer;
+    private EntityManagerContextInitializer entityManagerContextInitializer;
 
     @Inject
     private AuthenticatedAccountContextInitializer authenticatedAccountContextInitializer;
@@ -127,24 +119,30 @@ public class IdentityManagementConfiguration {
         for (NamedIdentityConfigurationBuilder identityConfigurationBuilder : builder.getNamedIdentityConfigurationBuilders()) {
             IdentityStoresConfigurationBuilder stores = identityConfigurationBuilder.stores();
 
-            for (IdentityStoreConfigurationBuilder storeConfigurationBuilder : stores.getIdentityStoresConfigurationBuilder()) {
-                storeConfigurationBuilder.addContextInitializer(this.authenticatedAccountContextInitializer);
+            for (IdentityStoreConfigurationBuilder storeBuilder : stores.getIdentityStoresConfigurationBuilder()) {
+                storeBuilder.addContextInitializer(this.authenticatedAccountContextInitializer);
 
-                if (JPAStoreConfigurationBuilder.class.isInstance(storeConfigurationBuilder)) {
-                    JPAStoreConfigurationBuilder jpaStoreBuilder = (JPAStoreConfigurationBuilder) storeConfigurationBuilder;
+                if (JPAStoreConfigurationBuilder.class.isInstance(storeBuilder)) {
+                    JPAStoreConfigurationBuilder jpaBuilder = (JPAStoreConfigurationBuilder) storeBuilder;
 
-                    if (jpaStoreBuilder.getMappedEntities().isEmpty()) {
-                        jpaStoreBuilder.mappedEntity(getEntities());
+                    if (jpaBuilder.getMappedEntities().isEmpty()) {
+                        Class<?>[] mappedEntities = this.entityManagerProvider.getMappedEntities();
+
+                        if (mappedEntities.length == 0) {
+                            throw new SecurityConfigurationException("You provided a configuration for the JPA Identity Store, but no mapped entities were found.");
+                        }
+
+                        jpaBuilder.mappedEntity(mappedEntities);
                     }
 
-                    storeConfigurationBuilder.addContextInitializer(this.entityManagerContextInitializer);
+                    jpaBuilder.addContextInitializer(this.entityManagerContextInitializer);
                 }
 
-                if (TokenStoreConfigurationBuilder.class.isInstance(storeConfigurationBuilder)) {
-                    TokenStoreConfigurationBuilder tokenStoreBuilder = (TokenStoreConfigurationBuilder) storeConfigurationBuilder;
+                if (TokenStoreConfigurationBuilder.class.isInstance(storeBuilder)) {
+                    TokenStoreConfigurationBuilder tokenBuilder = (TokenStoreConfigurationBuilder) storeBuilder;
 
                     if (!this.tokenConsumerInstance.isUnsatisfied()) {
-                        tokenStoreBuilder.tokenConsumer(this.tokenConsumerInstance.get());
+                        tokenBuilder.tokenConsumer(this.tokenConsumerInstance.get());
                     }
                 }
             }
@@ -156,74 +154,26 @@ public class IdentityManagementConfiguration {
             ROOT_LOGGER.debugf("No configuration provided by the application. Configuring defaults.");
         }
 
-        Class<?>[] entities = getEntities();
-
-        if (entities.length == 0) {
+        if (this.entityManagerProvider.hasMappedEntities()) {
             builder
                 .named(DEFAULT_CONFIGURATION_NAME)
-                .stores()
-                .file()
-                .supportAllFeatures();
+                    .stores()
+                        .jpa()
+                            .supportAllFeatures();
             if (ROOT_LOGGER.isDebugEnabled()) {
-                ROOT_LOGGER.debugf("Auto configuring File Identity Store. All features are going to be supported.", entities);
+                ROOT_LOGGER.debugf("Auto configuring JPA Identity Store.");
             }
         } else {
             builder
                 .named(DEFAULT_CONFIGURATION_NAME)
-                .stores()
-                .jpa()
-                .mappedEntity(entities)
-                .addContextInitializer(this.entityManagerContextInitializer)
-                .supportAllFeatures();
+                    .stores()
+                        .file()
+                            .supportAllFeatures();
             if (ROOT_LOGGER.isDebugEnabled()) {
-                ROOT_LOGGER.debugf("Auto configuring JPA Identity Store. All features are going to be supported. Entities [%s]", entities);
+                ROOT_LOGGER.debugf("Auto configuring File Identity Store.");
             }
         }
     }
 
-    private Class<?>[] getEntities() {
-        Set<Class<?>> entities = new HashSet<Class<?>>();
 
-        if (!this.entityManagerInstance.isUnsatisfied()) {
-            EntityManager entityManager = this.entityManagerInstance.get();
-
-            for (EntityType<?> entityType : entityManager.getMetamodel().getEntities()) {
-                Class<?> javaType = entityType.getJavaType();
-
-                if (!isAbstract(javaType.getModifiers()) && isIdentityEntity(javaType)) {
-                    if (ROOT_LOGGER.isDebugEnabled()) {
-                        ROOT_LOGGER.debugf("PicketLink IDM mapped entity found [%s].", entityType);
-                    }
-
-                    entities.add(javaType);
-                }
-            }
-        }
-
-        return entities.toArray(new Class<?>[entities.size()]);
-    }
-
-    private boolean isIdentityEntity(Class<?> cls) {
-        while (!cls.equals(Object.class)) {
-            for (Annotation a : cls.getAnnotations()) {
-                if (a.annotationType().getName().startsWith(JPA_ANNOTATION_PACKAGE)) {
-                    return true;
-                }
-            }
-
-            // No class annotation was found, check the fields
-            for (Field f : cls.getDeclaredFields()) {
-                for (Annotation a : f.getAnnotations()) {
-                    if (a.annotationType().getName().startsWith(JPA_ANNOTATION_PACKAGE)) {
-                        return true;
-                    }
-                }
-            }
-
-            // Check the superclass
-            cls = cls.getSuperclass();
-        }
-
-        return false;
-    }
 }
