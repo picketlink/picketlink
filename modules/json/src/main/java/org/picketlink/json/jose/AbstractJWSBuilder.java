@@ -42,71 +42,144 @@ import static org.picketlink.json.jose.crypto.Algorithm.HS512;
 import static org.picketlink.json.jose.crypto.Algorithm.RS256;
 import static org.picketlink.json.jose.crypto.Algorithm.RS384;
 import static org.picketlink.json.jose.crypto.Algorithm.RS512;
-import static org.picketlink.json.util.JsonUtil.b64Decode;
+import static org.picketlink.json.util.Base64Util.b64Decode;
 
 /**
+ * The Class AbstractJWSBuilder for building JSON Web Signature.
+ *
  * @author Pedro Igor
+ * @param <T> the generic type
+ * @param <B> the generic type
  */
 public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBuilder<T, B>> extends JWTBuilder<T, B> {
 
     private byte[] key;
 
+    /**
+     * Instantiates a new abstract JWS builder.
+     *
+     * @param tokenType the token type
+     */
     protected AbstractJWSBuilder(Class<T> tokenType) {
         super(tokenType);
         header(ALG, Algorithm.NONE.getAlgorithm());
     }
 
+    /**
+     * The kid (key ID) member can be used to match a specific key. This can be used, for instance, to choose among a set of
+     * keys within a JWK Set during key rollover. The structure of the kid value is unspecified. When kid values are used within
+     * a JWK Set, different keys within the JWK Set SHOULD use distinct kid values. (One example in which different keys might
+     * use the same kid value is if they have different kty (key type) values but are considered to be equivalent alternatives
+     * by the application using them.) The kid value is a case-sensitive string. Use of this member is OPTIONAL.
+     *
+     * <p>
+     * When used with JWS or JWE, the kid value is used to match a JWS or JWE kid Header Parameter value.
+     *
+     * @param kid the kid
+     * @return the b
+     */
     public B kid(String kid) {
         header(KEY_ID, kid);
         return (B) this;
     }
 
+    /**
+     * Sets HMAC using SHA-256 as signature algorithm.
+     *
+     * @param key the key
+     * @return the b
+     */
     public B hmac256(byte[] key) {
         header(ALG, HS256.name());
         this.key = key;
         return (B) this;
     }
 
+    /**
+     * Sets HMAC using SHA-384 as signature algorithm.
+     *
+     * @param key the key
+     * @return the b
+     */
     public B hmac384(byte[] key) {
         header(ALG, HS384.name());
         this.key = key;
         return (B) this;
     }
 
+    /**
+     * Sets HMAC using SHA-512 as signature algorithm.
+     *
+     * @param key the key
+     * @return the b
+     */
     public B hmac512(byte[] key) {
         header(ALG, HS512.name());
         this.key = key;
         return (B) this;
     }
 
+    /**
+     * Sets RSASSA-PKCS-v1_5 using SHA-256 as signature algorithm.
+     *
+     * @param key the key
+     * @return the b
+     */
     public B rsa256(byte[] key) {
         header(ALG, RS256.name());
         this.key = key;
         return (B) this;
     }
 
+    /**
+     * Sets RSASSA-PKCS-v1_5 using SHA-384 as signature algorithm.
+     *
+     * @param key the key
+     * @return the b
+     */
     public B rsa384(byte[] key) {
         header(ALG, RS384.name());
         this.key = key;
         return (B) this;
     }
 
+    /**
+     * Sets RSASSA-PKCS-v1_5 using SHA-512 as signature algorithm.
+     *
+     * @param key the key
+     * @return the b
+     */
     public B rsa512(byte[] key) {
         header(ALG, RS512.name());
         this.key = key;
         return (B) this;
     }
 
+    /**
+     * Sets JWKSet key(s) as a JSON Web Key Set for JWS Header.
+     *
+     * @param keySet the key set
+     * @return the b
+     */
     public B keys(JWKSet keySet) {
         header(HEADER_JSON_WEB_KEY, keySet.getJsonObject().getJsonArray(HEADER_JSON_WEB_KEY));
         return (B) this;
     }
 
+    /**
+     * Adds key(s) into the JWKSet.
+     *
+     * @param keys the keys
+     * @return the b
+     */
     public B keys(JWK... keys) {
         JWKSet jwkSet = new JWKSet(keys);
         return keys(jwkSet);
     }
 
+    /**
+     * @see org.picketlink.json.jwt.JWTBuilder#build(javax.json.JsonObject, javax.json.JsonObject)
+     */
     @Override
     protected T build(JsonObject headersObject, JsonObject claimsObject) {
         try {
@@ -121,16 +194,23 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
     }
 
     /**
-     * <p>Builds a {@link org.picketlink.json.jose.JWS} instance from the given <code>json</code> string representing an encoded JWS.</p>
+     * <p>
+     * Builds a {@link org.picketlink.json.jose.JWS} instance from the given <code>json</code> string representing an encoded
+     * JWS.
+     * </p>
      *
-     * <p>This method first tries to check if the given JWS provides any JWK representing the public key that should be used to
-     * validate the signature.</p>
+     * <p>
+     * This method first tries to check if the given JWS provides any JWK representing the public key that should be used to
+     * validate the signature.
+     * </p>
      *
-     * <p>If no JWK is found, this method does not validate the signature but returns a JWS instance.</p>
+     * <p>
+     * If no JWK is found, this method does not validate the signature but returns a JWS instance.
+     * </p>
      *
      * @param json The encoded JSON string representing a JWS.
      * @return A JWS representing the given encoded JSON string.
-     * @throws org.picketlink.json.JsonException If parameters are null or any error occurs when parsing and validating the signature of the given encoded JSON.
+     * @throws JsonException the json exception
      */
     @Override
     public T build(String json) throws JsonException {
@@ -173,7 +253,7 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
      * @param json The encoded JSON string representing a JWS.
      * @param key The encoded representation of a public key.
      * @return A JWS representing the given encoded JSON string.
-     * @throws org.picketlink.json.JsonException If parameters are null or any error occurs when parsing and validating the signature of the given encoded JSON.
+     * @throws JsonException the json exception
      */
     public T build(String json, byte[] key) throws JsonException {
         if (key == null) {
@@ -200,7 +280,7 @@ public abstract class AbstractJWSBuilder<T extends JWS, B extends AbstractJWSBui
             }
         }
 
-        return token;
+       return token;
     }
 
 }

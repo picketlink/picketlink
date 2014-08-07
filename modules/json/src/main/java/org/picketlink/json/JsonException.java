@@ -22,8 +22,6 @@
 package org.picketlink.json;
 
 /**
- * The Class JsonException.
- *
  * @author Pedro Igor
  */
 public class JsonException extends RuntimeException {

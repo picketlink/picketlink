@@ -31,7 +31,7 @@ import org.picketlink.json.JsonException;
 public interface SignatureProvider {
 
     /**
-     * Sign.
+     * Sign the data using specified algorithm and specified key.
      *
      * @param data the data
      * @param algorithm the algorithm
@@ -42,7 +42,7 @@ public interface SignatureProvider {
     byte[] sign(byte[] data, Algorithm algorithm, byte[] key) throws JsonException;
 
     /**
-     * Verify.
+     * Verify the data using specified algorithm, signature and specified key.
      *
      * @param data the data
      * @param algorithm the algorithm

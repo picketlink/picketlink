@@ -44,7 +44,6 @@ import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.json.jose.JWE;
 import org.picketlink.json.jose.JWEBuilder;
@@ -53,7 +52,7 @@ import org.picketlink.json.jose.JWKBuilder;
 import org.picketlink.json.jose.JWKSet;
 import org.picketlink.json.jose.crypto.JWEDecrypter;
 import org.picketlink.json.jose.crypto.JWEEncrypter;
-import org.picketlink.json.util.JsonUtil;
+import org.picketlink.json.util.JOSEUtil;
 
 /**
  * The Class JWEAPITestCase.
@@ -76,11 +75,15 @@ public class JWEAPITestCase {
     @Before
     public void onBefore() throws Exception {
         this.keySet = new JWKSet();
-        this.keyPair1 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(2048);
+
+        this.keyPair1 = keyGen.generateKeyPair();
 
         registerPublicKey("1", (RSAPublicKey) this.keyPair1.getPublic());
 
-        this.keyPair2 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        this.keyPair2 = keyGen.generateKeyPair();
 
         registerPublicKey("2", (RSAPublicKey) this.keyPair2.getPublic());
     }
@@ -98,7 +101,7 @@ public class JWEAPITestCase {
             .keyIdentifier(kid)
             .keyType(RSA)
             .keyAlgorithm(publicKey.getAlgorithm())
-            .keyUse("sign")
+            .keyUse("sig")
             .build();
 
         this.keySet.add(rsaJWK);
@@ -160,9 +163,9 @@ public class JWEAPITestCase {
         assertEquals(
             "{\"keys\":[{\"n\":\""
                 + jwkKeyPair2.getModulus()
-                + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"sign\"},{\"n\":\""
+                + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"sig\"},{\"n\":\""
                 + jwkKeyPair1.getModulus()
-                + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"sign\"}],\"alg\":\"RSA-OAEP\",\"enc\":\"A256GCM\",\"cek_bitlength\":256,\"zip\":\"DEF\",\"typ\":\"jwt\",\"cty\":\"jwe\",\"x5c\":[\"cert1\",\"cert2\",\"cert3\"],\"kid\":\"1\"}",
+                + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"alg\":\"RSA\",\"use\":\"sig\"}],\"alg\":\"RSA-OAEP\",\"enc\":\"A256GCM\",\"cek_bitlength\":256,\"zip\":\"DEF\",\"typ\":\"jwt\",\"cty\":\"jwe\",\"x5c\":[\"cert1\",\"cert2\",\"cert3\"],\"kid\":\"1\"}",
             jsonString);
     }
 
@@ -185,7 +188,7 @@ public class JWEAPITestCase {
         JWEEncrypter encrypter = new JWEEncrypter((RSAPublicKey) keyPair1.getPublic());
         String encryptedPayload = encrypter.encrypt(jwe, payLoad.getBytes());
 
-        String[] cryptoPart = JsonUtil.split(encryptedPayload);
+        String[] cryptoPart = JOSEUtil.split(encryptedPayload);
 
         JWEDecrypter decrypter = new JWEDecrypter((RSAPrivateKey) keyPair1.getPrivate());
         byte[] decryptedByteArray = decrypter.decrypt(jwe, cryptoPart[1], cryptoPart[2], cryptoPart[3], cryptoPart[4]);
@@ -213,7 +216,7 @@ public class JWEAPITestCase {
         JWEEncrypter encrypter = new JWEEncrypter((RSAPublicKey) keyPair1.getPublic());
         String encryptedPayload = encrypter.encrypt(jwe, payLoad.getBytes());
 
-        String[] cryptoPart = JsonUtil.split(encryptedPayload);
+        String[] cryptoPart = JOSEUtil.split(encryptedPayload);
 
         JWEDecrypter decrypter = new JWEDecrypter((RSAPrivateKey) keyPair1.getPrivate());
         byte[] decryptedByteArray = decrypter.decrypt(jwe, cryptoPart[1], cryptoPart[2], cryptoPart[3], cryptoPart[4]);
@@ -241,7 +244,7 @@ public class JWEAPITestCase {
         JWEEncrypter encrypter = new JWEEncrypter((RSAPublicKey) keyPair1.getPublic());
         String encryptedPayload = encrypter.encrypt(jwe, payLoad.getBytes());
 
-        String[] cryptoPart = JsonUtil.split(encryptedPayload);
+        String[] cryptoPart = JOSEUtil.split(encryptedPayload);
 
         JWEDecrypter decrypter = new JWEDecrypter((RSAPrivateKey) keyPair1.getPrivate());
         byte[] decryptedByteArray = decrypter.decrypt(jwe, cryptoPart[1], cryptoPart[2], cryptoPart[3], cryptoPart[4]);
@@ -269,7 +272,7 @@ public class JWEAPITestCase {
         JWEEncrypter encrypter = new JWEEncrypter((RSAPublicKey) keyPair1.getPublic());
         String encryptedPayload = encrypter.encrypt(jwe, payLoad.getBytes());
 
-        String[] cryptoPart = JsonUtil.split(encryptedPayload);
+        String[] cryptoPart = JOSEUtil.split(encryptedPayload);
 
         JWEDecrypter decrypter = new JWEDecrypter((RSAPrivateKey) keyPair1.getPrivate());
         byte[] decryptedByteArray = decrypter.decrypt(jwe, cryptoPart[1], cryptoPart[2], cryptoPart[3], cryptoPart[4]);
@@ -300,7 +303,7 @@ public class JWEAPITestCase {
         JWEEncrypter encrypter = new JWEEncrypter((RSAPublicKey) keyPair1.getPublic());
         String encryptedPayload = encrypter.encrypt(jwe, payLoad.getBytes());
 
-        String[] cryptoPart = JsonUtil.split(encryptedPayload);
+        String[] cryptoPart = JOSEUtil.split(encryptedPayload);
 
         JWEDecrypter decrypter = new JWEDecrypter((RSAPrivateKey) keyPair1.getPrivate());
         byte[] decryptedByteArray = decrypter.decrypt(jwe, cryptoPart[1], cryptoPart[2], cryptoPart[3], cryptoPart[4]);
@@ -312,11 +315,9 @@ public class JWEAPITestCase {
     /**
      * Test ALGRSA_OAEP256_WITH_ENC_A256CBC_HS512.
      *
-     * @see http://stackoverflow.com/questions/2579103/too-much-data-for-rsa-block-fail-what-is-pkcs7
      * @throws ParseException the parse exception
      */
     @Test
-    @Ignore("java.lang.ArrayIndexOutOfBoundsException: too much data for RSA block")
     public void test_ALGRSA_OAEP256_WITH_ENC_A256CBC_HS512() throws ParseException {
 
         JWE jwe = new JWEBuilder()
@@ -330,7 +331,7 @@ public class JWEAPITestCase {
         JWEEncrypter encrypter = new JWEEncrypter((RSAPublicKey) keyPair1.getPublic());
         String encryptedPayload = encrypter.encrypt(jwe, payLoad.getBytes());
 
-        String[] cryptoPart = JsonUtil.split(encryptedPayload);
+        String[] cryptoPart = JOSEUtil.split(encryptedPayload);
 
         JWEDecrypter decrypter = new JWEDecrypter((RSAPrivateKey) keyPair1.getPrivate());
         byte[] decryptedByteArray = decrypter.decrypt(jwe, cryptoPart[1], cryptoPart[2], cryptoPart[3], cryptoPart[4]);
@@ -358,7 +359,7 @@ public class JWEAPITestCase {
         JWEEncrypter encrypter = new JWEEncrypter((RSAPublicKey) keyPair1.getPublic());
         String encryptedPayload = encrypter.encrypt(jwe, payLoad.getBytes());
 
-        String[] cryptoPart = JsonUtil.split(encryptedPayload);
+        String[] cryptoPart = JOSEUtil.split(encryptedPayload);
 
         JWEDecrypter decrypter = new JWEDecrypter((RSAPrivateKey) keyPair2.getPrivate());
         byte[] decryptedByteArray = decrypter.decrypt(jwe, cryptoPart[1], cryptoPart[2], cryptoPart[3], cryptoPart[4]);
@@ -388,7 +389,7 @@ public class JWEAPITestCase {
 
         encryptedPayload = encryptedPayload.substring(encryptedPayload.lastIndexOf('.'));
 
-        String[] cryptoPart = JsonUtil.split(encryptedPayload);
+        String[] cryptoPart = JOSEUtil.split(encryptedPayload);
 
         JWEDecrypter decrypter = new JWEDecrypter((RSAPrivateKey) keyPair1.getPrivate());
         byte[] decryptedByteArray = decrypter.decrypt(jwe, cryptoPart[1], cryptoPart[2], cryptoPart[3], cryptoPart[4]);
@@ -418,7 +419,7 @@ public class JWEAPITestCase {
 
         encryptedPayload = encryptedPayload.concat(".invalidExtraPart");
 
-        String[] cryptoPart = JsonUtil.split(encryptedPayload);
+        String[] cryptoPart = JOSEUtil.split(encryptedPayload);
 
         JWEDecrypter decrypter = new JWEDecrypter((RSAPrivateKey) keyPair1.getPrivate());
         byte[] decryptedByteArray = decrypter.decrypt(jwe, cryptoPart[1], cryptoPart[2], cryptoPart[3], cryptoPart[4]);

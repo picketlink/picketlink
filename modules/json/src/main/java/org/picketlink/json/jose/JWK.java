@@ -21,13 +21,8 @@
  */
 package org.picketlink.json.jose;
 
-import static javax.json.JsonValue.ValueType.ARRAY;
-import static javax.json.JsonValue.ValueType.FALSE;
-import static javax.json.JsonValue.ValueType.NUMBER;
-import static javax.json.JsonValue.ValueType.STRING;
-import static javax.json.JsonValue.ValueType.TRUE;
+import static org.picketlink.json.JsonConstants.COMMON.KEY_ID;
 import static org.picketlink.json.JsonConstants.JWK.KEY_ALGORITHM;
-import static org.picketlink.json.JsonConstants.JWK.KEY_IDENTIFIER;
 import static org.picketlink.json.JsonConstants.JWK.KEY_OPERATIONS;
 import static org.picketlink.json.JsonConstants.JWK.KEY_TYPE;
 import static org.picketlink.json.JsonConstants.JWK.KEY_USE;
@@ -44,22 +39,19 @@ import static org.picketlink.json.JsonConstants.JWK_RSA.PRIME_Q;
 import static org.picketlink.json.JsonConstants.JWK_RSA.PRIVATE_EXPONENT;
 import static org.picketlink.json.JsonConstants.JWK_RSA.PUBLIC_EXPONENT;
 import static org.picketlink.json.JsonMessages.MESSAGES;
-import static org.picketlink.json.util.JsonUtil.b64Decode;
+import static org.picketlink.json.util.Base64Util.b64Decode;
 
 import java.io.StringWriter;
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPublicKeySpec;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonNumber;
 import javax.json.JsonObject;
-import javax.json.JsonString;
-import javax.json.JsonValue;
+
+import org.picketlink.json.util.JsonUtil;
 
 /**
  * The base class for JSON Web Keys (JWKs). It serializes to a JSON object.
@@ -196,7 +188,7 @@ public class JWK {
      * @return the key identifier
      */
     public String getKeyIdentifier() {
-        return getKeyParameter(KEY_IDENTIFIER);
+        return getKeyParameter(KEY_ID);
     }
 
     /**
@@ -322,7 +314,7 @@ public class JWK {
      * @return the key parameter
      */
     private String getKeyParameter(String name) {
-        return getValue(name, this.keyParameters);
+        return JsonUtil.getValue(name, this.keyParameters);
     }
 
     /**
@@ -332,7 +324,7 @@ public class JWK {
      * @return the key parameter values
      */
     public List<String> getKeyParameterValues(String name) {
-        return getValues(name, this.keyParameters);
+        return JsonUtil.getValues(name, this.keyParameters);
     }
 
     /**
@@ -346,84 +338,6 @@ public class JWK {
         Json.createWriter(keyParameterWriter).writeObject(this.keyParameters);
 
         return keyParameterWriter.getBuffer().toString();
-    }
-
-    /**
-     * Parses the specified key parameter value from the {@link javax.json.JsonObject} into a collection of strings.
-     *
-     * @param name the parameter name
-     * @param jsonObject the JSON object representing the key parameters set.
-     * @return a collection of values for the specified key parameter in JsonObject
-     */
-    private List<String> getValues(String name, JsonObject jsonObject) {
-        JsonValue headerValue = jsonObject.get(name);
-        List<String> values = new ArrayList<String>();
-
-        if (headerValue != null) {
-            if (JsonArray.class.isInstance(headerValue)) {
-                JsonArray array = (JsonArray) headerValue;
-
-                for (JsonValue value : array.getValuesAs(JsonValue.class)) {
-                    values.add(getValue(value).toString());
-                }
-            } else {
-                values.add(getValue(name, jsonObject).toString());
-            }
-        }
-
-        return values;
-    }
-
-    /**
-     * Gets the parameter value from the {@link javax.json.JsonValue}.
-     *
-     * @param <R> the generic type as value could be an object, array, number, string or boolean value.
-     * @param value the JsonValue which is to be parsed.
-     * @return
-     */
-    private <R> R getValue(JsonValue value) {
-        if (ARRAY.equals(value.getValueType())) {
-            JsonArray array = (JsonArray) value;
-            for (JsonValue jsonValue : array) {
-                return getValue(jsonValue);
-            }
-        } else if (STRING.equals(value.getValueType())) {
-            return (R) ((JsonString) value).getString();
-        } else if (NUMBER.equals(value.getValueType())) {
-            return (R) ((JsonNumber) value).bigDecimalValue().toPlainString();
-        } else if (TRUE.equals(value.getValueType()) || FALSE.equals(value.getValueType())) {
-            return (R) Boolean.valueOf(value.toString());
-        }
-
-        return null;
-    }
-
-    /**
-     * Gets the value of the specified key from the {@link javax.json.JsonObject}
-     *
-     * @param name the parameter whose value is to be retrieved.
-     * @param jsonObject the JSON object representing headers or claims set.
-     * @return the value of the specified key.
-     */
-    private String getValue(String name, JsonObject jsonObject) {
-        JsonValue value = jsonObject.get(name);
-
-        if (value != null) {
-            if (ARRAY.equals(value.getValueType())) {
-                JsonArray array = (JsonArray) value;
-                for (JsonValue jsonValue : array) {
-                    return getValue(jsonValue);
-                }
-            } else if (STRING.equals(value.getValueType())) {
-                return ((JsonString) value).getString();
-            } else if (NUMBER.equals(value.getValueType())) {
-                return ((JsonNumber) value).bigDecimalValue().toPlainString();
-            } else if (TRUE.equals(value.getValueType()) || FALSE.equals(value.getValueType())) {
-                return value.toString();
-            }
-        }
-
-        return null;
     }
 
     /**

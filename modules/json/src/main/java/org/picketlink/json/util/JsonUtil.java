@@ -17,17 +17,26 @@
  */
 package org.picketlink.json.util;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.text.ParseException;
+import static javax.json.JsonValue.ValueType.ARRAY;
+import static javax.json.JsonValue.ValueType.FALSE;
+import static javax.json.JsonValue.ValueType.NUMBER;
+import static javax.json.JsonValue.ValueType.STRING;
+import static javax.json.JsonValue.ValueType.TRUE;
 
-import static org.picketlink.json.JsonMessages.MESSAGES;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.json.JsonArray;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonString;
+import javax.json.JsonValue;
 
 /**
  * Parses a JSON object.
  *
  * <p>
- * Specific JSON to Java entity mapping (as per JSON Smart):
+ * Specific JSON to Java entity mapping :
  *
  * <ul>
  * <li>JSON true|false map to {@link java.lang.Boolean}.
@@ -48,175 +57,84 @@ import static org.picketlink.json.JsonMessages.MESSAGES;
  */
 public class JsonUtil {
 
-    // FIXME: need to review JWE and support JSR-353
-    // public static final String AES = JsonConstants.JWE.AES;
-    // public static final String AES_CBC = "AES/CBC/PKCS5Padding";
-    // public static final String SHA_256 = "SHA-256";
-
     /**
-     * Base64 Encode without breaking lines.
+     * Parses the specified key value from the {@link javax.json.JsonObject} into a collection of strings.
      *
-     * @param str the str
-     * @return the string
+     * @param name the header or claim name
+     * @param jsonObject the JSON object representing the headers set or the claims set.
+     * @return a collection of values for the specified key in JsonObject
      */
-    public static String b64Encode(String str) {
-        try {
-            return b64Encode(str.getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw MESSAGES.failEncodeToken(e);
+    public static List<String> getValues(String name, JsonObject jsonObject) {
+
+        JsonValue headerValue = jsonObject.get(name);
+        List<String> values = new ArrayList<String>();
+
+        if (headerValue != null) {
+            if (JsonArray.class.isInstance(headerValue)) {
+                JsonArray array = (JsonArray) headerValue;
+
+                for (JsonValue aud : array.getValuesAs(JsonValue.class)) {
+                    values.add(getValue(aud).toString());
+                }
+            } else {
+                values.add(getValue(name, jsonObject).toString());
+            }
         }
+        return values;
     }
 
     /**
-     * Base64 Encode without breaking lines.
+     * Gets the key value from the {@link javax.json.JsonValue}.
      *
-     * @param bytes the bytes
-     * @return the string
+     * @param <R> the generic type as value could be an object, array, number, string or boolean value.
+     * @param value the JsonValue which is to be parsed.
+     * @return
      */
-    public static String b64Encode(byte[] bytes) {
-        String s = Base64.encodeBytes(bytes);
+    @SuppressWarnings("unchecked")
+    public static <R> R getValue(JsonValue value) {
 
-        s = s.split("=")[0]; // Remove any trailing '='s
-        s = s.replace('+', '-'); // 62nd char of encoding
-        s = s.replace('/', '_'); // 63rd char of encoding
+        if (ARRAY.equals(value.getValueType())) {
+            JsonArray array = (JsonArray) value;
+            for (JsonValue jsonValue : array) {
+                return getValue(jsonValue);
+            }
+        } else if (STRING.equals(value.getValueType())) {
+            return (R) ((JsonString) value).getString();
+        } else if (NUMBER.equals(value.getValueType())) {
+            return (R) ((JsonNumber) value).bigDecimalValue().toPlainString();
+        } else if (TRUE.equals(value.getValueType()) || FALSE.equals(value.getValueType())) {
+            return (R) Boolean.valueOf(value.toString());
+        }
 
-        return s;
+        return null;
     }
 
     /**
-     * Base64 decode.
+     * Gets the value of the specified key from the {@link javax.json.JsonObject}
      *
-     * @param s the string to be decoded
-     * @return the byte[]
+     * @param name the key whose value is to be retrieved.
+     * @param jsonObject the JSON object representing headers or claims set.
+     * @return the value of the specified key.
      */
-    public static byte[] b64Decode(String s) {
-        s = s.replace('-', '+'); // 62nd char of encoding
-        s = s.replace('_', '/'); // 63rd char of encoding
-        switch (s.length() % 4) { // Pad with trailing '='s
-            case 0:
-                break; // No pad chars in this case
-            case 2:
-                s += "==";
-                break; // Two pad chars
-            case 3:
-                s += "=";
-                break; // One pad char
-            default:
-                throw new RuntimeException("Illegal base64url string!");
+    public static String getValue(String name, JsonObject jsonObject) {
+
+        JsonValue value = jsonObject.get(name);
+
+        if (value != null) {
+            if (ARRAY.equals(value.getValueType())) {
+                JsonArray array = (JsonArray) value;
+                for (JsonValue jsonValue : array) {
+                    return getValue(jsonValue);
+                }
+            } else if (STRING.equals(value.getValueType())) {
+                return ((JsonString) value).getString();
+            } else if (NUMBER.equals(value.getValueType())) {
+                return ((JsonNumber) value).bigDecimalValue().toPlainString();
+            } else if (TRUE.equals(value.getValueType()) || FALSE.equals(value.getValueType())) {
+                return value.toString();
+            }
         }
 
-        try {
-            return Base64.decode(s);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return null;
     }
-
-    /**
-     * Checks the specified arrays for equality in constant time. Intended to mitigate timing attacks.
-     *
-     * @param a The first array. Must not be {@code null}.
-     * @param b The second array. Must not be {@code null}.
-     *
-     * @return {@code true} if the two arrays are equal, else {@code false}.
-     */
-    public static boolean constantTimeAreEqual(final byte[] a, final byte[] b) {
-        // From http://codahale.com/a-lesson-in-timing-attacks/
-        if (a.length != b.length) {
-            return false;
-        }
-        int result = 0;
-        for (int i = 0; i < a.length; i++) {
-            result |= a[i] ^ b[i];
-        }
-        return result == 0;
-    }
-
-    /**
-     * Splits a serialized JOSE object into its Base64URL-encoded parts.
-     *
-     * @param s The serialized JOSE object to split. Must not be {@code null}.
-     *
-     * @return The JOSE Base64URL-encoded parts (three for plaintext and JWS objects, five for JWE objects).
-     *
-     * @throws ParseException If the specified string couldn't be split into three or five Base64URL-encoded parts.
-     */
-    public static String[] split(final String s)
-        throws ParseException {
-        // We must have 2 (JWS) or 4 dots (JWE)
-        // String.split() cannot handle empty parts
-        final int dot1 = s.indexOf(".");
-
-        if (dot1 == -1) {
-            throw new ParseException("Invalid serialized plain/JWS/JWE object: Missing part delimiters", 0);
-        }
-
-        final int dot2 = s.indexOf(".", dot1 + 1);
-        if (dot2 == -1) {
-            throw new ParseException("Invalid serialized plain/JWS/JWE object: Missing second delimiter", 0);
-        }
-
-        // Third dot for JWE only
-        final int dot3 = s.indexOf(".", dot2 + 1);
-        if (dot3 == -1) {
-
-            // Two dots only? -> We have a JWS
-            String[] parts = new String[3];
-            parts[0] = new String(s.substring(0, dot1));
-            parts[1] = new String(s.substring(dot1 + 1, dot2));
-            parts[2] = new String(s.substring(dot2 + 1));
-            return parts;
-        }
-
-        // Fourth final dot for JWE
-        final int dot4 = s.indexOf(".", dot3 + 1);
-        if (dot4 == -1) {
-            throw new ParseException("Invalid serialized JWE object: Missing fourth delimiter", 0);
-        }
-
-        if (dot4 != -1 && s.indexOf(".", dot4 + 1) != -1) {
-            throw new ParseException("Invalid serialized plain/JWS/JWE object: Too many part delimiters", 0);
-        }
-        // Four dots -> five parts
-        String[] parts = new String[5];
-        parts[0] = new String(s.substring(0, dot1));
-        parts[1] = new String(s.substring(dot1 + 1, dot2));
-        parts[2] = new String(s.substring(dot2 + 1, dot3));
-        parts[3] = new String(s.substring(dot3 + 1, dot4));
-        parts[4] = new String(s.substring(dot4 + 1));
-        return parts;
-    }
-
-    // FIXME: need to review JWE and support JSR-353
-    // public static byte[] encryptUsingAES_CBC(String plainText, byte[] key, IvParameterSpec parameters)
-    // throws ProcessingException {
-    // if (key == null || key.length == 0) {
-    // throw JsonMessages.MESSAGES.invalidNullArgument("key");
-    // }
-    // Cipher cipher = null;
-    // try {
-    // cipher = Cipher.getInstance(AES_CBC);
-    // SecretKeySpec keyspec = new SecretKeySpec(key, AES);
-    // cipher.init(Cipher.ENCRYPT_MODE, keyspec, parameters);
-    // return cipher.doFinal(plainText.getBytes());
-    // } catch (Exception e) {
-    // throw JsonMessages.MESSAGES.processingException(e);
-    // }
-    // }
-    //
-    // public static byte[] decryptUsingAES_CBC(byte[] encryptedPlainText, byte[] key, IvParameterSpec parameters)
-    // throws ProcessingException {
-    // if (key == null || key.length == 0) {
-    // throw JsonMessages.MESSAGES.invalidNullArgument("key");
-    // }
-    // Cipher cipher = null;
-    // try {
-    // cipher = Cipher.getInstance(AES_CBC);
-    // SecretKeySpec keyspec = new SecretKeySpec(key, AES);
-    // cipher.init(Cipher.DECRYPT_MODE, keyspec, parameters);
-    // return cipher.doFinal(encryptedPlainText);
-    // } catch (Exception e) {
-    // throw JsonMessages.MESSAGES.processingException(e);
-    // }
-    // }
 }

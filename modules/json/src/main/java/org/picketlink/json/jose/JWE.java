@@ -21,11 +21,6 @@
  */
 package org.picketlink.json.jose;
 
-import static javax.json.JsonValue.ValueType.ARRAY;
-import static javax.json.JsonValue.ValueType.FALSE;
-import static javax.json.JsonValue.ValueType.NUMBER;
-import static javax.json.JsonValue.ValueType.STRING;
-import static javax.json.JsonValue.ValueType.TRUE;
 import static org.picketlink.json.JsonConstants.COMMON.ALG;
 import static org.picketlink.json.JsonConstants.COMMON.ENC;
 import static org.picketlink.json.JsonConstants.COMMON.HEADER_CONTENT_TYPE;
@@ -40,18 +35,15 @@ import static org.picketlink.json.JsonConstants.JWK.X509_CERTIFICATE_CHAIN;
 import static org.picketlink.json.JsonConstants.JWK.X509_CERTIFICATE_SHA1_THUMBPRINT;
 import static org.picketlink.json.JsonConstants.JWK.X509_CERTIFICATE_SHA256_THUMBPRINT;
 import static org.picketlink.json.JsonConstants.JWK.X509_URL;
-import static org.picketlink.json.util.JsonUtil.b64Encode;
+import static org.picketlink.json.util.Base64Util.b64Encode;
 
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonNumber;
 import javax.json.JsonObject;
-import javax.json.JsonString;
-import javax.json.JsonValue;
+
+import org.picketlink.json.util.JsonUtil;
 
 /**
  * JSON Web Encryption (JWE) header.
@@ -60,18 +52,17 @@ import javax.json.JsonValue;
  * Supports all Principal Registered Parameter Names of the JWE specification:
  *
  * <ul>
- * <li>alg
- * <li>enc
- * <li>epk
- * <li>zip
- * <li>jku
- * <li>jwk
- * <li>x5u
- * <li>x5t
- * <li>x5c
- * <li>kid
- * <li>typ
- * <li>cty
+ * <li>{@link #getType() alg}</li>
+ * <li>{@link #getContentType() typ}</li>
+ * <li>{@link #getAlgorithm() cty}</li>
+ * <li>{@link #getEncryptionAlgorithm() enc}</li>
+ * <li>{@link #getCompressionAlgorithm() zip}</li>
+ * <li>{@link #getJWK() keys}</li>
+ * <li>{@link #getJWKSet() jku}</li>
+ * <li>{@link #getX509Url() x5u}</li>
+ * <li>{@link #getX509CertificateChain() x5c}</li>
+ * <li>{@link #getX509SHA1CertificateThumbprint() x5t}</li>
+ * <li>{@link #getX509SHA256CertificateThumbprint() x5t#S256}</li>
  * </ul>
  *
  * <p>
@@ -79,8 +70,10 @@ import javax.json.JsonValue;
  *
  * <pre>
  * {
- *   "alg" : "RSA1_5",
- *   "enc" : "A128CBC-HS256"
+ *   "alg":"RSA1_5",
+ *   "kid":"2011-04-29",
+ *   "enc":"A128CBC-HS256",
+ *   "jku":"https://server.example.com/keys.jwks"
  * }
  * </pre>
  *
@@ -120,7 +113,7 @@ public class JWE {
      *
      * @return the string
      */
-    public String geType() {
+    public String getType() {
         return getHeader(HEADER_TYPE);
     }
 
@@ -315,7 +308,7 @@ public class JWE {
      * @return the header
      */
     public String getHeader(String name) {
-        return getValue(name, this.headers);
+        return JsonUtil.getValue(name, this.headers);
     }
 
     /**
@@ -325,7 +318,7 @@ public class JWE {
      * @return the header values
      */
     public List<String> getHeaderValues(String name) {
-        return getValues(name, this.headers);
+        return JsonUtil.getValues(name, this.headers);
     }
 
     /**
@@ -348,80 +341,5 @@ public class JWE {
         Json.createWriter(keyParameterWriter).writeObject(this.headers);
 
         return keyParameterWriter.getBuffer().toString();
-    }
-
-    /**
-     * Parses the specified header value from the {@link javax.json.JsonObject} into a collection of strings.
-     *
-     * @param name the parameter name
-     * @param jsonObject the JSON object representing the headers set.
-     * @return a collection of values for the specified header parameter in JsonObject
-     */
-    private List<String> getValues(String name, JsonObject jsonObject) {
-        JsonValue headerValue = jsonObject.get(name);
-        List<String> values = new ArrayList<String>();
-
-        if (headerValue != null) {
-            if (JsonArray.class.isInstance(headerValue)) {
-                JsonArray array = (JsonArray) headerValue;
-
-                for (JsonValue value : array.getValuesAs(JsonValue.class)) {
-                    values.add(getValue(value).toString());
-                }
-            } else {
-                values.add(getValue(name, jsonObject).toString());
-            }
-        }
-
-        return values;
-    }
-
-    /**
-     * Gets the header parameter value from the {@link javax.json.JsonValue}.
-     *
-     * @param <R> the generic type as value could be an object, array, number, string or boolean value.
-     * @param value the JsonValue which is to be parsed.
-     * @return
-     */
-    private <R> R getValue(JsonValue value) {
-        if (ARRAY.equals(value.getValueType())) {
-            JsonArray array = (JsonArray) value;
-            for (JsonValue jsonValue : array) {
-                return getValue(jsonValue);
-            }
-        } else if (STRING.equals(value.getValueType())) {
-            return (R) ((JsonString) value).getString();
-        } else if (NUMBER.equals(value.getValueType())) {
-            return (R) ((JsonNumber) value).bigDecimalValue().toPlainString();
-        } else if (TRUE.equals(value.getValueType()) || FALSE.equals(value.getValueType())) {
-            return (R) Boolean.valueOf(value.toString());
-        }
-
-        return null;
-    }
-
-    /**
-     * Gets the value of the specified header from the {@link javax.json.JsonObject}
-     *
-     * @param name the header parameter whose value is to be retrieved.
-     * @param jsonObject the JSON object representing headers set.
-     * @return the value of the specified header.
-     */
-    private String getValue(String name, JsonObject jsonObject) {
-        JsonValue value = jsonObject.get(name);
-
-        if (ARRAY.equals(value.getValueType())) {
-            JsonArray array = (JsonArray) value;
-            for (JsonValue jsonValue : array) {
-                return getValue(jsonValue);
-            }
-        } else if (STRING.equals(value.getValueType())) {
-            return ((JsonString) value).getString();
-        } else if (NUMBER.equals(value.getValueType())) {
-            return ((JsonNumber) value).bigDecimalValue().toPlainString();
-        } else if (TRUE.equals(value.getValueType()) || FALSE.equals(value.getValueType())) {
-            return value.toString();
-        }
-        return null;
     }
 }

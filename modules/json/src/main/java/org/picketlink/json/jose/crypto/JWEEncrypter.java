@@ -38,7 +38,7 @@ import java.security.interfaces.RSAPublicKey;
 import javax.crypto.SecretKey;
 
 import org.picketlink.json.jose.JWE;
-import org.picketlink.json.util.JsonUtil;
+import org.picketlink.json.util.Base64Util;
 
 /**
  * JWE Encrypter of for JSON Web Encryption.
@@ -143,7 +143,7 @@ public class JWEEncrypter {
         }
 
         // Compose the AAD
-        byte[] aad = JsonUtil.b64Encode(jweHeader.toString()).getBytes(Charset.forName("UTF-8"));
+        byte[] aad = Base64Util.b64Encode(jweHeader.toString()).getBytes(Charset.forName("UTF-8"));
 
         // Encrypt the plain text according to the JWE enc
         byte[] iv;
@@ -167,11 +167,11 @@ public class JWEEncrypter {
             throw new RuntimeException("Unsupported encryption method, must be A128CBC_HS256, A192CBC_HS384, A256CBC_HS512, A128GCM, A192GCM or A256GCM");
         }
 
-        String serializedJWE = JsonUtil.b64Encode(jweHeader.toString()) + "." +
-            JsonUtil.b64Encode(encryptedKey) + "." +
-            JsonUtil.b64Encode(iv) + "." +
-            JsonUtil.b64Encode(authCipherText.getCipherText()) + "." +
-            JsonUtil.b64Encode(authCipherText.getAuthenticationTag());
+        String serializedJWE = Base64Util.b64Encode(jweHeader.toString()) + "." +
+            Base64Util.b64Encode(encryptedKey) + "." +
+            Base64Util.b64Encode(iv) + "." +
+            Base64Util.b64Encode(authCipherText.getCipherText()) + "." +
+            Base64Util.b64Encode(authCipherText.getAuthenticationTag());
 
         return serializedJWE;
 
