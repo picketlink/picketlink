@@ -26,34 +26,24 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 /**
- * An implementation of {@link HTTPAuthenticationScheme} that supports the Servlet Specification
- * FORM Authentication Scheme
+ * An implementation of {@link HTTPAuthenticationScheme} that supports the Servlet Specification FORM Authentication Scheme
+ *
  * @author Anil Saldhana
  * @since June 06, 2013
  */
-public class FormAuthenticationScheme implements HTTPAuthenticationScheme{
+public class FormAuthenticationScheme implements HTTPAuthenticationScheme {
 
     public static final String FORM_LOGIN_PAGE_INIT_PARAM = "form-login-page";
     public static final String FORM_ERROR_PAGE_INIT_PARAM = "form-error-page";
-
-    private final RequestCache requestCache = new RequestCache();
-
-    private String formLoginPage;
-    private String formErrorPage;
-
-    public static final String J_SECURITY_CHECK ="j_security_check";
+    public static final String J_SECURITY_CHECK = "j_security_check";
     public static final String J_USERNAME = "j_username";
     public static final String J_PASSWORD = "j_password";
-
-    public static final String SAVED_REQUEST = "SAVED_REQUEST";
-
-    private enum STATES {BEFORE_LOGIN,SHOW_LOGIN_PAGE,AFTER_LOGIN};
-
-    public static final String STATE = "STATE";
+    private final RequestCache requestCache = new RequestCache();
+    private String formLoginPage;
+    private String formErrorPage;
 
     @Override
     public void initialize(FilterConfig config) {
@@ -73,9 +63,10 @@ public class FormAuthenticationScheme implements HTTPAuthenticationScheme{
 
         this.formErrorPage = formErrorPage;
     }
+
     @Override
     public void extractCredential(HttpServletRequest request, DefaultLoginCredentials creds) {
-        if(isFormSubmitted(request)){
+        if (isFormSubmitted(request)) {
             creds.setUserId(request.getParameter(J_USERNAME));
             creds.setPassword(request.getParameter(J_PASSWORD));
         }
@@ -83,33 +74,25 @@ public class FormAuthenticationScheme implements HTTPAuthenticationScheme{
 
     @Override
     public void challengeClient(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpSession session = request.getSession();
-
-        String sessionState = (String) session.getAttribute(STATE);
-        if(sessionState == null || STATES.BEFORE_LOGIN.toString().equals(sessionState)){
+        if (!isFormSubmitted(request)) {
             //Save current request
             requestCache.saveRequest(request);
-            session.setAttribute(STATE,STATES.SHOW_LOGIN_PAGE.toString());
         }
 
-        forwardToLoginPage(request,response);
+        if (isFormSubmitted(request)) {
+            forwardToErrorPage(request, response);
+        } else {
+            forwardToLoginPage(request, response);
+        }
     }
 
     @Override
     public boolean postAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpSession session = request.getSession();
-        String state = (String) session.getAttribute(STATE);
+        SavedRequest savedRequest = requestCache.removeAndStoreSavedRequestInSession(request);
 
-        if(state != null && STATES.SHOW_LOGIN_PAGE.toString().equals(state)){
-            requestCache.removeAndStoreSavedRequestInSession(request);
-            SavedRequest savedRequest = (SavedRequest) session.getAttribute(FormAuthenticationScheme.SAVED_REQUEST);
-            String requestedURI = savedRequest.getRequestURI();
-            session.setAttribute(STATE,STATES.AFTER_LOGIN.toString());
-
-            response.sendRedirect(requestedURI);
-
+        if (savedRequest != null) {
+            response.sendRedirect(savedRequest.getRequestURI());
             return false;
-
         }
 
         return true;
@@ -120,10 +103,10 @@ public class FormAuthenticationScheme implements HTTPAuthenticationScheme{
         return true;
     }
 
-    private void forwardToLoginPage(HttpServletRequest request, HttpServletResponse response){
+    private void forwardToLoginPage(HttpServletRequest request, HttpServletResponse response) {
         RequestDispatcher rd = request.getRequestDispatcher(formLoginPage);
         try {
-            rd.forward(request,response);
+            rd.forward(request, response);
         } catch (ServletException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
@@ -131,10 +114,10 @@ public class FormAuthenticationScheme implements HTTPAuthenticationScheme{
         }
     }
 
-    private void forwardToErrorPage(HttpServletRequest request, HttpServletResponse response){
+    private void forwardToErrorPage(HttpServletRequest request, HttpServletResponse response) {
         RequestDispatcher rd = request.getRequestDispatcher(formErrorPage);
         try {
-            rd.forward(request,response);
+            rd.forward(request, response);
         } catch (ServletException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
@@ -142,7 +125,7 @@ public class FormAuthenticationScheme implements HTTPAuthenticationScheme{
         }
     }
 
-    private boolean isFormSubmitted(HttpServletRequest request){
+    private boolean isFormSubmitted(HttpServletRequest request) {
         return request.getRequestURI().contains(J_SECURITY_CHECK);
     }
 }

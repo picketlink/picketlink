@@ -17,8 +17,6 @@
  */
 package org.picketlink.authentication.web.support;
 
-import org.picketlink.authentication.web.FormAuthenticationScheme;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.concurrent.ConcurrentHashMap;
@@ -60,6 +58,7 @@ public class RequestCache {
         if (session == null) {
             throw new IllegalStateException("Unable to cache the request. User session was not created.");
         }
+
         return session;
     }
 
@@ -70,10 +69,7 @@ public class RequestCache {
      */
     public SavedRequest removeAndStoreSavedRequestInSession(HttpServletRequest request) {
         HttpSession session = getCurrentSession(request);
-        SavedRequest savedRequest = this.requestCache.remove(session.getId());
 
-        session.setAttribute(FormAuthenticationScheme.SAVED_REQUEST, savedRequest);
-
-        return savedRequest;
+        return this.requestCache.remove(session.getId());
     }
 }
