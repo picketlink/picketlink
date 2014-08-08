@@ -120,7 +120,7 @@ public class DefaultAuthorizationManager {
         RolesAllowed rolesAllowed = getAnnotation(invocationContext, RolesAllowed.class);
 
         for (String roleName : rolesAllowed.value()) {
-            if (AuthorizationUtil.hasRole(getIdentity(), this.partitionManager, this.identityManager, this.relationshipManager, roleName)) {
+            if (AuthorizationUtil.hasRole(getIdentity(), this.partitionManager, roleName)) {
                 return true;
             }
         }
@@ -135,7 +135,7 @@ public class DefaultAuthorizationManager {
         String[] groupNames = groupsAllowed.value();
 
         for (String groupName : groupNames) {
-            if (AuthorizationUtil.isMember(getIdentity(), this.partitionManager, this.identityManager, this.relationshipManager, groupName)) {
+            if (AuthorizationUtil.isMember(getIdentity(), this.partitionManager, groupName)) {
                 return true;
             }
         }

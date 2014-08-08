@@ -22,9 +22,7 @@
 package org.picketlink.internal.el;
 
 import org.picketlink.Identity;
-import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
-import org.picketlink.idm.RelationshipManager;
 
 /**
  * <p>{@link java.lang.ThreadLocal} used to share a execution context when invoking EL functions defined by {@link ELFunctionMethods}.</p>
@@ -43,8 +41,6 @@ class ELEvaluationContext {
     };
 
     private Identity identity;
-    private IdentityManager identityManager;
-    private RelationshipManager relationshipManager;
     private PartitionManager partitionManager;
 
     static ELEvaluationContext get() {
@@ -61,22 +57,6 @@ class ELEvaluationContext {
 
     Identity getIdentity() {
         return identity;
-    }
-
-    IdentityManager getIdentityManager() {
-        return this.identityManager;
-    }
-
-    void setIdentityManager(IdentityManager identityManager) {
-        this.identityManager = identityManager;
-    }
-
-    RelationshipManager getRelationshipManager() {
-        return this.relationshipManager;
-    }
-
-    void setRelationshipManager(RelationshipManager relationshipManager) {
-        this.relationshipManager = relationshipManager;
     }
 
     void setPartitionManager(PartitionManager partitionManager) {

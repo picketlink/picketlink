@@ -102,8 +102,6 @@ public class ELProcessor {
         ELEvaluationContext evaluationContext = ELEvaluationContext.get();
 
         evaluationContext.setIdentity(this.identityInstance.get());
-        evaluationContext.setIdentityManager(this.identityManagerInstance.get());
-        evaluationContext.setRelationshipManager(this.relationshipManagerInstance.get());
         evaluationContext.setPartitionManager(this.partitionManager);
     }
 

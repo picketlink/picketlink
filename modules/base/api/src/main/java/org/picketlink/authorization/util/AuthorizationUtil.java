@@ -98,13 +98,11 @@ public class AuthorizationUtil {
      *
      * @param identity The {@link org.picketlink.Identity} instance representing an authenticated user.
      * @param partitionManager
-     * @param identityManager
-     * @param relationshipManager The role name.
      * @param roleName The role name.
      *
      * @return True if the user is granted with the role. Otherwise, returns false.
      */
-    public static boolean hasRole(Identity identity, PartitionManager partitionManager, IdentityManager identityManager, RelationshipManager relationshipManager, String roleName) {
+    public static boolean hasRole(Identity identity, PartitionManager partitionManager, String roleName) {
         if (!isLoggedIn(identity)) {
             return false;
         }
@@ -165,6 +163,8 @@ public class AuthorizationUtil {
             }
         }
 
+        RelationshipManager relationshipManager = partitionManager.createRelationshipManager();
+
         // now we check the relationship between the authenticated account and roles considering the grant types supported by the configuration.
         for (IdentityType role : roles) {
             for (Class<? extends Relationship> relationshipType : grantRelationshipTypes) {
@@ -209,13 +209,11 @@ public class AuthorizationUtil {
      *
      * @param identity The {@link org.picketlink.Identity} instance representing an authenticated user.
      * @param partitionManager
-     * @param identityManager
-     * @param relationshipManager The role name.
      * @param groupName The group name.
      *
      * @return True if the user is granted with the role. Otherwise, returns false.
      */
-    public static boolean isMember(Identity identity, PartitionManager partitionManager, IdentityManager identityManager, RelationshipManager relationshipManager, String groupName) {
+    public static boolean isMember(Identity identity, PartitionManager partitionManager, String groupName) {
         if (!isLoggedIn(identity)) {
             return false;
         }
@@ -261,9 +259,9 @@ public class AuthorizationUtil {
 
                 if (IDENTITY_GROUP_NAME.equals(stereotypeProperty)) {
                     for (Partition partition : partitionManager.getPartitions(Partition.class)) {
-                        IdentityManager identityManager1 = partitionManager.createIdentityManager(partition);
+                        IdentityManager identityManager = partitionManager.createIdentityManager(partition);
 
-                        List<? extends IdentityType> result = identityManager1
+                        List<? extends IdentityType> result = identityManager
                             .createIdentityQuery((Class<? extends IdentityType>) attributedType)
                             .setParameter(AttributedType.QUERY_ATTRIBUTE.byName(property.getName()), groupName)
                             .getResultList();
@@ -275,6 +273,8 @@ public class AuthorizationUtil {
                 }
             }
         }
+
+        RelationshipManager relationshipManager = partitionManager.createRelationshipManager();
 
         // now we check the relationship between the authenticated account and groups considering the group membership types supported by the configuration.
         for (IdentityType group : groups) {

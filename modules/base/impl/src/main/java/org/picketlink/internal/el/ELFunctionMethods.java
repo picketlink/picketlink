@@ -23,9 +23,7 @@ package org.picketlink.internal.el;
 
 import org.picketlink.Identity;
 import org.picketlink.authorization.util.AuthorizationUtil;
-import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
-import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Account;
 
 /**
@@ -82,10 +80,8 @@ public class ELFunctionMethods {
         ELEvaluationContext evaluationContext = ELEvaluationContext.get();
         Identity identity = evaluationContext.getIdentity();
         PartitionManager partitionManager = evaluationContext.getPartitionManager();
-        IdentityManager identityManager = evaluationContext.getIdentityManager();
-        RelationshipManager relationshipManager = evaluationContext.getRelationshipManager();
 
-        return AuthorizationUtil.hasRole(identity, partitionManager, identityManager, relationshipManager, roleName);
+        return AuthorizationUtil.hasRole(identity, partitionManager, roleName);
     }
 
     /**
@@ -101,11 +97,9 @@ public class ELFunctionMethods {
     public static boolean isMember(String groupName) {
         ELEvaluationContext evaluationContext = ELEvaluationContext.get();
         Identity identity = evaluationContext.getIdentity();
-        IdentityManager identityManager = evaluationContext.getIdentityManager();
         PartitionManager partitionManager = evaluationContext.getPartitionManager();
-        RelationshipManager relationshipManager = evaluationContext.getRelationshipManager();
 
-        return AuthorizationUtil.isMember(identity, partitionManager, identityManager, relationshipManager, groupName);
+        return AuthorizationUtil.isMember(identity, partitionManager, groupName);
     }
 
     /**
