@@ -31,7 +31,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.picketlink.json.util.JsonUtil;
+import org.picketlink.json.util.JOSEUtil;
 
 /**
  * AES/CBC/PKCS5Padding and AES/CBC/PKCS5Padding/HMAC-SHA2 encryption and decryption methods.
@@ -232,7 +232,7 @@ public class AESCBC {
         byte[] expectedAuthTag = Arrays.copyOf(hmac, compositeKey.getTruncatedMACByteLength());
         boolean macCheckPassed = true;
 
-        if (!JsonUtil.constantTimeAreEqual(expectedAuthTag, authTag)) {
+        if (!JOSEUtil.constantTimeAreEqual(expectedAuthTag, authTag)) {
             // Thwart timing attacks by delaying exception until after decryption
             macCheckPassed = false;
         }

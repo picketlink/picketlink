@@ -42,7 +42,7 @@ import static org.picketlink.json.JsonConstants.JWT.CLAIM_ISSUER;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_NOT_BEFORE;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_SUBJECT;
 import static org.picketlink.json.JsonMessages.MESSAGES;
-import static org.picketlink.json.util.JsonUtil.b64Decode;
+import static org.picketlink.json.util.Base64Util.b64Decode;
 
 /**
  * <p>
@@ -97,6 +97,40 @@ public class JWTBuilder<T extends JWT, B extends JWTBuilder<?, ?>> {
 
     /**
      * <p>
+     * Gets the token type.
+     * </p>
+     *
+     * @return the token type
+     */
+    protected Class<T> getTokenType() {
+        return this.tokenType;
+    }
+
+    /**
+     * <p>
+     * Gets the JSON Web Token headers builder.
+     * </p>
+     *
+     * @return the headers builder
+     */
+    protected JsonObjectBuilder getHeadersBuilder() {
+        return this.headersBuilder;
+    }
+
+    /**
+     * <p>
+     * Subclasses can use this method to obtain a reference to the {@link javax.json.JsonObjectBuilder} being used to manage the
+     * claims set.
+     * </p>
+     *
+     * @return the claims builder
+     */
+    protected JsonObjectBuilder getClaimsBuilder() {
+        return this.claimsBuilder;
+    }
+
+    /**
+     * <p>
      * Sets the MIME Media Type [IANA.MediaTypes] of this complete JWT in contexts where this is useful to the application.
      * </p>
      *
@@ -105,7 +139,7 @@ public class JWTBuilder<T extends JWT, B extends JWTBuilder<?, ?>> {
      */
     public B type(String type) {
         header(HEADER_TYPE, type);
-        return (B)this;
+        return (B) this;
     }
 
     /**
@@ -156,6 +190,7 @@ public class JWTBuilder<T extends JWT, B extends JWTBuilder<?, ?>> {
      * @return the JWT builder
      */
     public B audience(String... audience) {
+
         if (audience.length == 1) {
             claim(CLAIM_AUDIENCE, audience[0]);
         } else if (audience.length > 1) {
@@ -164,7 +199,6 @@ public class JWTBuilder<T extends JWT, B extends JWTBuilder<?, ?>> {
             for (String aud : audience) {
                 arrayBuilder.add(aud);
             }
-
             this.claimsBuilder.add(CLAIM_AUDIENCE, arrayBuilder);
         }
         return (B) this;
@@ -308,93 +342,6 @@ public class JWTBuilder<T extends JWT, B extends JWTBuilder<?, ?>> {
 
     /**
      * <p>
-     * Builds a {@link JWT} instance using the provided claims.
-     * </p>
-     *
-     * @return the t
-     */
-    public T build() {
-        return build(this.headersBuilder.build(), this.claimsBuilder.build());
-    }
-
-    /**
-     * <p>
-     * Builds a {@link JWT} instance from its JSON representation.
-     * </p>
-     *
-     * @param json the json
-     * @return the t
-     */
-    public T build(String json) {
-        if (!json.contains(PERIOD)) {
-            throw MESSAGES.invalidFormat(json);
-        }
-
-        String[] portions = json.split("\\" + PERIOD);
-
-        byte[] header = b64Decode(portions[0]);
-        byte[] claims = b64Decode(portions[1]);
-
-        return build(Json.createReader(new ByteArrayInputStream(header)).readObject(), Json.createReader(new ByteArrayInputStream(claims)).readObject());
-    }
-
-    /**
-     * <p>
-     * Subclasses can use this method to obtain a reference to the {@link javax.json.JsonObjectBuilder} being used to manage the
-     * claims set.
-     * </p>
-     *
-     * @return the claims builder
-     */
-    protected JsonObjectBuilder getClaimsBuilder() {
-        return this.claimsBuilder;
-    }
-
-    /**
-     * <p>
-     * Gets the headers builder.
-     * </p>
-     *
-     * @return the headers builder
-     */
-    protected JsonObjectBuilder getHeadersBuilder() {
-        return this.headersBuilder;
-    }
-
-    /**
-     * <p>
-     * Gets the token type.
-     * </p>
-     *
-     * @return the token type
-     */
-    protected Class<T> getTokenType() {
-        return this.tokenType;
-    }
-
-    /**
-     * <p>
-     * Builds the {@link javax.json.JsonObject} of headers and claims set.
-     * </p>
-     *
-     * @param headersObject the headers object
-     * @param claimsObject the claims object
-     * @return
-     */
-    protected T build(JsonObject headersObject, JsonObject claimsObject) {
-        try {
-            Constructor<T> constructor = this.tokenType.getDeclaredConstructor(JsonObject.class, JsonObject.class);
-
-            constructor.setAccessible(true);
-
-            return (T) constructor.newInstance(headersObject, claimsObject);
-        } catch (Exception e) {
-            throw MESSAGES.couldNotCreateToken(this.tokenType, e);
-        }
-    }
-
-    /**
-     * <p>
      * Updates the {@link javax.json.JsonObjectBuilder} with the specified key value(s) pair.
      * </p>
      *
@@ -408,14 +355,11 @@ public class JWTBuilder<T extends JWT, B extends JWTBuilder<?, ?>> {
             builder.add(name, values[0]);
         } else if (values.length > 1) {
             JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
-
             for (String value : values) {
                 arrayBuilder.add(value.toString());
             }
-
             builder.add(name, arrayBuilder);
         }
-
         return (B) this;
     }
 
@@ -434,14 +378,11 @@ public class JWTBuilder<T extends JWT, B extends JWTBuilder<?, ?>> {
             builder.add(name, values[0]);
         } else if (values.length > 1) {
             JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
-
             for (int value : values) {
                 arrayBuilder.add(value);
             }
-
             builder.add(name, arrayBuilder);
         }
-
         return (B) this;
     }
 
@@ -478,6 +419,58 @@ public class JWTBuilder<T extends JWT, B extends JWTBuilder<?, ?>> {
     private B setJsonObject(JsonObjectBuilder builder, String name, JsonArray values) {
         builder.add(name, values);
         return (B) this;
+    }
+
+    /**
+     * <p>
+     * Builds a {@link JWT} instance using the provided claims.
+     * </p>
+     *
+     * @return the t
+     */
+    public T build() {
+        return build(this.headersBuilder.build(), this.claimsBuilder.build());
+    }
+
+    /**
+     * <p>
+     * Builds a {@link JWT} instance from its JSON representation.
+     * </p>
+     *
+     * @param json the json
+     * @return the t
+     */
+    public T build(String json) {
+        if (!json.contains(PERIOD)) {
+            throw MESSAGES.invalidFormat(json);
+        }
+
+        String[] portions = json.split("\\" + PERIOD);
+
+        byte[] header = b64Decode(portions[0]);
+        byte[] claims = b64Decode(portions[1]);
+
+        return build(Json.createReader(new ByteArrayInputStream(header)).readObject(), Json.createReader(new ByteArrayInputStream(claims)).readObject());
+    }
+
+    /**
+     * <p>
+     * Builds the {@link javax.json.JsonObject} of headers and claims set.
+     * </p>
+     *
+     * @param headersObject the headers object
+     * @param claimsObject the claims object
+     * @return
+     */
+    protected T build(JsonObject headersObject, JsonObject claimsObject) {
+        try {
+            Constructor<T> constructor = this.tokenType.getDeclaredConstructor(JsonObject.class, JsonObject.class);
+            constructor.setAccessible(true);
+
+            return (T) constructor.newInstance(headersObject, claimsObject);
+        } catch (Exception e) {
+            throw MESSAGES.couldNotCreateToken(this.tokenType, e);
+        }
     }
 
 }

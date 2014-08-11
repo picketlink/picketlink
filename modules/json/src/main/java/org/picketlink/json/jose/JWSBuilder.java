@@ -22,7 +22,7 @@
 package org.picketlink.json.jose;
 
 /**
- * The Class JWSBuilder.
+ * The Class JWSBuilder for building JSON Web Signature.
  *
  * @author Pedro Igor
  */

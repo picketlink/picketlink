@@ -30,7 +30,7 @@ import javax.json.JsonObject;
 import static org.picketlink.json.JsonConstants.COMMON.ALG;
 import static org.picketlink.json.JsonConstants.COMMON.PERIOD;
 import static org.picketlink.json.JsonMessages.MESSAGES;
-import static org.picketlink.json.util.JsonUtil.b64Encode;
+import static org.picketlink.json.util.Base64Util.b64Encode;
 
 /**
  * <p>This class represents a JSON Web Signature. </p>

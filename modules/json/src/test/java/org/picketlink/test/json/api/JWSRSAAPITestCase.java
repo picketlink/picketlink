@@ -46,13 +46,10 @@ import static org.picketlink.json.JsonConstants.RSA;
  */
 public class JWSRSAAPITestCase {
 
-    /** The key set. */
     private JWKSet keySet;
-    
-    /** The key pair1. */
+
     private KeyPair keyPair1;
-    
-    /** The key pair2. */
+
     private KeyPair keyPair2;
 
     /**
@@ -84,14 +81,14 @@ public class JWSRSAAPITestCase {
             .publicExponent(publicKey.getPublicExponent())
             .keyIdentifier(kid)
             .keyType(RSA)
-            .keyUse("sign")
+            .keyUse("sig")
             .build();
 
         this.keySet.add(rsaJWK);
     }
-    
+
     /**
-     * Test rsa256 signature.
+     * Test RSA256 signature.
      *
      * @throws Exception the exception
      */
@@ -117,17 +114,28 @@ public class JWSRSAAPITestCase {
         JWK jwkKeyPair1 = this.keySet.get("1");
         JWK jwkKeyPair2 = this.keySet.get("2");
 
-        assertEquals("{\"typ\":\"JWT\",\"alg\":\"RS256\",\"keys\":[{\"n\":\"" + jwkKeyPair2.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"use\":\"sign\"},{\"n\":\"" + jwkKeyPair1.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"use\":\"sign\"}],\"kid\":\"1\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}", jsonString);
+        assertEquals(
+            "{\"typ\":\"JWT\",\"alg\":\"RS256\",\"keys\":[{\"n\":\""
+                + jwkKeyPair2.getModulus()
+                + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"use\":\"sig\"},{\"n\":\""
+                + jwkKeyPair1.getModulus()
+                + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"use\":\"sig\"}],\"kid\":\"1\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}",
+            jsonString);
 
         String jsonEncoded = token.encode();
 
         JWS parsedToken = new JWSBuilder().build(jsonEncoded);
 
+        String parsedJsonString = parsedToken.toString();
+
+        assertEquals(jsonString, parsedJsonString);
+
         assertNotNull(parsedToken);
+
     }
 
     /**
-     * Test rsa384 signature.
+     * Test RSA384 signature.
      */
     @Test
     public void testRSA384Signature() {
@@ -151,17 +159,27 @@ public class JWSRSAAPITestCase {
         JWK jwkKeyPair1 = this.keySet.get("1");
         JWK jwkKeyPair2 = this.keySet.get("2");
 
-        assertEquals("{\"typ\":\"JWT\",\"alg\":\"RS384\",\"keys\":[{\"n\":\"" + jwkKeyPair2.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"use\":\"sign\"},{\"n\":\"" + jwkKeyPair1.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"use\":\"sign\"}],\"kid\":\"1\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}", jsonString);
+        assertEquals(
+            "{\"typ\":\"JWT\",\"alg\":\"RS384\",\"keys\":[{\"n\":\""
+                + jwkKeyPair2.getModulus()
+                + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"use\":\"sig\"},{\"n\":\""
+                + jwkKeyPair1.getModulus()
+                + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"use\":\"sig\"}],\"kid\":\"1\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}",
+            jsonString);
 
         String jsonEncoded = token.encode();
 
         JWS parsedToken = new JWSBuilder().build(jsonEncoded);
 
+        String parsedJsonString = parsedToken.toString();
+
+        assertEquals(jsonString, parsedJsonString);
+
         assertNotNull(parsedToken);
     }
 
     /**
-     * Test rsa512 signature.
+     * Test RSA512 signature.
      */
     @Test
     public void testRSA512Signature() {
@@ -185,17 +203,27 @@ public class JWSRSAAPITestCase {
         JWK jwkKeyPair1 = this.keySet.get("1");
         JWK jwkKeyPair2 = this.keySet.get("2");
 
-        assertEquals("{\"typ\":\"JWT\",\"alg\":\"RS512\",\"keys\":[{\"n\":\"" + jwkKeyPair2.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"use\":\"sign\"},{\"n\":\"" + jwkKeyPair1.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"use\":\"sign\"}],\"kid\":\"1\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}", jsonString);
+        assertEquals(
+            "{\"typ\":\"JWT\",\"alg\":\"RS512\",\"keys\":[{\"n\":\""
+                + jwkKeyPair2.getModulus()
+                + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"use\":\"sig\"},{\"n\":\""
+                + jwkKeyPair1.getModulus()
+                + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"use\":\"sig\"}],\"kid\":\"1\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}",
+            jsonString);
 
         String jsonEncoded = token.encode();
 
         JWS parsedToken = new JWSBuilder().build(jsonEncoded);
 
+        String parsedJsonString = parsedToken.toString();
+
+        assertEquals(jsonString, parsedJsonString);
+
         assertNotNull(parsedToken);
     }
 
     /**
-     * Test rsa512 signature using public key instance.
+     * Test RSA512 signature using public key instance.
      */
     @Test
     public void testRSA512SignatureUsingPublicKeyInstance() {
@@ -214,13 +242,19 @@ public class JWSRSAAPITestCase {
             .notBefore(789)
             .build();
 
+        String jsonString = token.toString();
+
         JWS parsedToken = new JWSBuilder().build(token.encode(), this.keyPair1.getPublic().getEncoded());
 
         assertNotNull(parsedToken);
+
+        String parsedJsonString = parsedToken.toString();
+
+        assertEquals(jsonString, parsedJsonString);
     }
 
     /**
-     * Test rsa512 signature without jwk set.
+     * Test RSA512 signature without JWK set.
      */
     @Test
     public void testRSA512SignatureWithoutJWKSet() {
@@ -237,9 +271,15 @@ public class JWSRSAAPITestCase {
             .notBefore(789)
             .build();
 
+        String jsonString = token.toString();
+
         JWS parsedToken = new JWSBuilder().build(token.encode(), this.keyPair1.getPublic().getEncoded());
 
         assertNotNull(parsedToken);
+
+        String parsedJsonString = parsedToken.toString();
+
+        assertEquals(jsonString, parsedJsonString);
     }
 
     /**
@@ -257,11 +297,18 @@ public class JWSRSAAPITestCase {
             .notBefore(789)
             .build();
 
-        assertEquals("{\"typ\":\"JWT\",\"alg\":\"none\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}", token.toString());
+        String jsonString = token.toString();
+
+        assertEquals("{\"typ\":\"JWT\",\"alg\":\"none\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}",
+            jsonString);
 
         JWS parsedToken = new JWSBuilder().build(token.encode(), this.keyPair1.getPublic().getEncoded());
 
         assertNotNull(parsedToken);
+
+        String parsedJsonString = parsedToken.toString();
+
+        assertEquals(jsonString, parsedJsonString);
     }
 
     /**
@@ -289,9 +336,15 @@ public class JWSRSAAPITestCase {
         JWK jwkKeyPair1 = this.keySet.get("1");
         JWK jwkKeyPair2 = this.keySet.get("2");
 
-        assertEquals("{\"typ\":\"JWT\",\"alg\":\"RS512\",\"keys\":[{\"n\":\"" + jwkKeyPair2.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"use\":\"sign\"},{\"n\":\"" + jwkKeyPair1.getModulus() + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"use\":\"sign\"}],\"kid\":\"1\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}", jsonString);
+        assertEquals(
+            "{\"typ\":\"JWT\",\"alg\":\"RS512\",\"keys\":[{\"n\":\""
+                + jwkKeyPair2.getModulus()
+                + "\",\"e\":\"AQAB\",\"kid\":\"2\",\"kty\":\"RSA\",\"use\":\"sig\"},{\"n\":\""
+                + jwkKeyPair1.getModulus()
+                + "\",\"e\":\"AQAB\",\"kid\":\"1\",\"kty\":\"RSA\",\"use\":\"sig\"}],\"kid\":\"1\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789}",
+            jsonString);
 
-        // here we define a custom claim
+        // here we temper the encoded token to fail invalid signature
         String tamperedToken = new StringBuilder(token.encode()).insert(3, "tampered").toString();
 
         new JWSBuilder().build(tamperedToken);

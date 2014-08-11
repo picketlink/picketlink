@@ -41,16 +41,12 @@ import org.picketlink.json.jose.JWKSet;
  */
 public class JWKAPITestCase {
 
-    /** The key pair1. */
     private KeyPair keyPair1;
     
-    /** The key pair2. */
     private KeyPair keyPair2;
     
-    /** The key pair3. */
     private KeyPair keyPair3;
     
-    /** The key pair4. */
     private KeyPair keyPair4;
 
     /**
@@ -65,9 +61,27 @@ public class JWKAPITestCase {
         this.keyPair3 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
         this.keyPair4 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
     }
+    
+    /**
+     * Creates the JWK.
+     *
+     * @param publicKey the public key
+     * @param keyId the key id
+     * @return the JWK
+     */
+    public JWK createJWK(RSAPublicKey publicKey, String keyId) {
+        return new JWKBuilder()
+            .modulus(publicKey.getModulus())
+            .publicExponent(publicKey.getPublicExponent())
+            .keyIdentifier(keyId)
+            .keyType("RSA")
+            .keyAlgorithm(publicKey.getAlgorithm())
+            .keyUse("enc")
+            .build();
+    }
 
     /**
-     * Test rsajwk.
+     * Test RSA_JWK.
      */
     @Test
     public void testRSAJWK() {
@@ -83,10 +97,17 @@ public class JWKAPITestCase {
 
         assertNotNull(parsedJwk);
         assertEquals(this.keyPair1.getPublic(), parsedJwk.toRSAPublicKey());
+        
+        assertEquals(parsedJwk.toRSAPublicKey().getModulus(), ((RSAPublicKey) this.keyPair1.getPublic()).getModulus());
+        assertEquals(parsedJwk.toRSAPublicKey().getPublicExponent(), ((RSAPublicKey) this.keyPair1.getPublic()).getPublicExponent());
+        assertEquals(parsedJwk.getKeyIdentifier(), jwk.getKeyIdentifier());
+        assertEquals(parsedJwk.getKeyType(), jwk.getKeyType());
+        assertEquals(parsedJwk.getKeyAlgorithm(), jwk.getKeyAlgorithm());
+        assertEquals(parsedJwk.getKeyUse(), jwk.getKeyUse());
     }
 
     /**
-     * Test jwk set.
+     * Test JWK SET.
      */
     @Test
     public void testJWKSet() {
@@ -106,23 +127,17 @@ public class JWKAPITestCase {
         assertNotNull(parsedKeySet.get("2"));
         assertNotNull(parsedKeySet.get("3"));
         assertNotNull(parsedKeySet.get("4"));
-    }
-
-    /**
-     * Creates the jwk.
-     *
-     * @param publicKey the public key
-     * @param keyId the key id
-     * @return the jwk
-     */
-    public JWK createJWK(RSAPublicKey publicKey, String keyId) {
-        return new JWKBuilder()
-            .modulus(publicKey.getModulus())
-            .publicExponent(publicKey.getPublicExponent())
-            .keyIdentifier(keyId)
-            .keyType("RSA")
-            .keyAlgorithm(publicKey.getAlgorithm())
-            .keyUse("enc")
-            .build();
+        
+        assertEquals(this.keyPair1.getPublic(), parsedKeySet.get("1").toRSAPublicKey());
+        assertEquals(this.keyPair2.getPublic(), parsedKeySet.get("2").toRSAPublicKey());
+        assertEquals(this.keyPair3.getPublic(), parsedKeySet.get("3").toRSAPublicKey());
+        assertEquals(this.keyPair4.getPublic(), parsedKeySet.get("4").toRSAPublicKey());
+        
+        assertEquals(parsedKeySet.get("2").toRSAPublicKey().getModulus(), ((RSAPublicKey) this.keyPair2.getPublic()).getModulus());
+        assertEquals(parsedKeySet.get("2").toRSAPublicKey().getPublicExponent(), ((RSAPublicKey) this.keyPair2.getPublic()).getPublicExponent());
+        assertEquals(parsedKeySet.get("2").getKeyIdentifier(), jwkKeyPair2.getKeyIdentifier());
+        assertEquals(parsedKeySet.get("2").getKeyType(), jwkKeyPair2.getKeyType());
+        assertEquals(parsedKeySet.get("2").getKeyAlgorithm(), jwkKeyPair2.getKeyAlgorithm());
+        assertEquals(parsedKeySet.get("2").getKeyUse(), jwkKeyPair2.getKeyUse());
     }
 }

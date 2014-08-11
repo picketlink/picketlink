@@ -21,22 +21,6 @@
  */
 package org.picketlink.json.jwt;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonNumber;
-import javax.json.JsonObject;
-import javax.json.JsonString;
-import javax.json.JsonValue;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static javax.json.JsonValue.ValueType.ARRAY;
-import static javax.json.JsonValue.ValueType.FALSE;
-import static javax.json.JsonValue.ValueType.NUMBER;
-import static javax.json.JsonValue.ValueType.STRING;
-import static javax.json.JsonValue.ValueType.TRUE;
 import static org.picketlink.json.JsonConstants.COMMON.HEADER_CONTENT_TYPE;
 import static org.picketlink.json.JsonConstants.COMMON.HEADER_TYPE;
 import static org.picketlink.json.JsonConstants.COMMON.PERIOD;
@@ -47,7 +31,16 @@ import static org.picketlink.json.JsonConstants.JWT.CLAIM_ISSUED_AT;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_ISSUER;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_NOT_BEFORE;
 import static org.picketlink.json.JsonConstants.JWT.CLAIM_SUBJECT;
-import static org.picketlink.json.util.JsonUtil.b64Encode;
+import static org.picketlink.json.util.Base64Util.b64Encode;
+
+import java.io.StringWriter;
+import java.util.Date;
+import java.util.List;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+
+import org.picketlink.json.util.JsonUtil;
 
 /**
  * <p>
@@ -192,7 +185,9 @@ public class JWT {
     }
 
     /**
-     * <p>Returns a {@link java.util.Date} representation of the {@link org.picketlink.json.jwt.JWT#getIssuedAt()}.</p>
+     * <p>
+     * Returns a {@link java.util.Date} representation of the {@link org.picketlink.json.jwt.JWT#getIssuedAt()}.
+     * </p>
      *
      * @return
      */
@@ -224,7 +219,9 @@ public class JWT {
     }
 
     /**
-     * <p>Returns a {@link java.util.Date} representation of the {@link JWT#getExpiration()}.</p>
+     * <p>
+     * Returns a {@link java.util.Date} representation of the {@link JWT#getExpiration()}.
+     * </p>
      *
      * @return
      */
@@ -256,7 +253,9 @@ public class JWT {
     }
 
     /**
-     * <p>Returns a {@link java.util.Date} representation of the {@link JWT#getNotBeforeDate()}.</p>
+     * <p>
+     * Returns a {@link java.util.Date} representation of the {@link JWT#getNotBeforeDate()}.
+     * </p>
      *
      * @return
      */
@@ -308,7 +307,7 @@ public class JWT {
      * @return
      */
     public String getClaim(String name) {
-        return getValue(name, this.claims);
+        return JsonUtil.getValue(name, this.claims);
     }
 
     /**
@@ -320,7 +319,7 @@ public class JWT {
      * @return
      */
     public List<String> getClaimValues(String name) {
-        return getValues(name, this.claims);
+        return JsonUtil.getValues(name, this.claims);
     }
 
     /**
@@ -332,7 +331,7 @@ public class JWT {
      * @return
      */
     public String getHeader(String name) {
-        return getValue(name, this.headers);
+        return JsonUtil.getValue(name, this.headers);
     }
 
     /**
@@ -344,7 +343,7 @@ public class JWT {
      * @return
      */
     public List<String> getHeaderValues(String name) {
-        return getValues(name, this.headers);
+        return JsonUtil.getValues(name, this.headers);
     }
 
     /**
@@ -384,82 +383,5 @@ public class JWT {
         Json.createWriter(headerWriter).writeObject(this.headers);
 
         return headerWriter.getBuffer().toString();
-    }
-
-    /**
-     * Parses the specified key value from the {@link javax.json.JsonObject} into a collection of strings.
-     *
-     * @param name the header or claim name
-     * @param jsonObject the JSON object representing the headers set or the claims set.
-     * @return a collection of values for the specified key in JsonObject
-     */
-    private List<String> getValues(String name, JsonObject jsonObject) {
-        JsonValue headerValue = jsonObject.get(name);
-        List<String> values = new ArrayList<String>();
-
-        if (headerValue != null) {
-            if (JsonArray.class.isInstance(headerValue)) {
-                JsonArray array = (JsonArray) headerValue;
-
-                for (JsonValue aud : array.getValuesAs(JsonValue.class)) {
-                    values.add(getValue(aud).toString());
-                }
-            } else {
-                values.add(getValue(name, jsonObject).toString());
-            }
-        }
-        return values;
-    }
-
-    /**
-     * Gets the key value from the {@link javax.json.JsonValue}.
-     *
-     * @param <R> the generic type as value could be an object, array, number, string or boolean value.
-     * @param value the JsonValue which is to be parsed.
-     * @return
-     */
-    private <R> R getValue(JsonValue value) {
-        if (ARRAY.equals(value.getValueType())) {
-            JsonArray array = (JsonArray) value;
-            for (JsonValue jsonValue : array) {
-                return getValue(jsonValue);
-            }
-        } else if (STRING.equals(value.getValueType())) {
-            return (R) ((JsonString) value).getString();
-        } else if (NUMBER.equals(value.getValueType())) {
-            return (R) ((JsonNumber) value).bigDecimalValue().toPlainString();
-        } else if (TRUE.equals(value.getValueType()) || FALSE.equals(value.getValueType())) {
-            return (R) Boolean.valueOf(value.toString());
-        }
-
-        return null;
-    }
-
-    /**
-     * Gets the value of the specified key from the {@link javax.json.JsonObject}
-     *
-     * @param name the key whose value is to be retrieved.
-     * @param jsonObject the JSON object representing headers or claims set.
-     * @return the value of the specified key.
-     */
-    private String getValue(String name, JsonObject jsonObject) {
-        JsonValue value = jsonObject.get(name);
-
-        if (value != null) {
-            if (ARRAY.equals(value.getValueType())) {
-                JsonArray array = (JsonArray) value;
-                for (JsonValue jsonValue : array) {
-                    return getValue(jsonValue);
-                }
-            } else if (STRING.equals(value.getValueType())) {
-                return ((JsonString) value).getString();
-            } else if (NUMBER.equals(value.getValueType())) {
-                return ((JsonNumber) value).bigDecimalValue().toPlainString();
-            } else if (TRUE.equals(value.getValueType()) || FALSE.equals(value.getValueType())) {
-                return value.toString();
-            }
-        }
-
-        return null;
     }
 }

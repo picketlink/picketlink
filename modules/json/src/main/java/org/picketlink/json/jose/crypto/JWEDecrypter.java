@@ -39,30 +39,30 @@ import java.security.interfaces.RSAPrivateKey;
 import javax.crypto.SecretKey;
 
 import org.picketlink.json.jose.JWE;
-import org.picketlink.json.util.JsonUtil;
+import org.picketlink.json.util.Base64Util;
 
 /**
- * JWE Decrypter of for JSON Web Decryption.
+ * JWE Decrypter for JSON Web Decryption.
  *
- * <p>Supports the following JWE algorithms:
+ * <p>
+ * Supports the following JWE algorithms:
  *
  * <ul>
- *     <li>{@link org.picketlink.json.JsonConstants.JWE.RSA1_5}
- *     <li>{@link org.picketlink.json.JsonConstants.JWE.RSA_OAEP}
- *     <li>{@link org.picketlink.json.JsonConstants.JWE.RSA_OAEP_256}
+ * <li>{@link org.picketlink.json.JsonConstants.JWE.RSA1_5}
+ * <li>{@link org.picketlink.json.JsonConstants.JWE.RSA_OAEP}
+ * <li>{@link org.picketlink.json.JsonConstants.JWE.RSA_OAEP_256}
  * </ul>
  *
- * <p>Supports the following encryption algorithms:
+ * <p>
+ * Supports the following encryption algorithms:
  *
  * <ul>
- *     <li>{@link org.picketlink.json.JsonConstants.JWE.A128CBC_HS256}
- *     <li>{@link org.picketlink.json.JsonConstants.JWE.A192CBC_HS384}
- *     <li>{@link org.picketlink.json.JsonConstants.JWE.A256CBC_HS512}
- *     <li>{@link org.picketlink.json.JsonConstants.JWE.A128GCM}
- *     <li>{@link org.picketlink.json.JsonConstants.JWE.A192GCM}
- *     <li>{@link org.picketlink.json.JsonConstants.JWE.A256GCM}
- *     <li>{@link org.picketlink.json.JsonConstants.JWE.A128CBC_HS256_DEPRECATED}
- *     <li>{@link org.picketlink.json.JsonConstants.JWE.A256CBC_HS512_DEPRECATED}
+ * <li>{@link org.picketlink.json.JsonConstants.JWE.A128CBC_HS256}
+ * <li>{@link org.picketlink.json.JsonConstants.JWE.A192CBC_HS384}
+ * <li>{@link org.picketlink.json.JsonConstants.JWE.A256CBC_HS512}
+ * <li>{@link org.picketlink.json.JsonConstants.JWE.A128GCM}
+ * <li>{@link org.picketlink.json.JsonConstants.JWE.A192GCM}
+ * <li>{@link org.picketlink.json.JsonConstants.JWE.A256GCM}
  * </ul>
  *
  * @author Giriraj Sharma
@@ -126,7 +126,7 @@ public class JWEDecrypter {
             SecretKey randomCEK = AES.generateKey(keyLength, randomGen);
 
             try {
-                cek = RSA1_5.decryptCEK(privateKey, JsonUtil.b64Decode(encryptedKey), keyLength);
+                cek = RSA1_5.decryptCEK(privateKey, Base64Util.b64Decode(encryptedKey), keyLength);
 
                 if (cek == null) {
                     // CEK length mismatch, signalled by null instead of
@@ -140,15 +140,15 @@ public class JWEDecrypter {
             }
 
         } else if (alg.equals(ALG_RSA_OAEP)) {
-            cek = RSA_OAEP.decryptCEK(privateKey, JsonUtil.b64Decode(encryptedKey));
+            cek = RSA_OAEP.decryptCEK(privateKey, Base64Util.b64Decode(encryptedKey));
         } else if (alg.equals(ALG_RSA_OAEP_256)) {
-            cek = RSA_OAEP_256.decryptCEK(privateKey, JsonUtil.b64Decode(encryptedKey));
+            cek = RSA_OAEP_256.decryptCEK(privateKey, Base64Util.b64Decode(encryptedKey));
         } else {
             throw new RuntimeException("Unsupported JWE algorithm, must be RSA1_5 or RSA_OAEP");
         }
 
         // Compose the AAD
-        byte[] aad = JsonUtil.b64Encode(jweHeader.toString()).getBytes(Charset.forName("UTF-8"));
+        byte[] aad = Base64Util.b64Encode(jweHeader.toString()).getBytes(Charset.forName("UTF-8"));
 
         // Decrypt the cipher text according to the JWE enc
         String enc = jweHeader.getEncryptionAlgorithm();
@@ -161,10 +161,10 @@ public class JWEDecrypter {
 
             plainText = AESCBC.decryptAuthenticated(
                 cek,
-                JsonUtil.b64Decode(iv),
-                JsonUtil.b64Decode(cipherText),
+                Base64Util.b64Decode(iv),
+                Base64Util.b64Decode(cipherText),
                 aad,
-                JsonUtil.b64Decode(authTag));
+                Base64Util.b64Decode(authTag));
 
         } else if (enc.equals(ENC_A128GCM) ||
             enc.equals(ENC_A192GCM) ||
@@ -172,10 +172,10 @@ public class JWEDecrypter {
 
             plainText = AESGCM.decrypt(
                 cek,
-                JsonUtil.b64Decode(iv),
-                JsonUtil.b64Decode(cipherText),
+                Base64Util.b64Decode(iv),
+                Base64Util.b64Decode(cipherText),
                 aad,
-                JsonUtil.b64Decode(authTag));
+                Base64Util.b64Decode(authTag));
 
         } else {
             throw new RuntimeException("Unsupported encryption method, must be A128CBC_HS256, A192CBC_HS384, A256CBC_HS512, A128GCM, A192GCM or A256GCM");

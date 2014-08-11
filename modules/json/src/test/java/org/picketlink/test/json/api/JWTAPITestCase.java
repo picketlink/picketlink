@@ -29,7 +29,6 @@ import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonString;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,6 +100,15 @@ public class JWTAPITestCase {
         MyWebToken parsedToken = new MyWebToken.MyWebTokenBuilder().build(jsonEncoded);
 
         assertNotNull(parsedToken);
+        
+        assertArrayEquals(new String[] {"maintainer", "profile"}, parsedToken.getRoles().toArray());
+        assertEquals("1", parsedToken.getId());
+        assertEquals("issuer", parsedToken.getIssuer());
+        assertEquals("subject", parsedToken.getSubject());
+        assertArrayEquals(new String[] {"audience"}, parsedToken.getAudience().toArray());
+        assertEquals(Integer.valueOf(123), parsedToken.getExpiration());
+        assertEquals(Integer.valueOf(456), parsedToken.getIssuedAt());
+        assertEquals(Integer.valueOf(789), parsedToken.getNotBefore());
     }
 
     /**
@@ -121,8 +129,8 @@ public class JWTAPITestCase {
             .build();
 
         String jsonString = token.toString();
-
-//        assertEquals("{\"typ\":\"JWT\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789,\"roles\":[\"maintainer\",\"profile\"]}", jsonString);
+        
+        assertEquals("{\"typ\":\"JWT\"}.{\"jti\":\"1\",\"iss\":\"issuer\",\"sub\":\"subject\",\"aud\":\"audience\",\"exp\":123,\"iat\":456,\"nbf\":789,\"roles\":[\"maintainer\",\"profile\"],\"ints\":[1,2]}", jsonString);
 
         String jsonEncoded = token.encode();
 
@@ -158,6 +166,14 @@ public class JWTAPITestCase {
         JWT parsedToken = new JWTBuilder().build(jsonEncoded);
 
         assertNotNull(parsedToken);
+        
+        assertEquals("1", parsedToken.getId());
+        assertEquals("issuer", parsedToken.getIssuer());
+        assertEquals("subject", parsedToken.getSubject());
+        assertArrayEquals(new String[] {"A", "B", "C"}, parsedToken.getAudience().toArray());
+        assertEquals(Integer.valueOf(123), parsedToken.getExpiration());
+        assertEquals(Integer.valueOf(456), parsedToken.getIssuedAt());
+        assertEquals(Integer.valueOf(789), parsedToken.getNotBefore());
     }
 
     /**
