@@ -18,12 +18,13 @@
 
 package org.picketlink.idm.credential;
 
-import java.io.IOException;
-import java.io.StringReader;
+import org.picketlink.idm.IdentityManagementException;
+
+import javax.naming.ldap.LdapName;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
-import java.util.Properties;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A credential representing an X509 certificate for certificate-based authentication
@@ -33,12 +34,18 @@ import java.util.Properties;
  */
 public class X509CertificateCredentials extends AbstractBaseCredentials implements Credentials {
 
+    private String subjectRegex;
     private X509Certificate certificate;
     private String userName;
     private boolean trusted;
 
     public X509CertificateCredentials(X509Certificate certificate) {
+        this(certificate, null);
+    }
+
+    public X509CertificateCredentials(X509Certificate certificate, String subjectRegex) {
         this.certificate = certificate;
+        this.subjectRegex = subjectRegex;
     }
 
     public X509Certificate getCertificate() {
@@ -47,17 +54,26 @@ public class X509CertificateCredentials extends AbstractBaseCredentials implemen
 
     public String getUsername() {
         if (this.userName == null) {
-            Properties prop = new Properties();
-
             this.userName = getCertificatePrincipal().getName();
 
-            try {
-                prop.load(new StringReader(userName.replaceAll(",", "\n")));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            if (subjectRegex == null) {
 
-            userName = prop.getProperty("CN");
+                try {
+                    LdapName ldapName = new LdapName(this.userName);
+                    this.userName = ldapName.getRdn(ldapName.size() - 1).getValue().toString();
+                } catch (Exception e) {
+                    throw new IdentityManagementException("Could not extract CN from X509.", e);
+                }
+            } else {
+                Matcher matcher = Pattern.compile(this.subjectRegex).matcher(this.userName);
+
+                if (matcher.find())
+                    if (matcher.groupCount() != 1) {
+                        throw new IdentityManagementException("Single group expected from expression.");
+                    }
+
+                    this.userName = matcher.group(1);
+            }
         }
 
         return this.userName;
@@ -69,7 +85,10 @@ public class X509CertificateCredentials extends AbstractBaseCredentials implemen
 
     @Override
     public void invalidate() {
-        certificate = null;
+        this.certificate = null;
+        this.subjectRegex = null;
+        this.trusted = false;
+        this.userName = null;
     }
 
     private Principal getCertificatePrincipal() {

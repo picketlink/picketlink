@@ -81,7 +81,6 @@
     <module>modules/oauth</module>
     <module>modules/rest</module>
     <module>modules/deltaspike</module>
-    <module>tests</module>
     <module>dist</module>
     <module>bom</module>
   </modules>

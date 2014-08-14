@@ -21,6 +21,7 @@
  */
 package org.picketlink.config;
 
+import org.picketlink.config.http.HttpSecurityConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 
 import java.util.List;
@@ -34,10 +35,12 @@ public class SecurityConfiguration {
 
     private final IdentityBeanConfiguration identityBeanConfiguration;
     private final List<IdentityConfiguration> identityConfigurations;
+    private final HttpSecurityConfiguration httpSecurityConfiguration;
 
-    public SecurityConfiguration(List<IdentityConfiguration> identityConfigurations, IdentityBeanConfiguration identityBeanConfiguration) {
+    public SecurityConfiguration(List<IdentityConfiguration> identityConfigurations, IdentityBeanConfiguration identityBeanConfiguration, HttpSecurityConfiguration httpSecurityConfiguration) {
         this.identityConfigurations = identityConfigurations;
         this.identityBeanConfiguration = identityBeanConfiguration;
+        this.httpSecurityConfiguration = httpSecurityConfiguration;
     }
 
     public IdentityBeanConfiguration getIdentityBeanConfiguration() {
@@ -46,5 +49,9 @@ public class SecurityConfiguration {
 
     public List<IdentityConfiguration> getIdentityConfigurations() {
         return this.identityConfigurations;
+    }
+
+    public HttpSecurityConfiguration getHttpSecurityConfiguration() {
+        return this.httpSecurityConfiguration;
     }
 }

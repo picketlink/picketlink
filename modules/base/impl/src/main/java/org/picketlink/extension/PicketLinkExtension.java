@@ -52,6 +52,7 @@ public class PicketLinkExtension implements Extension {
 
     private IdentityBeanDefinition identityBeanDefinition;
     private SecurityConfigurationBuilder securityConfigurationBuilder;
+    private SecurityConfiguration securityConfiguration;
 
     /**
      * <p>Veto all {@link org.picketlink.Identity} implementations.</p>
@@ -98,12 +99,16 @@ public class PicketLinkExtension implements Extension {
         // TODO: best is fire an event. We're not doing that because of issues in EAP and WildFly when using PL jars from modules.
         this.securityConfigurationBuilder = securityConfigurationEvent.getBuilder();
 
-        SecurityConfiguration securityConfiguration = this.securityConfigurationBuilder.build();
+        this.securityConfiguration = this.securityConfigurationBuilder.build();
 
-        this.identityBeanDefinition.setSecurityConfiguration(securityConfiguration);
+        this.identityBeanDefinition.setSecurityConfiguration(this.securityConfiguration);
     }
 
     public SecurityConfigurationBuilder getSecurityConfigurationBuilder() {
         return this.securityConfigurationBuilder;
+    }
+
+    public SecurityConfiguration getSecurityConfiguration() {
+        return this.securityConfiguration;
     }
 }

@@ -21,6 +21,8 @@
  */
 package org.picketlink.config;
 
+import org.picketlink.config.http.HttpSecurityBuilder;
+import org.picketlink.config.http.HttpSecurityConfiguration;
 import org.picketlink.idm.config.Builder;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
@@ -41,16 +43,18 @@ import java.util.List;
  *
  * @author Pedro Igor
  */
-public class SecurityConfigurationBuilder extends Builder<SecurityConfiguration> {
+public class SecurityConfigurationBuilder extends Builder<SecurityConfiguration> implements SecurityConfigurationChildBuilder {
 
     private IdentityConfigurationBuilder identityConfigurationBuilder;
     private IdentityBeanConfigurationBuilder identityBeanConfigurationBuilder = new IdentityBeanConfigurationBuilder(this);
+    private HttpSecurityBuilder httpSecurityBuilder;
 
     /**
      * <p>Convenience methods for Identity Management Configuration.</p>
      *
      * @return The builder responsible to provide all identity management configuration options.
      */
+    @Override
     public IdentityConfigurationBuilder idmConfig() {
         if (this.identityConfigurationBuilder == null) {
             this.identityConfigurationBuilder = new IdentityConfigurationBuilder();
@@ -64,8 +68,23 @@ public class SecurityConfigurationBuilder extends Builder<SecurityConfiguration>
      *
      * @return The builder responsible to provide the configuration options for the identity bean.
      */
+    @Override
     public IdentityBeanConfigurationBuilder identity() {
         return this.identityBeanConfigurationBuilder;
+    }
+
+    /**
+     * <p>Convenience methods to configure HTTP security.</p>
+     *
+     * @return The builder responsible to provide the configuration options for the identity bean.
+     */
+    @Override
+    public HttpSecurityBuilder http() {
+        if (this.httpSecurityBuilder == null) {
+            this.httpSecurityBuilder = new HttpSecurityBuilder(this);
+        }
+
+        return this.httpSecurityBuilder;
     }
 
     /**
@@ -73,6 +92,7 @@ public class SecurityConfigurationBuilder extends Builder<SecurityConfiguration>
      *
      * @return The consolidated configuration.
      */
+    @Override
     public SecurityConfiguration build() {
         return create();
     }
@@ -85,7 +105,13 @@ public class SecurityConfigurationBuilder extends Builder<SecurityConfiguration>
             identityConfigurations = this.identityConfigurationBuilder.buildAll();
         }
 
-        return new SecurityConfiguration(identityConfigurations, this.identityBeanConfigurationBuilder.create());
+        HttpSecurityConfiguration httpSecurityConfiguration = null;
+
+        if (this.httpSecurityBuilder != null) {
+            httpSecurityConfiguration = this.httpSecurityBuilder.create();
+        }
+
+        return new SecurityConfiguration(identityConfigurations, this.identityBeanConfigurationBuilder.create(), httpSecurityConfiguration);
     }
 
     @Override
@@ -95,7 +121,6 @@ public class SecurityConfigurationBuilder extends Builder<SecurityConfiguration>
 
     @Override
     protected Builder<SecurityConfiguration> readFrom(SecurityConfiguration fromConfiguration) throws SecurityConfigurationException {
-        // no-op
         return this;
     }
 }
