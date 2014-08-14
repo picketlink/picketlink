@@ -11,6 +11,7 @@ import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import static org.picketlink.log.BaseLog.AUTHENTICATION_LOGGER;
@@ -23,7 +24,7 @@ import static org.picketlink.log.BaseLog.AUTHENTICATION_LOGGER;
 public class IdmAuthenticator extends BaseAuthenticator {
 
     @Inject
-    IdentityManager identityManager;
+    Instance<IdentityManager> identityManager;
 
     @Inject
     DefaultLoginCredentials credentials;
@@ -51,7 +52,7 @@ public class IdmAuthenticator extends BaseAuthenticator {
             AUTHENTICATION_LOGGER.debugf("Validating credentials [%s] using PicketLink IDM.", creds);
         }
 
-        identityManager.validateCredentials(creds);
+        identityManager.get().validateCredentials(creds);
 
         this.credentials.setStatus(creds.getStatus());
         this.credentials.setValidatedAccount(creds.getValidatedAccount());

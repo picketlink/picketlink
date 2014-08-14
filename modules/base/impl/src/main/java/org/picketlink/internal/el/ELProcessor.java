@@ -61,7 +61,7 @@ public class ELProcessor {
     private Instance<Identity> identityInstance;
 
     @Inject
-    private PartitionManager partitionManager;
+    private Instance<PartitionManager> partitionManager;
 
     @Inject
     private Instance<IdentityManager> identityManagerInstance;
@@ -102,7 +102,7 @@ public class ELProcessor {
         ELEvaluationContext evaluationContext = ELEvaluationContext.get();
 
         evaluationContext.setIdentity(this.identityInstance.get());
-        evaluationContext.setPartitionManager(this.partitionManager);
+        evaluationContext.setPartitionManager(this.partitionManager.get());
     }
 
     private void releaseEvaluationContext() {

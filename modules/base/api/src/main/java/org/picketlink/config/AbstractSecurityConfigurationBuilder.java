@@ -21,17 +21,19 @@
  */
 package org.picketlink.config;
 
+import org.picketlink.config.http.HttpSecurityBuilder;
 import org.picketlink.idm.config.Builder;
 import org.picketlink.idm.config.IdentityConfigurationBuilder;
+import org.picketlink.idm.config.SecurityConfigurationException;
 
 /**
  * @author Pedro Igor
  */
-public abstract class AbstractSecurityConfigurationBuilder<T> extends Builder<T> {
+public abstract class AbstractSecurityConfigurationBuilder<T> extends Builder<T> implements SecurityConfigurationChildBuilder {
 
-    private SecurityConfigurationBuilder builder;
+    private SecurityConfigurationChildBuilder builder;
 
-    public AbstractSecurityConfigurationBuilder(SecurityConfigurationBuilder builder) {
+    public AbstractSecurityConfigurationBuilder(SecurityConfigurationChildBuilder builder) {
         this.builder = builder;
     }
 
@@ -43,7 +45,26 @@ public abstract class AbstractSecurityConfigurationBuilder<T> extends Builder<T>
         return this.builder.identity();
     }
 
+    public HttpSecurityBuilder http() {
+        return this.builder.http();
+    }
+
     public SecurityConfiguration build() {
         return this.builder.build();
+    }
+
+    @Override
+    protected T create() throws SecurityConfigurationException {
+        return null;
+    }
+
+    @Override
+    protected void validate() throws SecurityConfigurationException {
+
+    }
+
+    @Override
+    protected Builder<T> readFrom(T fromConfiguration) throws SecurityConfigurationException {
+        return null;
     }
 }
