@@ -57,7 +57,7 @@ public class HeaderIdentificationTestCase extends AbstractSecurityFilterTestCase
 
     @Test
     public void testStatusCodeForbiddenWhenAjaxRequest() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/headerProtected/");
+        when(this.request.getServletPath()).thenReturn("/headerProtected/");
         when(this.request.getHeader(X_REQUESTED_WITH_HEADER_NAME)).thenReturn(X_REQUESTED_WITH_AJAX);
         when(this.request.getHeaders(X_REQUESTED_WITH_HEADER_NAME)).thenReturn(Collections.enumeration(Arrays.asList(new String[] {X_REQUESTED_WITH_AJAX})));
 
@@ -70,7 +70,7 @@ public class HeaderIdentificationTestCase extends AbstractSecurityFilterTestCase
 
     @Test
     public void testRealmFromHeader() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/headerProtected");
+        when(this.request.getServletPath()).thenReturn("/headerProtected");
 
         ArrayList<String> realmNames = new ArrayList<String>();
 
@@ -85,7 +85,7 @@ public class HeaderIdentificationTestCase extends AbstractSecurityFilterTestCase
 
     @Test
     public void testNoHeader() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/headerProtected");
+        when(this.request.getServletPath()).thenReturn("/headerProtected");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 

@@ -37,7 +37,6 @@ import org.picketlink.config.http.FormAuthenticationConfiguration;
 import org.picketlink.config.http.HttpSecurityConfiguration;
 import org.picketlink.config.http.HttpSecurityConfigurationException;
 import org.picketlink.config.http.InboundConfiguration;
-import org.picketlink.config.http.LogoutConfiguration;
 import org.picketlink.config.http.OutboundConfiguration;
 import org.picketlink.config.http.PathConfiguration;
 import org.picketlink.config.http.TokenAuthenticationConfiguration;
@@ -72,6 +71,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED;
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+import static org.picketlink.config.http.OutboundRedirectConfiguration.Condition.ERROR;
+import static org.picketlink.config.http.OutboundRedirectConfiguration.Condition.FORBIDDEN;
+import static org.picketlink.config.http.OutboundRedirectConfiguration.Condition.OK;
 import static org.picketlink.log.BaseLog.AUTHENTICATION_LOGGER;
 
 /**
@@ -148,30 +153,37 @@ public class SecurityFilter implements Filter {
             throw new ServletException("This filter can only process HttpServletRequest requests.");
         }
 
-        HttpServletRequest request = this.picketLinkHttpServletRequest.get();
-
-        if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
-            AUTHENTICATION_LOGGER.debugf("Processing request to URI [%s].", request.getRequestURI());
-        }
-
-        HttpServletResponse response = (HttpServletResponse) servletResponse;
-        Identity identity = getIdentity();
+        ContextualHttpServletRequest request = null;
+        HttpServletResponse response = null;
+        Identity identity = null;
         PathConfiguration pathConfiguration = null;
 
         try {
+            request = new ContextualHttpServletRequest(this.picketLinkHttpServletRequest.get());
+
+            if (AUTHENTICATION_LOGGER.isDebugEnabled()) {
+                AUTHENTICATION_LOGGER.debugf("Processing request to path [%s].", request.getServletPath());
+            }
+
+            response = (HttpServletResponse) servletResponse;
+            identity = getIdentity();
             pathConfiguration = resolvePathConfiguration(request);
 
             if (pathConfiguration != null) {
-                Set<String> methods = pathConfiguration.getInboundConfiguration().getMethods();
+                InboundConfiguration inboundConfiguration = pathConfiguration.getInboundConfiguration();
 
-                if (!methods.contains(request.getMethod())) {
-                    response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-                    return;
-                }
+                if (inboundConfiguration != null) {
+                    Set<String> methods = inboundConfiguration.getMethods();
 
-                if (!pathConfiguration.isSecured()) {
-                    chain.doFilter(request, response);
-                    return;
+                    if (!methods.contains(request.getMethod())) {
+                        request.invalidate(SC_METHOD_NOT_ALLOWED);
+                        return;
+                    }
+
+                    if (!pathConfiguration.isSecured()) {
+                        chain.doFilter(request, response);
+                        return;
+                    }
                 }
             }
 
@@ -182,48 +194,73 @@ public class SecurityFilter implements Filter {
             if (pathConfiguration != null) {
                 if (!response.isCommitted()) {
                     if (identity.isLoggedIn()) {
-                        boolean authorized = performAuthorization(pathConfiguration, request, response);
+                        if (!isLogoutPath(pathConfiguration)) {
+                            boolean authorized = performAuthorization(pathConfiguration, request, response);
 
-                        if (authorized) {
-                            processRequest(pathConfiguration, request, response, chain);
+                            if (authorized) {
+                                processRequest(pathConfiguration, request, response, chain);
+                                return;
+                            }
                         }
                     }
                 }
             }
 
-            if (isLogoutPath(pathConfiguration)) {
-                performLogout(request, response, identity, pathConfiguration);
-            } else {
-                if (!identity.isLoggedIn()) {
-                    DefaultLoginCredentials creds = getCredentials();
+            if (request.isValid()) {
+                if (isLogoutPath(pathConfiguration)) {
+                    performLogout(request, response, identity, pathConfiguration);
+                } else {
+                    if (!identity.isLoggedIn()) {
+                        DefaultLoginCredentials creds = getCredentials();
 
-                    if (pathConfiguration != null || creds.getCredential() != null) {
-                        challengeClientForCredentials(pathConfiguration, request, response);
+                        if (pathConfiguration != null || creds.getCredential() != null) {
+                            challengeClientForCredentials(pathConfiguration, request, response);
 
-                        if (!response.isCommitted()) {
-                            chain.doFilter(request, response);
+                            if (!response.isCommitted()) {
+                                chain.doFilter(request, response);
+                            }
                         }
                     }
                 }
             }
         } catch (Exception e) {
+            request.invalidate(SC_INTERNAL_SERVER_ERROR);
+
             if (pathConfiguration != null) {
-                throw new RuntimeException("Could not process URI [" + pathConfiguration.getUri() + "].", e);
+                OutboundConfiguration outboundConfiguration = pathConfiguration.getOutboundConfiguration();
+
+                if (outboundConfiguration != null) {
+                    if (outboundConfiguration.hasRedirectWhen(ERROR)) {
+                        return;
+                    }
+                }
+
+                throw new RuntimeException("Could not process path [" + pathConfiguration.getUri() + "].", e);
             }
 
-            throw new RuntimeException("Unexpected error while processing requested URI [" + request.getRequestURI() + "].", e);
+            throw new RuntimeException("Unexpected error while processing requested path [" + request.getServletPath() + "].", e);
         } finally {
             performOutboundProcessing(pathConfiguration, request, response, chain);
         }
     }
 
-    private void performOutboundProcessing(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+    private void performOutboundProcessing(PathConfiguration pathConfiguration, ContextualHttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (pathConfiguration != null && pathConfiguration.isSecured()) {
             String redirectUrl = null;
             OutboundConfiguration outboundConfiguration = pathConfiguration.getOutboundConfiguration();
 
             if (outboundConfiguration != null) {
-                redirectUrl = outboundConfiguration.getRedirectUrl();
+                if (request.isForbidden()) {
+                    redirectUrl = outboundConfiguration.getRedirectUrl(FORBIDDEN);
+                }
+
+                if (redirectUrl == null) {
+                    if (request.isValid()) {
+                        redirectUrl = outboundConfiguration.getRedirectUrl(OK);
+                    } else {
+                        redirectUrl = outboundConfiguration.getRedirectUrl(ERROR);
+                    }
+                }
             }
 
             if (redirectUrl == null && isLogoutPath(pathConfiguration)) {
@@ -239,6 +276,12 @@ public class SecurityFilter implements Filter {
 
                 if (!response.isCommitted()) {
                     response.sendRedirect(redirectUrl);
+                }
+            } else {
+                if (!request.isValid()) {
+                    if (!response.isCommitted()) {
+                        response.sendError(request.getInvalidationStatusCode());
+                    }
                 }
             }
         } else {
@@ -258,97 +301,142 @@ public class SecurityFilter implements Filter {
 
     private boolean isLogoutPath(PathConfiguration pathConfiguration) {
         if (pathConfiguration != null) {
-            LogoutConfiguration logoutConfiguration = pathConfiguration.getInboundConfiguration()
-                .getLogoutConfiguration();
+            InboundConfiguration inboundConfiguration = pathConfiguration.getInboundConfiguration();
 
-            return logoutConfiguration != null;
+            if (inboundConfiguration != null) {
+                return inboundConfiguration.getLogoutConfiguration() != null;
+            }
         }
 
         return false;
     }
 
-    private boolean performAuthorization(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response) {
+    private boolean performAuthorization(PathConfiguration pathConfiguration, ContextualHttpServletRequest request, HttpServletResponse response) {
         InboundConfiguration inboundConfig = pathConfiguration.getInboundConfiguration();
-        AuthorizationConfiguration authorizationConfiguration = inboundConfig.getAuthorizationConfiguration();
-
-        if (authorizationConfiguration == null) {
-            return true;
-        }
-
-        Identity identity = getIdentity();
-        String[] allowedRoles = authorizationConfiguration.getAllowedRoles();
         boolean isAuthorized = true;
 
-        if (allowedRoles != null) {
-            for (String roneName: allowedRoles) {
-                if (!AuthorizationUtil.hasRole(identity, this.partitionManager.get(), roneName)) {
-                    isAuthorized = false;
-                    break;
-                }
+        if (inboundConfig != null) {
+            AuthorizationConfiguration authorizationConfiguration = inboundConfig.getAuthorizationConfiguration();
+
+            if (authorizationConfiguration == null) {
+                return true;
             }
-        }
 
-        String[] allowedGroups = authorizationConfiguration.getAllowedGroups();
+            Identity identity = getIdentity();
+            String[] allowedRoles = authorizationConfiguration.getAllowedRoles();
 
-        if (allowedGroups != null) {
-            for (String groupName : allowedGroups) {
-                if (!AuthorizationUtil.isMember(identity, this.partitionManager.get(), groupName)) {
-                    isAuthorized = false;
-                    break;
-                }
-            }
-        }
-
-        String[] allowedRealms = authorizationConfiguration.getAllowedRealms();
-
-        if (allowedRealms != null) {
-            for (String realmName : allowedRealms) {
-                Account validatedAccount = identity.getAccount();
-
-                if (!validatedAccount.getPartition().getName().equals(realmName)) {
-                    try {
-                        Class<Object> partitionType = Reflections.classForName(realmName);
-
-                        isAuthorized = AuthorizationUtil.hasPartition(identity, partitionType, null);
-                    } catch (Exception ignore) {
-                    }
-
-                    if (isAuthorized) {
-                        break;
-                    }
-
-                    isAuthorized = false;
-                }
-            }
-        }
-
-        String[] expressions = authorizationConfiguration.getExpressions();
-
-        if (expressions != null) {
-            for (String expression : expressions) {
-                try {
-                    Object eval = this.elProcessor.eval(expression);
-
-                    if (eval == null || !Boolean.class.isInstance(eval)) {
-                        throw new RuntimeException("Authorization expressions must evaluate to a boolean.");
-                    }
-
-                    if (!Boolean.valueOf(eval.toString())) {
+            if (allowedRoles != null) {
+                for (String roneName : allowedRoles) {
+                    if (!AuthorizationUtil.hasRole(identity, this.partitionManager.get(), roneName)) {
                         isAuthorized = false;
                         break;
                     }
-                } catch (Exception e) {
-                    throw new RuntimeException("Failed to process authorization expression [" + expression + "] for URI [" + pathConfiguration
-                        .getUri() + "].", e);
                 }
             }
-        }
 
-        if (!isAuthorized) {
-            try {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN);
-            } catch (IOException e) {
-                throw new RuntimeException("Could not set forbidden status.", e);
+            String[] allowedGroups = authorizationConfiguration.getAllowedGroups();
+
+            if (allowedGroups != null) {
+                for (String groupName : allowedGroups) {
+                    if (!AuthorizationUtil.isMember(identity, this.partitionManager.get(), groupName)) {
+                        isAuthorized = false;
+                        break;
+                    }
+                }
+            }
+
+            String[] allowedRealms = authorizationConfiguration.getAllowedRealms();
+
+            if (allowedRealms != null) {
+                for (String realmName : allowedRealms) {
+                    Account validatedAccount = identity.getAccount();
+
+                    if (!validatedAccount.getPartition().getName().equals(realmName)) {
+                        try {
+                            Class<Object> partitionType = Reflections.classForName(realmName);
+
+                            isAuthorized = AuthorizationUtil.hasPartition(identity, partitionType, null);
+                        } catch (Exception ignore) {
+                            isAuthorized = false;
+                        }
+
+                        if (isAuthorized) {
+                            break;
+                        }
+
+                        isAuthorized = false;
+                    }
+                }
+            }
+
+            String protectedUri = pathConfiguration.getUri();
+            int startRegex = protectedUri.indexOf("{");
+
+            if (startRegex == -1) {
+                String[] expressions = authorizationConfiguration.getExpressions();
+
+                if (expressions != null) {
+                    for (String expression : expressions) {
+                        try {
+                            Object eval = this.elProcessor.eval(expression);
+
+                            if (eval == null || !Boolean.class.isInstance(eval)) {
+                                throw new RuntimeException("Authorization expressions [" + expression + "] must evaluate to a boolean.");
+                            }
+
+                            if (!Boolean.valueOf(eval.toString())) {
+                                isAuthorized = false;
+                                break;
+                            }
+                        } catch (Exception e) {
+                            throw new RuntimeException("Failed to process authorization expression [" + expression + "] for path [" + protectedUri + "].", e);
+                        }
+                    }
+                }
+            } else {
+                String[] expressions = authorizationConfiguration.getExpressions();
+                String formattedProtectedUri = protectedUri;
+
+                if (expressions != null) {
+                    for (String expression : expressions) {
+                        try {
+                            Object eval = this.elProcessor.eval(expression);
+
+                            if (eval == null) {
+                                throw new RuntimeException("Authorization expressions [" + expression + "] must evaluate to a not null value.");
+                            }
+
+                            String expressionPattern = expression.substring(1);
+
+                            if (formattedProtectedUri.indexOf(expressionPattern) == -1) {
+                                isAuthorized = false;
+                                break;
+                            }
+
+                            formattedProtectedUri = formattedProtectedUri.replace(expressionPattern, eval.toString());
+                        } catch (Exception e) {
+                            throw new RuntimeException("Failed to process authorization expression [" + expression + "] for path [" + protectedUri + "].", e);
+                        }
+                    }
+
+                    if (!request.getServletPath().equals(formattedProtectedUri)) {
+                        int prefixEnd = formattedProtectedUri.lastIndexOf('/');
+
+                        if (prefixEnd != -1) {
+                            String prefix = formattedProtectedUri.substring(0, prefixEnd);
+
+                            if (!request.getServletPath().startsWith(prefix)) {
+                                isAuthorized = false;
+                            }
+                        } else {
+                            isAuthorized = false;
+                        }
+                    }
+                }
+            }
+
+            if (!isAuthorized) {
+                request.invalidate(HttpServletResponse.SC_FORBIDDEN);
             }
         }
 
@@ -357,9 +445,7 @@ public class SecurityFilter implements Filter {
 
     private void processRequest(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
         try {
-            if (!isLogoutPath(pathConfiguration)) {
-                chain.doFilter(request, response);
-            }
+            chain.doFilter(request, response);
         } catch (Exception e) {
             throw new RuntimeException("Could not process request.", e);
         }
@@ -374,26 +460,26 @@ public class SecurityFilter implements Filter {
                     .debugf("Challenging client using authentication scheme [%s].", authenticationScheme);
             }
 
-            HttpSession session = request.getSession(false);
-            PathConfiguration authenticationOriginalPath = null;
-
-            if (session != null) {
-                authenticationOriginalPath = (PathConfiguration) session.getAttribute(AUTHENTICATION_ORIGINAL_PATH);
-            }
-
             try {
                 authenticationScheme.challengeClient(request, response);
             } catch (Exception e) {
                 throw new RuntimeException("Could not challenge client for credentials.", e);
             }
 
-            if (authenticationOriginalPath == null || !authenticationOriginalPath.equals(pathConfiguration)) {
-                session.setAttribute(AUTHENTICATION_ORIGINAL_PATH, pathConfiguration);
+            HttpSession session = request.getSession(false);
+            PathConfiguration authenticationOriginalPath;
+
+            if (session != null) {
+                authenticationOriginalPath = (PathConfiguration) session.getAttribute(AUTHENTICATION_ORIGINAL_PATH);
+
+                if (authenticationOriginalPath == null || !authenticationOriginalPath.equals(pathConfiguration)) {
+                    session.setAttribute(AUTHENTICATION_ORIGINAL_PATH, pathConfiguration);
+                }
             }
         }
     }
 
-    private void performAuthenticationIfRequired(PathConfiguration pathConfiguration, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private void performAuthenticationIfRequired(PathConfiguration pathConfiguration, ContextualHttpServletRequest request, HttpServletResponse response) throws IOException {
         DefaultLoginCredentials creds = getCredentials();
         Identity identity = getIdentity();
         HttpAuthenticationScheme authenticationScheme = getAuthenticationScheme(pathConfiguration, request);
@@ -434,7 +520,7 @@ public class SecurityFilter implements Filter {
         } else {
             if (pathConfiguration != null) {
                 if (pathConfiguration.getInboundConfiguration().getAuthorizationConfiguration() != null) {
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "This resource [" + pathConfiguration.getUri() + "] requires authentication.");
+                    request.invalidate(SC_UNAUTHORIZED);
                 }
             }
         }
@@ -449,28 +535,31 @@ public class SecurityFilter implements Filter {
 
         if (pathConfiguration != null) {
             InboundConfiguration inboundConfig = pathConfiguration.getInboundConfiguration();
-            AuthenticationConfiguration authcConfiguration = inboundConfig.getAuthenticationConfiguration();
 
-            if (authcConfiguration != null) {
-                AuthenticationSchemeConfiguration authSchemeConfiguration = authcConfiguration
-                    .getAuthenticationSchemeConfiguration();
+            if (inboundConfig != null) {
+                AuthenticationConfiguration authcConfiguration = inboundConfig.getAuthenticationConfiguration();
 
-                authenticationScheme = this.authenticationSchemes.get(pathConfiguration);
+                if (authcConfiguration != null) {
+                    AuthenticationSchemeConfiguration authSchemeConfiguration = authcConfiguration
+                        .getAuthenticationSchemeConfiguration();
 
-                if (authenticationScheme == null) {
-                    if (FormAuthenticationConfiguration.class.isInstance(authSchemeConfiguration)) {
-                        authenticationScheme = resolveAuthenticationScheme(FormAuthenticationScheme.class);
-                    } else if (DigestAuthenticationConfiguration.class.isInstance(authSchemeConfiguration)) {
-                        authenticationScheme = resolveAuthenticationScheme(DigestAuthenticationScheme.class);
-                    } else if (BasicAuthenticationConfiguration.class.isInstance(authSchemeConfiguration)) {
-                        authenticationScheme = resolveAuthenticationScheme(BasicAuthenticationScheme.class);
-                    } else if (X509AuthenticationConfiguration.class.isInstance(authSchemeConfiguration)) {
-                        authenticationScheme = resolveAuthenticationScheme(X509AuthenticationScheme.class);
-                    } else if (TokenAuthenticationConfiguration.class.isInstance(authSchemeConfiguration)) {
-                        authenticationScheme = resolveAuthenticationScheme(TokenAuthenticationScheme.class);
+                    authenticationScheme = this.authenticationSchemes.get(pathConfiguration);
+
+                    if (authenticationScheme == null) {
+                        if (FormAuthenticationConfiguration.class.isInstance(authSchemeConfiguration)) {
+                            authenticationScheme = resolveAuthenticationScheme(FormAuthenticationScheme.class);
+                        } else if (DigestAuthenticationConfiguration.class.isInstance(authSchemeConfiguration)) {
+                            authenticationScheme = resolveAuthenticationScheme(DigestAuthenticationScheme.class);
+                        } else if (BasicAuthenticationConfiguration.class.isInstance(authSchemeConfiguration)) {
+                            authenticationScheme = resolveAuthenticationScheme(BasicAuthenticationScheme.class);
+                        } else if (X509AuthenticationConfiguration.class.isInstance(authSchemeConfiguration)) {
+                            authenticationScheme = resolveAuthenticationScheme(X509AuthenticationScheme.class);
+                        } else if (TokenAuthenticationConfiguration.class.isInstance(authSchemeConfiguration)) {
+                            authenticationScheme = resolveAuthenticationScheme(TokenAuthenticationScheme.class);
+                        }
+
+                        this.authenticationSchemes.put(pathConfiguration, authenticationScheme);
                     }
-
-                    this.authenticationSchemes.put(pathConfiguration, authenticationScheme);
                 }
             }
         } else if (request != null) {

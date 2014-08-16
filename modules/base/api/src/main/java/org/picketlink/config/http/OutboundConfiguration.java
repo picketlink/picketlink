@@ -21,20 +21,52 @@
  */
 package org.picketlink.config.http;
 
+import java.util.Collections;
+import java.util.List;
+
+import static java.util.Collections.emptyList;
+import static org.picketlink.config.http.OutboundRedirectConfiguration.Condition;
+
 /**
  * @author Pedro Igor
  */
 public class OutboundConfiguration {
 
     private final PathConfiguration pathConfiguration;
-    private final String redirectUrl;
+    private final List<OutboundRedirectConfiguration> redirects;
 
-    public OutboundConfiguration(PathConfiguration pathConfiguration, String redirectUrl) {
+    public OutboundConfiguration(PathConfiguration pathConfiguration, List<OutboundRedirectConfiguration> redirects) {
         this.pathConfiguration = pathConfiguration;
-        this.redirectUrl = redirectUrl;
+
+        if (redirects == null) {
+            redirects = emptyList();
+        }
+
+        this.redirects = redirects;
     }
 
-    public String getRedirectUrl() {
-        return this.redirectUrl;
+    public List<OutboundRedirectConfiguration> getRedirects() {
+        return Collections.unmodifiableList(this.redirects);
     }
+
+    public String getRedirectUrl(Condition condition) {
+        for (OutboundRedirectConfiguration redirectConfiguration : this.redirects) {
+            if (condition.equals(redirectConfiguration.getCondition())) {
+                return redirectConfiguration.getRedirectUrl();
+            }
+        }
+
+        return null;
+    }
+
+    public boolean hasRedirectWhen(Condition condition) {
+        for (OutboundRedirectConfiguration redirectConfiguration : this.redirects) {
+            if (condition.equals(redirectConfiguration.getCondition())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }

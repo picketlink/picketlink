@@ -24,11 +24,18 @@ package org.picketlink.config.http;
 /**
  * @author Pedro Igor
  */
-public abstract class AuthenticationMethodConfigurationBuilder<T extends AuthenticationSchemeConfiguration> extends AbstractInboundChildConfigurationBuilder {
+public abstract class AbstractOutboundChildConfigurationBuilder extends AbstractPathConfigurationChildBuilder implements OutboundConfigurationChildBuilder {
 
-    public AuthenticationMethodConfigurationBuilder(AuthenticationConfigurationBuilder parentBuilder) {
-        super(parentBuilder);
+    private final OutboundConfigurationChildBuilder builder;
+
+    AbstractOutboundChildConfigurationBuilder(OutboundConfigurationChildBuilder builder) {
+        super(builder);
+        this.builder = builder;
     }
 
-    abstract T create(AuthenticationConfiguration authenticationConfiguration);
+    @Override
+    public OutboundRedirectConfigurationBuilder redirectTo(String redirectUrl) {
+        return this.builder.redirectTo(redirectUrl);
+    }
+
 }

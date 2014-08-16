@@ -63,7 +63,7 @@ public class DigestAuthenticationSchemeTestCase extends AbstractSecurityFilterTe
 
     @Test
     public void testSuccessfulAuthentication() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/digestProtectedUri/");
+        when(this.request.getServletPath()).thenReturn("/digestProtectedUri/");
 
         final List<String> digest = new ArrayList<String>();
 

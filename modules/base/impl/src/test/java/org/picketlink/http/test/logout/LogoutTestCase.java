@@ -53,7 +53,7 @@ public class LogoutTestCase extends AbstractSecurityFilterTestCase {
 
     @Test
     public void testLogout() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -62,7 +62,7 @@ public class LogoutTestCase extends AbstractSecurityFilterTestCase {
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
         verify(this.response).sendRedirect(CONTEXT_PATH);
 
-        when(this.request.getRequestURI()).thenReturn("/formProtectedUri");
+        when(this.request.getServletPath()).thenReturn("/formProtectedUri");
         reset(this.filterChain);
         reset(this.response);
 
@@ -70,7 +70,7 @@ public class LogoutTestCase extends AbstractSecurityFilterTestCase {
 
         verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        when(this.request.getRequestURI()).thenReturn("/logout");
+        when(this.request.getServletPath()).thenReturn("/logout");
         reset(this.filterChain);
         reset(this.response);
 
@@ -79,7 +79,7 @@ public class LogoutTestCase extends AbstractSecurityFilterTestCase {
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
         verify(this.response, times(1)).sendRedirect(CONTEXT_PATH + "/logout.html");
 
-        when(this.request.getRequestURI()).thenReturn("/formProtectedUri");
+        when(this.request.getServletPath()).thenReturn("/formProtectedUri");
         reset(this.filterChain);
         reset(this.response);
 

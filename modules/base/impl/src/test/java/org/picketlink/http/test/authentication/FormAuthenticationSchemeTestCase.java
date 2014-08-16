@@ -27,8 +27,8 @@ import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.http.internal.schemes.FormAuthenticationScheme;
 import org.picketlink.http.internal.schemes.support.RequestCache;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
-import org.picketlink.test.weld.Deployment;
 import org.picketlink.http.test.SecurityInitializer;
+import org.picketlink.test.weld.Deployment;
 
 import javax.enterprise.event.Observes;
 import javax.servlet.http.HttpServletRequest;
@@ -53,7 +53,7 @@ public class FormAuthenticationSchemeTestCase extends AbstractSecurityFilterTest
 
     @Test
     public void testFormRedirectToLogin() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/formProtectedUri/");
+        when(this.request.getServletPath()).thenReturn("/formProtectedUri/");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
@@ -63,7 +63,7 @@ public class FormAuthenticationSchemeTestCase extends AbstractSecurityFilterTest
 
     @Test
     public void testFormRedirectToError() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("invalid_user");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("invalid_password");
 
@@ -77,14 +77,14 @@ public class FormAuthenticationSchemeTestCase extends AbstractSecurityFilterTest
     public void testSuccessfulAuthentication() throws Exception {
         String savedUri = "/formProtectedUri/someUriToSave.html";
 
-        when(this.request.getRequestURI()).thenReturn(savedUri);
+        when(this.request.getServletPath()).thenReturn(savedUri);
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.response).sendRedirect(eq("/picketlink-app/loginFormProtectedUri.html"));
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        when(this.request.getRequestURI()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -98,14 +98,14 @@ public class FormAuthenticationSchemeTestCase extends AbstractSecurityFilterTest
     public void testSuccessfulAuthenticationPathWithoutWildCard() throws Exception {
         String savedUri = "/pathWithoutWildCard";
 
-        when(this.request.getRequestURI()).thenReturn(savedUri);
+        when(this.request.getServletPath()).thenReturn(savedUri);
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.response).sendRedirect(eq("/picketlink-app/pathWithoutWildCardLogin.html"));
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        when(this.request.getRequestURI()).thenReturn("/pathWithoutWildCard/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/pathWithoutWildCard/" + FormAuthenticationScheme.J_SECURITY_CHECK);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -119,35 +119,37 @@ public class FormAuthenticationSchemeTestCase extends AbstractSecurityFilterTest
     public void testRestoreOriginalRequest() throws Exception {
         String savedUri = "/formProtectedUriRestoreOriginalRequest/someUriToSave.html";
 
-        when(this.request.getRequestURI()).thenReturn(savedUri);
+        when(this.request.getServletPath()).thenReturn(savedUri);
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.response).sendRedirect(eq("/picketlink-app/loginFormProtectedUriRestoreOriginalRequest.html"));
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        when(this.request.getRequestURI()).thenReturn("/formProtectedUriRestoreOriginalRequest/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath())
+            .thenReturn("/formProtectedUriRestoreOriginalRequest/" + FormAuthenticationScheme.J_SECURITY_CHECK);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
-        verify(this.response).sendRedirect(savedUri);
+        verify(this.response).sendRedirect(CONTEXT_PATH + savedUri);
         verify(this.session).setAttribute(eq(RequestCache.ORIGINAL_REQUEST_ATTRIBUTE_NAME), any());
     }
 
     public static class SecurityConfiguration {
+
         public void configureHttpSecurity(@Observes SecurityConfigurationEvent event) {
             SecurityConfigurationBuilder builder = event.getBuilder();
 
             builder
                 .http()
-                .path("/formProtectedUri/*")
-                .inbound()
-                .authc()
-                .form()
-                .loginPage("/loginFormProtectedUri.html")
-                .errorPage("/errorFormProtectedUri.html")
+                    .path("/formProtectedUri/*")
+                        .inbound()
+                            .authc()
+                                .form()
+                                    .loginPage("/loginFormProtectedUri.html")
+                                    .errorPage("/errorFormProtectedUri.html")
                 .path("/formProtectedUriRestoreOriginalRequest/*")
                 .inbound()
                 .authc()

@@ -48,11 +48,11 @@ public class PathMatcher {
     }
 
     public PathConfiguration matches(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-        int contextPathIndex = uri.indexOf(request.getContextPath());
+        String requestedUri = request.getServletPath();
+        int contextPathIndex = requestedUri.indexOf(request.getContextPath());
 
         if (contextPathIndex != -1) {
-            uri = uri.substring(contextPathIndex + request.getContextPath().length());
+            requestedUri = requestedUri.substring(contextPathIndex + request.getContextPath().length());
         }
 
         List<PathConfiguration> configurations = null;
@@ -72,13 +72,13 @@ public class PathMatcher {
             if (suffixIndex != -1) {
                 String protectedSuffix = protectedUri.substring(suffixIndex + ANY_RESOURCE_PATTERN.length());
 
-                if (uri.endsWith(protectedSuffix)) {
+                if (requestedUri.endsWith(protectedSuffix)) {
                     configurations = this.uriConfiguration.get(entry.getKey());
                     selectedUri = protectedUri;
                 }
             }
 
-            if (protectedUri.equals(uri)) {
+            if (protectedUri.equals(requestedUri)) {
                 configurations = this.uriConfiguration.get(entry.getKey());
                 selectedUri = protectedUri;
             }
@@ -86,12 +86,23 @@ public class PathMatcher {
             if (protectedUri.endsWith(ANY_RESOURCE_PATTERN)) {
                 String formattedPattern = removeWildCardsFromUri(protectedUri);
 
-                if (!formattedPattern.equals("/") && uri.startsWith(formattedPattern)) {
+                if (!formattedPattern.equals("/") && requestedUri.startsWith(formattedPattern)) {
                     configurations = this.uriConfiguration.get(entry.getKey());
                     selectedUri = protectedUri;
                 }
 
-                if (!formattedPattern.equals("/") && formattedPattern.endsWith("/") && formattedPattern.substring(0, formattedPattern.length() - 1).equals(uri)) {
+                if (!formattedPattern.equals("/") && formattedPattern.endsWith("/") && formattedPattern.substring(0, formattedPattern.length() - 1).equals(requestedUri)) {
+                    configurations = this.uriConfiguration.get(entry.getKey());
+                    selectedUri = protectedUri;
+                }
+            }
+
+            int startRegex = protectedUri.indexOf('{');
+
+            if (startRegex != -1) {
+                String prefix = protectedUri.substring(0, startRegex);
+
+                if (requestedUri.startsWith(prefix)) {
                     configurations = this.uriConfiguration.get(entry.getKey());
                     selectedUri = protectedUri;
                 }

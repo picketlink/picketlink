@@ -91,7 +91,7 @@ public class HttpServletRequestListener implements ServletRequestListener {
 
     private String translateUriIfNecessary(HttpServletRequest request) {
         String requestedUri = request.getRequestURI();
-
+        String rewrittenUri = requestedUri;
         int startTemplateIndex = requestedUri.indexOf('{');
 
         if (startTemplateIndex != -1) {
@@ -120,14 +120,14 @@ public class HttpServletRequestListener implements ServletRequestListener {
                         }
 
                         String templateString = template.toString().replace("{", "\\{").replace("}", "\\}");
-                        requestedUri = requestedUri.replaceFirst(templateString, eval.toString());
+                        rewrittenUri = rewrittenUri.replaceFirst(templateString, eval.toString());
                         template = null;
                     }
                 }
             }
         }
 
-        return requestedUri;
+        return rewrittenUri;
     }
 
     private <I> I resolveInstance(Instance<I> instance) {

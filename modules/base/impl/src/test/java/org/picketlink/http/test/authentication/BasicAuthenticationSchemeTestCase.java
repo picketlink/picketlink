@@ -60,7 +60,7 @@ public class BasicAuthenticationSchemeTestCase extends AbstractSecurityFilterTes
 
     @Test
     public void testSuccessfulAuthentication() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/basicProtectedUri/");
+        when(this.request.getServletPath()).thenReturn("/basicProtectedUri/");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
@@ -77,7 +77,7 @@ public class BasicAuthenticationSchemeTestCase extends AbstractSecurityFilterTes
 
     @Test
     public void testStatusCodeForbiddenWhenAjaxRequest() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/basicProtectedUri/");
+        when(this.request.getServletPath()).thenReturn("/basicProtectedUri/");
         when(this.request.getHeader(X_REQUESTED_WITH_HEADER_NAME)).thenReturn(X_REQUESTED_WITH_AJAX);
         when(this.request.getHeaders(X_REQUESTED_WITH_HEADER_NAME)).thenReturn(Collections.enumeration(Arrays.asList(new String[] {X_REQUESTED_WITH_AJAX})));
 
@@ -96,7 +96,7 @@ public class BasicAuthenticationSchemeTestCase extends AbstractSecurityFilterTes
 
     @Test
     public void testUnSuccessfulAuthentication() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/basicProtectedUri/");
+        when(this.request.getServletPath()).thenReturn("/basicProtectedUri/");
 
         prepareAuthenticationRequest("picketlink", "bad_password");
 

@@ -65,7 +65,7 @@ public class InboundConfiguration {
 
                     return actualConfig;
                 }
-            } else {
+            } else if (groupConfiguration != null && groupConfiguration.getInboundConfiguration() != null) {
                 return groupConfiguration.getInboundConfiguration().getAuthenticationConfiguration();
             }
         }

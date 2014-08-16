@@ -21,10 +21,8 @@
  */
 package org.picketlink.config.http;
 
-import org.picketlink.config.IdentityBeanConfigurationBuilder;
 import org.picketlink.config.SecurityConfiguration;
 import org.picketlink.config.SecurityConfigurationChildBuilder;
-import org.picketlink.idm.config.IdentityConfigurationBuilder;
 
 /**
  * @author Pedro Igor
@@ -38,10 +36,6 @@ public interface HttpSecurityConfigurationChildBuilder extends SecurityConfigura
     PathConfigurationBuilder path(String uri, String groupName);
 
     PathConfigurationBuilder pathGroup(String groupName);
-
-    IdentityConfigurationBuilder idmConfig();
-
-    IdentityBeanConfigurationBuilder identity();
 
     SecurityConfiguration build();
 }

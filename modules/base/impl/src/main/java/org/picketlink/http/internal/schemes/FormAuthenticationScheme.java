@@ -67,8 +67,8 @@ public class FormAuthenticationScheme implements HttpAuthenticationScheme<FormAu
             requestCache.saveRequest(request);
         }
 
-        if (!request.getRequestURI().contains(this.configuration.getLoginPageUrl())
-            && !request.getRequestURI().contains(this.configuration.getErrorPageUrl())) {
+        if (!request.getServletPath().contains(this.configuration.getLoginPageUrl())
+            && !request.getServletPath().contains(this.configuration.getErrorPageUrl())) {
             forwardToLoginPage(request, response);
         }
     }
@@ -112,6 +112,6 @@ public class FormAuthenticationScheme implements HttpAuthenticationScheme<FormAu
     }
 
     private boolean isFormSubmitted(HttpServletRequest request) {
-        return request.getRequestURI().contains(J_SECURITY_CHECK);
+        return request.getServletPath().contains(J_SECURITY_CHECK);
     }
 }

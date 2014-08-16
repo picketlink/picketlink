@@ -25,10 +25,10 @@ import org.junit.Test;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
-import org.picketlink.idm.PartitionManager;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
-import org.picketlink.test.weld.Deployment;
 import org.picketlink.http.test.SecurityInitializer;
+import org.picketlink.idm.PartitionManager;
+import org.picketlink.test.weld.Deployment;
 
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Instance;
@@ -74,23 +74,63 @@ public class ExpressionBasedAuthorizationTestCase extends AbstractSecurityFilter
 
     @Test
     public void testAllowedExpression() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/onlyIfExpressionAllows");
+        when(this.request.getServletPath()).thenReturn("/onlyIfExpressionAllows");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        assertEquals("/onlyIfExpressionAllows", picketLinkRequest.get().getRequestURI());
+        assertEquals("/onlyIfExpressionAllows", picketLinkRequest.get().getServletPath());
     }
 
     @Test
     public void testAlwaysFalseExpression() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/alwaysFalseExpression");
+        when(this.request.getServletPath()).thenReturn("/alwaysFalseExpression");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-        assertEquals("/alwaysFalseExpression", picketLinkRequest.get().getRequestURI());
+        assertEquals("/alwaysFalseExpression", picketLinkRequest.get().getServletPath());
+    }
+
+    @Test
+    public void testPathExpressionAuthorizationFailed() throws Exception {
+        when(this.request.getServletPath()).thenReturn("/company/single/pattern/acme/index.html");
+
+        this.securityFilter.doFilter(this.request, this.response, this.filterChain);
+
+        verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(this.response, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
+    }
+
+    @Test
+    public void testPathExpressionAuthorizationSuccessful() throws Exception {
+        when(this.request.getServletPath()).thenReturn("/company/single/pattern/{identity.account.partition.name}/index.html");
+
+        this.securityFilter.doFilter(this.request, this.response, this.filterChain);
+
+        verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(this.response, times(0)).sendError(HttpServletResponse.SC_FORBIDDEN);
+    }
+
+    @Test
+    public void testPathMultipleExpressionAuthorizationSuccessful() throws Exception {
+        when(this.request.getServletPath()).thenReturn("/company/multiple/pattern/{identity.account.partition.name}/{identity.account.id}/index.html");
+
+        this.securityFilter.doFilter(this.request, this.response, this.filterChain);
+
+        verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(this.response, times(0)).sendError(HttpServletResponse.SC_FORBIDDEN);
+    }
+
+    @Test
+    public void testPathMultipleExpressionAuthorizationFail() throws Exception {
+        when(this.request.getServletPath()).thenReturn("/company/multiple/pattern/{identity.account.partition.name}/2/index.html");
+
+        this.securityFilter.doFilter(this.request, this.response, this.filterChain);
+
+        verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(this.response, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
     }
 
     public static class SecurityConfiguration {
@@ -99,14 +139,22 @@ public class ExpressionBasedAuthorizationTestCase extends AbstractSecurityFilter
 
             builder
                 .http()
-                .path("/onlyIfExpressionAllows")
-                .inbound()
-                .authz()
+                    .path("/onlyIfExpressionAllows")
+                        .inbound()
+                            .authz()
                 .expression("#{identity.account.loginName == 'picketlink'}")
                 .path("/alwaysFalseExpression")
                 .inbound()
                 .authz()
-                .expression("#{hasRole('Invalid Role')}");
+                .expression("#{hasRole('Invalid Role')}")
+                .path("/company/single/pattern/{identity.account.partition.name}/*")
+                .inbound()
+                .authz()
+                .expression("#{identity.account.partition.name}")
+                .path("/company/multiple/pattern/{identity.account.partition.name}/{identity.account.id}/*")
+                .inbound()
+                .authz()
+                .expression("#{identity.account.partition.name}", "#{identity.account.id}");
         }
     }
 }

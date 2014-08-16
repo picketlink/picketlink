@@ -54,7 +54,7 @@ public class RestrictiveConfigurationTestCase extends AbstractSecurityFilterTest
     public void testNotMappedResource() throws Exception {
         String savedUri = "/notMappedResource";
 
-        when(this.request.getRequestURI()).thenReturn(savedUri);
+        when(this.request.getServletPath()).thenReturn(savedUri);
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
@@ -66,7 +66,7 @@ public class RestrictiveConfigurationTestCase extends AbstractSecurityFilterTest
     public void testMappedResource() throws Exception {
         String savedUri = "/index.jsf";
 
-        when(this.request.getRequestURI()).thenReturn(savedUri);
+        when(this.request.getServletPath()).thenReturn(savedUri);
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 

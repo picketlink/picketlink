@@ -24,17 +24,18 @@ package org.picketlink.http.test.path;
 import org.junit.Test;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
-import org.picketlink.web.HttpMethod;
 import org.picketlink.http.internal.schemes.FormAuthenticationScheme;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
-import org.picketlink.test.weld.Deployment;
 import org.picketlink.http.test.SecurityInitializer;
+import org.picketlink.test.weld.Deployment;
+import org.picketlink.web.HttpMethod;
 
 import javax.enterprise.event.Observes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.reset;
@@ -55,14 +56,14 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
 
     @Test
     public void testAuthenticationFromGroup() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/anyUrl/anyResource.jsp");
+        when(this.request.getServletPath()).thenReturn("/anyUrl/anyResource.jsp");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.response).sendRedirect(eq("/picketlink-app/login.html"));
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        when(this.request.getRequestURI()).thenReturn("/formAuthenticationGroupUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/formAuthenticationGroupUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -72,26 +73,26 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
     }
 
     @Test
-    public void testNotUsingGroup() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/noGroupPath");
+    public void testAuthorizationRequired() throws Exception {
+        when(this.request.getServletPath()).thenReturn("/noGroupPath");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.response, times(0)).sendRedirect(anyString());
-        verify(this.response, times(1)).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
+        verify(this.response, times(1)).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED));
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
 
     @Test
     public void testOverridingAuthorizationFromGroup() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/overrideAuthorization");
+        when(this.request.getServletPath()).thenReturn("/overrideAuthorization");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.response).sendRedirect(eq("/picketlink-app/login.html"));
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        when(this.request.getRequestURI()).thenReturn("/formAuthenticationGroupUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/formAuthenticationGroupUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -100,7 +101,7 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
         verify(this.response).sendRedirect(CONTEXT_PATH);
 
         reset(this.response);
-        when(this.request.getRequestURI()).thenReturn("/overrideAuthorization");
+        when(this.request.getServletPath()).thenReturn("/overrideAuthorization");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
@@ -110,7 +111,7 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
 
     @Test
     public void testOverrideAuthenticationFromGroup() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/overrideAuthentication");
+        when(this.request.getServletPath()).thenReturn("/overrideAuthentication");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
@@ -119,7 +120,7 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
 
     @Test
     public void testOverrideMethodsFromGroup() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/overrideMethod");
+        when(this.request.getServletPath()).thenReturn("/overrideMethod");
         when(this.request.getMethod()).thenReturn(HttpMethod.POST.name());
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
@@ -127,7 +128,7 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
         verify(this.response).sendRedirect(eq("/picketlink-app/login.html"));
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        when(this.request.getRequestURI()).thenReturn("/formAuthenticationGroupUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/overrideMethod/" + FormAuthenticationScheme.J_SECURITY_CHECK);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -136,13 +137,73 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
         verify(this.response).sendRedirect(CONTEXT_PATH);
 
         reset(this.response);
-        when(this.request.getRequestURI()).thenReturn("/overrideMethod");
+        when(this.request.getServletPath()).thenReturn("/overrideMethod");
         when(this.request.getMethod()).thenReturn(HttpMethod.GET.name());
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
         verify(this.response, times(1)).sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    }
+
+    @Test
+    public void testInheritRedirectConfiguration() throws Exception {
+        when(this.request.getServletPath()).thenReturn("/onlyAcmeRealmName");
+
+        this.securityFilter.doFilter(this.request, this.response, this.filterChain);
+
+        verify(this.response).sendRedirect(eq("/picketlink-app/login.html"));
+        verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+
+        when(this.request.getServletPath()).thenReturn("/onlyAcmeRealmName/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
+        when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
+
+        this.securityFilter.doFilter(this.request, this.response, this.filterChain);
+
+        when(this.request.getServletPath()).thenReturn("/onlyAcmeRealmName");
+        reset(this.response);
+
+        this.securityFilter.doFilter(this.request, this.response, this.filterChain);
+
+        verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(this.response, times(0)).sendError(anyInt());
+        verify(this.response, times(1)).sendRedirect(CONTEXT_PATH + "/forbidden.html");
+
+        when(this.request.getServletPath()).thenReturn("/onlyAcmeRealmName");
+        when(this.request.getMethod()).thenThrow(new RuntimeException("Simulating Exception"));
+        reset(this.response);
+
+        this.securityFilter.doFilter(this.request, this.response, this.filterChain);
+
+        verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(this.response, times(0)).sendError(anyInt());
+        verify(this.response, times(1)).sendRedirect(CONTEXT_PATH + "/error.html");
+    }
+
+    @Test
+    public void testInheritRedirectSuccessConfiguration() throws Exception {
+        when(this.request.getServletPath()).thenReturn("/onlyAcmeRealmName");
+
+        this.securityFilter.doFilter(this.request, this.response, this.filterChain);
+
+        verify(this.response).sendRedirect(eq("/picketlink-app/login.html"));
+        verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+
+        when(this.request.getServletPath()).thenReturn("/onlyAcmeRealmName/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
+        when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
+
+        this.securityFilter.doFilter(this.request, this.response, this.filterChain);
+
+        when(this.request.getServletPath()).thenReturn("/logout");
+        reset(this.response);
+
+        this.securityFilter.doFilter(this.request, this.response, this.filterChain);
+
+        verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(this.response, times(0)).sendError(anyInt());
+        verify(this.response, times(1)).sendRedirect(CONTEXT_PATH + "/success.html");
     }
 
     public static class SecurityConfiguration {
@@ -153,11 +214,11 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
             builder
                 .http()
                 .pathGroup(groupName)
-                .inbound()
-                .authc()
-                .form()
-                .authz()
-                    .allowedRoles("Manager")
+                    .inbound()
+                        .authc()
+                            .form()
+                        .authz()
+                            .allowedRoles("Manager")
                 .path("/*", groupName)
                 .path("/overrideAuthorization", groupName)
                     .inbound()
@@ -173,7 +234,21 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
                 .path("/noGroupPath")
                     .inbound()
                         .authz()
-                            .allowedRoles("Some Role");
+                            .allowedRoles("Some Role")
+                .pathGroup("Inherit Redirect Config")
+                .inbound()
+                .authc()
+                .form()
+                .authz()
+                .allowedRealms("Acme")
+                .outbound()
+                .redirectTo("/forbidden.html").whenForbidden()
+                .redirectTo("/error.html").whenError()
+                .redirectTo("/success.html")
+                .path("/onlyAcmeRealmName", "Inherit Redirect Config")
+                .path("/logout", "Inherit Redirect Config")
+                .inbound()
+                .logout();
         }
     }
 }

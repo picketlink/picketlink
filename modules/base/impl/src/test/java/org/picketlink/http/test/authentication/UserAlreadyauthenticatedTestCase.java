@@ -63,7 +63,7 @@ public class UserAlreadyauthenticatedTestCase extends AbstractSecurityFilterTest
 
     @Test
     public void testFormAuthenticationGroup() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/anyResourceFromGlobalFormGroup/");
+        when(this.request.getServletPath()).thenReturn("/anyResourceFromGlobalFormGroup/");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 

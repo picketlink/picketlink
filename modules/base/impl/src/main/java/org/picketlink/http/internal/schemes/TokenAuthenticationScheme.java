@@ -34,6 +34,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import static org.picketlink.idm.credential.Token.Builder.create;
 import static org.picketlink.idm.credential.Token.Consumer;
@@ -233,7 +234,12 @@ public class TokenAuthenticationScheme implements HttpAuthenticationScheme<Token
     protected void writeToken(String issuedToken, HttpServletRequest request, HttpServletResponse response) {
         try {
             response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().print("{\"authctoken\":\"" + issuedToken + "\"}");
+
+            PrintWriter writer = response.getWriter();
+
+            writer.print("{\"authctoken\":\"" + issuedToken + "\"}");
+
+            writer.flush();
         } catch (Exception e) {
             throw new AuthenticationException("Could not write token to response.", e);
         }

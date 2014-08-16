@@ -21,6 +21,8 @@
  */
 package org.picketlink.config.http;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -93,10 +95,10 @@ public class PathConfiguration {
 
     public InboundConfiguration getInboundConfiguration() {
         if (hasGroup()) {
-            PathConfiguration groupConfiguration = getGroupConfiguration();
+            InboundConfiguration groupInboundConfiguration = getGroupConfiguration().getInboundConfiguration();
 
             if (this.inboundConfiguration != null) {
-                InboundConfiguration actualConfig = new InboundConfiguration(this, groupConfiguration.getInboundConfiguration().getMethods());
+                InboundConfiguration actualConfig = new InboundConfiguration(this, Collections.<String>emptySet());
 
                 if (this.inboundConfiguration.getAuthenticationConfiguration() != null) {
                     actualConfig.setAuthenticationConfiguration(this.inboundConfiguration
@@ -111,13 +113,17 @@ public class PathConfiguration {
                     actualConfig.setInboundHeaderConfiguration(this.inboundConfiguration.getInboundHeaderConfiguration());
                 }
 
-                if (this.inboundConfiguration.getMethods().size() != groupConfiguration.getInboundConfiguration().getMethods().size()) {
+                if (groupInboundConfiguration != null && this.inboundConfiguration.getMethods().size() != groupInboundConfiguration.getMethods().size()) {
                     actualConfig.setMethods(this.inboundConfiguration.getMethods());
+                }
+
+                if (this.inboundConfiguration.getLogoutConfiguration() != null) {
+                    actualConfig.setLogoutConfiguration(this.inboundConfiguration.getLogoutConfiguration());
                 }
 
                 return actualConfig;
             } else {
-                return groupConfiguration.getInboundConfiguration();
+                return groupInboundConfiguration;
             }
         }
 
@@ -138,6 +144,21 @@ public class PathConfiguration {
     }
 
     public OutboundConfiguration getOutboundConfiguration() {
+        if (hasGroup()) {
+            OutboundConfiguration groupConfig = getGroupConfiguration().getOutboundConfiguration();
+
+            if (this.outboundConfiguration != null && groupConfig != null) {
+                ArrayList<OutboundRedirectConfiguration> redirects = new ArrayList<OutboundRedirectConfiguration>();
+                OutboundConfiguration actualConfig = new OutboundConfiguration(this, redirects);
+
+                redirects.addAll(this.outboundConfiguration.getRedirects());
+
+                return actualConfig;
+            } else {
+                return groupConfig;
+            }
+        }
+
         return this.outboundConfiguration;
     }
 

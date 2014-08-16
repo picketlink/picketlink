@@ -52,9 +52,9 @@ public class GroupBasedAuthorizationTestCase extends AbstractSecurityFilterTestC
 
     @Test
     public void testOnlyAdministrators() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/onlyAdministratorsMember");
+        when(this.request.getServletPath()).thenReturn("/onlyAdministratorsMember");
 
-        when(this.request.getRequestURI()).thenReturn("/onlyAdministratorsMember/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/onlyAdministratorsMember/" + FormAuthenticationScheme.J_SECURITY_CHECK);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -66,9 +66,9 @@ public class GroupBasedAuthorizationTestCase extends AbstractSecurityFilterTestC
 
     @Test
     public void testGroupNotAllowed() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/onlyExecutivesGroup");
+        when(this.request.getServletPath()).thenReturn("/onlyExecutivesGroup");
 
-        when(this.request.getRequestURI()).thenReturn("/onlyExecutivesGroup/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/onlyExecutivesGroup/" + FormAuthenticationScheme.J_SECURITY_CHECK);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -78,7 +78,7 @@ public class GroupBasedAuthorizationTestCase extends AbstractSecurityFilterTestC
         verify(this.response).sendRedirect(CONTEXT_PATH);
 
         reset(this.response);
-        when(this.request.getRequestURI()).thenReturn("/onlyExecutivesGroup");
+        when(this.request.getServletPath()).thenReturn("/onlyExecutivesGroup");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
@@ -97,9 +97,9 @@ public class GroupBasedAuthorizationTestCase extends AbstractSecurityFilterTestC
                         .authc()
                             .form()
                 .path("/onlyAdministratorsMember")
-                .inbound()
-                .authz()
-                .allowedGroups("Administrators")
+                    .inbound()
+                        .authz()
+                            .allowedGroups("Administrators")
                 .path("/onlyExecutivesGroup")
                 .inbound()
                 .authz()

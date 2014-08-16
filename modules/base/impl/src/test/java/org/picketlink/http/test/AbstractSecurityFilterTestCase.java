@@ -105,6 +105,12 @@ public abstract class AbstractSecurityFilterTestCase {
         this.request = mock(HttpServletRequest.class);
         this.requestDispatcher = mock(RequestDispatcher.class);
         when(request.getContextPath()).thenReturn(CONTEXT_PATH);
+        when(request.getRequestURI()).thenAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return request.getContextPath() + request.getServletPath();
+            }
+        });
         when(request.getMethod()).thenReturn(HttpMethod.GET.name());
         when(request.getSession(anyBoolean())).thenReturn(this.session);
         when(request.getSession()).thenReturn(this.session);

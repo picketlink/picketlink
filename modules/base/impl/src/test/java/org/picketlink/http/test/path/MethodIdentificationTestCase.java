@@ -47,7 +47,7 @@ public class MethodIdentificationTestCase extends AbstractSecurityFilterTestCase
 
     @Test
     public void testGetMethod() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/methodProtected");
+        when(this.request.getServletPath()).thenReturn("/methodProtected");
         when(this.request.getMethod()).thenReturn("GET");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
@@ -57,7 +57,7 @@ public class MethodIdentificationTestCase extends AbstractSecurityFilterTestCase
 
     @Test
     public void testPostMethod() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/methodProtected");
+        when(this.request.getServletPath()).thenReturn("/methodProtected");
         when(this.request.getMethod()).thenReturn("POST");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);

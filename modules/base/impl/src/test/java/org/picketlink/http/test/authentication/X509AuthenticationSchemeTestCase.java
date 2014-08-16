@@ -55,7 +55,7 @@ public class X509AuthenticationSchemeTestCase extends AbstractSecurityFilterTest
 
     @Test
     public void testSuccessfulAuthentication() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/x509ProtectedUri/");
+        when(this.request.getServletPath()).thenReturn("/x509ProtectedUri/");
 
         prepareAuthenticationRequest(this.request);
 
@@ -66,7 +66,7 @@ public class X509AuthenticationSchemeTestCase extends AbstractSecurityFilterTest
 
     @Test
     public void testWithSubjectRegex() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/x509ProtectedWithSubjectRegexUri/");
+        when(this.request.getServletPath()).thenReturn("/x509ProtectedWithSubjectRegexUri/");
 
         prepareAuthenticationRequest(this.request);
 
@@ -77,7 +77,7 @@ public class X509AuthenticationSchemeTestCase extends AbstractSecurityFilterTest
 
     @Test
     public void testNoCert() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/x509ProtectedUri/");
+        when(this.request.getServletPath()).thenReturn("/x509ProtectedUri/");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 

@@ -25,10 +25,10 @@ import org.junit.Test;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
-import org.picketlink.idm.model.basic.Realm;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
-import org.picketlink.test.weld.Deployment;
 import org.picketlink.http.test.SecurityInitializer;
+import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.test.weld.Deployment;
 
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Instance;
@@ -71,23 +71,33 @@ public class RealmBasedAuthorizationTestCase extends AbstractSecurityFilterTestC
 
     @Test
     public void testOnlyDefaultRealm() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/onlyDefaultRealmName");
+        when(this.request.getServletPath()).thenReturn("/onlyDefaultRealmName");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        assertEquals("/onlyDefaultRealmName", picketLinkRequest.get().getRequestURI());
+        assertEquals("/onlyDefaultRealmName", picketLinkRequest.get().getServletPath());
     }
 
     @Test
     public void testOnlyDefaultRealmByType() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/onlyDefaultRealmType");
+        when(this.request.getServletPath()).thenReturn("/onlyDefaultRealmType");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-        assertEquals("/onlyDefaultRealmType", picketLinkRequest.get().getRequestURI());
+        assertEquals("/onlyDefaultRealmType", picketLinkRequest.get().getServletPath());
+    }
+
+    @Test
+    public void testOnlyAcmeRealm() throws Exception {
+        when(this.request.getServletPath()).thenReturn("/onlyAcmeRealmName");
+
+        this.securityFilter.doFilter(this.request, this.response, this.filterChain);
+
+        verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(this.response, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
     }
 
     public static class SecurityConfiguration {
@@ -98,7 +108,7 @@ public class RealmBasedAuthorizationTestCase extends AbstractSecurityFilterTestC
                 .path("/onlyDefaultRealmName")
                 .inbound()
                 .authz()
-                .allowedRealms(Realm.DEFAULT_REALM)
+                    .allowedRealms(Realm.DEFAULT_REALM)
                 .path("/onlyDefaultRealmType")
                 .inbound()
                 .authz()

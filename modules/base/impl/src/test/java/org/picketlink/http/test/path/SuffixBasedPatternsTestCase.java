@@ -51,7 +51,7 @@ public class SuffixBasedPatternsTestCase extends AbstractSecurityFilterTestCase 
 
     @Test
     public void testSuffixedPath1() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/admin/users/search.jsf");
+        when(this.request.getServletPath()).thenReturn("/admin/users/search.jsf");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
@@ -62,7 +62,7 @@ public class SuffixBasedPatternsTestCase extends AbstractSecurityFilterTestCase 
 
     @Test
     public void testSuffixedPath2() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/admin/search.jsf");
+        when(this.request.getServletPath()).thenReturn("/admin/search.jsf");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
@@ -73,7 +73,7 @@ public class SuffixBasedPatternsTestCase extends AbstractSecurityFilterTestCase 
 
     @Test
     public void testSuffixedPath3() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/search.jsf");
+        when(this.request.getServletPath()).thenReturn("/search.jsf");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 

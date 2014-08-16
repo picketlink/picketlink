@@ -51,13 +51,13 @@ import static org.mockito.Mockito.when;
 public class AuthorizationRequiresAuthenticationTestCase extends AbstractSecurityFilterTestCase {
 
     @Test
-    public void testPathWithoutGroup() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/noGroupPath");
+    public void testRequiresAuthentication() throws Exception {
+        when(this.request.getServletPath()).thenReturn("/noGroupPath");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.response, times(0)).sendRedirect(anyString());
-        verify(this.response, times(1)).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
+        verify(this.response, times(1)).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED));
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
 

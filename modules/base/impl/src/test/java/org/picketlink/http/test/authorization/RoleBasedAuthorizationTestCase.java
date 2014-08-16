@@ -60,7 +60,7 @@ public class RoleBasedAuthorizationTestCase extends AbstractSecurityFilterTestCa
 
     @Test
     public void testOnlyManagers() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -68,17 +68,17 @@ public class RoleBasedAuthorizationTestCase extends AbstractSecurityFilterTestCa
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
         verify(this.response).sendRedirect(CONTEXT_PATH);
 
-        when(this.request.getRequestURI()).thenReturn("/onlyManagerRole");
+        when(this.request.getServletPath()).thenReturn("/onlyManagerRole");
         reset(this.response);
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
-        assertEquals("/onlyManagerRole", picketLinkRequest.get().getRequestURI());
+        assertEquals("/onlyManagerRole", picketLinkRequest.get().getServletPath());
     }
 
     @Test
     public void testRoleNotAllowed() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
+        when(this.request.getServletPath()).thenReturn("/formProtectedUri/" + FormAuthenticationScheme.J_SECURITY_CHECK);
         when(this.request.getParameter(FormAuthenticationScheme.J_USERNAME)).thenReturn("picketlink");
         when(this.request.getParameter(FormAuthenticationScheme.J_PASSWORD)).thenReturn("picketlink");
 
@@ -86,12 +86,13 @@ public class RoleBasedAuthorizationTestCase extends AbstractSecurityFilterTestCa
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
         verify(this.response).sendRedirect(CONTEXT_PATH);
 
-        when(this.request.getRequestURI()).thenReturn("/onlyCustomerRole");
+        when(this.request.getServletPath()).thenReturn("/onlyCustomerRole");
         reset(this.response);
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(this.response, times(1)).sendError(HttpServletResponse.SC_FORBIDDEN);
     }
 
     public static class SecurityConfiguration {

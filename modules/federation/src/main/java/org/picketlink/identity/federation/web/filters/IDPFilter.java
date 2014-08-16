@@ -276,7 +276,7 @@ public class IDPFilter implements Filter {
                 processSAMLRequestMessage(request, response);
             } else if (isNotNull(samlResponseMessage)) {
                 processSAMLResponseMessage(request, response);
-            } else if (request.getRequestURI().equals(request.getContextPath() + "/")) {
+            } else if (request.getServletPath().equals(request.getContextPath() + "/")) {
                 // no SAML processing and the request is asking for /.
                 forwardHosted(request, response);
             } else {

@@ -70,35 +70,35 @@ public class PathRewritePatternsTestCase extends AbstractSecurityFilterTestCase 
 
     @Test
     public void testReplacePatternIdentityPartitionInUrl() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/patternBaseUri/{identity.account.partition.name}");
+        when(this.request.getServletPath()).thenReturn("/patternBaseUri/{identity.account.partition.name}");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        assertEquals("/patternBaseUri/default", picketLinkRequest.get().getRequestURI());
+        assertEquals("/patternBaseUri/default", picketLinkRequest.get().getServletPath());
     }
 
     @Test
     public void testReplacePatternIdentityIdentifier() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/user/profile/{identity.account.id}");
+        when(this.request.getServletPath()).thenReturn("/user/profile/{identity.account.id}");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        assertEquals("/user/profile/" + this.identity.getAccount().getId(), picketLinkRequest.get().getRequestURI());
+        assertEquals("/user/profile/" + this.identity.getAccount().getId(), picketLinkRequest.get().getServletPath());
     }
 
     @Test
     public void testWithoutPattern() throws Exception {
-        when(this.request.getRequestURI()).thenReturn("/patternBaseUri/noPattern");
+        when(this.request.getServletPath()).thenReturn("/patternBaseUri/noPattern");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
         verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        assertEquals("/patternBaseUri/noPattern", picketLinkRequest.get().getRequestURI());
+        assertEquals("/patternBaseUri/noPattern", picketLinkRequest.get().getServletPath());
     }
 
     public static class SecurityConfiguration {

@@ -124,6 +124,15 @@ public class PicketLinkHttpServletRequest extends HttpServletRequestWrapper {
     }
 
     @Override
+    public String getServletPath() {
+        if (this.requestedUri == null) {
+            return super.getServletPath();
+        }
+
+        return this.requestedUri.substring(this.requestedUri.indexOf(getContextPath()) + getContextPath().length());
+    }
+
+    @Override
     public boolean isUserInRole(String roleName) {
         if (isLoggedIn()) {
             return hasRole(this.identity, this.partitionManager, roleName);

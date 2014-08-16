@@ -21,15 +21,18 @@
  */
 package org.picketlink.config.http;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>Provides a set of options to configure how responses should be handled for a specific path.</p>
  *
  * @author Pedro Igor
  */
-public class OutboundConfigurationBuilder extends AbstractPathConfigurationChildBuilder {
+public class OutboundConfigurationBuilder extends AbstractPathConfigurationChildBuilder implements OutboundConfigurationChildBuilder {
 
     private final PathConfigurationBuilder parentBuilder;
-    private String redirectUrl;
+    private final List<OutboundRedirectConfigurationBuilder> redirects = new ArrayList<OutboundRedirectConfigurationBuilder>();
 
     OutboundConfigurationBuilder(PathConfigurationBuilder parentBuilder) {
         super(parentBuilder);
@@ -44,12 +47,22 @@ public class OutboundConfigurationBuilder extends AbstractPathConfigurationChild
      * @param redirectUrl
      * @return
      */
-    public OutboundConfigurationBuilder redirectTo(String redirectUrl) {
-        this.redirectUrl = redirectUrl;
-        return this;
+    @Override
+    public OutboundRedirectConfigurationBuilder redirectTo(String redirectUrl) {
+        OutboundRedirectConfigurationBuilder builder = new OutboundRedirectConfigurationBuilder(this, redirectUrl);
+
+        this.redirects.add(builder);
+
+        return builder;
     }
 
     OutboundConfiguration create(PathConfiguration pathConfiguration) {
-        return new OutboundConfiguration(pathConfiguration, this.redirectUrl);
+        List<OutboundRedirectConfiguration> redirectConfigurations = new ArrayList<OutboundRedirectConfiguration>();
+
+        for (OutboundRedirectConfigurationBuilder builder : this.redirects) {
+            redirectConfigurations.add(builder.create());
+        }
+
+        return new OutboundConfiguration(pathConfiguration, redirectConfigurations);
     }
 }

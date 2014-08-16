@@ -25,8 +25,9 @@ import org.junit.Test;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
-import org.picketlink.test.weld.Deployment;
 import org.picketlink.http.test.SecurityInitializer;
+import org.picketlink.idm.model.basic.Realm;
+import org.picketlink.test.weld.Deployment;
 
 import javax.enterprise.event.Observes;
 import javax.servlet.http.HttpServletRequest;
@@ -42,17 +43,27 @@ import static org.mockito.Mockito.when;
  */
 @Deployment(
     beans = {
-        PermissiveConfigurationTestCase.SecurityConfiguration.class, SecurityInitializer.class
+        PathGroupConfigurationWithOutboundOnlyTestCase.SecurityConfiguration.class, SecurityInitializer.class
     },
     excludeBeansFromPackage = "org.picketlink.http.test"
 )
-public class PermissiveConfigurationTestCase extends AbstractSecurityFilterTestCase {
+public class PathGroupConfigurationWithOutboundOnlyTestCase extends AbstractSecurityFilterTestCase {
+
+    @Override
+    public void onBefore() throws Exception {
+        super.onBefore();
+
+        this.credentials.setUserId("picketlink");
+        this.credentials.setPassword("picketlink");
+
+        this.identity.login();
+
+        this.credentials.setCredential(null);
+    }
 
     @Test
-    public void testPermissiveResource() throws Exception {
-        String savedUri = "/permissiveResource";
-
-        when(this.request.getServletPath()).thenReturn(savedUri);
+    public void testOnlyDefaultRealm() throws Exception {
+        when(this.request.getServletPath()).thenReturn("/companies/" + Realm.DEFAULT_REALM);
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
@@ -60,20 +71,19 @@ public class PermissiveConfigurationTestCase extends AbstractSecurityFilterTestC
     }
 
     public static class SecurityConfiguration {
-
         public void configureHttpSecurity(@Observes SecurityConfigurationEvent event) {
             SecurityConfigurationBuilder builder = event.getBuilder();
+            String groupName = "Realm Authz Group";
 
             builder
                 .http()
-                .pathGroup("JSF Protected Pages")
+                .pathGroup(groupName)
+                .outbound()
+                .redirectTo("/accessDenied.jsf").whenForbidden()
+                .path("/companies/" + Realm.DEFAULT_REALM + "/*", groupName)
                 .inbound()
-                .authc()
-                .form()
-                .loginPage("/faces/login.xhtml")
-                .errorPage("/faces/loginFailed.xhtml")
-                .path("/*.xhtml", "JSF Protected Pages")
-                .path("/*.jsf", "JSF Protected Pages");
+                .authz()
+                .allowedRealms(Realm.DEFAULT_REALM);
         }
     }
 }

@@ -25,14 +25,15 @@ import org.junit.Test;
 import org.picketlink.config.SecurityConfigurationBuilder;
 import org.picketlink.event.SecurityConfigurationEvent;
 import org.picketlink.http.test.AbstractSecurityFilterTestCase;
-import org.picketlink.test.weld.Deployment;
 import org.picketlink.http.test.SecurityInitializer;
+import org.picketlink.test.weld.Deployment;
 
 import javax.enterprise.event.Observes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,38 +43,50 @@ import static org.mockito.Mockito.when;
  */
 @Deployment(
     beans = {
-        PermissiveConfigurationTestCase.SecurityConfiguration.class, SecurityInitializer.class
+        PathGroupConfigurationWithAuthorizationOnlyTestCase.SecurityConfiguration.class, SecurityInitializer.class
     },
     excludeBeansFromPackage = "org.picketlink.http.test"
 )
-public class PermissiveConfigurationTestCase extends AbstractSecurityFilterTestCase {
+public class PathGroupConfigurationWithAuthorizationOnlyTestCase extends AbstractSecurityFilterTestCase {
+
+    @Override
+    public void onBefore() throws Exception {
+        super.onBefore();
+
+        this.credentials.setUserId("picketlink");
+        this.credentials.setPassword("picketlink");
+
+        this.identity.login();
+
+        this.credentials.setCredential(null);
+    }
 
     @Test
-    public void testPermissiveResource() throws Exception {
-        String savedUri = "/permissiveResource";
-
-        when(this.request.getServletPath()).thenReturn(savedUri);
+    public void testOnlyDefaultRealm() throws Exception {
+        when(this.request.getServletPath()).thenReturn("/companies/acme");
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
-        verify(this.filterChain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(this.filterChain, times(0)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+        verify(this.response, times(0)).sendError(anyInt());
+        verify(this.response, times(1)).sendRedirect(CONTEXT_PATH + "/accessDenied.jsf");
+
     }
 
     public static class SecurityConfiguration {
-
         public void configureHttpSecurity(@Observes SecurityConfigurationEvent event) {
             SecurityConfigurationBuilder builder = event.getBuilder();
+            String groupName = "Realm Authz Group";
 
             builder
                 .http()
-                .pathGroup("JSF Protected Pages")
+                .pathGroup(groupName)
+                .outbound()
+                .redirectTo("/accessDenied.jsf").whenForbidden()
+                .path("/companies/acme/*", groupName)
                 .inbound()
-                .authc()
-                .form()
-                .loginPage("/faces/login.xhtml")
-                .errorPage("/faces/loginFailed.xhtml")
-                .path("/*.xhtml", "JSF Protected Pages")
-                .path("/*.jsf", "JSF Protected Pages");
+                .authz()
+                .allowedRealms("Acme");
         }
     }
 }

@@ -21,14 +21,37 @@
  */
 package org.picketlink.config.http;
 
+import static org.picketlink.config.http.OutboundRedirectConfiguration.Condition.OK;
+
 /**
  * @author Pedro Igor
  */
-public abstract class AuthenticationMethodConfigurationBuilder<T extends AuthenticationSchemeConfiguration> extends AbstractInboundChildConfigurationBuilder {
+public class OutboundRedirectConfiguration {
 
-    public AuthenticationMethodConfigurationBuilder(AuthenticationConfigurationBuilder parentBuilder) {
-        super(parentBuilder);
+    private final String redirectUrl;
+    private Condition condition;
+
+    public OutboundRedirectConfiguration(String redirectUrl, Condition condition) {
+        this.redirectUrl = redirectUrl;
+
+        if (condition == null) {
+            condition = OK;
+        }
+
+        this.condition = condition;
     }
 
-    abstract T create(AuthenticationConfiguration authenticationConfiguration);
+    public String getRedirectUrl() {
+        return this.redirectUrl;
+    }
+
+    public Condition getCondition() {
+        return this.condition;
+    }
+
+    public static enum Condition {
+        FORBIDDEN,
+        OK,
+        ERROR
+    }
 }
