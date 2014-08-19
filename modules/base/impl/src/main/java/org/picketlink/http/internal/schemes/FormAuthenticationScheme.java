@@ -20,9 +20,9 @@ package org.picketlink.http.internal.schemes;
 import org.picketlink.Identity;
 import org.picketlink.config.http.FormAuthenticationConfiguration;
 import org.picketlink.credential.DefaultLoginCredentials;
+import org.picketlink.http.authentication.HttpAuthenticationScheme;
 import org.picketlink.http.internal.schemes.support.RequestCache;
 import org.picketlink.http.internal.schemes.support.SavedRequest;
-import org.picketlink.http.authentication.HttpAuthenticationScheme;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -67,8 +67,10 @@ public class FormAuthenticationScheme implements HttpAuthenticationScheme<FormAu
             requestCache.saveRequest(request);
         }
 
-        if (!request.getServletPath().contains(this.configuration.getLoginPageUrl())
-            && !request.getServletPath().contains(this.configuration.getErrorPageUrl())) {
+        String requestedUri = request.getRequestURI();
+
+        if (!requestedUri.contains(this.configuration.getLoginPageUrl())
+            && !requestedUri.contains(this.configuration.getErrorPageUrl())) {
             forwardToLoginPage(request, response);
         }
     }
@@ -107,6 +109,6 @@ public class FormAuthenticationScheme implements HttpAuthenticationScheme<FormAu
     }
 
     private boolean isFormSubmitted(HttpServletRequest request) {
-        return request.getServletPath().contains(J_SECURITY_CHECK);
+        return request.getRequestURI().contains(J_SECURITY_CHECK);
     }
 }
