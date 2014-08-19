@@ -1,1 +1,2 @@
 org.picketlink.test.weld.WeldServletScopesSupportForSe
+org.picketlink.http.test.config.HttpSecurityConfigExtension
