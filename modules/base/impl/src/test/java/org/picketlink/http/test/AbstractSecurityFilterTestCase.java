@@ -39,7 +39,9 @@ import javax.inject.Inject;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletRequest;
 import javax.servlet.ServletRequestEvent;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -123,6 +125,14 @@ public abstract class AbstractSecurityFilterTestCase {
 
         this.response = mock(HttpServletResponse.class);
         this.filterChain = mock(FilterChain.class);
+
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                when(response.isCommitted()).thenReturn(true);
+                return null;
+            }
+        }).when(this.filterChain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 
         this.securityFilter.init(filterConfig);
         this.httpServletRequestListener.requestInitialized(servletRequestEvent);

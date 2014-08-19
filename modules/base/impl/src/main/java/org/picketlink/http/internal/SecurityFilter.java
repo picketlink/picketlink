@@ -42,6 +42,7 @@ import org.picketlink.config.http.TokenAuthenticationConfiguration;
 import org.picketlink.config.http.X509AuthenticationConfiguration;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.extension.PicketLinkExtension;
+import org.picketlink.http.authentication.HttpAuthenticationScheme;
 import org.picketlink.http.internal.schemes.BasicAuthenticationScheme;
 import org.picketlink.http.internal.schemes.DigestAuthenticationScheme;
 import org.picketlink.http.internal.schemes.FormAuthenticationScheme;
@@ -50,7 +51,6 @@ import org.picketlink.http.internal.schemes.X509AuthenticationScheme;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.model.Account;
 import org.picketlink.internal.el.ELProcessor;
-import org.picketlink.http.authentication.HttpAuthenticationScheme;
 
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
@@ -184,12 +184,10 @@ public class SecurityFilter implements Filter {
 
             Identity identity = getIdentity();
 
-            if (!identity.isLoggedIn()) {
-                performAuthenticationIfRequired(pathConfiguration, request, response);
-            }
+            performAuthenticationIfRequired(pathConfiguration, request, response);
 
             if (!identity.isLoggedIn()) {
-                if (pathConfiguration != null) {
+                if (pathConfiguration != null && !response.isCommitted()) {
                     challengeClientForCredentials(pathConfiguration, request, response);
                 }
             } else {
@@ -258,6 +256,10 @@ public class SecurityFilter implements Filter {
                 if (!request.isValid()) {
                     if (!response.isCommitted()) {
                         response.sendError(request.getInvalidationStatusCode());
+                    }
+                } else {
+                    if (!response.isCommitted()) {
+                        chain.doFilter(request, response);
                     }
                 }
             }

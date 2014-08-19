@@ -102,6 +102,7 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
 
         reset(this.response);
         when(this.request.getServletPath()).thenReturn("/overrideAuthorization");
+        this.credentials.setCredential(null);
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
@@ -163,6 +164,7 @@ public class PathGroupConfigurationTestCase extends AbstractSecurityFilterTestCa
 
         when(this.request.getServletPath()).thenReturn("/onlyAcmeRealmName");
         reset(this.response);
+        this.credentials.setCredential(null);
 
         this.securityFilter.doFilter(this.request, this.response, this.filterChain);
 
